@@ -39,6 +39,9 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.Experiment;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
@@ -244,10 +247,8 @@ public class SkriptParser {
 									continue;
 								}
 							}
-							if (element instanceof ExperimentalSyntax experimentalSyntax) {
-								if (!experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet()))
-									continue;
-							}
+							if (!checkExperimentalSyntax(element))
+								continue;
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
@@ -265,6 +266,41 @@ public class SkriptParser {
 			log.printError();
 			return null;
 		}
+	}
+
+	/**
+	 * Check if {@link SyntaxElement} is an {@link ExperimentalSyntax} and ensure the current {@link ExperimentSet}
+	 * meets the requirements of the {@link ExperimentData}.
+	 * If the requirements are not met, will {@link Skript#error(String)}.
+	 * @param element The {@link SyntaxElement} to check.
+	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or the requirements are met.
+	 */
+	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
+		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
+			return true;
+		ExperimentSet experiments = getParser().getExperimentSet();
+		ExperimentData experimentData = experimentalSyntax.getExperimentData();
+		if (!experimentData.isValid())
+			throw new IllegalArgumentException("An ExperimentalData must have required Experiments and/or disabled Experiements");
+		Experiment[] required = experimentData.getRequired();
+		if (required != null) {
+			for (Experiment experiment : required) {
+				if (!experiments.hasExperiment(experiment)) {
+					Skript.error(experimentData.constructError());
+					return false;
+				}
+			}
+		}
+		Experiment[] disallowed = experimentData.getDisallowed();
+		if (disallowed != null) {
+			for (Experiment experiment : disallowed) {
+				if (experiments.hasExperiment(experiment)) {
+					Skript.error(experimentData.constructError());
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private static String supportedEventsNames(Class<? extends Event>[] supportedEvents) {

@@ -5,7 +5,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -14,7 +13,8 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 @Name("De-queue Queue (Experimental)")
@@ -34,6 +34,8 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 @Since("2.10 (experimental)")
 public class ExprDequeuedQueue extends SimpleExpression<Object> implements ExperimentalSyntax {
 
+	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.QUEUES);
+
 	static {
 		Skript.registerExpression(ExprDequeuedQueue.class, Object.class, ExpressionType.COMBINED,
 			"(de|un)queued %queue%", "unrolled %queue%");
@@ -49,8 +51,8 @@ public class ExprDequeuedQueue extends SimpleExpression<Object> implements Exper
 	}
 
 	@Override
-	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return experimentSet.hasExperiment(Feature.QUEUES);
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

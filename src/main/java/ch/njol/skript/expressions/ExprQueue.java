@@ -5,7 +5,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -15,7 +14,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.util.Iterator;
@@ -47,6 +47,8 @@ import java.util.Iterator;
 @Since("2.10 (experimental)")
 public class ExprQueue extends SimpleExpression<SkriptQueue> implements ExperimentalSyntax {
 
+	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.QUEUES);
+
 	static {
 		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.COMBINED,
 			"[a] [new] queue [(of|with) %-objects%]");
@@ -62,8 +64,8 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> implements Experime
 	}
 
 	@Override
-	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return experimentSet.hasExperiment(Feature.QUEUES);
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

@@ -17,6 +17,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.Objects;
@@ -29,7 +31,9 @@ import java.util.Objects;
 })
 @Since("2.10")
 @SuppressWarnings("rawtypes")
-public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
+public class ExprFunction extends SimpleExpression<DynamicFunctionReference> implements ExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
 
 	static {
 		Skript.registerExpression(ExprFunction.class, DynamicFunctionReference.class, ExpressionType.COMBINED,
@@ -47,10 +51,7 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 
 	@Override
 	@SuppressWarnings("null")
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
-                        ParseResult result) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		this.mode = matchedPattern;
 		this.local = mode == 2 || expressions[1] != null;
 		switch (mode) {
@@ -67,6 +68,11 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 		}
 		this.here = this.getParser().getCurrentScript();
 		return true;
+	}
+
+	@Override
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

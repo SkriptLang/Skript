@@ -17,6 +17,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -40,7 +42,9 @@ import java.util.Set;
 			broadcast name of loop-value"""
 })
 @Since("2.10")
-public class ExprNode extends PropertyExpression<Node, Node> {
+public class ExprNode extends PropertyExpression<Node, Node> implements ExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
 
 	static {
 		Skript.registerExpression(ExprNode.class, Node.class, ExpressionType.PROPERTY,
@@ -57,8 +61,6 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
 		this.isPath = pattern < 2;
 		switch (pattern) {
 			case 0:
@@ -73,6 +75,11 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 				this.setExpr((Expression<? extends Node>) expressions[0]);
 		}
 		return true;
+	}
+
+	@Override
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

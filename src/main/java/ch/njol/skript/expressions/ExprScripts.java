@@ -14,9 +14,10 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +32,9 @@ import java.util.Objects;
 	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
 })
 @Since("2.10")
-public class ExprScripts extends SimpleExpression<Script> {
+public class ExprScripts extends SimpleExpression<Script> implements ExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
 
 	static {
 		Skript.registerExpression(ExprScripts.class, Script.class, ExpressionType.SIMPLE,
@@ -44,10 +47,13 @@ public class ExprScripts extends SimpleExpression<Script> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
 		this.pattern = matchedPattern;
 		return true;
+	}
+
+	@Override
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

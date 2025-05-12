@@ -1,8 +1,6 @@
 package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.lang.SyntaxElement;
-import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
 
 /**
  * A syntax element that requires an experimental feature to be enabled.
@@ -11,11 +9,20 @@ public interface ExperimentalSyntax extends SyntaxElement {
 
 
 	/**
+	 * @deprecated Use {@link #getExperimentData()} instead.
 	 * Checks whether the required experiments are enabled for this syntax element.
 	 *
 	 * @param experimentSet An {@link Experiment} instance containing currently active experiments in the environment.
 	 * @return {@code true} if the element can be used.
 	 */
-	boolean isSatisfiedBy(ExperimentSet experimentSet);
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
+		return false;
+	};
+
+	/**
+	 * Get the {@link ExperimentData} required for this {@link SyntaxElement}.
+	 */
+	ExperimentData getExperimentData();
 
 }

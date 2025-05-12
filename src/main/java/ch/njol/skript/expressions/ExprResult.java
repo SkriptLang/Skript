@@ -14,6 +14,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Result (Experimental)")
@@ -29,7 +31,9 @@ import org.skriptlang.skript.util.Executable;
 })
 @Since("2.10")
 @Keywords({"run", "result", "execute", "function", "reflection"})
-public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> {
+public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> implements ExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
 
 	static {
 		Skript.registerExpression(ExprResult.class, Object.class, ExpressionType.COMBINED,
@@ -41,10 +45,7 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 	private DynamicFunctionReference.Input input;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
-						ParseResult result) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		//noinspection unchecked
 		this.setExpr((Expression<? extends Executable<Event, Object>>) expressions[0]);
 		this.hasArguments = result.hasTag("arguments");
@@ -63,6 +64,11 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 			this.input = new DynamicFunctionReference.Input();
 		}
 		return true;
+	}
+
+	@Override
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override
