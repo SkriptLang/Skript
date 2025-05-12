@@ -286,7 +286,7 @@ public class SkriptParser {
 		if (required != null) {
 			for (Experiment experiment : required) {
 				if (!experiments.hasExperiment(experiment)) {
-					Skript.error(experimentData.constructError());
+					Skript.error(experimentData.getErrorMessage());
 					return false;
 				}
 			}
@@ -295,7 +295,7 @@ public class SkriptParser {
 		if (disallowed != null) {
 			for (Experiment experiment : disallowed) {
 				if (experiments.hasExperiment(experiment)) {
-					Skript.error(experimentData.constructError());
+					Skript.error(experimentData.getErrorMessage());
 					return false;
 				}
 			}

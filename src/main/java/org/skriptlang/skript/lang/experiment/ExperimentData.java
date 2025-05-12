@@ -12,6 +12,7 @@ public class ExperimentData {
 
 	private Experiment @Nullable [] required = null;
 	private Experiment @Nullable [] disallowed = null;
+	private @Nullable String errorMessage = null;
 
 	public ExperimentData() {}
 
@@ -36,6 +37,16 @@ public class ExperimentData {
 	}
 
 	/**
+	 * Set the error message to be printed if the requirements of this {@link ExperimentData} are not met.
+	 * @param errorMessage The error message.
+	 * @return This {@link ExperimentData}.
+	 */
+	public ExperimentData errorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+		return this;
+	}
+
+	/**
 	 * Get the {@link Experiment}s that must be enabled in order to use.
 	 */
 	public Experiment @Nullable [] getRequired() {
@@ -56,6 +67,14 @@ public class ExperimentData {
 	public boolean isValid() {
         return required != null || disallowed != null;
     }
+
+	/**
+	 * Get the error message to be printed when the requirements of this {@link ExperimentData} are not met.
+	 * If {@link #errorMessage} is {@code null}, will construct an error message via {@link #constructError()}.
+	 */
+	public String getErrorMessage() {
+		return errorMessage != null ? errorMessage : constructError();
+	}
 
 	/**
 	 * Construct a {@link String} combining what {@link Experiment}s need to be enabled and/or disabled in order to use.
