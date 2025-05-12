@@ -2689,7 +2689,7 @@ types:
 	vehicle: vehicle¦s @a
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
-
+	equippablecomponent: equippable component¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
