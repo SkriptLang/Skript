@@ -76,7 +76,7 @@ public class ExperimentData {
 	 */
 	public boolean checkRequirements(ExperimentSet experiments) {
 		if (!isValid())
-			throw new IllegalArgumentException("An ExperimentalData must have required and/or disallowed Experiements");
+			throw new IllegalArgumentException("An ExperimentData must have required and/or disallowed Experiements");
 		if (required != null) {
 			for (Experiment experiment : required) {
 				if (!experiments.hasExperiment(experiment)) {
