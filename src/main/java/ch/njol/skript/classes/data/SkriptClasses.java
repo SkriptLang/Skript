@@ -161,16 +161,14 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(ItemType.class, "itemtype")
 				.user("item ?types?", "materials?")
 				.name("Item Type")
-				.description("An item type is an alias, e.g. 'a pickaxe', 'all plants', etc., and can result in different items when added to an inventory, " +
+				.description("An item type is an alias that can result in different items when added to an inventory, " +
 						"and unlike <a href='#itemstack'>items</a> they are well suited for checking whether an inventory contains a certain item or whether a certain item is of a certain type.",
 						"An item type can also have one or more <a href='#enchantmenttype'>enchantments</a> with or without a specific level defined, " +
 								"and can optionally start with 'all' or 'every' to make this item type represent <i>all</i> types that the alias represents, including data ranges.")
 				.usage("[&lt;number&gt; [of]] [all/every] &lt;alias&gt; [of &lt;enchantment&gt; [&lt;level&gt;] [,/and &lt;more enchantments...&gt;]]")
 				.examples("give 4 torches to the player",
-						"add all slabs to the inventory of the block",
+						"add oak slab to the inventory of the block",
 						"player's tool is a diamond sword of sharpness",
-						"remove a pickaxes of fortune 4 from {stored items::*}",
-						"set {_item} to 10 of every upside-down stair",
 						"block is dirt or farmland")
 				.since("1.0")
 				.before("itemstack", "entitydata", "entitytype")

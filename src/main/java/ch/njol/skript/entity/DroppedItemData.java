@@ -122,7 +122,7 @@ public class DroppedItemData extends EntityData<Item> {
 	}
 
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	protected boolean deserialize(String s) {
 		throw new UnsupportedOperationException("old serialization is no longer supported");
 	}

@@ -14,7 +14,7 @@ import java.util.List;
  * Please do not use bukkit api before checking {@link Bukkit#isPrimaryThread()}
  * @deprecated Use {@link ScriptLoader.ScriptPreInitEvent}.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class PreScriptLoadEvent extends Event {
 
     private final List<Config> scripts;

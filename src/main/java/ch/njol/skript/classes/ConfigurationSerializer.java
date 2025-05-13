@@ -82,7 +82,7 @@ public class ConfigurationSerializer<T extends ConfigurationSerializable> extend
 	}
 	
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public T deserialize(final String s) {
 		final ClassInfo<? extends T> info = this.info;
@@ -91,7 +91,7 @@ public class ConfigurationSerializer<T extends ConfigurationSerializable> extend
 	}
 	
 	@SuppressWarnings("unchecked")
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public static <T extends ConfigurationSerializable> T deserializeCSOld(final String s, final Class<T> c) {
 		final YamlConfiguration y = new YamlConfiguration();

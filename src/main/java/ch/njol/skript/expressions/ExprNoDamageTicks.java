@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 	"on damage:",
 		"\tset victim's invulnerability ticks to 20 #Victim will not take damage for the next second"
 })
-@Since("2.5, INSERT VERSION (deprecated)")
-@Deprecated
+@Since("2.5, 2.11 (deprecated)")
+@Deprecated(since = "2.11.0", forRemoval = true)
 public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {

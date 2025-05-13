@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Play Dead")
 @Description("Make an axolotl start or stop playing dead.")
 @Examples("make last spawned axolotl play dead")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffPlayingDead extends Effect {
 
 	static {
