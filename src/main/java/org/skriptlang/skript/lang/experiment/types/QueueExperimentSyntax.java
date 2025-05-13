@@ -14,7 +14,7 @@ public interface QueueExperimentSyntax extends SingularExperimentSyntax {
 
 	@Override
 	default Experiment getExperiment() {
-		return EXPERIMENT_DATA.getRequired().toArray(Experiment[]::new)[0];
+		return EXPERIMENT_DATA.getRequired().iterator().next();
 	};
 
 	@Override

@@ -2,11 +2,11 @@ package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,17 +38,25 @@ public class ExperimentData {
 	}
 
 	/**
+	 * Internal method for creating an empty {@link ExperimentData}.
+	 */
+	@Internal
+	ExperimentData() {
+		this(new HashSet<>(), new HashSet<>(), "");
+	}
+
+	/**
 	 * Get the {@link Experiment}s that must be enabled in order to use.
 	 */
-	public Set<Experiment> getRequired() {
-		return required;
+	public @UnmodifiableView Set<Experiment> getRequired() {
+		return Collections.unmodifiableSet(required);
 	}
 
 	/**
 	 * Get the {@link Experiment}s that must be disabled in order to use.
 	 */
-	public Set<Experiment> getDisallowed() {
-		return disallowed;
+	public @UnmodifiableView Set<Experiment> getDisallowed() {
+		return Collections.unmodifiableSet(disallowed);
 	}
 
 	/**
@@ -56,7 +64,7 @@ public class ExperimentData {
 	 * If the {@link #errorMessage} was not manually set when building {@link Builder}, uses the message from
 	 * {@link #constructError()}.
 	 */
-	public String getErrorMessage()  {
+	public @UnmodifiableView String getErrorMessage()  {
 		return errorMessage;
 	}
 

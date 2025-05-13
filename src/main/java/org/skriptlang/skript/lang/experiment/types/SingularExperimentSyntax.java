@@ -6,11 +6,16 @@ import org.skriptlang.skript.lang.experiment.ExperimentData;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Interface for expressing a {@link SyntaxElement} is an {@link ExperimentalSyntax} and requires only one
  * {@link Experiment} to be enabled.
  */
 public interface SingularExperimentSyntax extends ExperimentalSyntax {
+
+	Map<Experiment, ExperimentData> CACHED_DATAS = new HashMap<>();
 
 	@Override
 	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
@@ -24,7 +29,8 @@ public interface SingularExperimentSyntax extends ExperimentalSyntax {
 
 	@Override
 	default ExperimentData getExperimentData() {
-		return ExperimentData.builder().required(getExperiment()).build();
+		return CACHED_DATAS.computeIfAbsent(getExperiment(),
+				experiment -> ExperimentData.builder().required(experiment).build());
 	};
 
 }
