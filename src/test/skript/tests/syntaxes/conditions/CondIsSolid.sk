@@ -1,4 +1,4 @@
 test "solid condition":
 	assert air isn't solid with "air is solid"
 	assert diamond isn't solid with "diamond is solid"
-	assert oak plank is solid with "oak plank isn't solid"
+	assert oak planks are solid with "oak plank isn't solid"

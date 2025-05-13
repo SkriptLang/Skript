@@ -1,17 +1,18 @@
 package ch.njol.util.coll.iterator;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An iterator that iterates over all elements of several iterables.
  * <p>
  * Elements are removable from this iterator if the source iterables support element removal, unless removal is blocked on creation.
  * 
- * @author Peter Güttinger
+ * @deprecated use {@link com.google.common.collect.Iterators#concat(Iterator[])} instead.
  */
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class CombinedIterator<T> implements Iterator<T> {
 	
 	private final Iterator<? extends Iterable<T>> iterators;

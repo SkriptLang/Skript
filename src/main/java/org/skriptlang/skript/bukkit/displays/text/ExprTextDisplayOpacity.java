@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"Values are between -127 and 127. The value of 127 represents it being completely opaque."
 })
 @Examples("set the opacity of the last spawned text display to -1 # Reset")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, Byte> {
 
 	static {

@@ -4,6 +4,8 @@ import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Unit;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
@@ -19,11 +21,7 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Tag;
-import org.bukkit.Bukkit;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -33,29 +31,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.RandomAccess;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
-public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
+public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
+	AnyNamed, AnyAmount {
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -183,9 +174,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #ItemType(BlockData)} instead
+	 * @deprecated Use {@link #ItemType(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	public ItemType(BlockState blockState) {
 		this(blockState.getBlockData());
 	}
@@ -277,9 +268,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #isOfType(BlockData)} instead
+	 * @deprecated Use {@link #isOfType(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	public boolean isOfType(@Nullable BlockState blockState) {
 		return blockState != null && isOfType(blockState.getBlockData());
 	}
@@ -385,8 +376,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 			ItemMeta itemMeta = getItemMeta();
 
-			if (itemMeta instanceof SkullMeta) {
-				OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
+			if (itemMeta instanceof SkullMeta skullMeta) {
+				OfflinePlayer offlinePlayer = skullMeta.getOwningPlayer();
 				if (offlinePlayer == null)
 					continue;
 				Skull skull = (Skull) block.getState();
@@ -402,9 +393,47 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				skull.update(false, applyPhysics);
 			}
 
+			// https://github.com/SkriptLang/Skript/issues/7735
+			// No method exists to copy general BlockStateMeta data to a block, so we have to do it manually for now
+			copyContainerState(block, itemMeta);
+
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Copies the container state from the item meta to the block state
+	 * @param block The block to copy the state to
+	 * @param itemMeta The item meta to copy the state from
+	 */
+	private void copyContainerState(@NotNull Block block, @NotNull ItemMeta itemMeta) {
+		// ensure the item has a block state
+		if (!(itemMeta instanceof BlockStateMeta blockStateMeta) || !blockStateMeta.hasBlockState())
+			return;
+
+		// only care about container -> container copying
+		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer)
+				|| !(block.getState() instanceof org.bukkit.block.Container blockContainer))
+			return;
+
+		// copy inventory from item to block
+		copyInventories(itemContainer.getSnapshotInventory(), blockContainer.getSnapshotInventory());
+		blockContainer.update();
+	}
+
+	/**
+	 * Copies the contents of one inventory to another, maintaining slot positions and making clones.
+	 * @param from The inventory to copy from
+	 * @param to The inventory to copy to
+	 */
+	private void copyInventories(@NotNull Inventory from, @NotNull Inventory to) {
+		for (int i = 0; i < from.getSize(); i++) {
+			ItemStack item = from.getItem(i);
+			if (item != null) {
+				to.setItem(i, item.clone());
+			}
+		}
 	}
 
 	/**
@@ -1210,9 +1239,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	/**
 	 * Gets all enchantments of this item.
 	 * @return Enchantments.
-	 * @deprecated Use {@link ItemType#getEnchantmentTypes()}
+	 * @deprecated Use {@link ItemType#getEnchantmentTypes()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public Map<Enchantment,Integer> getEnchantments() {
 		if (globalMeta == null)
@@ -1227,9 +1256,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	/**
 	 * Adds enchantments to this item type.
 	 * @param enchantments Enchantments.
-	 * @deprecated Use {@link ItemType#addEnchantments(EnchantmentType...)}
+	 * @deprecated Use {@link ItemType#addEnchantments(EnchantmentType...)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public void addEnchantments(Map<Enchantment,Integer> enchantments) {
 		if (globalMeta == null)
 			globalMeta = ItemData.itemFactory.getItemMeta(Material.STONE);
@@ -1415,6 +1444,17 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * @return All Materials this ItemType represents.
+	 */
+	public Material[] getMaterials() {
+		Set<Material> materials = new HashSet<>();
+		for (ItemData data : types) {
+			materials.add(data.getType());
+		}
+		return materials.toArray(new Material[0]);
+  }
+
+  /**
 	 * @return A random block material this ItemType represents.
 	 * @throws IllegalStateException If {@link #hasBlock()} is false.
 	 */
@@ -1442,6 +1482,39 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			copy.add_(data.aliasCopy());
 		}
 		return copy;
+	}
+
+	@Override
+	public @Nullable String name() {
+		ItemMeta meta = this.getItemMeta();
+		return meta.hasDisplayName() ? meta.getDisplayName() : null;
+	}
+
+	@Override
+	public boolean supportsNameChange() {
+		return true;
+	}
+
+	@Override
+	public void setName(String name) {
+		ItemMeta meta = this.getItemMeta();
+		meta.setDisplayName(name);
+		this.setItemMeta(meta);
+	}
+
+	@Override
+	public @NotNull Number amount() {
+		return this.getAmount();
+	}
+
+	@Override
+	public boolean supportsAmountChange() {
+		return true;
+	}
+
+	@Override
+	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 
 }

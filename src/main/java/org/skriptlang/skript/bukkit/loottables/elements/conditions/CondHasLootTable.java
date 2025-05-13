@@ -22,7 +22,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 	"if event-block has a loot table:",
 		"\t# this will happen, because it now has a loot table."
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondHasLootTable extends PropertyCondition<Object> {
 
 	static {
@@ -32,6 +32,11 @@ public class CondHasLootTable extends PropertyCondition<Object> {
 	@Override
 	public boolean check(Object object) {
 		return LootTableUtils.isLootable(object) && LootTableUtils.getLootTable(object) != null;
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
 	}
 
 	@Override

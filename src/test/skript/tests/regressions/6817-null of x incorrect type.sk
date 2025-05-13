@@ -1,0 +1,3 @@
+test "null of x incorrect type":
+	# would cause an exception
+	spawn {_null} of pig above {_null}

@@ -14,7 +14,7 @@ import org.bukkit.entity.Tameable;
     "send true if {_horse} is tamed",
     "tame {_horse} if {_horse} is untamed"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsTamed extends PropertyCondition<Entity> {
 
 	static {
@@ -23,7 +23,7 @@ public class CondIsTamed extends PropertyCondition<Entity> {
 
 	@Override
 	public boolean check(Entity entity) {
-		return (entity instanceof Tameable) && ((Tameable) entity).isTamed();
+		return (entity instanceof Tameable tameable) && tameable.isTamed();
 	}
 
 	@Override
