@@ -3,6 +3,7 @@ package org.skriptlang.skript.lang.experiment.types;
 import ch.njol.skript.lang.SyntaxElement;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 
 /**
@@ -11,6 +12,11 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
  */
 public interface SingularExperimentSyntax extends ExperimentalSyntax {
 
+	@Override
+	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
+		return getExperimentData().checkRequirementsAndError(experimentSet);
+	};
+
 	/**
 	 * Get the required {@link Experiment} for this {@link SyntaxElement}
 	 */
@@ -18,7 +24,7 @@ public interface SingularExperimentSyntax extends ExperimentalSyntax {
 
 	@Override
 	default ExperimentData getExperimentData() {
-		return new ExperimentData().required(getExperiment());
+		return ExperimentData.builder().required(getExperiment()).build();
 	};
 
 }

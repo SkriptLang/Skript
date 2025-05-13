@@ -10,11 +10,11 @@ import org.skriptlang.skript.lang.experiment.ExperimentData;
  */
 public interface ReflectionExperimentSyntax extends SingularExperimentSyntax {
 
-	ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
+	ExperimentData EXPERIMENT_DATA = ExperimentData.builder().required(Feature.SCRIPT_REFLECTION).build();
 
 	@Override
 	default Experiment getExperiment() {
-		return EXPERIMENT_DATA.required().toArray(Experiment[]::new)[0];
+		return EXPERIMENT_DATA.getRequired().toArray(Experiment[]::new)[0];
 	};
 
 	@Override

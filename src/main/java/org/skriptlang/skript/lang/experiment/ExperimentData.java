@@ -7,68 +7,57 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Container for holding {@link Experiment}s that must be enabled or disabled to use.
  */
 public class ExperimentData {
 
-	private final Set<Experiment> required = new HashSet<>();
-	private final Set<Experiment> disallowed = new HashSet<>();
-	private @Nullable String errorMessage = null;
-
-	public ExperimentData() {}
-
 	/**
-	 * Set the {@link Experiment}s that must be enabled in order to use.
-	 * @param required The {@link Experiment}s
-	 * @return This {@link ExperimentData}.
+	 * Create and return a new {@link Builder}.
 	 */
-	public ExperimentData required(Experiment... required) {
-		this.required.addAll(Arrays.stream(required).toList());
-		return this;
+	public static Builder builder() {
+		return new Builder();
 	}
 
-	/**
-	 * Set the {@link Experiment}s that must be disabled in order to use.
-	 * @param disallowed The {@link Experiment}s
-	 * @return This {@link ExperimentData}.
-	 */
-	public ExperimentData disallowed(Experiment... disallowed) {
-		this.disallowed.addAll(Arrays.stream(disallowed).toList());
-		return this;
-	}
+	private final Set<Experiment> required;
+	private final Set<Experiment> disallowed;
+	private final String errorMessage;
 
 	/**
-	 * Set the error message to be printed if the requirements of this {@link ExperimentData} are not met.
-	 * @param errorMessage The error message.
-	 * @return This {@link ExperimentData}.
+	 * @param required {@link Set} of {@link Experiment}s required to be enabled.
+	 * @param disallowed {@link Set} of {@link Experiment}s required to be disabled.
+	 * @param errorMessage {@link String} used to error in {@link #checkRequirementsAndError(ExperimentSet)}
+	 *                     If {@code null}, will use {@link #constructError()}.
 	 */
-	public ExperimentData errorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-		return this;
+	private ExperimentData(Set<Experiment> required, Set<Experiment> disallowed, @Nullable String errorMessage) {
+		this.required = required;
+		this.disallowed = disallowed;
+		this.errorMessage = errorMessage != null ? errorMessage : constructError();
 	}
 
 	/**
 	 * Get the {@link Experiment}s that must be enabled in order to use.
 	 */
-	public Set<Experiment> required() {
+	public Set<Experiment> getRequired() {
 		return required;
 	}
 
 	/**
 	 * Get the {@link Experiment}s that must be disabled in order to use.
 	 */
-	public Set<Experiment> disallowed() {
+	public Set<Experiment> getDisallowed() {
 		return disallowed;
 	}
 
 	/**
-	 * Check if this {@link ExperimentData} is valid.
-	 * @return {@code True} if valid.
+	 * Get the {@link String} used to error when {@link #checkRequirementsAndError(ExperimentSet)} fails.
+	 * If the {@link #errorMessage} was not manually set when building {@link Builder}, uses the message from
+	 * {@link #constructError()}.
 	 */
-	public boolean isValid() {
-		return !required.isEmpty() || !disallowed.isEmpty();
+	public String getErrorMessage()  {
+		return errorMessage;
 	}
 
 	/**
@@ -77,8 +66,6 @@ public class ExperimentData {
 	 * @return {@code True} if the requirements were met.
 	 */
 	public boolean checkRequirements(ExperimentSet experiments) {
-		if (!isValid())
-			throw new IllegalArgumentException("An ExperimentData must have required and/or disallowed Experiements");
 		if (!required.isEmpty()) {
 			for (Experiment experiment : required) {
 				if (!experiments.hasExperiment(experiment))
@@ -96,24 +83,16 @@ public class ExperimentData {
 
 	/**
 	 * Check if the requirements of this {@link ExperimentData} are met.
-	 * If the requirements are not met, will produce a {@link Skript#error(String)} using {@link #errorMessage()}.
+	 * If the requirements are not met, will produce a {@link Skript#error(String)} using {@link #errorMessage}.
 	 * @param experiments The current enabled {@link Experiment}s.
 	 * @return {@code True} if the requirements were met.
 	 */
 	public boolean checkRequirementsAndError(ExperimentSet experiments) {
 		if (!checkRequirements(experiments)) {
-			Skript.error(errorMessage());
+			Skript.error(errorMessage);
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Get the error message to be printed when the requirements of this {@link ExperimentData} are not met.
-	 * If {@link #errorMessage} is {@code null}, will construct an error message via {@link #constructError()}.
-	 */
-	public String errorMessage() {
-		return errorMessage != null ? errorMessage : constructError();
 	}
 
 	/**
@@ -148,6 +127,82 @@ public class ExperimentData {
 				", "));
 		}
 		return builder.toString();
+	}
+
+	public static class Builder {
+
+		private Set<Experiment> required = new HashSet<>();
+		private Set<Experiment> disallowed = new HashSet<>();
+		private @Nullable String errorMessage = null;
+
+		public Builder() {}
+
+		/**
+		 * Set the {@link Experiment}s that must be enabled in order to use.
+		 * @param required The {@link Experiment}s
+		 * @return This {@link Builder}.
+		 */
+		public Builder required(Experiment... required) {
+			this.required = Arrays.stream(required).collect(Collectors.toSet());
+			return this;
+		}
+
+		/**
+		 * Get the {@link Experiment}s that must be enabled in order to use.
+		 */
+		public Set<Experiment> required() {
+			return required;
+		}
+
+		/**
+		 * Set the {@link Experiment}s that must be disabled in order to use.
+		 * @param disallowed The {@link Experiment}s
+		 * @return This {@link Builder}.
+		 */
+		public Builder disallowed(Experiment... disallowed) {
+			this.disallowed = Arrays.stream(disallowed).collect(Collectors.toSet());
+			return this;
+		}
+
+		/**
+		 * Get the {@link Experiment}s that must be disabled in order to use.
+		 */
+		public Set<Experiment> disallowed() {
+			return disallowed;
+		}
+
+		/**
+		 * Set the error message to be printed if the requirements are not met.
+		 * @param errorMessage The error message.
+		 * @return This {@link Builder}.
+		 */
+		public Builder errorMessage(@Nullable String errorMessage) {
+			this.errorMessage = errorMessage;
+			return this;
+		}
+
+		/**
+		 * Get the error message to be printed when the requirements are not met.
+		 */
+		public @Nullable String errorMessage() {
+			return errorMessage;
+		}
+
+		/**
+		 * Finalize this {@link Builder} and get the built {@link ExperimentData}.
+		 */
+		public ExperimentData build() {
+			if (required.isEmpty() && disallowed.isEmpty()) {
+				throw new IllegalArgumentException("Must have required and/or disallowed Experiments.");
+			} else if (!required.isEmpty() && !disallowed.isEmpty()) {
+				for (Experiment req : required) {
+					if (disallowed.contains(req))
+						throw new IllegalArgumentException("An Experiment can not be both required and disallowed: '" + req + "'");
+				}
+			}
+			return new ExperimentData(required, disallowed, errorMessage);
+		}
+
 	}
 
 }

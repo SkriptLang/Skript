@@ -14,11 +14,7 @@ public interface ExperimentalSyntax extends SyntaxElement {
 	 * @param experimentSet An {@link Experiment} instance containing currently active experiments in the environment.
 	 * @return {@code true} if the element can be used.
 	 */
-	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		ExperimentData experimentData = getExperimentData();
-		assert experimentData != null;
-		return experimentData.checkRequirementsAndError(experimentSet);
-	};
+	boolean isSatisfiedBy(ExperimentSet experimentSet);;
 
 	/**
 	 * Get the {@link ExperimentData} required for this {@link SyntaxElement}.

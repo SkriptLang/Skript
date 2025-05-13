@@ -10,10 +10,13 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -32,7 +35,9 @@ import java.util.stream.Collectors;
 	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
 })
 @Since("2.5")
-public class ExprScriptsOld extends SimpleExpression<String> implements ReflectionExperimentSyntax {
+public class ExprScriptsOld extends SimpleExpression<String> implements ExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.builder().disallowed(Feature.SCRIPT_REFLECTION).build();
 
 	static {
 		Skript.registerExpression(ExprScriptsOld.class, String.class, ExpressionType.SIMPLE,
@@ -53,6 +58,11 @@ public class ExprScriptsOld extends SimpleExpression<String> implements Reflecti
 		includeDisabled = matchedPattern != 1;
 		noPaths = parseResult.mark == 1;
 		return true;
+	}
+
+	@Override
+	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
+		return EXPERIMENT_DATA.checkRequirementsAndError(experimentSet);
 	}
 
 	@Override
