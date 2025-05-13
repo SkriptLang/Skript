@@ -2,6 +2,7 @@ package ch.njol.skript.bukkitutil;
 
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,19 +26,17 @@ public final class SoundUtils {
 		soundString = soundString.toUpperCase(Locale.ENGLISH);
 		if (SOUND_IS_INTERFACE) {
 			try {
-				//noinspection deprecation
+				//noinspection deprecation,removal
 				return Sound.valueOf(soundString).getKey();
-			} catch (IllegalArgumentException ignore) {
-			}
+			} catch (Exception ignored) {}
 		} else {
 			try {
 				//noinspection unchecked,rawtypes
 				Enum soundEnum = Enum.valueOf((Class) Sound.class, soundString);
 				return ((Keyed) soundEnum).getKey();
-			} catch (IllegalArgumentException ignore) {
-			}
+			} catch (IllegalArgumentException ignored) {}
 		}
-		return null;
+		return NamespacedKey.fromString(soundString.toLowerCase(Locale.ENGLISH));
 	}
 
 	/**
@@ -47,11 +46,23 @@ public final class SoundUtils {
 	 */
 	public static @NotNull NamespacedKey getKey(Sound sound) {
 		if (SOUND_IS_INTERFACE) {
-			//noinspection deprecation
+			//noinspection deprecation,removal
 			return sound.getKey();
 		} else {
 			return ((Keyed) sound).getKey();
 		}
+	}
+
+	/**
+	 * Retrieves the sound correlating to the provided {@code soundString}
+	 * @param soundString The string to get the correlating sound
+	 * @return The correlating {@link Sound}
+	 */
+	public static @Nullable Sound getSound(String soundString) {
+		NamespacedKey key = getKey(soundString);
+		if (key == null)
+			return null;
+		return Registry.SOUNDS.get(key);
 	}
 
 }

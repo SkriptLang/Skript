@@ -2,6 +2,7 @@ package ch.njol.skript.registrations;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.event.Event;
@@ -122,6 +123,31 @@ public class EventValues {
 			}
 		}
 		eventValues.add(element);
+	}
+
+	/**
+	 * @deprecated Use {@link #registerEventValue(Class, Class, Converter, int, String, Class[])} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	@SafeVarargs
+	public static <T, E extends Event> void registerEventValue(
+		Class<E> event, Class<T> type,
+		Getter<T, E> getter, int time,
+		@Nullable String excludeErrorMessage,
+		@Nullable Class<? extends E>... excludes
+	) {
+		registerEventValue(event, type, (Converter<E, T>) getter, time, excludeErrorMessage, excludes);
+	}
+
+	/**
+	 * @deprecated Use {@link #registerEventValue(Class, Class, Converter, int)} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	public static <T, E extends Event> void registerEventValue(
+		Class<E> event, Class<T> type,
+		Getter<T, E> getter, int time
+	) {
+		registerEventValue(event, type, (Converter<E, T>) getter, time);
 	}
 
 	/**

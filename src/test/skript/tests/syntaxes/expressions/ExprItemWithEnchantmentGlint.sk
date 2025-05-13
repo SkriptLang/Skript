@@ -1,0 +1,43 @@
+test "item enchantment glint" when running minecraft "1.20.5":
+	# Glint
+	set {_item} to diamond with enchantment glint
+	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #1"
+	assert {_item} is forced to glint with "Item expected to be forced to glint #1"
+	delete {_item}
+
+	set {_item} to diamond
+	make {_item} glint
+	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #2"
+	assert {_item} is forced to glint with "Item expected to be forced to glint #2"
+	delete {_item}
+
+	set {_item} to diamond without enchantment glint
+	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #3"
+	assert {_item} is forced to not glint with "Item expected to be forced to not glint #1"
+	delete {_item}
+
+	# Not Glint
+	set {_item} to diamond
+	make {_item} not glint
+	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #4"
+	assert {_item} is forced to not glint with "Item expected to be forced to not glint #2"
+	delete {_item}
+
+	# Without Glint Enforcement
+	set {_item} to diamond
+	assert {_item} does not have enchantment glint override with "Item expected to not have enchantment glint override #1"
+
+	set {_item} to {_item} with enchantment glint
+	clear enchantment glint override of {_item}
+	assert {_item} does not have enchantment glint override with "Item expected to not have enchantment glint override #2"
+
+test "item enchantment glint - edge cases" when running minecraft "1.20.5":
+	assert {_null} is forced to glint to fail with "Condition 'item is forced to glint' expected to fail with non itemtypes #1"
+	assert {_null} has enchantment glint override to fail with "Condition 'item has enchantment glint override' expected to fail with non itemtypes #1"
+	assert any wool does not have enchantment glint override with "Condition 'does not have enchantment glint override' failed with plural itemtype aliases"
+	assert diamond with enchantment glint = diamond with enchantment glint with "Item with enchantment glint comparison failed #1"
+	assert diamond with enchantment glint != diamond without enchantment glint with "Item with enchantment glint comparison failed #2"
+	assert diamond != diamond with enchantment glint with "Item with enchantment glint comparison failed #3"
+	assert diamond with enchantment glint and stone with enchantment glint is forced to glint with "Both items expected to be forced to glint #1"
+	assert diamond without enchantment glint and stone without enchantment glint is forced to not glint with "Both items expected to be forced to glint #2"
+	assert diamond with enchantment glint and stone without enchantment glint have enchantment glint override with "Both items expected to have enchantment glint override"

@@ -2439,6 +2439,34 @@ item display transforms:
 	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
 	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
 
+# -- Villager Types/Professions --
+villager types:
+	snow: snow
+	plains: plains
+	jungle: jungle
+	taiga: taiga
+	desert: desert
+	savanna: savanna
+	swamp: swamp
+
+villager professions:
+	# Suffix "profession" options added to help with EntityData conflicts
+	leatherworker: leatherworker, leatherworker profession
+	mason: mason, mason profession
+	fletcher: fletcher, fletcher profession
+	weaponsmith: weaponsmith, weaponsmith profession
+	toolsmith: toolsmith, toolsmith profession
+	librarian: librarian, librarian profession
+	shepherd: shepherd, shepherd profession
+	farmer: farmer, farmer profession
+	cleric: cleric, cleric profession
+	nitwit: nitwit, nitwit profession
+	cartographer: cartographer, cartographer profession
+	armorer: armorer, armorer profession
+	butcher: butcher, butcher profession
+	none: no profession, none profession, unemployed
+	fisherman: fisherman, fisherman profession
+
 # -- Change Reasons --
 experience cooldown change reasons:
 	plugin: plugin
@@ -2542,6 +2570,11 @@ types:
 	itemdisplaytransform: item display transform¦s @an
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
 	inputkey: input key¦s @an
+	villagertype: villager type¦s @a
+	villagerprofession: villager profession¦s @a
+	entitysnapshot: entity snapshot¦s @an
+	loottable: loot table¦s @a
+	lootcontext: loot context¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
