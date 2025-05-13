@@ -11,7 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -93,10 +94,10 @@ public class EffToggle extends Effect {
 		
 		// Validate based on type
 		if (type == Type.BOOLEANS && 
-			!Changer.ChangerUtils.acceptsChange(togglables, Changer.ChangeMode.SET, Boolean.class)) {
+			!ChangerUtils.acceptsChange(togglables, ChangeMode.SET, Boolean.class)) {
 			Skript.error("Cannot toggle '" + togglables + "' as it cannot be set to booleans.");
 			return false;
-		} else if (type == Type.MIXED && !Changer.ChangerUtils.acceptsChange(togglables, Changer.ChangeMode.SET, Block.class, Boolean.class)) {
+		} else if (type == Type.MIXED && !ChangerUtils.acceptsChange(togglables, ChangeMode.SET, Block.class, Boolean.class)) {
 			Skript.error("Cannot toggle '" + togglables + "' as it cannot be set to both blocks and booleans.");
 			return false;
 		}
