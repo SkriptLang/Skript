@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -43,12 +44,15 @@ public class SecCatchErrors extends Section implements ExperimentalSyntax {
 			Skript.error("A catch errors section must contain code.");
 			return false;
 		}
-		Kleenean previousDelay = getParser().getHasDelayBefore();
+		ParserInstance parser = getParser();
+		Kleenean previousDelay = parser.getHasDelayBefore();
+		parser.setHasDelayBefore(Kleenean.FALSE);
 		loadCode(sectionNode);
-		if (getParser().getHasDelayBefore() != previousDelay) {
+		if (parser.getHasDelayBefore().isTrue()) {
 			Skript.error("Delays can't be used within a catch errors section.");
 			return false;
 		}
+		parser.setHasDelayBefore(previousDelay);
 		return true;
 	}
 
@@ -73,4 +77,5 @@ public class SecCatchErrors extends Section implements ExperimentalSyntax {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "catch runtime errors";
 	}
+
 }
