@@ -65,8 +65,8 @@ public class ExperimentData {
 	 * @return {@code True} if valid.
 	 */
 	public boolean isValid() {
-        return required != null || disallowed != null;
-    }
+		return required != null || disallowed != null;
+	}
 
 	/**
 	 * Get the error message to be printed when the requirements of this {@link ExperimentData} are not met.

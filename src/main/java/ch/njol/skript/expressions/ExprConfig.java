@@ -11,12 +11,10 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentData;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
 
 @Name("Config (Experimental)")
 @Description({
@@ -29,9 +27,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 		broadcast "Bonjour!"
 	"""})
 @Since("2.10")
-public class ExprConfig extends SimpleExpression<Config> implements ExperimentalSyntax {
-
-	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
+public class ExprConfig extends SimpleExpression<Config> implements ReflectionExperimental {
 
 	static {
 		Skript.registerExpression(ExprConfig.class, Config.class, ExpressionType.SIMPLE,
@@ -49,11 +45,6 @@ public class ExprConfig extends SimpleExpression<Config> implements Experimental
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public ExperimentData getExperimentData() {
-		return EXPERIMENT_DATA;
 	}
 
 	@Override

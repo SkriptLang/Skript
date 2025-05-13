@@ -7,13 +7,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentData;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Run (Experimental)")
@@ -26,9 +24,7 @@ import org.skriptlang.skript.util.Executable;
 @Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class EffRun extends Effect implements ExperimentalSyntax {
-
-	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
+public class EffRun extends Effect implements ReflectionExperimental {
 
 	static {
 		Skript.registerEffect(EffRun.class,
@@ -61,11 +57,6 @@ public class EffRun extends Effect implements ExperimentalSyntax {
 			this.input = new DynamicFunctionReference.Input();
 		}
 		return true;
-	}
-
-	@Override
-	public ExperimentData getExperimentData() {
-		return EXPERIMENT_DATA;
 	}
 
 	@Override

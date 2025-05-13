@@ -3,7 +3,7 @@ package org.skriptlang.skript.lang.experiment;
 import ch.njol.skript.lang.SyntaxElement;
 
 /**
- * A syntax element that requires an experimental feature to be enabled.
+ * A {@link SyntaxElement} that requires a {@link Experiment}s to be enabled and/or disabled to be used.
  */
 public interface ExperimentalSyntax extends SyntaxElement {
 

@@ -12,8 +12,8 @@ import ch.njol.skript.registrations.Feature;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.experiment.ExperimentData;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.Experiment;
+import org.skriptlang.skript.lang.experiment.types.SingularExperimental;
 import org.skriptlang.skript.lang.structure.Structure;
 
 @NoDoc
@@ -29,9 +29,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 		# this is never run"""
 })
 @Since("2.10")
-public class StructExample extends Structure implements ExperimentalSyntax {
-
-	private static final ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.EXAMPLES);
+public class StructExample extends Structure implements SingularExperimental {
 
 	public static final Priority PRIORITY = new Priority(550);
 
@@ -52,8 +50,8 @@ public class StructExample extends Structure implements ExperimentalSyntax {
 	}
 
 	@Override
-	public ExperimentData getExperimentData() {
-		return EXPERIMENT_DATA;
+	public Experiment getExperiment() {
+		return Feature.EXAMPLES;
 	}
 
 	@Override
