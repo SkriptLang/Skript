@@ -9,7 +9,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
  * Interface for expressing a {@link SyntaxElement} is an {@link ExperimentalSyntax} and requires only one
  * {@link Experiment} to be enabled.
  */
-public interface SingularExperimental extends ExperimentalSyntax {
+public interface SingularExperimentSyntax extends ExperimentalSyntax {
 
 	/**
 	 * Get the required {@link Experiment} for this {@link SyntaxElement}

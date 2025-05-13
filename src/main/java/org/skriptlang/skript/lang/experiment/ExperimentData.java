@@ -1,5 +1,6 @@
 package org.skriptlang.skript.lang.experiment;
 
+import ch.njol.skript.Skript;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,6 +67,33 @@ public class ExperimentData {
 	 */
 	public boolean isValid() {
 		return required != null || disallowed != null;
+	}
+
+	/**
+	 * Check if the requirements of this {@link ExperimentData} are met.
+	 * @param experiments The current enabled {@link Experiment}s.
+	 * @return {@code True} if the requirements were met.
+	 */
+	public boolean checkRequirements(ExperimentSet experiments) {
+		if (!isValid())
+			throw new IllegalArgumentException("An ExperimentalData must have required and/or disallowed Experiements");
+		if (required != null) {
+			for (Experiment experiment : required) {
+				if (!experiments.hasExperiment(experiment)) {
+					Skript.error(getErrorMessage());
+					return false;
+				}
+			}
+		}
+		if (disallowed != null) {
+			for (Experiment experiment : disallowed) {
+				if (experiments.hasExperiment(experiment)) {
+					Skript.error(getErrorMessage());
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	/**

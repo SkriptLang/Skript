@@ -17,12 +17,16 @@ public interface ExperimentalSyntax extends SyntaxElement {
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return false;
+		ExperimentData experimentData = getExperimentData();
+		assert experimentData != null;
+		return experimentData.checkRequirements(experimentSet);
 	};
 
 	/**
 	 * Get the {@link ExperimentData} required for this {@link SyntaxElement}.
 	 */
-	ExperimentData getExperimentData();
+	default ExperimentData getExperimentData() {
+		return null;
+	};
 
 }

@@ -39,13 +39,13 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentData;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,7 +55,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-import java.lang.reflect.Array;
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -279,28 +278,7 @@ public class SkriptParser {
 		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
 			return true;
 		ExperimentSet experiments = getParser().getExperimentSet();
-		ExperimentData experimentData = experimentalSyntax.getExperimentData();
-		if (!experimentData.isValid())
-			throw new IllegalArgumentException("An ExperimentalData must have required and/or disallowed Experiements");
-		Experiment[] required = experimentData.getRequired();
-		if (required != null) {
-			for (Experiment experiment : required) {
-				if (!experiments.hasExperiment(experiment)) {
-					Skript.error(experimentData.getErrorMessage());
-					return false;
-				}
-			}
-		}
-		Experiment[] disallowed = experimentData.getDisallowed();
-		if (disallowed != null) {
-			for (Experiment experiment : disallowed) {
-				if (experiments.hasExperiment(experiment)) {
-					Skript.error(experimentData.getErrorMessage());
-					return false;
-				}
-			}
-		}
-		return true;
+		return experimentalSyntax.isSatisfiedBy(experiments);
 	}
 
 	private static String supportedEventsNames(Class<? extends Event>[] supportedEvents) {

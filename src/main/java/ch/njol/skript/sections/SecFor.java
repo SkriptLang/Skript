@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.experiment.types.SingularExperimental;
+import org.skriptlang.skript.lang.experiment.types.SingularExperimentSyntax;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ import java.util.Map;
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("2.10")
-public class SecFor extends SecLoop implements SingularExperimental {
+public class SecFor extends SecLoop implements SingularExperimentSyntax {
 
 	static {
 		Skript.registerSection(SecFor.class,

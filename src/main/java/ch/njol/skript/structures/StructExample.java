@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.experiment.types.SingularExperimental;
+import org.skriptlang.skript.lang.experiment.types.SingularExperimentSyntax;
 import org.skriptlang.skript.lang.structure.Structure;
 
 @NoDoc
@@ -29,7 +29,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 		# this is never run"""
 })
 @Since("2.10")
-public class StructExample extends Structure implements SingularExperimental {
+public class StructExample extends Structure implements SingularExperimentSyntax {
 
 	public static final Priority PRIORITY = new Priority(550);
 
