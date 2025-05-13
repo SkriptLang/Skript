@@ -55,3 +55,8 @@ test "literal multiple infos no warning":
 	assert {LiteralMultipleNoWarn::Damage} does not contain {@error} with "Condition check against shared type should not throw warning"
 	assert {LiteralMultipleNoWarn::FunctionDamageCause} does not contain {@error} with "Function with shared return type should not throw warning"
 	clear {LiteralMultipleNoWarn::*}
+
+	parse:
+		filter {_list::*}:
+			damage cause input is unknown
+	assert last parse logs does not contain {@error} with "Filtering with specified input type should not throw warning"

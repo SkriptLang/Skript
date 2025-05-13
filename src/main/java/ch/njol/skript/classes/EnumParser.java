@@ -85,11 +85,7 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 
 	@Override
 	public @Nullable E convert(String string) {
-		E object = parse(string, ParseContext.DEFAULT);
-		if (object != null)
-			return object;
-		Skript.error("'" + string + "'  is not a valid option for '" + languageNode + "'. Allowed values are: " + getCombinedPatterns());
-		return null;
+		return parse(string, ParseContext.DEFAULT);
 	}
 
 	@Override

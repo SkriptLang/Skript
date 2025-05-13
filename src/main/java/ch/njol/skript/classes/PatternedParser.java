@@ -3,7 +3,7 @@ package ch.njol.skript.classes;
 import ch.njol.util.StringUtils;
 
 /**
- * Subclass of {@link Parser} for getting literal patterns.
+ * A {@link Parser} that is based off of a set list of valid patterns to match.
  */
 public abstract class PatternedParser<T> extends Parser<T> {
 
