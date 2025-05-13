@@ -16,7 +16,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.Objects;
@@ -29,7 +29,7 @@ import java.util.Objects;
 })
 @Since("2.10")
 @SuppressWarnings("rawtypes")
-public class ExprFunction extends SimpleExpression<DynamicFunctionReference> implements ReflectionExperimental {
+public class ExprFunction extends SimpleExpression<DynamicFunctionReference> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprFunction.class, DynamicFunctionReference.class, ExpressionType.COMBINED,

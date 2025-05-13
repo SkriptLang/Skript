@@ -12,7 +12,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.QueueExperimental;
+import org.skriptlang.skript.lang.experiment.types.QueueExperimentSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 @Name("De-queue Queue (Experimental)")
@@ -30,7 +30,7 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 		set {list::*} to dequeued {queue}"""
 })
 @Since("2.10 (experimental)")
-public class ExprDequeuedQueue extends SimpleExpression<Object> implements QueueExperimental {
+public class ExprDequeuedQueue extends SimpleExpression<Object> implements QueueExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprDequeuedQueue.class, Object.class, ExpressionType.COMBINED,

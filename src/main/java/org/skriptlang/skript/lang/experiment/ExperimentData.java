@@ -5,14 +5,16 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Container for holding {@link Experiment}s that must be enabled or disabled to use.
  */
 public class ExperimentData {
 
-	private Experiment @Nullable [] required = null;
-	private Experiment @Nullable [] disallowed = null;
+	private final Set<Experiment> required = new HashSet<>();
+	private final Set<Experiment> disallowed = new HashSet<>();
 	private @Nullable String errorMessage = null;
 
 	public ExperimentData() {}
@@ -23,7 +25,7 @@ public class ExperimentData {
 	 * @return This {@link ExperimentData}.
 	 */
 	public ExperimentData required(Experiment... required) {
-		this.required = required;
+		this.required.addAll(Arrays.stream(required).toList());
 		return this;
 	}
 
@@ -33,7 +35,7 @@ public class ExperimentData {
 	 * @return This {@link ExperimentData}.
 	 */
 	public ExperimentData disallowed(Experiment... disallowed) {
-		this.disallowed = disallowed;
+		this.disallowed.addAll(Arrays.stream(disallowed).toList());
 		return this;
 	}
 
@@ -50,14 +52,14 @@ public class ExperimentData {
 	/**
 	 * Get the {@link Experiment}s that must be enabled in order to use.
 	 */
-	public Experiment @Nullable [] getRequired() {
+	public Set<Experiment> required() {
 		return required;
 	}
 
 	/**
 	 * Get the {@link Experiment}s that must be disabled in order to use.
 	 */
-	public Experiment @Nullable [] getDisallowed() {
+	public Set<Experiment> disallowed() {
 		return disallowed;
 	}
 
@@ -66,7 +68,7 @@ public class ExperimentData {
 	 * @return {@code True} if valid.
 	 */
 	public boolean isValid() {
-		return required != null || disallowed != null;
+		return !required.isEmpty() || !disallowed.isEmpty();
 	}
 
 	/**
@@ -77,21 +79,31 @@ public class ExperimentData {
 	public boolean checkRequirements(ExperimentSet experiments) {
 		if (!isValid())
 			throw new IllegalArgumentException("An ExperimentData must have required and/or disallowed Experiements");
-		if (required != null) {
+		if (!required.isEmpty()) {
 			for (Experiment experiment : required) {
-				if (!experiments.hasExperiment(experiment)) {
-					Skript.error(getErrorMessage());
+				if (!experiments.hasExperiment(experiment))
 					return false;
-				}
 			}
 		}
-		if (disallowed != null) {
+		if (!disallowed.isEmpty()) {
 			for (Experiment experiment : disallowed) {
-				if (experiments.hasExperiment(experiment)) {
-					Skript.error(getErrorMessage());
+				if (experiments.hasExperiment(experiment))
 					return false;
-				}
 			}
+		}
+		return true;
+	}
+
+	/**
+	 * Check if the requirements of this {@link ExperimentData} are met.
+	 * If the requirements are not met, will produce a {@link Skript#error(String)} using {@link #errorMessage()}.
+	 * @param experiments The current enabled {@link Experiment}s.
+	 * @return {@code True} if the requirements were met.
+	 */
+	public boolean checkRequirementsAndError(ExperimentSet experiments) {
+		if (!checkRequirements(experiments)) {
+			Skript.error(errorMessage());
+			return false;
 		}
 		return true;
 	}
@@ -100,7 +112,7 @@ public class ExperimentData {
 	 * Get the error message to be printed when the requirements of this {@link ExperimentData} are not met.
 	 * If {@link #errorMessage} is {@code null}, will construct an error message via {@link #constructError()}.
 	 */
-	public String getErrorMessage() {
+	public String errorMessage() {
 		return errorMessage != null ? errorMessage : constructError();
 	}
 
@@ -110,27 +122,27 @@ public class ExperimentData {
 	public String constructError() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("This element is experimental. To use this, ");
-		if (required != null) {
+		if (!required.isEmpty()) {
 			builder.append("enable ");
 			builder.append(StringUtils.join(
-					Arrays.stream(required)
-						.map(experiment -> "'" + experiment.codeName() + "'")
-						.toArray(),
+				required.stream()
+					.map(experiment -> "'" + experiment.codeName() + "'")
+					.toArray(),
 				", "));
-			if (disallowed != null) {
+			if (!disallowed.isEmpty()) {
 				builder.append(" and disable ");
 				builder.append(StringUtils.join(
-					Arrays.stream(disallowed)
+					disallowed.stream()
 						.map(experiment -> "'" + experiment.codeName() + "'")
 						.toArray(),
-				", "));
+					", "));
 			}
 			builder.append(".");
 		} else {
-			assert disallowed != null;
+			assert !disallowed.isEmpty();
 			builder.append("disable ");
 			builder.append(StringUtils.join(
-				Arrays.stream(disallowed)
+				disallowed.stream()
 					.map(experiment -> "'" + experiment.codeName() + "'")
 					.toArray(),
 				", "));

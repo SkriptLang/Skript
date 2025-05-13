@@ -6,15 +6,15 @@ import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentData;
 
 /**
- * Typed {@link SingularExperimentSyntax} for {@link SyntaxElement}s that require {@link Feature#SCRIPT_REFLECTION}.
+ * Typed {@link SingularExperimentSyntax} for {@link SyntaxElement}s that require {@link Feature#QUEUES}.
  */
-public interface ReflectionExperimental extends SingularExperimentSyntax {
+public interface QueueExperimentSyntax extends SingularExperimentSyntax {
 
-	ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.SCRIPT_REFLECTION);
+	ExperimentData EXPERIMENT_DATA = new ExperimentData().required(Feature.QUEUES);
 
 	@Override
 	default Experiment getExperiment() {
-		return Feature.SCRIPT_REFLECTION;
+		return EXPERIMENT_DATA.required().toArray(Experiment[]::new)[0];
 	};
 
 	@Override

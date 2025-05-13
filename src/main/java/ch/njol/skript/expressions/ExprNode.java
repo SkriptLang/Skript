@@ -16,7 +16,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -40,7 +40,7 @@ import java.util.Set;
 			broadcast name of loop-value"""
 })
 @Since("2.10")
-public class ExprNode extends PropertyExpression<Node, Node> implements ReflectionExperimental {
+public class ExprNode extends PropertyExpression<Node, Node> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprNode.class, Node.class, ExpressionType.PROPERTY,

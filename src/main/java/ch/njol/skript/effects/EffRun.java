@@ -11,7 +11,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Run (Experimental)")
@@ -24,7 +24,7 @@ import org.skriptlang.skript.util.Executable;
 @Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class EffRun extends Effect implements ReflectionExperimental {
+public class EffRun extends Effect implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerEffect(EffRun.class,

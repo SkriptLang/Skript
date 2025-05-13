@@ -14,7 +14,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
 
 @Name("Config (Experimental)")
 @Description({
@@ -27,7 +27,7 @@ import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
 		broadcast "Bonjour!"
 	"""})
 @Since("2.10")
-public class ExprConfig extends SimpleExpression<Config> implements ReflectionExperimental {
+public class ExprConfig extends SimpleExpression<Config> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprConfig.class, Config.class, ExpressionType.SIMPLE,

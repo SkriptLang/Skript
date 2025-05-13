@@ -11,7 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.QueueExperimental;
+import org.skriptlang.skript.lang.experiment.types.QueueExperimentSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import java.util.Arrays;
 	broadcast the first element of {queue} # hello
 	# queue is now empty""")
 @Since("2.10 (experimental)")
-public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> implements QueueExperimental {
+public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> implements QueueExperimentSyntax {
 
 	static {
 		register(ExprQueueStartEnd.class, Object.class, "(:start|end)", "queue");

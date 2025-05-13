@@ -13,7 +13,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Result (Experimental)")
@@ -29,7 +29,7 @@ import org.skriptlang.skript.util.Executable;
 })
 @Since("2.10")
 @Keywords({"run", "result", "execute", "function", "reflection"})
-public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> implements ReflectionExperimental {
+public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprResult.class, Object.class, ExpressionType.COMBINED,

@@ -13,7 +13,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.QueueExperimental;
+import org.skriptlang.skript.lang.experiment.types.QueueExperimentSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.util.Iterator;
@@ -43,7 +43,7 @@ import java.util.Iterator;
 		broadcast the first 2 elements of {queue} # removes 'hello', 'world'"""
 })
 @Since("2.10 (experimental)")
-public class ExprQueue extends SimpleExpression<SkriptQueue> implements QueueExperimental {
+public class ExprQueue extends SimpleExpression<SkriptQueue> implements QueueExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.COMBINED,

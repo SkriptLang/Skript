@@ -13,7 +13,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimental;
+import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
 })
 @Since("2.5")
-public class ExprScriptsOld extends SimpleExpression<String> implements ReflectionExperimental {
+public class ExprScriptsOld extends SimpleExpression<String> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprScriptsOld.class, String.class, ExpressionType.SIMPLE,
