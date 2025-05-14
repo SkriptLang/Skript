@@ -57,6 +57,6 @@ test "literal multiple infos no warning":
 	clear {LiteralMultipleNoWarn::*}
 
 	parse:
-		filter {_list::*}:
+		filter {_list::*} to match:
 			damage cause input is unknown
-	assert last parse logs does not contain {@error} with "Filtering with specified input type should not throw warning"
+	assert last parse logs is not set with "Filtering with specified input type should not throw warning"
