@@ -2,11 +2,13 @@ package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.StringUtils;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,6 +21,15 @@ public class ExperimentData {
 	 */
 	public static Builder builder() {
 		return new Builder();
+	}
+
+	/**
+	 * Create a new {@link ExperimentData} with only a singular required {@link Experiment}
+	 * @param experiment The required {@link Experiment}.
+	 * @return {@link ExperimentData}
+	 */
+	public static ExperimentData createSingularData(Experiment experiment) {
+		return builder().required(experiment).build();
 	}
 
 	private final Set<Experiment> required;
@@ -35,14 +46,6 @@ public class ExperimentData {
 		this.required = required;
 		this.disallowed = disallowed;
 		this.errorMessage = errorMessage != null ? errorMessage : constructError();
-	}
-
-	/**
-	 * Internal method for creating an empty {@link ExperimentData}.
-	 */
-	@Internal
-	ExperimentData() {
-		this(new HashSet<>(), new HashSet<>(), "");
 	}
 
 	/**
@@ -64,7 +67,7 @@ public class ExperimentData {
 	 * If the {@link #errorMessage} was not manually set when building {@link Builder}, uses the message from
 	 * {@link #constructError()}.
 	 */
-	public @UnmodifiableView String getErrorMessage()  {
+	public String getErrorMessage()  {
 		return errorMessage;
 	}
 

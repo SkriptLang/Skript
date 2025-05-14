@@ -20,8 +20,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.experiment.types.SingularExperimentSyntax;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.types.SimpleExperimentalSyntax;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,9 @@ import java.util.Map;
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("2.10")
-public class SecFor extends SecLoop implements SingularExperimentSyntax {
+public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.FOR_EACH_LOOPS);
 
 	static {
 		Skript.registerSection(SecFor.class,
@@ -123,8 +125,8 @@ public class SecFor extends SecLoop implements SingularExperimentSyntax {
 	}
 
 	@Override
-	public Experiment getExperiment() {
-		return Feature.FOR_EACH_LOOPS;
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

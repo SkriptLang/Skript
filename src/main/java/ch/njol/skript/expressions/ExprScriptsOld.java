@@ -15,8 +15,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.ExperimentData;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.types.SimpleExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
 	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
 })
 @Since("2.5")
-public class ExprScriptsOld extends SimpleExpression<String> implements ExperimentalSyntax {
+public class ExprScriptsOld extends SimpleExpression<String> implements SimpleExperimentalSyntax {
 
 	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.builder().disallowed(Feature.SCRIPT_REFLECTION).build();
 
@@ -61,8 +60,8 @@ public class ExprScriptsOld extends SimpleExpression<String> implements Experime
 	}
 
 	@Override
-	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return EXPERIMENT_DATA.checkRequirementsAndError(experimentSet);
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

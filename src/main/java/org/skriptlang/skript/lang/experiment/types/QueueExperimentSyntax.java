@@ -2,20 +2,14 @@ package org.skriptlang.skript.lang.experiment.types;
 
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.registrations.Feature;
-import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentData;
 
 /**
- * Typed {@link SingularExperimentSyntax} for {@link SyntaxElement}s that require {@link Feature#QUEUES}.
+ * Typed {@link SimpleExperimentalSyntax} for {@link SyntaxElement}s that require {@link Feature#QUEUES}.
  */
-public interface QueueExperimentSyntax extends SingularExperimentSyntax {
+public interface QueueExperimentSyntax extends SimpleExperimentalSyntax {
 
 	ExperimentData EXPERIMENT_DATA = ExperimentData.builder().required(Feature.QUEUES).build();
-
-	@Override
-	default Experiment getExperiment() {
-		return EXPERIMENT_DATA.getRequired().iterator().next();
-	};
 
 	@Override
 	default ExperimentData getExperimentData() {

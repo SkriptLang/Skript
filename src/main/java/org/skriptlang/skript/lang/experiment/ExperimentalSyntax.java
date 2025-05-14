@@ -3,24 +3,15 @@ package org.skriptlang.skript.lang.experiment;
 import ch.njol.skript.lang.SyntaxElement;
 
 /**
- * A {@link SyntaxElement} that requires {@link Experiment}s to be enabled and/or disabled to be used.
- * When implementing this interface, should be overriding {@link #isSatisfiedBy(ExperimentSet)} or {@link #getExperimentData()}.
+ * A {@link SyntaxElement} expressing the usage of {@link Experiment}s.
  */
 public interface ExperimentalSyntax extends SyntaxElement {
 
 	/**
-	 * Checks whether the required experiments are enabled for this syntax element.
-	 *
-	 * @param experimentSet An {@link Experiment} instance containing currently active experiments in the environment.
-	 * @return {@code true} if the element can be used.
+	 * Allows full access to the current {@link ExperimentSet} for manual checking of requirements.
+	 * @param experimentSet An {@link ExperimentSet} containing the data of all enabled {@link Experiment}s.
+	 * @return {@code true} if this {@link SyntaxElement} can be used.
 	 */
 	boolean isSatisfiedBy(ExperimentSet experimentSet);
-
-	/**
-	 * Get the {@link ExperimentData} required for this {@link SyntaxElement}.
-	 */
-	default ExperimentData getExperimentData() {
-		return new ExperimentData();
-	};
 
 }
