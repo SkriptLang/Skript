@@ -23,6 +23,7 @@ import java.io.StreamCorruptedException;
 
 public class PotionModule implements AddonModule {
 
+	@Override
 	public void load(SkriptAddon addon) {
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::new);
@@ -101,7 +102,7 @@ public class PotionModule implements AddonModule {
 		);
 
 		Classes.registerClass(new ClassInfo<>(PotionEffectType.class, "potioneffecttype")
-				.user("potion( ?effect)? ?types?") // "type" is non-optional to prevent clashing with potion effects
+				.user("potion ?effect ?types?")
 				.name("Potion Effect Type")
 				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
 				.usage(StringUtils.join(PotionUtils.getNames(), ", "))
@@ -172,6 +173,7 @@ public class PotionModule implements AddonModule {
 		EffApplyPotionEffect.register(registry);
 		EffPoison.register(registry);
 		EffPotionProperties.register(registry);
+		EvtEntityPotion.register(registry);
 		ExprPotionEffect.register(registry);
 		ExprPotionEffects.register(registry);
 		ExprPotionProperties.register(registry);

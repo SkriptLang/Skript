@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public final class PotionUtils {
@@ -52,17 +53,20 @@ public final class PotionUtils {
 	private static final boolean HAS_GET_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "getBasePotionType");
 	private static final boolean HAS_HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
-	static final Map<String, PotionEffectType> types = new HashMap<>();
-	static final Map<PotionEffectType, String> names = new HashMap<>();
+	private static final Map<String, PotionEffectType> types = new HashMap<>();
+	private static final Map<String, String> names = new HashMap<>();
 
 	static {
 		Language.addListener(() -> {
 			types.clear();
+			names.clear();
 			for (PotionEffectType potionEffectType : PotionEffectType.values()) {
-				String[] ls = Language.getList("potions." + potionEffectType.getName());
-				names.put(potionEffectType, ls[0]);
-				for (String l : ls)
-					types.put(l.toLowerCase(), potionEffectType);
+				String key = potionEffectType.getKey().getKey();
+				String[] entries = Language.getList("potion effect types." + key);
+				names.put(key, entries[0]);
+				for (String entry : entries) {
+					types.put(entry.toLowerCase(Locale.ENGLISH), potionEffectType);
+				}
 			}
 		});
 	}
@@ -72,16 +76,16 @@ public final class PotionUtils {
 	}
 
 	public static @Nullable PotionEffectType fromString(String s) {
-		return types.get(s.toLowerCase());
+		return types.get(s.toLowerCase(Locale.ENGLISH));
 	}
 
 	public static String toString(PotionEffectType potionEffectType) {
-		return toString(potionEffectType, 0);
+		return names.get(potionEffectType.getKey().getKey());
 	}
 
 	// TODO flags
 	public static String toString(PotionEffectType potionEffectType, int flags) {
-		return names.get(potionEffectType);
+		return toString(potionEffectType);
 	}
 
 	public static String toString(PotionEffect potionEffect) {

@@ -47,7 +47,7 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class, SkriptPotionEffect.class)
 				.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
 				.addPatterns(
-						"%potioneffecttype% %number%"
+						"%*potioneffecttype% %*number%"
 				)
 				.build()
 		);
