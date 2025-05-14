@@ -42,14 +42,14 @@ public class EvtEntityPotion extends SkriptEvent {
 			if (effect == null) {
 				return null;
 			}
-			return new SkriptPotionEffect(effect);
+			return SkriptPotionEffect.fromBukkitEffect(effect);
 		}, TIME_PAST);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, SkriptPotionEffect.class, event -> {
 			PotionEffect effect = event.getNewEffect();
 			if (effect == null) {
 				return null;
 			}
-			return new SkriptPotionEffect(effect);
+			return SkriptPotionEffect.fromBukkitEffect(effect);
 		});
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, EntityPotionEffectEvent::getModifiedType);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, EntityPotionEffectEvent::getCause);

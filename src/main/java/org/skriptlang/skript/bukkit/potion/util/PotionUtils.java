@@ -2,9 +2,10 @@ package org.skriptlang.skript.bukkit.potion.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.localization.Language;
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
+import org.bukkit.Registry;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
@@ -16,10 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 public final class PotionUtils {
 
@@ -53,52 +51,20 @@ public final class PotionUtils {
 	private static final boolean HAS_GET_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "getBasePotionType");
 	private static final boolean HAS_HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
-	private static final Map<String, PotionEffectType> types = new HashMap<>();
-	private static final Map<String, String> names = new HashMap<>();
-
-	static {
-		Language.addListener(() -> {
-			types.clear();
-			names.clear();
-			for (PotionEffectType potionEffectType : PotionEffectType.values()) {
-				String key = potionEffectType.getKey().getKey();
-				String[] entries = Language.getList("potion effect types." + key);
-				names.put(key, entries[0]);
-				for (String entry : entries) {
-					types.put(entry.toLowerCase(Locale.ENGLISH), potionEffectType);
-				}
-			}
-		});
-	}
-
-	public static String[] getNames() {
-		return names.values().toArray(new String[0]);
-	}
-
-	public static @Nullable PotionEffectType fromString(String s) {
-		return types.get(s.toLowerCase(Locale.ENGLISH));
-	}
-
-	public static String toString(PotionEffectType potionEffectType) {
-		return names.get(potionEffectType.getKey().getKey());
-	}
-
-	// TODO flags
-	public static String toString(PotionEffectType potionEffectType, int flags) {
-		return toString(potionEffectType);
-	}
-
-	public static String toString(PotionEffect potionEffect) {
-		StringBuilder builder = new StringBuilder();
-		if (potionEffect.isAmbient())
-			builder.append("ambient ");
-		builder.append("potion effect of ");
-		builder.append(toString(potionEffect.getType()));
-		builder.append(" of tier ").append(potionEffect.getAmplifier() + 1);
-		if (!potionEffect.hasParticles())
-			builder.append(" without particles");
-		builder.append(" for ").append(new Timespan(TimePeriod.TICK, potionEffect.getDuration()));
-		return builder.toString();
+	/**
+	 * A convenience method for obtaining the Registry representing PotionEffectTypes,
+	 * as the API has two different names for the same registry.
+	 *
+	 * @return Registry for PotionEffectType
+	 */
+	@SuppressWarnings("NullableProblems")
+	public static @Nullable Registry<PotionEffectType> getPotionEffectTypeRegistry() {
+		if (BukkitUtils.registryExists("MOB_EFFECT")) { // Paper (1.21.4)
+			return Registry.MOB_EFFECT;
+		} else if (BukkitUtils.registryExists("EFFECT")) { // Bukkit (1.21.x)
+			return Registry.EFFECT;
+		}
+		return null;
 	}
 
 	/**
@@ -133,7 +99,7 @@ public final class PotionUtils {
 	public static SkriptPotionEffect[] convertBukkitPotionEffects(PotionEffect[] potionEffects) {
 		SkriptPotionEffect[] convertedEffects = new SkriptPotionEffect[potionEffects.length];
 		for (int i = 0; i < convertedEffects.length; i++) {
-			convertedEffects[i] = new SkriptPotionEffect(potionEffects[i]);
+			convertedEffects[i] = SkriptPotionEffect.fromBukkitEffect(potionEffects[i]);
 		}
 		return convertedEffects;
 	}
@@ -146,7 +112,7 @@ public final class PotionUtils {
 	public static List<SkriptPotionEffect> convertBukkitPotionEffects(Collection<PotionEffect> potionEffects) {
 		List<SkriptPotionEffect> convertedEffects = new ArrayList<>();
 		for (PotionEffect potionEffect : potionEffects)
-			convertedEffects.add(new SkriptPotionEffect(potionEffect));
+			convertedEffects.add(SkriptPotionEffect.fromBukkitEffect(potionEffect));
 		return convertedEffects;
 	}
 

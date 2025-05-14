@@ -1,11 +1,18 @@
 package org.skriptlang.skript.bukkit.potion.util;
 
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
-public class SkriptPotionEffect {
+import java.io.StreamCorruptedException;
+
+public class SkriptPotionEffect implements YggdrasilExtendedSerializable {
 
 	private PotionEffectType potionEffectType;
 	private int duration = PotionUtils.DEFAULT_DURATION_TICKS;
@@ -14,20 +21,33 @@ public class SkriptPotionEffect {
 	private boolean particles = true;
 	private boolean icon = true;
 
-	public SkriptPotionEffect(PotionEffectType potionEffectType) {
-		this.potionEffectType = potionEffectType;
+	/**
+	 * Internal usage only for serialization.
+	 */
+	@ApiStatus.Internal
+	public SkriptPotionEffect() { }
+
+	/**
+	 * @return A potion effect with {@link #potionEffectType()} as <code>potionEffectType</code>.
+	 * Other properties hold their default values.
+	 * @see #fromBukkitEffect(PotionEffect)
+	 */
+	public static SkriptPotionEffect fromType(PotionEffectType potionEffectType) {
+		return new SkriptPotionEffect()
+				.potionEffectType(potionEffectType);
 	}
 
 	/**
-	 * Creates a SkriptPotionEffect from a Bukkit PotionEffect
+	 * @return A potion effect whose properties are set from <code>potionEffect</code>.
+	 * @see #fromType(PotionEffectType)
 	 */
-	public SkriptPotionEffect(PotionEffect potionEffect) {
-		this.potionEffectType = potionEffect.getType();
-		this.duration = potionEffect.getDuration();
-		this.amplifier = potionEffect.getAmplifier();
-		this.ambient = potionEffect.isAmbient();
-		this.particles = potionEffect.hasParticles();
-		this.icon = potionEffect.hasIcon();
+	public static SkriptPotionEffect fromBukkitEffect(PotionEffect potionEffect) {
+		return fromType(potionEffect.getType())
+			.duration(potionEffect.getDuration())
+			.amplifier(potionEffect.getAmplifier())
+			.ambient(potionEffect.isAmbient())
+			.particles(potionEffect.hasParticles())
+			.icon(potionEffect.hasIcon());
 	}
 
 	public PotionEffectType potionEffectType() {
@@ -106,7 +126,7 @@ public class SkriptPotionEffect {
 		if (infinite)
 			builder.append("infinite ");
 		builder.append("potion effect of ");
-		builder.append(PotionUtils.toString(potionEffectType));
+		builder.append(Classes.toString(potionEffectType));
 		builder.append(" ");
 		builder.append(amplifier + 1);
 		if (!particles)
@@ -154,6 +174,32 @@ public class SkriptPotionEffect {
 		public String displayName() {
 			return displayName;
 		}
+	}
+
+	/*
+	 * YggdrasilExtendedSerializable
+	 */
+
+	@Override
+	public Fields serialize() {
+		Fields fields = new Fields();
+		fields.putObject("type", this.potionEffectType());
+		fields.putPrimitive("duration", this.duration());
+		fields.putPrimitive("amplifier", this.amplifier());
+		fields.putPrimitive("ambient", this.ambient());
+		fields.putPrimitive("particles", this.particles());
+		fields.putPrimitive("icon", this.icon());
+		return fields;
+	}
+
+	@Override
+	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException {
+		potionEffectType(fields.getObject("type", PotionEffectType.class));
+		duration(fields.getPrimitive("duration", int.class));
+		amplifier(fields.getPrimitive("amplifier", int.class));
+		ambient(fields.getPrimitive("ambient", boolean.class));
+		particles(fields.getPrimitive("particles", boolean.class));
+		icon(fields.getPrimitive("icon", boolean.class));
 	}
 
 }

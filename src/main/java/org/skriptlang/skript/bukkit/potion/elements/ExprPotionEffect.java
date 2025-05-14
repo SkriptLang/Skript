@@ -96,14 +96,12 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 				duration = (int) timespan.getAs(TimePeriod.TICK);
 		}
 
-		return new SkriptPotionEffect[]{
-				new SkriptPotionEffect(potionEffectType)
-						.duration(duration)
-						.amplifier(amplifier)
-						.ambient(ambient)
-						.particles(particles)
-						.icon(icon)
-		};
+		return new SkriptPotionEffect[]{SkriptPotionEffect.fromType(potionEffectType)
+				.duration(duration)
+				.amplifier(amplifier)
+				.ambient(ambient)
+				.particles(particles)
+				.icon(icon)};
 	}
 	
 	@Override

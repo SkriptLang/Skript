@@ -207,7 +207,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 								newAmplifier = potionEffect.getAmplifier() - change;
 
 							entity.removePotionEffect(type);
-							entity.addPotionEffect(new SkriptPotionEffect(potionEffect).amplifier(newAmplifier).toPotionEffect());
+							entity.addPotionEffect(SkriptPotionEffect.fromBukkitEffect(potionEffect).amplifier(newAmplifier).toPotionEffect());
 						}
 					}
 					break;
@@ -227,7 +227,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 							newDuration = Math.max(0, newDuration);
 
 							entity.removePotionEffect(type);
-							entity.addPotionEffect(new SkriptPotionEffect(potionEffect).duration(newDuration).toPotionEffect());
+							entity.addPotionEffect(SkriptPotionEffect.fromBukkitEffect(potionEffect).duration(newDuration).toPotionEffect());
 						}
 					}
 					break;
@@ -240,7 +240,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 								continue;
 							entity.removePotionEffect(type);
 							entity.removePotionEffect(newType);
-							entity.addPotionEffect(new SkriptPotionEffect(potionEffect).potionEffectType(newType).toPotionEffect());
+							entity.addPotionEffect(SkriptPotionEffect.fromBukkitEffect(potionEffect).potionEffectType(newType).toPotionEffect());
 						}
 					}
 					break;
