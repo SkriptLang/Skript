@@ -39,7 +39,6 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentData;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
@@ -268,11 +267,10 @@ public class SkriptParser {
 	}
 
 	/**
-	 * Check if {@link SyntaxElement} is an {@link ExperimentalSyntax} and ensure the current {@link ExperimentSet}
-	 * meets the requirements of the {@link ExperimentData}.
-	 * If the requirements are not met, will {@link Skript#error(String)}.
+	 * Check if the {@link SyntaxElement} is an {@link ExperimentalSyntax} and ensure the current {@link ExperimentSet}
+	 * the requirements are satisfied.
 	 * @param element The {@link SyntaxElement} to check.
-	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or the requirements are met.
+	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
 	 */
 	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
 		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
