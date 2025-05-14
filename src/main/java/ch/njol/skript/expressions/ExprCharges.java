@@ -29,8 +29,7 @@ import static java.lang.Math.min;
 public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
-			register(ExprCharges.class, Integer.class, "[:max[imum]] charge[s]", "blocks");
+		register(ExprCharges.class, Integer.class, "[:max[imum]] charge[s]", "blocks");
 	}
 
 	private boolean maxCharges;
@@ -45,10 +44,10 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	@Override
 	public Integer convert(Block block) {
 		BlockData blockData = block.getBlockData();
-		if (blockData instanceof RespawnAnchor) {
+		if (blockData instanceof RespawnAnchor respawnAnchor) {
 			if (maxCharges)
-				return ((RespawnAnchor) blockData).getMaximumCharges();
-			return ((RespawnAnchor) blockData).getCharges();
+				return respawnAnchor.getMaximumCharges();
+			return respawnAnchor.getCharges();
 		}
 		return null;
 	}
@@ -56,15 +55,10 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case REMOVE:
-			case ADD:
-			case SET:
-			case RESET:
-			case DELETE:
-				return CollectionUtils.array(Number.class);
-		}
-		return null;
+		return switch (mode) {
+			case REMOVE, ADD, SET, RESET, DELETE -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -73,20 +67,19 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 		int charges = delta != null ? ((Number) delta[0]).intValue() : 0;
 
 		for (Block block : getExpr().getArray(event)) {
-			if (block.getBlockData() instanceof RespawnAnchor) {
-				RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
+			if (block.getBlockData() instanceof RespawnAnchor respawnAnchor) {
 				switch (mode) {
 					case REMOVE:
-						charge = anchor.getCharges() - charges;
+						charge = respawnAnchor.getCharges() - charges;
 						break;
 					case ADD:
-						charge = anchor.getCharges() + charges;
+						charge = respawnAnchor.getCharges() + charges;
 						break;
 					case SET:
 						charge = charges;
 				}
-				anchor.setCharges(min(max(charge, 0), 4));
-				block.setBlockData(anchor);
+				respawnAnchor.setCharges(min(max(charge, 0), 4));
+				block.setBlockData(respawnAnchor);
 			}
 		}
 	}

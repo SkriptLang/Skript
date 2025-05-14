@@ -1,6 +1,5 @@
 package ch.njol.skript.aliases;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.block.BlockCompat;
@@ -11,7 +10,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,9 +21,6 @@ import org.jetbrains.annotations.Nullable;
  * Provides aliases on Bukkit/Spigot platform.
  */
 public class AliasesProvider {
-
-	// not supported on Spigot versions older than 1.18
-	private static final boolean FASTER_SET_SUPPORTED = Skript.classExists("it.unimi.dsi.fastutil.objects.ObjectOpenHashSet");
 
 	/**
 	 * When an alias is not found, it will requested from this provider.
@@ -66,13 +61,7 @@ public class AliasesProvider {
 		this.aliases = new HashMap<>(expectedCount);
 		this.variations = new HashMap<>(expectedCount / 20);
 		this.aliasesMap = new AliasesMap();
-
-		if (FASTER_SET_SUPPORTED) {
-			this.materials = new ObjectOpenHashSet<>();
-		} else {
-			this.materials = new HashSet<>();
-		}
-
+		this.materials = new ObjectOpenHashSet<>();
 		this.gson = new Gson();
 	}
 
