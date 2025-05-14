@@ -26,7 +26,6 @@ import java.util.Arrays;
 @Description("Checks whether an entity is wearing some items (usually armor).")
 @Examples({
 	"player is wearing an iron chestplate and iron leggings",
-	"player is wearing all diamond armour",
 	"target is wearing wolf armor"
 })
 @Since("1.0")

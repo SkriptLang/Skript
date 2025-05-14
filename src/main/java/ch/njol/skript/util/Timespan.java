@@ -201,41 +201,41 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)}
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Timespan fromTicks(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead.
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getMilliSeconds() {
 		return getAs(TimePeriod.MILLISECOND);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getTicks() {
 		return getAs(TimePeriod.TICK);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getTicks_i() {
 		return getAs(TimePeriod.TICK);
 	}
