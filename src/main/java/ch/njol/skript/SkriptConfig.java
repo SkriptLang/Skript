@@ -375,6 +375,10 @@ public class SkriptConfig {
 	public static final Option<Integer> variableChangesUntilSave = new Option<>("variable changes until save", 1000)
 		.setter(FlatFileStorage::setRequiredChangesForResave);
 
+	// intentionally not present in the config presented to the user. Users must manually add this option to disable it.
+	public static final Option<Boolean> simplifySyntaxesOnParse = new Option<>("simplify syntax on parse", true)
+		.optional(true);
+
 	/**
 	 * This should only be used in special cases
 	 */

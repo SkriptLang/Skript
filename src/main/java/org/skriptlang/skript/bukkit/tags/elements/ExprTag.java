@@ -2,19 +2,11 @@ package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
@@ -151,13 +143,6 @@ public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeError
 	public String toString(@Nullable Event event, boolean debug) {
 		String registry = types.length > 1 ? "" : " " + types[0].toString();
 		return origin.toString(datapackOnly) + registry + " tag " + names.toString(event, debug);
-	}
-
-	@Override
-	public Expression<? extends Tag> simplify() {
-		if (names instanceof Literal<String>)
-			return new SimpleLiteral<>(getArray(ContextlessEvent.get()), Tag.class, true);
-		return super.simplify();
 	}
 
 }

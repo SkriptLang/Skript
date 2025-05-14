@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Color;
@@ -18,6 +19,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +90,13 @@ public class ExprStringColor extends PropertyExpression<String, Object> {
 		if (selectedState != StringColor.ALL && getExpr().isSingle())
 			return true;
 		return false;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (getExpr() instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

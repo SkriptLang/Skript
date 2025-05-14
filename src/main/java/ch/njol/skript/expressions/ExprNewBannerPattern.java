@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Color;
@@ -15,6 +16,7 @@ import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Banner Pattern")
 @Description("Creates a new banner pattern.")
@@ -62,6 +64,13 @@ public class ExprNewBannerPattern extends SimpleExpression<Pattern> {
 	@Override
 	public Class<Pattern> getReturnType() {
 		return Pattern.class;
+	}
+
+	@Override
+	public Expression<? extends Pattern> simplify() {
+		if (selectedPattern instanceof Literal<PatternType> && selectedColor instanceof Literal<Color>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

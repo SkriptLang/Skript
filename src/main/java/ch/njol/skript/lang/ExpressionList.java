@@ -309,11 +309,11 @@ public class ExpressionList<T> implements Expression<T> {
 			T[] values = (T[]) Array.newInstance(returnType, expressions.length);
 			for (int i = 0; i < values.length; i++)
 				values[i] = ((Literal<? extends T>) expressions[i]).getSingle();
-			return new SimpleLiteral<>(values, returnType, and);
+			return new SimpleLiteral<>(values, returnType, and, this);
 		}
 		if (isLiteralList) {
 			Literal<? extends T>[] ls = Arrays.copyOf(expressions, expressions.length, Literal[].class);
-			return new LiteralList<>(ls, returnType, and);
+			return new LiteralList<>(ls, returnType, and, this);
 		}
 		return this;
 	}

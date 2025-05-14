@@ -21,11 +21,11 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 		super(literals, returnType, possibleReturnTypes, and);
 	}
 
-	public LiteralList(Literal<? extends T>[] literals, Class<T> returnType, boolean and, LiteralList<?> source) {
+	public LiteralList(Literal<? extends T>[] literals, Class<T> returnType, boolean and, ExpressionList<?> source) {
 		super(literals, returnType, and, source);
 	}
 
-	public LiteralList(Literal<? extends T>[] literals, Class<T> returnType, Class<?>[] possibleReturnTypes, boolean and, LiteralList<?> source) {
+	public LiteralList(Literal<? extends T>[] literals, Class<T> returnType, Class<?>[] possibleReturnTypes, boolean and, ExpressionList<?> source) {
 		super(literals, returnType, possibleReturnTypes, and, source);
 	}
 
@@ -72,7 +72,7 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 			T[] values = (T[]) Array.newInstance(getReturnType(), expressions.length);
 			for (int i = 0; i < values.length; i++)
 				values[i] = ((Literal<? extends T>) expressions[i]).getSingle();
-			return new SimpleLiteral<>(values, getReturnType(), and);
+			return new SimpleLiteral<>(values, getReturnType(), and, this);
 		}
 		return this;
 	}
