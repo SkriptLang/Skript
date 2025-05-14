@@ -9,7 +9,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentData;
  */
 public interface ReflectionExperimentSyntax extends SimpleExperimentalSyntax {
 
-	ExperimentData EXPERIMENT_DATA = ExperimentData.builder().required(Feature.SCRIPT_REFLECTION).build();
+	ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.SCRIPT_REFLECTION);
 
 	@Override
 	default ExperimentData getExperimentData() {

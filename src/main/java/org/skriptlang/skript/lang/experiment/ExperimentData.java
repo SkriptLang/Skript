@@ -146,7 +146,7 @@ public class ExperimentData {
 		private Set<Experiment> disallowed = new HashSet<>();
 		private @Nullable String errorMessage = null;
 
-		public Builder() {}
+		private Builder() {}
 
 		/**
 		 * Set the {@link Experiment}s that must be enabled in order to use.
