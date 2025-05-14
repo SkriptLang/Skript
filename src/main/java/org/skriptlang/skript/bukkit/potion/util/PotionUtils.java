@@ -61,7 +61,7 @@ public final class PotionUtils {
 	public static @Nullable Registry<PotionEffectType> getPotionEffectTypeRegistry() {
 		if (BukkitUtils.registryExists("MOB_EFFECT")) { // Paper (1.21.4)
 			return Registry.MOB_EFFECT;
-		} else if (BukkitUtils.registryExists("EFFECT")) { // Bukkit (1.21.x)
+		} else if (BukkitUtils.registryExists("EFFECT")) { // Bukkit (1.20.3)
 			return Registry.EFFECT;
 		}
 		return null;

@@ -67,6 +67,7 @@ public class PotionModule implements AddonModule {
 		// Load Syntax
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		CondHasPotion.register(registry);
+		CondIsPotionInstant.register(registry);
 		CondIsPoisoned.register(registry);
 		CondPotionProperties.register(registry);
 		EffApplyPotionEffect.register(registry);
