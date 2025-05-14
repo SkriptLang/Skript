@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.potion;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
@@ -40,7 +41,8 @@ public class PotionModule implements AddonModule {
 				public String toVariableNameString(SkriptPotionEffect potionEffect) {
 					return "potioneffect:" + potionEffect.potionEffectType().getKey().getKey();
 				}
-			}));
+			})
+			.serializer(new YggdrasilSerializer<>()));
 
 		var petRegistry = PotionUtils.getPotionEffectTypeRegistry();
 		if (petRegistry != null) {
