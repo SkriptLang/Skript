@@ -2,8 +2,7 @@ test "using before declaration":
 	assert the current script is using "example feature" with "using feature failed"
 	assert experimental only is true with "feature-conditional syntax failed"
 
-using example feature
-using fizz buzz
+using example feature, fizz buzz
 using deprecated feature
 
 test "using":
