@@ -35,7 +35,9 @@ public class CowData extends EntityData<Cow> {
 			try {
 				getVariantMethod = cowClass.getDeclaredMethod("getVariant");
 				setVariantMethod = cowClass.getDeclaredMethod("setVariant", Cow.Variant.class);
-			} catch (Exception ignored) {}
+			} catch (Exception e) {
+				throw new RuntimeException("Could not retrieve get/set variant methods for Cow.", e);
+			}
 		}
 	}
 
