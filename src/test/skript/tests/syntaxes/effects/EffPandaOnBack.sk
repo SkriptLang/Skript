@@ -1,0 +1,7 @@
+test "panda on back":
+	spawn a panda at test-location:
+		set {_entity} to entity
+	assert {_entity} is not on its back with "Panda should not be on its back"
+	make {_entity} get on its back
+	assert {_entity} is on its back with "Panda should be on its back"
+	clear entity within {_entity}

@@ -1,32 +1,31 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.entity.Player;
-
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.bukkit.entity.LivingEntity;
 
 @Name("Is Sleeping")
-@Description("Checks whether a player is sleeping.")
+@Description("Checks whether an entity is sleeping.")
 @Examples({
-	"# cut your enemies' throats in their sleep >=)",
-	"on attack:",
-		"\tattacker is holding a sword",
-		"\tvictim is sleeping",
-		"\tincrease the damage by 1000"
+	"if player is sleeping:",
+		"\tmake player wake up without spawn location update",
+	"",
+	"if last spawned fox is sleeping:",
+		"\tmake last spawned fox stop sleeping"
 })
-@Since("1.4.4")
-public class CondIsSleeping extends PropertyCondition<Player> {
+@Since("1.4.4, 2.11 (living entities)")
+public class CondIsSleeping extends PropertyCondition<LivingEntity> {
 	
 	static {
-		register(CondIsSleeping.class, "sleeping", "players");
+		register(CondIsSleeping.class, "sleeping", "livingentities");
 	}
 	
 	@Override
-	public boolean check(Player player) {
-		return player.isSleeping();
+	public boolean check(LivingEntity entity) {
+		return entity.isSleeping();
 	}
 	
 	@Override

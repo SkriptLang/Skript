@@ -27,7 +27,7 @@ import ch.njol.util.Kleenean;
 @Name("Block")
 @Description({"The block involved in the event, e.g. the clicked block or the placed block.",
 		"Can optionally include a direction as well, e.g. 'block above' or 'block in front of the player'."})
-@Examples({"block is ore",
+@Examples({"block is iron ore",
 		"set block below to air",
 		"spawn a creeper above the block",
 		"loop blocks in radius 4:",

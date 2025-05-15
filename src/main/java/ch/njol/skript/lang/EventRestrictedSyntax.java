@@ -7,6 +7,7 @@ import org.bukkit.event.Event;
 /**
  * A syntax element that restricts the events it can be used in.
  */
+@FunctionalInterface
 public interface EventRestrictedSyntax {
 
 	/**
