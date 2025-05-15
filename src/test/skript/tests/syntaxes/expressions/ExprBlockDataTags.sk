@@ -1,0 +1,29 @@
+test "block data tags":
+
+	# === SETUP ===
+
+	set {_block} to block at (spawn of world "world")
+	set {_before} to block data of block at {_block}
+
+	# === TESTS ===
+
+	set {_expected::campfire::*} to "facing", "waterlogged", "lit" and "signal_fire"
+	set {_expected::oak log::*} to "axis"
+	set {_expected::wheat::*} to "age"
+
+	loop indexes of {_expected::*}:
+		set {_i} to loop-value parsed as itemtype
+		set block at {_block} to {_i}
+		assert testTags(block data of {_i}, {_expected::%loop-value%::*}) is true with "%loop-value% as itemtype had unexpected block data tags"
+		assert testTags(block at {_block}, {_expected::%loop-value%::*}) is true with "%loop-value% as block had unexpected block data tags"
+
+	# === CLEANUP ===
+
+	set block at {_block} to {_before}
+
+local function testTags(data: block data, tags: strings) :: boolean:
+	set {_data::*} to block data tags of {_data}
+	loop {_tags::*}:
+		if {_data::*} doesn't contain loop-value:
+			return false
+	return true

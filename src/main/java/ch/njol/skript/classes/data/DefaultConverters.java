@@ -17,6 +17,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -275,6 +276,9 @@ public class DefaultConverters {
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 
+		// BlockData - Block
+		Converters.registerConverter(Block.class, BlockData.class, Block::getBlockData);
+    
 		if (Skript.classExists("org.bukkit.entity.EntitySnapshot"))
 			Converters.registerConverter(EntitySnapshot.class, EntityData.class, snapshot -> EntityUtils.toSkriptEntityData(snapshot.getEntityType()));
 
