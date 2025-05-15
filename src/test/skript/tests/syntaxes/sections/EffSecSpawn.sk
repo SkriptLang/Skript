@@ -180,3 +180,24 @@ test "spawn pig by variant" when running minecraft "1.21.5":
 	assert size of all pigs is 5 with "Only temperate pigs should have been deleted"
 	delete all warm pigs
 	assert size of all warm pigs is 0 with "Warm pigs were not deleted"
+
+test "spawn cow by variant" when running minecraft "1.21.5":
+	delete all cows
+	set {_l} to test-location
+	spawn 5 warm cows at {_l}
+	assert size of all warm cows is 5 with "Size of all warm cows is not 5"
+	assert size of all cows is 5 with "Size of all cows is not 5"
+	spawn 3 temperate cows at {_l}
+	assert size of all temperate cows is 3 with "Size of all temperate cows is not 3"
+	assert size of all cows is 8 with "Size of all cows is not 8"
+	spawn 2 cold cows at {_l}
+	assert size of all cold cows is 2 with "Size of all cold cows is not 2"
+	assert size of all cows is 10 with "Size of all cows is not 10"
+	delete all cold cows
+	assert size of all cold cows is 0 with "Cold cows were not deleted"
+	assert size of all cows is 8 with "Only cold cows should have been deleted"
+	delete all temperate cows
+	assert size of all temperate cows is 0 with "Temperate cows were not deleted"
+	assert size of all cows is 5 with "Only temperate cows should have been deleted"
+	delete all warm cows
+	assert size of all warm cows is 0 with "Warm cows were not deleted"
