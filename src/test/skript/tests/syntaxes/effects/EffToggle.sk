@@ -1,0 +1,35 @@
+test "toggle effect":
+  set {_isToggled} to false
+  assert {_isToggled} is false with "{_isToggled} should be set to false"
+  toggle {_isToggled}
+  assert {_isToggled} is true with "{_isToggled} should be toggled to true"
+  set {_toggle::*} to false, false and false
+  assert {_toggle::1} is false with "{_toggle::1} should be set to false"
+  assert {_toggle::2} is false with "{_toggle::2} should be set to false"
+  assert {_toggle::3} is false with "{_toggle::3} should be set to false"
+  toggle {_toggle::*}
+  assert {_toggle::1} is true with "{_toggle::1} should be toggled to true"
+  assert {_toggle::2} is true with "{_toggle::2} should be toggled to true"
+  assert {_toggle::3} is true with "{_toggle::3} should be toggled to true"
+  assert inverse of {_isToggled} is false with "{_isToggled} should be toggled to false"
+
+  set {_block} to block at location(10, 10, 10, world "world")
+  set {_list::*} to true and {_block}
+  toggle {_list::*}
+  assert {_list::1} is false with "{_list::1} should be set to false"
+  assert amount of {_list::*} is 2 with "{_list::*} should be set to false and {_block}"
+
+  set block at location(10, 11, 10, world "world") to birch door
+  set {_door} to block at location(10, 11, 10, world "world")
+  assert {_door} is birch door with "{_door} should be birch door"
+  assert "%block data of {_door}%" contains "open=false"  with "{_door} should be closed"
+  toggle {_door}
+  assert "%block data of {_door}%" contains "open=true" with "{_door} should be open"
+
+  set {_list::myFirstIndex::myFirstValue} to "hello"
+  set {_list::mySecondIndex::mySecondValue} to "world"
+  set {_list::myThirdIndex::myThirdValue} to false
+  toggle {_list::*}
+  assert {_list::myFirstIndex::myFirstValue} is "hello" with "{_list::myFirstIndex::myFirstValue} should be 'hello'"
+  assert {_list::mySecondIndex::mySecondValue} is "world" with "{_list::mySecondIndex::mySecondValue} should be 'world'"
+  assert {_list::myThirdIndex::myThirdValue} is false with "{_list::myThirdIndex::myThirdValue} should not be toggled"
