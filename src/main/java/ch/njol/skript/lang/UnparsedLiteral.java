@@ -11,6 +11,7 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.NonNullIterator;
 import org.bukkit.event.Event;
@@ -29,7 +30,8 @@ public class UnparsedLiteral implements Literal<Object> {
 
 	private final String data;
 	private final @Nullable LogEntry error;
-	private @Nullable List<ClassInfo<?>> possibleInfos;
+	private final @Nullable List<ClassInfo<?>> possibleInfos;
+	private final String combinedInfos;
 	private boolean reparsed = false;
 	private boolean converted = false;
 
@@ -50,6 +52,14 @@ public class UnparsedLiteral implements Literal<Object> {
 		this.data = data;
 		this.error = error;
 		this.possibleInfos = Classes.getPatternInfos(data);
+		if (this.possibleInfos != null && this.possibleInfos.size() > 1) {
+			combinedInfos = StringUtils.join(
+				possibleInfos.stream().map(classInfo -> classInfo.getName().getSingular()).toArray(),
+				", "
+			);
+		} else {
+			combinedInfos = "";
+		}
 	}
 
 	public String getData() {
@@ -251,7 +261,7 @@ public class UnparsedLiteral implements Literal<Object> {
 		if (reparsed || converted || possibleInfos == null || possibleInfos.size() <= 1)
 			return false;
 		String infoCodeName = possibleInfos.get(0).getName().getSingular();
-		Skript.warning("'" +  data + "' has multiple types. Consider specifying which type to use: '"
+		Skript.warning("'" +  data + "' has multiple types (" + combinedInfos + "). Consider specifying which type to use: '"
 			+ data + " (" + infoCodeName + ")'");
 		return true;
 	}

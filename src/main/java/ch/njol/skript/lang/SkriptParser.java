@@ -251,7 +251,11 @@ public class SkriptParser {
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
-								checkUnparsedLiterals(parseResult.exprs);
+								// Check if any expressions are 'UnparsedLiterals' and if applicable for multiple info warning.
+								for (Expression<?> expr : parseResult.exprs) {
+									if (expr instanceof UnparsedLiteral unparsedLiteral && unparsedLiteral.multipleWarning())
+										break;
+								}
 								log.printLog();
 								return element;
 							}
@@ -265,18 +269,6 @@ public class SkriptParser {
 			// No successful syntax elements parsed, print errors and return
 			log.printError();
 			return null;
-		}
-	}
-
-	/**
-	 * Check if any of {@code exprs} are {@link UnparsedLiteral}s and if any can throw a warning indicating it can
-	 * be referenced to multiple {@link ClassInfo}s via {@link UnparsedLiteral#multipleWarning()}.
-	 * @param exprs {@link Expression}s to check.
-	 */
-	private void checkUnparsedLiterals(Expression<?>... exprs) {
-		for (Expression<?> expr : exprs) {
-			if (expr instanceof UnparsedLiteral unparsedLiteral && unparsedLiteral.multipleWarning())
-				break;
 		}
 	}
 

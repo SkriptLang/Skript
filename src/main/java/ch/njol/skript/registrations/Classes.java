@@ -31,6 +31,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -229,9 +230,12 @@ public abstract class Classes {
 	 * Get a {@link List} of the {@link ClassInfo}s the {@code pattern} can be referenced to.
 	 * @param pattern The {@link String} pattern.
 	 */
-	public static @Nullable List<ClassInfo<?>> getPatternInfos(String pattern) {
+	public static @Unmodifiable @Nullable List<ClassInfo<?>> getPatternInfos(String pattern) {
 		pattern = pattern.toLowerCase(Locale.ENGLISH);
-		return registeredLiteralPatterns.get(pattern);
+		List<ClassInfo<?>> infos = registeredLiteralPatterns.get(pattern);
+		if (infos != null)
+			return Collections.unmodifiableList(infos);
+		return null;
 	}
 
 	@SuppressWarnings("null")

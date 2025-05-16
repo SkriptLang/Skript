@@ -220,7 +220,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 	 * form can be accessed.
 	 * @param <T> Wanted type.
 	 * @param type Wanted class of literal.
-	 * @param expr Expression we currently have.
+	 * @param expression Expression we currently have.
 	 * @return A literal value, or null if parsing failed.
 	 */
 	@Nullable
