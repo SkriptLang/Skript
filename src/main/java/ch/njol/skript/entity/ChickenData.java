@@ -13,14 +13,17 @@ import java.util.Objects;
 
 public class ChickenData extends EntityData<Chicken> {
 
-	private static boolean variantsEnabled = false;
-	private static Object[] variants;
+	private static final boolean variantsEnabled;
+	private static final Object[] variants;
 
 	static {
 		register(ChickenData.class, "chicken", Chicken.class, "chicken");
 		if (Skript.classExists("org.bukkit.entity.Chicken$Variant")) {
 			variantsEnabled = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Chicken.Variant.class).getSupplier().get(), Chicken.Variant.class);
+		} else {
+			variantsEnabled = false;
+			variants = null;
 		}
 	}
 
@@ -35,9 +38,17 @@ public class ChickenData extends EntityData<Chicken> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (exprs[0] != null && variantsEnabled)
-			//noinspection unchecked
-			variant = ((Literal<Chicken.Variant>) exprs[0]).getSingle();
+		if (variantsEnabled) {
+			Literal<?> expr = null;
+			if (exprs[0] != null) { // chicken
+				expr = exprs[0];
+			} else if (exprs[1] != null) { // chicks
+				expr = exprs[1];
+			}
+			if (expr != null)
+				//noinspection unchecked
+				variant = ((Literal<Chicken.Variant>) expr).getSingle();
+		}
 		return true;
 	}
 

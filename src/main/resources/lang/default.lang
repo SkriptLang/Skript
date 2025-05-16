@@ -544,7 +544,7 @@ entities:
 		pattern: blaze(|1¦s)
 	chicken:
 		name: chicken¦s
-		pattern: <age> [%-chickenvariant%] chicken[1:s]|(4:)chick[1:s]
+		pattern: <age> [%-chickenvariant%] chicken[1:s]|(4:)[%-chickenvariant%] chick[1:s]
 	cow:
 		name: cow¦s
 		pattern: <age> cow(|1¦s)|(4¦)cal(f|1¦ves)
