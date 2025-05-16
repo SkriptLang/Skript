@@ -1,16 +1,11 @@
 package ch.njol.skript.test.runner;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import ch.njol.skript.Skript;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
-
-import ch.njol.skript.Skript;
 
 /**
  * Class that helps the JUnit test communicate with Skript.
@@ -84,9 +79,19 @@ public abstract class SkriptJUnitTest {
 	 * @return Pig that has been spawned.
 	 */
 	public static Pig spawnTestPig() {
+		return spawnTestEntity(EntityType.PIG);
+	}
+
+	/**
+	 * Spawns a test {@link Entity} from the provided {@code entityType}
+	 * @param entityType The desired {@link EntityType} to spawn
+	 * @return The spawned {@link Entity}
+	 */
+	public static <E extends Entity> E spawnTestEntity(EntityType entityType) {
 		if (delay <= 0D)
-			delay = 1; // A single tick allows the piggy to spawn before server shutdown.
-		return (Pig) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIG);
+			delay = 1; // A single tick allows the entity to spawn before server shutdown.
+		//noinspection unchecked
+		return (E) getTestWorld().spawnEntity(getTestLocation(), entityType);
 	}
 
 	/**
