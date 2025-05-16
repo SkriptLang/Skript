@@ -547,7 +547,7 @@ entities:
 		pattern: <age> chicken(|1¦s)|(4¦)chick(|1¦s)
 	cow:
 		name: cow¦s
-		pattern: <age> [%-cowvariant%] cow[1:s]|(4:)cal(f|1:ves)
+		pattern: <age> [%-cowvariant%] cow[1:s]|(4:)[%-cowvariant%] cal(f|1:ves)
 	cave spider:
 		name: cave spider¦s
 		pattern: cave[ ]spider(|1¦s)

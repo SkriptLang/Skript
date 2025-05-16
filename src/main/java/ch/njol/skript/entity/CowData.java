@@ -16,19 +16,22 @@ import java.util.Objects;
 
 public class CowData extends EntityData<Cow> {
 
-	private static boolean variantsEnabled = false;
-	private static Object[] variants;
-	private static Class<Cow> cowClass;
-	private static @Nullable Method getVariantMethod = null;
-	private static @Nullable Method setVariantMethod = null;
+	private static final boolean variantsEnabled;
+	private static final Object[] variants;
+	private static final Class<Cow> cowClass;
+	private static final @Nullable Method getVariantMethod;
+	private static final @Nullable Method setVariantMethod;
 
 	static {
-		try {
+        Class<Cow> cowClass1 = null;
+
+        try {
 			//noinspection unchecked
-			cowClass = (Class<Cow>) Class.forName("org.bukkit.entity.Cow");
+			cowClass1 = (Class<Cow>) Class.forName("org.bukkit.entity.Cow");
 		} catch (Exception ignored) {}
 
-		register(CowData.class, "cow", cowClass, 0, "cow");
+        cowClass = cowClass1;
+        register(CowData.class, "cow", cowClass, 0, "cow");
 		if (Skript.classExists("org.bukkit.entity.Cow$Variant")) {
 			variantsEnabled = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Cow.Variant.class).getSupplier().get(), Cow.Variant.class);
@@ -38,6 +41,11 @@ public class CowData extends EntityData<Cow> {
 			} catch (Exception e) {
 				throw new RuntimeException("Could not retrieve get/set variant methods for Cow.", e);
 			}
+		} else {
+			variantsEnabled = false;
+			variants = null;
+			getVariantMethod = null;
+			setVariantMethod = null;
 		}
 	}
 
@@ -52,9 +60,17 @@ public class CowData extends EntityData<Cow> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (exprs[0] != null && variantsEnabled)
-			//noinspection unchecked
-			variant = ((Literal<Cow.Variant>) exprs[0]).getSingle();
+		if (variantsEnabled) {
+			Literal<?> expr = null;
+			if (exprs[0] != null) { // cow
+				expr = exprs[0];
+			} else if (exprs[1] != null) { // calf
+				expr = exprs[1];
+			}
+			if (expr != null)
+				//noinspection unchecked
+				variant = ((Literal<Cow.Variant>) expr).getSingle();
+		}
 		return true;
 	}
 
