@@ -4,6 +4,7 @@ import ch.njol.skript.lang.SyntaxElement;
 
 /**
  * A {@link SyntaxElement} that requires one or more {@link Experiment}s to be enabled and/or disabled.
+ * @see ExperimentData
  */
 public interface ExperimentalSyntax extends SyntaxElement {
 

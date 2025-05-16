@@ -16,7 +16,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
+import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;

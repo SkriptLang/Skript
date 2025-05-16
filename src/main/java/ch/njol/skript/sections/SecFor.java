@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.ExperimentData;
-import org.skriptlang.skript.lang.experiment.types.SimpleExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
 import java.util.List;
 import java.util.Map;

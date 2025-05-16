@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.experiment.ExperimentData;
-import org.skriptlang.skript.lang.experiment.types.SimpleExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 import org.skriptlang.skript.lang.structure.Structure;
 
 @NoDoc

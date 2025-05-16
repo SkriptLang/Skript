@@ -12,7 +12,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.QueueExperimentSyntax;
+import ch.njol.skript.registrations.experiments.QueueExperimentSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 @Name("De-queue Queue (Experimental)")

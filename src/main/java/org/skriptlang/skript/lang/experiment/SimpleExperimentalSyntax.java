@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.experiment.types;
+package org.skriptlang.skript.lang.experiment;
 
 import org.skriptlang.skript.lang.experiment.ExperimentData;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;

@@ -13,7 +13,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.types.ReflectionExperimentSyntax;
+import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;

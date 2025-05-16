@@ -3,12 +3,9 @@ package org.skriptlang.skript.lang.experiment;
 import ch.njol.skript.Skript;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,8 +29,8 @@ public class ExperimentData {
 		return builder().required(experiment).build();
 	}
 
-	private final Set<Experiment> required;
-	private final Set<Experiment> disallowed;
+	private final @Unmodifiable Set<Experiment> required;
+	private final @Unmodifiable Set<Experiment> disallowed;
 	private final String errorMessage;
 
 	/**
@@ -43,23 +40,23 @@ public class ExperimentData {
 	 *                     If {@code null}, will use {@link #constructError()}.
 	 */
 	private ExperimentData(Set<Experiment> required, Set<Experiment> disallowed, @Nullable String errorMessage) {
-		this.required = required;
-		this.disallowed = disallowed;
+		this.required = Collections.unmodifiableSet(required);
+		this.disallowed = Collections.unmodifiableSet(disallowed);
 		this.errorMessage = errorMessage != null ? errorMessage : constructError();
 	}
 
 	/**
 	 * Get the {@link Experiment}s that must be enabled in order to use.
 	 */
-	public @UnmodifiableView Set<Experiment> getRequired() {
-		return Collections.unmodifiableSet(required);
+	public @Unmodifiable Set<Experiment> getRequired() {
+		return required;
 	}
 
 	/**
 	 * Get the {@link Experiment}s that must be disabled in order to use.
 	 */
-	public @UnmodifiableView Set<Experiment> getDisallowed() {
-		return Collections.unmodifiableSet(disallowed);
+	public @Unmodifiable Set<Experiment> getDisallowed() {
+		return disallowed;
 	}
 
 	/**
@@ -140,6 +137,17 @@ public class ExperimentData {
 		return builder.toString();
 	}
 
+	/**
+	 * Get a {@link Builder} with the current data of this {@link ExperimentData}.
+	 */
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.required = new HashSet<>(required);
+		builder.disallowed = new HashSet<>(disallowed);
+		builder.errorMessage = errorMessage;
+		return builder;
+	}
+
 	public static class Builder {
 
 		private Set<Experiment> required = new HashSet<>();
@@ -159,13 +167,6 @@ public class ExperimentData {
 		}
 
 		/**
-		 * Get the {@link Experiment}s that must be enabled in order to use.
-		 */
-		public Set<Experiment> required() {
-			return required;
-		}
-
-		/**
 		 * Set the {@link Experiment}s that must be disabled in order to use.
 		 * @param disallowed The {@link Experiment}s
 		 * @return This {@link Builder}.
@@ -176,13 +177,6 @@ public class ExperimentData {
 		}
 
 		/**
-		 * Get the {@link Experiment}s that must be disabled in order to use.
-		 */
-		public Set<Experiment> disallowed() {
-			return disallowed;
-		}
-
-		/**
 		 * Set the error message to be printed if the requirements are not met.
 		 * @param errorMessage The error message.
 		 * @return This {@link Builder}.
@@ -190,13 +184,6 @@ public class ExperimentData {
 		public Builder errorMessage(@Nullable String errorMessage) {
 			this.errorMessage = errorMessage;
 			return this;
-		}
-
-		/**
-		 * Get the error message to be printed when the requirements are not met.
-		 */
-		public @Nullable String errorMessage() {
-			return errorMessage;
 		}
 
 		/**
