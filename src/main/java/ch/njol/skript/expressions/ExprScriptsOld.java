@@ -14,6 +14,8 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -32,7 +34,9 @@ import java.util.stream.Collectors;
 	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
 })
 @Since("2.5")
-public class ExprScriptsOld extends SimpleExpression<String> {
+public class ExprScriptsOld extends SimpleExpression<String> implements SimpleExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.builder().disallowed(Feature.SCRIPT_REFLECTION).build();
 
 	static {
 		Skript.registerExpression(ExprScriptsOld.class, String.class, ExpressionType.SIMPLE,
@@ -49,12 +53,15 @@ public class ExprScriptsOld extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
 		includeEnabled = matchedPattern <= 1;
 		includeDisabled = matchedPattern != 1;
 		noPaths = parseResult.mark == 1;
 		return true;
+	}
+
+	@Override
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override
