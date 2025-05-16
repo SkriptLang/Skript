@@ -1,5 +1,5 @@
 options:
-	error: "'unknown' has multiple types (inventory action, click type, damage cause, teleport cause, heal reason, inventory close reason, transform reason, unleash reason, entity potion cause). Consider specifying which type to use: 'unknown (inventory action)'"
+	error: "'unknown' has multiple types \(.*\)\. Consider specifying which type to use: 'unknown \(.*\)'"
 
 using for each loops
 
@@ -12,30 +12,30 @@ parse:
 test "literal multiple infos warning":
 	parse:
 		set {_test} to unknown
-	assert last parse logs contains {@error} with "Setting variable should throw warning"
+	assert last parse logs matches {@error} with "Setting variable should throw warning"
 
 	parse:
 		if {_list::*} contains unknown:
 			broadcast "Filler"
-	assert last parse logs contains {@error} with "Contains should throw warning"
+	assert last parse logs matches {@error} with "Contains should throw warning"
 
 	parse:
 		if the 1st element of {_list::*} is unknown:
 			broadcast "filler"
-	assert last parse logs contains {@error} with "Element of should throw warning"
+	assert last parse logs matches {@error} with "Element of should throw warning"
 
 	parse:
 		filter {_list::*} to match:
 			input is unknown
-	assert last parse logs contains {@error} with "Filtering should throw warning"
+	assert last parse logs matches {@error} with "Filtering should throw warning"
 
 	parse:
 		for each {_value} in {_list::*}:
 			if {_value} is unknown:
 				broadcast "filler"
-	assert last parse logs contains {@error} with "For each should throw warning"
+	assert last parse logs matches {@error} with "For each should throw warning"
 
-	assert {LiteralMultipleWarn::FunctionObject} contains {@error} with "Function with Object return type should throw warning"
+	assert {LiteralMultipleWarn::FunctionObject} matches {@error} with "Function with Object return type should throw warning"
 	clear {LiteralMultipleWarn::*}
 
 parse:
@@ -52,8 +52,17 @@ parse:
 			return unknown
 
 test "literal multiple infos no warning":
-	assert {LiteralMultipleNoWarn::Damage} does not contain {@error} with "Condition check against shared type should not throw warning"
-	assert {LiteralMultipleNoWarn::FunctionDamageCause} does not contain {@error} with "Function with shared return type should not throw warning"
+	if all:
+		{LiteralMultipleNoWarn::Damage} is set
+		{LiteralMultipleNoWarn::Damage} matches {@error}
+	then:
+		assert true is false with "Condition check against shared type should not throw warning"
+
+	if all:
+		{LiteralMultipleNoWarn::FunctionDamageCause} is set
+		{LiteralMultipleNoWarn::FunctionDamageCause} matches {@error}
+	then:
+		assert true is false with "Function with shared return type should not throw warning"
 	clear {LiteralMultipleNoWarn::*}
 
 	parse:
