@@ -159,3 +159,24 @@ test "spawn zombie villagers by profession":
 	assert size of all zombie villagers is 10 with "Should be 10 zombie villagers"
 	delete all zombie villagers
 	assert size of all zombie villagers is 0 with "Should be 0 zombie villagers"
+
+test "spawn pig by variant" when running minecraft "1.21.5":
+	delete all pigs
+	set {_l} to test-location
+	spawn 5 warm pigs at {_l}
+	assert size of all warm pigs is 5 with "Size of all warm pigs is not 5"
+	assert size of all pigs is 5 with "Size of all pigs is not 5"
+	spawn 3 temperate pigs at {_l}
+	assert size of all temperate pigs is 3 with "Size of all temperate pigs is not 3"
+	assert size of all pigs is 8 with "Size of all pigs is not 8"
+	spawn 2 cold pigs at {_l}
+	assert size of all cold pigs is 2 with "Size of all cold pigs is not 2"
+	assert size of all pigs is 10 with "Size of all pigs is not 10"
+	delete all cold pigs
+	assert size of all cold pigs is 0 with "Cold pigs were not deleted"
+	assert size of all pigs is 8 with "Only cold pigs should have been deleted"
+	delete all temperate pigs
+	assert size of all temperate pigs is 0 with "Temperate pigs were not deleted"
+	assert size of all pigs is 5 with "Only temperate pigs should have been deleted"
+	delete all warm pigs
+	assert size of all warm pigs is 0 with "Warm pigs were not deleted"
