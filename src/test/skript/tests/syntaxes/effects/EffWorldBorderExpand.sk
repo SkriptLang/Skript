@@ -1,3 +1,5 @@
+using error catching
+
 test "worldborder expand":
 	set {_border} to worldborder of world("world")
 
@@ -35,9 +37,13 @@ test "worldborder expand":
 	assert worldborder radius of {_border} is 100 with "Growing border by None changed the radius"
 	shrink {_border} to {_None}
 	assert worldborder radius of {_border} is 100 with "Shrinking border to None changed the radius"
-	shrink {_border} by NaN value
+	catch runtime errors:
+		shrink {_border} by NaN value
+	assert last caught runtime errors contains "You can't shrink a world border by NaN." with "Shrinking by NaN did not throw error"
 	assert worldborder radius of {_border} is 100 with "Shrinking border by NaN changed the radius"
-	grow {_border} to NaN value
+	catch runtime errors:
+		grow {_border} to NaN value
+	assert last caught runtime errors contains "You can't grow a world border to NaN." with "Growing by NaN did not throw error"
 	assert worldborder radius of {_border} is 100 with "Growing border to NaN changed the radius"
 
 	# infinite values
