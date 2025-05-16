@@ -6,24 +6,24 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.test.utils.TestOfflinePlayer;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 @NoDoc
 public class ExprTestOfflinePlayer extends SimpleExpression<OfflinePlayer> {
 
-	// Sahvde
-	private static final OfflinePlayer PLAYER = Bukkit.getOfflinePlayer(UUID.fromString("69e37026-2c7d-4255-ac76-9b13a5fe8f74"));
+	private static final OfflinePlayer PLAYER;
 
 	static {
 		if (TestMode.ENABLED) {
 			Skript.registerExpression(ExprTestOfflinePlayer.class, OfflinePlayer.class, ExpressionType.SIMPLE,
 				"[the] test(-| )offline[-| ]player");
+			PLAYER = TestOfflinePlayer.getInstance();
+		} else {
+			PLAYER = null;
 		}
 	}
 
