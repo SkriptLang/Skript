@@ -59,7 +59,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression, boolean registerComparator) {
 		super(registryClass, codeName);
 		RegistryParser<R> registryParser = new RegistryParser<>(registry, languageNode);
-		usage(registryParser.getAllNames())
+		usage(registryParser.getCombinedPatterns())
 			.supplier(registry::iterator)
 			.serializer(new RegistrySerializer<R>(registry))
 			.defaultExpression(defaultExpression)

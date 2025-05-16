@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.util.common.AnyContains;
+import ch.njol.skript.util.LiteralUtils;
 import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -59,8 +60,8 @@ public class CondContains extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		containers = exprs[0];
-		items = exprs[1];
+		containers = LiteralUtils.defendExpression(exprs[0]);
+		items = LiteralUtils.defendExpression(exprs[1]);
 
 		explicitSingle = matchedPattern == 2 && parseResult.mark != 1 || containers.isSingle();
 
@@ -71,7 +72,7 @@ public class CondContains extends Condition {
 		}
 
 		this.setNegated(matchedPattern % 2 == 1);
-		return true;
+		return LiteralUtils.canInitSafely(containers, items);
 	}
 
 	@Override
