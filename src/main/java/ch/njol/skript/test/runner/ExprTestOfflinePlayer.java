@@ -12,10 +12,13 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 @NoDoc
 public class ExprTestOfflinePlayer extends SimpleExpression<OfflinePlayer> {
 
-	private static final OfflinePlayer PLAYER = Bukkit.getOfflinePlayer("Notch");
+	// Sahvde
+	private static final OfflinePlayer PLAYER = Bukkit.getOfflinePlayer(UUID.fromString("69e37026-2c7d-4255-ac76-9b13a5fe8f74"));
 
 	static {
 		if (TestMode.ENABLED) {
