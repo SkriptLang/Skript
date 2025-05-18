@@ -18,9 +18,9 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
 })
 @Example("""
-		on death:
-			if event-damage source scales with difficulty:
-		""")
+	on death:
+		if event-damage source scales with difficulty:
+	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperiment {

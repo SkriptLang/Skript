@@ -15,6 +15,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 @Description({
 	"The causing entity of a damage source.",
 	"The causing entity is the entity that ultimately caused the damage. (e.g. the entity that shot an arrow)",
+	"When setting a 'causing entity' you must also set a 'direct entity'.",
 	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
 })
 @Example("""
@@ -23,6 +24,10 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
 		set the damage location to location(0, 0, 10)
+	""")
+@Example("""
+	on damage:
+		set {_causing} to the causing entity of event-damage source
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")

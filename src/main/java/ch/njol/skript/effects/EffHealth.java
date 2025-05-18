@@ -14,11 +14,13 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Damageable;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 
 @Name("Damage/Heal/Repair")
 @Description({
@@ -47,7 +49,7 @@ public class EffHealth extends Effect {
 		if (!SUPPORTS_DAMAGE_SOURCE) {
 			PATTERNS = new Patterns<>(new Object[][]{
 				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]]", EffectType.DAMAGE},
-				{"heal %livingentities% [by %-number% heart[s]]", EffectType.HEAL},
+				{"heal %livingentities% [by %-number% [heart[s]]]", EffectType.HEAL},
 				{"repair %itemtypes/slots% [by %-number%]", EffectType.REPAIR}
 			});
 		} else {
@@ -157,13 +159,13 @@ public class EffHealth extends Effect {
 				if (object instanceof DamageCause damageCause) {
 					HealthUtils.damage(damageable, amount, DamageUtils.getDamageSourceFromCause(damageCause));
 					return;
-//				} else if (object instanceof DamageSource damageSource) {
-//					if (damageSource instanceof DamageSourceWrapper wrapper) {
-//						HealthUtils.damage(damageable, amount, wrapper.build());
-//					} else {
-//						HealthUtils.damage(damageable, amount, damageSource);
-//					}
-//					return;
+				} else if (object instanceof DamageSource damageSource) {
+					if (damageSource instanceof DamageSourceWrapper wrapper) {
+						HealthUtils.damage(damageable, amount, wrapper.build());
+					} else {
+						HealthUtils.damage(damageable, amount, damageSource);
+					}
+					return;
 				}
 			}
 			HealthUtils.damage(damageable, amount);

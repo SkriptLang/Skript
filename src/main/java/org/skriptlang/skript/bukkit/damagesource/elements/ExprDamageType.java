@@ -24,6 +24,10 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 		set the damage location to location(0, 0, 10)
 	damage all players by 5 using {_source}
 	""")
+@Example("""
+	on death:
+		set {_type} to the damage type of event-damage source
+	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperiment {

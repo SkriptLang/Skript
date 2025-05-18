@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.damagesource.elements;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SectionExpression;
@@ -19,22 +20,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Damage Source")
-@Description("Create a custom damage source and change the attributes.")
+@Description("Create a custom damage source and change the attributes. "
+	+ "When setting a 'causing entity' you must also set a 'direct entity'.")
 @Example("""
 	set {_source} to a new custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
 		set the damage location to location(0, 0, 10)
-		set the source location to location(10, 0, 0)
-		set the food exhaustion to 10
-		make the damage of event-damage source be indirect
-		make the damage of event-damage source scale with difficulty
 	damage all players by 5 using {_source}
 	""")
 @Example("""
@@ -45,15 +44,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Example("""
 	on death:
 		# This will error because you cannot change any attributes of a finalized damage source
-		set the food exhaustion of event-damage source to 20
+		set the damage type of event-damage source to player attack
 		
 		# You can grab a copy of the damage source, but any changes made will not be applied to this death event.
 		copy event-damage source to {_source}
-		set the food exhaustion of {_source} to 20
+		set the damage type of {_source} to player attack
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperiment {
+public class ExprSecDamageSource extends SectionExpression<DamageSource> implements SyntaxRuntimeErrorProducer, DamageSourceExperiment {
 
 	public static class DamageSourceSectionEvent extends Event {
 
@@ -80,6 +79,7 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 	}
 
 	private Trigger trigger = null;
+	private Node node;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
@@ -92,6 +92,7 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 				return false;
 			}
 		}
+		this.node = getParser().getNode();
 		return true;
 	}
 
@@ -101,6 +102,10 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 		if (trigger != null) {
 			DamageSourceSectionEvent sectionEvent = new DamageSourceSectionEvent(damageSource);
 			Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
+			if (damageSource.getCausingEntity() != null && damageSource.getDirectEntity() == null) {
+				error("You must set a 'direct entity' when setting a 'causing entity'.");
+				return null;
+			}
 		}
 		return new DamageSource[] {damageSource};
 	}
@@ -113,6 +118,11 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 	@Override
 	public Class<DamageSource> getReturnType() {
 		return DamageSource.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

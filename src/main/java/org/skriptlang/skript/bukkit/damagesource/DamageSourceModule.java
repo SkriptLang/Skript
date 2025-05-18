@@ -7,6 +7,8 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import org.bukkit.Registry;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -20,10 +22,7 @@ public class DamageSourceModule {
 
 		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
 
-		Class<?> damageSourceClass = Class.forName("org.bukkit.damage.DamageSource");
-
-		//noinspection unchecked,rawtypes
-		Classes.registerClass(new ClassInfo<>(damageSourceClass, "damagesource")
+		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
 			.user("damage ?sources?")
 			.name("Damage Source")
 			.description(
@@ -31,14 +30,14 @@ public class DamageSourceModule {
 				"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event.")
 			.since("INSERT VERSION")
 			.requiredPlugins("Minecraft 1.20.4+")
-			.defaultExpression(new EventValueExpression<>((Class) damageSourceClass))
-			.cloner(org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper::clone)
+			.defaultExpression(new EventValueExpression<>(DamageSource.class))
+			.cloner(DamageSourceWrapper::clone)
 		);
 
-		Comparators.registerComparator(damageSourceClass, org.bukkit.damage.DamageSource.class,
+		Comparators.registerComparator(DamageSource.class, DamageSource.class,
 			((o1, o2) -> Relation.get(o1.equals(o2))));
 
-		Classes.registerClass(new RegistryClassInfo<>(org.bukkit.damage.DamageType.class, Registry.DAMAGE_TYPE, "damagetype", "damage types")
+		Classes.registerClass(new RegistryClassInfo<>(DamageType.class, Registry.DAMAGE_TYPE, "damagetype", "damage types")
 			.user("damage ?types?")
 			.name("Damage Type")
 			.description("References a damage type of a damage source.")
@@ -47,9 +46,9 @@ public class DamageSourceModule {
 		);
 
 		if (Skript.methodExists(EntityDamageEvent.class, "getDamageSource"))
-			EventValues.registerEventValue(EntityDamageEvent.class, org.bukkit.damage.DamageSource.class, EntityDamageEvent::getDamageSource);
+			EventValues.registerEventValue(EntityDamageEvent.class, DamageSource.class, EntityDamageEvent::getDamageSource);
 		if (Skript.methodExists(EntityDeathEvent.class, "getDamageSource"))
-			EventValues.registerEventValue(EntityDeathEvent.class, org.bukkit.damage.DamageSource.class, EntityDeathEvent::getDamageSource);
+			EventValues.registerEventValue(EntityDeathEvent.class, DamageSource.class, EntityDeathEvent::getDamageSource);
 	}
 
 }

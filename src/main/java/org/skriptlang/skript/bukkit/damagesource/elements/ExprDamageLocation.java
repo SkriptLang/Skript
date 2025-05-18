@@ -14,7 +14,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 @Name("Damage Source - Damage Location")
 @Description({
 	"The location where the damage was originated from.",
-	"Vanilla damage sources will contain a 'damage location' if an entity did not cause the damage.",
+	"The 'damage location' on vanilla damage sources will be set if an entity did not cause the damage.",
 	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
 })
 @Example("""
@@ -24,6 +24,10 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 		set the direct entity to {_arrow}
 		set the damage location to location(0, 0, 10)
 	damage all players by 5 using {_source}
+	""")
+@Example("""
+	on death:
+		set {_location} to the damage location of event-damage source
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")

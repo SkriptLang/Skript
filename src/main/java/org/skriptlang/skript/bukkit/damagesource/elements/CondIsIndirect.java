@@ -16,9 +16,9 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
 })
 @Example("""
-		on damage:
-			if event-damage source is indirect:
-		""")
+	on damage:
+		if event-damage source is indirect:
+	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondIsIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperiment {

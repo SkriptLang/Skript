@@ -22,6 +22,8 @@ public class DamageSourceWrapper implements DamageSource {
 	private float foodExhaustion = 0f;
 	private boolean scalesWithDifficulty = false;
 
+	public DamageSourceWrapper() {}
+
 	@Override
 	public @NotNull DamageType getDamageType() {
 		return damageType;
@@ -105,29 +107,31 @@ public class DamageSourceWrapper implements DamageSource {
 	/**
 	 * {@link DamageSourceWrapper} is unable to be used with the only current method that accepts a {@link DamageSource},
 	 * {@link org.bukkit.entity.Damageable#damage(double, DamageSource)} as it can not be casted to a 'CraftDamageSource'.
-	 * Must grab a finalize {@link DamageSource} with this method.
+	 * Must grab a finalized {@link DamageSource} with this method.
 	 * @return {@link DamageSource}.
 	 */
 	public DamageSource build() {
-		return DamageSource.builder(damageType)
-			.withDamageLocation(damageLocation)
-			.withCausingEntity(causingEntity)
-			.withDirectEntity(directEntity)
-			.build();
+		DamageSource.Builder builder = DamageSource.builder(damageType);
+		if (damageLocation != null)
+			builder = builder.withDamageLocation(damageLocation);
+		if (causingEntity != null)
+			builder = builder.withCausingEntity(causingEntity);
+		if (directEntity != null)
+			builder = builder.withDirectEntity(directEntity);
+		return builder.build();
 	}
 
+	/**
+	 * Get a cloned {@link DamageSource}.
+	 * @param damageSource The {@link DamageSource} to be cloned.
+	 * @return The cloned {@link DamageSource}.
+	 */
 	public static DamageSource clone(DamageSource damageSource) {
 		return new DamageSourceWrapper()
 			.setDamageType(damageSource.getDamageType())
 			.setCausingEntity(damageSource.getCausingEntity())
 			.setDirectEntity(damageSource.getDirectEntity())
-			.setDamageLocation(damageSource.getSourceLocation());
-	}
-
-	public static @Nullable DamageSource clone(Object object) {
-		if (object instanceof DamageSource damageSource)
-			return clone(damageSource);
-		return null;
+			.setDamageLocation(damageSource.getDamageLocation());
 	}
 
 }
