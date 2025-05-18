@@ -1,0 +1,29 @@
+
+using damage source
+
+test "custom damage source" when running minecraft "1.20.4":
+	set {_damageLoc} to test-location
+	set {_sourceLoc} to (test-location) ~ vector(10, 0, 0)
+	spawn a pig at {_sourceLoc}:
+		set {_causing} to entity
+	spawn an arrow at {_damageLoc}:
+		set {_direct} to entity
+
+	set {_source} to a custom damage source:
+		set the damage type to player attack
+		set the causing entity to {_causing}
+		set the direct entity to {_direct}
+		set the damage location to {_damageLoc}
+	assert the damage type of {_source} is player attack with "Damage Type of damage source is incorrect"
+	assert the causing entity of {_source} is {_causing} with "Causing Entity of damage source is incorrect"
+	assert the direct entity of {_source} is {_direct} with "Direct Entity of damage source is incorrect"
+	assert the damage location of {_source} is {_damageLoc} with "Damage Location of damage source is incorrect"
+
+	set {DamageSource} to {_source}
+	spawn a villager at test-location:
+		set {_victim} to entity
+	damage {_victim} by 2 using {_source}
+
+	clear entity within {_causing}
+	clear entity within {_source}
+	clear entity within {_victim}
