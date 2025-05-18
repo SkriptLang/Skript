@@ -16,10 +16,14 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * A wrapper for an {@link OfflinePlayer} and a custom {@link PlayerProfile}.
+ * Allows having a valid {@link OfflinePlayer} object without the need to do any lookups, especially if Mojang authorization is down.
+ */
 public class TestOfflinePlayer implements OfflinePlayer {
 
-	private static final String PLAYER_NAME = "Sahvde";
-	private static final UUID PLAYER_UUID = UUID.fromString("69e37026-2c7d-4255-ac76-9b13a5fe8f74");
+	private static final String PLAYER_NAME = "SkriptLang";
+	private static final UUID PLAYER_UUID = UUID.randomUUID();
 	private static final OfflinePlayer PLAYER = Bukkit.getOfflinePlayer(PLAYER_UUID);
 	private static final PlayerProfile PLAYER_PROFILE = PLAYER.getPlayerProfile();
 	private static final @Nullable TestOfflinePlayer instance;
