@@ -73,6 +73,10 @@ public class SecLoop extends LoopSection {
 		Skript.registerSection(SecLoop.class, "loop %objects%");
 	}
 
+	public SecLoop getObject() {
+		return this;
+	}
+
 	protected @UnknownNullability Expression<?> expression;
 
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
