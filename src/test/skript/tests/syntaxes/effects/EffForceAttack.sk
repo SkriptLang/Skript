@@ -1,0 +1,28 @@
+
+test "force attack":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	make {_attacker} attack {_victim}
+	assert the health of {_victim} < {_max} with "Victim should have taken damage"
+	assert the last damage of {_victim} is 1.5 with "Damage taken should be 1.5"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
+
+test "entity damage entity by amount":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	make {_attacker} damage {_victim} by 5
+	assert the health of {_victim} < {_max} with "Victim should have taken damage"
+	assert the last damage of {_victim} is 5 with "Damage taken should be 5"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
