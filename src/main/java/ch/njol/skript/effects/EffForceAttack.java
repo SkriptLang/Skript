@@ -19,9 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"Using 'attack' will make the attacker use the item in their main hand "
 		+ "and will apply extra data from the item, including enchantments and attributes.",
 	"Using 'damage' with a number of hearts will not account for the item in the main hand "
-		+ "and will always be the number provided.",
-	"Both use cases will make the entity doing the attacking be the 'attacker' in an "
-		+ "'on damage' or 'on death' event."
+		+ "and will always be the number provided."
 })
 @Example("""
 	spawn a wolf at location(0, 0, 0)
