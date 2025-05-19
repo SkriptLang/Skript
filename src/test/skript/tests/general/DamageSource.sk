@@ -27,3 +27,17 @@ test "custom damage source" when running minecraft "1.20.4":
 	clear entity within {_causing}
 	clear entity within {_source}
 	clear entity within {_victim}
+
+parse:
+	results: {DamageSourceError}
+	code:
+		on damage:
+			set the damage type of event-damage source to player attack
+
+test "damage source error":
+	if running minecraft "1.20.4":
+		set {_error} to "You cannot change the attributes of a damage source outside a 'custom damage source' section."
+		assert {DamageSourceError} is {_error} with "Setting attribute of damage source outside of ExprSec should error"
+	else:
+		assert {DamageSourceError} partially matches "Can't understand this" with "Damage source usage on non-supported version should error"
+	clear {DamageSourceError}

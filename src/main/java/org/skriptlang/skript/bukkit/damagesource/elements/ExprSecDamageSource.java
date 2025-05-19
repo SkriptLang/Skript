@@ -26,8 +26,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Damage Source")
-@Description("Create a custom damage source and change the attributes. "
-	+ "When setting a 'causing entity' you must also set a 'direct entity'.")
+@Description({
+	"Create a custom damage source and change the attributes.",
+	"When setting a 'causing entity' you must also set a 'direct entity'.",
+	"Cannot change any attributes of a damage source outside the 'custom damage source' section."
+})
 @Example("""
 	set {_source} to a new custom damage source:
 		set the damage type to magic
@@ -40,15 +43,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	on damage:
 		if the damage type of event-damage source is magic:
 			set the damage to damage * 2
-	""")
-@Example("""
-	on death:
-		# This will error because you cannot change any attributes of a finalized damage source
-		set the damage type of event-damage source to player attack
-		
-		# You can grab a copy of the damage source, but any changes made will not be applied to this death event.
-		copy event-damage source to {_source}
-		set the damage type of {_source} to player attack
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
@@ -83,14 +77,20 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
-		if (node != null) {
-			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(node, "custom damage source", afterLoading, DamageSourceSectionEvent.class);
-			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'custom damage source' section.");
-				return false;
-			}
+		if (node == null) {
+			Skript.error("You must contain a section for this expression.");
+			return false;
+		} else if (node.isEmpty()) {
+			Skript.error("You must contain code inside this section.");
+			return false;
+		}
+
+		AtomicBoolean isDelayed = new AtomicBoolean(false);
+		Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
+		trigger = loadCode(node, "custom damage source", afterLoading, DamageSourceSectionEvent.class);
+		if (isDelayed.get()) {
+			Skript.error("Delays cannot be used within a 'custom damage source' section.");
+			return false;
 		}
 		this.node = getParser().getNode();
 		return true;
@@ -98,16 +98,14 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 
 	@Override
 	protected DamageSource @Nullable [] get(Event event) {
-		DamageSource damageSource = new DamageSourceWrapper();
-		if (trigger != null) {
-			DamageSourceSectionEvent sectionEvent = new DamageSourceSectionEvent(damageSource);
-			Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
-			if (damageSource.getCausingEntity() != null && damageSource.getDirectEntity() == null) {
-				error("You must set a 'direct entity' when setting a 'causing entity'.");
-				return null;
-			}
+		DamageSourceWrapper wrapper = new DamageSourceWrapper();
+		DamageSourceSectionEvent sectionEvent = new DamageSourceSectionEvent(wrapper);
+		Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
+		if (wrapper.getCausingEntity() != null && wrapper.getDirectEntity() == null) {
+			error("You must set a 'direct entity' when setting a 'causing entity'.");
+			return null;
 		}
-		return new DamageSource[] {damageSource};
+		return new DamageSource[] {wrapper};
 	}
 
 	@Override

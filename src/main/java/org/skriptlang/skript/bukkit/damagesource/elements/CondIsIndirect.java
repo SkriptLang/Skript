@@ -12,8 +12,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 @Description({
 	"Whether the damage from a damage source is indirect.",
 	"Vanilla damage sources are considered indirect if the 'causing entity' and the 'direct entity' are not the same. "
-		+ "(i.e. taking damage from an arrow that was shot by an entity)",
-	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
+		+ "(i.e. taking damage from an arrow that was shot by an entity)"
 })
 @Example("""
 	on damage:

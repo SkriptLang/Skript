@@ -12,8 +12,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	"The final location where the damage was originated from.",
 	"The 'source location' for vanilla damage sources will retrieve the 'damage location' if set. "
 		+  "If 'damage location' is not set, will attempt to grab the location of the 'causing entity', "
-		+ "otherwise, null.",
-	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
+		+ "otherwise, null."
 })
 @Example("""
 	on death:

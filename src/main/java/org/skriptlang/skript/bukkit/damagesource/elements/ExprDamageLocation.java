@@ -1,8 +1,12 @@
 package org.skriptlang.skript.bukkit.damagesource.elements;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
@@ -10,12 +14,13 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
+import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 
 @Name("Damage Source - Damage Location")
 @Description({
 	"The location where the damage was originated from.",
 	"The 'damage location' on vanilla damage sources will be set if an entity did not cause the damage.",
-	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
+	"Cannot change any attributes of a damage source outside the 'custom damage source' section."
 })
 @Example("""
 	set {_source} to a new custom damage source:
@@ -37,6 +42,14 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 		registerDefault(ExprDamageLocation.class, Location.class, "damage location", "damagesources");
 	}
 
+	private boolean isEvent;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isEvent = getParser().isCurrentEvent(DamageSourceSectionEvent.class);
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+	}
+
 	@Override
 	public @Nullable Location convert(DamageSource damageSource) {
 		return damageSource.getDamageLocation();
@@ -44,25 +57,25 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
+		if (!isEvent) {
+			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
+		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			return CollectionUtils.array(Location.class);
+		}
 		return null;
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Location location = delta == null ? null : (Location) delta[0];
+		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
+			return;
 
-		boolean hasFinal = false;
-		for (DamageSource damageSource : getExpr().getArray(event)) {
-			if (!(damageSource instanceof DamageSourceWrapper wrapper)) {
-				hasFinal = true;
-				continue;
-			}
-			wrapper.setDamageLocation(location);
-		}
-		if (hasFinal)
-			error("You cannot change the 'damage location' attribute of a finalized damage source.");
+		Location location = delta == null ? null : (Location) delta[0];
+		DamageSourceWrapper wrapper = (DamageSourceWrapper) sectionEvent.getDamageSource();
+		wrapper.setDamageLocation(location);
+
+		if (!getExpr().stream(event).filter(source -> !source.equals(wrapper)).toList().isEmpty())
+			error("You can only change the attributes of the damage source from this section.");
 	}
 
 	@Override

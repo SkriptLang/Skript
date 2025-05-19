@@ -13,10 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 
 @Name("Damage Source - Does Scale With Difficulty")
-@Description({
-	"Whether the damage from a damage source scales with the difficulty of the server.",
-	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
-})
+@Description("Whether the damage from a damage source scales with the difficulty of the server.")
 @Example("""
 	on death:
 		if event-damage source scales with difficulty:

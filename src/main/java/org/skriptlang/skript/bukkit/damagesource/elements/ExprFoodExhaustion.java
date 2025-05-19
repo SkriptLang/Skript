@@ -7,10 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 
 @Name("Damage Source - Food Exhaustion")
-@Description({
-	"The amount of hunger exhaustion caused by a damage source.",
-	"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
-})
+@Description("The amount of hunger exhaustion caused by a damage source.")
 @Example("""
 	on damage:
 		if the food exhaustion of event-damage source is 10:
