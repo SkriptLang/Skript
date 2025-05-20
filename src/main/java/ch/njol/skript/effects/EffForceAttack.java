@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Force Attack")
 @Description({
@@ -33,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 	"make last spawned wolf attack player"})
 @Since("2.5.1, INSERT VERSION (multiple, amount)")
 @RequiredPlugins("Minecraft 1.15.2+")
-public class EffForceAttack extends Effect {
+public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer {
 	
 	static {
 		Skript.registerEffect(EffForceAttack.class,
@@ -46,6 +48,7 @@ public class EffForceAttack extends Effect {
 	private Expression<LivingEntity> attackers;
 	private Expression<Entity> victims;
 	private @Nullable Expression<Number> amount;
+	private Node node;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -54,6 +57,7 @@ public class EffForceAttack extends Effect {
 		victims = (Expression<Entity>) exprs[1];
 		if (matchedPattern >= 2)
 			amount = (Expression<Number>) exprs[2];
+		node = getParser().getNode();
 		return true;
 	}
 	
@@ -64,7 +68,15 @@ public class EffForceAttack extends Effect {
 			Number number = this.amount.getSingle(event);
 			if (number == null)
 				return;
-			amount = number.doubleValue() * 2; // hearts
+			Double preAmount = number.doubleValue();
+			if (preAmount <= 0) {
+				error("Cannot damage an entity by 0 or less. Consider healing instead.");
+				return;
+			} else if (Double.isInfinite(preAmount)) {
+				error("Cannot damage an entity by infinity or NaN.");
+				return;
+			}
+			amount = preAmount * 2; // hearts
 		}
 
 		LivingEntity[] attackers = this.attackers.getArray(event);
@@ -85,7 +97,12 @@ public class EffForceAttack extends Effect {
 			}
 		}
 	}
-	
+
+	@Override
+	public Node getNode() {
+		return node;
+	}
+
 	@Override
 	public String toString(Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
