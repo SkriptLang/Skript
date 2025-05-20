@@ -46,6 +46,8 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isEvent = getParser().isCurrentEvent(DamageSourceSectionEvent.class);
+		Skript.adminBroadcast("Default: " + expressions[0].isDefault());
+		Skript.adminBroadcast("Single: " + expressions[0].isSingle());
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -58,6 +60,8 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isEvent) {
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
+		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
+			Skript.error("You can only change the attributes of the damage source from this section.");
 		} else if (mode == ChangeMode.SET) {
 			return CollectionUtils.array(DamageType.class);
 		}
@@ -73,9 +77,6 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 		DamageType damageType = (DamageType) delta[0];
 		DamageSourceWrapper wrapper = (DamageSourceWrapper) sectionEvent.getDamageSource();
 		wrapper.setDamageType(damageType);
-
-		if (!getExpr().stream(event).filter(source -> !source.equals(wrapper)).toList().isEmpty())
-			error("You can only change the attributes of the damage source from this section.");
 	}
 
 	@Override

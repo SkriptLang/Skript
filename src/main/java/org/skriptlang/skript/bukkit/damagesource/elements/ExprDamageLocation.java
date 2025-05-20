@@ -59,6 +59,8 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isEvent) {
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
+		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
+			Skript.error("You can only change the attributes of the damage source from this section.");
 		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			return CollectionUtils.array(Location.class);
 		}
@@ -73,9 +75,6 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 		Location location = delta == null ? null : (Location) delta[0];
 		DamageSourceWrapper wrapper = (DamageSourceWrapper) sectionEvent.getDamageSource();
 		wrapper.setDamageLocation(location);
-
-		if (!getExpr().stream(event).filter(source -> !source.equals(wrapper)).toList().isEmpty())
-			error("You can only change the attributes of the damage source from this section.");
 	}
 
 	@Override
