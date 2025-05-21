@@ -666,14 +666,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(UUID.class, String.class, (one, two) -> Relation.get(one.toString().equals(two)));
 
 		// ComponentWrapper
-		Comparators.registerComparator(ComponentWrapper.class, ComponentWrapper.class,
-			(o1, o2) -> {
-				boolean relation = true;
-				if (o1.getItemStack() != null && o2.getItemStack() != null)
-					relation = o1.getItemStack().equals(o2.getItemStack());
-				relation &= o1.getComponent().equals(o2.getComponent());
-				return Relation.get(relation);
-			});
+		Comparators.registerComparator(ComponentWrapper.class, ComponentWrapper.class, (o1, o2) -> Relation.get(o1.equals(o2)));
 	}
 	
 }

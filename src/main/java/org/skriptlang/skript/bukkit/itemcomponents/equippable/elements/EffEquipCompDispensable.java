@@ -11,13 +11,13 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Dispensable")
+@Name("Equippable Component - Dispense")
 @Description("If the item can be dispensed by a dispenser. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Example("set {_item} to be dispensable")
+@Example("allow {_item} to be dispensed")
 @Example("""
 	set {_component} to the equippable component of {_item}
-	make {_component} undispensable
+	prevent {_component} from being dispensed
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
@@ -25,8 +25,8 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 
 	static {
 		Skript.registerEffect(EffEquipCompDispensable.class,
-			"(set|make) %equippablecomponents% [to be] dispensable",
-			"(set|make) %equippablecomponents% [to be] (un|in|non)dispensable"
+			"allow %equippablecomponents% to be dispensed",
+			"prevent %equippablecomponents% from (being dispensed|dispensing)"
 		);
 	}
 
@@ -48,7 +48,9 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "set the " + wrappers.toString(event, debug) + " to be " + (dispensable ? "dispensable" : "undispensable");
+		if (dispensable)
+			return "allow " + wrappers.toString(event, debug) + " to be dispensed";
+		return "prevent " + wrappers.toString(event, debug) + " from being dispensed";
 	}
 
 }

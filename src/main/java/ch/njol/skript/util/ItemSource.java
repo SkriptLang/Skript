@@ -12,14 +12,12 @@ import ch.njol.skript.aliases.ItemType;
 public class ItemSource<T> {
 
 	private final T source;
-	private final ItemStack itemStack;
 
 	public ItemSource(T source) {
 		ItemStack itemStack = ItemUtils.asItemStack(source);
 		if (itemStack == null)
 			throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack");
 		this.source = source;
-		this.itemStack = itemStack;
 	}
 
 	/**
@@ -33,7 +31,7 @@ public class ItemSource<T> {
 	 * Get the {@link ItemStack} retrieved from {@link #source}.
 	 */
 	public ItemStack getItemStack() {
-		return itemStack;
+		return ItemUtils.asItemStack(source);
 	}
 
 	/**

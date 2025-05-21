@@ -11,22 +11,22 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Swappable")
-@Description("If the item can be swapped by right clicking it in your hand. "
+@Name("Equippable Component - Swap Equipment")
+@Description("If the item can be swapped by right clicking with it in your hand. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Example("set {_item} to be swappable")
+@Example("allow {_item} to swap equipment")
 @Example("""
 	set {_component} to the equippable component of {_item}
-	make {_component} unswappable
+	prevent {_component} from swapping equipment on right click
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class EffEquipCompSwappable extends Effect implements EquippableExperiment {
+public class EffEquipCompSwapEquipment extends Effect implements EquippableExperiment {
 
 	static {
-		Skript.registerEffect(EffEquipCompSwappable.class,
-			"(set|make) %equippablecomponents% [to be] swappable",
-			"(set|make) %equippablecomponents% [to be] unswappable"
+		Skript.registerEffect(EffEquipCompSwapEquipment.class,
+			"allow %equippablecomponents% to swap equipment [on right click|when right clicked]",
+			"prevent %equippablecomponents% from swapping equipment [on right click|when right clicked]"
 		);
 	}
 
@@ -48,6 +48,8 @@ public class EffEquipCompSwappable extends Effect implements EquippableExperimen
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "set the " + wrappers.toString(event, debug) + " to be " + (swappable ? "swappable" : "unswappable");
+		if (swappable)
+			return "allow " + wrappers.toString(event, debug) + " to swap equipment";
+		return "prevent " + wrappers.toString(event, debug) + " from swapping equipment";
 	}
 }

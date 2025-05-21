@@ -6,6 +6,8 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 
 public interface EquippableExperiment extends ExperimentalSyntax {
 
+	// TODO: Change this to 'SimpleExperimentalSyntax' when the PR containing is merged.
+
 	@Override
 	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
 		return experimentSet.hasExperiment(Feature.EQUIPPABLE_COMPONENTS);

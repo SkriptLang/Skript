@@ -5,6 +5,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
@@ -12,10 +13,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Can Equip On Interact")
-@Description("Whether an item can be equipped when interacted with. "
+@Name("Equippable Component - Can Equip On Entities")
+@Description("Whether an entity should equip the item when right clicking on the entity with the item. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Example("if {_item} can equip on interaction:")
+@Example("if {_item} can be equipped on entities:")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.5+")
 public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> implements EquippableExperiment {
@@ -23,8 +24,8 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "isEquipOnInteract"))
 			Skript.registerCondition(CondEquipCompInteract.class, ConditionType.PROPERTY,
-				"%equippablecomponents% can equip (on interact[ion]|when interacted)",
-				"%equippablecomponents% (can not|can't) equip (on interact[ion]|when interacted)"
+				"%equippablecomponents% can be equipped on[to] entities",
+				"%equippablecomponents% (can not|can't) be equipped on[to] entities"
 			);
 	}
 
@@ -46,13 +47,17 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 
 	@Override
 	protected String getPropertyName() {
-		return "equip on interaction";
+		return "equipped onto entities";
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return wrappers.toString(event, debug) + (isNegated() ? " can not " : " can ")
-			+ "equip on interaction";
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append(wrappers, "can");
+		if (isNegated())
+			builder.append("not");
+		builder.append("be equipped onto entities");
+		return builder.toString();
 	}
 
 }

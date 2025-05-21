@@ -11,7 +11,7 @@ import org.skriptlang.skript.lang.converter.Converter;
 import java.util.function.BiConsumer;
 
 /**
- * {@link ComponentWrapper} class for {@link EquippableComponent}.
+ * A {@link ComponentWrapper} for getting and setting data on an {@link EquippableComponent}
  */
 public class EquippableWrapper extends ComponentWrapper<EquippableComponent> {
 

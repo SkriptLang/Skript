@@ -12,10 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Equip On Interaction")
-@Description("If the item should be equipped when interacted with. "
+@Name("Equippable Component - Equip On Entities")
+@Description("If an entity should equip the item when right clicking on the entity with the item. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Example("make {_item} equip on interaction")
+@Example("allow {_item} to be equipped onto entities")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.5+")
 public class EffEquipCompInteract extends Effect implements EquippableExperiment {
@@ -23,7 +23,8 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "setEquipOnInteract", boolean.class))
 			Skript.registerEffect(EffEquipCompInteract.class,
-				"make %equippablecomponents% [:not] equip (on interact[ion]|when interacted)");
+				"allow %equippablecomponents% to be equipped on[to] entities",
+				"prevent %equippablecomponents% from being equipped on[to] entities");
 	}
 
 	private boolean equip;
@@ -33,7 +34,7 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		equip = !parseResult.hasTag("not");
+		equip = matchedPattern == 0;
 		return true;
 	}
 
@@ -44,8 +45,9 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "make " + wrappers.toString(event, debug) + (equip ? "" : " not ")
-			+ "equip on interaction";
+		if (equip)
+			return "allow " + wrappers.toString(event, debug) + " to be equipped onto entities";
+		return "prevent " + wrappers.toString(event, debug) + " from being equipped onto entities";
 	}
 
 }
