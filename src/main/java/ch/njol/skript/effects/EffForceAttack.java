@@ -72,8 +72,7 @@ public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer
 			if (preAmount <= 0) {
 				error("Cannot damage an entity by 0 or less. Consider healing instead.");
 				return;
-			} else if (Double.isInfinite(preAmount)) {
-				error("Cannot damage an entity by infinity or NaN.");
+			} else if (!Double.isFinite(preAmount)) {
 				return;
 			}
 			amount = preAmount * 2; // hearts

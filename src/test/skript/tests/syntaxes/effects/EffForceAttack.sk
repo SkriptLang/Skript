@@ -26,3 +26,36 @@ test "entity damage entity by amount":
 
 	clear entity within {_attacker}
 	clear entity within {_victim}
+
+test "entity damage entity by negative":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	# TODO: Catch Runtime Error
+	make {_attacker} damage {_victim} by -2
+	assert the health of {_victim} is {_max} with "Victim's health should be max - negative value"
+	assert the last damage of {_victim} is 0 with "Victim should not have taken damage - negative value"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
+
+test "entity damage entity by infinity/NaN":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	make {_attacker} damage {_victim} by infinity value
+	assert the health of {_victim} is {_max} with "Victim's health should be max - infinity value"
+	assert the last damage of {_victim} is 0 with "Victim should not have taken damage - infinity value"
+
+	make {_attacker} damage {_victim} by NaN value
+	assert the health of {_victim} is {_max} with "Victim's health should be max - NaN value"
+	assert the last damage of {_victim} is 0 with "Victim should not have taken damage - NaN value"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
