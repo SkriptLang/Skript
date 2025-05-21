@@ -701,13 +701,13 @@ entities:
 		pattern: painting(|1¦s)
 	pig:
 		name: pig¦s
-		pattern: <age> pig(|1¦s)|(4¦)piglet(|1¦s)
+		pattern: <age> [%-pigvariant%] pig(|1¦s)|(4¦)piglet(|1¦s)
 	saddled pig:
 		name: saddled pig¦s
-		pattern: saddled pig(|1¦s)
+		pattern: saddled [%-pigvariant%] pig(|1¦s)
 	unsaddled pig:
 		name: unsaddled pig¦s @an
-		pattern: unsaddled pig(|1¦s)
+		pattern: unsaddled [%-pigvariant%] pig(|1¦s)
 	player:
 		name: player¦s
 		pattern: player(|1¦s)
@@ -2586,6 +2586,12 @@ equipment slots:
 	off_hand: off hand slot, off hand
 	body: body slot, body armor slot, body armour slot
 
+# -- Pig Variants --
+pig variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
 # -- Boolean --
 boolean:
 	true:
@@ -2689,6 +2695,7 @@ types:
 	vehicle: vehicle¦s @a
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
+	pigvariant: pig variant¦s @a
 	equippablecomponent: equippable component¦s @an
 
 	# Skript
