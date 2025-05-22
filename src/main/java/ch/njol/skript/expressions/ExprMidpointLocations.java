@@ -18,19 +18,18 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
-@Name("Center of Locations")
-@Description("Get the center location from two locations in the same world.")
+@Name("Midpoint of Locations")
+@Description("Get the midpoint from two locations in the same world.")
 @Example("""
-	set {_center} to the center location from location(0, 0, 0) to location(10, 10, 10)
+	set {_center} to the midpoint between location(0, 0, 0) and location(10, 10, 10)
 	set {_centerBlock} to the block at {_center}
 	""")
 @Since("INSERT VERSION")
-public class ExprCenterLocations extends SimpleExpression<Location> implements SyntaxRuntimeErrorProducer {
+public class ExprMidpointLocations extends SimpleExpression<Location> implements SyntaxRuntimeErrorProducer {
 
 	static {
-		Skript.registerExpression(ExprCenterLocations.class, Location.class, ExpressionType.COMBINED,
-			"[the] (center|middle) (point|location) from %location% to %location%",
-			"[the] (center|middle) (point|location) (of|between) %location% and %location%");
+		Skript.registerExpression(ExprMidpointLocations.class, Location.class, ExpressionType.COMBINED,
+			"[the] mid[-]point (of|between) %location% and %location%");
 	}
 
 	private Expression<Location> location1;
@@ -54,7 +53,7 @@ public class ExprCenterLocations extends SimpleExpression<Location> implements S
 		if (loc1 == null || loc2 == null) {
 			return null;
 		} else if (loc1.getWorld() != loc2.getWorld()) {
-			error("Cannot get the center location of two locations in different worlds.");
+			error("Cannot get the midpoint of two locations in different worlds.");
 			return null;
 		}
 		World world = loc1.getWorld();
@@ -94,9 +93,9 @@ public class ExprCenterLocations extends SimpleExpression<Location> implements S
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return new SyntaxStringBuilder(event, debug)
-			.append("the center location from")
+			.append("the midpoint between")
 			.append(location1)
-			.append("to")
+			.append("and")
 			.append(location2)
 			.toString();
 	}
