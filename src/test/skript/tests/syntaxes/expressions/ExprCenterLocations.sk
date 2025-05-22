@@ -13,7 +13,15 @@ test "center locations - complex":
 	set {_center} to the center location from {_loc1} to {_loc2}
 	assert {_center} is location(-6.95, 51.2, 335.5) with "Complex center loc1 -> loc2 is incorrect"
 	set {_center2} to the center location from {_loc2} to {_loc1}
-	assert {_center} is location(-6.95, 51.2, 335.5) with "Complex center loc2 -> loc1 is incorrect"
+	assert {_center2} is location(-6.95, 51.2, 335.5) with "Complex center loc2 -> loc1 is incorrect"
+
+test "center locations - negative":
+	set {_loc1} to location(-48.2, -33.6, -97.8)
+	set {_loc2} to location(-257.3, -59.3, -327.4)
+	set {_center} to the center location from {_loc1} to {_loc2}
+	assert {_center} is location(-152.75, -46.45, -212.6) with "Negative center loc1 -> loc2 is incorrect"
+	set {_center2} to the center location from {_loc2} to {_loc1}
+	assert {_center2} is location(-152.75, -46.45, -212.6) with "Negative center loc2 -> loc1 is incorrect"
 
 test "center location - world error":
 	set {_loc1} to location(0, 0, 0)
