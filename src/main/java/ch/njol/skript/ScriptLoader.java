@@ -20,7 +20,6 @@ import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
-import ch.njol.skript.variables.TypeHints;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
@@ -951,6 +950,9 @@ public class ScriptLoader {
 
 		ArrayList<TriggerItem> items = new ArrayList<>();
 
+		// Begin local variable type hints
+		parser.getHintManager().enterScope();
+
 		boolean executionStops = false;
 		for (Node subNode : node) {
 			parser.setNode(subNode);
@@ -983,7 +985,6 @@ public class ScriptLoader {
 
 				items.add(item);
 			} else if (subNode instanceof SectionNode subSection) {
-				TypeHints.enterScope(); // Begin conditional type hints
 
 				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
 				find_section:
@@ -1023,9 +1024,6 @@ public class ScriptLoader {
 				}
 
 				items.add(item);
-
-				// Destroy these conditional type hints
-				TypeHints.exitScope();
 			} else {
 				continue;
 			}
@@ -1038,6 +1036,9 @@ public class ScriptLoader {
 			}
 			executionStops = item.executionIntent() != null;
 		}
+
+		// Destroy local variable type hints for this section
+		parser.getHintManager().exitScope();
 
 		for (int i = 0; i < items.size() - 1; i++)
 			items.get(i).setNext(items.get(i + 1));

@@ -5,6 +5,8 @@ import java.util.logging.Level;
 
 import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.variables.HintManager;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +93,7 @@ public class EffChange extends Effect {
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		mode = patterns.getInfo(matchedPattern);
 
 		switch (mode) {
@@ -234,24 +236,50 @@ public class EffChange extends Effect {
 				return false;
 			}
 
-			if (changed instanceof Variable && !changed.isSingle() && mode == ChangeMode.SET) {
-				if (ch instanceof ExprParse) {
-					((ExprParse) ch).flatten = false;
-				} else if (ch instanceof ExpressionList) {
-					for (Expression<?> expression : ((ExpressionList<?>) ch).getExpressions()) {
-						if (expression instanceof ExprParse)
-							((ExprParse) expression).flatten = false;
+			if (changed instanceof Variable<?> variable) {
+				// special ExprParse handling
+				if (!variable.isSingle() && mode == ChangeMode.SET) {
+					if (ch instanceof ExprParse exprParse) {
+						exprParse.flatten = false;
+					} else if (ch instanceof ExpressionList<?> exprList) {
+						for (Expression<?> expr : exprList.getExpressions()) {
+							if (expr instanceof ExprParse exprParse) {
+								exprParse.flatten = false;
+							}
+						}
+					}
+				}
+
+				// handling for operations that might update the type(s) of a variable
+				if (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD)) {
+					if (variable.isLocal()) { // hint handling
+						VariableString name = variable.getName();
+						if (name.isSimple()) { // only simple variables (i.e. the name doesn't contain an expression) can have hints
+							HintManager hintManager = getParser().getHintManager();
+							String variableName = name.toString(null);
+							Class<?> hint = ch.getReturnType();
+							if (mode == ChangeMode.SET) { // override other type hints
+								hintManager.set(variableName, hint);
+							} else { // add to existing
+								hintManager.add(variableName, hint);
+							}
+						}
+					} else { // global variables: check whether the value can be saved
+						ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
+						if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
+							ParserInstance parser = getParser();
+							if (parser.isActive() && !parser.getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
+								Skript.warning(ci.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + changed + " will be lost when the server stops.");
+							}
+						}
 					}
 				}
 			}
-
-			if (changed instanceof Variable && !((Variable<?>) changed).isLocal() && (mode == ChangeMode.SET || ((Variable<?>) changed).isList() && mode == ChangeMode.ADD)) {
-				final ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
-				if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
-					if (getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
-						Skript.warning(ci.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + changed + " will be lost when the server stops.");
-					}
-				}
+		} else if (changed instanceof Variable<?> variable && mode == ChangeMode.DELETE && variable.isLocal()) {
+			// remove type hints in this scope only for a deleted variable
+			VariableString name = variable.getName();
+			if (name.isSimple()) {
+				getParser().getHintManager().delete(name.toString(null));
 			}
 		}
 		return true;

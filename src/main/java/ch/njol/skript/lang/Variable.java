@@ -27,7 +27,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.TypeHints;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -196,32 +195,39 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 		// Check for local variable type hints
 		if (isLocal && variableString.isSimple()) { // Only variable names we fully know already
-			Class<?> hint = TypeHints.get(variableString.toString());
-			if (hint != null && !hint.equals(Object.class)) { // Type hint available
+			Set<Class<?>> hints = parser.getHintManager().get(variableString.toString(null));
+			if (!hints.isEmpty()) { // Type hint(s) available
+				List<Class<? extends T>> potentialTypes = new ArrayList<>();
+
 				// See if we can get correct type without conversion
 				for (Class<? extends T> type : types) {
-					assert type != null;
-					if (type.isAssignableFrom(hint)) {
-						// Hint matches, use variable with exactly correct type
-						return new Variable<>(variableString, CollectionUtils.array(type), true, isPlural, null);
+					// check whether we could resolve to 'type' at runtime
+					if (hints.stream().anyMatch(hint -> {
+						// edge case: see Expression#beforeChange
+						if (hint == ch.njol.skript.util.slot.Slot.class && type == org.bukkit.inventory.ItemStack.class) {
+							return true;
+						}
+						// typically, check whether the types align
+						return type.isAssignableFrom(hint);
+					})) {
+						potentialTypes.add(type);
 					}
+				}
+				if (!potentialTypes.isEmpty()) { // Hint matches, use variable with exactly correct type
+					//noinspection unchecked
+					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isPlural, null);
 				}
 
 				// Or with conversion?
 				for (Class<? extends T> type : types) {
-					if (Converters.converterExists(hint, type)) {
-						// Hint matches, even though converter is needed
-						return new Variable<>(variableString, CollectionUtils.array(type), true, isPlural, null);
+					// check whether we could resolve to 'type' at runtime (with conversion)
+					if (hints.stream().anyMatch(hint -> Converters.converterExists(hint, type))) {
+						potentialTypes.add(type);
 					}
-
-					// Special cases
-					if (type.isAssignableFrom(World.class) && hint.isAssignableFrom(String.class)) {
-						// String->World conversion is weird spaghetti code
-						return new Variable<>(variableString, types, true, isPlural, null);
-					} else if (type.isAssignableFrom(Player.class) && hint.isAssignableFrom(String.class)) {
-						// String->Player conversion is not available at this point
-						return new Variable<>(variableString, types, true, isPlural, null);
-					}
+				}
+				if (!potentialTypes.isEmpty()) { // Hint matches, even though converter is needed
+					//noinspection unchecked
+					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isPlural, null);
 				}
 
 				// Hint exists and does NOT match any types requested
@@ -229,8 +235,12 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				for (int i = 0; i < types.length; i++) {
 					infos[i] = Classes.getExactClassInfo(types[i]);
 				}
-				Skript.warning("Variable '{_" + name + "}' is " + Classes.toString(Classes.getExactClassInfo(hint))
-					+ ", not " + Classes.toString(infos, false));
+				ClassInfo<?>[] hintInfos = hints.stream()
+						.map(Classes::getExactClassInfo)
+						.toArray(ClassInfo[]::new);
+				String isTypes = Utils.a(Classes.toString(hintInfos, false));
+				String notTypes = Utils.a(Classes.toString(infos, false));
+				Skript.warning("Expected variable '{_" + variableString.toString(null) + "}' to be " + notTypes + ", but it is " + isTypes);
 				// Fall back to not having any type hints
 			}
 		}
