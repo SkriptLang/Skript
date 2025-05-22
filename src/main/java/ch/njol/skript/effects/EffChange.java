@@ -254,11 +254,11 @@ public class EffChange extends Effect {
 				if (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD)) {
 					if (HintManager.canUseHints(variable)) { // hint handling
 						HintManager hintManager = getParser().getHintManager();
-						Class<?> hint = ch.getReturnType();
+						Class<?>[] hints = ch.possibleReturnTypes();
 						if (mode == ChangeMode.SET) { // override existing hints in scope
-							hintManager.set(variable, hint);
+							hintManager.set(variable, hints);
 						} else {
-							hintManager.add(variable, hint);
+							hintManager.add(variable, hints);
 						}
 					}
 					if (!variable.isLocal()) { // global variables: check whether the value can be saved
