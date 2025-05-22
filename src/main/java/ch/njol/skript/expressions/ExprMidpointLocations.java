@@ -15,6 +15,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
@@ -57,22 +58,8 @@ public class ExprMidpointLocations extends SimpleExpression<Location> implements
 			return null;
 		}
 		World world = loc1.getWorld();
-		double xLoc = getCenter(loc1.getX(), loc2.getX());
-		double yLoc = getCenter(loc1.getY(), loc2.getY());
-		double zLoc = getCenter(loc1.getZ(), loc2.getZ());
-		return new Location[] {new Location(world, xLoc, yLoc, zLoc)};
-	}
-
-	private double getCenter(double pos1, double pos2) {
-		double highestPos = pos1;
-		double lowestPos = pos2;
-		if (pos2 > pos1) {
-			highestPos = pos2;
-			lowestPos = pos1;
-		}
-		double difference = Math.abs(highestPos - lowestPos);
-		double halved = difference / 2;
-		return highestPos - halved;
+		Vector vector = loc1.toVector().getMidpoint(loc2.toVector());
+		return new Location[] {vector.toLocation(world)};
 	}
 
 	@Override
