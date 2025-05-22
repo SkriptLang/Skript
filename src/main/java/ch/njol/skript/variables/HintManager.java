@@ -1,6 +1,7 @@
 package ch.njol.skript.variables;
 
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
@@ -21,7 +22,7 @@ import java.util.Set;
  * That is, when entering a scope ({@link #enterScope()}, it is initialized with the hints of the previous top-level scope.
  * When exiting a scope {@link #enterScope()}, remaining hints from that scope are added to the existing hints of the new top-level scope.
  * Thus, it is only necessary to obtain hints for the current scope.
- * {@link #get(String)} is provided for obtaining the hints of a variable in the current scope.
+ * {@link #get(Variable)} is provided for obtaining the hints of a variable in the current scope.
  * </p>
  * <h4>Hint Modification</h4>
  * <p>
@@ -34,7 +35,7 @@ import java.util.Set;
  * }
  * </pre>
  * </p>
- * A SET operation overrides all existing type hints for a variable <b>in the current scope</b> (see {@link #set(String, Class[])}).
+ * A SET operation overrides all existing type hints for a variable <b>in the current scope</b> (see {@link #set(Variable, Class[])}).
  * In a more advanced example, we can see how hints are shared between scopes:
  * <pre>
  * {@code
@@ -49,7 +50,7 @@ import java.util.Set;
  * }
  * </pre>
  * </p>
- * ADD is another considered operation (see {@link #add(String, Class[])}).
+ * ADD is another considered operation (see {@link #add(Variable, Class[])}).
  * Consider the following example:
  * <pre>
  * {@code
@@ -60,7 +61,7 @@ import java.util.Set;
  * Essentially, an ADD operation is handled similarly to a SET operation, but hints are combined rather than overridden,
  *  as the list may contain other types.
  * Note that REMOVE is <b>not</b> a handled operation, as a list variable might contain multiple values of some type.
- * Finally, a DELETE operation (see {@link #delete(String)}) allows us to trim down context where applicable.
+ * Finally, a DELETE operation (see {@link #delete(Variable)}) allows us to trim down context where applicable.
  * Consider the following examples:
  * <pre>
  * {@code
@@ -90,6 +91,7 @@ public class HintManager {
 	/**
 	 * Enters a new scope (e.g. new section) for storing hints.
 	 * Hints from the previous scope (level above) are copied over.
+	 * @see #exitScope()
 	 */
 	public void enterScope() {
 		if (typeHints.isEmpty()) {
@@ -102,6 +104,7 @@ public class HintManager {
 	/**
 	 * Exits the top-level scope (e.g. current section).
 	 * Hints from the exited scope will be copied over to the new top-level scope.
+	 * @see #enterScope()
 	 */
 	public void exitScope() {
 		var hintMap = typeHints.pop();
@@ -115,9 +118,21 @@ public class HintManager {
 	}
 
 	/**
+	 * Overrides hints for {@code variable} in the current scope.
+	 * @param variable The variable to set {@code hints} for.
+	 * @param hints The hint(s) to set for {@code variable}.
+	 * @see #set(String, Class[])    
+	 */
+	public void set(Variable<?> variable, Class<?>... hints) {
+		checkCanUseHints(variable);
+		set(variable.getName().toString(null), hints);
+	}
+
+	/**
 	 * Overrides hints for {@code variableName} in the current scope.
 	 * @param variableName The name of the variable to set {@code hints} for.
 	 * @param hints The hint(s) to set for {@code variableName}.
+	 * @see #set(Variable, Class[])    
 	 */
 	public void set(String variableName, Class<?>... hints) {
 		checkState();
@@ -132,8 +147,19 @@ public class HintManager {
 	}
 
 	/**
+	 * Deletes hints for {@code variable} in the current scope.
+	 * @param variable The variable to clear hints for.
+	 * @see #delete(String)     
+	 */
+	public void delete(Variable<?> variable) {
+		checkCanUseHints(variable);
+		delete(variable.getName().toString(null));
+	}
+
+	/**
 	 * Deletes hints for {@code variableName} in the current scope.
 	 * @param variableName The name of the variable to clear hints for.
+	 * @see #delete(Variable)    
 	 */
 	public void delete(String variableName) {
 		checkState();
@@ -142,9 +168,21 @@ public class HintManager {
 	}
 
 	/**
+	 * Adds hints for {@code variable} in the current scope.
+	 * @param variable The variable to add {@code hints} to.
+	 * @param hints The hint(s) to add for {@code variable}.
+	 * @see #add(String, Class[])    
+	 */
+	public void add(Variable<?> variable, Class<?>... hints) {
+		checkCanUseHints(variable);
+		add(variable.getName().toString(null), hints);
+	}
+
+	/**
 	 * Adds hints for {@code variableName} in the current scope.
 	 * @param variableName The name of the variable to add {@code hints} to.
-	 * @param hints The hint(s) to set for {@code variableName}.
+	 * @param hints The hint(s) to add for {@code variableName}.
+	 * @see #add(Variable, Class[])    
 	 */
 	public void add(String variableName, Class<?>... hints) {
 		checkState();
@@ -158,16 +196,56 @@ public class HintManager {
 	}
 
 	/**
-	 * Obtains the type hints for {@code variableName} in the current scope.
-	 * @param variableName The name of the variable whose hints should be obtained.
+	 * Removes hints for {@code variable} in the current scope.
+	 * @param variable The variable to remove {@code hints} from.
+	 * @param hints The hint(s) to remove for {@code variable}.
+	 * @see #remove(String, Class[])
+	 */
+	public void remove(Variable<?> variable, Class<?>... hints) {
+		checkCanUseHints(variable);
+		remove(variable.getName().toString(null), hints);
+	}
+
+	/**
+	 * Removes hints for {@code variableName} in the current scope.
+	 * @param variableName The name of the variable to add {@code hints} to.
+	 * @param hints The hint(s) to remove for {@code variableName}.
+	 * @see #remove(Variable, Class[])
+	 */
+	public void remove(String variableName, Class<?>... hints) {
+		checkState();
+		//noinspection DataFlowIssue - verified by checkState
+		Set<Class<?>> hintSet = typeHints.peek().get(variableName);
+		if (hintSet != null) {
+			for (Class<?> hint : hints) {
+				hintSet.remove(hint);
+			}
+		}
+	}
+
+	/**
+	 * Obtains the type hints for {@code variable} in the current scope.
+	 * @param variable The variable to get hints from.
 	 * @return An unmodifiable set of hints.
+	 * @see #get(String) 
+	 */
+	public @Unmodifiable Set<Class<?>> get(Variable<?> variable) {
+		checkCanUseHints(variable);
+		return get(variable.getName().toString(null));
+	}
+
+	/**
+	 * Obtains the type hints for {@code variableName} in the current scope.
+	 * @param variableName The name of the variable to get hints from.
+	 * @return An unmodifiable set of hints.
+	 * @see #add(Variable, Class[]) 
 	 */
 	public @Unmodifiable Set<Class<?>> get(String variableName) {
 		checkState();
 		//noinspection DataFlowIssue - verified by checkState
-		Set<Class<?>> hints = typeHints.peek().get(variableName);
-		if (hints != null) {
-			return ImmutableSet.copyOf(hints);
+		Set<Class<?>> hintSet = typeHints.peek().get(variableName);
+		if (hintSet != null) {
+			return ImmutableSet.copyOf(hintSet);
 		}
 		return ImmutableSet.of();
 	}
@@ -175,6 +253,20 @@ public class HintManager {
 	private void checkState() {
 		if (typeHints.isEmpty()) {
 			throw new SkriptAPIException("Attempted to use type hints outside of any scope");
+		}
+	}
+
+	/**
+	 * @param variable The variable to check.
+	 * @return Whether hints can be used for {@code variable}.
+	 */
+	public static boolean canUseHints(Variable<?> variable) {
+		return variable.isLocal() && variable.getName().isSimple();
+	}
+
+	private static void checkCanUseHints(Variable<?> variable) {
+		if (!canUseHints(variable)) {
+			throw new IllegalArgumentException("Variables must be local and have a simple name to have hints");
 		}
 	}
 

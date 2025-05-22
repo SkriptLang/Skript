@@ -252,19 +252,16 @@ public class EffChange extends Effect {
 
 				// handling for operations that might update the type(s) of a variable
 				if (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD)) {
-					if (variable.isLocal()) { // hint handling
-						VariableString name = variable.getName();
-						if (name.isSimple()) { // only simple variables (i.e. the name doesn't contain an expression) can have hints
-							HintManager hintManager = getParser().getHintManager();
-							String variableName = name.toString(null);
-							Class<?> hint = ch.getReturnType();
-							if (mode == ChangeMode.SET) { // override other type hints
-								hintManager.set(variableName, hint);
-							} else { // add to existing
-								hintManager.add(variableName, hint);
-							}
+					if (HintManager.canUseHints(variable)) { // hint handling
+						HintManager hintManager = getParser().getHintManager();
+						Class<?> hint = ch.getReturnType();
+						if (mode == ChangeMode.SET) { // override existing hints in scope
+							hintManager.set(variable, hint);
+						} else {
+							hintManager.add(variable, hint);
 						}
-					} else { // global variables: check whether the value can be saved
+					}
+					if (!variable.isLocal()) { // global variables: check whether the value can be saved
 						ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
 						if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
 							ParserInstance parser = getParser();
@@ -275,12 +272,9 @@ public class EffChange extends Effect {
 					}
 				}
 			}
-		} else if (changed instanceof Variable<?> variable && mode == ChangeMode.DELETE && variable.isLocal()) {
+		} else if (changed instanceof Variable<?> variable && mode == ChangeMode.DELETE && HintManager.canUseHints(variable)) {
 			// remove type hints in this scope only for a deleted variable
-			VariableString name = variable.getName();
-			if (name.isSimple()) {
-				getParser().getHintManager().delete(name.toString(null));
-			}
+			getParser().getHintManager().delete(variable);
 		}
 		return true;
 	}
