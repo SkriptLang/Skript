@@ -29,7 +29,8 @@ public class ExprCenterLocations extends SimpleExpression<Location> implements S
 
 	static {
 		Skript.registerExpression(ExprCenterLocations.class, Location.class, ExpressionType.COMBINED,
-			"[the] (center|middle) (point|location) from %location% to %location%");
+			"[the] (center|middle) (point|location) from %location% to %location%",
+			"[the] (center|middle) (point|location) (of|between) %location% and %location%");
 	}
 
 	private Expression<Location> location1;
