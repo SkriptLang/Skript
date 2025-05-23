@@ -544,7 +544,7 @@ entities:
 		pattern: blaze(|1¦s)
 	chicken:
 		name: chicken¦s
-		pattern: <age> chicken(|1¦s)|(4¦)chick(|1¦s)
+		pattern: <age> [%-chickenvariant%] chicken[1:s]|(4:)[%-chickenvariant%] chick[1:s]
 	cow:
 		name: cow¦s
 		pattern: <age> cow(|1¦s)|(4¦)cal(f|1¦ves)
@@ -2592,6 +2592,12 @@ pig variants:
 	temperate: temperate
 	warm: warm
 
+# -- Chicken Variants --
+chicken variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
 # -- Boolean --
 boolean:
 	true:
@@ -2696,6 +2702,7 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	chickenvariant: chicken variant¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
