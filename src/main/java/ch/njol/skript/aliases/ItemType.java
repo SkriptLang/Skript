@@ -1339,23 +1339,71 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Checks whether this item type contains the given enchantments.
-	 * Also checks the enchantment level.
+	 * Checks whether this item type contains all the given enchantments.
+	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
 	 * @param enchantments The enchantments to be checked.
 	 */
 	public boolean hasEnchantments(EnchantmentType... enchantments) {
+		return hasEnchantments(true, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains the given enchantments.
+	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
+	 * @param all Whether to check all enchantments or any enchantment.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasEnchantments(boolean all, EnchantmentType... enchantments) {
 		if (!hasEnchantments())
 			return false;
 		ItemMeta meta = getItemMeta();
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
 			assert type != null; // Bukkit working different than we expect
-			if (!meta.hasEnchant(type))
+			if (!meta.hasEnchant(type) && all)
 				return false;
-			if (enchantment.getInternalLevel() != -1 && meta.getEnchantLevel(type) < enchantment.getLevel())
+			if (enchantment.getInternalLevel() == -1 || meta.getEnchantLevel(type) >= enchantment.getLevel()) {
+				if (!all)
+					return true;
+			} else if (all) {
 				return false;
+			}
 		}
-		return true;
+		return all;
+	}
+
+	/**
+	 * Checks whether this item type contains all the given enchantments with the given level.
+	 * EnchantmentTypes that do not specify a level match any level.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasExactEnchantments(EnchantmentType... enchantments) {
+		return hasExactEnchantments(true, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains the given enchantments with the given level.
+	 * EnchantmentTypes that do not specify a level match any level.
+	 * @param all Whether to check all enchantments or any enchantment.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasExactEnchantments(boolean all, EnchantmentType... enchantments) {
+		if (!hasEnchantments())
+			return false;
+		ItemMeta meta = getItemMeta();
+		for (EnchantmentType enchantment : enchantments) {
+			Enchantment type = enchantment.getType();
+			assert type != null; // Bukkit working different than we expect
+			if (!meta.hasEnchant(type) && all)
+				return false;
+			if (enchantment.getInternalLevel() == -1 || meta.getEnchantLevel(type) == enchantment.getLevel()) {
+				if (!all)
+					return true;
+			} else if (all) {
+				return false;
+			}
+		}
+		return all;
 	}
 
 	/**
