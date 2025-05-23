@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 public class CondEntityIsWet extends PropertyCondition<Entity> {
 	
 	static {
+		// TODO - remove this when Spigot support is dropped
 		if (Skript.methodExists(Entity.class, "isInWaterOrRainOrBubbleColumn"))
 			register(CondEntityIsWet.class, "wet", "entities");
 	}

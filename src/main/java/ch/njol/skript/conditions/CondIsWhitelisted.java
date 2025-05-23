@@ -26,15 +26,11 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("MC 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {
 
-	private static final boolean ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "isWhitelistEnforced");
-
 	static {
-		String[] patterns = new String[ENFORCE_SUPPORT ? 3 : 2];
-		patterns[0] = "[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)";
-		patterns[1] = "%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed";
-		if (ENFORCE_SUPPORT)
-			patterns[2] = "[the] server white[ ]list (is|not:(isn't|is not)) enforced";
-		Skript.registerCondition(CondIsWhitelisted.class, patterns);
+		Skript.registerCondition(CondIsWhitelisted.class,
+			"[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)",
+			"%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed",
+			"[the] server white[ ]list (is|not:(isn't|is not)) enforced");
 	}
 
 	@Nullable
