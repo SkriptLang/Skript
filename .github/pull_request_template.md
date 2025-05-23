@@ -1,7 +1,19 @@
-### Description
-<!--- Describe your changes here. --->
+### Problem
+<!--- Why is this PR necessary? What problems exist that needed solving?  --->
+
+
+### Solution
+<!--- Explain how your solution fixes the problem and summarize the major code changes.  --->
+
+
+### Testing Completed
+<!--- List test scripts/unit tests and any manual testing that was performed. If no test scripts or unit tests are present, explain why.  --->
+
+
+### Supporting Information
+<!--- Any related information, todos, breaking changes, or outstanding issues can be described here --->
+
 
 ---
-**Target Minecraft Versions:** any <!-- 'any' means all supported versions -->
-**Requirements:** none <!-- Required plugins, server software... -->
-**Related Issues:** none <!-- Links to related issues -->
+**Completes:** none <!-- Links to issues or discussions that should be completed when this PR is merged. -->
+**Related:** none <!-- Links to issues or discussions with related information -->
