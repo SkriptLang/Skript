@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.variables.HintManager;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -117,6 +118,24 @@ public class SecFor extends SecLoop implements ExperimentalSyntax {
 			return false;
 		}
 		//</editor-fold>
+
+		//<editor-fold desc="Handle type hints for variables" defaultstate="collapsed">
+		// we add because there is no guarantee the loop will run
+		HintManager hintManager = getParser().getHintManager();
+		if (keyStore != null && HintManager.canUseHints((Variable<?>) keyStore)) {
+			Class<?>[] hints;
+			if (expression instanceof Variable) { // variable indices (keys) are strings
+				hints = new Class[]{String.class};
+			} else { // keyStore may hold strings or longs
+				hints = new Class[]{String.class, Long.class};
+			}
+			hintManager.add((Variable<?>) keyStore, hints);
+		}
+		if (valueStore != null && HintManager.canUseHints((Variable<?>) valueStore)) {
+			hintManager.add((Variable<?>) valueStore, expression.possibleReturnTypes());
+		}
+		//</editor-fold>
+
 		this.loadOptionalCode(sectionNode);
 		this.setInternalNext(this);
 		return true;
