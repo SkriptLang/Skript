@@ -16,7 +16,7 @@ public class ClassLoaderTest {
 
 	static {
 		if (!Skript.classExists("org.bukkit.damage.DamageSource"))
-			ignore.add("DamageSourceWrapper");
+			ignore.add("MutableDamageSource");
 	}
 
 	private static void load(ClassLoader loader) {
