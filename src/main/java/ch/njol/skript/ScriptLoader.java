@@ -5,6 +5,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
+import ch.njol.skript.lang.ExecutionIntent;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Statement;
@@ -1037,6 +1038,11 @@ public class ScriptLoader {
 			executionStops = item.executionIntent() != null;
 		}
 
+		// If the previous section contains a statement that stops the trigger, then any type hints
+		// provided by the section are not useful. Thus, we clear them.
+		if (items.stream().anyMatch(item -> item.executionIntent() instanceof ExecutionIntent.StopTrigger)) {
+			parser.getHintManager().resetScope();
+		}
 		// Destroy local variable type hints for this section
 		parser.getHintManager().exitScope();
 

@@ -1,3 +1,6 @@
+on script load:
+	suppress unreachable code warnings
+
 test "type hints":
 
 	parse:
@@ -33,5 +36,22 @@ test "type hints":
 		if true is true: # some condition
 			set {_x} to true
 			delete {_x} # should remove typehint
+		set {_a} to {_x} in lowercase
+	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+
+	parse:
+		set {_x} to 10
+		if true is true: # some condition
+			set {_x} to true
+			stop # should prevent type hints from being copied
+		set {_a} to {_x} in lowercase
+	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+
+	parse:
+		set {_x} to 10
+		if true is true: # some condition
+			set {_x} to true
+			stop # should prevent type hints from being copied
+			set {_x} to 10.0 # unreachable, should prevent hints
 		set {_a} to {_x} in lowercase
 	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"

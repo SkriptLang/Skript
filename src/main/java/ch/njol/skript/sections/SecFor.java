@@ -24,7 +24,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -133,7 +132,6 @@ public class SecFor extends SecLoop implements ExperimentalSyntax {
 			hintManager.add((Variable<?>) keyStore, hints);
 		}
 		if (valueStore != null && HintManager.canUseHints((Variable<?>) valueStore)) {
-			System.out.println(expression.toString(null, false) + " | " + Arrays.toString(expression.possibleReturnTypes()));
 			hintManager.add((Variable<?>) valueStore, expression.possibleReturnTypes());
 		}
 		//</editor-fold>

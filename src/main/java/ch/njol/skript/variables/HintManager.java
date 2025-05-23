@@ -89,20 +89,20 @@ public class HintManager {
 	private final Deque<Map<String, Set<Class<?>>>> typeHints = new ArrayDeque<>();
 
 	/**
-	 * Enters a new scope (e.g. new section) for storing hints.
-	 * Hints from the previous scope (level above) are copied over.
+	 * Enters a new scope for storing hints.
+	 * Hints from the previous (current top-level) scope are copied over.
 	 * @see #exitScope()
 	 */
 	public void enterScope() {
 		if (typeHints.isEmpty()) {
 			typeHints.push(new HashMap<>());
-		} else { // copy over available values
+		} else { // copy over available valuescle
 			typeHints.push(new HashMap<>(typeHints.peek()));
 		}
 	}
 
 	/**
-	 * Exits the top-level scope (e.g. current section).
+	 * Exits the current (top-level) scope.
 	 * Hints from the exited scope will be copied over to the new top-level scope.
 	 * @see #enterScope()
 	 */
@@ -115,6 +115,15 @@ public class HintManager {
 				topMap.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).addAll(entry.getValue());
 			}
 		}
+	}
+
+	/**
+	 * Resets (clears) all type hints for the current (top-level) scope.
+	 */
+	public void resetScope() {
+		checkState();
+		//noinspection DataFlowIssue - verified by checkState
+		typeHints.peek().clear();
 	}
 
 	/**
