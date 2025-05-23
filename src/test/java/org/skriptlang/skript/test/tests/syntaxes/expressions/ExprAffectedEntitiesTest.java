@@ -24,7 +24,7 @@ public class ExprAffectedEntitiesTest extends SkriptJUnitTest {
 	public void setUp() {
 		piggy = spawnTestPig();
 		entityList.add(piggy);
-		cloud = (AreaEffectCloud) getTestWorld().spawnEntity(getTestLocation(), EntityType.AREA_EFFECT_CLOUD);
+		cloud = spawnTestEntity(EntityType.AREA_EFFECT_CLOUD);
 	}
 
 	@Test
