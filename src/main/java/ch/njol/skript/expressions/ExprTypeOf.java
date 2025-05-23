@@ -23,7 +23,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Name("Type of")
@@ -63,8 +62,6 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 		if (expression.canReturn(EnchantmentType.class))
 			returnTypes.add(Enchantment.class);
 		this.returnTypes = returnTypes.toArray(new Class<?>[0]);
-		if (returnTypes.isEmpty())
-			System.out.println("NO MATCH: " + Arrays.toString(expression.possibleReturnTypes()) + " | " + expression.toString(null, false) + "| " + getParser().getCurrentScript().getConfig().getFileName());
 		this.superReturnType = Utils.getSuperType(this.returnTypes);
 
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
