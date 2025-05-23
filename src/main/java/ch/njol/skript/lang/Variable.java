@@ -197,6 +197,16 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		if (isLocal && variableString.isSimple()) { // Only variable names we fully know already
 			Set<Class<?>> hints = parser.getHintManager().get(variableString.toString(null));
 			if (!hints.isEmpty()) { // Type hint(s) available
+				if (types[0] == Object.class) { // Object is generic, so we initialize with the hints instead
+					//noinspection unchecked, rawtypes
+					List<Class<? extends T>> variableTypes = new ArrayList<>((Collection) hints);
+					//noinspection unchecked
+					// TODO don't include Object. Without it, a lot breaks right now.
+					variableTypes.addFirst((Class<? extends T>) Object.class);
+					//noinspection unchecked
+					return new Variable<>(variableString, variableTypes.toArray(Class[]::new), true, isPlural, null);
+				}
+
 				List<Class<? extends T>> potentialTypes = new ArrayList<>();
 
 				// See if we can get correct type without conversion
@@ -269,6 +279,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	@Override
 	public Class<? extends T> getReturnType() {
 		return superType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(types, types.length);
 	}
 
 	@Override

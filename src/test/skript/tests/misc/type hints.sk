@@ -6,6 +6,12 @@ test "type hints":
 	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 
 	parse:
+		set {_x::*} to 10
+		set {_x} to "Hello"
+		set {_a::*} to {_x::*} in lowercase
+	assert last parse logs contains "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+
+	parse:
 		set {_x} to 10
 		if true is true: # some condition
 			set {_x} to true
