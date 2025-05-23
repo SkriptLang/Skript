@@ -5,12 +5,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
@@ -112,7 +108,9 @@ public class Delay extends Effect {
 	 * The main method for checking if the execution of {@link TriggerItem}s has been delayed.
 	 * @param event The event to check for a delay.
 	 * @return Whether {@link TriggerItem} execution has been delayed.
+	 * @deprecated Use {@link Trigger#isExecutionDelayed(Event)} or {@link TriggerItem#isExecutionDelayed(Event)} instead.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static boolean isDelayed(Event event) {
 		return DELAYED.contains(event);
 	}
@@ -120,7 +118,9 @@ public class Delay extends Effect {
 	/**
 	 * The main method for marking the execution of {@link TriggerItem}s as delayed.
 	 * @param event The event to mark as delayed.
+	 * @deprecated Use {@link Trigger#markExecutionAsDelayed(Event)} or {@link TriggerItem#markExecutionAsDelayed(Event)} instead.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static void addDelayedEvent(Event event) {
 		DELAYED.add(event);
 	}

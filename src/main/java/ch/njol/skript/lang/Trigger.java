@@ -1,11 +1,15 @@
 package ch.njol.skript.lang;
 
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public class Trigger extends TriggerSection {
 
@@ -15,6 +19,9 @@ public class Trigger extends TriggerSection {
 	private final @Nullable Script script;
 	private int line = -1; // -1 is default: it means there is no line number available
 	private String debugLabel;
+
+	private final Set<Event> delayedEvents =
+		Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
 	public Trigger(@Nullable Script script, String name, SkriptEvent event, List<TriggerItem> items) {
 		super(items);
@@ -100,6 +107,23 @@ public class Trigger extends TriggerSection {
 
 	public String getDebugLabel() {
 		return debugLabel;
+	}
+
+	/**
+	 * @return Whether the execution of this trigger for this specific event has been delayed.
+	 */
+	public boolean isExecutionDelayed(Event event) {
+		return delayedEvents.contains(event);
+	}
+
+	/**
+	 * Marks the execution of this trigger for this specific event as delayed.
+	 */
+	public void markExecutionAsDelayed(Event event) {
+		delayedEvents.add(event);
+		// for backwards compatibility
+		//noinspection removal
+		Delay.addDelayedEvent(event);
 	}
 
 }
