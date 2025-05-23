@@ -13,16 +13,15 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 
 @Name("Damage Source - Damage Type")
 @Description({
 	"The type of damage of a damage source.",
-	"Cannot change any attributes of a damage source outside the 'custom damage source' section."
+	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a new custom damage source:
+	set {_source} to a custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
@@ -46,8 +45,6 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isEvent = getParser().isCurrentEvent(DamageSourceSectionEvent.class);
-		Skript.adminBroadcast("Default: " + expressions[0].isDefault());
-		Skript.adminBroadcast("Single: " + expressions[0].isSingle());
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -61,7 +58,7 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 		if (!isEvent) {
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
 		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
-			Skript.error("You can only change the attributes of the damage source from this section.");
+			Skript.error("You can only change the attributes of the damage source being created in this section.");
 		} else if (mode == ChangeMode.SET) {
 			return CollectionUtils.array(DamageType.class);
 		}
@@ -75,8 +72,7 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 			return;
 
 		DamageType damageType = (DamageType) delta[0];
-		DamageSourceWrapper wrapper = (DamageSourceWrapper) sectionEvent.getDamageSource();
-		wrapper.setDamageType(damageType);
+		sectionEvent.getDamageSource().setDamageType(damageType);
 	}
 
 	@Override

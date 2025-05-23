@@ -18,6 +18,10 @@ test "custom damage source" when running minecraft "1.20.4":
 	assert the causing entity of {_source} is {_causing} with "Causing Entity of damage source is incorrect"
 	assert the direct entity of {_source} is {_direct} with "Direct Entity of damage source is incorrect"
 	assert the damage location of {_source} is {_damageLoc} with "Damage Location of damage source is incorrect"
+	assert the source location of {_source} is {_damageLoc} with "Source Location of damage source is incorrect"
+	assert the food exhaustion of {_source} is 0 with "Food Exhaustion of damage source is incorrect"
+	assert {_source} does scale damage with difficulty with "Damage Source should scale with difficulty"
+	assert {_source} is indirect with "Damage Source should be indirect"
 
 	spawn a villager at test-location:
 		set {_victim} to entity
@@ -30,23 +34,23 @@ test "custom damage source" when running minecraft "1.20.4":
 
 test "damage source error" when running minecraft "1.20.4":
 	parse:
-		set {_source} to a new custom damage source:
+		set {_source} to a custom damage source:
 			set the damage type to magic
 	assert last parse logs is not set with "Setting attribute of valid damage source should not error"
 
 	parse:
-		set {_source2} to a new custom damage source:
+		set {_source2} to a custom damage source:
 			set the damage type of event-damage source to magic
 	assert last parse logs is not set with "Setting attribute of valid damage source should not error"
 
-	set {_error} to "You can only change the attributes of the damage source from this section."
+	set {_error} to "You can only change the attributes of the damage source being created in this section."
 	parse:
-		set {_source3} to a new custom damage source:
+		set {_source3} to a custom damage source:
 			set the damage type of {_source2} to magic
 	assert last parse logs is {_error} with "Setting attributes of invalid damage source should error"
 
 	parse:
-		set {_source4} to a new custom damage source:
+		set {_source4} to a custom damage source:
 			set the damage type of event-damage source and {_source2} to magic
 	assert last parse logs is {_error} with "Setting attributes of multiple damage sources should error"
 

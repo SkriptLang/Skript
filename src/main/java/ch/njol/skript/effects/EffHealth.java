@@ -5,6 +5,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.DamageUtils;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -20,7 +21,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
+import org.skriptlang.skript.bukkit.damagesource.MutableDamageSource;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+
+import java.util.function.Consumer;
 
 @Name("Damage/Heal/Repair")
 @Description({
@@ -35,7 +39,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 })
 @Since("1.0, 2.10 (damage cause)")
 @RequiredPlugins("Spigot 1.20.4+ (for damage cause)")
-public class EffHealth extends Effect {
+public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private enum EffectType {
 		DAMAGE, HEAL, REPAIR
@@ -55,7 +59,7 @@ public class EffHealth extends Effect {
 		} else {
 			PATTERNS = new Patterns<>(new Object[][]{
 				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]] [with [fake] [damage] cause %-damagecause%]", EffectType.DAMAGE},
-				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]] (using|with) %damagesource%", EffectType.DAMAGE},
+				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]] (using|with) %damagesource% [as the source]", EffectType.DAMAGE},
 				{"heal %livingentities% [by %-number% [heart[s]]]", EffectType.HEAL},
 				{"repair %itemtypes/slots% [by %-number%]", EffectType.REPAIR}
 			});
@@ -69,6 +73,7 @@ public class EffHealth extends Effect {
 	private EffectType effectType;
 	private @Nullable Expression<?> damageCause = null;
 	private @Nullable Expression<?> damageSource = null;
+	private Node node;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -84,6 +89,7 @@ public class EffHealth extends Effect {
 				damageSource = exprs[2];
 			}
 		}
+		node = getParser().getNode();
 		return true;
 	}
 
@@ -97,59 +103,41 @@ public class EffHealth extends Effect {
 			amount = amountPostCheck.doubleValue();
 		}
 
-		Object object = null;
+		Object damageData = null;
 		if (damageCause != null) {
-			object = damageCause.getSingle(event);
+			damageData = damageCause.getSingle(event);
 		} else if (damageSource != null) {
-			object = damageSource.getSingle(event);
+			damageData = damageSource.getSingle(event);
 		}
 
 		for (Object obj : this.damageables.getArray(event)) {
 			if (obj instanceof ItemType itemType) {
-				handleItemType(itemType, amount);
+				handleItem(itemType.getRandom(), amount, integer -> ItemUtils.setDamage(itemType, integer));
 			} else if (obj instanceof Slot slot) {
-				handleSlot(slot, amount);
+				ItemStack itemStack = slot.getItem();
+				if (itemStack == null)
+					continue;
+				handleItem(itemStack, amount, integer -> {
+					ItemUtils.setDamage(itemStack, integer);
+					slot.setItem(itemStack);
+				});
 			} else if (obj instanceof Damageable damageable) {
-				handleDamageable(damageable, amount, object);
+				handleDamageable(damageable, amount, damageData);
 			}
 		}
 	}
 
-	private void handleItemType(ItemType itemType, @Nullable Double amount) {
-		Integer value = null;
-		if (effectType == EffectType.DAMAGE) {
-			assert amount != null;
-			value = Math2.fit(0, ItemUtils.getDamage(itemType) + amount.intValue(), ItemUtils.getMaxDamage(itemType));
-		} else if (effectType == EffectType.REPAIR) {
-			if (amount == null) {
-				value = 0;
-			} else {
-				value = Math2.fit(0, ItemUtils.getDamage(itemType) - amount.intValue(), ItemUtils.getMaxDamage(itemType));
-			}
-		}
-		if (value != null)
-			ItemUtils.setDamage(itemType, value);
-	}
-
-	private void handleSlot(Slot slot, @Nullable Double amount) {
-		ItemStack itemStack = slot.getItem();
-		if (itemStack == null)
-			return;
+	private void handleItem(ItemStack itemStack, @Nullable Double amount, Consumer<Integer> consumer) {
 		Integer value = null;
 		if (effectType == EffectType.DAMAGE) {
 			assert amount != null;
 			value = Math2.fit(0, ItemUtils.getDamage(itemStack) + amount.intValue(), ItemUtils.getMaxDamage(itemStack));
 		} else if (effectType == EffectType.REPAIR) {
-			if (amount == null) {
-				value = 0;
-			} else {
-				value = Math2.fit(0, ItemUtils.getDamage(itemStack) - amount.intValue(), ItemUtils.getMaxDamage(itemStack));
-			}
+			value = amount == null ?
+				0 : Math2.fit(0, ItemUtils.getDamage(itemStack) - amount.intValue(), ItemUtils.getMaxDamage(itemStack));
 		}
-		if (value != null) {
-			ItemUtils.setDamage(itemStack, value);
-			slot.setItem(itemStack);
-		}
+		if (value != null)
+			consumer.accept(value);
 	}
 
 	private void handleDamageable(Damageable damageable, @Nullable Double amount, @Nullable Object object) {
@@ -160,8 +148,8 @@ public class EffHealth extends Effect {
 					HealthUtils.damage(damageable, amount, DamageUtils.getDamageSourceFromCause(damageCause));
 					return;
 				} else if (object instanceof DamageSource damageSource) {
-					if (damageSource instanceof DamageSourceWrapper wrapper) {
-						HealthUtils.damage(damageable, amount, wrapper.build());
+					if (damageSource instanceof MutableDamageSource mutable) {
+						HealthUtils.damage(damageable, amount, mutable.asBukkitSource());
 					} else {
 						HealthUtils.damage(damageable, amount, damageSource);
 					}
@@ -176,6 +164,11 @@ public class EffHealth extends Effect {
 				HealthUtils.heal(damageable, amount);
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

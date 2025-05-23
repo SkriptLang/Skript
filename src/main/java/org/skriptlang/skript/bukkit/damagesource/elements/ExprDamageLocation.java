@@ -13,17 +13,16 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 
 @Name("Damage Source - Damage Location")
 @Description({
 	"The location where the damage was originated from.",
 	"The 'damage location' on vanilla damage sources will be set if an entity did not cause the damage.",
-	"Cannot change any attributes of a damage source outside the 'custom damage source' section."
+	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a new custom damage source:
+	set {_source} to a custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
@@ -60,7 +59,7 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 		if (!isEvent) {
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
 		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
-			Skript.error("You can only change the attributes of the damage source from this section.");
+			Skript.error("You can only change the attributes of the damage source being created in this section.");
 		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			return CollectionUtils.array(Location.class);
 		}
@@ -73,8 +72,7 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 			return;
 
 		Location location = delta == null ? null : (Location) delta[0];
-		DamageSourceWrapper wrapper = (DamageSourceWrapper) sectionEvent.getDamageSource();
-		wrapper.setDamageLocation(location);
+		sectionEvent.getDamageSource().setDamageLocation(location);
 	}
 
 	@Override

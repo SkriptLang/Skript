@@ -13,17 +13,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 
 @Name("Damage Source - Direct Entity")
 @Description({
 	"The direct entity of a damage source.",
 	"The direct entity is the entity that directly caused the damage. (e.g. the arrow that was shot)",
-	"Cannot change any attributes of a damage source outside the 'custom damage source' section."
+	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a new custom damage source:
+	set {_source} to a custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
@@ -60,7 +59,7 @@ public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Ent
 		if (!isEvent) {
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
 		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
-			Skript.error("You can only change the attributes of the damage source from this section.");
+			Skript.error("You can only change the attributes of the damage source being created in this section.");
 		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			return CollectionUtils.array(Entity.class);
 		}
@@ -73,8 +72,7 @@ public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Ent
 			return;
 
 		Entity entity = delta == null ? null : (Entity) delta[0];
-		DamageSourceWrapper wrapper = (DamageSourceWrapper) sectionEvent.getDamageSource();
-		wrapper.setDirectEntity(entity);
+		sectionEvent.getDamageSource().setDirectEntity(entity);
 	}
 
 	@Override

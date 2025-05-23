@@ -16,7 +16,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 @Description("Whether the damage from a damage source scales with the difficulty of the server.")
 @Example("""
 	on death:
-		if event-damage source scales with difficulty:
+		if event-damage source scales damage with difficulty:
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
@@ -24,8 +24,8 @@ public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> im
 
 	static {
 		Skript.registerCondition(CondScalesWithDifficulty.class,
-			"%damagesources% (does scale|scales) with difficulty",
-			"%damagesources% (does not|doesn't) scale with difficulty");
+			"%damagesources% (does scale|scales) damage with difficulty",
+			"%damagesources% (does not|doesn't) scale damage with difficulty");
 	}
 
 	private Expression<DamageSource> sources;

@@ -31,7 +31,7 @@ public class DamageSourceModule {
 			.since("INSERT VERSION")
 			.requiredPlugins("Minecraft 1.20.4+")
 			.defaultExpression(new EventValueExpression<>(DamageSource.class))
-			.cloner(DamageSourceWrapper::clone)
+			.cloner(MutableDamageSource::copy)
 		);
 
 		Comparators.registerComparator(DamageSource.class, DamageSource.class,

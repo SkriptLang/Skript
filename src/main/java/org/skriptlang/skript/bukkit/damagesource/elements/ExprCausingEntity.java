@@ -13,7 +13,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceWrapper;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 
 @Name("Damage Source - Causing Entity")
@@ -21,10 +20,10 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	"The causing entity of a damage source.",
 	"The causing entity is the entity that ultimately caused the damage. (e.g. the entity that shot an arrow)",
 	"When setting a 'causing entity' you must also set a 'direct entity'.",
-	"Cannot change any attributes of a damage source outside the 'custom damage source' section."
+	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a new custom damage source:
+	set {_source} to a custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
@@ -39,7 +38,7 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperiment {
 
 	static {
-		registerDefault(ExprCausingEntity.class, Entity.class, "causing entity", "damagesources");
+		registerDefault(ExprCausingEntity.class, Entity.class, "(causing|responsible) entity", "damagesources");
 	}
 
 	private boolean isEvent;
@@ -60,7 +59,7 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 		if (!isEvent) {
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
 		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
-			Skript.error("You can only change the attributes of the damage source from this section.");
+			Skript.error("You can only change the attributes of the damage source being created in this section.");
 		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			return CollectionUtils.array(Entity.class);
 		}
@@ -73,8 +72,7 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 			return;
 
 		Entity entity = delta == null ? null : (Entity) delta[0];
-		DamageSourceWrapper wrapper = (DamageSourceWrapper) sectionEvent.getDamageSource();
-		wrapper.setCausingEntity(entity);
+		sectionEvent.getDamageSource().setCausingEntity(entity);
 	}
 
 	@Override
