@@ -262,6 +262,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return types;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		StringBuilder stringBuilder = new StringBuilder()
 			.append("{");

@@ -126,6 +126,12 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		//noinspection unchecked
+		return converterInfos.stream().map(ConverterInfo::getTo).distinct().toArray(Class[]::new);
+	}
+
+	@Override
 	public boolean isSingle() {
 		return source.isSingle();
 	}

@@ -189,8 +189,12 @@ public class ExprBeaconValues extends PropertyExpression<Block, Object> {
 	}
 
 	@Override
-	public Class<Object> getReturnType() {
-		return Object.class;
+	public Class<?> getReturnType() {
+		return switch (valueType) {
+			case PRIMARY, SECONDARY -> PotionEffectType.class;
+			case RANGE -> Double.class;
+			case TIER -> Integer.class;
+		};
 	}
 
 	@Override
