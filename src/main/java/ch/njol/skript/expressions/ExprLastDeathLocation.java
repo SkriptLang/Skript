@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"set {_loc} to the last death location of player",
 	"teleport player to last death location of (random element out of all players)"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlayer, Location> {
 
 	static {

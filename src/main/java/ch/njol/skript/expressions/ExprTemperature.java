@@ -13,23 +13,23 @@ import org.bukkit.block.Block;
 @Since("2.2-dev35")
 public class ExprTemperature extends SimplePropertyExpression<Block, Number> {
 
-    static {
-        register(ExprTemperature.class, Number.class, "temperature[s]", "blocks");
-    }
+	static {
+		register(ExprTemperature.class, Number.class, "temperature[s]", "blocks");
+	}
 
-    @Override
-    public Number convert(Block block) {
-        return block.getTemperature();
-    }
+	@Override
+	public Number convert(Block block) {
+		return block.getTemperature();
+	}
 
-    @Override
-    protected String getPropertyName() {
-        return "temperature";
-    }
+	@Override
+	protected String getPropertyName() {
+		return "temperature";
+	}
 
-    @Override
-    public Class<? extends Number> getReturnType() {
-        return Number.class;
-    }
+	@Override
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
+	}
 
 }

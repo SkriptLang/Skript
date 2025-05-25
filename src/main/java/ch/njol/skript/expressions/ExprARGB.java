@@ -24,7 +24,7 @@ import java.util.function.Function;
 	"set {_red} to red's red value + 10"
 })
 @Keywords({"ARGB", "RGB", "color", "colour"})
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprARGB extends SimplePropertyExpression<Color, Integer> {
 
 	static {

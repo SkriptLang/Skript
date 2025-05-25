@@ -1,9 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.World;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -14,8 +10,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
+import org.bukkit.World;
+import org.bukkit.event.Event;
+import org.bukkit.generator.WorldInfo;
+import org.jetbrains.annotations.Nullable;
 
 @Name("World Seed")
 @Description("The seed of given world. Note that it will be returned as Minecraft internally treats seeds, not as you specified it in world configuration.")
@@ -36,12 +35,7 @@ public class ExprSeed extends PropertyExpression<World, Long> {
 	
 	@Override
 	protected Long[] get(final Event event, final World[] source) {
-		return get(source, new Getter<Long, World>() {
-			@Override
-			public Long get(final World world) {
-				return world.getSeed();
-			}
-		});
+		return get(source, WorldInfo::getSeed);
 	}
 	
 	@Override

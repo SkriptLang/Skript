@@ -323,13 +323,24 @@ public class Noun extends Message {
 			definitePluralArticle = dpa == null ? "" : dpa;
 		}, LanguageListenerPriority.EARLIEST);
 	}
-	
+
 	public static String stripIndefiniteArticle(String s) {
 		for (String a : indefiniteArticles) {
 			if (StringUtils.startsWithIgnoreCase(s, a + " "))
 				return "" + s.substring(a.length() + 1);
 		}
 		return s;
+	}
+
+	/**
+	 * Removes definite articles, such as 'the', from the provided {@code string}.
+	 */
+	public static String stripDefiniteArticle(String string) {
+		for (String article : definiteArticles) {
+			if (StringUtils.startsWithIgnoreCase(string, article + " "))
+				return string.substring(article.length() + 1);
+		}
+		return string;
 	}
 	
 	public static boolean isIndefiniteArticle(String s) {

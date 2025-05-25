@@ -39,12 +39,11 @@ import org.jetbrains.annotations.UnknownNullability;
 })
 @Examples({
 	"equip player with diamond helmet",
-	"equip player with all diamond armor",
+	"equip player with diamond leggings, diamond chestplate, and diamond boots",
 	"unequip diamond chestplate from player",
-	"unequip all armor from player",
 	"unequip player's armor"
 })
-@Since("1.0, 2.7 (multiple entities, unequip), INSERT VERSION (wolves)")
+@Since("1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)")
 public class EffEquip extends Effect {
 
 	private static ItemType CHESTPLATE;

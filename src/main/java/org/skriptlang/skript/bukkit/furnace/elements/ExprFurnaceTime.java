@@ -43,7 +43,7 @@ import java.util.function.Supplier;
 		"\tif the fuel slot is charcoal:",
 			"\t\tadd 5 seconds to the fuel burn time"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 
 	enum FurnaceExpressions {
