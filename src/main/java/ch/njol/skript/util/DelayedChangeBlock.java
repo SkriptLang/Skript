@@ -476,6 +476,11 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	public boolean isSuffocating() {
+		return block.isSuffocating();
+	}
+
+	@Override
 	@NotNull
 	public VoxelShape getCollisionShape() {
 		return block.getCollisionShape();

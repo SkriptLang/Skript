@@ -1,14 +1,14 @@
 package ch.njol.util.coll.iterator;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.ListIterator;
-
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @deprecated unused
  */
-@Deprecated
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class ReversedListIterator<T> implements ListIterator<T> {
 	
 	private final ListIterator<T> iter;

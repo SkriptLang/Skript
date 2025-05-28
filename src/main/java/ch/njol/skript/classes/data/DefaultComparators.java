@@ -45,6 +45,7 @@ import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @SuppressWarnings({"rawtypes"})
 public class DefaultComparators {
@@ -91,17 +92,10 @@ public class DefaultComparators {
 		Comparators.registerComparator(Slot.class, Slot.class, new Comparator<Slot, Slot>() {
 
 			@Override
-			public Relation compare(Slot o1, Slot o2) {
-				if (o1 instanceof EquipmentSlot != o2 instanceof EquipmentSlot)
+			public Relation compare(Slot slot1, Slot slot2) {
+				if (slot1 instanceof EquipmentSlot != slot2 instanceof EquipmentSlot)
 					return Relation.NOT_EQUAL;
-				if (o1.isSameSlot(o2))
-					return Relation.EQUAL;
-				return Relation.NOT_EQUAL;
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
+				return Relation.get(slot1.isSameSlot(slot2));
 			}
 
 		});
@@ -665,6 +659,10 @@ public class DefaultComparators {
 				}
 			});
 		}
+
+		// UUID
+		Comparators.registerComparator(UUID.class, UUID.class, (one, two) -> Relation.get(one.equals(two)));
+		Comparators.registerComparator(UUID.class, String.class, (one, two) -> Relation.get(one.toString().equals(two)));
 	}
 	
 }

@@ -44,8 +44,9 @@ import java.util.function.Consumer;
 })
 @Examples({
 	"on click on wool:",
-		"\tmessage \"This wool block is <%color of block%>%color of block%<reset>!\"",
-		"\tset the color of the block to black"
+		"if event-block is tagged with minecraft tag \"wool\":",
+			"\tmessage \"This wool block is <%color of block%>%color of block%<reset>!\"",
+			"\tset the color of the block to black"
 })
 @Since("1.2, 2.10 (displays)")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
