@@ -73,7 +73,7 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 			} else if (object1 instanceof Vector && object2 instanceof Vector) {
 				classType = Vector.class;
 			} else {
-				error("Cannot get the midpoint between a location and a vector.");
+				error("You can only get the midpoint between two locations or two vectors.");
 				return null;
 			}
 		}
