@@ -1,9 +1,6 @@
 package org.skriptlang.skript.bukkit.damagesource.elements;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
@@ -18,13 +15,14 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 		set the damage type of the created damage source to magic
 	""")
 @Since("INSERT VERSION")
-public class EVECreatedDamageSource extends EventValueExpression<DamageSource> implements EventRestrictedSyntax {
+@RequiredPlugins("Minecraft 1.20.4+")
+public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> implements EventRestrictedSyntax {
 
 	static {
-		register(EVECreatedDamageSource.class, DamageSource.class, "created damage source");
+		register(ExprCreatedDamageSource.class, DamageSource.class, "created damage source");
 	}
 
-	public EVECreatedDamageSource() {
+	public ExprCreatedDamageSource() {
 		super(DamageSource.class);
 	}
 

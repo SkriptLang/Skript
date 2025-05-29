@@ -21,7 +21,7 @@ test "custom damage source" when running minecraft "1.20.4":
 	assert the source location of {_source} is {_damageLoc} with "Source Location of damage source is incorrect"
 	assert the food exhaustion of {_source} is 0 with "Food Exhaustion of damage source is incorrect"
 	assert {_source} does scale damage with difficulty with "Damage Source should scale with difficulty"
-	assert {_source} is indirect with "Damage Source should be indirect"
+	assert {_source} was indirectly caused with "Damage Source should be indirect"
 
 	spawn a villager at test-location:
 		set {_victim} to entity

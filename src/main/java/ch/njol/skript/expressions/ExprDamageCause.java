@@ -16,7 +16,7 @@ import ch.njol.skript.registrations.EventValues;
 public class ExprDamageCause extends EventValueExpression<DamageCause> {
 
 	static {
-		register(ExprDamageCause.class, DamageCause.class, "damage (cause|type)");
+		register(ExprDamageCause.class, DamageCause.class, "damage cause");
 	}
 
 	public ExprDamageCause() {

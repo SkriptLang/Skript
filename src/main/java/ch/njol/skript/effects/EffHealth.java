@@ -45,6 +45,7 @@ public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 		DAMAGE, HEAL, REPAIR
 	}
 
+	// TODO: Remove when 1.20.4+ is minimum supported
 	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");
 
 	private static final Patterns<EffectType> PATTERNS;

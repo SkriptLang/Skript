@@ -68,7 +68,7 @@ public class MutableDamageSource implements DamageSource {
 
 	@Override
 	public boolean isIndirect() {
-		return causingEntity != null;
+		return causingEntity != directEntity;
 	}
 
 	@Override

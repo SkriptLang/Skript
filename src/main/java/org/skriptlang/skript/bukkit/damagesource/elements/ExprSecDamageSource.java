@@ -70,7 +70,7 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 
 	static {
 		Skript.registerExpression(ExprSecDamageSource.class, DamageSource.class, ExpressionType.SIMPLE,
-			"[a] custom damage source [with [the] [damage type] %-damagetype%]");
+			"[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]");
 		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::getDamageSource);
 	}
 
