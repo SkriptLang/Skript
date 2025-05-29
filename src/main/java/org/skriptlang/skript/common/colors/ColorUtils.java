@@ -74,7 +74,8 @@ public class ColorUtils {
 		float max = Math.max(red, Math.max(green, blue));
 		float min = Math.min(red, Math.min(green, blue));
 
-		float hue, saturation, lightness = (max + min) / 2f; // lightness = midpoint of max and min
+		float hue, saturation, lightness;
+		lightness = (max + min) / 2f; // lightness = midpoint of max and min
 
 		if (max == min) {
 			// achromatic (no hue or saturation)
