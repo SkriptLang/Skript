@@ -200,9 +200,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				if (types[0] == Object.class) { // Object is generic, so we initialize with the hints instead
 					//noinspection unchecked, rawtypes
 					List<Class<? extends T>> variableTypes = new ArrayList<>((Collection) hints);
-					//noinspection unchecked
 					// TODO don't include Object. Without it, a lot breaks right now.
-					variableTypes.addFirst((Class<? extends T>) Object.class);
+					//noinspection unchecked
+					variableTypes.add(0, (Class<? extends T>) Object.class);
 					//noinspection unchecked
 					return new Variable<>(variableString, variableTypes.toArray(Class[]::new), true, isPlural, null);
 				}
