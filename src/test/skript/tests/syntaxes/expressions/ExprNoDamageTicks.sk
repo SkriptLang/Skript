@@ -1,3 +1,6 @@
+on script load:
+	suppress deprecated syntax warnings
+
 test "no damage ticks":
 	spawn zombie at test-location:
 		set {_entity} to entity
