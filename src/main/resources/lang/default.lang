@@ -2696,6 +2696,7 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	equippablecomponent: equippable component¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
