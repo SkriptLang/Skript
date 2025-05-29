@@ -29,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.colors.ColorUtils;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.skriptlang.skript.util.Executable;
@@ -526,6 +527,65 @@ public class SkriptClasses {
 					}
 				})
 				.serializeAs(ItemStack.class));
+
+		Classes.registerClass(new ClassInfo<>(Color.class, "color")
+				.user("colou?rs?")
+				.name("Color")
+				.description("Wool, dye and chat colors.")
+				.usage("black, dark grey/dark gray, grey/light grey/gray/light gray/silver, white, blue/dark blue, cyan/aqua/dark cyan/dark aqua, light blue/light cyan/light aqua, green/dark green, light green/lime/lime green, yellow/light yellow, orange/gold/dark yellow, red/dark red, pink/light red, purple/dark purple, magenta/light purple, brown/indigo")
+				.examples("color of the sheep is red or black",
+					"set the color of the block to green",
+					"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
+				.since("")
+				.supplier(SkriptColor.values())
+				.parser(new Parser<Color>() {
+					@Override
+					public @Nullable Color parse(String input, ParseContext context) {
+						Color rgbColor = ColorRGB.fromString(input);
+						if (rgbColor != null)
+							return rgbColor;
+						return SkriptColor.fromName(input);
+					}
+
+					@Override
+					public String toString(Color c, int flags) {
+						return c.getName();
+					}
+
+					@Override
+					public String toVariableNameString(Color color) {
+						return color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+					}
+				})
+				.serializer(new Serializer<Color>() {
+					@Override
+					public Fields serialize(Color color) throws NotSerializableException {
+						Fields f = new Fields();
+						f.putPrimitive("asInt", color.asInt());
+						return f;
+					}
+
+					@Override
+					public void deserialize(Color o, Fields f) throws StreamCorruptedException {
+						assert false;
+					}
+
+					@Override
+					protected Color deserialize(Fields fields) throws StreamCorruptedException {
+						int asInt = fields.getPrimitive("asInt", int.class);
+						return ColorUtils.fromInt(asInt);
+					}
+
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
+
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
 				.user("tree ?types?", "trees?")
