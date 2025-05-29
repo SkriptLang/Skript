@@ -1,8 +1,8 @@
 package ch.njol.skript.variables;
 
-import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.log.SkriptLogger;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -121,8 +121,10 @@ public class HintManager {
 	 * Resets (clears) all type hints for the current (top-level) scope.
 	 */
 	public void resetScope() {
-		checkState();
-		//noinspection DataFlowIssue - verified by checkState
+		if (areHintsUnavailable()) {
+			return;
+		}
+		//noinspection DataFlowIssue
 		typeHints.peek().clear();
 	}
 
@@ -144,7 +146,9 @@ public class HintManager {
 	 * @see #set(Variable, Class[])    
 	 */
 	public void set(String variableName, Class<?>... hints) {
-		checkState();
+		if (areHintsUnavailable()) {
+			return;
+		}
 		Set<Class<?>> hintSet = new HashSet<>();
 		for (Class<?> hint : hints) {
 			if (hint != Object.class) { // ignore some useless types
@@ -171,8 +175,10 @@ public class HintManager {
 	 * @see #delete(Variable)    
 	 */
 	public void delete(String variableName) {
-		checkState();
-		//noinspection DataFlowIssue - verified by checkState
+		if (areHintsUnavailable()) {
+			return;
+		}
+		//noinspection DataFlowIssue
 		typeHints.peek().remove(variableName);
 	}
 
@@ -194,8 +200,10 @@ public class HintManager {
 	 * @see #add(Variable, Class[])    
 	 */
 	public void add(String variableName, Class<?>... hints) {
-		checkState();
-		//noinspection DataFlowIssue - verified by checkState
+		if (areHintsUnavailable()) {
+			return;
+		}
+		//noinspection DataFlowIssue
 		Set<Class<?>> hintSet = typeHints.peek().computeIfAbsent(variableName, key -> new HashSet<>());
 		for (Class<?> hint : hints) {
 			if (hint != Object.class) { // ignore some useless types
@@ -222,8 +230,10 @@ public class HintManager {
 	 * @see #remove(Variable, Class[])
 	 */
 	public void remove(String variableName, Class<?>... hints) {
-		checkState();
-		//noinspection DataFlowIssue - verified by checkState
+		if (areHintsUnavailable()) {
+			return;
+		}
+		//noinspection DataFlowIssue
 		Set<Class<?>> hintSet = typeHints.peek().get(variableName);
 		if (hintSet != null) {
 			for (Class<?> hint : hints) {
@@ -250,8 +260,10 @@ public class HintManager {
 	 * @see #add(Variable, Class[]) 
 	 */
 	public @Unmodifiable Set<Class<?>> get(String variableName) {
-		checkState();
-		//noinspection DataFlowIssue - verified by checkState
+		if (areHintsUnavailable()) {
+			return ImmutableSet.of();
+		}
+		//noinspection DataFlowIssue
 		Set<Class<?>> hintSet = typeHints.peek().get(variableName);
 		if (hintSet != null) {
 			return ImmutableSet.copyOf(hintSet);
@@ -259,10 +271,14 @@ public class HintManager {
 		return ImmutableSet.of();
 	}
 
-	private void checkState() {
+	private boolean areHintsUnavailable() {
 		if (typeHints.isEmpty()) {
-			throw new SkriptAPIException("Attempted to use type hints outside of any scope");
+			if (SkriptLogger.debug()) { // not ideal, print a warning on debug level
+				SkriptLogger.LOGGER.warning("Attempted to use type hints outside of any scope");
+			}
+			return true;
 		}
+		return false;
 	}
 
 	/**
