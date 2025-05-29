@@ -1,4 +1,4 @@
-package org.skriptlang.skript.common.colors;
+package org.skriptlang.skript.common.colors.elements;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -10,6 +10,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.colors.ColorUtils;
 
 @Name("Complementary Colours")
 @Description({

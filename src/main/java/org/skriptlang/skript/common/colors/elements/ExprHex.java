@@ -1,4 +1,4 @@
-package org.skriptlang.skript.common.colors;
+package org.skriptlang.skript.common.colors.elements;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
