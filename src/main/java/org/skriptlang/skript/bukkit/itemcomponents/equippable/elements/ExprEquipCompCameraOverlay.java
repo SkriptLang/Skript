@@ -68,14 +68,15 @@ public class ExprEquipCompCameraOverlay extends PropertyExpression<EquippableWra
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		NamespacedKey key = null;
 		if (delta != null && delta[0] instanceof String string) {
-			ValidationResult<NamespacedKey> validationResult = NamespacedUtils.checkValidator(string);
-			if (!validationResult.isValid()) {
-				error(validationResult.getMessage() + " " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
+			ValidationResult<NamespacedKey> validationResult = NamespacedUtils.checkValidation(string);
+			String validationMessage = validationResult.message();
+			if (!validationResult.valid()) {
+				error(validationMessage + " " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
 				return;
-			} else if (validationResult.getMessage() != null) {
-				warning(validationResult.getMessage());
+			} else if (validationMessage != null) {
+				warning(validationMessage);
 			}
-			key = validationResult.getData();
+			key = validationResult.data();
 		}
 		NamespacedKey finalKey = key;
 

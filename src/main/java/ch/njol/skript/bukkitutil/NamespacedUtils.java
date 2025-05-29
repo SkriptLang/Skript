@@ -22,7 +22,7 @@ public class NamespacedUtils {
 	 * @param string The {@link String} to check.
 	 * @return {@link ValidationResult}.
 	 */
-	public static ValidationResult<NamespacedKey> checkValidator(String string) {
+	public static ValidationResult<NamespacedKey> checkValidation(String string) {
 		if (string.length() > Short.MAX_VALUE)
 			return new ValidationResult<>(false, "A namespaced key can not be longer than " + Short.MAX_VALUE + " characters.");
 		String[] split = string.split(":");
@@ -71,7 +71,7 @@ public class NamespacedUtils {
 	 * @return {@code True} if valid, otherwise {@code false}.
 	 */
 	public static boolean isValid(String string) {
-		return checkValidator(string).isValid();
+		return checkValidation(string).valid();
 	}
 
 
