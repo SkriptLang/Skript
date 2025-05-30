@@ -11,6 +11,7 @@ import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -24,7 +25,7 @@ public class EvtHarvestBlock extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Harvest Block", EvtHarvestBlock.class, PlayerHarvestBlockEvent.class,
-			"[player] [block|crop] harvest[ing] [of %-itemtypes%]")
+			"[player] [block|crop] harvest[ing] [of %-itemtypes/blockdatas%]")
 			.description("""
 				Called when a player harvests a block.
 				A block being harvested is when a block drops items and the state of the block is changed and not broken.
@@ -65,13 +66,11 @@ public class EvtHarvestBlock extends SkriptEvent {
 			event -> new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer(), event.getHand()));
 	}
 
-	private Literal<ItemType> items = null;
+	private Literal<?> types = null;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null)
-			//noinspection unchecked
-			items = (Literal<ItemType>) args[0];
+		types = args[0];
 		return true;
 	}
 
@@ -79,19 +78,27 @@ public class EvtHarvestBlock extends SkriptEvent {
 	public boolean check(Event event) {
 		if (!(event instanceof PlayerHarvestBlockEvent harvestBlockEvent))
 			return false;
-		if (items == null)
+		if (types == null)
 			return true;
 
 		Block block = harvestBlockEvent.getHarvestedBlock();
-		return SimpleExpression.check(items.getAll(), itemType -> itemType.isOfType(block), false, false);
+		BlockData sourceData = block.getBlockData();
+		return SimpleExpression.check(types.getAll(), object -> {
+			if (object instanceof ItemType itemType) {
+				return itemType.isOfType(block);
+			} else if (object instanceof BlockData blockData) {
+				return blockData.matches(sourceData);
+			}
+			return false;
+		}, false, false);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		builder.append("player block harvest");
-		if (items != null)
-			builder.append("of", items);
+		if (types != null)
+			builder.append("of", types);
 		return builder.toString();
 	}
 
