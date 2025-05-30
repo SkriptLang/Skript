@@ -30,6 +30,8 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 @Since("INSERT VERSION")
 public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRuntimeErrorProducer {
 
+	private static final int NONE = 0, LOCATION = 1, VECTOR = 2, BOTH = 3;
+
 	static {
 		Skript.registerExpression(ExprMidpoint.class, Object.class, ExpressionType.COMBINED,
 			"[the] mid[-]point (of|between) %location/vector% and %location/vector%");
@@ -37,7 +39,6 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 
 	private Expression<?> object1;
 	private Expression<?> object2;
-	private boolean parseCheck = false;
 	private Class<?> classType = null;
 	private Node node;
 
@@ -45,18 +46,23 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		object1 = exprs[0];
 		object2 = exprs[1];
-		Class<?> type1 = object1.canReturn(Location.class)
-			? Location.class : (object1.canReturn(Vector.class) ? Vector.class : null);
-		Class<?> type2 = object2.canReturn(Location.class)
-			? Location.class : (object2.canReturn(Vector.class) ? Vector.class : null);
-		if (type1 != null && type2 != null) {
-			if (type1 != type2) {
+		int type1 = checkExpressionType(object1);
+		int type2 = checkExpressionType(object2);
+		if (type1 != type2) {
+			// If both 'type1' and 'type2' are either a Location or a Vector, then error, since they don't match
+			if ((type1 == LOCATION || type1 == VECTOR) && (type2 == LOCATION || type2 == VECTOR)) {
 				Skript.error("You can only get the midpoint between two locations or two vectors.");
 				return false;
 			}
-			parseCheck = true;
-			classType = type1;
+			// Otherwise, checks will be done in 'get'
+		} else if (type1 == LOCATION) {
+			// Both 'type1' and 'type2' are a Location
+			classType = Location.class;
+		} else if (type1 == VECTOR) {
+			// Both 'type1' and 'type2' are a Vector
+			classType = Vector.class;
 		}
+		// Otherwise, checks will be done in 'get'
 		node = getParser().getNode();
 		return true;
 	}
@@ -67,7 +73,7 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 		Object object2 = this.object2.getSingle(event);
 		if (object1 == null || object2 == null) {
 			return null;
-		} else if (!parseCheck) {
+		} else if (classType == null) {
 			if (object1 instanceof Location && object2 instanceof Location) {
 				classType = Location.class;
 			} else if (object1 instanceof Vector && object2 instanceof Vector) {
@@ -92,6 +98,17 @@ public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRunt
 			Vector vector2 = (Vector) object2;
 			return new Vector[] {vector1.getMidpoint(vector2)};
 		}
+	}
+
+	private int checkExpressionType(Expression<?> expr) {
+		if (expr.canReturn(Location.class)) {
+			if (expr.canReturn(Vector.class))
+				return BOTH;
+			return LOCATION;
+		} else if (expr.canReturn(Vector.class)) {
+			return VECTOR;
+		}
+		return NONE;
 	}
 
 	@Override
