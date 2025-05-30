@@ -263,7 +263,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	@Override
 	public Class<? extends T>[] possibleReturnTypes() {
-		return types;
+		return Arrays.copyOf(types, types.length);
 	}
 
 	@Override
