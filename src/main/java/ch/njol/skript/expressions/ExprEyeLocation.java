@@ -16,9 +16,9 @@ import org.jetbrains.annotations.Nullable;
 		+ "i.e. players, endermen, zombies, skeletons, etc., but not sheep, pigs or cows."
 })
 @Examples({
-	"set the block at the player's head to air",
-	"set the block in front of the player's eyes to glass",
-	"loop blocks in front of the player's head:"
+	"set the block at the player's head location to air",
+	"set the block in front of the player's eyes location to glass",
+	"loop blocks in front of the player's head location:"
 })
 @Since("2.0")
 public class ExprEyeLocation extends SimplePropertyExpression<LivingEntity, Location> {
