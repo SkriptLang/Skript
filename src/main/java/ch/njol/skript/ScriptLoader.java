@@ -953,6 +953,7 @@ public class ScriptLoader {
 
 		// Begin local variable type hints
 		parser.getHintManager().enterScope();
+		boolean freezeHints = false;
 
 		boolean executionStops = false;
 		for (Node subNode : node) {
@@ -1036,12 +1037,33 @@ public class ScriptLoader {
 				Skript.warning("Unreachable code. The previous statement stops further execution.");
 			}
 			executionStops = item.executionIntent() != null;
+
+			if (executionStops && !freezeHints) {
+				freezeHints = true;
+
+				// If we are exiting multiple sections, hints should instead be copied to the section we are exiting to
+				// Exiting only one section does not require special behavior
+				if (item.executionIntent() instanceof ExecutionIntent.StopSections intent && intent.levels() > 1) {
+					parser.getHintManager().mergeScope(0, intent.levels());
+					parser.getHintManager().enterScope(); // Enter a new scope to capture all new type hints
+					// Clear scope to prevent duplicate copying
+					// We clear after entering the capturing scope so that the capturing scope still has hints
+					parser.getHintManager().clearScope(1);
+				} else {
+					parser.getHintManager().enterScope(); // Enter a new scope to capture all new type hints
+				}
+			}
 		}
 
+		// If hints were frozen, then we need to destroy the scope in which they were captured
+		if (freezeHints) {
+			parser.getHintManager().clearScope(0); // Clear scope to prevent copying upon exit
+			parser.getHintManager().exitScope();
+		}
 		// If the previous section contains a statement that stops the trigger, then any type hints
 		// provided by the section are not useful. Thus, we clear them.
 		if (items.stream().anyMatch(item -> item.executionIntent() instanceof ExecutionIntent.StopTrigger)) {
-			parser.getHintManager().resetScope();
+			parser.getHintManager().clearScope(0);
 		}
 		// Destroy local variable type hints for this section
 		parser.getHintManager().exitScope();

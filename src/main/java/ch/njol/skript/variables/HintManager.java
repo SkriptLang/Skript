@@ -6,10 +6,9 @@ import ch.njol.skript.log.SkriptLogger;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,7 +85,7 @@ import java.util.Set;
  */
 public class HintManager {
 
-	private final Deque<Map<String, Set<Class<?>>>> typeHints = new ArrayDeque<>();
+	private final LinkedList<Map<String, Set<Class<?>>>> typeHints = new LinkedList<>();
 
 	/**
 	 * Enters a new scope for storing hints.
@@ -94,10 +93,9 @@ public class HintManager {
 	 * @see #exitScope()
 	 */
 	public void enterScope() {
-		if (typeHints.isEmpty()) {
-			typeHints.push(new HashMap<>());
-		} else { // copy over available valuescle
-			typeHints.push(new HashMap<>(typeHints.peek()));
+		typeHints.push(new HashMap<>());
+		if (typeHints.size() > 1) { // copy existing values into new scope
+			mergeScope(1, 0);
 		}
 	}
 
@@ -107,25 +105,47 @@ public class HintManager {
 	 * @see #enterScope()
 	 */
 	public void exitScope() {
-		var hintMap = typeHints.pop();
-		// copy over available values if applicable
-		if (!typeHints.isEmpty()) {
-			var topMap = typeHints.peek();
-			for (var entry : hintMap.entrySet()) {
-				topMap.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).addAll(entry.getValue());
-			}
+		if (typeHints.size() > 1) { // copy over updated hints
+			mergeScope(0, 1);
 		}
+		typeHints.pop();
 	}
 
 	/**
 	 * Resets (clears) all type hints for the current (top-level) scope.
+	 * Scopes are represented as integers, where <code>0</code> represents the most recently entered scope
+	 * (i.e. the scope pushed by the most recent {@link #enterScope()} call).
 	 */
-	public void resetScope() {
+	public void clearScope(int level) {
 		if (areHintsUnavailable()) {
 			return;
 		}
-		//noinspection DataFlowIssue
-		typeHints.peek().clear();
+		typeHints.get(Math.min(level, typeHints.size() - 1)).clear();
+	}
+
+	/**
+	 * Copies hints from one scope to another.
+	 * Scopes are represented as integers, where <code>0</code> represents the most recently entered scope
+	 * (i.e. the scope pushed by the most recent {@link #enterScope()} call).
+	 * <p>
+	 * <b>Note: This does not overwrite the existing hints of <code>to</code>. Instead, the hints are merged together.</b>
+	 * @param from The scope to copy hints from.
+ 	 * @param to The scope to copy hints to.
+	 */
+	public void mergeScope(int from, int to) {
+		if (areHintsUnavailable()) {
+			return;
+		}
+		int max = typeHints.size() - 1;
+		to = Math.min(to, max);
+		from = Math.min(from, max);
+
+		var fromMap = typeHints.get(from);
+		var toMap = typeHints.get(to);
+
+		for (var entry : fromMap.entrySet()) {
+			toMap.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).addAll(entry.getValue());
+		}
 	}
 
 	/**

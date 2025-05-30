@@ -52,6 +52,48 @@ test "type hints":
 		if true is true: # some condition
 			set {_x} to true
 			stop # should prevent type hints from being copied
-			set {_x} to 10.0 # unreachable, should prevent hints
+			set {_x} to 10.0
 		set {_a} to {_x} in lowercase
 	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+
+	parse:
+		set {_x} to 10
+		if true is true: # some condition
+			set {_x} to true
+			exit 1 section # should prevent type hints from statements below from being copied
+			set {_x} to 10.0
+		set {_a} to {_x} in lowercase
+	# ordering not guaranteed
+	set {_o1} to "Expected variable '{_x}' to be a text, but it is an integer or boolean (yes/no)"
+	set {_o2} to "Expected variable '{_x}' to be a text, but it is a boolean (yes/no) or integer"
+	assert last parse logs contains {_o1} or {_o2} with "Hint failed (%last parse logs%)"
+
+	parse:
+		set {_x} to 10
+		if true is true: # some condition
+			if true is true: # some other nested condition
+				set {_x} to true
+				exit 2 sections
+		set {_a} to {_x} in lowercase
+	# ordering not guaranteed
+	set {_o1} to "Expected variable '{_x}' to be a text, but it is an integer or boolean (yes/no)"
+	set {_o2} to "Expected variable '{_x}' to be a text, but it is a boolean (yes/no) or integer"
+	assert last parse logs contains {_o1} or {_o2} with "Hint failed (%last parse logs%)"
+
+	parse:
+		set {_x} to 10
+		if true is true: # some condition
+			if true is true: # some other nested condition
+				set {_x} to true
+				exit 2 sections # should prevent type hints from statements below from being copied for the first outer section
+			set {_a} to {_x} in lowercase
+	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+
+	parse:
+		set {_x} to 10
+		if true is true: # some condition
+			if true is true: # some other nested condition
+				set {_x} to true
+				exit 2 sections
+				set {_a} to {_x} in lowercase # ensure type hints still work for unreachable code
+	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is a boolean (yes/no)" with "Hint failed (%last parse logs%)"
