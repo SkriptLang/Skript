@@ -175,8 +175,12 @@ public class HintManager {
 				hintSet.add(hint);
 			}
 		}
-		//noinspection DataFlowIssue - verified by checkState
-		typeHints.peek().put(variableName, hintSet);
+		if (hintSet.isEmpty()) { // treat as delete
+			delete(variableName);
+		} else {
+			//noinspection DataFlowIssue - verified by checkState
+			typeHints.peek().put(variableName, hintSet);
+		}
 	}
 
 	/**
@@ -258,6 +262,9 @@ public class HintManager {
 		if (hintSet != null) {
 			for (Class<?> hint : hints) {
 				hintSet.remove(hint);
+			}
+			if (hintSet.isEmpty()) {
+				delete(variableName);
 			}
 		}
 	}

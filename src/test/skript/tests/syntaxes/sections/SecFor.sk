@@ -64,7 +64,8 @@ test "for section":
 	delete {_key}
 	delete {_value}
 
-	# type hints
+test "for section type hints":
+	set {_list::*} to 1, 5, and 10
 	parse:
 		set {_value} to true
 		loop {_key} and {_value} in {_list::*}:
