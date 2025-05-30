@@ -7,6 +7,7 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.block.Block;
@@ -15,6 +16,9 @@ import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class EvtHarvestBlock extends SkriptEvent {
 
@@ -31,14 +35,30 @@ public class EvtHarvestBlock extends SkriptEvent {
 					send "You have harvested %event-block% that dropped %event-items% using your %item of event-slot% in your %event-equipment slot%"
 				
 				on crop harvesting of sweet berry bush:
-					cancel event
+					chance 5%:
+						set drops to a diamond
+					chance 1%
+						cancel the drops
 				""")
 			.since("INSERT VERSION");
 
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, Block.class,
 			PlayerHarvestBlockEvent::getHarvestedBlock);
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, ItemStack[].class,
-			event -> event.getItemsHarvested().toArray(ItemStack[]::new));
+			new EventConverter<>() {
+				@Override
+				public void set(PlayerHarvestBlockEvent event, ItemStack @Nullable [] value) {
+					assert value != null;
+					List<ItemStack> drops = event.getItemsHarvested();
+					drops.clear();
+					drops.addAll(Arrays.stream(value).toList());
+				}
+
+				@Override
+				public ItemStack @Nullable [] convert(PlayerHarvestBlockEvent event) {
+					return event.getItemsHarvested().toArray(ItemStack[]::new);
+				}
+			});
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, EquipmentSlot.class,
 			PlayerHarvestBlockEvent::getHand);
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, Slot.class,
