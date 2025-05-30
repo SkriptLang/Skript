@@ -16,6 +16,9 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Name("Ternary")
 @Description("A shorthand expression for returning something based on a condition.")
@@ -51,8 +54,11 @@ public class ExprTernary extends SimpleExpression<Object> {
 		if (condition == null)
 			return false;
 
-		returnTypes = new Class[]{ifTrue.getReturnType(), ifFalse.getReturnType()};
-		this.superReturnType = Utils.getSuperType(returnTypes);
+		Set<Class<?>> returnTypes = new HashSet<>();
+		Collections.addAll(returnTypes, ifTrue.possibleReturnTypes());
+		Collections.addAll(returnTypes, ifFalse.possibleReturnTypes());
+		this.returnTypes = returnTypes.toArray(new Class<?>[0]);
+		this.superReturnType = Utils.getSuperType(this.returnTypes);
 
 		return true;
 	}
