@@ -21,6 +21,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author Peter Güttinger
  */
@@ -37,11 +41,10 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 		Skript.registerExpression(ExprNamed.class, Object.class, ExpressionType.PROPERTY,
 				"%itemtype/inventorytype% (named|with name[s]) %string%");
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<String> name;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private Class<?>[] returnTypes;
+
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		setExpr(exprs[0]);
@@ -49,7 +52,16 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			Skript.error("Cannot create an inventory of type " + Classes.toString(inventoryType));
 			return false;
 		}
+		//noinspection unchecked
 		name = (Expression<String>) exprs[1];
+
+		List<Class<?>> returnTypes = new ArrayList<>();
+		if (exprs[0].canReturn(ItemType.class))
+			returnTypes.add(ItemType.class);
+		if (exprs[0].canReturn(InventoryType.class))
+			returnTypes.add(Inventory.class);
+		this.returnTypes = returnTypes.toArray(new Class<?>[0]);
+
 		return true;
 	}
 	
@@ -81,12 +93,19 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			return item;
 		});
 	}
-	
+
 	@Override
 	public Class<?> getReturnType() {
-		return getExpr().getReturnType() == InventoryType.class ? Inventory.class : ItemType.class;
+		if (returnTypes.length == 1)
+			return returnTypes[0];
+		return Object.class;
 	}
-	
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return Arrays.copyOf(returnTypes, returnTypes.length);
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return getExpr().toString(e, debug) + " named " + name;

@@ -218,20 +218,24 @@ public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Pattern[] patterns = (Pattern[]) delta;
-		int placement = patternNumber == null ? 0 : patternNumber.getSingle(event);
-		List<Pattern> patternList = patterns != null ? Arrays.stream(patterns).toList() : new ArrayList<>();
+		int placement = 0;
+		if (patternNumber != null) {
+			Integer patternNum = patternNumber.getSingle(event);
+			if (patternNum != null) {
+				placement = patternNum;
+			}
+		}
+		List<Pattern> patterns = delta != null ? Arrays.stream(delta).map(Pattern.class::cast).toList() : new ArrayList<>();
 
-		Consumer<BannerMeta> metaChanger = null;
-		Consumer<Banner> blockChanger = null;
-
+		Consumer<BannerMeta> metaChanger;
+		Consumer<Banner> blockChanger;
 		if (placement >= 1) {
-			Pattern pattern = patternList.size() == 1 ? patternList.get(0) : null;
+			Pattern pattern = patterns.size() == 1 ? patterns.get(0) : null;
 			metaChanger = getPlacementMetaChanger(mode, placement, pattern);
 			blockChanger = getPlacementBlockChanger(mode, placement, pattern);
 		} else {
-			metaChanger = getAllMetaChanger(mode, patternList);
-			blockChanger = getAllBlockChanger(mode, patternList);
+			metaChanger = getAllMetaChanger(mode, patterns);
+			blockChanger = getAllBlockChanger(mode, patterns);
 		}
 
 		for (Object object : objects.getArray(event)) {

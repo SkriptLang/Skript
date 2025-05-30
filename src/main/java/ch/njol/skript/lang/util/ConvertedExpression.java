@@ -40,12 +40,15 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	 * Converter information.
 	 */
 	private final Collection<ConverterInfo<? super F, ? extends T>> converterInfos;
+	private final Class<? extends T>[] returnTypes;
 
 	public ConvertedExpression(Expression<? extends F> source, Class<T> to, ConverterInfo<? super F, ? extends T> info) {
 		this.source = source;
 		this.to = to;
 		this.converter = info.getConverter();
 		this.converterInfos = Collections.singleton(info);
+		//noinspection unchecked
+		this.returnTypes = new Class[]{info.getTo()};
 	}
 
 	/**
@@ -59,6 +62,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 		this.source = source;
 		this.to = to;
 		this.converterInfos = infos;
+		//noinspection unchecked
+		this.returnTypes = converterInfos.stream().map(ConverterInfo::getTo).distinct().toArray(Class[]::new);
 		this.converter = fromObject -> {
 			for (ConverterInfo<? super F, ? extends T> info : converterInfos) {
 				if (!performFromCheck || info.getFrom().isInstance(fromObject)) { // the converter is safe to attempt
@@ -123,6 +128,11 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	@Override
 	public Class<T> getReturnType() {
 		return to;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(returnTypes, returnTypes.length);
 	}
 
 	@Override

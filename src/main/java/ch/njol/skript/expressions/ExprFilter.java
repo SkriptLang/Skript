@@ -123,6 +123,16 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 	}
 
 	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return unfilteredObjects.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		return unfilteredObjects.canReturn(returnType);
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return unfilteredObjects.toString(event, debug) + " that match [" + unparsedCondition + "]";
 	}
