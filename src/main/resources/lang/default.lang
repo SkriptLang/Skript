@@ -2592,6 +2592,58 @@ pig variants:
 	temperate: temperate
 	warm: warm
 
+# -- Damage Types --
+damage types:
+	arrow: arrow
+	bad_respawn_point: bad respawn point
+	cactus: cactus
+	campfire: campfire
+	cramming: cramming, entity cramming
+	dragon_breath: dragon breath
+	drown: drown, drowning
+	dry_out: dry out
+	ender_pearl: ender pearl
+	explosion: explosion
+	fall: fall
+	falling_anvil: falling anvil
+	falling_block: falling block
+	falling_stalactite: falling stalactite
+	fireball: fireball
+	fireworks: fireworks
+	fly_into_wall: fly into wall
+	freeze: freeze
+	generic: generic
+	generic_kill: generic kill
+	hot_floor: hot floor
+	in_fire: in fire
+	in_wall: in wall, suffocation
+	indirect_magic: indirect magic
+	lava: lava
+	lightning_bolt: lightning, lightning bolt
+	mace_smash: mace smash
+	magic: magic
+	mob_attack: mob attack
+	mob_attack_no_aggro: mob attack no aggro
+	mob_projectile: mob projectile
+	on_fire: on fire
+	out_of_world: out of world, void
+	outside_border: outside border
+	player_attack: player attack
+	player_explosion: player explosion
+	sonic_boom: sonic boom
+	spit: spit, llama spit
+	stalagmite: stalagmite
+	starve: starve
+	sting: sting
+	sweet_berry_bush: sweet berry bush
+	thorns: thorns
+	thrown: thrown
+	trident: trident
+	unattributed_fireball: unattributed fireball
+	wind_charge: wind charge
+	wither: wither
+	wither_skull: wither skull
+
 # -- Boolean --
 boolean:
 	true:
@@ -2696,6 +2748,8 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	damagesource: damage source¦s @a
+	damagetype: damage type¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
