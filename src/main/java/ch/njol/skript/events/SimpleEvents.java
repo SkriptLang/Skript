@@ -786,6 +786,14 @@ public class SimpleEvents {
 				.since("INSERT VERSION")
 				.requiredPlugins("Minecraft 1.21.1+");
 		}
+		Skript.registerEvent("Brewing Start", SimpleEvent.class, BrewingStartEvent.class, "brew[ing] start")
+			.description("Called when a brewing stand starts brewing.")
+			.examples(
+				"on brewing start:",
+					"\tset the brewing time to 1 second"
+			)
+			.since("INSERT VERSION");
+
 	}
 
 }
