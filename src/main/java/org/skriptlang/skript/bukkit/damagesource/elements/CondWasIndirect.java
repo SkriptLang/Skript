@@ -29,7 +29,7 @@ public class CondWasIndirect extends PropertyCondition<DamageSource> implements 
 	static {
 		Skript.registerCondition(CondWasIndirect.class,
 			"%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
-			"%damagesources% (was not| wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)"
+			"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)"
 		);
 	}
 
@@ -57,7 +57,12 @@ public class CondWasIndirect extends PropertyCondition<DamageSource> implements 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(sources, "were");
+		builder.append(sources);
+		if (sources.isSingle()) {
+			builder.append("was");
+		} else {
+			builder.append("were");
+		}
 		if (isNegated())
 			builder.append("not");
 		if (indirect) {
