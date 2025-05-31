@@ -15,7 +15,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Toggle Flight")
-@Description("Toggle the <a href='expressions.html#ExprFlightMode'>flight mode</a> of a player.")
+@Description("Toggle the <a href='#ExprFlightMode'>flight mode</a> of a player.")
 @Examples("allow flight to event-player")
 @Since("2.3")
 public class EffToggleFlight extends Effect {

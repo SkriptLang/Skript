@@ -25,7 +25,7 @@ import java.util.ArrayList;
  */
 @Name("Regions At")
 @Description({
-	"All <a href='./classes.html#region'>regions</a> at a particular <a href='./classes/#location'>location</a>.",
+	"All <a href='#region'>regions</a> at a particular <a href='./classes/#location'>location</a>.",
 	"This expression requires a supported regions plugin to be installed."
 })
 @Examples({

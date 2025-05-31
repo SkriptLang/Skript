@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Display Billboard")
 @Description({
-	"Returns or changes the <a href='classes.html#billboard'>billboard</a> setting of <a href='classes.html#display'>displays</a>.",
+	"Returns or changes the <a href='#billboard'>billboard</a> setting of <a href='#display'>displays</a>.",
 	"This describes the axes/points around which the display can pivot.",
 	"Displays spawn with the 'fixed' billboard by default. Resetting this expression will also set it to 'fixed'."
 })

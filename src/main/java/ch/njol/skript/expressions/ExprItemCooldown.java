@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Name("Item Cooldown")
-@Description("Change the cooldown of a specific material to a certain amount of <a href='./classes.html#timespan'>Timespan</a>.")
+@Description("Change the cooldown of a specific material to a certain amount of <a href='#timespan'>Timespan</a>.")
 @Examples({
 	"on right click using stick:",
 		"\tset item cooldown of player's tool for player to 1 minute",

@@ -21,7 +21,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("MOTD")
 @Description({"The message of the day in the server list. " +
-		"This can be changed in a <a href='events.html#server_list_ping'>server list ping</a> event only.",
+		"This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
 		"'default MOTD' returns the default MOTD always and can't be changed."})
 @Examples({"on server list ping:",
 		"	set the motd to \"Join now!\""})
