@@ -12,9 +12,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.inventory.Inventory;
@@ -24,12 +22,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Drops")
-@Description("Only works in death events. Holds the drops of the dying creature. Drops can be prevented by removing them with "
-		+ "\"remove ... from drops\", e.g. \"remove all pickaxes from the drops\", or \"clear drops\" if you don't want any drops at all.")
+@Description({
+	"Works in death and harvest events.",
+	"In a death event, will hold the drops of the dying creature.",
+	"Drops can be prevented by removing them with \"remove ... from drops\", "
+		+ "e.g. \"remove all pickaxes from the drops\", or \"clear drops\" if you don't want any drops at all."
+})
 @Examples({
 	"clear drops",
 	"remove 4 planks from the drops"
@@ -53,7 +52,7 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EntityDeathEvent.class, BlockDropItemEvent.class, PlayerHarvestBlockEvent.class);
+		return CollectionUtils.array(EntityDeathEvent.class, PlayerHarvestBlockEvent.class);
 	}
 
 	@Override
@@ -61,12 +60,6 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 		if (event instanceof EntityDeathEvent entityDeathEvent) {
 			return entityDeathEvent.getDrops()
 				.stream()
-				.map(ItemType::new)
-				.toArray(ItemType[]::new);
-		} else if (event instanceof BlockDropItemEvent blockDropItemEvent) {
-			return blockDropItemEvent.getItems()
-				.stream()
-				.map(Item::getItemStack)
 				.map(ItemType::new)
 				.toArray(ItemType[]::new);
 		} else if (event instanceof PlayerHarvestBlockEvent harvestBlockEvent) {
@@ -102,11 +95,6 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 		if (event instanceof EntityDeathEvent entityDeathEvent) {
 			drops = entityDeathEvent.getDrops();
 			originalExperience = entityDeathEvent.getDroppedExp();
-		} else if (event instanceof BlockDropItemEvent blockDropItemEvent) {
-			drops = blockDropItemEvent.getItems()
-				.stream()
-				.map(Item::getItemStack)
-				.toList();
 		} else if (event instanceof PlayerHarvestBlockEvent harvestBlockEvent) {
 			drops = harvestBlockEvent.getItemsHarvested();
 		} else {

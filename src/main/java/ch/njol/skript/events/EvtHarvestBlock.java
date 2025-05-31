@@ -7,7 +7,6 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.block.Block;
@@ -17,9 +16,6 @@ import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class EvtHarvestBlock extends SkriptEvent {
 
@@ -46,20 +42,7 @@ public class EvtHarvestBlock extends SkriptEvent {
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, Block.class,
 			PlayerHarvestBlockEvent::getHarvestedBlock);
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, ItemStack[].class,
-			new EventConverter<>() {
-				@Override
-				public void set(PlayerHarvestBlockEvent event, ItemStack @Nullable [] value) {
-					assert value != null;
-					List<ItemStack> drops = event.getItemsHarvested();
-					drops.clear();
-					drops.addAll(Arrays.stream(value).toList());
-				}
-
-				@Override
-				public ItemStack @Nullable [] convert(PlayerHarvestBlockEvent event) {
-					return event.getItemsHarvested().toArray(ItemStack[]::new);
-				}
-			});
+			event -> event.getItemsHarvested().toArray(ItemStack[]::new));
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, EquipmentSlot.class,
 			PlayerHarvestBlockEvent::getHand);
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, Slot.class,
