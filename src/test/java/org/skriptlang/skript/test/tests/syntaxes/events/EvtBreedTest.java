@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.inventory.ItemStack;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -39,7 +40,7 @@ public class EvtBreedTest extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		Bukkit.getPluginManager().callEvent(
-			new org.bukkit.event.entity.EntityBreedEvent(
+			new EntityBreedEvent(
 				child, mother, father, player, new ItemStack(Material.CARROT), 0));
 	}
 
