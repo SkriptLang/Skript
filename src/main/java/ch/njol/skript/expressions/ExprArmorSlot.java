@@ -52,7 +52,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 		if (Material.getMaterial("WOLF_ARMOR") != null)
 			bodyEntities.add(Wolf.class);
 
-		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r)[s] [item:item[s]]", "livingentities");
+		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r) [item:item[s]]", "livingentities");
 	}
 
 	private @Nullable Literal<org.bukkit.inventory.EquipmentSlot> slots;
@@ -113,10 +113,9 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	private boolean canUseEquipmentSlot(Entity entity, org.bukkit.inventory.EquipmentSlot equipmentSlot) {
 		Class<? extends Entity> entityClass = entity.getType().getEntityClass();
-		String slotName = equipmentSlot.name();
-		if (HAS_BODY_SLOT && slotName.equalsIgnoreCase("body")) {
+		if (HAS_BODY_SLOT && equipmentSlot == org.bukkit.inventory.EquipmentSlot.valueOf("BODY")) {
 			return bodyEntities.contains(entityClass);
-		} else if (HAS_SADDLE_SLOT && slotName.equalsIgnoreCase("saddle")) {
+		} else if (HAS_SADDLE_SLOT && equipmentSlot == org.bukkit.inventory.EquipmentSlot.valueOf("SADDLE")) {
 			if (saddleEntities.contains(entityClass))
 				return true;
 			for (Class<? extends Entity> type : saddleEntities) {
