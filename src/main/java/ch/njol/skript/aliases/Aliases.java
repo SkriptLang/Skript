@@ -381,7 +381,7 @@ public abstract class Aliases {
 	 *
 	 * @deprecated Freezes server on call. Use {@link #loadAsync()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static void load() {
 		try {
 			long start = System.currentTimeMillis();
@@ -608,7 +608,7 @@ public abstract class Aliases {
 	 * @return An item.
 	 * @throws IllegalArgumentException When item is not found.
 	 */
-	@Deprecated(forRemoval = true, since = "2.9.0")
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	public static ItemType javaItemType(String name) {
 		ItemType type = parseItemType(name);
 		if (type == null) {
