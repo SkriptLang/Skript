@@ -10,6 +10,7 @@ import org.skriptlang.skript.log.runtime.Frame.FrameLimit;
 
 import java.io.Closeable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -133,12 +134,36 @@ public class RuntimeErrorManager implements Closeable {
 	}
 
 	/**
+	 * Adds multiple {@link RuntimeErrorConsumer}s that will receive the emitted errors and frame output data.
+	 * Consumers will be maintained when the manager is refreshed.
+	 * @param newConsumers The {@link RuntimeErrorConsumer}s to add.
+	 */
+	public void addConsumers(RuntimeErrorConsumer... newConsumers) {
+		synchronized (consumers) {
+			consumers.addAll(Arrays.asList(newConsumers));
+		}
+	}
+
+	/**
 	 * Removes a {@link RuntimeErrorConsumer} from the tracked list.
 	 * @param consumer The consumer to remove.
+	 * @return {@code true} If the {@code consumer} was removed.
 	 */
-	public void removeConsumer(RuntimeErrorConsumer consumer) {
+	public boolean removeConsumer(RuntimeErrorConsumer consumer) {
 		synchronized (consumers) {
-			consumers.remove(consumer);
+			return consumers.remove(consumer);
+		}
+	}
+
+	/**
+	 * Removes all {@link RuntimeErrorConsumer}s that receive emitted errors and frame output data.
+	 * @return All {@link RuntimeErrorConsumer}s removed.
+	 */
+	public List<RuntimeErrorConsumer> removeAllConsumers() {
+		synchronized (consumers) {
+			List<RuntimeErrorConsumer> currentConsumers = List.copyOf(consumers);
+			consumers.clear();
+			return currentConsumers;
 		}
 	}
 
