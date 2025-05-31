@@ -39,10 +39,12 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +54,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-import java.lang.reflect.Array;
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -244,10 +245,8 @@ public class SkriptParser {
 									continue;
 								}
 							}
-							if (element instanceof ExperimentalSyntax experimentalSyntax) {
-								if (!experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet()))
-									continue;
-							}
+							if (!checkExperimentalSyntax(element))
+								continue;
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
@@ -265,6 +264,19 @@ public class SkriptParser {
 			log.printError();
 			return null;
 		}
+	}
+
+	/**
+	 * Check if the {@link SyntaxElement} is an {@link ExperimentalSyntax} and ensure the current {@link ExperimentSet}
+	 * the requirements are satisfied.
+	 * @param element The {@link SyntaxElement} to check.
+	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
+	 */
+	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
+		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
+			return true;
+		ExperimentSet experiments = getParser().getExperimentSet();
+		return experimentalSyntax.isSatisfiedBy(experiments);
 	}
 
 	private static String supportedEventsNames(Class<? extends Event>[] supportedEvents) {
