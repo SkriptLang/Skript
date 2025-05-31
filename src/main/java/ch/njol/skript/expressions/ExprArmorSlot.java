@@ -48,11 +48,16 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 	private static final boolean HAS_SADDLE_SLOT =
 		Skript.fieldExists(org.bukkit.inventory.EquipmentSlot.class, "SADDLE");
 
+	private static final org.bukkit.inventory.EquipmentSlot BODY_SLOT =
+		HAS_BODY_SLOT ? org.bukkit.inventory.EquipmentSlot.valueOf("BODY") : null;
+	private static final org.bukkit.inventory.EquipmentSlot SADDLE_SLOT =
+		HAS_SADDLE_SLOT ? org.bukkit.inventory.EquipmentSlot.valueOf("SADDLE") : null;
+
 	static {
 		if (Material.getMaterial("WOLF_ARMOR") != null)
 			bodyEntities.add(Wolf.class);
 
-		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r) [item:item[s]]", "livingentities");
+		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r[s]) [item:item[s]]", "livingentities");
 	}
 
 	private @Nullable Literal<org.bukkit.inventory.EquipmentSlot> slots;
@@ -113,9 +118,9 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	private boolean canUseEquipmentSlot(Entity entity, org.bukkit.inventory.EquipmentSlot equipmentSlot) {
 		Class<? extends Entity> entityClass = entity.getType().getEntityClass();
-		if (HAS_BODY_SLOT && equipmentSlot == org.bukkit.inventory.EquipmentSlot.valueOf("BODY")) {
+		if (HAS_BODY_SLOT && equipmentSlot == BODY_SLOT) {
 			return bodyEntities.contains(entityClass);
-		} else if (HAS_SADDLE_SLOT && equipmentSlot == org.bukkit.inventory.EquipmentSlot.valueOf("SADDLE")) {
+		} else if (HAS_SADDLE_SLOT && equipmentSlot == SADDLE_SLOT) {
 			if (saddleEntities.contains(entityClass))
 				return true;
 			for (Class<? extends Entity> type : saddleEntities) {
