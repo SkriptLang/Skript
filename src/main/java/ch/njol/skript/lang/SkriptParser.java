@@ -43,6 +43,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +53,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-import java.lang.reflect.Array;
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -251,6 +251,11 @@ public class SkriptParser {
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
+								// Check if any expressions are 'UnparsedLiterals' and if applicable for multiple info warning.
+								for (Expression<?> expr : parseResult.exprs) {
+									if (expr instanceof UnparsedLiteral unparsedLiteral && unparsedLiteral.multipleWarning())
+										break;
+								}
 								log.printLog();
 								return element;
 							}
@@ -621,24 +626,33 @@ public class SkriptParser {
 					return parseSpecifiedLiteral(literalString, unparsedClassInfo, log, types);
 				}
 			}
-			if (exprInfo.classes[0].getC() == Object.class) {
-				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
-				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
+			if (exprInfo.classes.length == 1 && exprInfo.classes[0].getC() == Object.class) {
+				if (!allowUnparsedLiteral) {
 					log.printError();
 					return null;
 				}
-				log.clear();
-				LogEntry logError = log.getError();
-				return new UnparsedLiteral(expr, logError != null && (error == null || logError.quality > error.quality) ? logError : error);
+				return getUnparsedLiteral(log, error);
 			}
+			boolean containsObjectClass = false;
 			for (ClassInfo<?> classInfo : exprInfo.classes) {
 				log.clear();
 				assert classInfo.getC() != null;
+				if (classInfo.getC().equals(Object.class)) {
+					// If 'Object.class' is an option, needs to be treated as previous behavior
+					// But we also want to be sure every other 'ClassInfo' is attempted to be parsed beforehand
+					containsObjectClass = true;
+					continue;
+				}
 				Object parsedObject = Classes.parse(expr, classInfo.getC(), context);
 				if (parsedObject != null) {
 					log.printLog();
 					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
 				}
+			}
+			if (allowUnparsedLiteral && containsObjectClass) {
+				UnparsedLiteral unparsedLiteral = getUnparsedLiteral(log, error);
+				if (unparsedLiteral != null)
+					return unparsedLiteral;
 			}
 			if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
 				for (ClassInfo<?> aClass : exprInfo.classes) {
@@ -653,6 +667,26 @@ public class SkriptParser {
 			log.printError();
 			return null;
 		}
+	}
+
+	/**
+	 * If {@link #expr} is a valid literal expression, will return {@link UnparsedLiteral}.
+	 * @param log The current {@link ParseLogHandler}.
+	 * @param error A {@link LogEntry} containing a default error to be printed if failed to retrieve.
+	 * @return {@link UnparsedLiteral} or {@code null}.
+	 */
+	private @Nullable UnparsedLiteral getUnparsedLiteral(
+		ParseLogHandler log,
+		@Nullable LogEntry error
+	)  {
+		// Do check if a literal with this name actually exists before returning an UnparsedLiteral
+		if (Classes.parseSimple(expr, Object.class, context) == null) {
+			log.printError();
+			return null;
+		}
+		log.clear();
+		LogEntry logError = log.getError();
+		return new UnparsedLiteral(expr, logError != null && (error == null || logError.quality > error.quality) ? logError : error);
 	}
 
 	/**

@@ -2,12 +2,7 @@ package ch.njol.skript.classes;
 
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.DefaultExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.util.EnumUtils;
-import ch.njol.skript.util.StringMode;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
@@ -57,27 +52,13 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 */
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, DefaultExpression<T> defaultExpression, boolean registerComparator) {
 		super(enumClass, codeName);
-		EnumUtils<T> enumUtils = new EnumUtils<>(enumClass, languageNode);
-		usage(enumUtils.getAllNames())
+		EnumParser<T> enumParser = new EnumParser<>(enumClass, languageNode);
+		usage(enumParser.getCombinedPatterns())
 			.serializer(new EnumSerializer<>(enumClass))
 			.defaultExpression(defaultExpression)
 			.supplier(() -> new ArrayIterator<>(enumClass.getEnumConstants()))
-			.parser(new Parser<T>() {
-				@Override
-				public @Nullable T parse(String input, ParseContext context) {
-					return enumUtils.parse(input);
-				}
+			.parser(enumParser);
 
-				@Override
-				public @NotNull String toString(T constant, int flags) {
-					return enumUtils.toString(constant, StringMode.MESSAGE);
-				}
-
-				@Override
-				public @NotNull String toVariableNameString(T constant) {
-					return enumUtils.toString(constant, StringMode.VARIABLE_NAME);
-				}
-			});
 		if (registerComparator)
 			Comparators.registerComparator(enumClass, enumClass, (o1, o2) -> Relation.get(o1.ordinal() - o2.ordinal()));
 	}
