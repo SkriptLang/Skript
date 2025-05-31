@@ -27,6 +27,7 @@ import ch.njol.util.Kleenean;
 public class CondLeashWillDrop extends Condition {
 
 	static {
+		// TODO - remove this when Spigot support is dropped
 		if (Skript.methodExists(EntityUnleashEvent.class, "isDropLeash"))
 			Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) [item] (will|not:(won't|will not)) (drop|be dropped)");
 	}
