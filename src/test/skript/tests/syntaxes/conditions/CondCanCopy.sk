@@ -1,5 +1,11 @@
-test "can be copied":
-	assert a diamond can be copied with "ItemType should be copyable"
-	assert location(0, 0, 0) can be copied with "Location should be copyable"
-	assert vector(0, 0, 0) can be copied with "Vector should be copyable"
-	assert chest[] can be copied with "BlockData should be copyable"
+test "can be copied - objects":
+	assert a diamond can be copied with "ItemType Object should be copyable"
+	assert location(0, 0, 0) can be copied with "Location Object should be copyable"
+	assert vector(0, 0, 0) can be copied with "Vector Object should be copyable"
+	assert chest[] can be copied with "BlockData Object should be copyable"
+
+test "can be copied - classinfos":
+	assert an item type can be copied with "ItemType ClassInfo should be copyable"
+	assert a location can be copied with "Location ClassInfo should be copyable"
+	assert a vector can be copied with "Vector ClassInfo should be copyable"
+	assert a blockdata can be copied with "BlockData ClassInfo should be copyable"

@@ -42,9 +42,9 @@ public class ExprCopy extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprCopy.class, Object.class, ExpressionType.SIMPLE,
-			"[the|a] copy of %objects% [with:with fallback]",
-			"[the] copies of %objects% [with:with fallback]",
-			"[the] copied [objects of] %objects% [with:with fallback]");
+			"[the|a] copy of %objects% [fallback:with fallback]",
+			"[the] copies of %objects% [fallback:with fallback]",
+			"[the] copied [objects of] %objects% [fallback:with fallback]");
 	}
 
 	private Expression<?> objects;
@@ -53,7 +53,7 @@ public class ExprCopy extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		objects = LiteralUtils.defendExpression(exprs[0]);
-		withFallback = parseResult.hasTag("with");
+		withFallback = parseResult.hasTag("fallback");
 		return LiteralUtils.canInitSafely(objects);
 	}
 

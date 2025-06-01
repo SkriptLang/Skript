@@ -19,7 +19,12 @@ public class CondCanCopy extends PropertyCondition<Object> {
 
 	@Override
 	public boolean check(Object object) {
-		ClassInfo<?> classInfo = Classes.getSuperClassInfo(object.getClass());
+		ClassInfo<?> classInfo;
+		if (object instanceof ClassInfo<?> info) {
+			classInfo = info;
+		} else {
+			classInfo = Classes.getSuperClassInfo(object.getClass());
+		}
 		return classInfo.getCloner() != null;
 	}
 
