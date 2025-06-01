@@ -21,7 +21,8 @@ import java.util.List;
 @Description({
 	"Get a copy of an object. Please note that not all objects are able to be copied.",
 	"If an object is not able to be copied, the object will be excluded from the result.",
-	"However, by including 'with fallback', you will get the original object, if it can not be copied."
+	"However, by including 'with fallback', you will get the original object, if it can not be copied.",
+	"Unlike the copy effect, this will only make copies of the objects and does not copy variable indices."
 })
 @Example("set {_copy} to a copy of player's tool")
 @Example("""
@@ -43,7 +44,7 @@ public class ExprCopy extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprCopy.class, Object.class, ExpressionType.SIMPLE,
 			"[the|a] copy of %objects% [with:with fallback]",
 			"[the] copies of %objects% [with:with fallback]",
-			"[the] copied %objects% [with:with fallback]");
+			"[the] copied [objects of] %objects% [with:with fallback]");
 	}
 
 	private Expression<?> objects;

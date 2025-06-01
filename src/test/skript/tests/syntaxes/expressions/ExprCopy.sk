@@ -1,15 +1,38 @@
-test "copy objects":
-	set {_copy} to a copy of a diamond
-	assert {_copy} is a diamond with "ItemType should be copyable"
-
-	set {_original} to chest[]
+test "copy itemstack":
+	set {_original} to diamond (item stack)
 	set {_copy} to a copy of {_original}
-	assert {_copy} is chest[] with "BlockData should be copyable"
+	assert {_copy} is set with "Failed to copy ItemStack"
+	assert {_copy} is {_original} with "ItemStack copy should be equal to original"
+	set name of {_copy} to "Copy"
+	assert {_original} is not equal to {_copy} with "Change of ItemStack copy should not be equal to original"
 
-	set {_objects::*} to an emerald, location(0, 0, 0) and vector(5, 5, 5)
-	set {_copies::*} to the copies of {_objects::*}
-	assert {_copies::*} is an emerald, location(0, 0, 0) and vector(5, 5, 5) with "Should be able to copy objects of a list"
+test "copy blockdata":
+	set {_copy} to a copy of chest[]
+	assert {_copy} is set with "Failed to copy BlockData"
 
+test "copy location":
+	set {_original} to location(0, 0, 0)
+	set {_copy} to a copy of {_original}
+	assert {_copy} is set with "Failed to copy Location"
+	assert {_copy} is {_original} with "Location copy should be equal to original"
+	set the x-coord of {_copy} to 10
+	assert {_original} is not {_copy} with "Change of Location copy should not be equal to original"
+
+test "copy vector":
+	set {_original} to vector(0, 0, 0)
+	set {_copy} to a copy of {_original}
+	assert {_copy} is set with "Failed to copy Vector"
+	assert {_copy} is {_original} with "Vector copy should be equal to original"
+	set the yaw of {_copy} to 10
+	assert {_original} is not {_copy} with "Change of Vector copy should not be equal to original"
+
+test "copy multiple":
+	set {_original::*} to an emerald (item stack), location(0, 0, 0) and vector(0, 0, 0)
+	set {_copies::*} to the copies of {_original::*}
+	assert {_copies::*} is set with "Failed to copy multiple objects"
+	assert {_original::*} is {_copies::*} with "Copies of multiple objects should be equal to original objects"
+
+test "copy uncopyable entity":
 	spawn a pig at test-location:
 		set {_copy} to a copy of event-entity
 		assert {_copy} is not set with "Entity should not be copyable"
