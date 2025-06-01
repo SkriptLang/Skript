@@ -1,0 +1,5 @@
+test "can be copied":
+	assert a diamond can be copied with "ItemType should be copyable"
+	assert location(0, 0, 0) can be copied with "Location should be copyable"
+	assert vector(0, 0, 0) can be copied with "Vector should be copyable"
+	assert chest[] can be copied with "BlockData should be copyable"

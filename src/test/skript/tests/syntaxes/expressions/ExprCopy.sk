@@ -1,0 +1,19 @@
+test "copy objects":
+	set {_copy} to a copy of a diamond
+	assert {_copy} is a diamond with "ItemType should be copyable"
+
+	set {_original} to chest[]
+	set {_copy} to a copy of {_original}
+	assert {_copy} is chest[] with "BlockData should be copyable"
+
+	set {_objects::*} to an emerald, location(0, 0, 0) and vector(5, 5, 5)
+	set {_copies::*} to the copies of {_objects::*}
+	assert {_copies::*} is an emerald, location(0, 0, 0) and vector(5, 5, 5) with "Should be able to copy objects of a list"
+
+	spawn a pig at test-location:
+		set {_copy} to a copy of event-entity
+		assert {_copy} is not set with "Entity should not be copyable"
+		set {_copy} to a copy of event-entity with fallback
+		assert {_copy} is set with "Copy with fallback should not return null"
+		assert {_copy} is event-entity with "Copy with fallback should return original object"
+		clear event-entity
