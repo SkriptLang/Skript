@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Tool")
 @Description("The item an entity is holding in their main or off hand.")
-@Example("player's tool is a pickaxe")
+@Example("player's tool is tagged with minecraft tag \"pickaxes\"")
 @Example("player's off hand tool is a shield")
 @Example("set tool of all players to a diamond sword")
 @Example("set offhand tool of target entity to a bow")
