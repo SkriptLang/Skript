@@ -265,6 +265,15 @@ test "arithmetic return types":
 	assert (y-coordinate of {_location} - 4) is 6 with "y-coordinate of {_location} - 4 is not 6 (got '%y-coordinate of {_location} - 4%')"
 
 test "arithmetic type switcheroo":
+	# operation info swap test
+	set {_a} to 1
+	set {_b} to 1
+	loop 2 times:
+		set {_x} to {_a} * {_b}
+		assert {_x} is set with "Failed to get a result"
+		set {_b} to a random vector
+
+	# operation info trick test
 	set {_a} to "Hello"
 	loop 2 times:
 		set {_x} to {_a} + {_b}
