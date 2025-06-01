@@ -1,20 +1,25 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
-public class ExprFunctionCall<T> extends SimpleExpression<T> {
+import java.util.*;
+
+public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProviderExpression<T> {
 
 	private final FunctionReference<?> function;
 	private final Class<? extends T>[] returnTypes;
 	private final Class<T> returnType;
+	private final Map<Event, KeyedValues> cache = new WeakHashMap<>();
 
 	public ExprFunctionCall(FunctionReference<T> function) {
 		this(function, function.returnTypes);
@@ -39,8 +44,21 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	@Override
 	protected T @Nullable [] get(Event event) {
 		Object[] returnValue = function.execute(event);
+		cache.put(event, new KeyedValues(function.returnedKeys(), returnValue));
 		function.resetReturnValue();
 		return Converters.convert(returnValue, returnTypes, returnType);
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
+		if (!cache.containsKey(event))
+			throw new IllegalStateException();
+		return cache.remove(event).keys();
+	}
+
+	@Override
+	public boolean areKeysRecommended() {
+		return false;
 	}
 
 	@Override
@@ -74,6 +92,26 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		assert false;
 		return false;
+	}
+
+	private record KeyedValues(String @Nullable [] keys, Object @Nullable [] values) {
+		public KeyedValues {
+			if (keys != null && values == null)
+				throw new IllegalStateException("Keys cannot be set without values.");
+			if (keys != null && keys.length != values.length)
+				throw new IllegalStateException("Keys and values must have the same length.");
+		}
+
+		public String[] keys() {
+			if (keys != null)
+				return keys;
+			if (values == null)
+				return new String[0];
+			String[] keys = new String[values.length];
+			for (int i = 0; i < values.length; i++)
+				keys[i] = String.valueOf(i + 1);
+			return keys;
+		}
 	}
 
 }

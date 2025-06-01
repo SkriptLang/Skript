@@ -505,6 +505,25 @@ public final class Converters {
 	}
 
 	/**
+	 * A method for bulk-converting objects of a specific type using a specific Converter.
+	 * @param from The objects to convert.
+	 * @param destination An array that will be filled with the converted objects.
+	 *                    The size of this array will be used to determine how many objects to convert.
+	 *                    Objects that cannot be converted will be set to null.
+	 * @param converter The converter to use for conversion.
+	 */
+	public static <From, To> void convert(From[] from, To[] destination, Converter<? super From, ? extends To> converter) {
+		assertIsDoneLoading();
+
+		int length = Math.min(from.length, destination.length);
+		if (length == 0)
+			return;
+
+		for (int i = 0; i < length; i++)
+			destination[i] = from[i] != null ? converter.convert(from[i]) : null;
+	}
+
+	/**
 	 * A method that guarantees an object of <code>toType</code> is returned.
 	 * @param from The object to convert.
 	 * @param toType The type to convert into.

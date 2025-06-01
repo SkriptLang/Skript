@@ -3,14 +3,18 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.ReturnHandler;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+
+import java.util.Map;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
@@ -18,6 +22,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	private boolean returnValueSet;
 	private T @Nullable [] returnValues;
+	private String @Nullable [] returnKeys;
 
 	/**
 	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)} instead.
@@ -26,7 +31,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	public ScriptFunction(Signature<T> sign, Script script, SectionNode node) {
 		this(sign, node);
 	}
-	
+
 	public ScriptFunction(Signature<T> sign, SectionNode node) {
 		super(sign);
 
@@ -50,15 +55,22 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			if (parameter.single && val.length > 0) {
 				Variables.setVariable(parameter.name, val[0], event, true);
 			} else {
-				for (int j = 0; j < val.length; j++) {
-					Variables.setVariable(parameter.name + "::" + (j + 1), val[j], event, true);
+				for (Object value : val) {
+					//noinspection unchecked
+					Map.Entry<String, Object> entry = (Map.Entry<String, Object>) value;
+					Variables.setVariable(parameter.name + "::" + entry.getKey(), entry.getValue(), event, true);
 				}
 			}
 		}
-		
+
 		trigger.execute(event);
 		ClassInfo<T> returnType = getReturnType();
 		return returnType != null ? returnValues : null;
+	}
+
+	@Override
+	public @NotNull String @Nullable [] returnedKeys() {
+		return returnKeys;
 	}
 
 	/**
@@ -76,6 +88,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	public boolean resetReturnValue() {
 		returnValueSet = false;
 		returnValues = null;
+		returnKeys = null;
 		return true;
 	}
 
@@ -84,6 +97,8 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		assert !returnValueSet;
 		returnValueSet = true;
 		this.returnValues = value.getArray(event);
+		if (value instanceof KeyProviderExpression<?> provider && provider.canReturnKeys())
+			this.returnKeys = provider.getArrayKeys(event);
 	}
 
 	@Override

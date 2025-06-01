@@ -2,13 +2,13 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 public abstract class JavaFunction<T> extends Function<T> {
-	
+
+	private @NotNull String @Nullable [] returnedKeys;
+
 	public JavaFunction(Signature<T> sign) {
 		super(sign);
 	}
@@ -20,15 +20,35 @@ public abstract class JavaFunction<T> extends Function<T> {
 	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
 		this(new Signature<>("none", name, parameters, false, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 	}
-	
+
 	@Override
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+
+	@Override
+	public @NotNull String @Nullable [] returnedKeys() {
+		return returnedKeys;
+	}
+
+	/**
+	 * Sets the keys that will be returned by this function.
+	 * <br>
+	 * Note: The length of the keys array must match the number of return values.
+	 *
+	 * @param keys An array of keys to be returned by the function. Can be null.
+	 * @throws IllegalStateException If the function is returns a single value.
+	 */
+	public void setReturnedKeys(@NotNull String @Nullable [] keys) {
+		if (isSingle())
+			throw new IllegalStateException("Cannot return keys for a single return function");
+		assert this.returnedKeys == null;
+		this.returnedKeys = keys;
+	}
 
 	private String @Nullable [] description = null;
 	private String @Nullable [] examples = null;
 	private String @Nullable [] keywords;
 	private @Nullable String since = null;
-	
+
 	/**
 	 * Only used for Skript's documentation.
 	 *
@@ -39,7 +59,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this.description = description;
 		return this;
 	}
-	
+
 	/**
 	 * Only used for Skript's documentation.
 	 *
@@ -62,7 +82,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this.keywords = keywords;
 		return this;
 	}
-	
+
 	/**
 	 * Only used for Skript's documentation.
 	 *
@@ -92,6 +112,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 	@Override
 	public boolean resetReturnValue() {
+		returnedKeys = null;
 		return true;
 	}
 

@@ -6,6 +6,7 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -18,12 +19,10 @@ import org.skriptlang.skript.util.Executable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
- * Reference to a Skript function.
+ * Reference to a {@link Function Skript function}.
  */
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
@@ -37,7 +36,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	 * succeeds, this is not null.
 	 */
 	private @Nullable Signature<? extends T> signature;
-  
+
 	/**
 	 * Actual function reference. Null before the function is called for first
 	 * time.
@@ -257,6 +256,12 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return function;
 	}
 
+	public String @Nullable [] returnedKeys() {
+		if (function != null)
+			return function.returnedKeys();
+		return null;
+	}
+
 	public boolean resetReturnValue() {
 		if (function != null)
 			return function.resetReturnValue();
@@ -277,28 +282,65 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Prepare parameter values for calling
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
-			List<Object> l = new ArrayList<>();
-			for (Expression<?> parameter : parameters)
-				l.addAll(Arrays.asList(parameter.getArray(event)));
-			params[0] = l.toArray();
-
-			// Don't allow mutating across function boundary; same hack is applied to variables
-			for (int i = 0; i < params[0].length; i++) {
-				params[0][i] = Classes.clone(params[0][i]);
-			}
+			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).keyed);
 		} else { // Use parameters in normal way
-			for (int i = 0; i < parameters.length; i++) {
-				Object[] array = parameters[i].getArray(event);
-				params[i] = Arrays.copyOf(array, array.length);
-				// Don't allow mutating across function boundary; same hack is applied to variables
-				for (int j = 0; j < params[i].length; j++) {
-					params[i][j] = Classes.clone(params[i][j]);
-				}
-			}
+			for (int i = 0; i < parameters.length; i++)
+				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).keyed);
 		}
 
 		// Execute the function
 		return function.execute(params);
+	}
+
+	private Object[] evaluateSingleListParameter(Expression<?>[] parameters, Event event, boolean keyed) {
+		if (!keyed) {
+			List<Object> list = new ArrayList<>();
+			for (Expression<?> parameter : parameters)
+				list.addAll(Arrays.asList(evaluateParameter(parameter, event, false)));
+			return list.toArray();
+		}
+
+		List<Object> values = new ArrayList<>();
+		Set<String> keys = new LinkedHashSet<>();
+		int keyIndex = 1;
+		for (Expression<?> parameter : parameters) {
+			Object[] valuesArray = parameter.getArray(event);
+			String[] keysArray = parameter instanceof KeyProviderExpression<?> keyProvider && keyProvider.canReturnKeys() && keyProvider.areKeysRecommended()
+				? keyProvider.getArrayKeys(event)
+				: null;
+
+			// Don't allow mutating across function boundary; same hack is applied to variables
+			for (Object value : valuesArray)
+				values.add(Classes.clone(value));
+
+			if (keysArray != null) {
+				keys.addAll(Arrays.asList(keysArray));
+				continue;
+			}
+
+			for (int i = 0; i < valuesArray.length; i++) {
+				while (keys.contains(String.valueOf(keyIndex)))
+					keyIndex++;
+				keys.add(String.valueOf(keyIndex));
+			}
+		}
+		return KeyProviderExpression.zip(values.toArray(), keys.toArray(new String[0]));
+	}
+
+	private Object[] evaluateParameter(Expression<?> parameter, Event event, boolean keyed) {
+		Object[] values = parameter.getArray(event);
+
+		// Don't allow mutating across function boundary; same hack is applied to variables
+		for (int i = 0; i < values.length; i++)
+			values[i] = Classes.clone(values[i]);
+
+		if (!keyed)
+			return values;
+
+		String[] keys = parameter instanceof KeyProviderExpression<?> keyProvider && keyProvider.canReturnKeys() && keyProvider.areKeysRecommended()
+			? keyProvider.getArrayKeys(event)
+			: null;
+		return KeyProviderExpression.zip(values, keys);
 	}
 
 	public boolean isSingle() {
