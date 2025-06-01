@@ -1577,6 +1577,13 @@ public class BukkitClasses {
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
 
+		Classes.registerClass(new EnumClassInfo<>(VillagerCareerChangeEvent.ChangeReason.class, "villagercareerchangereason", "villager career change reasons")
+			.user("(villager )?career ?change ?reasons?")
+			.name("Villager Career Change Reason")
+			.description("Represents a reason why a villager changed its career.")
+			.since("INSERT VERSION")
+		);
+
 	}
 
 	/**
@@ -1620,13 +1627,6 @@ public class BukkitClasses {
 		}
 		Skript.debug("There were no registries found for '" + registryName + "'.");
 		return null;
-		Classes.registerClass(new EnumClassInfo<>(VillagerCareerChangeEvent.ChangeReason.class, "villagercareerchangereason", "villager career change reasons")
-			.user("(villager )?career ?change ?reasons?")
-			.name("Villager Career Change Reason")
-			.description("Represents a reason why a villager changed its career.")
-			.since("INSERT VERSION")
-		);
-
 	}
 
 }
