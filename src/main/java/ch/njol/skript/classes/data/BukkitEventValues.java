@@ -549,8 +549,6 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getFrom);
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getTo, TIME_FUTURE);
 		}
-		//PlayerToggleFlightEvent
-		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, PlayerEvent::getPlayer);
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
 		//FireworkExplodeEvent
