@@ -31,8 +31,8 @@ public class ExprTernary extends SimpleExpression<Object> {
 				"%objects% if <.+>[,] (otherwise|else) %objects%");
 	}
 
-	private Class<?> superReturnType;
-	private Class<?>[] returnTypes;
+	private Class<?>[] types;
+	private Class<?> superType;
 
 	private Expression<Object> ifTrue;
 	private Condition condition;
@@ -46,19 +46,21 @@ public class ExprTernary extends SimpleExpression<Object> {
 			Skript.error("Ternary operators may not be nested!");
 			return false;
 		}
-		if (!LiteralUtils.canInitSafely(ifTrue, ifFalse))
+		if (!LiteralUtils.canInitSafely(ifTrue, ifFalse)) {
 			return false;
+		}
 
 		String cond = parseResult.regexes.get(0).group();
 		condition = Condition.parse(cond, "Can't understand this condition: " + cond);
-		if (condition == null)
+		if (condition == null) {
 			return false;
+		}
 
-		Set<Class<?>> returnTypes = new HashSet<>();
-		Collections.addAll(returnTypes, ifTrue.possibleReturnTypes());
-		Collections.addAll(returnTypes, ifFalse.possibleReturnTypes());
-		this.returnTypes = returnTypes.toArray(new Class<?>[0]);
-		this.superReturnType = Utils.getSuperType(this.returnTypes);
+		Set<Class<?>> types = new HashSet<>();
+		Collections.addAll(types, ifTrue.possibleReturnTypes());
+		Collections.addAll(types, ifFalse.possibleReturnTypes());
+		this.types = types.toArray(new Class<?>[0]);
+		this.superType = Utils.getSuperType(this.types);
 
 		return true;
 	}
@@ -69,18 +71,18 @@ public class ExprTernary extends SimpleExpression<Object> {
 	}
 
 	@Override
+	public boolean isSingle() {
+		return ifTrue.isSingle() && ifFalse.isSingle();
+	}
+
+	@Override
 	public Class<?> getReturnType() {
-		return superReturnType;
+		return superType;
 	}
 
 	@Override
 	public Class<?>[] possibleReturnTypes() {
-		return Arrays.copyOf(returnTypes, returnTypes.length);
-	}
-
-	@Override
-	public boolean isSingle() {
-		return ifTrue.isSingle() && ifFalse.isSingle();
+		return Arrays.copyOf(types, types.length);
 	}
 
 	@Override
