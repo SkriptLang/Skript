@@ -212,6 +212,9 @@ public class ScriptCommand implements TabExecutor {
 			hintManager.enterScope();
 			for (Argument<?> argument : arguments) {
 				String hintName = argument.getName();
+				if (hintName == null) {
+					continue;
+				}
 				if (!argument.isSingle()) {
 					hintName += Variable.SEPARATOR + "*";
 				}
