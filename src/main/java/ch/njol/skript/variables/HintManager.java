@@ -117,10 +117,7 @@ public class HintManager {
 	 * (i.e. the scope pushed by the most recent {@link #enterScope()} call).
 	 */
 	public void clearScope(int level) {
-		if (areHintsUnavailable()) {
-			return;
-		}
-		typeHints.get(Math.min(level, typeHints.size() - 1)).clear();
+		typeHints.get(level).clear();
 	}
 
 	/**
@@ -133,13 +130,6 @@ public class HintManager {
  	 * @param to The scope to copy hints to.
 	 */
 	public void mergeScope(int from, int to) {
-		if (areHintsUnavailable()) {
-			return;
-		}
-		int max = typeHints.size() - 1;
-		to = Math.min(to, max);
-		from = Math.min(from, max);
-
 		var fromMap = typeHints.get(from);
 		var toMap = typeHints.get(to);
 
