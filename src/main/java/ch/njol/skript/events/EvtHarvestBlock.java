@@ -24,8 +24,8 @@ public class EvtHarvestBlock extends SkriptEvent {
 			"[player] [block|crop] harvest[ing] [of %-itemtypes/blockdatas%]")
 			.description("""
 				Called when a player harvests a block.
-				A block being harvested is when a block drops items and the state of the block is changed and not broken.
-				Such as harvesting berries from a berry bush.
+				A block being harvested is when a block drops items and the state of the block is changed, but the block is not broken.
+				An example is harvesting berries from a berry bush.
 				""")
 			.examples("""
 				on player block harvest:
