@@ -953,7 +953,11 @@ public class ScriptLoader {
 
 		// Begin local variable type hints
 		parser.getHintManager().enterScope();
-		boolean freezeHints = false;
+		// Track if the scope has been frozen
+		// This is the case when a statement that stops further execution is encountered
+		// Further statements would not run, meaning the hints from them are inaccurate
+		// When true, before exiting the scope, its hints are cleared to avoid passing them up
+		boolean freezeScope = false;
 
 		boolean executionStops = false;
 		for (Node subNode : node) {
@@ -1038,31 +1042,19 @@ public class ScriptLoader {
 			}
 			executionStops = item.executionIntent() != null;
 
-			if (executionStops && !freezeHints) {
-				freezeHints = true;
-
-				// If we are exiting multiple sections, hints should instead be copied to the section we are exiting to
-				// Exiting only one section does not require special behavior
-				if (item.executionIntent() instanceof ExecutionIntent.StopSections intent && intent.levels() > 1) {
+			if (executionStops && !freezeScope) {
+				freezeScope = true;
+				// Execution might stop for some sections but not all
+				// We want to pass hints up to the scope that execution resumes in
+				if (item.executionIntent() instanceof ExecutionIntent.StopSections intent) {
 					parser.getHintManager().mergeScope(0, intent.levels());
-					parser.getHintManager().enterScope(); // Enter a new scope to capture all new type hints
-					// Clear scope to prevent duplicate copying
-					// We clear after entering the capturing scope so that the capturing scope still has hints
-					parser.getHintManager().clearScope(1);
-				} else {
-					parser.getHintManager().enterScope(); // Enter a new scope to capture all new type hints
 				}
 			}
 		}
 
-		// If hints were frozen, then we need to destroy the scope in which they were captured
-		if (freezeHints) {
-			parser.getHintManager().clearScope(0); // Clear scope to prevent copying upon exit
-			parser.getHintManager().exitScope();
-		}
-		// If the previous section contains a statement that stops the trigger, then any type hints
-		// provided by the section are not useful. Thus, we clear them.
-		if (items.stream().anyMatch(item -> item.executionIntent() instanceof ExecutionIntent.StopTrigger)) {
+		// If the scope was frozen, then we need to clear it to prevent passing up inaccurate hints
+		// They will have already been copied as necessary
+		if (freezeScope) {
 			parser.getHintManager().clearScope(0);
 		}
 		// Destroy local variable type hints for this section
