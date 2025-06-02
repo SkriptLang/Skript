@@ -73,7 +73,7 @@ public class BlockLineIterator implements Iterator<Block> {
 	public Block next() {
 		if (!hasNext()) throw new NoSuchElementException("Reached the final block destination");
 		// sanity check (is the current->end vector pointing away from step)
-		if (end.sub(current, new Vector3d()).dot(step) < 0) throw new NoSuchElementException("Overshot the final block!");
+		if (end.sub(current, new Vector3d()).dot(step) < -1) throw new NoSuchElementException("Overshot the final block!");
 		// get block and check end
 		Vector3d center = centered(current);
 		Block block = getBlock(center, world);

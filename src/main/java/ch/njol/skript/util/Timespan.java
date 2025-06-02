@@ -5,6 +5,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
+import ch.njol.util.Math2;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
@@ -201,41 +202,41 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)}
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Timespan fromTicks(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead.
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getMilliSeconds() {
 		return getAs(TimePeriod.MILLISECOND);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getTicks() {
 		return getAs(TimePeriod.TICK);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getTicks_i() {
 		return getAs(TimePeriod.TICK);
 	}
@@ -252,6 +253,36 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	 */
 	public Duration getDuration() {
 		return Duration.ofMillis(millis);
+	}
+
+	/**
+	 * Safely adds the specified timespan to this timespan, handling potential overflow.
+	 * @param timespan The timespan to add to this timespan
+	 * @return a new Timespan object
+	 */
+	public Timespan add(Timespan timespan) {
+		long millis = Math2.addClamped(this.millis, timespan.getAs(TimePeriod.MILLISECOND));
+		return new Timespan(millis);
+	}
+
+	/**
+	 * Safely subtracts the specified timespan from this timespan, handling potential underflow.
+	 * @param timespan The timespan to subtract from this timespan
+	 * @return a new Timespan object
+	 */
+	public Timespan subtract(Timespan timespan) {
+		long millis = Math.max(0, this.millis - timespan.getAs(TimePeriod.MILLISECOND));
+		return new Timespan(millis);
+	}
+
+	/**
+	 * Calculates the difference between the specified timespan and this timespan.
+	 * @param timespan The timespan to get the difference of
+	 * @return a new Timespan object
+	 */
+	public Timespan difference(Timespan timespan) {
+		long millis = Math.abs(this.millis - timespan.getAs(TimePeriod.MILLISECOND));
+		return new Timespan(millis);
 	}
 
 	@Override

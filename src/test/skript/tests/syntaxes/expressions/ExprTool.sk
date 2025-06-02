@@ -1,0 +1,41 @@
+test "ExprTool":
+	spawn a skeleton at test location:
+		set helmet of entity to diamond helmet # preventing death from sun
+		set {_skeleton} to entity
+
+	# Main Hand
+
+	set tool of {_skeleton} to a diamond
+	assert tool of {_skeleton} is a diamond with "The held item of the skeleton wasn't set to a diamond"
+
+	add 3 diamonds to the tool of {_skeleton}
+	assert weapon of {_skeleton} is 4 diamonds with "The held item of the skeleton didn't become 4 diamonds"
+
+	remove stone from the held item of {_skeleton}
+	assert held item of {_skeleton} is 4 diamonds with "The held item of the skeleton was no longer 4 diamonds after removing a different item"
+
+	remove 2 diamonds from the tool of {_skeleton}
+	assert tool of {_skeleton} is 2 diamonds with "The held item of the skeleton did not become 2 diamonds after removing 2 diamonds from 4"
+
+	clear tool of {_skeleton}
+	assert tool of {_skeleton} is air with "The held item of the skeleton did not become air after being cleared"
+
+	# Off Hand
+
+	set offhand tool of {_skeleton} to a diamond
+	assert offhand tool of {_skeleton} is a diamond with "The offhand item of the skeleton wasn't set to a diamond"
+
+	add 3 diamonds to the offhand tool of {_skeleton}
+	assert offhand tool of {_skeleton} is 4 diamonds with "The offhand item of the skeleton didn't become 4 diamonds"
+
+	remove stone from the offhand item of {_skeleton}
+	assert offhand tool of {_skeleton} is 4 diamonds with "The offhand item of the skeleton was no longer 4 diamonds after removing an incorrect item"
+
+	remove 2 diamonds from the offhand tool of {_skeleton}
+	assert offhand tool of {_skeleton} is 2 diamonds with "The offhand item of the skeleton did not become 2 diamonds after removing 2 diamonds from 4"
+
+	clear offhand item of {_skeleton}
+	assert offhand tool of {_skeleton} is air with "The offhand item of the skeleton did not become air after being cleared"
+
+	# Cleanup
+	delete entity within {_skeleton}

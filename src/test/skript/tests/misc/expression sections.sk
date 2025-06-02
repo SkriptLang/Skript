@@ -50,4 +50,4 @@ test "expression sections that don't work":
 	parse:
 		if {_var} is a new runnable:
 			broadcast "NO BAD"
-	assert last parse logs contain {_expected} with "section was allowed with multiple headers"
+	assert last parse logs contain {_expected} with "section was allowed with multiple headers: %last parse logs%"

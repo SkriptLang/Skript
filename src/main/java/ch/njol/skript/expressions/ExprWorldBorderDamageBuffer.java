@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 	"Players only take damage when outside of the world's world border, and the damage buffer distance cannot be less than 0."
 })
 @Examples("set world border damage buffer of {_worldborder} to 10")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
