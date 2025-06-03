@@ -556,35 +556,6 @@ public class SkriptClasses {
 					public String toVariableNameString(Color color) {
 						return color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
-				})
-				.serializer(new Serializer<Color>() {
-					@Override
-					public Fields serialize(Color color) throws NotSerializableException {
-						Fields f = new Fields();
-						f.putPrimitive("asInt", color.asInt());
-						return f;
-					}
-
-					@Override
-					public void deserialize(Color o, Fields f) throws StreamCorruptedException {
-						assert false;
-					}
-
-					@Override
-					protected Color deserialize(Fields fields) throws StreamCorruptedException {
-						int asInt = fields.getPrimitive("asInt", int.class);
-						return ColorUtils.fromInt(asInt);
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-
-					@Override
-					protected boolean canBeInstantiated() {
-						return false;
-					}
 				}));
 
 		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
