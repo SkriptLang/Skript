@@ -199,8 +199,13 @@ public class HintManager {
 	}
 
 	private void delete_i(String variableName) {
-		//noinspection DataFlowIssue
-		typeHints.peek().remove(variableName);
+		typeHints.getFirst().remove(variableName);
+
+		// Attempt to also clear hints for the list variable if applicable
+		if (variableName.endsWith(Variable.SEPARATOR + "*")) {
+			String prefix = variableName.substring(0, variableName.length() - 1);
+			typeHints.getFirst().keySet().removeIf(key -> key.startsWith(prefix));
+		}
 	}
 
 	/**
@@ -236,8 +241,16 @@ public class HintManager {
 	}
 
 	private void add_i(String variableName, Set<Class<?>> hintSet) {
-		//noinspection DataFlowIssue
-		typeHints.peek().computeIfAbsent(variableName, key -> new HashSet<>()).addAll(hintSet);
+		typeHints.getFirst().computeIfAbsent(variableName, key -> new HashSet<>()).addAll(hintSet);
+
+		// Attempt to also add hints for the list variable if applicable
+		if (!variableName.isEmpty() && variableName.charAt(variableName.length() - 1) != '*') {
+			int listEnd = variableName.lastIndexOf(Variable.SEPARATOR);
+			if (listEnd != -1) {
+				String listVariableName = variableName.substring(0, listEnd + Variable.SEPARATOR.length()) + "*";
+				typeHints.getFirst().computeIfAbsent(listVariableName, key -> new HashSet<>()).addAll(hintSet);
+			}
+		}
 	}
 
 	/**
@@ -261,8 +274,7 @@ public class HintManager {
 		if (areHintsUnavailable()) {
 			return;
 		}
-		//noinspection DataFlowIssue
-		Set<Class<?>> hintSet = typeHints.peek().get(variableName);
+		Set<Class<?>> hintSet = typeHints.getFirst().get(variableName);
 		if (hintSet != null) {
 			for (Class<?> hint : hints) {
 				hintSet.remove(hint);
@@ -294,8 +306,7 @@ public class HintManager {
 		if (areHintsUnavailable()) {
 			return ImmutableSet.of();
 		}
-		//noinspection DataFlowIssue
-		Set<Class<?>> hintSet = typeHints.peek().get(variableName);
+		Set<Class<?>> hintSet = typeHints.getFirst().get(variableName);
 		if (hintSet != null) {
 			return ImmutableSet.copyOf(hintSet);
 		}
@@ -326,8 +337,7 @@ public class HintManager {
 
 		private Backup(HintManager source) {
 			hints = new HashMap<>();
-			//noinspection DataFlowIssue
-			mergeHints(source.typeHints.peek(), hints);
+			mergeHints(source.typeHints.getFirst(), hints);
 		}
 
 	}
