@@ -9,7 +9,7 @@ import java.util.Objects;
  * @deprecated Regular {@link org.skriptlang.skript.lang.structure.Structure} methods should be used.
  * See individual methods for their equivalents.
  */
-@Deprecated
+@Deprecated(since = "2.7.0", forRemoval = true)
 public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 
 	/**
@@ -20,7 +20,7 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * Normally, that method would register the parsed trigger with {@link ch.njol.skript.SkriptEventHandler}.
 	 * A reference to the {@link Trigger} is available through {@link #trigger}.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public abstract void register(Trigger t);
 
 	/**
@@ -31,7 +31,7 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * Normally, that method would unregister the parsed trigger with {@link ch.njol.skript.SkriptEventHandler}.
 	 * A reference to the {@link Trigger} is available through {@link #trigger}.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public abstract void unregister(Trigger t);
 
 	/**
@@ -41,7 +41,7 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * @deprecated This method should no longer be used.
 	 * Each trigger should be unregistered through {@link #unregister(Trigger)}.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public abstract void unregisterAll();
 
 	@Override
@@ -74,7 +74,7 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * @param config Script that is being parsed
 	 * @deprecated Use {@link #postLoad()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void afterParse(Config config) {
 
 	}

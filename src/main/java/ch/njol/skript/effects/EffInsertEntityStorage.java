@@ -26,7 +26,7 @@ import java.util.Map;
 })
 @Examples("add last spawned bee into the entity storage of {_beehive}")
 @RequiredPlugins("Minecraft 1.21+")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffInsertEntityStorage extends Effect {
 
 	/*

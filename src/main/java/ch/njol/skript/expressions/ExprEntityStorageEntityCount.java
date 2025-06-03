@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 	"broadcast the stored entity count of {_beehive}",
 	"set the maximum entity count of {_beehive} to 20"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprEntityStorageEntityCount extends SimplePropertyExpression<Block, Integer> {
 
 	static {
