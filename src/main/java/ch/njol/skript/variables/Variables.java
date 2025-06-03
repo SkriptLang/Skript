@@ -88,6 +88,10 @@ public final class Variables {
 
 	private final static List<UnloadedStorage> UNLOADED_STORAGES = new ArrayList<>();
 
+	private static final String EPHEMERAL_VARIABLE_PREFIX = "-";
+
+	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
+
 	// Register some things with Yggdrasil
 	static {
 		SkriptAddon source = Skript.getAddonInstance();
@@ -901,6 +905,8 @@ public final class Variables {
 	 * @param value the value of the variable.
 	 */
 	private static void saveVariableChange(String name, @Nullable Object value) {
+		if (name.startsWith(Variables.EPHEMERAL_VARIABLE_PREFIX))
+			return;
 		saveQueue.add(serialize(name, value));
 	}
 

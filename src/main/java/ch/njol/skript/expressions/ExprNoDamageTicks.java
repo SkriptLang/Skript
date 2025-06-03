@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -15,6 +14,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("No Damage Ticks")
 @Description("The number of ticks that an entity is invulnerable to damage for.")
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tset victim's invulnerability ticks to 20 #Victim will not take damage for the next second"
 })
 @Since("2.5, 2.11 (deprecated)")
-@Deprecated
+@Deprecated(since = "2.11.0", forRemoval = true)
 public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
@@ -32,7 +32,7 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Lo
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		Skript.warning("This expression is deprecated. Please use 'invulnerability time' instead of 'invulnerability ticks'.");
+		ScriptWarning.printDeprecationWarning("This expression is deprecated. Please use 'invulnerability time' instead of 'invulnerability ticks'.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
