@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +41,11 @@ final class FunctionRegistry {
 	final static String FUNCTION_NAME_PATTERN = "\\p{IsAlphabetic}[\\p{IsAlphabetic}\\d_]*";
 
 	/**
+	 * Lock for ensuring only one write operation happens to namespaces at any one time.
+	 */
+	private final Object lock = new Object();
+
+	/**
 	 * The namespace for functions registered using Java.
 	 */
 	private final NamespaceIdentifier GLOBAL_NAMESPACE = new NamespaceIdentifier(Scope.GLOBAL, null);
@@ -60,7 +66,7 @@ final class FunctionRegistry {
 	 * @throws SkriptAPIException if a signature with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
+	public synchronized void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature is null");
 		Skript.debug("Registering signature '" + signature.getName() + "'");
 
@@ -70,21 +76,23 @@ final class FunctionRegistry {
 			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
 		}
 
-		Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
+		synchronized (lock) {
+			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
 
-		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
+			FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		// register
-		Set<FunctionIdentifier> identifiersWithName = ns.identifiers.getOrDefault(identifier.name, new HashSet<>());
-		boolean exists = identifiersWithName.add(identifier);
-		if (!exists) {
-			alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+			// register
+			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.getOrDefault(identifier.name, new HashSet<>());
+			boolean exists = identifiersWithName.add(identifier);
+			if (!exists) {
+				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+			}
+			ns.identifiers.put(identifier.name, identifiersWithName);
+
+			ns.signatures.put(identifier, signature);
+
+			namespaces.put(namespaceId, ns);
 		}
-		ns.identifiers.put(identifier.name, identifiersWithName);
-
-		ns.signatures.put(identifier, signature);
-
-		namespaces.put(namespaceId, ns);
 	}
 
 	/**
@@ -110,7 +118,7 @@ final class FunctionRegistry {
 	 *                            a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public void register(@Nullable String namespace, @NotNull Function<?> function) {
+	public synchronized void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function is null");
 		Skript.debug("Registering function '" + function.getName() + "'");
 
@@ -125,20 +133,21 @@ final class FunctionRegistry {
 			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
 		}
 
-		Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
-
 		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
 		if (!signatureExists(namespaceId, identifier)) {
 			register(namespace, function.getSignature());
 		}
 
 		// register
-		Function<?> existing = ns.functions.put(identifier, function);
-		if (existing != null) {
-			alreadyRegisteredError(name, identifier, namespaceId);
-		}
+		synchronized (lock) {
+			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
+			Function<?> existing = ns.functions.put(identifier, function);
+			if (existing != null) {
+				alreadyRegisteredError(name, identifier, namespaceId);
+			}
 
-		namespaces.put(namespaceId, ns);
+			namespaces.put(namespaceId, ns);
+		}
 	}
 
 	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier, NamespaceIdentifier namespace) {
@@ -409,19 +418,25 @@ final class FunctionRegistry {
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		for (Namespace namespace : namespaces.values()) {
-			if (!namespace.identifiers.containsKey(name)) {
-				continue;
-			}
+		synchronized (lock) {
+			for (Entry<NamespaceIdentifier, Namespace> entry : namespaces.entrySet()) {
+				NamespaceIdentifier namespaceId = entry.getKey();
+				Namespace namespace = entry.getValue();
 
-			for (FunctionIdentifier other : namespace.identifiers.get(name)) {
-				if (!identifier.equals(other)) {
+				if (!namespace.identifiers.containsKey(name)) {
 					continue;
 				}
 
-				removeUpdateMaps(namespace, other, name);
+				for (FunctionIdentifier other : namespace.identifiers.get(name)) {
+					if (!identifier.equals(other)) {
+						continue;
+					}
 
-				return;
+					removeUpdateMaps(namespace, other, name);
+					namespaces.put(namespaceId, namespace);
+
+					return;
+				}
 			}
 		}
 	}
@@ -431,7 +446,6 @@ final class FunctionRegistry {
 	 *
 	 * @param namespace         The namespace
 	 * @param toRemove          The identifier to remove
-	 * @param nameToIdentifiers The map of identifiers to functions
 	 * @param name              The name of the function
 	 */
 	private void removeUpdateMaps(Namespace namespace, FunctionIdentifier toRemove, String name) {
