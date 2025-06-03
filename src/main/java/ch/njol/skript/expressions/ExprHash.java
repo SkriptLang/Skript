@@ -1,112 +1,77 @@
 package ch.njol.skript.expressions;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.Locale;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 
 @Name("Hash")
-@Description({"Hashes the given text using the MD5 or SHA-256 algorithms. Each algorithm is suitable for different use cases.<p>",
-		"MD5 is provided mostly for backwards compatibility, as it is outdated and not secure. ",
-		"SHA-256 is more secure, and can used to hash somewhat confidental data like IP addresses and even passwords. ",
-		"It is not <i>that</i> secure out of the box, so please consider using salt when dealing with passwords! ",
+@Description({
+	"Hashes the given text using the MD5 or SHA algorithms. Each algorithm is suitable for different use cases.",
+		"These hashing algorithms are not suitable for hashing passwords.",
+		"If handling passwords, use a <a href='https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#password-hashing-algorithms'>hashing algorithm specifically designed for passwords</a>.",
+		"MD5 is deprecated and may be removed in a future release. It is provided mostly for backwards compatibility, as it is outdated and not secure. ",
+		"SHA is more secure, but is not suitable for hashing passwords (even with salting). ",
 		"When hashing data, you <strong>must</strong> specify algorithms that will be used for security reasons! ",
-		"<p>Please note that a hash cannot be reversed under normal circumstanses. You will not be able to get original value from a hash with Skript."})
-@Examples({
-		"command /setpass &lt;text&gt;:",
-		"\ttrigger:",
-		"\t\tset {password::%uuid of player%} to text-argument hashed with SHA-256",
-		"command /login &lt;text&gt;:",
-		"\ttrigger:",
-		"\t\tif text-argument hashed with SHA-256 is {password::%uuid of player%}:",
-		"\t\t\tmessage \"Login successful.\"",
-		"\t\telse:",
-		"\t\t\tmessage \"Wrong password!\""})
-@Since("2.0, 2.2-dev32 (SHA-256 algorithm)")
+		"Please note that a hash cannot be reversed under normal circumstances. You will not be able to get original value from a hash with Skript."
+})
+@Example("set {_hash} to \"hello world\" hashed with SHA-256")
+@Since("2.0, 2.2-dev32 (SHA-256 algorithm), INSERT VERSION (SHA-384, SHA-512)")
 public class ExprHash extends PropertyExpression<String, String> {
-	static {
-		Skript.registerExpression(ExprHash.class, String.class, ExpressionType.SIMPLE,
-				"%strings% hash[ed] with (0¦MD5|1¦SHA-256)");
-	}
-	
-	@SuppressWarnings("null")
-	private final static Charset UTF_8 = Charset.forName("UTF-8");
-	
-	@Nullable
-	static MessageDigest md5;
-	@Nullable
-	static MessageDigest sha256;
-	
-	static {
-		try {
-			md5 = MessageDigest.getInstance("MD5");
-			sha256 = MessageDigest.getInstance("SHA-256");
-		} catch (final NoSuchAlgorithmException e) {
-			throw new InternalError("JVM does not adhere to Java specifications");
-		}
-	}
-	
-	private int algorithm;
-	
-	@SuppressWarnings({"unchecked", "null"})
-	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		setExpr((Expression<? extends String>) exprs[0]);
-		algorithm = parseResult.mark;
-		return true;
-	}
-	
-	@SuppressWarnings("null")
-	@Override
-	protected String[] get(final Event e, final String[] source) {
-		// These can't be null
-		assert md5 != null;
-		assert sha256 != null;
-		
-		// Get correct digest
-		MessageDigest digest = null;
-		if (algorithm == 0)
-			digest = md5;
-		else if (algorithm == 1)
-			digest = sha256;
-		else
-			assert false;
 
-		// Apply it to all strings
-		final String[] r = new String[source.length];
-		for (int i = 0; i < r.length; i++)
-			r[i] = toHex(digest.digest(source[i].getBytes(UTF_8)));
-		
-		
-		return r;
+	private static final HexFormat HEX_FORMAT = HexFormat.of().withLowerCase();
+
+	static {
+		Skript.registerExpression(ExprHash.class, String.class, ExpressionType.COMBINED,
+				"%strings% hash[ed] with (:(MD5|SHA-256|SHA-384|SHA-512))");
 	}
+
+	private MessageDigest digest;
 	
-	private static String toHex(final byte[] b) {
-		final char[] r = new char[2 * b.length];
-		for (int i = 0; i < b.length; i++) {
-			r[2 * i] = Character.forDigit((b[i] & 0xF0) >> 4, 16);
-			r[2 * i + 1] = Character.forDigit(b[i] & 0x0F, 16);
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		//noinspection unchecked
+		setExpr((Expression<? extends String>) exprs[0]);
+		String algorithm = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
+		try {
+			digest = MessageDigest.getInstance(algorithm);
+			if (algorithm.equals("MD5") && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.DEPRECATED_SYNTAX)) {
+				Skript.warning("MD5 is not secure and shouldn't be used if a cryptographically secure hashing algorithm is required.");
+			}
+			return true;
+		} catch (NoSuchAlgorithmException e) {
+			Skript.error("Unsupported hashing algorithm: " + algorithm);
+			return false;
 		}
-		return new String(r);
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "hash of " + getExpr();
+	protected String[] get(Event event, String[] source) {
+		// Apply it to all strings
+		String[] result = new String[source.length];
+		for (int i = 0; i < result.length; i++)
+			result[i] = HEX_FORMAT.formatHex(digest.digest(source[i].getBytes(StandardCharsets.UTF_8)));
+
+		return result;
+	}
+	
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "hash of " + getExpr().toString(event, debug);
 	}
 	
 	@Override
