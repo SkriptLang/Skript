@@ -2592,6 +2592,11 @@ pig variants:
 	temperate: temperate
 	warm: warm
 
+# -- Villager Career Change Reasons
+villager career change reasons:
+	employed: employment
+	losing_job: losing job
+
 # -- Damage Types --
 damage types:
 	arrow: arrow
@@ -2748,6 +2753,7 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	villagercareerchangereason: villager career change reason¦s @a
 	damagesource: damage source¦s @a
 	damagetype: damage type¦s @a
 
