@@ -53,7 +53,7 @@ public class CowData extends EntityData<Cow> {
 
 	public CowData() {}
 
-	// TODO: When safe, 'variant' should have the type changed to 'Cow.Variant'
+	// TODO: When the api-version is 1.21.5, 'variant' should have the type changed to 'Cow.Variant' and reflection can be removed
 	public CowData(@Nullable Object variant) {
 		this.variant = variant;
 	}
