@@ -42,6 +42,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.EntityUnleashEvent;
+import org.bukkit.event.entity.VillagerCareerChangeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -1575,6 +1576,13 @@ public class BukkitClasses {
 			.since("INSERT VERSION")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
+
+		Classes.registerClass(new EnumClassInfo<>(VillagerCareerChangeEvent.ChangeReason.class, "villagercareerchangereason", "villager career change reasons")
+			.user("(villager )?career ?change ?reasons?")
+			.name("Villager Career Change Reason")
+			.description("Represents a reason why a villager changed its career.")
+			.since("INSERT VERSION")
+		);
 
 	}
 
