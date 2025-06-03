@@ -270,7 +270,7 @@ public final class Variables {
 						Skript.info("Loading database '" + node.getKey() + "'...");
 
 					// Load the variables
-					if (variablesStorage.load_i(sectionNode)) {
+					if (variablesStorage.loadConfig(sectionNode)) {
 						STORAGES.add(variablesStorage);
 					} else {
 						successful = false;

@@ -16,6 +16,12 @@ import com.zaxxer.hikari.HikariConfig;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * SQLite storage for Skript variables.
+ * <p>
+ * This class is deprecated and scheduled for removal in future versions of Skript.
+ * Use {@link JdbcStorage} with a different database like H2Storage or MySQLStorage instead.
+ */
 @Deprecated
 @ScheduledForRemoval
 public class SQLiteStorage extends JdbcStorage {

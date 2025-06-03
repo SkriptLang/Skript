@@ -49,7 +49,7 @@ public class SQLiteStorageTest {
 		section.add(new EntryNode("monitor interval", "30 seconds", section));
 		section.add(new EntryNode("file", "./plugins/Skript/variables.db", section));
 		section.add(new EntryNode("backup interval", "0", section));
-		assertTrue(database.load_i(section));
+		assertTrue(database.loadConfig(section));
 	}
 
 	@Test

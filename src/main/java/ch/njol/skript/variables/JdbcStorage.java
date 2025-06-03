@@ -26,6 +26,13 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.SynchronizedReference;
 
+/**
+ * A storage for Skript variables that uses a SQL database.
+ * <p>
+ * This class is abstract and should be extended to implement specific SQL database storage.
+ * 
+ * The queries will select and delete variables into the database.
+ */
 public abstract class JdbcStorage extends VariableStorage {
 
 	protected static final String DEFAULT_TABLE_NAME = "variables21";
@@ -168,25 +175,29 @@ public abstract class JdbcStorage extends VariableStorage {
 			assert database != null;
 			try {
 				Connection connection = database.getConnection();
-				try {
-					if (WRITE_QUERY != null)
-						WRITE_QUERY.close();
-				} catch (SQLException e) {}
+				if (WRITE_QUERY != null) {
+					try {
+							WRITE_QUERY.close();
+					} catch (SQLException e) {}
+				}
 				WRITE_QUERY = connection.prepareStatement(getReplaceQuery());
 
-				try {
-					if (DELETE_QUERY != null)
-						DELETE_QUERY.close();
-				} catch (SQLException e) {}
+				if (DELETE_QUERY != null) {
+					try {
+							DELETE_QUERY.close();
+					} catch (SQLException e) {}
+				}
 				DELETE_QUERY = connection.prepareStatement("DELETE FROM " + getTableName() + " WHERE name = ?");
 
-				try {
-					if (MONITOR_QUERY != null)
-						MONITOR_QUERY.close();
-					if (MONITOR_CLEAN_UP_QUERY != null)
-						MONITOR_CLEAN_UP_QUERY.close();
-				} catch (SQLException e) {}
-				@Nullable MonitorQueries queries = getMonitorQueries();
+				if (MONITOR_QUERY != null) {
+					try {
+							MONITOR_QUERY.close();
+						if (MONITOR_CLEAN_UP_QUERY != null)
+							MONITOR_CLEAN_UP_QUERY.close();
+					} catch (SQLException e) {}
+				}
+
+				MonitorQueries queries = getMonitorQueries();
 				if (queries != null) {
 					MONITOR_QUERY = connection.prepareStatement(queries.monitorQuery);
 					MONITOR_CLEAN_UP_QUERY = connection.prepareStatement(queries.cleanUpQuery);
@@ -208,10 +219,10 @@ public abstract class JdbcStorage extends VariableStorage {
 	@Override
 	protected final boolean loadAbstract(SectionNode section) {
 		synchronized (database) {
-			Timespan monitor_interval = getValue(section, "monitor interval", Timespan.class);
-			this.monitor = monitor_interval != null;
+			Timespan monitorInterval = getValue(section, "monitor interval", Timespan.class);
+			this.monitor = monitorInterval != null;
 			if (monitor)
-				this.monitor_interval = monitor_interval.getAs(TimePeriod.MILLISECOND);
+				this.monitor_interval = monitorInterval.getAs(TimePeriod.MILLISECOND);
 
 			HikariConfig configuration = configuration(section);
 			if (configuration == null)

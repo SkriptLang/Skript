@@ -48,7 +48,7 @@ public class H2StorageTest {
 		section.add(new EntryNode("pattern", ".*", section));
 		section.add(new EntryNode("file", "./plugins/Skript/variables", section));
 		section.add(new EntryNode("backup interval", "0", section));
-		assertTrue(database.load_i(section));
+		assertTrue(database.loadConfig(section));
 	}
 
 	@Test

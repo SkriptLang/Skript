@@ -87,7 +87,7 @@ public abstract class VariableStorage implements Closeable {
 	 * Creates a new variable storage with the given name.
 	 * <p>
 	 * This will also create the {@link #writeThread}, but it must be started
-	 * with {@link #load_i(SectionNode)}.
+	 * with {@link #loadConfig(SectionNode)}.
 	 *
 	 * @param source the SkriptAddon instance that registered this VariableStorage.
 	 * @param type the database type i.e. CSV.
@@ -230,13 +230,13 @@ public abstract class VariableStorage implements Closeable {
 
 	/**
 	 * Loads the configuration for this variable storage
-	 * from the given section node. Loads internal required values first in load_i.
+	 * from the given section node. Loads internal required values first in loadConfig.
 	 * {@link #load(SectionNode)} is for extending classes.
 	 *
 	 * @param sectionNode the section node.
 	 * @return whether the loading succeeded.
 	 */
-	public final boolean load_i(SectionNode sectionNode) {
+	public final boolean loadConfig(SectionNode sectionNode) {
 		databaseName = sectionNode.getKey();
 		String pattern = getValue(sectionNode, "pattern");
 		if (pattern == null)
