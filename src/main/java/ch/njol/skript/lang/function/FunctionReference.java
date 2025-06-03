@@ -285,12 +285,12 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			Skript.debug("Getting signature for '%s' with types %s",
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
-		Signature<?> sign = FunctionRegistry.getSignature(script, functionName, parameterTypes);
+		Signature<?> sign = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
 
 
 		// if we can't find a signature based on param types, try to match any function
 		if (sign == null) {
-			sign = FunctionRegistry.getSignature(script, functionName);
+			sign = FunctionRegistry.getRegistry().getSignature(script, functionName);
 		}
 
 		if (sign == null) {
@@ -311,11 +311,11 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			Skript.debug("Getting function '%s' with types %s",
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
-		Function<?> function = FunctionRegistry.getFunction(script, functionName, parameterTypes);
+		Function<?> function = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
 
 		// if we can't find a signature based on param types, try to match any function
 		if (function == null) {
-			function = FunctionRegistry.getFunction(script, functionName);
+			function = FunctionRegistry.getRegistry().getFunction(script, functionName);
 		}
 
 		if (function == null) {

@@ -19,8 +19,18 @@ import java.util.stream.Collectors;
 @Internal // for now
 final class FunctionRegistry {
 
-	private FunctionRegistry() {
-		throw new UnsupportedOperationException("Cannot instantiate utility class");
+	private static FunctionRegistry registry;
+
+	/**
+	 * Gets the global function registry.
+	 *
+	 * @return The global function registry.
+	 */
+	public static FunctionRegistry getRegistry() {
+		if (registry == null) {
+			registry = new FunctionRegistry();
+		}
+		return registry;
 	}
 
 	/**
@@ -32,22 +42,13 @@ final class FunctionRegistry {
 	/**
 	 * The namespace for functions registered using Java.
 	 */
-	private static final Namespace GLOBAL_NAMESPACE = new Namespace(Scope.GLOBAL, null);
+	private final NamespaceIdentifier GLOBAL_NAMESPACE = new NamespaceIdentifier(Scope.GLOBAL, null);
 
 	/**
-	 * Map for all function names to their identifiers, allowing for quicker lookup.
+	 * All registered namespaces.
 	 */
-	private static final Map<Namespace, Map<String, Set<FunctionIdentifier>>> identifiers = new HashMap<>();
+	private final Map<NamespaceIdentifier, Namespace> namespaces = new HashMap<>();
 
-	/**
-	 * Map for all identifier to function combinations, belonging to a namespace.
-	 */
-	private static final Map<Namespace, Map<FunctionIdentifier, Function<?>>> functions = new HashMap<>();
-
-	/**
-	 * Map for all identifier to signature combinations, belonging to a namespace.
-	 */
-	private static final Map<Namespace, Map<FunctionIdentifier, Signature<?>>> signatures = new HashMap<>();
 
 	/**
 	 * Registers a signature.
@@ -59,31 +60,31 @@ final class FunctionRegistry {
 	 * @throws SkriptAPIException if a signature with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void register(@Nullable String namespace, @NotNull Signature<?> signature) {
+	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature is null");
 		Skript.debug("Registering signature '" + signature.getName() + "'");
 
 		// namespace
-		Namespace ns = GLOBAL_NAMESPACE;
+		NamespaceIdentifier namespaceId = GLOBAL_NAMESPACE;
 		if (namespace != null && signature.isLocal()) {
-			ns = new Namespace(Scope.LOCAL, namespace);
+			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
 		}
+
+		Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		// register
-		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(ns, new HashMap<>());
-		Set<FunctionIdentifier> identifiersWithName = javaIdentifiers.getOrDefault(identifier.name, new HashSet<>());
+		Set<FunctionIdentifier> identifiersWithName = ns.identifiers.getOrDefault(identifier.name, new HashSet<>());
 		boolean exists = identifiersWithName.add(identifier);
 		if (!exists) {
-			alreadyRegisteredError(signature.getName(), identifier, ns);
+			alreadyRegisteredError(signature.getName(), identifier, namespaceId);
 		}
-		javaIdentifiers.put(identifier.name, identifiersWithName);
-		identifiers.put(ns, javaIdentifiers);
+		ns.identifiers.put(identifier.name, identifiersWithName);
 
-		Map<FunctionIdentifier, Signature<?>> orDefault = signatures.getOrDefault(ns, new HashMap<>());
-		orDefault.put(identifier, signature);
-		signatures.put(ns, orDefault);
+		ns.signatures.put(identifier, signature);
+
+		namespaces.put(namespaceId, ns);
 	}
 
 	/**
@@ -94,7 +95,7 @@ final class FunctionRegistry {
 	 *                            a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void register(@NotNull Function<?> function) {
+	public void register(@NotNull Function<?> function) {
 		register(null, function);
 	}
 
@@ -109,7 +110,7 @@ final class FunctionRegistry {
 	 *                            a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void register(@Nullable String namespace, @NotNull Function<?> function) {
+	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function is null");
 		Skript.debug("Registering function '" + function.getName() + "'");
 
@@ -119,27 +120,28 @@ final class FunctionRegistry {
 		}
 
 		// namespace
-		Namespace ns = GLOBAL_NAMESPACE;
+		NamespaceIdentifier namespaceId = GLOBAL_NAMESPACE;
 		if (namespace != null && function.getSignature().isLocal()) {
-			ns = new Namespace(Scope.LOCAL, namespace);
+			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
 		}
 
+		Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
+
 		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
-		if (!signatureExists(ns, identifier)) {
+		if (!signatureExists(namespaceId, identifier)) {
 			register(namespace, function.getSignature());
 		}
 
 		// register
-		Map<FunctionIdentifier, Function<?>> identifierToFunction = functions.getOrDefault(ns, new HashMap<>());
-		Function<?> existing = identifierToFunction.put(identifier, function);
+		Function<?> existing = ns.functions.put(identifier, function);
 		if (existing != null) {
-			alreadyRegisteredError(name, identifier, ns);
+			alreadyRegisteredError(name, identifier, namespaceId);
 		}
 
-		functions.put(ns, identifierToFunction);
+		namespaces.put(namespaceId, ns);
 	}
 
-	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier, Namespace namespace) {
+	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier, NamespaceIdentifier namespace) {
 		throw new SkriptAPIException("Function '%s' with parameters %s is already registered in %s"
 			.formatted(name, Arrays.toString(Arrays.stream(identifier.args).map(Class::getSimpleName).toArray()),
 				namespace));
@@ -160,12 +162,13 @@ final class FunctionRegistry {
 	 * @param args      The types of the arguments of the function.
 	 * @return True if a signature with the given name and argument types exists in the script, false otherwise.
 	 */
-	public static boolean signatureExists(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+	public boolean signatureExists(@Nullable String namespace, @NotNull String name, Class<?>... args) {
 		if (namespace == null) {
 			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		return signatureExists(new Namespace(Scope.LOCAL, namespace.toLowerCase()), FunctionIdentifier.of(name, true, args));
+		return signatureExists(new NamespaceIdentifier(Scope.LOCAL, namespace.toLowerCase()),
+			FunctionIdentifier.of(name, true, args));
 	}
 
 	/**
@@ -175,17 +178,16 @@ final class FunctionRegistry {
 	 * @param identifier The identifier of the function.
 	 * @return True if a function with the given name and arguments exists in the namespace, false otherwise.
 	 */
-	private static boolean signatureExists(@NotNull Namespace namespace, @NotNull FunctionIdentifier identifier) {
+	private boolean signatureExists(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier identifier) {
 		Preconditions.checkNotNull(namespace, "namespace is null");
 		Preconditions.checkNotNull(identifier, "identifier is null");
 
-		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(namespace, new HashMap<>());
-
-		if (!javaIdentifiers.containsKey(identifier.name)) {
+		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
+		if (!ns.identifiers.containsKey(identifier.name)) {
 			return false;
 		}
 
-		for (FunctionIdentifier other : javaIdentifiers.get(identifier.name)) {
+		for (FunctionIdentifier other : ns.identifiers.get(identifier.name)) {
 			if (identifier.equals(other)) {
 				return true;
 			}
@@ -209,12 +211,13 @@ final class FunctionRegistry {
 	 * @param args      The types of the arguments of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
-	public static Function<?> getFunction(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+	public Function<?> getFunction(@Nullable String namespace, @NotNull String name, Class<?>... args) {
 		if (namespace == null) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Function<?> function = getFunction(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
+		Function<?> function = getFunction(new NamespaceIdentifier(Scope.LOCAL, namespace),
+			FunctionIdentifier.of(name, true, args));
 		if (function == null) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
@@ -229,18 +232,12 @@ final class FunctionRegistry {
 	 * @param provided  The provided identifier of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
-	private static Function<?> getFunction(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
+	private Function<?> getFunction(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
 		Preconditions.checkNotNull(namespace, "namespace is null");
 		Preconditions.checkNotNull(provided, "provided is null");
 
-		Map<FunctionIdentifier, Function<?>> identifierFunctionMap = functions.get(namespace);
-		Map<String, Set<FunctionIdentifier>> namespaceIdentifiers = identifiers.get(namespace);
-		if (identifierFunctionMap == null || namespaceIdentifiers == null) {
-			Skript.debug("No functions found in namespace %s".formatted(namespace));
-			return null;
-		}
-
-		Set<FunctionIdentifier> existing = namespaceIdentifiers.get(provided.name);
+		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
+		Set<FunctionIdentifier> existing = ns.identifiers.get(provided.name);
 		if (existing == null) {
 			Skript.debug("No functions named '%s' exist in the '%s' namespace".formatted(provided.name, namespace.name));
 			return null;
@@ -252,7 +249,7 @@ final class FunctionRegistry {
 			return null;
 		} else if (candidates.size() == 1) {
 			Skript.debug("Matched function for '%s': %s".formatted(provided.name, candidates.stream().findAny().orElse(null)));
-			return identifierFunctionMap.get(candidates.stream().findAny().orElse(null));
+			return ns.functions.get(candidates.stream().findAny().orElse(null));
 		} else {
 			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
 			Skript.debug("Failed to match an exact function for '%s'".formatted(provided.name));
@@ -278,12 +275,12 @@ final class FunctionRegistry {
 	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	public static Signature<?> getSignature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+	public Signature<?> getSignature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
 		if (namespace == null) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Signature<?> signature = getSignature(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
+		Signature<?> signature = getSignature(new NamespaceIdentifier(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
 		if (signature == null) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
@@ -298,25 +295,24 @@ final class FunctionRegistry {
 	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
 	 * in the specified namespace.
 	 */
-	private static Signature<?> getSignature(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
+	private Signature<?> getSignature(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
 		Preconditions.checkNotNull(namespace, "namespace is null");
 		Preconditions.checkNotNull(provided, "provided is null");
 
-		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(namespace, new HashMap<>());
-
-		if (!javaIdentifiers.containsKey(provided.name)) {
+		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
+		if (!ns.identifiers.containsKey(provided.name)) {
 			Skript.debug("No signatures named '%s' exist in the '%s' namespace", provided.name, namespace.name);
 			return null;
 		}
 
-		Set<FunctionIdentifier> candidates = candidates(provided, javaIdentifiers.get(provided.name));
+		Set<FunctionIdentifier> candidates = candidates(provided, ns.identifiers.get(provided.name));
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a signature for '%s'", provided.name);
 			return null;
 		} else if (candidates.size() == 1) {
 			Skript.debug("Matched signature for '%s': %s",
-				provided.name, signatures.get(namespace).get(candidates.stream().findAny().orElse(null)));
-			return signatures.get(namespace).get(candidates.stream().findAny().orElse(null));
+				provided.name, ns.signatures.get(candidates.stream().findAny().orElse(null)));
+			return ns.signatures.get(candidates.stream().findAny().orElse(null));
 		} else {
 			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
 			Skript.debug("Failed to match an exact signature for '%s'", provided.name);
@@ -409,27 +405,21 @@ final class FunctionRegistry {
 	 *
 	 * @param signature The signature to remove.
 	 */
-	public static void remove(Signature<?> signature) {
+	public void remove(Signature<?> signature) {
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		for (Namespace namespace : identifiers.keySet()) {
-			if (!identifiers.containsKey(namespace)) {
+		for (Namespace namespace : namespaces.values()) {
+			if (!namespace.identifiers.containsKey(name)) {
 				continue;
 			}
 
-			Map<String, Set<FunctionIdentifier>> nameToIdentifiers = identifiers.get(namespace);
-
-			if (!nameToIdentifiers.containsKey(name)) {
-				continue;
-			}
-
-			for (FunctionIdentifier other : nameToIdentifiers.get(name)) {
+			for (FunctionIdentifier other : namespace.identifiers.get(name)) {
 				if (!identifier.equals(other)) {
 					continue;
 				}
 
-				removeUpdateMaps(namespace, other, nameToIdentifiers, name);
+				removeUpdateMaps(namespace, other, name);
 
 				return;
 			}
@@ -444,31 +434,19 @@ final class FunctionRegistry {
 	 * @param nameToIdentifiers The map of identifiers to functions
 	 * @param name              The name of the function
 	 */
-	private static void removeUpdateMaps(
-		Namespace namespace, FunctionIdentifier toRemove,
-		Map<String, Set<FunctionIdentifier>> nameToIdentifiers, String name
-	) {
-		nameToIdentifiers.computeIfPresent(name, (k, set) -> {
+	private void removeUpdateMaps(Namespace namespace, FunctionIdentifier toRemove, String name) {
+		namespace.identifiers.computeIfPresent(name, (k, set) -> {
 			if (set.remove(toRemove)) {
 				Skript.debug("Removed identifier '%s' from %s", toRemove, namespace);
 			}
 			return set.isEmpty() ? null : set;
 		});
-		identifiers.put(namespace, nameToIdentifiers);
-
-		functions.computeIfPresent(namespace, (ns, map) -> {
-			if (map.remove(toRemove) != null) {
-				Skript.debug("Removed function '%s' from %s", toRemove, namespace);
-			}
-			return map.isEmpty() ? null : map;
-		});
-
-		signatures.computeIfPresent(namespace, (ns, map) -> {
-			if (map.remove(toRemove) != null) {
-				Skript.debug("Removed signature '%s' from %s", toRemove, namespace);
-			}
-			return map.isEmpty() ? null : map;
-		});
+		if (namespace.functions.remove(toRemove) != null) {
+			Skript.debug("Removed function '%s' from %s", toRemove, namespace);
+		}
+		if (namespace.signatures.remove(toRemove) != null) {
+			Skript.debug("Removed signature '%s' from %s", toRemove, namespace);
+		}
 	}
 
 	/**
@@ -481,11 +459,30 @@ final class FunctionRegistry {
 
 	/**
 	 * A namespace for a function.
-	 *
-	 * @param scope
-	 * @param name
 	 */
-	private record Namespace(@NotNull Scope scope, @Nullable String name) {
+	private record NamespaceIdentifier(@NotNull Scope scope, @Nullable String name) {
+
+	}
+
+	/**
+	 * The data a namespace contains.
+	 */
+	private static final class Namespace {
+
+		/**
+		 * Map for all function names to their identifiers, allowing for quicker lookup.
+		 */
+		private final Map<String, Set<FunctionIdentifier>> identifiers = new HashMap<>();
+
+		/**
+		 * Map for all identifier to function combinations.
+		 */
+		private final Map<FunctionIdentifier, Function<?>> functions = new HashMap<>();
+
+		/**
+		 * Map for all identifier to signature combinations..
+		 */
+		private final Map<FunctionIdentifier, Signature<?>> signatures = new HashMap<>();
 
 	}
 

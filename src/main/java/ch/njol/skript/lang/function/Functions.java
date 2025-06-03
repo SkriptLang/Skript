@@ -65,7 +65,7 @@ public abstract class Functions {
 		javaNamespace.addFunction(function);
 		globalFunctions.put(function.getName(), javaNamespace);
 
-		FunctionRegistry.register(function);
+		FunctionRegistry.getRegistry().register(function);
 
 		return function;
 	}
@@ -102,7 +102,7 @@ public abstract class Functions {
 			namespace.addFunction(function);
 		}
 
-		FunctionRegistry.register(script.getConfig().getFileName(), function);
+		FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
 
 		return function;
 	}
@@ -155,14 +155,14 @@ public abstract class Functions {
 		Parameter<?>[] parameters = signature.parameters;
 
 		if (parameters.length == 1 && !parameters[0].isSingleValue()) {
-			exists = FunctionRegistry.signatureExists(signature.script, signature.getName(), parameters[0].type.getC().arrayType());
+			exists = FunctionRegistry.getRegistry().signatureExists(signature.script, signature.getName(), parameters[0].type.getC().arrayType());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
 				types[i] = parameters[i].type.getC();
 			}
 
-			exists = FunctionRegistry.signatureExists(signature.script, signature.getName(), types);
+			exists = FunctionRegistry.getRegistry().signatureExists(signature.script, signature.getName(), types);
 		}
 
 		if (exists) {
@@ -179,9 +179,9 @@ public abstract class Functions {
 			globalFunctions.put(signature.name, namespace);
 
 		if (signature.local) {
-			FunctionRegistry.register(signature.script, signature);
+			FunctionRegistry.getRegistry().register(signature.script, signature);
 		} else {
-			FunctionRegistry.register(null, signature);
+			FunctionRegistry.getRegistry().register(null, signature);
 		}
 
 		Skript.debug("Registered function signature: " + signature.name);
@@ -343,7 +343,7 @@ public abstract class Functions {
 	}
 
 	public static void unregisterFunction(Signature<?> signature) {
-		FunctionRegistry.remove(signature);
+		FunctionRegistry.getRegistry().remove(signature);
 
 		Iterator<Namespace> namespaceIterator = namespaces.values().iterator();
 		while (namespaceIterator.hasNext()) {
