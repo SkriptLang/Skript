@@ -39,9 +39,11 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,7 +53,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-import java.lang.reflect.Array;
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -236,24 +237,13 @@ public class SkriptParser {
 							}
 							T element = info.getElementClass().newInstance();
 
-							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
-								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-								if (!getParser().isCurrentEvent(supportedEvents)) {
-									Iterator<String> iterator = Arrays.stream(supportedEvents)
-										.map(it -> "the " + it.getSimpleName()
-											.replaceAll("([A-Z])", " $1")
-											.toLowerCase()
-											.trim())
-										.iterator();
+							if (!checkRestrictedEvents(element, parseResult))
+								continue;
 
-									String events = StringUtils.join(iterator, ", ", " or ");
+							if (!checkExperimentalSyntax(element))
+								continue;
 
-									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
-									continue;
-								}
-							}
-
-							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+							boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
 								log.printLog();
 								return element;
@@ -269,6 +259,58 @@ public class SkriptParser {
 			log.printError();
 			return null;
 		}
+	}
+
+	/**
+	 * Checks whether the given element is restricted to specific events, and if so, whether the current event is allowed.
+	 * Prints errors.
+	 * @param element The syntax element to check.
+	 * @param parseResult The parse result for error information.
+	 * @return True if the element is allowed in the current event, false otherwise.
+	 */
+	private static boolean checkRestrictedEvents(SyntaxElement element, ParseResult parseResult) {
+		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+			if (!getParser().isCurrentEvent(supportedEvents)) {
+				Skript.error("'" + parseResult.expr + "' can only be used in " + supportedEventsNames(supportedEvents));
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Returns a string with the names of the supported skript events for the given class array.
+	 * If no events are found, returns an empty string.
+	 * @param supportedEvents The array of supported event classes.
+	 * @return A string with the names of the supported skript events, or an empty string if none are found.
+	 */
+	private static @NotNull String supportedEventsNames(Class<? extends Event>[] supportedEvents) {
+		List<String> names = new ArrayList<>();
+
+		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
+			for (Class<? extends Event> eventClass : supportedEvents) {
+				for (Class<? extends Event> event : eventInfo.events) {
+					if (event.isAssignableFrom(eventClass)) {
+						names.add("the %s event".formatted(eventInfo.getName().toLowerCase()));
+					}
+				}
+			}
+		}
+
+		return StringUtils.join(names, ", ", " or ");
+	}
+
+	/**
+	 * Checks whether the given element is experimental and if so, whether the current experiment set satisfies it.
+	 * Prints errors.
+	 * @param element The syntax element to check.
+	 * @return True if the element is allowed in the current experiment set, false otherwise.
+	 */
+	private static boolean checkExperimentalSyntax(SyntaxElement element) {
+		if (element instanceof ExperimentalSyntax experimentalSyntax)
+			return experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet());
+		return true;
 	}
 
 	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
@@ -477,7 +519,10 @@ public class SkriptParser {
 
 						// Plural/singular sanity check
 						if (hasSingular && !parsedVariable.isSingle()) {
-							Skript.error("'" + expr + "' can only accept a single value of any type, not more", ErrorQuality.SEMANTIC_ERROR);
+							Skript.error("'" + expr + "' can only be a single "
+								+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+								+ ", not more.");
+							log.printError();
 							return null;
 						}
 
@@ -510,9 +555,10 @@ public class SkriptParser {
 						// improper use in a script would result in an exception
 						if (((exprInfo.classes.length == 1 && !exprInfo.isPlural[0]) || Booleans.contains(exprInfo.isPlural, true))
 								&& !parsedVariable.isSingle()) {
-							Skript.error("'" + expr + "' can only accept a single "
+							Skript.error("'" + expr + "' can only be a single "
 									+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
-									+ ", not more", ErrorQuality.SEMANTIC_ERROR);
+									+ ", not more.");
+							log.printError();
 							return null;
 						}
 
@@ -527,6 +573,15 @@ public class SkriptParser {
 				// If it wasn't variable, do same for function call
 				FunctionReference<?> functionReference = parseFunction(types);
 				if (functionReference != null) {
+
+					if (onlySingular && !functionReference.isSingle()) {
+						Skript.error("'" + expr + "' can only be a single "
+							+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+							+ ", not more.");
+						log.printError();
+						return null;
+					}
+
 					log.printLog();
 					return new ExprFunctionCall<>(functionReference);
 				} else if (log.hasError()) {
@@ -550,8 +605,11 @@ public class SkriptParser {
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);
 								} else {
-									Skript.error("'" + expr + "' can only accept a single " + exprInfo.classes[i].getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
+									Skript.error("'" + expr + "' can only be a single "
+										+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+										+ ", not more.");
 								}
+								log.printError();
 								return null;
 							}
 
@@ -561,7 +619,10 @@ public class SkriptParser {
 					}
 
 					if (onlySingular && !parsedExpression.isSingle()) {
-						Skript.error("'" + expr + "' can only accept singular expressions, not plural", ErrorQuality.SEMANTIC_ERROR);
+						Skript.error("'" + expr + "' can only be a single "
+							+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+							+ ", not more.");
+						log.printError();
 						return null;
 					}
 
@@ -1500,16 +1561,16 @@ public class SkriptParser {
 
 	/**
 	 * @deprecated due to bad naming conventions,
-	 * use {@link #LIST_SPLIT_PATTERN} instead.
+	 * use {@link #LIST_SPLIT_PATTERN} instead. 
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public final static Pattern listSplitPattern = LIST_SPLIT_PATTERN;
 
 	/**
 	 * @deprecated due to bad naming conventions,
 	 * use {@link #WILDCARD} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.0", forRemoval = true)
 	public final static String wildcard = WILDCARD;
 
 }

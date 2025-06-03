@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	"spawn zombie at location(0, 0, 0):",
 		"\tforce event-entity to not despawn when far away",
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffEntityUnload extends Effect {
 
 	static {

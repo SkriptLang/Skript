@@ -8,8 +8,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -19,13 +17,6 @@ import org.skriptlang.skript.lang.structure.Structure;
 import java.util.List;
 
 public class StructTestEntryContainer extends Structure {
-
-	public static class TestEvent extends Event {
-		@Override
-		public @NotNull HandlerList getHandlers() {
-			throw new IllegalStateException();
-		}
-	}
 
 	static {
 		if (TestMode.ENABLED)
@@ -55,7 +46,7 @@ public class StructTestEntryContainer extends Structure {
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(section);
 		Script script = getParser().getCurrentScript();
 		Trigger trigger = new Trigger(script, "entry container test", null, triggerItems);
-		trigger.execute(new TestEvent());
+		trigger.execute(new SkriptTestEvent());
 		return true;
 	}
 

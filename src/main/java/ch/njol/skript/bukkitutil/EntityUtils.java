@@ -7,6 +7,10 @@ import com.google.common.collect.HashBiMap;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utility class for quick {@link Entity} methods
@@ -19,12 +23,13 @@ public class EntityUtils {
 	 * Cache Skript EntityData -> Bukkit EntityType
 	 */
 	private static final BiMap<EntityData<?>, EntityType> SPAWNER_TYPES = HashBiMap.create();
+	private static final Map<Class<? extends Entity>, EntityType> CLASS_ENTITY_TYPE_MAP = new HashMap<>();
 
 	static {
-		for (EntityType e : EntityType.values()) {
-			Class<? extends Entity> c = e.getEntityClass();
-			if (c != null)
-				SPAWNER_TYPES.put(EntityData.fromClass(c), e);
+		for (EntityType entityType : EntityType.values()) {
+			Class<? extends Entity> entityClass = entityType.getEntityClass();
+			if (entityClass != null)
+				CLASS_ENTITY_TYPE_MAP.put(entityClass, entityType);
 		}
 	}
 
@@ -111,13 +116,53 @@ public class EntityUtils {
 		return getAge(entity) >= 0;
 	}
 
+	private static void loadSpawnerTypes() {
+		for (EntityType e : EntityType.values()) {
+			Class<? extends Entity> c = e.getEntityClass();
+			if (c != null)
+				SPAWNER_TYPES.put(EntityData.fromClass(c), e);
+		}
+	}
+
 	/**
 	 * Convert from Skript's EntityData to Bukkit's EntityType
 	 * @param e Skript's EntityData
 	 * @return Bukkit's EntityType
 	 */
 	public static EntityType toBukkitEntityType(EntityData<?> e) {
-		return SPAWNER_TYPES.get(EntityData.fromClass(e.getType())); // Fix Comparison Issues
+		if (SPAWNER_TYPES.isEmpty())
+			loadSpawnerTypes();
+		EntityData<?> entityData = EntityData.fromClass(e.getType()); // Fix Comparison Issues
+		if (SPAWNER_TYPES.containsKey(entityData))
+			return SPAWNER_TYPES.get(entityData);
+        return toBukkitEntityType(e.getType());
+	}
+
+	/**
+	 * Attempts to get an {@link EntityType} from a {@link Class} extending {@link Entity}.
+	 * Ensures at least one {@link EntityType} can represent an entity class through {@link Class#isAssignableFrom(Class)}.
+	 * @param entityClass The {@link Class} extending {@link Entity}
+	 * @return The exact or assignable {@link EntityType} or {@code null}
+	 */
+	public static @Nullable EntityType toBukkitEntityType(Class<? extends Entity> entityClass) {
+		if (CLASS_ENTITY_TYPE_MAP.containsKey(entityClass)) {
+			return CLASS_ENTITY_TYPE_MAP.get(entityClass);
+		}
+		EntityType closestEntityType = null;
+		Class<? extends Entity> closestClass = null;
+		for (EntityType entityType : EntityType.values()) {
+			Class<? extends Entity> typeClass = entityType.getEntityClass();
+			if (typeClass != null && typeClass.isAssignableFrom(entityClass)) {
+				if (closestEntityType == null || closestClass.isAssignableFrom(typeClass)) {
+					closestEntityType = entityType;
+					closestClass = typeClass;
+					if (typeClass.equals(entityClass))
+						break;
+				}
+			}
+		}
+		CLASS_ENTITY_TYPE_MAP.put(entityClass, closestEntityType);
+		return closestEntityType;
 	}
 
 	/**
@@ -126,6 +171,8 @@ public class EntityUtils {
 	 * @return Skript's EntityData
 	 */
 	public static EntityData<?> toSkriptEntityData(EntityType e) {
+		if (SPAWNER_TYPES.isEmpty())
+			loadSpawnerTypes();
 		return SPAWNER_TYPES.inverse().get(e);
 	}
 
@@ -134,8 +181,7 @@ public class EntityUtils {
 	 * Teleports to the given location in the entity's world if the location's world is null.
 	 * @deprecated this method is only used by EffTeleport, and with the recent additions of TeleportFlag, this method should be moved within that effect.
 	 */
-	@Deprecated
-	@ScheduledForRemoval
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static void teleport(Entity entity, Location location) {
 		if (location.getWorld() == null) {
 			location = location.clone();

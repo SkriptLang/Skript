@@ -34,7 +34,7 @@ import java.util.function.BiConsumer;
 	"set the anger level of last spawned warden towards player to 20",
 	"clear the last spawned warden's anger level towards player"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprWardenEntityAnger extends SimpleExpression<Integer> {
 
 	static {

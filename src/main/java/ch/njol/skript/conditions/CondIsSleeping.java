@@ -16,7 +16,7 @@ import org.bukkit.entity.LivingEntity;
 	"if last spawned fox is sleeping:",
 		"\tmake last spawned fox stop sleeping"
 })
-@Since("1.4.4, INSERT VERSION (living entities)")
+@Since("1.4.4, 2.11 (living entities)")
 public class CondIsSleeping extends PropertyCondition<LivingEntity> {
 	
 	static {

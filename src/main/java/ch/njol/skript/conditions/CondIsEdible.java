@@ -10,7 +10,7 @@ import ch.njol.skript.doc.Since;
 @Name("Is Edible")
 @Description("Checks whether an item is edible.")
 @Examples({
-	"steak is edible",
+	"cooked beef is edible",
 	"player's tool is edible"
 })
 @Since("2.2-dev36")

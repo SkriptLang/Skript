@@ -14,7 +14,7 @@ import org.bukkit.entity.LivingEntity;
 	"if last spawned allay can duplicate:",
 		"\tdisallow last spawned to duplicate"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondAllayCanDuplicate extends PropertyCondition<LivingEntity> {
 
 	static {
