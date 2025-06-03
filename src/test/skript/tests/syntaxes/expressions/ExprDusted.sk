@@ -1,0 +1,57 @@
+test "Dusted Stage" when running minecraft "1.20":
+    set block 1 block under event-location to stone
+    set block at event-location to suspicious gravel
+    set {_block} to block at event-location
+    set {_blockdata} to block data of {_block}
+
+    set dusted stage of {_block} to 2
+    assert dusted stage of {_block} is 2 with "Failed to set dusted stage to 2"
+
+    assert maximum dusted stage of {_block} is 3 with "Maximum dusted stage should be 3"
+
+    add 1 to dusted stage of {_block}
+    assert dusted stage of {_block} is 3 with "Failed to add 1 to dusted stage"
+
+    add 5 to dusted stage of {_block}
+    assert dusted stage of {_block} is 3 with "Dusted stage should be capped at maximum value"
+
+    remove 2 from dusted stage of {_block}
+    assert dusted stage of {_block} is 1 with "Failed to remove 2 from dusted stage"
+
+    remove 5 from dusted stage of {_block}
+    assert dusted stage of {_block} is 0 with "Dusted stage should be capped at minimum value"
+
+    set dusted stage of {_block} to 2
+    reset dusted stage of {_block}
+    assert dusted stage of {_block} is 0 with "Failed to reset dusted stage"
+
+    set dusted stage of {_blockdata} to 2
+    assert dusted stage of {_blockdata} is 2 with "Failed to set dusted stage on blockdata"
+
+    set block at event-location to suspicious sand
+    set {_sand} to block at event-location
+
+    set dusted stage of {_sand} to 1
+    assert dusted stage of {_sand} is 1 with "Failed to set dusted stage on suspicious sand"
+    add 1 to dusted stage of {_sand}
+    assert dusted stage of {_sand} is 2 with "Failed to add to dusted stage on suspicious sand"
+
+    set block at event-location to air
+    set block 1 block under event-location to air
+
+test "Brushable Item" when running minecraft "1.20":
+	set block 1 block under event-location to stone
+	set block at event-location to suspicious gravel
+	set {_block} to block at event-location
+
+	set {_block}'s brushable item to gold nugget
+	assert {_block}'s brushable item is gold nugget with "Failed to set brushable item to gold nugget"
+
+	set {_block}'s brushable item to diamond
+	assert {_block}'s brushable item is diamond with "Failed to set brushable item to diamond"
+
+	set {_block}'s brushable item to air
+	assert {_block}'s brushable item is air with "Failed to clear brushable item"
+	set block at {_block} to air
+	set block 1 block under {_block} to air
+	
