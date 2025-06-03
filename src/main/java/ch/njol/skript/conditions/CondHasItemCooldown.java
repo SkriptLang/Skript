@@ -27,15 +27,15 @@ import java.util.List;
 	If the provided item has a cooldown group component specified, the cooldown group will take priority.
 	Otherwise, the cooldown of the item material will be used.
 	""")
-@Examples({
-	"if player has player's tool on cooldown:",
-		"\tsend \"You can't use this item right now. Wait %item cooldown of player's tool for player%\""
-})
+@Example("""
+	if player has player's tool on cooldown:
+		send "You can't use this item right now. Wait %item cooldown of player's tool for player%"
+	""")
 @RequiredPlugins("MC 1.21.2 (cooldown group)")
 @Since({"2.8.0", "INSERT VERSION (cooldown group)"})
 public class CondHasItemCooldown extends Condition {
 
-	// Cooldown groups were added in 1.21.2, to add cooldowns to a "group" of items
+	// Cooldown groups were added in Minecraft 1.21.2
 	// a link to the data component can be found here https://minecraft.wiki/w/Data_component_format#use_cooldown
 	// The cooldown is applied to the material if no cooldown group is defined on the provided itemstack.
 	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "hasCooldown", ItemStack.class);
@@ -62,14 +62,15 @@ public class CondHasItemCooldown extends Condition {
 
 	@Override
 	public boolean check(Event event) {
+		ItemType[] itemTypes = this.itemTypes.getArray(event);
 		return players.check(event, (player) -> {
-			return SimpleExpression.check(itemTypes.getArray(event), itemType -> {
+			return SimpleExpression.check(itemTypes, itemType -> {
 				if (!itemType.hasType())
 					return false;
 				if (SUPPORTS_COOLDOWN_GROUP)
 					return itemType.satisfies(player::hasCooldown);
 				return itemType.satisfies(item -> player.hasCooldown(item.getType()));
-			}, false, itemTypes.getAnd());
+			}, false, this.itemTypes.getAnd());
 		}, isNegated());
 	}
 
