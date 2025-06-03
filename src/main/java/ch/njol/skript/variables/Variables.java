@@ -90,8 +90,6 @@ public final class Variables {
 
 	private static final String EPHEMERAL_VARIABLE_PREFIX = "-";
 
-	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
-
 	// Register some things with Yggdrasil
 	static {
 		SkriptAddon source = Skript.getAddonInstance();
