@@ -6,22 +6,20 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.WolfData;
+import ch.njol.skript.entity.PigData.PigVariantDummy;
+import ch.njol.skript.entity.WolfData.WolfVariantDummy;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
+import ch.njol.skript.util.*;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -44,6 +42,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.EntityUnleashEvent;
+import org.bukkit.event.entity.VillagerCareerChangeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -52,6 +51,7 @@ import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.*;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
@@ -71,10 +71,7 @@ public class BukkitClasses {
 
 	public BukkitClasses() {}
 
-	public static final Pattern UUID_PATTERN = Pattern.compile("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
-
 	static {
-		final boolean GET_ENTITY_METHOD_EXISTS = Skript.methodExists(Bukkit.class, "getEntity", UUID.class);
 		Classes.registerClass(new ClassInfo<>(Entity.class, "entity")
 				.user("entit(y|ies)")
 				.name("Entity")
@@ -91,25 +88,10 @@ public class BukkitClasses {
 				.defaultExpression(new EventValueExpression<>(Entity.class))
 				.parser(new Parser<Entity>() {
 					@Override
-					@Nullable
-					public Entity parse(final String s, final ParseContext context) {
-						UUID uuid;
-						try {
-							uuid = UUID.fromString(s);
-						} catch (IllegalArgumentException iae) {
-							return null;
-						}
-						if (GET_ENTITY_METHOD_EXISTS) {
-							return Bukkit.getEntity(uuid);
-						} else {
-							for (World world : Bukkit.getWorlds()) {
-								for (Entity entity : world.getEntities()) {
-									if (entity.getUniqueId().equals(uuid)) {
-										return entity;
-									}
-								}
-							}
-						}
+					public @Nullable Entity parse(final String s, final ParseContext context) {
+						if (Utils.isValidUUID(s))
+							return Bukkit.getEntity(UUID.fromString(s));
+
 						return null;
 					}
 
@@ -320,7 +302,8 @@ public class BukkitClasses {
 				.description("A location in a <a href='#world'>world</a>. Locations are world-specific and even store a <a href='#direction'>direction</a>, " +
 						"e.g. if you save a location and later teleport to it you will face the exact same direction you did when you saved the location.")
 				.usage("")
-				.examples("")
+				.examples("teleport player to location at 0, 69, 0",
+						  "set {home::%uuid of player%} to location of the player")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Location.class))
 				.parser(new Parser<Location>() {
@@ -643,8 +626,10 @@ public class BukkitClasses {
 						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (string.isEmpty())
 								return null;
-							if (UUID_PATTERN.matcher(string).matches())
+
+							if (Utils.isValidUUID(string))
 								return Bukkit.getPlayer(UUID.fromString(string));
+
 							String name = string.toLowerCase(Locale.ENGLISH);
 							int nameLength = name.length(); // caching
 							List<Player> players = new ArrayList<>();
@@ -709,16 +694,11 @@ public class BukkitClasses {
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
 					@Override
-					@Nullable
-					public OfflinePlayer parse(final String s, final ParseContext context) {
-						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
-							if (UUID_PATTERN.matcher(s).matches())
-								return Bukkit.getOfflinePlayer(UUID.fromString(s));
-							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
-								return null;
+					public @Nullable OfflinePlayer parse(final String s, final ParseContext context) {
+						if (Utils.isValidUUID(s))
+							return Bukkit.getOfflinePlayer(UUID.fromString(s));
+						else if (SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
 							return Bukkit.getOfflinePlayer(s);
-						}
-						assert false;
 						return null;
 					}
 
@@ -875,7 +855,7 @@ public class BukkitClasses {
 				.since("1.0"));
 
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("items?")
+				.user("items?", "item ?stacks?")
 				.name("Item")
 				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
 								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
@@ -1018,7 +998,7 @@ public class BukkitClasses {
 		Registry<PotionEffectType> petRegistry = BukkitUtils.getPotionEffectTypeRegistry();
 		if (petRegistry != null) {
 			Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
-				.user("potion( ?effect)? ?types?")
+				.user("potion ?effect ?types?")
 				.name("Potion Effect Type")
 				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
 				.examples("apply swiftness 5 to the player",
@@ -1430,21 +1410,22 @@ public class BukkitClasses {
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("2.10"));
 
-		ClassInfo<?> wolfVariantClassInfo;
-		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
-			wolfVariantClassInfo = new RegistryClassInfo<>(Wolf.Variant.class, Registry.WOLF_VARIANT, "wolfvariant", "wolf variants");
-		} else {
-			/*
-			 * Registers a dummy/placeholder class to ensure working operation on MC versions that do not have `Wolf.Variant`
-			 */
-			wolfVariantClassInfo = new ClassInfo<>(WolfData.VariantDummy.class, "wolfvariant");
+		ClassInfo<?> wolfVariantClassInfo = getRegistryClassInfo(
+			"org.bukkit.entity.Wolf$Variant",
+			"WOLF_VARIANT",
+			"wolfvariant",
+			"wolf variants"
+		);
+		if (wolfVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Wolf.Variant' (1.20.4-)
+			wolfVariantClassInfo = new ClassInfo<>(WolfVariantDummy.class, "wolfvariant");
 		}
 		Classes.registerClass(wolfVariantClassInfo
 			.user("wolf ?variants?")
 			.name("Wolf Variant")
 			.description("Represents the variant of a wolf entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:ashen'.")
-			.since("@VERSION")
+			.since("2.10")
 			.requiredPlugins("Minecraft 1.21+")
 			.documentationId("WolfVariant"));
 
@@ -1496,6 +1477,31 @@ public class BukkitClasses {
 			);
 		}
 
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world or player.")
+			.since("2.11")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder border, int flags) {
+					if (border.getWorld() == null)
+						return "virtual world border";
+					return "world border of world named '" + border.getWorld().getName() + "'";
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder border) {
+					return toString(border, 0);
+				}
+			})
+			.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
+
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 			.user("banner ?patterns?")
 			.name("Banner Pattern")
@@ -1536,6 +1542,91 @@ public class BukkitClasses {
 					.description("Teleport Flags are settings to retain during a teleport.")
 					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
+
+		Classes.registerClass(new ClassInfo<>(Vehicle.class, "vehicle")
+			.user("vehicles?")
+			.name("Vehicle")
+			.description("Represents a vehicle.")
+			.since("2.10.2")
+			.changer(DefaultChangers.entityChanger)
+		);
+
+		Classes.registerClass(new EnumClassInfo<>(EquipmentSlot.class, "equipmentslot", "equipment slots")
+			.user("equipment ?slots?")
+			.name("Equipment Slot")
+			.description("Represents an equipment slot of an entity.")
+			.since("2.11")
+		);
+
+		ClassInfo<?> pigVariantClassInfo = getRegistryClassInfo(
+			"org.bukkit.entity.Pig$Variant",
+			"PIG_VARIANT",
+			"pigvariant",
+			"pig variants"
+		);
+		if (pigVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Pig.Variant' (1.21.4-)
+			pigVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
+		}
+		Classes.registerClass(pigVariantClassInfo
+			.user("pig ?variants?")
+			.name("Pig Variant")
+			.description("Represents the variant of a pig entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("INSERT VERSION")
+			.requiredPlugins("Minecraft 1.21.5+")
+			.documentationId("PigVariant"));
+
+		Classes.registerClass(new EnumClassInfo<>(VillagerCareerChangeEvent.ChangeReason.class, "villagercareerchangereason", "villager career change reasons")
+			.user("(villager )?career ?change ?reasons?")
+			.name("Villager Career Change Reason")
+			.description("Represents a reason why a villager changed its career.")
+			.since("INSERT VERSION")
+		);
+
+	}
+
+	/**
+	 * Gets a {@link RegistryClassInfo} by checking if the {@link Class} from {@code classPath} exists
+	 * and {@link Registry} or {@link io.papermc.paper.registry.RegistryKey} contains {@code registryName}.
+	 * @param classPath The {@link String} representation of the desired {@link Class}.
+	 * @param registryName The {@link String} representation of the desired {@link Registry}.
+	 * @param codeName The name used in patterns.
+	 * @param languageNode The language node of the type.
+	 * @return {@link RegistryClassInfo} if the class and registry exists, otherwise {@code null}.
+	 */
+	private static <R extends Keyed> @Nullable RegistryClassInfo<?> getRegistryClassInfo(
+		String classPath,
+		String registryName,
+		String codeName,
+		String languageNode
+	) {
+		if (!Skript.classExists(classPath))
+			return null;
+		Registry<R> registry = null;
+		if (BukkitUtils.registryExists(registryName)) {
+			try {
+				//noinspection unchecked
+				registry = (Registry<R>) Registry.class.getField(registryName).get(null);
+			} catch (NoSuchFieldException | IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		} else if (PaperUtils.registryExists(registryName)) {
+			registry = PaperUtils.getBukkitRegistry(registryName);
+		}
+		if (registry != null) {
+			Class<R> registryClass;
+			try {
+				//noinspection unchecked
+				registryClass = (Class<R>) Class.forName(classPath);
+			} catch (ClassNotFoundException e) {
+				Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
+				throw new RuntimeException(e);
+			}
+			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
+		}
+		Skript.debug("There were no registries found for '" + registryName + "'.");
+		return null;
 	}
 
 }

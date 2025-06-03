@@ -44,9 +44,9 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.papermc.lib.PaperLib;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -210,7 +210,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Version version = null;
-	@Deprecated(forRemoval = true) // TODO this field will be replaced by a proper registry later
+	@Deprecated(since = "2.9.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
 	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 
 	public static Version getVersion() {
@@ -683,7 +683,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (TestMode.DEV_MODE) {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
-						Bukkit.getWorlds().get(0).getChunkAtAsync(100, 100).thenRun(() -> runTests());
+						PaperLib.getChunkAtAsync(Bukkit.getWorlds().get(0), 100, 100).thenRun(() -> runTests());
 					}
 				}
 
@@ -1078,18 +1078,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * Used to test whether certain Bukkit features are supported.
-	 *
-	 * @param className
-	 * @return Whether the given class exists.
-	 * @deprecated use {@link #classExists(String)}
-	 */
-	@Deprecated
-	public static boolean supports(final String className) {
-		return classExists(className);
-	}
-
-	/**
 	 * Tests whether a given class exists in the classpath.
 	 *
 	 * @param className The {@link Class#getCanonicalName() canonical name} of the class
@@ -1379,7 +1367,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	// ================ ADDONS ================
 
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	private static final Set<SkriptAddon> addons = new HashSet<>();
 
 	/**
@@ -1429,7 +1417,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		return Collections.unmodifiableCollection(addons);
 	}
 
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	private static @Nullable SkriptAddon addon;
 
 	/**

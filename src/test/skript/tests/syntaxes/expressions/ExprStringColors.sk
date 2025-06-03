@@ -1,0 +1,16 @@
+test "string colors":
+	set {_colorcodes::*} to "&a", "&b", "&c", "<#ff0000>", "<#03d7fc>" and "<#48ff05>"
+	set {_colors::*} to light green, light cyan, pink, rgb(255, 0, 0), rgb(3, 215, 252) and rgb(72, 255, 5)
+	set {_string} to join {_colorcodes::*}
+
+	loop the string color codes of {_string}:
+		assert {_colorcodes::*} contains loop-value with "Unexpected Color Code"
+
+	assert the first string color code of {_string} is {_colorcodes::1} with "First string color code does not match"
+	assert the last string color code of {_string} is {_colorcodes::6} with "Last string color code does not match"
+
+	loop the string colors of {_string}:
+		assert {_colors::*} contains loop-value with "Unexpected Color: %loop-value%"
+
+	assert the first string color of {_string} is {_colors::1} with "First string color does not match"
+	assert the last string color of {_string} is {_colors::6} with "Last string color does not match"

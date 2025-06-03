@@ -31,7 +31,7 @@
 # ==== General Options ====
 
 language: english
-# Which language to use. Currently English, German, Korean, French, Polish, Russian, Japanese, Simplified Chinese, Turkish and Dutch
+# Which language to use. Currently English, German, Korean, French, Polish, Russian, Japanese, Simplified Chinese, Turkish, Dutch and Spanish
 # are included in the download, but custom languages can be created as well. Use the name in lowercase and no spaces as the value.
 # Please note that not everything can be translated yet, i.e. parts of Skript will still be english if you use another language.
 # If you want to translate Skript to your language please read the readme.txt located in the /lang/ folder in the jar
@@ -234,6 +234,14 @@ long parse time warning threshold: 0 seconds
 #   stating that the statement has taken a long time to parse.
 # A value of 0 seconds means that this warning should be disabled.
 
+variable changes until save: 1000
+# This setting controls the total number of times that global variables need to be changed
+#   until saving variables to 'variables.csv'.
+# 'set {a} to 1' is one change, 'set {b} to 2' now makes it two.
+# You cannot provide a value of zero or less.
+# WARNING: This setting should be used at your own discretion.
+#          This setting can lag your server depending on how often variables get saved and
+#          the number of variables needing to be saved.
 
 # ==== Runtime Errors ====
 
