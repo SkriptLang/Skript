@@ -17,8 +17,8 @@ public class EvtResourcePackResponse extends SkriptEvent {
 				"resource pack [request] response",
 				"resource pack [request] %resourcepackstates%")
 				.description("Called when a player takes action on a resource pack request sent via the ",
-						"<a href='effects.html#EffSendResourcePack'>send resource pack</a> effect. ",
-						"The <a href='conditions.html#CondResourcePack'>resource pack</a> condition can be used ",
+						"<a href='#EffSendResourcePack'>send resource pack</a> effect. ",
+						"The <a href='#CondResourcePack'>resource pack</a> condition can be used ",
 						"to check the resource pack state.",
 						"",
 						"This event will be triggered once when the player accepts or declines the resource pack request, ",

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display Opacity")
 @Description({
-	"Returns or changes the opacity of <a href='classes.html#display'>text displays</a>.",
+	"Returns or changes the opacity of <a href='#display'>text displays</a>.",
 	"Values are between -127 and 127. The value of 127 represents it being completely opaque."
 })
 @Examples("set the opacity of the last spawned text display to -1 # Reset")

@@ -21,8 +21,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Hide Player from Server List")
-@Description({"Hides a player from the <a href='expressions.html#ExprHoverList'>hover list</a> " +
-		"and decreases the <a href='expressions.html#ExprOnlinePlayersCount'>online players count</a> (only if the player count wasn't changed before)."})
+@Description({"Hides a player from the <a href='#ExprHoverList'>hover list</a> " +
+		"and decreases the <a href='#ExprOnlinePlayersCount'>online players count</a> (only if the player count wasn't changed before)."})
 @Examples({"on server list ping:",
 		"	hide {vanished::*} from the server list"})
 @Since("2.3")

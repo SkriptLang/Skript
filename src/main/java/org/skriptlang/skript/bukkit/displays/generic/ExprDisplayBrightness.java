@@ -24,7 +24,7 @@ import java.util.List;
 
 @Name("Display Brightness")
 @Description({
-	"Returns or changes the brightness override of <a href='classes.html#display'>displays</a>.",
+	"Returns or changes the brightness override of <a href='#display'>displays</a>.",
 	"Unmodified displays will not have a brightness override value set. Resetting or deleting this value will remove the override.",
 	"Use the 'block' or 'sky' options to get/change specific values or get both values as a list by using neither option.",
 	"NOTE: setting only one of the sky/block light overrides of a display without an existing override will set both sky and block light to the given value. " +

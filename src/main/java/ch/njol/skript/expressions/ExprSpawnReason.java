@@ -9,7 +9,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("Spawn Reason")
-@Description("The <a href='classes.html#spawnreason'>spawn reason</a> in a <a href='events.html#spawn'>spawn</a> event.")
+@Description("The <a href='#spawnreason'>spawn reason</a> in a <a href='#spawn'>spawn</a> event.")
 @Examples({
 	"on spawn:",
 		"\tspawn reason is reinforcements or breeding",
