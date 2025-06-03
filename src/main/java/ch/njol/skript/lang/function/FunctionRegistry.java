@@ -67,7 +67,7 @@ final class FunctionRegistry {
 	 *                            in this namespace.
 	 */
 	public synchronized void register(@Nullable String namespace, @NotNull Signature<?> signature) {
-		Preconditions.checkNotNull(signature, "signature is null");
+		Preconditions.checkNotNull(signature, "signature cannot be null");
 		Skript.debug("Registering signature '" + signature.getName() + "'");
 
 		// namespace
@@ -119,7 +119,7 @@ final class FunctionRegistry {
 	 *                            in this namespace.
 	 */
 	public synchronized void register(@Nullable String namespace, @NotNull Function<?> function) {
-		Preconditions.checkNotNull(function, "function is null");
+		Preconditions.checkNotNull(function, "function cannot be null");
 		Skript.debug("Registering function '" + function.getName() + "'");
 
 		String name = function.getName();
@@ -188,8 +188,8 @@ final class FunctionRegistry {
 	 * @return True if a function with the given name and arguments exists in the namespace, false otherwise.
 	 */
 	private boolean signatureExists(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier identifier) {
-		Preconditions.checkNotNull(namespace, "namespace is null");
-		Preconditions.checkNotNull(identifier, "identifier is null");
+		Preconditions.checkNotNull(namespace, "namespace cannot be null");
+		Preconditions.checkNotNull(identifier, "identifier cannot be null");
 
 		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
 		if (!ns.identifiers.containsKey(identifier.name)) {
@@ -242,8 +242,8 @@ final class FunctionRegistry {
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
 	private Function<?> getFunction(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
-		Preconditions.checkNotNull(namespace, "namespace is null");
-		Preconditions.checkNotNull(provided, "provided is null");
+		Preconditions.checkNotNull(namespace, "namespace cannot be null");
+		Preconditions.checkNotNull(provided, "provided cannot be null");
 
 		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
 		Set<FunctionIdentifier> existing = ns.identifiers.get(provided.name);
@@ -305,8 +305,8 @@ final class FunctionRegistry {
 	 * in the specified namespace.
 	 */
 	private Signature<?> getSignature(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
-		Preconditions.checkNotNull(namespace, "namespace is null");
-		Preconditions.checkNotNull(provided, "provided is null");
+		Preconditions.checkNotNull(namespace, "namespace cannot be null");
+		Preconditions.checkNotNull(provided, "provided cannot be null");
 
 		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
 		if (!ns.identifiers.containsKey(provided.name)) {
@@ -517,7 +517,7 @@ final class FunctionRegistry {
 		 * @return The identifier for the signature.
 		 */
 		static FunctionIdentifier of(@NotNull String name, boolean local, Class<?>... args) {
-			Preconditions.checkNotNull(name, "name is null");
+			Preconditions.checkNotNull(name, "name cannot be null");
 
 			if (args == null) {
 				return new FunctionIdentifier(name, local, 0);
@@ -532,7 +532,7 @@ final class FunctionRegistry {
 		 * @return The identifier for the signature.
 		 */
 		static FunctionIdentifier of(@NotNull Signature<?> signature) {
-			Preconditions.checkNotNull(signature, "signature is null");
+			Preconditions.checkNotNull(signature, "signature cannot be null");
 
 			Parameter<?>[] signatureParams = signature.parameters;
 			Class<?>[] parameters = new Class[signatureParams.length];
