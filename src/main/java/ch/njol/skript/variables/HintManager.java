@@ -132,9 +132,12 @@ public class HintManager {
 	public void mergeScope(int from, int to) {
 		var fromMap = typeHints.get(from);
 		var toMap = typeHints.get(to);
+		mergeHints(fromMap, toMap);
+	}
 
-		for (var entry : fromMap.entrySet()) {
-			toMap.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).addAll(entry.getValue());
+	private static void mergeHints(Map<String, Set<Class<?>>> from, Map<String, Set<Class<?>>> to) {
+		for (var entry : from.entrySet()) {
+			to.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).addAll(entry.getValue());
 		}
 	}
 
@@ -159,17 +162,17 @@ public class HintManager {
 		if (areHintsUnavailable()) {
 			return;
 		}
+
 		Set<Class<?>> hintSet = new HashSet<>();
 		for (Class<?> hint : hints) {
 			if (hint != Object.class) { // ignore some useless types
 				hintSet.add(hint);
 			}
 		}
-		if (hintSet.isEmpty()) { // treat as delete
-			delete(variableName);
-		} else {
-			//noinspection DataFlowIssue - verified by checkState
-			typeHints.peek().put(variableName, hintSet);
+
+		delete_i(variableName);
+		if (!hintSet.isEmpty()) {
+			add_i(variableName, hintSet);
 		}
 	}
 
@@ -192,6 +195,10 @@ public class HintManager {
 		if (areHintsUnavailable()) {
 			return;
 		}
+		delete_i(variableName);
+	}
+
+	private void delete_i(String variableName) {
 		//noinspection DataFlowIssue
 		typeHints.peek().remove(variableName);
 	}
@@ -217,13 +224,20 @@ public class HintManager {
 		if (areHintsUnavailable()) {
 			return;
 		}
-		//noinspection DataFlowIssue
-		Set<Class<?>> hintSet = typeHints.peek().computeIfAbsent(variableName, key -> new HashSet<>());
+
+		Set<Class<?>> hintSet = new HashSet<>();
 		for (Class<?> hint : hints) {
 			if (hint != Object.class) { // ignore some useless types
 				hintSet.add(hint);
 			}
 		}
+
+		add_i(variableName, hintSet);
+	}
+
+	private void add_i(String variableName, Set<Class<?>> hintSet) {
+		//noinspection DataFlowIssue
+		typeHints.peek().computeIfAbsent(variableName, key -> new HashSet<>()).addAll(hintSet);
 	}
 
 	/**
@@ -254,7 +268,7 @@ public class HintManager {
 				hintSet.remove(hint);
 			}
 			if (hintSet.isEmpty()) {
-				delete(variableName);
+				delete_i(variableName);
 			}
 		}
 	}
@@ -286,6 +300,36 @@ public class HintManager {
 			return ImmutableSet.copyOf(hintSet);
 		}
 		return ImmutableSet.of();
+	}
+
+	/**
+	 * @return A backup of this manager's current scope.
+	 */
+	public Backup backup() {
+		return new Backup(this);
+	}
+
+	/**
+	 * Overwrites the current scope with the scope represented in {@code backup}.
+	 * @param backup The backup to apply.
+	 */
+	public void restore(Backup backup) {
+		typeHints.set(0, backup.hints);
+	}
+
+	/**
+	 * Represents a snapshot of a scope.
+	 */
+	public static final class Backup {
+
+		private final Map<String, Set<Class<?>>> hints;
+
+		private Backup(HintManager source) {
+			hints = new HashMap<>();
+			//noinspection DataFlowIssue
+			mergeHints(source.typeHints.peek(), hints);
+		}
+
 	}
 
 	private boolean areHintsUnavailable() {
