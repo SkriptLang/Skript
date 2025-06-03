@@ -1,37 +1,22 @@
 package org.skriptlang.skript.common.colors;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
-import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.coll.CollectionUtils;
-import ch.njol.yggdrasil.Fields;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.util.Locale;
 
 public class ColorModule {
 
 	public static void load() throws IOException {
-		loadClasses();
 		loadFunctions();
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.common", "colors");
-	}
-
-	public static void loadClasses() throws IOException {
+		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.common.colors.elements");
 	}
 
 	public static void loadFunctions() throws IOException {
@@ -60,7 +45,7 @@ public class ColorModule {
 
 		Functions.registerFunction(new SimpleJavaFunction<Color>("shade", new Parameter[] {
 			new Parameter<>("color", DefaultClasses.COLOR, true, null),
-			new Parameter<>("amount", DefaultClasses.LONG, true, null),
+			new Parameter<>("amount", DefaultClasses.LONG, true, new SimpleLiteral<>(1L, true)),
 			new Parameter<>("hsl", DefaultClasses.BOOLEAN, true, new SimpleLiteral<>(false, true))
 		}, DefaultClasses.COLOR, true) {
 			@Override
@@ -89,7 +74,7 @@ public class ColorModule {
 
 		Functions.registerFunction(new SimpleJavaFunction<Color>("tint", new Parameter[] {
 			new Parameter<>("color", DefaultClasses.COLOR, true, null),
-			new Parameter<>("amount", DefaultClasses.LONG, true, null),
+			new Parameter<>("amount", DefaultClasses.LONG, true, new SimpleLiteral<>(1L, true)),
 			new Parameter<>("hsl", DefaultClasses.BOOLEAN, true, new SimpleLiteral<>(false, true))
 		}, DefaultClasses.COLOR, true) {
 			@Override
