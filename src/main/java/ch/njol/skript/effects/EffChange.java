@@ -117,13 +117,6 @@ public class EffChange extends Effect {
 			case DELETE, RESET -> changed = exprs[0];
 		}
 
-		// Ensure 'changed' is safe to use
-		// 'changer' is handled later on
-		changed = LiteralUtils.defendExpression(changed);
-		if (!LiteralUtils.canInitSafely(changed)) {
-			return false;
-		}
-
 		// Track whether acceptChange produces an error
 		CountingLogHandler changeLog = new CountingLogHandler(Level.SEVERE);
 		Class<?>[] acceptedTypes;
