@@ -209,16 +209,16 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 				List<Class<? extends T>> potentialTypes = new ArrayList<>();
 
-				// See if we can get correct type without conversion
+				// Determine what types are applicable based on our known hints
 				for (Class<? extends T> type : types) {
-					// check whether we could resolve to 'type' at runtime
+					// Check whether we could resolve to 'type' at runtime
 					if (hints.stream().anyMatch(hint -> {
-						// edge case: see Expression#beforeChange
+						// Edge case: see Expression#beforeChange
 						if (hint == ch.njol.skript.util.slot.Slot.class && type == org.bukkit.inventory.ItemStack.class) {
 							return true;
 						}
-						// typically, check whether the types align
-						return type.isAssignableFrom(hint);
+						// Typically, check whether the types align
+						return type.isAssignableFrom(hint) || Converters.converterExists(hint, type);
 					})) {
 						potentialTypes.add(type);
 					}
@@ -228,25 +228,13 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isPlural, null);
 				}
 
-				// Or with conversion?
-				for (Class<? extends T> type : types) {
-					// check whether we could resolve to 'type' at runtime (with conversion)
-					if (hints.stream().anyMatch(hint -> Converters.converterExists(hint, type))) {
-						potentialTypes.add(type);
-					}
-				}
-				if (!potentialTypes.isEmpty()) { // Hint matches, even though converter is needed
-					//noinspection unchecked
-					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isPlural, null);
-				}
-
 				// Hint exists and does NOT match any types requested
 				ClassInfo<?>[] infos = new ClassInfo[types.length];
 				for (int i = 0; i < types.length; i++) {
-					infos[i] = Classes.getExactClassInfo(types[i]);
+					infos[i] = Classes.getSuperClassInfo(types[i]);
 				}
 				ClassInfo<?>[] hintInfos = hints.stream()
-						.map(Classes::getExactClassInfo)
+						.map(Classes::getSuperClassInfo)
 						.toArray(ClassInfo[]::new);
 				String isTypes = Utils.a(Classes.toString(hintInfos, false));
 				String notTypes = Utils.a(Classes.toString(infos, false));
