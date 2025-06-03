@@ -5,6 +5,7 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
@@ -30,7 +31,7 @@ public class ExprExcept extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprExcept.class, Object.class, ExpressionType.COMBINED,
-			"%~objects% (except[ing]|excluding|not including) %objects%");
+			"%~objects% (except|excluding|not including) %objects%");
 	}
 
 	private Expression<?> source;
@@ -50,10 +51,10 @@ public class ExprExcept extends SimpleExpression<Object> {
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object[] exclude = this.exclude.getArray(event);
-		if (exclude.length == 0)
+		if (exclude == null || exclude.length == 0)
 			return source.getArray(event);
 
-		return source.stream(event)
+		return source.streamAll(event)
 			.filter(sourceObject -> {
 				for (Object excludeObject : exclude)
 					if (sourceObject.equals(excludeObject) || Comparators.compare(sourceObject, excludeObject) == Relation.EQUAL)
@@ -74,8 +75,15 @@ public class ExprExcept extends SimpleExpression<Object> {
 	}
 
 	@Override
+	public boolean getAnd() {
+		return source.getAnd();
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return source.toString(event, debug) + " except " + exclude.toString(event, debug);
+		return (new SyntaxStringBuilder(event, debug))
+			.append(source, "except", exclude)
+			.toString();
 	}
 
 }
