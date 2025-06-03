@@ -31,6 +31,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
@@ -41,10 +42,6 @@ import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.RandomAccess;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -1290,7 +1287,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	public void addEnchantments(Map<Enchantment,Integer> enchantments) {
 		if (globalMeta == null)
 			globalMeta = ItemData.itemFactory.getItemMeta(Material.STONE);
-		for (Map.Entry<Enchantment,Integer> entry : enchantments.entrySet()) {
+		for (Entry<Enchantment,Integer> entry : enchantments.entrySet()) {
 			assert globalMeta != null;
 			globalMeta.addEnchant(entry.getKey(), entry.getValue(), true);
 		}
