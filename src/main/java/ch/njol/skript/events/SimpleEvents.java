@@ -786,12 +786,26 @@ public class SimpleEvents {
 				.since("INSERT VERSION")
 				.requiredPlugins("Minecraft 1.21.1+");
 		}
+    
 		Skript.registerEvent("Brewing Start", SimpleEvent.class, BrewingStartEvent.class, "brew[ing] start")
 			.description("Called when a brewing stand starts brewing.")
 			.examples(
 				"on brewing start:",
 					"\tset the brewing time to 1 second"
 			)
+			.since("INSERT VERSION");
+
+		Skript.registerEvent("Villager Career Change", SimpleEvent.class, VillagerCareerChangeEvent.class,
+				"villager career chang(e[d]|ing)")
+			.description("Called when a villager changes its career. Can be caused by being employed or losing their job.")
+			.examples("""
+				on villager career change:
+					if all:
+						event-career change reason is employment
+						event-villager profession is armorer profession
+					then:
+						cancel event
+				""")
 			.since("INSERT VERSION");
 
 	}
