@@ -2598,6 +2598,11 @@ chicken variants:
 	temperate: temperate
 	warm: warm
 
+# -- Villager Career Change Reasons
+villager career change reasons:
+	employed: employment
+	losing_job: losing job
+
 # -- Boolean --
 boolean:
 	true:
@@ -2703,6 +2708,7 @@ types:
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
 	chickenvariant: chicken variant¦s @a
+	villagercareerchangereason: villager career change reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
