@@ -16,7 +16,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Display Teleport Delay/Duration")
+@Name("Display Teleport Duration")
 @Description({
 	"The teleport duration of displays is the amount of time it takes to get between locations.",
 	"0 means that updates are applied immediately.",
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 	"Higher values spread the movement over multiple ticks. Max of 59 ticks."
 })
 @Examples({
-	"set teleport delay of the last spawned text display to 2 ticks",
+	"set teleport duration of the last spawned text display to 2 ticks",
 	"teleport last spawned text display to {_location}",
 	"wait 2 ticks",
 	"message \"display entity has arrived at %{_location}%\""

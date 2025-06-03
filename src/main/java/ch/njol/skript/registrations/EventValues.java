@@ -134,7 +134,7 @@ public class EventValues {
 	/**
 	 * @deprecated Use {@link #registerEventValue(Class, Class, Converter, int, String, Class[])} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@SafeVarargs
 	@SuppressWarnings({"removal"})
 	public static <T, E extends Event> void registerEventValue(
@@ -149,7 +149,7 @@ public class EventValues {
 	/**
 	 * @deprecated Use {@link #registerEventValue(Class, Class, Converter, int)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@SuppressWarnings({"removal"})
 	public static <T, E extends Event> void registerEventValue(
 		Class<E> eventClass, Class<T> valueClass,
@@ -184,7 +184,7 @@ public class EventValues {
 	 * @deprecated Use {@link #getExactEventValueConverter(Class, Class, int)} instead.
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@SuppressWarnings({"removal"})
 	public static <T, E extends Event> Getter<? extends T, ? super E> getExactEventValueGetter(Class<E> eventClass, Class<T> valueClass, int time) {
 		return toGetter(getExactEventValueConverter(eventClass, valueClass, time));
@@ -221,7 +221,7 @@ public class EventValues {
 	/**
 	 * @deprecated Use {@link #hasMultipleConverters(Class, Class, int)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static <T, E extends Event> Kleenean hasMultipleGetters(Class<E> eventClass, Class<T> valueClass, int time) {
 		return hasMultipleConverters(eventClass, valueClass, time);
 	}
@@ -245,7 +245,7 @@ public class EventValues {
 	 * @deprecated Use {@link #getEventValueConverter(Class, Class, int)} instead.
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@SuppressWarnings({"removal"})
 	public static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> eventClass, Class<T> valueClass, int time) {
 		return toGetter(getEventValueConverter(eventClass, valueClass, time, true));
@@ -476,7 +476,7 @@ public class EventValues {
 		};
 	}
 
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@SuppressWarnings({"removal"})
 	private static <A, B> Getter<B, A> toGetter(Converter<A, B> converter) {
 		if (converter == null)
