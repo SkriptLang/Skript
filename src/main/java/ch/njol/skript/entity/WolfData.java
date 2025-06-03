@@ -23,7 +23,7 @@ public class WolfData extends EntityData<Wolf> {
 		EntityData.register(WolfData.class, "wolf", Wolf.class, 1,
 				"peaceful wolf", "wolf", "angry wolf",
 				"wild wolf", "tamed wolf");
-		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
+		if (Skript.classExists("org.bukkit.entity.Wolf$Variant")) {
 			variantsEnabled = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Wolf.Variant.class).getSupplier().get(), Wolf.Variant.class);
 		}
@@ -120,7 +120,7 @@ public class WolfData extends EntityData<Wolf> {
 	/**
 	 * Note that this method is only used when changing Skript versions 2.1 to anything above.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Override
 	protected boolean deserialize(String s) {
 		String[] split = s.split("\\|");
@@ -152,6 +152,6 @@ public class WolfData extends EntityData<Wolf> {
 	/**
 	 * A dummy/placeholder class to ensure working operation on MC versions that do not have `Wolf.Variant`
 	 */
-	public static class VariantDummy {};
+	public static class WolfVariantDummy {};
 
 }

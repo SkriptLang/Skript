@@ -35,14 +35,13 @@ public class CondIsSheared extends PropertyCondition<LivingEntity> {
 		if (entity instanceof Cow) {
 			return entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SHEARED;
 		} else if (INTERFACE_METHOD) {
-			if (!(entity instanceof Shearable)) {
+			if (!(entity instanceof Shearable shearable))
 				return false;
-			}
-			return !((Shearable) entity).readyToBeSheared();
-		} else if (entity instanceof Sheep) {
-			return ((Sheep) entity).isSheared();
-		} else if (entity instanceof Snowman) {
-			return ((Snowman) entity).isDerp();
+			return !shearable.readyToBeSheared();
+		} else if (entity instanceof Sheep sheep) {
+			return sheep.isSheared();
+		} else if (entity instanceof Snowman snowman) {
+			return snowman.isDerp();
 		}
 		return false;
 	}

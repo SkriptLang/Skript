@@ -1,16 +1,12 @@
 package ch.njol.skript.util;
 
-import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.localization.Language;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.entity.LivingEntity;
@@ -24,9 +20,8 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.localization.Language;
+import java.io.StreamCorruptedException;
+import java.util.*;
 
 @SuppressWarnings({"deprecation", "removal"})
 public abstract class PotionEffectUtils {
@@ -106,7 +101,7 @@ public abstract class PotionEffectUtils {
 	 * @deprecated To be removed in a future version.
 	 */
 	@Nullable
-	@Deprecated
+	@Deprecated(since = "2.8.5", forRemoval = true)
 	public static PotionType checkPotionType(String name) {
 		switch (name) {
 			case "uncraftable":

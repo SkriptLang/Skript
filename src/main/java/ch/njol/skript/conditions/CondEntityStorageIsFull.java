@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"if the entity storage of {_beehive} is full:",
 		"\trelease the entity storage of {_beehive}"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondEntityStorageIsFull extends Condition {
 
 	static {

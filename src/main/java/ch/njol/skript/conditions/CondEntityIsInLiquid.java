@@ -10,11 +10,13 @@ import org.bukkit.entity.Entity;
 
 @Name("Entity is in Liquid")
 @Description("Checks whether an entity is in rain, lava, water or a bubble column.")
-@Examples({"if player is in rain:",
-		"if player is in water:",
-		"player is in lava:",
-		"player is in bubble column"})
-@RequiredPlugins("Minecraft 1.16+ (in water), Paper 1.16+ (in rain, lava and bubble column)")
+@Examples({
+	"if player is in rain:",
+	"if player is in water:",
+	"player is in lava:",
+	"player is in bubble column"
+})
+@RequiredPlugins("Paper (in rain, lava and bubble column)")
 @Since("2.6.1")
 public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 	
@@ -24,7 +26,7 @@ public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 			patterns.append("1¦water");
 			if (Skript.methodExists(Entity.class, "isInLava")) // Paper - All added at the same time + isInWater
 				patterns.append("|2¦lava|3¦[a] bubble[ ]column|4¦rain");
-			register(CondEntityIsInLiquid.class, PropertyType.BE, "in (" + patterns + ")", "entities");
+			register(CondEntityIsInLiquid.class, "in (" + patterns + ")", "entities");
 		}
 	}
 

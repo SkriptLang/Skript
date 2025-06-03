@@ -11,9 +11,11 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Tameable")
 @Description("Check if an entity is tameable.")
-@Examples({"on damage:",
-	"\tif victim is tameable:",
-	"\t\tcancel event"})
+@Examples({
+	"on damage:",
+		"\tif victim is tameable:",
+			"\t\tcancel event"
+})
 @Since("2.5")
 public class CondIsTameable extends PropertyCondition<LivingEntity> {
 	
