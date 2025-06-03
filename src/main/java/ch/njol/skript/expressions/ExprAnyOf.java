@@ -36,7 +36,7 @@ public class ExprAnyOf extends WrapperExpression<Object> {
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		return new Class[0];
+		return null;
 	}
 
 	@Override

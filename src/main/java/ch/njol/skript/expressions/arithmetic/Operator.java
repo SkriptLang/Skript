@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions.arithmetic;
 
 @SuppressWarnings("UnnecessaryBoxing")
-@Deprecated
+@Deprecated(since = "2.8.0", forRemoval = true)
 public enum Operator {
 	
 	PLUS('+') {

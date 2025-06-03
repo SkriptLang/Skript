@@ -37,7 +37,7 @@ public class YggdrasilSerializer<T extends YggdrasilSerializable> extends Serial
 	 * @param s
 	 * @return The deserialised object or null if the input is invalid. An error message may be logged to specify the cause.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Override
 	public T deserialize(String s) {
 		return null;

@@ -1,0 +1,46 @@
+test "index of":
+	set {_list::*} to 1, 2, 3, 1, 2 and 3
+	set {_indices::*} to indices of the value 1 in {_list::*}
+	assert {_indices::*} is "1" and "4" with "indices of 1 failed"
+
+	set {_indices::*} to the first index of the value 3 in {_list::*}
+	assert {_indices::*} is "3" with "first index of 3 failed"
+
+	set {_indices::*} to the last index of the value 3 in {_list::*}
+	assert {_indices::*} is "6" with "last index of 3 failed"
+
+	set {_indices::*} to the position of the value 3 in {_list::*}
+	assert {_indices::*} is 3 with "first position of 3 failed"
+
+	set {_indices::*} to the last position of the value 3 in {_list::*}
+	assert {_indices::*} is 6 with "last position of 3 failed"
+
+	set {_otherlist::burb} to test-location
+	set {_otherlist::_DJ8U3f;} to test-location
+	set {_otherlist::;'w20} to test-location
+	set {_otherList::breh} to 2
+	set {_otherList::quatro} to 4
+
+	set {_indices::*} to all indices of the value test-location in {_otherlist::*}
+	assert {_indices::*} is ";'w20", "_dj8u3f;" and "burb" with "indices of test-location with symbols failed"
+
+	set {_indices::*} to all positions of the value test-location in {_otherList::*}
+	assert {_indices::*} is 1, 2 and 4 with "positions of test-location failed"
+
+	set {_indices::*} to all positions of "b" in "abcabcabcabc"
+	assert {_indices::*} is 2, 5, 8 and 11 with "positions of char failed"
+
+	set {_indices::*} to all positions of "abc" in "abcabcabcabc"
+	assert {_indices::*} is 1, 4, 7 and 10 with "positions of string failed"
+
+	set {_index} to first position of "c" in "abraham lincoln"
+	assert {_index} is 12 with "first position of char failed"
+
+	set {_index} to the position of "ham" in "abraham lincoln"
+	assert {_index} is 5 with "first position of string failed"
+
+	set {_position} to position of "abc" in "nothing"
+	assert {_position} is not set with "position of string is set"
+
+	set {_position::*} to all positions of "nothing" in "abc"
+	assert {_position::*} is not set with "all positions of string is set"

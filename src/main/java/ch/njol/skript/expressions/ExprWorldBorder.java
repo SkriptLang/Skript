@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"A player's world border is not persistent. Restarts, quitting, death or changing worlds will reset the border."
 })
 @Examples("set {_border} to world border of player's world")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorder> {
 
 	static {

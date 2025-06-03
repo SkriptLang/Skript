@@ -1,0 +1,79 @@
+test "item with tooltip" when running minecraft "1.20.5":
+	set {_item} to diamond without tooltip
+	assert entire tooltip of {_item} is hidden with "Failed to hide entire tooltip"
+	assert additional tooltip of {_item} is not hidden with "Hiding entire tooltip added hide additional tooltip item flag"
+
+	set {_item2} to diamond without additional tooltip
+	assert additional tooltip of {_item2} is hidden with "Failed to hide additional tooltip"
+	assert entire tooltip of {_item2} is not hidden with "Hiding additional tooltip hid entire tooltip"
+
+	set {_item3} to diamond with entire tooltip
+	assert entire tooltip of {_item3} is not hidden with "Failed creating an item with a tooltip"
+	assert additional tooltip of {_item3} is not hidden with "Hid additional tooltip while making an item with a tooltip"
+
+	set {_item4} to diamond with additional tooltip
+	assert entire tooltip of {_item4} is not hidden with "Hid entire tooltip while making an item with additional tooltip"
+	assert additional tooltip of {_item4} is not hidden with "Failed to create an item with an additional tooltip"
+
+	set {_item5} to diamond
+	assert entire tooltip of {_item5} is not hidden with "Default item should not have entire tooltip hidden"
+	assert additional tooltip of {_item5} is not hidden with "Default item should not have additional tooltip hidden"
+	set {_item5} to {_item5} without entire tooltip
+	assert entire tooltip of {_item5} is hidden with "Failed to hide entire tooltip on item in variable"
+	assert additional tooltip of {_item5} is not hidden with "Hid additional tooltip while hiding the entire tooltip of an item in a variable"
+	set {_item5} to {_item5} without additional tooltip
+	assert entire tooltip of {_item5} is hidden with "Revealed entire tooltip while hiding additional tooltip of an item in a variable"
+	assert additional tooltip of {_item5} is hidden with "Failed to hide additional tooltip of an item in a variable"
+	set {_item5} to {_item5} with entire tooltip
+	assert entire tooltip of {_item5} is not hidden with "Failed to add entire tooltip to an item in a variable"
+	assert additional tooltip of {_item5} is hidden with "Revealing entire tooltip for an item in a variable made additional tooltip visible"
+	set {_item5} to {_item5} with additional tooltip
+	assert entire tooltip of {_item5} is not hidden with "Revealing additional tooltip of an item in a variable hid entire tooltip"
+	assert additional tooltip of {_item5} is not hidden with "Failed to reveal additional tooltip of an item in a variable"
+
+	set {_item6} to diamond without entire tooltip without additional tooltip
+	assert entire tooltip of {_item6} is hidden with "Failed to hide entire tooltip of item while hiding both types of tooltip"
+	assert additional tooltip of {_item6} is hidden with "Failed to hide additional tooltip of item while hiding both types of tooltip"
+	set {_item6} to {_item6} with entire tooltip with additional tooltip
+	assert entire tooltip of {_item6} is not hidden with "Failed to reveal entire tooltip of item while revealing both types of tooltip"
+	assert additional tooltip of {_item6} is not hidden with "Failed to reveal additional tooltip of item while revealing both types of tooltip"
+
+	set {_item7} to diamond with entire tooltip without additional tooltip
+	assert entire tooltip of {_item7} is not hidden with "Incorrectly hid entire tooltip while making item with both types of tooltip #1"
+	assert additional tooltip of {_item7} is hidden with "Failed to hide additional tooltip while making item with both types of tooltip #1"
+
+	set {_item8} to diamond without entire tooltip with additional tooltip
+	assert entire tooltip of {_item8} is hidden with "Failed to hide entire tooltip while making item with both types of tooltip #2"
+	assert additional tooltip of {_item8} is not hidden with "Incorrectly hid additional tooltip while making item with both types of tooltip #2"
+
+	set {_item9} to diamond
+	set {_item10} to {_item9} without entire tooltip
+	assert entire tooltip of {_item9} is not hidden with "Creating an item without entire tooltip hid the entire tooltip of the original item"
+	assert additional tooltip of {_item9} is not hidden with "Creating an item without entire tooltip hid the additional tooltip of the original item"
+
+	set {_item11} to diamond
+	set {_item12} to {_item11} without additional tooltip
+	assert entire tooltip of {_item11} is not hidden with "Creating an item without additional tooltip hid the entire tooltip of the original item"
+	assert additional tooltip of {_item11} is not hidden with "Creating an item without additional tooltip hid the additional tooltip of the original item"
+
+	set {_items::*} to diamond and apple without entire tooltip
+	assert entire tooltip of {_items::1} is hidden with "Failed to hide entire tooltip of list of items"
+	assert entire tooltip of {_items::2} is hidden with "Failed to hide entire tooltip of list of items"
+
+	set {_items2::*} to diamond and apple with entire tooltip
+	assert entire tooltip of {_items2::1} is not hidden with "Incorrectly hid entire tooltip of list of items"
+	assert entire tooltip of {_items2::2} is not hidden with "Incorrectly hid entire tooltip of list of items"
+
+	set {_items3::*} to diamond and apple without additional tooltip
+	assert additional tooltip of {_items3::1} is hidden with "Failed to hide additional tooltip of list of items"
+	assert additional tooltip of {_items3::2} is hidden with "Failed to hide additional tooltip of list of items"
+
+	set {_items4::*} to diamond and apple with additional tooltip
+	assert additional tooltip of {_items4::1} is not hidden with "Incorrectly hid additional tooltip of list of items"
+	assert additional tooltip of {_items4::2} is not hidden with "Incorrectly hid additional tooltip of list of items"
+
+	assert ({_none} without entire tooltip) is not set with "Trying to change the tooltip of None made an item"
+	assert diamond without entire tooltip is not plain diamond with "Item comparison failed (entire tooltip vs. plain)"
+	assert diamond without additional tooltip is not plain diamond with "Item comparison failed (additional tooltip vs. plain)"
+	assert diamond without entire tooltip is not diamond without additional tooltip with "Item comparison failed (entire tooltip vs. additional tooltip)"
+	assert diamond without entire tooltip without additional tooltip is diamond without additional tooltip without entire tooltip with "Item comparison with different stacking orders failed"

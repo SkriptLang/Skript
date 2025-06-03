@@ -25,7 +25,7 @@ import org.bukkit.entity.Entity;
 		"\tif event-entity is persistent:",
 			"\t\tmake event-entity not persistent"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondIsPersistent extends PropertyCondition<Object> {
 
 	static {
