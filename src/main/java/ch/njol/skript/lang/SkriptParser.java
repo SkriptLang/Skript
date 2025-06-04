@@ -679,11 +679,8 @@ public class SkriptParser {
 					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
 				}
 			}
-			if (allowUnparsedLiteral && containsObjectClass) {
-				UnparsedLiteral unparsedLiteral = getUnparsedLiteral(log, error);
-				if (unparsedLiteral != null)
-					return unparsedLiteral;
-			}
+			if (allowUnparsedLiteral && containsObjectClass)
+                return getUnparsedLiteral(log, error);
 			if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
 				for (ClassInfo<?> aClass : exprInfo.classes) {
 					if (!aClass.getC().isAssignableFrom(String.class))
