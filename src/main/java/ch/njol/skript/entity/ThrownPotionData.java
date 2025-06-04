@@ -157,7 +157,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	
 	//		return ItemType.serialize(types);
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	protected boolean deserialize(String s) {
 		throw new UnsupportedOperationException("old serialization is no longer supported");
 //		if (s.isEmpty())

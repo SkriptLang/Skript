@@ -13,7 +13,6 @@ import ch.njol.skript.util.Color;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
-import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
@@ -33,6 +32,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -463,11 +463,6 @@ public final class BukkitEventValues {
 		// PrepareAnvilEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.inventory.PrepareResultEvent"))
 			EventValues.registerEventValue(PrepareAnvilEvent.class, ItemStack.class, PrepareResultEvent::getResult);
-		EventValues.registerEventValue(PrepareAnvilEvent.class, Inventory.class, PrepareAnvilEvent::getInventory);
-		// AnvilDamagedEvent
-		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
-			EventValues.registerEventValue(AnvilDamagedEvent.class, Inventory.class, AnvilDamagedEvent::getInventory);
-		}
 		//BlockFertilizeEvent
 		EventValues.registerEventValue(BlockFertilizeEvent.class, Player.class, BlockFertilizeEvent::getPlayer);
 		EventValues.registerEventValue(BlockFertilizeEvent.class, Block[].class, event -> event.getBlocks().stream()
@@ -479,7 +474,6 @@ public final class BukkitEventValues {
 			ItemStack item = event.getInventory().getResult();
 			return item != null ? item : AIR_IS;
 		});
-		EventValues.registerEventValue(PrepareItemCraftEvent.class, Inventory.class, PrepareItemCraftEvent::getInventory);
 		EventValues.registerEventValue(PrepareItemCraftEvent.class, Player.class, event -> {
 			List<HumanEntity> viewers = event.getInventory().getViewers(); // Get all viewers
 			if (viewers.isEmpty()) // ... if we don't have any
@@ -504,12 +498,12 @@ public final class BukkitEventValues {
 		});
 		// CraftItemEvent
 		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> event.getRecipe().getResult());
+		//InventoryEvent
+		EventValues.registerEventValue(InventoryEvent.class, Inventory.class, InventoryEvent::getInventory);
 		//InventoryOpenEvent
 		EventValues.registerEventValue(InventoryOpenEvent.class, Player.class, event -> (Player) event.getPlayer());
-		EventValues.registerEventValue(InventoryOpenEvent.class, Inventory.class, InventoryEvent::getInventory);
 		//InventoryCloseEvent
 		EventValues.registerEventValue(InventoryCloseEvent.class, Player.class, event -> (Player) event.getPlayer());
-		EventValues.registerEventValue(InventoryCloseEvent.class, Inventory.class, InventoryEvent::getInventory);
 		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
 			EventValues.registerEventValue(InventoryCloseEvent.class, InventoryCloseEvent.Reason.class, InventoryCloseEvent::getReason);
 		//InventoryPickupItemEvent
@@ -553,8 +547,6 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getFrom);
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getTo, TIME_FUTURE);
 		}
-		//PlayerToggleFlightEvent
-		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, PlayerEvent::getPlayer);
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
 		//FireworkExplodeEvent
@@ -778,6 +770,23 @@ public final class BukkitEventValues {
 				}
 			});
 		}
+
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, VillagerCareerChangeEvent.ChangeReason.class, VillagerCareerChangeEvent::getReason);
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class, new EventConverter<>() {
+			@Override
+			public void set(VillagerCareerChangeEvent event, @Nullable Profession profession) {
+				if (profession == null)
+					return;
+				event.setProfession(profession);
+			}
+
+			@Override
+			public Profession convert(VillagerCareerChangeEvent event) {
+				return event.getProfession();
+			}
+		});
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class,
+			event -> event.getEntity().getProfession(), TIME_PAST);
 
 	}
 

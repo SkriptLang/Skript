@@ -41,7 +41,7 @@ public class SimpleEvents {
 		Skript.registerEvent("Block Damage", SimpleEvent.class, BlockDamageEvent.class, "block damag(ing|e)")
 				.description("Called when a player starts to break a block. You can usually just use the leftclick event for this.")
 				.examples("on block damaging:",
-						"\tif block is log:",
+						"\tif block is tagged with minecraft tag \"logs\":",
 						"\t\tsend \"You can't break the holy log!\"")
 				.since("1.0");
 		Skript.registerEvent("Flow", SimpleEvent.class, BlockFromToEvent.class, "[block] flow[ing]", "block mov(e|ing)")
@@ -786,6 +786,20 @@ public class SimpleEvents {
 				.since("INSERT VERSION")
 				.requiredPlugins("Minecraft 1.21.1+");
 		}
+
+		Skript.registerEvent("Villager Career Change", SimpleEvent.class, VillagerCareerChangeEvent.class,
+				"villager career chang(e[d]|ing)")
+			.description("Called when a villager changes its career. Can be caused by being employed or losing their job.")
+			.examples("""
+				on villager career change:
+					if all:
+						event-career change reason is employment
+						event-villager profession is armorer profession
+					then:
+						cancel event
+				""")
+			.since("INSERT VERSION");
+
 	}
 
 }
