@@ -65,9 +65,7 @@ public class DynamicFunctionReference<Result>
 			//noinspection unchecked
 			function = (Function<? extends Result>) FunctionRegistry.getRegistry().getFunction(null, name);
 		}
-		if (function == null) {
-			Skript.error(FunctionReference.AMBIGUOUS_ERROR.formatted(name));
-		}
+
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);
 		if (resolved) {

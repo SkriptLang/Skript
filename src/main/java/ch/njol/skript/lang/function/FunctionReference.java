@@ -287,7 +287,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 		Signature<?> sign = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
 
-
 		// if we can't find a signature based on param types, try to match any function
 		if (sign == null) {
 			sign = FunctionRegistry.getRegistry().getSignature(script, functionName);

@@ -2,7 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Contract;
-import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,7 +18,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this(name, parameters, returnType, single, null);
 	}
 
-	@Internal
+	@ApiStatus.Internal
 	JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local) {
 		this(name, parameters, returnType, single, local, null);
 	}
@@ -27,7 +27,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this(name, parameters, returnType, single, false, contract);
 	}
 
-	@Internal
+	@ApiStatus.Internal
 	JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local, @Nullable Contract contract) {
 		this(new Signature<>("none", name, parameters, local, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 	}

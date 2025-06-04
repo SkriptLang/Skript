@@ -3,10 +3,9 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -15,11 +14,9 @@ import java.util.stream.Collectors;
 
 /**
  * A registry for functions.
- *
- * @author Efnilite
  */
-@Internal // for now
-final class FunctionRegistry {
+@ApiStatus.Internal // for now
+final class FunctionRegistry implements Registry<Function<?>> {
 
 	private static FunctionRegistry registry;
 
@@ -37,9 +34,9 @@ final class FunctionRegistry {
 
 	/**
 	 * The pattern for a valid function name.
-	 * Functions must start with a letter and can only contain letters, numbers, and underscores.
+	 * Functions must start with a letter or underscore and can only contain letters, numbers, and underscores.
 	 */
-	final static String FUNCTION_NAME_PATTERN = "\\p{IsAlphabetic}[\\p{IsAlphabetic}\\d_]*";
+	final static String FUNCTION_NAME_PATTERN = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*";
 
 	/**
 	 * The namespace for functions registered using Java.
@@ -50,6 +47,18 @@ final class FunctionRegistry {
 	 * All registered namespaces.
 	 */
 	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
+
+	@Override
+	@UnmodifiableView
+	public @NotNull Collection<Function<?>> elements() {
+		Set<Function<?>> functions = new HashSet<>();
+
+		for (Namespace namespace : namespaces.values()) {
+			functions.addAll(namespace.functions.values());
+		}
+
+		return Collections.unmodifiableSet(functions);
+	}
 
 	/**
 	 * Registers a signature.
@@ -373,7 +382,7 @@ final class FunctionRegistry {
 			return Set.of();
 		} else if (candidates.size() == 1 || provided.args == null || provided.args.length == 0) {
 			// if there is only one candidate,
-			// or we should match any function (provided.args == null || provided.args.length == 0),
+			// or we should match any function if provided.args == null || provided.args.length == 0,
 			// then return without trying to convert
 			return candidates;
 		}
@@ -409,7 +418,9 @@ final class FunctionRegistry {
 	 *
 	 * @param signature The signature to remove.
 	 */
-	public void remove(Signature<?> signature) {
+	public void remove(@NotNull Signature<?> signature) {
+		Preconditions.checkNotNull(signature, "signature cannot be null");
+
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
@@ -469,9 +480,7 @@ final class FunctionRegistry {
 	/**
 	 * A namespace for a function.
 	 */
-	private record NamespaceIdentifier(@NotNull Scope scope, @Nullable String name) {
-
-	}
+	private record NamespaceIdentifier(@NotNull Scope scope, @Nullable String name) { }
 
 	/**
 	 * The data a namespace contains.
