@@ -701,13 +701,13 @@ entities:
 		pattern: painting(|1¦s)
 	pig:
 		name: pig¦s
-		pattern: <age> pig(|1¦s)|(4¦)piglet(|1¦s)
+		pattern: <age> [%-pigvariant%] pig(|1¦s)|(4¦)piglet(|1¦s)
 	saddled pig:
 		name: saddled pig¦s
-		pattern: saddled pig(|1¦s)
+		pattern: saddled [%-pigvariant%] pig(|1¦s)
 	unsaddled pig:
 		name: unsaddled pig¦s @an
-		pattern: unsaddled pig(|1¦s)
+		pattern: unsaddled [%-pigvariant%] pig(|1¦s)
 	player:
 		name: player¦s
 		pattern: player(|1¦s)
@@ -1167,6 +1167,12 @@ entities:
 	strider:
 		name: strider¦s
 		pattern: <age> strider(|1¦s)|(4¦)strider (kid(|1¦s)|child(|1¦ren))
+	warm strider:
+		name: warm strider¦s
+		pattern: <age> warm strider(|1¦s)|(4¦)warm strider (kid(|1¦s)|child(|1¦ren))
+	shivering strider:
+		name: shivering strider¦s, cold strider¦s
+		pattern: <age> (cold|shivering) strider(|1¦s)|(4¦)(cold|shivering) strider (kid(|1¦s)|child(|1¦ren))
 	#1.16.2 entity
 	piglin brute:
 		name: piglin brute¦s
@@ -2586,6 +2592,17 @@ equipment slots:
 	off_hand: off hand slot, off hand
 	body: body slot, body armor slot, body armour slot
 
+# -- Pig Variants --
+pig variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
+# -- Villager Career Change Reasons
+villager career change reasons:
+	employed: employment
+	losing_job: losing job
+
 # -- Boolean --
 boolean:
 	true:
@@ -2689,7 +2706,8 @@ types:
 	vehicle: vehicle¦s @a
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
-
+	pigvariant: pig variant¦s @a
+	villagercareerchangereason: villager career change reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
