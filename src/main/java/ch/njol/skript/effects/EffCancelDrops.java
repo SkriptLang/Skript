@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 @Description({
 	"Cancels drops of items in a death, block break, block drop, and block harvest events.",
 	"The dropped experience can be cancelled in a death and block break events.",
-	"Please note that using this in a death event doesn't keep items or experiences of a dead player. If you want to do that, "
+	"Please note that using this in a death event doesn't keep items or experience of a dead player. If you want to do that, "
 		+ "use the <a href='effects.html#EffKeepInventory'>Keep Inventory / Experience</a> effect."
 })
 @Example("""
