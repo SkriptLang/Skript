@@ -35,3 +35,9 @@ test "except entities":
 	assert size of all entities not including {_exclude::*} is 12 with "Failed to exclude list (zombie, skeleton, villager)"
 
 	clear all entities
+
+test "except 'or' objects":
+	assert (1 or 2) except 2 is 1 with "Failed to exclude '2' from an 'or' list"
+
+	set {_item} to (a diamond or an iron ingot or an emerald) excluding a diamond
+	assert {_item} is (an iron ingot or an emerald) with "Failed to exclude 'diamond' from an 'or' item list"

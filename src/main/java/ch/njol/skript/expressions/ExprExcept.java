@@ -1,8 +1,12 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -13,6 +17,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+
+import java.util.Iterator;
 
 @Name("Except")
 @Description("Filter a list by providing objects to be excluded.")
@@ -29,18 +35,22 @@ public class ExprExcept extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprExcept.class, Object.class, ExpressionType.COMBINED,
-				"%~objects% (except|excluding|not including) %objects%");
+				"%objects% (except|excluding|not including) %objects%");
 	}
 
 	private Expression<?> source;
 	private Expression<?> exclude;
+	private boolean isOrList = false;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		source = LiteralUtils.defendExpression(exprs[0]);
 		if (source.isSingle()) {
-			Skript.error("Must provide a list containing more than one object to exclude objects from.");
-			return false;
+			if (!(source instanceof ExpressionList<?>)) {
+				Skript.error("Must provide a list containing more than one object to exclude objects from.");
+				return false;
+			}
+			isOrList = true;
 		}
 		exclude = LiteralUtils.defendExpression(exprs[1]);
 		return LiteralUtils.canInitSafely(source, exclude);
@@ -50,7 +60,7 @@ public class ExprExcept extends SimpleExpression<Object> {
 	protected Object @Nullable [] get(Event event) {
 		Object[] exclude = this.exclude.getArray(event);
 		if (exclude == null || exclude.length == 0)
-			return source.getArray(event);
+			return isOrList ? source.getArray(event) : source.getAll(event);
 
 		return source.streamAll(event)
 			.filter(sourceObject -> {
@@ -63,8 +73,23 @@ public class ExprExcept extends SimpleExpression<Object> {
 	}
 
 	@Override
+	public @Nullable Iterator<?> iterator(Event event) {
+		Object[] exclude = this.exclude.getArray(event);
+		if (exclude == null || exclude.length == 0)
+			return source.iterator(event);
+
+		return source.streamAll(event)
+			.filter(sourceObject -> {
+				for (Object excludeObject : exclude)
+					if (sourceObject.equals(excludeObject) || Comparators.compare(sourceObject, excludeObject) == Relation.EQUAL)
+						return false;
+				return true;
+			}).iterator();
+	}
+
+	@Override
 	public boolean isSingle() {
-		return false;
+		return isOrList;
 	}
 
 	@Override
