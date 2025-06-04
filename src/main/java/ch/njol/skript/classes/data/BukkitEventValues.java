@@ -32,6 +32,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -755,6 +756,38 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter);
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
 		}
+
+		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
+			EventValues.registerEventValue(VaultDisplayItemEvent.class, ItemStack.class, new EventConverter<>() {
+				@Override
+				public void set(VaultDisplayItemEvent event, @Nullable ItemStack itemStack) {
+					event.setDisplayItem(itemStack);
+				}
+
+				@Override
+				public @Nullable ItemStack convert(VaultDisplayItemEvent event) {
+					return event.getDisplayItem();
+				}
+			});
+		}
+
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, VillagerCareerChangeEvent.ChangeReason.class, VillagerCareerChangeEvent::getReason);
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class, new EventConverter<>() {
+			@Override
+			public void set(VillagerCareerChangeEvent event, @Nullable Profession profession) {
+				if (profession == null)
+					return;
+				event.setProfession(profession);
+			}
+
+			@Override
+			public Profession convert(VillagerCareerChangeEvent event) {
+				return event.getProfession();
+			}
+		});
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class,
+			event -> event.getEntity().getProfession(), TIME_PAST);
+
 	}
 
 }
