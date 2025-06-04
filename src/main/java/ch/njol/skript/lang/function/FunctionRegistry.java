@@ -10,6 +10,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -41,11 +42,6 @@ final class FunctionRegistry {
 	final static String FUNCTION_NAME_PATTERN = "\\p{IsAlphabetic}[\\p{IsAlphabetic}\\d_]*";
 
 	/**
-	 * Lock for ensuring only one write operation happens to namespaces at any one time.
-	 */
-	private final Object lock = new Object();
-
-	/**
 	 * The namespace for functions registered using Java.
 	 */
 	private final NamespaceIdentifier GLOBAL_NAMESPACE = new NamespaceIdentifier(Scope.GLOBAL, null);
@@ -53,8 +49,7 @@ final class FunctionRegistry {
 	/**
 	 * All registered namespaces.
 	 */
-	private final Map<NamespaceIdentifier, Namespace> namespaces = new HashMap<>();
-
+	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
 
 	/**
 	 * Registers a signature.
@@ -66,7 +61,7 @@ final class FunctionRegistry {
 	 * @throws SkriptAPIException if a signature with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public synchronized void register(@Nullable String namespace, @NotNull Signature<?> signature) {
+	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 		Skript.debug("Registering signature '" + signature.getName() + "'");
 
@@ -76,7 +71,7 @@ final class FunctionRegistry {
 			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
 		}
 
-		synchronized (lock) {
+		synchronized (namespaces) {
 			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
 
 			FunctionIdentifier identifier = FunctionIdentifier.of(signature);
@@ -118,7 +113,7 @@ final class FunctionRegistry {
 	 *                            a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public synchronized void register(@Nullable String namespace, @NotNull Function<?> function) {
+	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
 		Skript.debug("Registering function '" + function.getName() + "'");
 
@@ -139,7 +134,7 @@ final class FunctionRegistry {
 		}
 
 		// register
-		synchronized (lock) {
+		synchronized (namespaces) {
 			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
 			Function<?> existing = ns.functions.put(identifier, function);
 			if (existing != null) {
@@ -418,7 +413,7 @@ final class FunctionRegistry {
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		synchronized (lock) {
+		synchronized (namespaces) {
 			for (Entry<NamespaceIdentifier, Namespace> entry : namespaces.entrySet()) {
 				NamespaceIdentifier namespaceId = entry.getKey();
 				Namespace namespace = entry.getValue();
