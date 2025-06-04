@@ -24,6 +24,7 @@ import ch.njol.skript.registrations.EventValues;
 public class ExprQuitReason extends EventValueExpression<QuitReason> {
 
 	static {
+		// TODO - remove this when Spigot support is dropped
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
 			register(ExprQuitReason.class, QuitReason.class, "(quit|disconnect) (cause|reason)");
 	}

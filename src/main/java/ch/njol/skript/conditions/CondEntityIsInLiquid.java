@@ -22,12 +22,10 @@ public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 	
 	static {
 		StringBuilder patterns = new StringBuilder();
-		if (Skript.methodExists(Entity.class, "isInWater")) {
-			patterns.append("1¦water");
-			if (Skript.methodExists(Entity.class, "isInLava")) // Paper - All added at the same time + isInWater
-				patterns.append("|2¦lava|3¦[a] bubble[ ]column|4¦rain");
-			register(CondEntityIsInLiquid.class, "in (" + patterns + ")", "entities");
-		}
+		patterns.append("1¦water");
+		if (Skript.methodExists(Entity.class, "isInLava")) // TODO - remove this when Spigot support is dropped
+			patterns.append("|2¦lava|3¦[a] bubble[ ]column|4¦rain");
+		register(CondEntityIsInLiquid.class, "in (" + patterns + ")", "entities");
 	}
 
 	private static final int IN_WATER = 1, IN_LAVA = 2, IN_BUBBLE_COLUMN = 3, IN_RAIN = 4;
@@ -45,34 +43,24 @@ public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 	
 	@Override
 	public boolean check(Entity entity) {
-		switch (mark) {
-			case IN_WATER:
-				return entity.isInWater();
-			case IN_LAVA:
-				return entity.isInLava();
-			case IN_BUBBLE_COLUMN:
-				return entity.isInBubbleColumn();
-			case IN_RAIN:
-				return entity.isInRain();
-			default:
-				throw new IllegalStateException();
-		}
+		return switch (mark) {
+			case IN_WATER -> entity.isInWater();
+			case IN_LAVA -> entity.isInLava();
+			case IN_BUBBLE_COLUMN -> entity.isInBubbleColumn();
+			case IN_RAIN -> entity.isInRain();
+			default -> throw new IllegalStateException();
+		};
 	}
 
 	@Override
 	protected String getPropertyName() {
-		switch (mark) {
-			case IN_WATER:
-				return "in water";
-			case IN_LAVA:
-				return "in lava";
-			case IN_BUBBLE_COLUMN:
-				return "in bubble column";
-			case IN_RAIN:
-				return "in rain";
-			default:
-				throw new IllegalStateException();
-		}
+		return switch (mark) {
+			case IN_WATER -> "in water";
+			case IN_LAVA -> "in lava";
+			case IN_BUBBLE_COLUMN -> "in bubble column";
+			case IN_RAIN -> "in rain";
+			default -> throw new IllegalStateException();
+		};
 	}
 
 }

@@ -36,6 +36,7 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 			);
 	}
 
+	// TODO - remove these fields when Spigot support is dropped
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 	private static final boolean SET_MAX_PLAYERS_EXISTS = Skript.methodExists(Server.class, "setMaxPlayers", int.class);
 

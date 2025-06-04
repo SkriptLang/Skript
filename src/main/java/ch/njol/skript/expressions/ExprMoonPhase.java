@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprMoonPhase extends SimplePropertyExpression<World, MoonPhase> {
 
 	static {
+		// TODO - remove this when Spigot support is dropped
 		if (Skript.classExists("io.papermc.paper.world.MoonPhase"))
 			register(ExprMoonPhase.class, MoonPhase.class, "(lunar|moon) phase[s]", "worlds");
 	}

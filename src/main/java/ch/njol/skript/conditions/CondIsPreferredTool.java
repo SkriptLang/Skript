@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 public class CondIsPreferredTool extends Condition {
 
 	static {
+		// TODO - remove this when Spigot support is dropped
 		String types = "blocks";
 		if (Skript.methodExists(BlockData.class, "isPreferredTool", ItemStack.class))
 			types += "/blockdatas";
