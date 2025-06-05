@@ -1,0 +1,8 @@
+test "strider shivering":
+	spawn a strider at test-location:
+		set {_entity} to entity
+	make {_entity} start shivering
+	assert {_entity} is shivering with "Strider should be shivering"
+	make {_entity} stop shivering
+	assert {_entity} is not shivering with "Strider should not be shivering"
+	clear entity within {_entity}
