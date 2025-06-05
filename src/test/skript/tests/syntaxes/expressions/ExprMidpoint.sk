@@ -1,4 +1,6 @@
 
+using error catching
+
 test "midpoint locations - simple":
 	set {_loc1} to location(0, 0, 0)
 	set {_loc2} to {_loc1} ~ vector(10, 10, 10)
@@ -33,9 +35,9 @@ test "midpoint locations - function/variable":
 test "midpoint location - world error":
 	set {_loc1} to location(0, 0, 0)
 	set {_loc2} to location(0, 0, 0, "world_the_end")
-	# TODO: Change to catch runtime error
-	set {_midpoint} to the midpoint between {_loc1} and {_loc2}
-	assert {_midpoint} is not set with "Should not be able to get a midpoint from locations in different worlds"
+	catch runtime errors:
+		set {_midpoint} to the midpoint between {_loc1} and {_loc2}
+	assert last caught errors is "Cannot get the midpoint of two locations in different worlds." with "ExprMidpoint should error when getting midpoint of locations in different worlds"
 
 test "midpoint vectors - simple":
 	set {_vector1} to vector(0, 0, 0)
@@ -77,21 +79,27 @@ test "midpoint type error":
 	set {_loc} to location(0, 0, 0)
 	set {_vector} to vector(0, 0, 0)
 
-	# TODO: Change to catch runtime error
-	set {_midpoint} to the midpoint between {_loc} and {_vector}
-	assert {_midpoint} is not set with "Midpoint of location variable -> vector variable should error"
+	set {_error} to "You can only get the midpoint between two locations or two vectors."
+	catch runtime errors:
+		set {_midpoint} to the midpoint between {_loc} and {_vector}
+	assert last caught errors is {_error} with "Midpoint of location variable -> vector variable should error"
 
-	set {_midpoint2} to the midpoint between {_vector} and {_loc}
-	assert {_midpoint2} is not set with "Midpoint of vector variable -> location variable should error"
+	catch runtime errors:
+		set {_midpoint2} to the midpoint between {_vector} and {_loc}
+	assert last caught errors is {_error} with "Midpoint of vector variable -> location variable should error"
 
-	set {_midpoint3} to the midpoint between location(0, 0, 0) and {_vec}
-	assert {_midpoint3} is not set with "Midpoint of location function -> vector variable should error"
+	catch runtime errors:
+		set {_midpoint3} to the midpoint between location(0, 0, 0) and {_vector}
+	assert last caught errors is {_error} with "Midpoint of location function -> vector variable should error"
 
-	set {_midpoint4} to the midpoint between {_vec} and location(0, 0, 0)
-	assert {_midpoint4} is not set with "Midpoint of vector variable -> location function should error"
+	catch runtime errors:
+		set {_midpoint4} to the midpoint between {_vector} and location(0, 0, 0)
+	assert last caught errors is {_error} with "Midpoint of vector variable -> location function should error"
 
-	set {_midpoint5} to the midpoint between vector(0, 0, 0) and {_loc}
-	assert {_midpoint5} is not set with "Midpoint of vector function -> location variable should error"
+	catch runtime errors:
+		set {_midpoint5} to the midpoint between vector(0, 0, 0) and {_loc}
+	assert last caught errors is {_error} with "Midpoint of vector function -> location variable should error"
 
-	set {_midpoint6} to the midpoint between {_loc} and vector(0, 0, 0)
-	assert {_midpoint6} is not set with "Midpoint of location variable -> vector function should error"
+	catch runtime errors:
+		set {_midpoint6} to the midpoint between {_loc} and vector(0, 0, 0)
+	assert last caught errors is {_error} with "Midpoint of location variable -> vector function should error"

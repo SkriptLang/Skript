@@ -30,11 +30,9 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 @Since("INSERT VERSION")
 public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRuntimeErrorProducer {
 
-	private static final int NONE = 0, LOCATION = 1, VECTOR = 2, BOTH = 3;
-
 	static {
 		Skript.registerExpression(ExprMidpoint.class, Object.class, ExpressionType.COMBINED,
-			"[the] mid[-]point (of|between) %location/vector% and %location/vector%");
+			"[the] mid[-]point (of|between) %object% and %object%");
 	}
 
 	private Expression<?> object1;
