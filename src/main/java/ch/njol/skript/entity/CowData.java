@@ -16,33 +16,33 @@ import java.util.Objects;
 
 public class CowData extends EntityData<Cow> {
 
-	private static final boolean variantsEnabled;
+	private static final boolean VARIANTS_ENABLED;
 	private static final Object[] variants;
-	private static final Class<Cow> cowClass;
+	private static final Class<Cow> COW_CLASS;
 	private static final @Nullable Method getVariantMethod;
 	private static final @Nullable Method setVariantMethod;
 
 	static {
-        Class<Cow> cowClass1 = null;
+		Class<Cow> cowClass = null;
 
-        try {
+		try {
 			//noinspection unchecked
-			cowClass1 = (Class<Cow>) Class.forName("org.bukkit.entity.Cow");
+			cowClass = (Class<Cow>) Class.forName("org.bukkit.entity.Cow");
 		} catch (Exception ignored) {}
 
-        cowClass = cowClass1;
-        register(CowData.class, "cow", cowClass, 0, "cow");
+		COW_CLASS = cowClass;
+		register(CowData.class, "cow", CowData.COW_CLASS, 0, "cow");
 		if (Skript.classExists("org.bukkit.entity.Cow$Variant")) {
-			variantsEnabled = true;
+			VARIANTS_ENABLED = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Cow.Variant.class).getSupplier().get(), Cow.Variant.class);
 			try {
-				getVariantMethod = cowClass.getDeclaredMethod("getVariant");
-				setVariantMethod = cowClass.getDeclaredMethod("setVariant", Cow.Variant.class);
+				getVariantMethod = COW_CLASS.getDeclaredMethod("getVariant");
+				setVariantMethod = COW_CLASS.getDeclaredMethod("setVariant", Cow.Variant.class);
 			} catch (Exception e) {
 				throw new RuntimeException("Could not retrieve get/set variant methods for Cow.", e);
 			}
 		} else {
-			variantsEnabled = false;
+			VARIANTS_ENABLED = false;
 			variants = null;
 			getVariantMethod = null;
 			setVariantMethod = null;
@@ -60,7 +60,7 @@ public class CowData extends EntityData<Cow> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (variantsEnabled) {
+		if (VARIANTS_ENABLED) {
 			Literal<?> expr = null;
 			if (exprs[0] != null) { // cow
 				expr = exprs[0];
@@ -75,10 +75,10 @@ public class CowData extends EntityData<Cow> {
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Cow> entityClass, @Nullable Cow entity) {
-		if (entity != null) {
-			if (variantsEnabled) {
-				variant = getVariant(entity);
+	protected boolean init(@Nullable Class<? extends Cow> entityClass, @Nullable Cow cow) {
+		if (cow != null) {
+			if (VARIANTS_ENABLED) {
+				variant = getVariant(cow);
 			}
 		}
 		return true;
@@ -86,7 +86,7 @@ public class CowData extends EntityData<Cow> {
 
 	@Override
 	public void set(Cow entity) {
-		if (variantsEnabled) {
+		if (VARIANTS_ENABLED) {
 			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
 			assert finalVariant != null;
 			setVariant(entity, finalVariant);
@@ -95,14 +95,14 @@ public class CowData extends EntityData<Cow> {
 
 	@Override
 	protected boolean match(Cow entity) {
-		if (!variantsEnabled)
+		if (!VARIANTS_ENABLED)
 			return true;
 		return variant == null || getVariant(entity) == variant;
 	}
 
 	@Override
 	public Class<Cow> getType() {
-		return cowClass;
+		return COW_CLASS;
 	}
 
 	@Override
@@ -119,18 +119,14 @@ public class CowData extends EntityData<Cow> {
 	protected boolean equals_i(EntityData<?> obj) {
 		if (!(obj instanceof CowData other))
 			return false;
-		if (variantsEnabled && variant != other.variant)
-			return false;
-		return true;
+		return variant == other.variant;
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof CowData other))
 			return false;
-		if (variantsEnabled)
-			return variant == other.variant;
-		return true;
+		return variant == null || variant == other.variant;
 	}
 
 	/**
@@ -149,9 +145,9 @@ public class CowData extends EntityData<Cow> {
 	 * @param object The 'Cow.Variant'
 	 */
 	public void setVariant(Cow cow, Object object) {
-		if (!variantsEnabled || setVariantMethod == null)
+		if (!VARIANTS_ENABLED || setVariantMethod == null)
 			return;
-		Entity entity = cowClass.cast(cow);
+		Entity entity = COW_CLASS.cast(cow);
 		try {
 			setVariantMethod.invoke(entity, (Cow.Variant) object);
 		} catch (IllegalAccessException | InvocationTargetException e) {
@@ -166,9 +162,9 @@ public class CowData extends EntityData<Cow> {
 	 * @return The 'Cow.Variant'
 	 */
 	public @Nullable Object getVariant(Cow cow) {
-		if (!variantsEnabled || getVariantMethod == null)
+		if (!VARIANTS_ENABLED || getVariantMethod == null)
 			return null;
-		Entity entity = cowClass.cast(cow);
+		Entity entity = COW_CLASS.cast(cow);
 		try {
 			return getVariantMethod.invoke(entity);
 		} catch (IllegalAccessException | InvocationTargetException e) {

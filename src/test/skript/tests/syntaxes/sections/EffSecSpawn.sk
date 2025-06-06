@@ -201,3 +201,24 @@ test "spawn cow by variant" when running minecraft "1.21.5":
 	assert size of all cows is 5 with "Only temperate cows should have been deleted"
 	delete all warm cows
 	assert size of all warm cows is 0 with "Warm cows were not deleted"
+
+test "spawn baby cow by variant" when running minecraft "1.21.5":
+	delete all calves
+	set {_l} to test-location
+	spawn 5 warm calves at {_l}
+	assert size of all warm calves is 5 with "Size of all warm calves is not 5"
+	assert size of all calves is 5 with "Size of all calves is not 5"
+	spawn 3 temperate calves at {_l}
+	assert size of all temperate calves is 3 with "Size of all temperate calves is not 3"
+	assert size of all calves is 8 with "Size of all calves is not 8"
+	spawn 2 cold calves at {_l}
+	assert size of all cold calves is 2 with "Size of all cold calves is not 2"
+	assert size of all calves is 10 with "Size of all calves is not 10"
+	delete all cold calves
+	assert size of all cold calves is 0 with "Cold calves were not deleted"
+	assert size of all calves is 8 with "Only cold calves should have been deleted"
+	delete all temperate calves
+	assert size of all temperate calves is 0 with "Temperate calves were not deleted"
+	assert size of all calves is 5 with "Only temperate calves should have been deleted"
+	delete all warm calves
+	assert size of all warm calves is 0 with "Warm calves were not deleted"
