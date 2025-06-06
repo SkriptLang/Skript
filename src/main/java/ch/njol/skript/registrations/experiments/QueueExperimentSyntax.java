@@ -10,7 +10,7 @@ import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
  */
 public interface QueueExperimentSyntax extends SimpleExperimentalSyntax {
 
-	ExperimentData EXPERIMENT_DATA = ExperimentData.builder().required(Feature.QUEUES).build();
+	ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.QUEUES);
 
 	@Override
 	default ExperimentData getExperimentData() {

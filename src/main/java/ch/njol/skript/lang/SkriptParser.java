@@ -303,8 +303,7 @@ public class SkriptParser {
 	}
 
 	/**
-	 * Check if the {@link SyntaxElement} is an {@link ExperimentalSyntax} and ensure the current {@link ExperimentSet}
-	 * the requirements are satisfied.
+	 * Checks that {@code element} is an {@link ExperimentalSyntax} and, if so, ensures that its requirements are satisfied by the current {@link ExperimentSet}.
 	 * @param element The {@link SyntaxElement} to check.
 	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
 	 */

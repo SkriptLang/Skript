@@ -1,11 +1,13 @@
 package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.Skript;
-import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -74,17 +76,13 @@ public class ExperimentData {
 	 * @return {@code True} if the requirements were met.
 	 */
 	public boolean checkRequirements(ExperimentSet experiments) {
-		if (!required.isEmpty()) {
-			for (Experiment experiment : required) {
-				if (!experiments.hasExperiment(experiment))
-					return false;
-			}
+		for (Experiment experiment : required) {
+			if (!experiments.hasExperiment(experiment))
+				return false;
 		}
-		if (!disallowed.isEmpty()) {
-			for (Experiment experiment : disallowed) {
-				if (experiments.hasExperiment(experiment))
-					return false;
-			}
+		for (Experiment experiment : disallowed) {
+			if (experiments.hasExperiment(experiment))
+				return false;
 		}
 		return true;
 	}
@@ -111,28 +109,22 @@ public class ExperimentData {
 		builder.append("This element is experimental. To use this, ");
 		if (!required.isEmpty()) {
 			builder.append("enable ");
-			builder.append(StringUtils.join(
-				required.stream()
-					.map(experiment -> "'" + experiment.codeName() + "'")
-					.toArray(),
-				", "));
+			builder.append(required.stream()
+				.map(experiment -> "'" + experiment.codeName() + "'")
+				.collect(Collectors.joining(", ")));
 			if (!disallowed.isEmpty()) {
 				builder.append(" and disable ");
-				builder.append(StringUtils.join(
-					disallowed.stream()
-						.map(experiment -> "'" + experiment.codeName() + "'")
-						.toArray(),
-					", "));
+				builder.append(disallowed.stream()
+					.map(experiment -> "'" + experiment.codeName() + "'")
+					.collect(Collectors.joining(", ")));
 			}
 			builder.append(".");
 		} else {
 			assert !disallowed.isEmpty();
 			builder.append("disable ");
-			builder.append(StringUtils.join(
-				disallowed.stream()
-					.map(experiment -> "'" + experiment.codeName() + "'")
-					.toArray(),
-				", "));
+			builder.append(disallowed.stream()
+				.map(experiment -> "'" + experiment.codeName() + "'")
+				.collect(Collectors.joining(", ")));
 		}
 		return builder.toString();
 	}
