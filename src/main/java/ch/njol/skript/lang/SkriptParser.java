@@ -197,14 +197,14 @@ public class SkriptParser {
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			while (source.hasNext()) {
 				SyntaxInfo<? extends T> info = source.next();
-				int patternIndex = -1; // will increment at the start of each iteration
+				int matchedPattern = -1; // will increment at the start of each iteration
 				patternsLoop: for (String pattern : info.patterns()) {
-					patternIndex++;
+					matchedPattern++;
 					log.clear();
 					ParseResult parseResult;
 
 					try {
-						parsingStack.push(new ParsingStack.Element(info, patternIndex));
+						parsingStack.push(new ParsingStack.Element(info, matchedPattern));
 						parseResult = parse_i(pattern);
 					} catch (MalformedPatternException e) {
 						String message = "pattern compiling exception, element class: " + info.type().getName();
@@ -219,7 +219,7 @@ public class SkriptParser {
 					} finally {
 						// Recursive parsing call done, pop the element from the parsing stack
 						ParsingStack.Element stackElement = parsingStack.pop();
-						assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == patternIndex;
+						assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == matchedPattern;
 					}
 
 					if (parseResult == null)
@@ -248,7 +248,7 @@ public class SkriptParser {
 					if (!checkExperimentalSyntax(element))
 						continue;
 
-					boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+					boolean success = element.preInit() && element.init(parseResult.exprs, matchedPattern, getParser().getHasDelayBefore(), parseResult);
 					if (success) {
 						log.printLog();
 						return element;
