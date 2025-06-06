@@ -36,8 +36,11 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 
-@Name("Change: Set/Add/Remove/Delete/Reset")
-@Description("A very general effect that can change many <a href='./expressions'>expressions</a>. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.")
+@Name("Change: Set/Add/Remove/Remove All/Delete/Reset")
+@Description({
+	"A general effect that can be used for changing many <a href='./expressions'>expressions</a>.",
+	"Some expressions can only be set and/or deleted, while others can also have things added to or removed from them."
+})
 @Examples({
 	"# Set",
 	"Set the player's display name to \"&lt;red&gt;%name of player%\"",
