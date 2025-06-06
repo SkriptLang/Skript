@@ -52,53 +52,49 @@ test "visual effects":
 	play suspended at {_}
 	play void fog at {_}
 	play witch particle at {_}
-	parse if running minecraft "1.14.4":
-		play campfire cosy smoke at {_}
-		play campfire signal smoke at {_}
-		play composter at {_}
-		play damage indicator at {_}
-		play dragon's breath at {_}
-		play falling lava at {_}
-		play falling water at {_}
-		play flash at {_}
-		play landing lava at {_}
-		play sneeze at {_}
-		play sweep attack at {_}
-	parse if running minecraft "1.15.2":
-		play dripping honey at {_}
-		play falling honey at {_}
-		play falling nectar at {_}
-		play landing honey at {_}
-	parse if running minecraft "1.16.5":
-		play ash at {_}
-		play crimson spore at {_}
-		play dripping obsidian tear at {_}
-		play falling obsidian tear at {_}
-		play landing obsidian tear at {_}
-		play reverse portal at {_}
-		play soul at {_}
-		play soul fire flame at {_}
-		play warped spore at {_}
-		play white ash at {_}
-	parse if running minecraft "1.17.1":
-		play light at {_}
-		play dripping dripstone lava at {_}
-		play dripping dripstone water at {_}
-		play dust color transition from white to white with size 1 at {_}
-		play falling dripstone lava at {_}
-		play falling dripstone water at {_}
-		play falling spore blossom at {_}
-		play glow at {_}
-		play glow squid ink at {_}
-		play scrape at {_}
-		play small flame at {_}
-		play snowflake at {_}
-		play spore blossom air at {_}
-		play vibration over 1 second at {_}
-		play wax off at {_}
-		play wax on at {_}
-	parse if running minecraft "1.18.2":
-		play air block marker at {_}
+	play campfire cosy smoke at {_}
+	play campfire signal smoke at {_}
+	play composter at {_}
+	play damage indicator at {_}
+	play dragon's breath at {_}
+	play falling lava at {_}
+	play falling water at {_}
+	play flash at {_}
+	play landing lava at {_}
+	play sneeze at {_}
+	play sweep attack at {_}
+	play dripping honey at {_}
+	play falling honey at {_}
+	play falling nectar at {_}
+	play landing honey at {_}
+	play ash at {_}
+	play crimson spore at {_}
+	play dripping obsidian tear at {_}
+	play falling obsidian tear at {_}
+	play landing obsidian tear at {_}
+	play reverse portal at {_}
+	play soul at {_}
+	play soul fire flame at {_}
+	play warped spore at {_}
+	play white ash at {_}
+	play light at {_}
+	play dripping dripstone lava at {_}
+	play dripping dripstone water at {_}
+	play dust color transition from white to white with size 1 at {_}
+	play falling dripstone lava at {_}
+	play falling dripstone water at {_}
+	play falling spore blossom at {_}
+	play glow at {_}
+	play glow squid ink at {_}
+	play scrape at {_}
+	play small flame at {_}
+	play snowflake at {_}
+	play spore blossom air at {_}
+	play vibration over 1 second at {_}
+	play wax off at {_}
+	play wax on at {_}
+	play air block marker at {_}
+	# TODO - Remove this when 1.19.4 support is dropped
 	parse if running minecraft "1.19.4":
 		play sculk charge with a roll of 1 at {_}
 		play sculk charge pop at {_}

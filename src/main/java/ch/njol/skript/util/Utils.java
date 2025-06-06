@@ -195,9 +195,9 @@ public abstract class Utils {
 	 *                    as well. Use an empty array to load all subpackages of the base package.
 	 * @return This SkriptAddon
 	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
-	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader}.
+	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
 		List<Class<?>> classes = new ArrayList<>();
 		org.skriptlang.skript.util.ClassLoader loader = org.skriptlang.skript.util.ClassLoader.builder()
@@ -901,6 +901,32 @@ public abstract class Utils {
 				authors)
 		);
 		return 0;
+	}
+
+	/**
+	 * Checks if the provided string is a valid {@link UUID}.
+	 * @param uuid the string
+	 * @return whether the given string is a valid UUID
+	 */
+	public static boolean isValidUUID(String uuid) {
+		if (uuid == null || uuid.length() != 36)
+			return false;
+
+		if (uuid.charAt(8) != '-' || uuid.charAt(13) != '-' || uuid.charAt(18) != '-' || uuid.charAt(23) != '-') {
+			return false;
+		}
+
+		for (int i = 0; i < 36; i++) {
+			if (i == 8 || i == 13 || i == 18 || i == 23)
+				continue;
+
+			char c = uuid.charAt(i);
+			if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 }

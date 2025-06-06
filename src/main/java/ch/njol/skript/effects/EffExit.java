@@ -101,7 +101,7 @@ public class EffExit extends Effect {
 		debug(event, false);
 		for (SectionExitHandler section : sectionsToExit)
 			section.exit(event);
-		if (outerSection == null)
+		if (outerSection == null) // "stop trigger"
 			return null;
 		return outerSection instanceof LoopSection loopSection ? loopSection.getActualNext() : outerSection.getNext();
 	}
@@ -113,11 +113,15 @@ public class EffExit extends Effect {
 
 	@Override
 	public @Nullable ExecutionIntent executionIntent() {
+		if (outerSection == null)
+			return ExecutionIntent.stopTrigger();
 		return ExecutionIntent.stopSections(breakLevels);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		if (outerSection == null)
+			return "stop trigger";
 		return "stop " + breakLevels + " " + names[type];
 	}
 

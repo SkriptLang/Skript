@@ -495,6 +495,11 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public boolean isSuffocating() {
+		return state.getBlock().isSuffocating();
+	}
+
+	@Override
 	public @NotNull VoxelShape getCollisionShape() {
 		return state.getBlock().getCollisionShape();
 	}
