@@ -13,16 +13,16 @@ import java.util.Objects;
 
 public class ChickenData extends EntityData<Chicken> {
 
-	private static final boolean variantsEnabled;
+	private static final boolean VARIANTS_ENABLED;
 	private static final Object[] variants;
 
 	static {
 		register(ChickenData.class, "chicken", Chicken.class, "chicken");
 		if (Skript.classExists("org.bukkit.entity.Chicken$Variant")) {
-			variantsEnabled = true;
+			VARIANTS_ENABLED = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Chicken.Variant.class).getSupplier().get(), Chicken.Variant.class);
 		} else {
-			variantsEnabled = false;
+			VARIANTS_ENABLED = false;
 			variants = null;
 		}
 	}
@@ -38,7 +38,7 @@ public class ChickenData extends EntityData<Chicken> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (variantsEnabled) {
+		if (VARIANTS_ENABLED) {
 			Literal<?> expr = null;
 			if (exprs[0] != null) { // chicken
 				expr = exprs[0];
@@ -55,7 +55,7 @@ public class ChickenData extends EntityData<Chicken> {
 	@Override
 	protected boolean init(@Nullable Class<? extends Chicken> entityClass, @Nullable Chicken chicken) {
 		if (chicken != null) {
-			if (variantsEnabled)
+			if (VARIANTS_ENABLED)
 				variant = chicken.getVariant();
 		}
 		return true;
@@ -63,7 +63,7 @@ public class ChickenData extends EntityData<Chicken> {
 
 	@Override
 	public void set(Chicken chicken) {
-		if (variantsEnabled) {
+		if (VARIANTS_ENABLED) {
 			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
 			assert finalVariant != null;
 			chicken.setVariant((Chicken.Variant) finalVariant);
@@ -94,7 +94,7 @@ public class ChickenData extends EntityData<Chicken> {
 	protected boolean equals_i(EntityData<?> obj) {
 		if (!(obj instanceof ChickenData other))
 			return false;
-		return variant == null || variant == other.variant;
+		return variant == other.variant;
 	}
 
 	@Override
