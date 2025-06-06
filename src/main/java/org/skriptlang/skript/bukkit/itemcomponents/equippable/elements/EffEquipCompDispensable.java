@@ -13,7 +13,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Dispense")
 @Description("If the item can be dispensed by a dispenser. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("allow {_item} to be dispensed")
 @Example("""
 	set {_component} to the equippable component of {_item}
@@ -26,7 +26,7 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 	static {
 		Skript.registerEffect(EffEquipCompDispensable.class,
 			"allow %equippablecomponents% to be dispensed",
-			"prevent %equippablecomponents% from (being dispensed|dispensing)"
+			"(block|prevent) %equippablecomponents% from being dispensed"
 		);
 	}
 

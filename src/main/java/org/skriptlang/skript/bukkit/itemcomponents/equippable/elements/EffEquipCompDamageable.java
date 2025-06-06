@@ -11,9 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Damageable")
+@Name("Equippable Component - Lose Durability")
 @Description("If the item should take damage when the wearer gets injured. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("make {_item} lose durability when hurt")
 @Example("""
 	set {_component} to the equippable component of {_item}
@@ -26,8 +26,10 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 
 	static {
 		Skript.registerEffect(EffEquipCompDamageable.class,
-			"make %equippablecomponents% lose durability (on injury|when (hurt|injured))",
-			"make %equippablecomponents% not lose durability (on injury|when (hurt|injured))"
+			"make %equippablecomponents% lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
+			"(allow|force) %equippablecomponents% to lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
+			"make %equippablecomponents% not lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
+			"(disallow|prevent) %equippablecomponents% from losing durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))"
 		);
 	}
 
@@ -38,7 +40,7 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		loseDurability = matchedPattern == 0;
+		loseDurability = matchedPattern <= 1;
 		return true;
 	}
 

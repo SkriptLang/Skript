@@ -2,11 +2,12 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Sound;
 import org.bukkit.event.Event;
@@ -16,7 +17,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equip Sound")
 @Description("The sound to be played when the item is equipped. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("set the equip sound of {_item} to \"entity.experience_orb.pickup\"")
 @Example("""
 	set {_component} to the equippable component of {_item}
@@ -24,22 +25,15 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompSound extends PropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
+public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
 
 	static {
-		register(ExprEquipCompSound.class, String.class, "equip sound", "equippablecomponents");
+		registerDefault(ExprEquipCompSound.class, String.class, "equip sound", "equippablecomponents");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		setExpr((Expression<EquippableWrapper>) exprs[0]);
-		return true;
-	}
-
-	@Override
-	protected String @Nullable [] get(Event event, EquippableWrapper[] source) {
-		return get(source, wrapper -> SoundUtils.getKey(wrapper.getComponent().getEquipSound()).getKey());
+	public @Nullable String convert(EquippableWrapper wrapper) {
+		return SoundUtils.getKey(wrapper.getComponent().getEquipSound()).getKey();
 	}
 
 	@Override
@@ -62,18 +56,13 @@ public class ExprEquipCompSound extends PropertyExpression<EquippableWrapper, St
 	}
 
 	@Override
-	public boolean isSingle() {
-		return getExpr().isSingle();
-	}
-
-	@Override
 	public Class<String> getReturnType() {
 		return String.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "the equip sound of " + getExpr().toString(event, debug);
+	protected String getPropertyName() {
+		return "equip sound";
 	}
 
 }

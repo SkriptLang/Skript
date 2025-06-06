@@ -1,6 +1,7 @@
 package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.localization.ArgsMessage;
+import ch.njol.skript.localization.Message;
 import ch.njol.skript.util.ValidationResult;
 import org.bukkit.NamespacedKey;
 
@@ -9,11 +10,25 @@ import org.bukkit.NamespacedKey;
  */
 public class NamespacedUtils {
 
-	public static final String NAMEDSPACED_FORMAT_MESSAGE =
-		new ArgsMessage("misc.namespacedutils.format").getValue();
+	public static final Message NAMEDSPACED_FORMAT_MESSAGE =
+		new ArgsMessage("misc.namespacedutils.format");
 
-	public static boolean isValidChar(char c) {
-		return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-';
+	/**
+	 * Check if {@code character} is a valid {@link Character} for the namespace section of a {@link NamespacedKey}.
+	 * @param character The {@link Character} to check.
+	 * @return {@code True} if valid, otherwise {@code false}.
+	 */
+	public static boolean isValidNamespaceChar(char character) {
+		return (character >= 'a' && character <= 'z') || (character >= '0' && character <= '9') || character == '.' || character == '_' || character == '-';
+	}
+
+	/**
+	 * Check if {@code character} is a valid {@link Character} for the key section of a {@link NamespacedKey}.
+	 * @param character The {@link Character} to check.
+	 * @return {@code True} if valid, otherwise {@code false}.
+	 */
+	public static boolean isValidKeyChar(char character) {
+		return isValidNamespaceChar(character) || character == '/';
 	}
 
 	/**
@@ -33,7 +48,7 @@ public class NamespacedUtils {
 		if (key.isEmpty())
 			return new ValidationResult<>(false, "The key cannot be empty.");
 		for (char character : key.toCharArray()) {
-			if (!isValidChar(character)) {
+			if (!isValidKeyChar(character)) {
 				return new ValidationResult<>(false, "Invalid character '" + character + "'.");
 			}
 		}
@@ -44,7 +59,7 @@ public class NamespacedUtils {
 			String namespace = split[0];
 			if (!namespace.isEmpty()) {
 				for (char character : namespace.toCharArray()) {
-					if (!isValidChar(character)) {
+					if (!isValidNamespaceChar(character)) {
 						return new ValidationResult<>(false, "Invalid character '" + character + "'.");
 					}
 				}
@@ -73,6 +88,5 @@ public class NamespacedUtils {
 	public static boolean isValid(String string) {
 		return checkValidation(string).valid();
 	}
-
 
 }

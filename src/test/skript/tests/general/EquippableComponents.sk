@@ -26,7 +26,7 @@ test "equippable components - new" when running minecraft "1.21.2":
 	assert {_component} can not swap equipment with "Component should not be swappable"
 	allow {_component} to be dispensed
 	assert {_component} can be dispensed with "Component should be dispensable"
-	prevent {_component} from dispensing
+	prevent {_component} from being dispensed
 	assert {_component} can not be dispensed with "Component should not be dispensable"
 	make {_component} lose durability when hurt
 	assert {_component} will lose durability when hurt with "Component should lose durability when hurt"
@@ -57,7 +57,7 @@ test "equippable components - itemtype" when running minecraft "1.21.2":
 	assert {_item} can not swap equipment with "ItemType should not be swappable"
 	allow {_item} to be dispensed
 	assert {_item} can be dispensed with "ItemType should be dispensable"
-	prevent {_item} from dispensing
+	prevent {_item} from being dispensed
 	assert {_item} can not be dispensed with "ItemType should not be dispensable"
 	make {_item} lose durability when hurt
 	assert {_item} will lose durability when hurt with "ItemType should lose durability when hurt"
@@ -88,7 +88,7 @@ test "equippable components - itemstack" when running minecraft "1.21.2":
 	assert {_item} can not swap equipment with "ItemStack should not be swappable"
 	allow {_item} to be dispensed
 	assert {_item} can be dispensed with "ItemStack should be dispensable"
-	prevent {_item} from dispensing
+	prevent {_item} from being dispensed
 	assert {_item} can not be dispensed with "ItemStack should not be dispensable"
 	make {_item} lose durability when hurt
 	assert {_item} will lose durability when hurt with "ItemStack should lose durability when hurt"
@@ -103,7 +103,7 @@ test "equippable components - itemstack" when running minecraft "1.21.2":
 
 test "equippable components - copy" when running minecraft "1.21.2":
 	set {_item} to a golden helmet
-	set {_component} to the copied equippable component of {_item}
+	set {_component} to a copy of (equippable component of {_item})
 	set the equip sound of {_component} to {@sound}
 	assert the equip sound of {_component} is {@sound} with "Equip sound of copy was not set"
 	set the equipment slot of {_component} to {@slot}
@@ -120,7 +120,7 @@ test "equippable components - copy" when running minecraft "1.21.2":
 	assert {_component} can not swap equipment with "Copy should not be swappable"
 	allow {_component} to be dispensed
 	assert {_item} can be dispensed with "Copy should be dispensable"
-	prevent {_item} from dispensing
+	prevent {_item} from being dispensed
 	assert {_item} can not be dispensed with "Copy should not be dispensable"
 	make {_component} lose durability when hurt
 	assert {_component} will lose durability when hurt with "Copy should lose durability when hurt"
@@ -153,7 +153,7 @@ test "equippable components - slot" when running minecraft "1.21.2":
 	assert (slot 1 of {_gui}) can not swap equipment with "Slot should not be swappable"
 	allow (slot 1 of {_gui}) to be dispensed
 	assert (slot 1 of {_gui}) can be dispensed with "Slot should be dispensable"
-	prevent (slot 1 of {_gui}) from dispensing
+	prevent (slot 1 of {_gui}) from being dispensed
 	assert (slot 1 of {_gui}) can not be dispensed with "Slot should not be dispensable"
 	make (slot 1 of {_gui}) lose durability when hurt
 	assert (slot 1 of {_gui}) will lose durability when hurt with "Slot should lose durability when hurt"

@@ -14,7 +14,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("New Equippable Component")
 @Description("Gets a blank equippable component. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Examples({
 	"set {_component} to a blank equippable component",
 	"set the equippable component of {_item} to {_component}"
@@ -35,7 +35,7 @@ public class ExprBlankEquipComp extends SimpleExpression<EquippableWrapper> impl
 
 	@Override
 	protected EquippableWrapper @Nullable [] get(Event event) {
-		return new EquippableWrapper[] {EquippableWrapper.newComponent()};
+		return new EquippableWrapper[] {EquippableWrapper.newInstance()};
 	}
 
 	@Override

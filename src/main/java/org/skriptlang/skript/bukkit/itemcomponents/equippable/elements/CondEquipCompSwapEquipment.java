@@ -16,7 +16,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Description({
 	"Whether an item can swap equipment by right clicking with it in your hand.",
 	"The item will swap places of the set 'equipment slot' of the item. If an equipment slot is not set, defaults to helmet.",
-	"Note that equippable component elements are experimental making them subject to change and may not work as intended."
+	"NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended."
 })
 @Example("""
 	if {_item} can swap equipment:

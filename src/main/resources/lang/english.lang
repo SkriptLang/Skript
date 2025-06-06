@@ -222,4 +222,4 @@ io exceptions:
 # -- Misc --
 misc:
 	namespacedutils:
-		format: A namespaced key can be formatted as 'namespace:id' or 'id'; Can only contain one ':' to separate the namespace and the id, alphanumeric characters, periods, underscores, and dashes.
+		format: A namespaced key can be formatted as 'namespace:id' or 'id'. It can only contain one ':' to separate the namespace and the id. Only alphanumeric characters, periods, underscores, and dashes can be used.

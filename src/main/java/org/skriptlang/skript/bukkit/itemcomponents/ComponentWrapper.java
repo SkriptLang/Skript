@@ -1,8 +1,9 @@
-package ch.njol.skript.bukkitutil;
+package org.skriptlang.skript.bukkit.itemcomponents;
 
 import ch.njol.skript.util.ItemSource;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
@@ -37,7 +38,7 @@ public abstract class ComponentWrapper<T> {
 	public ComponentWrapper(ItemSource itemSource) {
 		this.itemSource = itemSource;
 		this.itemStack = itemSource.getItemStack();
-		this.component = getComponentConverter().convert(itemStack.getItemMeta());
+		this.component = this.getComponent(itemStack.getItemMeta());
 	}
 
 	/**
@@ -57,7 +58,7 @@ public abstract class ComponentWrapper<T> {
 	public T getComponent() {
 		if (itemSource != null) {
 			assert itemStack != null;
-			return getComponentConverter().convert(itemStack.getItemMeta());
+			return this.getComponent(itemStack.getItemMeta());
 		}
 		return component;
 	}
@@ -79,34 +80,29 @@ public abstract class ComponentWrapper<T> {
 	/**
 	 * Returns the {@link Converter} used to extract the component from the {@link ItemMeta}.
 	 */
-	protected abstract Converter<ItemMeta, T> getComponentConverter();
+	protected abstract T getComponent(ItemMeta itemMeta);
 
 	/**
 	 * Returns the {@link BiConsumer} that updates the component on the {@link ItemMeta}.
 	 */
-	protected abstract BiConsumer<ItemMeta, T> getComponentSetter();
+	protected abstract void setComponent(ItemMeta itemMeta, T component);
 
 	/**
 	 * Apply the current {@link #component} to the {@link #itemSource}.
 	 */
 	public void applyComponent() {
-		applyComponent(null);
+		applyComponent(getComponent());
 	}
 
 	/**
 	 * Apply a new {@code component} or {@link #component} to the {@link #itemSource}.
 	 */
-	public void applyComponent(@Nullable T component) {
+	public void applyComponent(@NotNull T component) {
 		if (itemSource == null)
 			return;
 		assert itemStack != null;
-		BiConsumer<ItemMeta, T> consumer = getComponentSetter();
 		ItemMeta itemMeta = itemStack.getItemMeta();
-		if (component != null) {
-			consumer.accept(itemMeta, component);
-		} else {
-			consumer.accept(itemMeta, getComponent());
-		}
+		setComponent(itemMeta, component);
 		itemSource.setItemMeta(itemMeta);
 	}
 
@@ -130,6 +126,21 @@ public abstract class ComponentWrapper<T> {
 		relation &= this.getComponent().equals(other.getComponent());
 		return relation;
 	}
+
+	/**
+	 * Get a clone of this {@link ComponentWrapper}.
+	 */
+	public abstract ComponentWrapper<T> clone();
+
+	/**
+	 * Get a new component {@link T}.
+	 */
+	public abstract T newComponent();
+
+	/**
+	 * Get a new {@link ComponentWrapper<T>}.
+	 */
+	public abstract ComponentWrapper<T> newWrapper();
 
 	@Override
 	public String toString() {

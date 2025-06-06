@@ -15,7 +15,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Can Equip On Entities")
 @Description("Whether an entity should equip the item when right clicking on the entity with the item. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("if {_item} can be equipped on entities:")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.5+")
@@ -24,8 +24,8 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "isEquipOnInteract"))
 			Skript.registerCondition(CondEquipCompInteract.class, ConditionType.PROPERTY,
-				"%equippablecomponents% can be equipped on[to] entities",
-				"%equippablecomponents% (can not|can't) be equipped on[to] entities"
+				"%equippablecomponents% can be (equipped|put) on[to] entities",
+				"%equippablecomponents% (can not|can't) be (equipped|put) on[to] entities"
 			);
 	}
 

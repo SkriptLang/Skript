@@ -2,28 +2,28 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.ValidationResult;
-import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Equippable Component - Model")
 @Description({
 	"The model of the item when equipped.",
 	"The model key is represented as a namespaced key.",
-	"A namespaced key can be formatted as 'namespace:id' or 'id'; "
-		+ "Can only contain one ':' to separate the namespace and the id, alphanumeric characters, periods, underscores, and dashes.",
-	"Note that equippable component elements are experimental making them subject to change and may not work as intended."
+	"A namespaced key can be formatted as 'namespace:id' or 'id'. "
+		+ "It can only contain one ':' to separate the namespace and the id. "
+		+ "Only alphanumeric characters, periods, underscores, and dashes can be used.",
+	"NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended."
 })
 @Example("set the equipped model key of {_item} to \"custom_model\"")
 @Example("""
@@ -32,28 +32,16 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, String> implements EquippableExperiment, SyntaxRuntimeErrorProducer {
+public class ExprEquipCompModel extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
 
 	static {
-		register(ExprEquipCompModel.class, String.class, "equipped model (key|id)", "equippablecomponents");
-	}
-
-	private Node node;
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		setExpr((Expression<EquippableWrapper>) exprs[0]);
-		node = getParser().getNode();
-		return true;
+		registerDefault(ExprEquipCompModel.class, String.class, "equipped model (key|id)", "equippablecomponents");
 	}
 
 	@Override
-	protected String @Nullable [] get(Event event, EquippableWrapper[] source) {
-		return get(source, wrapper -> {
-			NamespacedKey key = wrapper.getComponent().getModel();
-			return key == null ? null : key.toString();
-		});
+	public @Nullable String convert(EquippableWrapper wrapper) {
+		NamespacedKey key = wrapper.getComponent().getModel();
+		return key == null ? null : key.toString();
 	}
 
 	@Override
@@ -70,7 +58,7 @@ public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, St
 			ValidationResult<NamespacedKey> validationResult = NamespacedUtils.checkValidation(string);
 			String validationMessage = validationResult.message();
 			if (!validationResult.valid()) {
-				error(validationMessage + " " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
+				error(validationMessage + ". " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
 				return;
 			} else if (validationMessage != null) {
 				warning(validationMessage);
@@ -83,23 +71,13 @@ public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, St
 	}
 
 	@Override
-	public boolean isSingle() {
-		return getExpr().isSingle();
-	}
-
-	@Override
 	public Class<String> getReturnType() {
 		return String.class;
 	}
 
 	@Override
-	public Node getNode() {
-		return node;
-	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "the equipped model key of " + getExpr().toString(event, debug);
+	protected String getPropertyName() {
+		return "equipped model key";
 	}
 
 }

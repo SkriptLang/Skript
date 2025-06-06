@@ -1,11 +1,12 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
@@ -15,7 +16,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equipment Slot")
 @Description("The equipment slot an item can be equipped to. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("set the equipment slot of {_item} to chest slot")
 @Example("""
 	set {_component} to the equippable component of {_item}
@@ -23,22 +24,15 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompSlot extends PropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperiment {
+public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperiment {
 
 	static {
-		register(ExprEquipCompSlot.class, EquipmentSlot.class, "equipment slot", "equippablecomponents");
+		registerDefault(ExprEquipCompSlot.class, EquipmentSlot.class, "equipment slot", "equippablecomponents");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		setExpr((Expression<EquippableWrapper>) exprs[0]);
-		return true;
-	}
-
-	@Override
-	protected EquipmentSlot[] get(Event event, EquippableWrapper[] source) {
-		return get(source, wrapper -> wrapper.getComponent().getSlot());
+	public @Nullable EquipmentSlot convert(EquippableWrapper wrapper) {
+		return wrapper.getComponent().getSlot();
 	}
 
 	@Override
@@ -60,18 +54,13 @@ public class ExprEquipCompSlot extends PropertyExpression<EquippableWrapper, Equ
 	}
 
 	@Override
-	public boolean isSingle() {
-		return getExpr().isSingle();
-	}
-
-	@Override
 	public Class<EquipmentSlot> getReturnType() {
 		return EquipmentSlot.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "the equipment slot of " + getExpr().toString(event, debug);
+	protected String getPropertyName() {
+		return "equipment slot";
 	}
 
 }

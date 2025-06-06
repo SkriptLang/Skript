@@ -14,7 +14,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Can Be Dispensed")
 @Description("Whether an item can be dispensed by a dispenser. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("""
 	if {_item} can be dispensed:
 		add "Dispensable" to lore of {_item}
@@ -43,9 +43,7 @@ public class CondEquipCompDispensable extends PropertyCondition<EquippableWrappe
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
 		dispensable = !parseResult.hasTag("un");
-		setNegated(matchedPattern == 1);
-		setExpr(wrappers);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override

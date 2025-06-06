@@ -1,49 +1,43 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.doc.*;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Copy")
 @Description("Grab a copy of an equippable component of an item. Any changes made to the copy will not be present on the item. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("set {_component} to the copied equippable component of {_item}")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.2+")
-public class ExprEquipCompCopy extends PropertyExpression<ItemStack, EquippableWrapper> implements EquippableExperiment {
+
+@SuppressWarnings("rawtypes")
+public class ExprEquipCompCopy extends SimplePropertyExpression<ComponentWrapper, ComponentWrapper> implements EquippableExperiment {
 
 	static {
-		register(ExprEquipCompCopy.class, EquippableWrapper.class,
-			"((copy|copies) of [the]|copied) equippable component[s]", "itemstacks");
+		register(ExprEquipCompCopy.class, ComponentWrapper.class,
+			"(([the|a] copy|[the] copies)|copied)", "itemcomponents");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		setExpr((Expression<ItemStack>) exprs[0]);
-		return true;
+	public @Nullable ComponentWrapper convert(ComponentWrapper wrapper) {
+		return wrapper.clone();
 	}
 
 	@Override
-	protected EquippableWrapper[] get(Event event, ItemStack[] source) {
-		return get(source, itemStack -> new EquippableWrapper(itemStack.getItemMeta().getEquippable()));
+	public Class<ComponentWrapper> getReturnType() {
+		return ComponentWrapper.class;
 	}
 
 	@Override
-	public Class<EquippableWrapper> getReturnType() {
-		return EquippableWrapper.class;
-	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "the copied equippable components of " + getExpr().toString(event, debug);
+	protected String getPropertyName() {
+		return "copies";
 	}
 
 }

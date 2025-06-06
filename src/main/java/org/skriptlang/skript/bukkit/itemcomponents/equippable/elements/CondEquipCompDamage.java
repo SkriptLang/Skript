@@ -11,9 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Is Damageable")
+@Name("Equippable Component - Will Lose Durability")
 @Description("Whether an item can be damaged when the wearer gets injured. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
 @Example("""
 	if {_item} will lose durability when hurt:
 		add "Damageable on injury" to lore of {_item}
@@ -29,8 +29,8 @@ public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> im
 
 	static {
 		Skript.registerCondition(CondEquipCompDamage.class, ConditionType.PROPERTY,
-			"%equippablecomponents% will lose durability (on injury|when (hurt|injured))",
-			"%equippablecomponents% (will not|won't) lose durability (on injury|when (hurt|injured))"
+			"%equippablecomponents% will lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
+			"%equippablecomponents% (will not|won't) lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))"
 		);
 	}
 
@@ -40,9 +40,7 @@ public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> im
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		setNegated(matchedPattern == 1);
-		setExpr(wrappers);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
