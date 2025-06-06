@@ -11,13 +11,20 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
 
-public class DamageSourceModule {
+import java.io.IOException;
 
-	public static void load() throws Exception {
-		if (!Skript.classExists("org.bukkit.damage.DamageSource"))
-			return;
+public class DamageSourceModule implements AddonModule {
 
+	@Override
+	public boolean canLoad(SkriptAddon addon) {
+		return Skript.classExists("org.bukkit.damage.DamageSource");
+	}
+
+	@Override
+	public void init(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
 			.user("damage ?sources?")
 			.name("Damage Source")
@@ -43,9 +50,15 @@ public class DamageSourceModule {
 		if (Skript.methodExists(EntityDeathEvent.class, "getDamageSource")) {
 			EventValues.registerEventValue(EntityDeathEvent.class, DamageSource.class, EntityDeathEvent::getDamageSource);
 		}
-
-
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
 	}
+
+	@Override
+	public void load(SkriptAddon addon) {
+        try {
+            Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
