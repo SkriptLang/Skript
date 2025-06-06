@@ -18,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
-import java.util.Iterator;
-
 @Name("Except")
 @Description("Filter a list by providing objects to be excluded.")
 @Example("""
@@ -70,21 +68,6 @@ public class ExprExcept extends SimpleExpression<Object> {
 				return true;
 			})
 			.toArray();
-	}
-
-	@Override
-	public @Nullable Iterator<?> iterator(Event event) {
-		Object[] exclude = this.exclude.getArray(event);
-		if (exclude == null || exclude.length == 0)
-			return source.iterator(event);
-
-		return source.streamAll(event)
-			.filter(sourceObject -> {
-				for (Object excludeObject : exclude)
-					if (sourceObject.equals(excludeObject) || Comparators.compare(sourceObject, excludeObject) == Relation.EQUAL)
-						return false;
-				return true;
-			}).iterator();
 	}
 
 	@Override
