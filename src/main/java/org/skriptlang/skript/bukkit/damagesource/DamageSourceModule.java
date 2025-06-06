@@ -11,16 +11,12 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.skriptlang.skript.lang.comparator.Comparators;
-import org.skriptlang.skript.lang.comparator.Relation;
 
 public class DamageSourceModule {
 
 	public static void load() throws Exception {
 		if (!Skript.classExists("org.bukkit.damage.DamageSource"))
 			return;
-
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
 
 		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
 			.user("damage ?sources?")
@@ -31,11 +27,7 @@ public class DamageSourceModule {
 			.since("INSERT VERSION")
 			.requiredPlugins("Minecraft 1.20.4+")
 			.defaultExpression(new EventValueExpression<>(DamageSource.class))
-			.cloner(MutableDamageSource::copy)
 		);
-
-		Comparators.registerComparator(DamageSource.class, DamageSource.class,
-			((o1, o2) -> Relation.get(o1.equals(o2))));
 
 		Classes.registerClass(new RegistryClassInfo<>(DamageType.class, Registry.DAMAGE_TYPE, "damagetype", "damage types")
 			.user("damage ?types?")
@@ -45,10 +37,15 @@ public class DamageSourceModule {
 			.requiredPlugins("Minecraft 1.20.4+")
 		);
 
-		if (Skript.methodExists(EntityDamageEvent.class, "getDamageSource"))
+		if (Skript.methodExists(EntityDamageEvent.class, "getDamageSource")) {
 			EventValues.registerEventValue(EntityDamageEvent.class, DamageSource.class, EntityDamageEvent::getDamageSource);
-		if (Skript.methodExists(EntityDeathEvent.class, "getDamageSource"))
+		}
+		if (Skript.methodExists(EntityDeathEvent.class, "getDamageSource")) {
 			EventValues.registerEventValue(EntityDeathEvent.class, DamageSource.class, EntityDeathEvent::getDamageSource);
+		}
+
+
+		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
 	}
 
 }

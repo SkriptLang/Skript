@@ -6,7 +6,11 @@ import ch.njol.skript.bukkitutil.DamageUtils;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -21,7 +25,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.MutableDamageSource;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.function.Consumer;
@@ -59,8 +62,9 @@ public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 			});
 		} else {
 			PATTERNS = new Patterns<>(new Object[][]{
-				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]] [with [fake] [damage] cause %-damagecause%]", EffectType.DAMAGE},
-				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]] (using|with) %damagesource% [as the source]", EffectType.DAMAGE},
+				{"damage %livingentities/itemtypes/slots% by %number% [heart[s]]", EffectType.DAMAGE},
+				{"damage %livingentities% by %number% [heart[s]] with [fake] [damage] cause %damagecause%", EffectType.DAMAGE},
+				{"damage %livingentities% by %number% [heart[s]] (using|with) %damagesource% [as the source]", EffectType.DAMAGE},
 				{"heal %livingentities% [by %-number% [heart[s]]]", EffectType.HEAL},
 				{"repair %itemtypes/slots% [by %-number%]", EffectType.REPAIR}
 			});
@@ -84,9 +88,9 @@ public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 		amount = (Expression<Number>) exprs[1];
 
 		if (effectType == EffectType.DAMAGE && SUPPORTS_DAMAGE_SOURCE) {
-			if (matchedPattern == 0)  {
+			if (matchedPattern == 1)  {
 				damageCause = exprs[2];
-			} else {
+			} else if (matchedPattern == 2) {
 				damageSource = exprs[2];
 			}
 		}
@@ -149,11 +153,7 @@ public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 					HealthUtils.damage(damageable, amount, DamageUtils.getDamageSourceFromCause(damageCause));
 					return;
 				} else if (object instanceof DamageSource damageSource) {
-					if (damageSource instanceof MutableDamageSource mutable) {
-						HealthUtils.damage(damageable, amount, mutable.asBukkitSource());
-					} else {
-						HealthUtils.damage(damageable, amount, damageSource);
-					}
+					HealthUtils.damage(damageable, amount, damageSource);
 					return;
 				}
 			}

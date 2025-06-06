@@ -16,7 +16,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 @Description({
 	"Whether the damage from a damage source was indirectly caused.",
 	"Vanilla damage sources are considered indirect if the 'causing entity' and the 'direct entity' are not the same. "
-		+ "(i.e. taking damage from an arrow that was shot by an entity)"
+		+ "For example, taking damage from an arrow that was shot by an entity."
 })
 @Example("""
 	on damage:
@@ -24,6 +24,8 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
+
+@SuppressWarnings("UnstableApiUsage")
 public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperiment {
 
 	static {

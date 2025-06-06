@@ -35,6 +35,8 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
+
+@SuppressWarnings("UnstableApiUsage")
 public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperiment {
 
 	static {
@@ -71,8 +73,7 @@ public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Ent
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-		Entity entity = delta == null ? null : (Entity) delta[0];
-		sectionEvent.getDamageSource().setDirectEntity(entity);
+        sectionEvent.directEntity = delta == null ? null : (Entity) delta[0];
 	}
 
 	@Override

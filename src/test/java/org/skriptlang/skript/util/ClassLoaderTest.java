@@ -77,8 +77,8 @@ public class ClassLoaderTest {
 						return false;
 					String[] split = string.split("\\.");
 					String className = split[split.length - 1];
-                    return !ignore.contains(className);
-                })
+					return !ignore.contains(className);
+				})
 				.forEachClass(classes::add);
 
 		// test without deep

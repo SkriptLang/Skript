@@ -16,6 +16,8 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
+
+@SuppressWarnings("UnstableApiUsage")
 public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> implements EventRestrictedSyntax {
 
 	static {

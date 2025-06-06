@@ -1,9 +1,12 @@
 package org.skriptlang.skript.bukkit.damagesource.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -11,18 +14,17 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
-import org.skriptlang.skript.bukkit.damagesource.MutableDamageSource;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -48,19 +50,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-public class ExprSecDamageSource extends SectionExpression<DamageSource> implements SyntaxRuntimeErrorProducer, DamageSourceExperiment {
+
+@SuppressWarnings("UnstableApiUsage")
+public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperiment {
 
 	public static class DamageSourceSectionEvent extends Event {
 
-		private MutableDamageSource damageSource;
+		public DamageType damageType = DamageType.GENERIC;
+		public @Nullable Entity causingEntity = null;
+		public @Nullable Entity directEntity = null;
+		public @Nullable Location damageLocation = null;
 
-		public DamageSourceSectionEvent(MutableDamageSource damageSource) {
-			this.damageSource = damageSource;
+		public DamageSource buildDamageSource() {
+			DamageSource.Builder builder = DamageSource.builder(damageType);
+			if (damageLocation != null)
+				builder = builder.withDamageLocation(damageLocation.clone());
+			if (causingEntity != null)
+				builder = builder.withCausingEntity(causingEntity);
+			if (directEntity != null)
+				builder = builder.withDirectEntity(directEntity);
+			return builder.build();
 		}
 
-		public MutableDamageSource getDamageSource() {
-			return damageSource;
-		}
+		public DamageSourceSectionEvent() {}
 
 		@Override
 		public @NotNull HandlerList getHandlers() {
@@ -69,55 +81,58 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 	}
 
 	static {
-		Skript.registerExpression(ExprSecDamageSource.class, DamageSource.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprSecDamageSource.class, DamageSource.class, ExpressionType.COMBINED,
 			"[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]");
-		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::getDamageSource);
+		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::buildDamageSource);
 	}
 
 	private @Nullable Expression<DamageType> damageType;
 	private Trigger trigger = null;
-	private Node node;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
-		if (node == null) {
-			Skript.error("You must contain a section for this expression.");
-			return false;
-		} else if (node.isEmpty()) {
-			Skript.error("You must contain code inside this section.");
-			return false;
+		if (exprs[0] == null) {
+			if (node == null) {
+				Skript.error("You must contain a section for this expression.");
+				return false;
+			} else if (node.isEmpty()) {
+				Skript.error("You must contain code inside this section.");
+				return false;
+			}
+		} else {
+			//noinspection unchecked
+			damageType = (Expression<DamageType>) exprs[0];
 		}
 
-		AtomicBoolean isDelayed = new AtomicBoolean(false);
-		Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-		trigger = loadCode(node, "custom damage source", afterLoading, DamageSourceSectionEvent.class);
-		if (isDelayed.get()) {
-			Skript.error("Delays cannot be used within a 'custom damage source' section.");
-			return false;
-		}
-		this.node = getParser().getNode();
-		if (exprs[0] != null) {
-			damageType = LiteralUtils.defendExpression(exprs[0]);
-			return LiteralUtils.canInitSafely(damageType);
+		if (node != null) {
+			AtomicBoolean isDelayed = new AtomicBoolean(false);
+			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
+			trigger = loadCode(node, "custom damage source", afterLoading, DamageSourceSectionEvent.class);
+			if (isDelayed.get()) {
+				Skript.error("Delays cannot be used within a 'custom damage source' section.");
+				return false;
+			}
 		}
 		return true;
 	}
 
 	@Override
 	protected DamageSource @Nullable [] get(Event event) {
-		MutableDamageSource mutable = new MutableDamageSource();
+		DamageSourceSectionEvent sectionEvent = new DamageSourceSectionEvent();
 		if (damageType != null) {
 			DamageType damageType = this.damageType.getSingle(event);
-			if (damageType != null)
-				mutable.setDamageType(damageType);
+			if (damageType != null) {
+				sectionEvent.damageType = damageType;
+			}
 		}
-		DamageSourceSectionEvent sectionEvent = new DamageSourceSectionEvent(mutable);
-		Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
-		if (mutable.getCausingEntity() != null && mutable.getDirectEntity() == null) {
-			error("You must set a 'direct entity' when setting a 'causing entity'.");
-			return null;
+		if (trigger != null) {
+			Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
+			if (sectionEvent.causingEntity != null && sectionEvent.directEntity == null) {
+				error("You must set a 'direct entity' when setting a 'causing entity'.");
+				return null;
+			}
 		}
-		return new DamageSource[] {mutable.asBukkitSource()};
+		return new DamageSource[] {sectionEvent.buildDamageSource()};
 	}
 
 	@Override
@@ -131,13 +146,8 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 	}
 
 	@Override
-	public Node getNode() {
-		return node;
-	}
-
-	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a new custom damage source";
+		return "a custom damage source";
 	}
 
 }

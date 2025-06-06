@@ -14,6 +14,8 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
+
+@SuppressWarnings("UnstableApiUsage")
 public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperiment {
 
 	static {

@@ -22,12 +22,11 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a custom damage source:
+	damage all players by 5 using a custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
 		set the damage location to location(0, 0, 10)
-	damage all players by 5 using {_source}
 	""")
 @Example("""
 	on death:
@@ -35,6 +34,8 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
+
+@SuppressWarnings("UnstableApiUsage")
 public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperiment {
 
 	static {
@@ -71,8 +72,7 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-		Location location = delta == null ? null : (Location) delta[0];
-		sectionEvent.getDamageSource().setDamageLocation(location);
+        sectionEvent.damageLocation = delta == null ? null : (Location) delta[0];
 	}
 
 	@Override
