@@ -321,7 +321,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			for (int i = 0; i < valuesArray.length; i++) {
 				while (keys.contains(String.valueOf(keyIndex)))
 					keyIndex++;
-				keys.add(String.valueOf(keyIndex));
+				keys.add(String.valueOf(keyIndex++));
 			}
 		}
 		return KeyProviderExpression.zip(values.toArray(), keys.toArray(new String[0]));
