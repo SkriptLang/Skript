@@ -37,9 +37,9 @@ import java.util.List;
 public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
 	private enum BrewingSlot {
-		FIRST("[brewing [stand]] (first|1st) bottle"),
-		SECOND("[brewing [stand]] (second|2nd) bottle"),
-		THIRD("[brewing [stand]] (third|3rd) bottle"),
+		FIRST("[brewing [stand['s]]] (first|1st) bottle"),
+		SECOND("[brewing [stand['s]]] (second|2nd) bottle"),
+		THIRD("[brewing [stand['s]]] (third|3rd) bottle"),
 		INGREDIENT("brewing [stand] ingredient"),
 		FUEL("brewing [stand] fuel");
 
@@ -70,8 +70,7 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 		selectedSlot = brewingSlots[matchedPattern / 2];
 		//noinspection unchecked
 		setExpr((Expression<? extends Block>) exprs[0]);
-		if (getParser().isCurrentEvent(BrewEvent.class, BrewingStartEvent.class, BrewingStandFuelEvent.class))
-			isEvent = true;
+		isEvent = getParser().isCurrentEvent(BrewEvent.class, BrewingStartEvent.class, BrewingStandFuelEvent.class);
 		return true;
 	}
 
@@ -127,8 +126,11 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 		public @Nullable ItemStack getItem() {
 			if (selectedSlot == BrewingSlot.FUEL && event instanceof BrewingStandFuelEvent brewingStandFuelEvent) {
 				ItemStack source = brewingStandFuelEvent.getFuel().clone();
-				if (getTime() != EventValues.TIME_FUTURE || !brewingStandFuelEvent.isConsuming())
+				if (getTime() != EventValues.TIME_FUTURE || !brewingStandFuelEvent.isConsuming()) {
 					return source;
+				} else if (source.getAmount() <= 1) {
+					return null;
+				}
 				source.setAmount(source.getAmount() - 1);
 				return source;
 			}

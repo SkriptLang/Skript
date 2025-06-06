@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 		"prevent the brewing stand from consuming the fuel"
 })
 @Since("INSERT VERSION")
+@Events("Brewing Fuel")
 public class EffBrewingConsume extends Effect implements EventRestrictedSyntax {
 
 	static {

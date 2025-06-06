@@ -36,7 +36,7 @@ public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Intege
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, REMOVE, SET, DELETE -> CollectionUtils.array(Integer.class);
+			case ADD, REMOVE, SET, DELETE, RESET -> CollectionUtils.array(Integer.class);
 			default -> null;
 		};
 	}

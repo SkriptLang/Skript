@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -19,7 +20,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Name("Brewing Results")
@@ -29,6 +29,7 @@ import java.util.List;
 		"\tset {_results::*} to the brewing results"
 })
 @Since("INSERT VERSION")
+@Events("Brewing Complete")
 public class ExprBrewingResults extends SimpleExpression<ItemStack> implements EventRestrictedSyntax {
 
 	static {
@@ -51,7 +52,9 @@ public class ExprBrewingResults extends SimpleExpression<ItemStack> implements E
 
 	@Override
 	protected ItemStack @Nullable [] get(Event event) {
-		return ((BrewEvent) event).getResults().toArray(ItemStack[]::new);
+		if (!(event instanceof BrewEvent brewEvent))
+			return null;
+		return brewEvent.getResults().toArray(ItemStack[]::new);
 	}
 
 	@Override
@@ -70,7 +73,15 @@ public class ExprBrewingResults extends SimpleExpression<ItemStack> implements E
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (!(event instanceof BrewEvent brewEvent))
 			return;
-		List<ItemStack> itemStacks = delta == null ? new ArrayList<>() : Arrays.stream(((ItemStack[]) delta)).toList();
+		List<ItemStack> itemStacks = new ArrayList<>();
+		if (delta != null) {
+			for (Object object : delta) {
+				if (object instanceof ItemStack itemStack)
+					itemStacks.add(itemStack);
+			}
+		}
+		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD) && itemStacks.size() > 3)
+			warning("A brewing stand can only contain 3 items; Some items will be ignored.");
 		List<ItemStack> results = brewEvent.getResults();
 		switch (mode) {
 			case SET -> {
