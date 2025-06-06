@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -13,7 +14,6 @@ import ch.njol.skript.util.Color;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
-import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
@@ -33,6 +33,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -169,6 +170,8 @@ public final class BukkitEventValues {
 			"Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, World.class, event -> event.getEntity().getWorld());
 		EventValues.registerEventValue(EntityEvent.class, Location.class, event -> event.getEntity().getLocation());
+		EventValues.registerEventValue(EntityEvent.class, EntityData.class, event -> EntityData.fromEntity(event.getEntity()),
+			TIME_NOW, "Use 'type of attacker/victim' in damage/death events.", EntityDamageEvent.class, EntityDeathEvent.class);
 		// EntityDamageEvent
 		EventValues.registerEventValue(EntityDamageEvent.class, DamageCause.class, EntityDamageEvent::getCause);
 		EventValues.registerEventValue(EntityDamageByEntityEvent.class, Projectile.class, event -> {
@@ -540,8 +543,6 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getFrom);
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getTo, TIME_FUTURE);
 		}
-		//PlayerToggleFlightEvent
-		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, PlayerEvent::getPlayer);
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
 		//FireworkExplodeEvent
@@ -765,6 +766,23 @@ public final class BukkitEventValues {
 				}
 			});
 		}
+
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, VillagerCareerChangeEvent.ChangeReason.class, VillagerCareerChangeEvent::getReason);
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class, new EventConverter<>() {
+			@Override
+			public void set(VillagerCareerChangeEvent event, @Nullable Profession profession) {
+				if (profession == null)
+					return;
+				event.setProfession(profession);
+			}
+
+			@Override
+			public Profession convert(VillagerCareerChangeEvent event) {
+				return event.getProfession();
+			}
+		});
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class,
+			event -> event.getEntity().getProfession(), TIME_PAST);
 
 	}
 
