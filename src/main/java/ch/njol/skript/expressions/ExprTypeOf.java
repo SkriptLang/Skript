@@ -7,15 +7,23 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.util.EnchantmentType;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.Kleenean;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.InventoryType;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Type of")
 @Description({
@@ -36,9 +44,27 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 			"entitydatas/itemtypes/inventories/potioneffects/blockdatas/enchantmenttypes");
 	}
 
+	private Class<?>[] returnTypes;
+	private Class<?> superReturnType;
+
 	@Override
-	protected String getPropertyName() {
-		return "type";
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		Expression<?> expression = expressions[0];
+		List<Class<?>> returnTypes = new ArrayList<>();
+		if (expression.canReturn(EntityData.class))
+			returnTypes.add(EntityData.class);
+		if (expression.canReturn(ItemType.class) || expression.canReturn(BlockData.class))
+			returnTypes.add(ItemType.class);
+		if (expression.canReturn(Inventory.class))
+			returnTypes.add(InventoryType.class);
+		if (expression.canReturn(PotionEffect.class))
+			returnTypes.add(PotionEffectType.class);
+		if (expression.canReturn(EnchantmentType.class))
+			returnTypes.add(Enchantment.class);
+		this.returnTypes = returnTypes.toArray(new Class<?>[0]);
+		this.superReturnType = Utils.getSuperType(this.returnTypes);
+
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -63,12 +89,12 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		Class<?> returnType = getExpr().getReturnType();
-		return EntityData.class.isAssignableFrom(returnType) ? EntityData.class
-			: ItemType.class.isAssignableFrom(returnType) ? ItemType.class
-			: PotionEffectType.class.isAssignableFrom(returnType) ? PotionEffectType.class
-			: EnchantmentType.class.isAssignableFrom(returnType) ? Enchantment.class
-			: BlockData.class.isAssignableFrom(returnType) ? ItemType.class : Object.class;
+		return superReturnType;
+	}
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return returnTypes;
 	}
 
 	@Override
@@ -77,6 +103,11 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 		if (!Converters.converterExists(EntityData.class, to) && !Converters.converterExists(ItemType.class, to))
 			return null;
 		return super.getConvertedExpr(to);
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "type";
 	}
 
 }

@@ -80,7 +80,7 @@ public class EvtClick extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		click = parseResult.mark == 0 ? ANY : parseResult.mark;
 		type = args[matchedPattern];
-		if (type != null && !ItemType.class.isAssignableFrom(type.getReturnType()) && !BlockData.class.isAssignableFrom(type.getReturnType())) {
+		if (type != null && !type.canReturn(ItemType.class) && !type.canReturn(BlockData.class)) {
 			Literal<EntityData<?>> entitydata = (Literal<EntityData<?>>) type;
 			if (click == LEFT) {
 				if (Vehicle.class.isAssignableFrom(entitydata.getSingle().getType())) {

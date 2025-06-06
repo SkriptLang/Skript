@@ -1,0 +1,11 @@
+test "ExprTernary":
+
+	set {_x} to true if true is true otherwise false
+	assert {_x} is true with "simple logic ternary failed"
+
+	set {_x} to the length of (5 if true is true otherwise "Goodbye")
+	assert {_x} is not set with "ternary returned wrong value"
+
+	parse:
+		set {_x} to length of (5 if true is true otherwise 10)
+	assert last parse logs is set with "ternary returning invalid type parsed"

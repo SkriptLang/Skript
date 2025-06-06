@@ -92,27 +92,19 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		Class<?> returnType = getExpr().getReturnType();
+		Expression<?> expression = getExpr();
 
-		if (returnType.isAssignableFrom(FireworkEffect.class))
+		if (expression.canReturn(FireworkEffect.class))
 			return CollectionUtils.array(Color[].class);
 
-		// double assignable checks are to allow both parent and child types, since variables return Object
-		// This does mean we have to be more stringent in checking the validity of the change mode in change() itself.
-		if ((returnType.isAssignableFrom(Display.class) || Display.class.isAssignableFrom(returnType)) && (mode == ChangeMode.RESET || mode == ChangeMode.SET))
+		if ((mode == ChangeMode.RESET || mode == ChangeMode.SET) && expression.canReturn(Display.class))
 			return CollectionUtils.array(Color.class);
 
-		// the following only support SET
-		if (mode != ChangeMode.SET)
-			return null;
-		if (returnType.isAssignableFrom(Entity.class)
-			|| Entity.class.isAssignableFrom(returnType)
-			|| returnType.isAssignableFrom(Block.class)
-			|| Block.class.isAssignableFrom(returnType)
-			|| returnType.isAssignableFrom(ItemType.class)
-		) {
+		if (mode == ChangeMode.SET &&
+			(expression.canReturn(Entity.class) || expression.canReturn(Block.class) || expression.canReturn(ItemType.class))) {
 			return CollectionUtils.array(Color.class);
 		}
+
 		return null;
 	}
 

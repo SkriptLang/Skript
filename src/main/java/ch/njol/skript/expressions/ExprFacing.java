@@ -72,7 +72,7 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (!Block.class.isAssignableFrom(getExpr().getReturnType()))
+		if (!getExpr().canReturn(Block.class))
 			return null;
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Direction.class);

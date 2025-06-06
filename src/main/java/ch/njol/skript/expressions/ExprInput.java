@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Set;
 
 @Name("Input")
@@ -136,11 +137,15 @@ public class ExprInput<T> extends SimpleExpression<T> {
 		return superType;
 	}
 
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(types, types.length);
+	}
+
 	@Nullable
 	public ClassInfo<?> getSpecifiedType() {
 		return specifiedType;
 	}
-
 
 	@Override
 	public String toString(Event event, boolean debug) {

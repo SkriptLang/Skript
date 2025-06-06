@@ -27,6 +27,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Name("Metadata")
@@ -148,6 +149,11 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 	@Override
 	public Class<? extends T> getReturnType() {
 		return superType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(types, types.length);
 	}
 
 	@Override

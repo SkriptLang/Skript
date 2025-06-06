@@ -9,10 +9,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-public class ExprTestLoopPeeking extends SimpleExpression<Object> {
+public class ExprTestLoopPeeking extends SimpleExpression<Integer> {
 
 	static {
-		Skript.registerExpression(ExprTestLoopPeeking.class, Object.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprTestLoopPeeking.class, Integer.class, ExpressionType.SIMPLE,
 			"test loop peeking disabled",
 			"test loop peeking enabled");
 	}
@@ -26,8 +26,8 @@ public class ExprTestLoopPeeking extends SimpleExpression<Object> {
 	}
 
 	@Override
-	protected Object @Nullable [] get(Event event) {
-		return new Object[]{1, 2, 3, 4, 5};
+	protected Integer[] get(Event event) {
+		return new Integer[]{1, 2, 3, 4, 5};
 	}
 
 	@Override
@@ -36,8 +36,8 @@ public class ExprTestLoopPeeking extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public Class<Object> getReturnType() {
-		return Object.class;
+	public Class<Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
