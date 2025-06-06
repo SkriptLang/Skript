@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
@@ -37,8 +19,7 @@ import ch.njol.util.Kleenean;
 @Description("Directly damages an item. In MC versions 1.12.2 and lower, this can be used to apply data values to items/blocks")
 @Examples({"give player diamond sword with damage value 100", "set player's tool to diamond hoe damaged by 250",
 	"give player diamond sword with damage 700 named \"BROKEN SWORD\"",
-	"set {_item} to diamond hoe with damage value 50 named \"SAD HOE\"",
-	"set target block of player to wool with data value 1", "set target block of player to potato plant with data value 7"})
+	"set {_item} to diamond hoe with damage value 50 named \"SAD HOE\""})
 @Since("2.4")
 public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	

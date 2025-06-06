@@ -1,26 +1,6 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.bukkitutil.block;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.aliases.MatchQuality;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.variables.Variables;
@@ -137,7 +117,11 @@ public class NewBlockCompat implements BlockCompat {
 			if (data == null)
 				throw new StreamCorruptedException("'data' is missing.");
 
-			this.data = Bukkit.createBlockData(data);
+			try {
+				this.data = Bukkit.createBlockData(data);
+			} catch (IllegalArgumentException e) {
+				throw new StreamCorruptedException("Invalid block data: " + data);
+			}
 			this.type = this.data.getMaterial();
 			this.isDefault = isDefault;
 		}
@@ -337,9 +321,9 @@ public class NewBlockCompat implements BlockCompat {
 	private NewBlockSetter setter = new NewBlockSetter();
 
 	/**
-	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
+	 * @deprecated Use {@link #getBlockValues(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	@Nullable
 	@Override
 	public BlockValues getBlockValues(BlockState blockState) {
@@ -375,7 +359,7 @@ public class NewBlockCompat implements BlockCompat {
 		return setter;
 	}
 
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	@Override
 	public BlockState fallingBlockToState(FallingBlock entity) {
 		BlockState state = entity.getLocation().getBlock().getState();

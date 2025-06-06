@@ -42,10 +42,10 @@ skript command:
 			all: Disables all scripts
 			<script>: Disables a specific script or a folder of scripts
 		update:
-			description: Check for updates, read the changelog, or download the latest version of Skript
+			description: Check for updates or read the changelog
 			check: Checks for a new version
 			changes: Lists all changes since the current version
-			download: Download the newest version
+		list: Lists all enabled and disabled scripts
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder
 		test: Used for running internal Skript tests
@@ -113,6 +113,13 @@ skript command:
 			# invalid version: No changelog for the version <gold>%s<red> available
 			title: <bold><cyan>%s<reset> (%s)
 			next page: <grey>page %s of %s. Type <gold>/skript update changes %s<gray> for the next page (hint: use the up arrow key)
+	list:
+		enabled:
+			header: <white>Enabled scripts:
+			element: <lime green>  %s
+		disabled:
+			header: <white>Disabled scripts:
+			element: <light red>  %s
 	info:
 		aliases: Skript's aliases can be found here: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skript's documentation can be found here: <aqua>https://docs.skriptlang.org/
@@ -121,6 +128,25 @@ skript command:
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Installed dependencies: <aqua>%s
+
+# -- Log Messages --
+log:
+	# runtime errors
+	runtime:
+		error: <light red>The script '<gray>%s<light red>' encountered an error while executing the '<gray>%s<light red>' %s<light red>:\n
+		errors skipped: <gold>%d<light red> runtime error[s] were thrown but not printed in the last frame. From: <gray>%s
+		errors timed out: <gold>Line %d<light red> of script '<gray>%s<light red>' produced too many runtime errors (<gray>%d<light red> allowed per frame). No errors from this line will be printed for %d frames.
+		error notification: <light red>Script '<gray>%s<light red>' produced runtime errors. Please check console logs for details.
+		error notification plural: <light red>Script '<gray>%s<light red>' and %d others produced runtime errors. Please check console logs for details.
+
+		warning: <yellow>The script '<gray>%s<yellow>' encountered a warning while executing the '<gray>%s<yellow>' %s<yellow>:\n
+		warnings skipped: <yellow>%d<yellow> runtime warning[s] were thrown but not printed in the last frame. From: <gray>%s
+		warnings timed out: <gold>Line %d<yellow> of script '<gray>%s<yellow>' produced too many runtime warnings (<gray>%d<yellow> allowed per frame). No warnings from this line will be printed for %d frames.
+		warning notification: <yellow>Script '<gray>%s<yellow>' produced runtime warnings. Please check console logs for details.
+		warning notification plural: <gold>Script '<gray>%s<yellow>' and %d others produced runtime warnings. Please check console logs for details.
+
+		line info: <gold>    Line %s<white>: <gray>%s\n \n
+
 
 # -- Updater --
 updater:

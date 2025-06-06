@@ -1,4 +1,4 @@
-test "line width" when running minecraft "1.19.4":
+test "line width":
 	
 	spawn item display at spawn of world "world":
 		set {_id} to entity

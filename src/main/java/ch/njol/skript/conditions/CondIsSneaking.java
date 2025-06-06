@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import org.bukkit.entity.Player;
@@ -26,16 +8,15 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Sneaking")
 @Description("Checks whether a player is sneaking.")
-@Examples({"# prevent mobs from seeing sneaking players if they are at least 4 meters apart",
-		"on target:",
-		"	target is sneaking",
-		"	distance of target and the entity is bigger than 4",
-		"	cancel the event"})
+@Examples({
+	"# prevent mobs from seeing sneaking players if they are at least 4 meters apart",
+	"on target:",
+		"\ttarget is sneaking",
+		"\tdistance of target and the entity is bigger than 4",
+		"\tcancel the event"
+})
 @Since("1.4.4")
 public class CondIsSneaking extends PropertyCondition<Player> {
 	
@@ -44,8 +25,8 @@ public class CondIsSneaking extends PropertyCondition<Player> {
 	}
 	
 	@Override
-	public boolean check(final Player p) {
-		return p.isSneaking();
+	public boolean check(Player player) {
+		return player.isSneaking();
 	}
 	
 	@Override

@@ -48,3 +48,26 @@ test "replace strings":
 	assert {_list::1} is "(replaced)" with "Incorrect ExpressionList replacement value (1)"
 	assert {_list::2} is "2" with "Incorrect ExpressionList replacement value (2)"
 	assert {_list::3} is "(replaced)2" with "Incorrect ExpressionList replacement value (3)"
+
+	# Regex replacing
+	set {_x} to "abc123aACAB"
+	regex replace "123a" in {_x} with "123"
+	assert {_x} is "abc123ACAB" with "regex replace failed"
+	regex replace "\d" with "x" in {_x}
+	assert {_x} is "abcxxxACAB" with "regex replace failed"
+	regex replace "^[acb]+" in {_x} with "y"
+	assert {_x} is "yxxxACAB" with "regex replace failed"
+	regex replace "(?i)[bAc]" in {_x} with "z"
+	assert {_x} is "yxxxzzzz" with "regex replace failed"
+
+	set {_x} to "a" parsed as number
+	regex replace "a" in {_x} with "b"
+	assert {_x} is not set with "regex replace with invalid value succeeded"
+
+	set {_y} to "a"
+	regex replace {_x} in {_y} with "b"
+	assert {_y} is "a" with "regex replace with invalid pattern succeeded"
+	regex replace {_x} in {_y} with {_x}
+	assert {_y} is "a" with "regex replace with invalid pattern and replacement succeeded"
+	regex replace "a" in {_y} with {_x}
+	assert {_y} is "a" with "regex replace with invalid pattern succeeded"

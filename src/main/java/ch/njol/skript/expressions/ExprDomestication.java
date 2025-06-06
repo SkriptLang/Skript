@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 			"\t\ttame {_horse}",
 			"\t\tset tamer of {_horse} to {_p}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDomestication extends SimplePropertyExpression<LivingEntity, Integer> {
 
 	static {

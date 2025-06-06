@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -26,6 +8,7 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -56,7 +39,7 @@ import java.util.List;
 		"remove 4 planks from the drops"})
 @Since("1.0")
 @Events("death")
-public class ExprDrops extends SimpleExpression<ItemType> {
+public class ExprDrops extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprDrops.class, ItemType.class, ExpressionType.SIMPLE, "[the] drops");
@@ -66,13 +49,14 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityDeathEvent.class, BlockDropItemEvent.class)) {
-			Skript.error("The expression 'drops' can only be used in death events and block drop events");
-			return false;
-		}
 		if (getParser().isCurrentEvent(EntityDeathEvent.class))
 			isDeathEvent = true;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityDeathEvent.class, BlockDropItemEvent.class);
 	}
 
 	@Override

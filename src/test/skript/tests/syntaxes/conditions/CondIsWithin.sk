@@ -1,4 +1,4 @@
-test "within condition" when running minecraft "1.17":
+test "within condition":
 	# two locations
 	set {_loc1} to location(0, 0, 0, "world")
 	set {_loc2} to location(20, 20, 20, "world")
@@ -12,7 +12,12 @@ test "within condition" when running minecraft "1.17":
 	assert location(-10, 10, -10, "world") is not within {_chunk1} with "failed within chunk"
 
 	# worlds
-	assert location(10, 10, 10, "world") is within world("world") with "failed within world"
+	assert location(10, 10, 10, "world") is within test-world with "failed within world"
+
+	# worldborders
+	set {_border} to worldborder of test-world
+	assert {_loc1} is within {_border} with "failed within worldborder"
+	assert location(30000500, 0, 0, "world") is not within {_border} with "failed not within worldborder"
 
 	# blocks
 	set block at {_loc1} to stone
@@ -24,7 +29,7 @@ test "within condition" when running minecraft "1.17":
 	assert ({_loc1} ~ vector(0,0.3,0)) is not within block at {_loc1} with "failed within block"
 
 	# entities
-	set {_loc} to spawn of world "world"
+	set {_loc} to test-location
 	spawn a pig at {_loc}
 	set {_pig} to last spawned entity
 	assert {_loc} is within {_pig} with "failed within entity"
@@ -32,27 +37,48 @@ test "within condition" when running minecraft "1.17":
 
 	delete random entity of {_pig}
 
-test "within condition" when running below minecraft "1.17":
-	# two locations
-	set {_loc1} to location(0, 0, 0, "world")
-	set {_loc2} to location(20, 20, 20, "world")
-	assert location(10, 10, 10, "world") is within {_loc1} and {_loc2} with "failed within two locs"
-	assert location(10, -10, 10, "world") is not within {_loc1} and {_loc2} with "failed within two locs"
-	assert location(0, 0, 0, "world") is not within {_none} and {_none} with "failed within two locs"
+test "within stairs block":
+	set {_loc} to location of test-block
+	set {_old} to block data of test-block
+	set test-block to oak stairs[facing=north]
 
-	# chunks
-	set {_chunk1} to chunk at {_loc1}
-	assert location(10, 10, 10, "world") is within {_chunk1} with "failed within chunk"
-	assert location(-10, 10, -10, "world") is not within {_chunk1} with "failed within chunk"
+	set {_pass::-y} to {_loc} ~ vector(0, -0.2, 0)
+	set {_pass::-z} to {_loc} ~ vector(0, 0, -0.2)
+	set {_pass::-y+z} to {_loc} ~ vector(0, -0.2, 0.2)
+	set {_pass::+x-y} to {_loc} ~ vector(0.2, -0.2, 0)
+	set {_pass::+x-z} to {_loc} ~ vector(0.2, 0, -0.2)
+	set {_pass::+y-z} to {_loc} ~ vector(0, 0.2, -0.2)
+	set {_pass::-x-y} to {_loc} ~ vector(-0.2, -0.2, 0)
+	set {_pass::-x-z} to {_loc} ~ vector(-0.2, 0, -0.2)
+	set {_pass::-y-z} to {_loc} ~ vector(0, -0.2, -0.2)
+	set {_pass::+x-y+z} to {_loc} ~ vector(0.2, -0.2, 0.2)
+	set {_pass::+x+y-z} to {_loc} ~ vector(0.2, 0.2, -0.2)
+	set {_pass::+x-y-z} to {_loc} ~ vector(0.2, -0.2, -0.2)
+	set {_pass::-x-y+z} to {_loc} ~ vector(-0.2, -0.2, 0.2)
+	set {_pass::-x+y-z} to {_loc} ~ vector(-0.2, 0.2, -0.2)
+	set {_pass::-x-y-z} to {_loc} ~ vector(-0.2, -0.2, -0.2)
 
-	# worlds
-	assert location(10, 10, 10, "world") is within world("world") with "failed within world"
+	set {_fail::+x} to {_loc} ~ vector(0.2, 0, 0)
+	set {_fail::+y} to {_loc} ~ vector(0, 0.2, 0)
+	set {_fail::+z} to {_loc} ~ vector(0, 0, 0.2)
+	set {_fail::-x} to {_loc} ~ vector(-0.2, 0, 0)
+	set {_fail::+x+y} to {_loc} ~ vector(0.2, 0.2, 0)
+	set {_fail::+x+z} to {_loc} ~ vector(0.2, 0, 0.2)
+	set {_fail::+y+z} to {_loc} ~ vector(0, 0.2, 0.2)
+	set {_fail::-x+y} to {_loc} ~ vector(-0.2, 0.2, 0)
+	set {_fail::-x+z} to {_loc} ~ vector(-0.2, 0, 0.2)
+	set {_fail::+x+y+z} to {_loc} ~ vector(0.2, 0.2, 0.2)
+	set {_fail::-x+y+z} to {_loc} ~ vector(-0.2, 0.2, 0.2)
 
-	# entities
-	set {_loc} to spawn of world "world"
-	spawn a pig at {_loc}
-	set {_pig} to last spawned entity
-	assert {_loc} is within {_pig} with "failed within entity"
-	assert {_loc1} is not within {_pig} with "failed within entity"
+	assert {_pass::*} is within test-block with "Failed multiple locs within stairs block"
+	assert {_fail::*} is not within test-block with "Failed multiple locs not within stairs block"
 
-	delete random entity of {_pig}
+	set block data of test-block to {_old}
+
+test "within multiple condition":
+	set {_chunk} to chunk at test-location
+	spawn a pig at test-location:
+		set {_entity} to entity
+	assert {_entity} is within test-world and {_chunk} with "Failed within world and chunk"
+	assert {_entity} is within test-world or {_chunk} with "Failed within world or chunk"
+	clear entity within {_entity}

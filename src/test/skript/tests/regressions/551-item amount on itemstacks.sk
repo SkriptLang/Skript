@@ -1,5 +1,5 @@
 test "item amount of itemstack":
-	set {_loc} to spawn of world "world"
+	set {_loc} to test-location
 	set {_old-block} to type of block at {_loc}
 	set block at {_loc} to chest
 	add 10 stone to inventory of block at {_loc}
@@ -17,7 +17,7 @@ test "item amount of itemtype":
 	assert item amount of {_item} is 9 with "Amount of itemtype is not 9: %{_amount}%"
 
 test "item amount of slot":
-	set {_loc} to spawn of world "world"
+	set {_loc} to test-location
 	set {_old-block} to type of block at {_loc}
 	set block at {_loc} to chest
 	add 10 stone to inventory of block at {_loc}

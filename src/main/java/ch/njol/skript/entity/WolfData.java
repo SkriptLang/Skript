@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
 import ch.njol.skript.bukkitutil.BukkitUtils;
@@ -41,7 +23,7 @@ public class WolfData extends EntityData<Wolf> {
 		EntityData.register(WolfData.class, "wolf", Wolf.class, 1,
 				"peaceful wolf", "wolf", "angry wolf",
 				"wild wolf", "tamed wolf");
-		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
+		if (Skript.classExists("org.bukkit.entity.Wolf$Variant")) {
 			variantsEnabled = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Wolf.Variant.class).getSupplier().get(), Wolf.Variant.class);
 		}
@@ -138,7 +120,7 @@ public class WolfData extends EntityData<Wolf> {
 	/**
 	 * Note that this method is only used when changing Skript versions 2.1 to anything above.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Override
 	protected boolean deserialize(String s) {
 		String[] split = s.split("\\|");
@@ -170,6 +152,6 @@ public class WolfData extends EntityData<Wolf> {
 	/**
 	 * A dummy/placeholder class to ensure working operation on MC versions that do not have `Wolf.Variant`
 	 */
-	public static class VariantDummy {};
+	public static class WolfVariantDummy {};
 
 }

@@ -1,4 +1,4 @@
-test "quaternion axis angle" when running minecraft "1.19":
+test "quaternion axis angle":
 	set {_v} to vector(1, 2, 3)
 	set {_q} to axisAngle(45, {_v})
 	assert rotation angle of {_q} is 45 with "angle of quaternion failed"

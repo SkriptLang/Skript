@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
@@ -60,7 +42,7 @@ public class EffContinue extends Effect {
 	static {
 		Skript.registerEffect(EffContinue.class,
 			"continue [this loop|[the] [current] loop]",
-			"continue [the] <" + JavaClasses.INTEGER_PATTERN + ">(st|nd|rd|th) loop"
+			"continue [the] <" + JavaClasses.INTEGER_NUMBER_PATTERN + ">(st|nd|rd|th) loop"
 		);
 	}
 
@@ -73,10 +55,6 @@ public class EffContinue extends Effect {
 
 	@Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		level = matchedPattern == 0 ? 1 : Integer.parseInt(parseResult.regexes.get(0).group());
-		if (level < 1)
-			return false;
-
 		ParserInstance parser = getParser();
 		int loops = parser.getCurrentSections(LoopSection.class).size();
 		if (loops == 0) {
@@ -84,8 +62,12 @@ public class EffContinue extends Effect {
 			return false;
 		}
 
-		// Section.getSections counts from the innermost section, so we need to invert the level 
-		int levels = level == -1 ? 1 : loops - level + 1;
+		level = matchedPattern == 0 ? loops : Integer.parseInt(parseResult.regexes.get(0).group());
+		if (level < 1)
+			return false;
+
+		// ParserInstance#getSections counts from the innermost section, so we need to invert the level 
+		int levels = loops - level + 1;
 		if (levels <= 0) {
 			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +
 				(loops == 1 ? "is only 1 loop" : "are only " + loops + " loops") + " present");

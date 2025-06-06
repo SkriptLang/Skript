@@ -1,0 +1,15 @@
+test "panda eating":
+	spawn a panda at test-location:
+		set {_entity} to entity
+	assert {_entity} is not eating with "Panda should not be eating"
+	make {_entity} start eating
+	assert {_entity} is eating with "Panda should be eating"
+	clear entity within {_entity}
+
+test "horse eating":
+	spawn a horse at test-location:
+		set {_entity} to entity
+	assert {_entity} is not eating with "Horse should not be eating"
+	make {_entity} start eating
+	assert {_entity} is eating with "Horse should be eating"
+	clear entity within {_entity}

@@ -1,0 +1,11 @@
+test "item thrower":
+	drop a stone at test-location
+	set {_drop} to last dropped item
+
+	spawn a pig at test-location:
+		set {_thrower} to entity
+	set the uuid of the dropped item thrower of {_drop} to uuid of {_thrower}
+	assert the uuid of the dropped item thrower of {_drop} is uuid of {_thrower} with "Item Thrower was not set to pig"
+
+	clear entity within {_drop}
+	clear entity within {_thrower}

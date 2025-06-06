@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
@@ -38,9 +20,9 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	private T @Nullable [] returnValues;
 
 	/**
-	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)}
+	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	public ScriptFunction(Signature<T> sign, Script script, SectionNode node) {
 		this(sign, node);
 	}
@@ -80,9 +62,9 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	/**
-	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)}
+	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	@ApiStatus.Internal
 	public final void setReturnValue(@Nullable T[] values) {
 		assert !returnValueSet;

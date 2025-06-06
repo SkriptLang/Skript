@@ -1,6 +1,5 @@
 package ch.njol.skript.util;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Math2;
 import ch.njol.yggdrasil.Fields;
@@ -18,7 +17,6 @@ import java.util.regex.Pattern;
 
 public class ColorRGB implements Color {
 
-	private static final boolean HAS_ARGB = Skript.methodExists(org.bukkit.Color.class, "getAlpha");
 	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
 
 	private org.bukkit.Color bukkit;
@@ -29,7 +27,7 @@ public class ColorRGB implements Color {
 	 * Subject to being private in the future. Use {@link #fromRGB(int, int, int)}
 	 * This is to keep inline with other color classes.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@ApiStatus.Internal
 	public ColorRGB(int red, int green, int blue) {
 		this(org.bukkit.Color.fromRGB(
@@ -42,7 +40,7 @@ public class ColorRGB implements Color {
 	 * Subject to being private in the future. Use {@link #fromBukkitColor(org.bukkit.Color)}
 	 * This is to keep inline with other color classes.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@ApiStatus.Internal
 	public ColorRGB(org.bukkit.Color bukkit) {
 		this.dye = DyeColor.getByColor(bukkit);
@@ -60,13 +58,7 @@ public class ColorRGB implements Color {
 	 */
 	@Contract("_,_,_,_ -> new")
 	public static @NotNull ColorRGB fromRGBA(int red, int green, int blue, int alpha) {
-		org.bukkit.Color bukkit;
-		if (HAS_ARGB) {
-			bukkit = org.bukkit.Color.fromARGB(alpha, red, green, blue);
-		} else {
-			bukkit = org.bukkit.Color.fromRGB(red, green, blue);
-		}
-		return new ColorRGB(bukkit);
+		return new ColorRGB(org.bukkit.Color.fromARGB(alpha, red, green, blue));
 	}
 
 	/**
@@ -94,6 +86,26 @@ public class ColorRGB implements Color {
 	}
 
 	@Override
+	public int getAlpha() {
+		return bukkit.getAlpha();
+	}
+
+	@Override
+	public int getRed() {
+		return bukkit.getRed();
+	}
+
+	@Override
+	public int getGreen() {
+		return bukkit.getGreen();
+	}
+
+	@Override
+	public int getBlue() {
+		return bukkit.getBlue();
+	}
+
+	@Override
 	public org.bukkit.Color asBukkitColor() {
 		return bukkit;
 	}
@@ -106,7 +118,7 @@ public class ColorRGB implements Color {
 	@Override
 	public String getName() {
 		String rgb = bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();
-		if (HAS_ARGB && bukkit.getAlpha() != 255)
+		if (bukkit.getAlpha() != 255)
 			return "argb " + bukkit.getAlpha() + ", " + rgb;
 		return "rgb " + rgb;
 	}

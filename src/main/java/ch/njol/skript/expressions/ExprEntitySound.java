@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -29,7 +30,7 @@ import java.util.Objects;
 	"play sound (hurt sound of player) at player",
 	"set {_sounds::*} to death sounds of (all mobs in radius 10 of player)"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @RequiredPlugins("Spigot 1.19.2+")
 public class ExprEntitySound extends SimpleExpression<String> {
 
@@ -150,7 +151,7 @@ public class ExprEntitySound extends SimpleExpression<String> {
 			.map(entity -> soundType.getSound(entity, height, item, bigOrSpeedy))
 			.filter(Objects::nonNull)
 			.distinct()
-			.map(Sound::name)
+			.map(sound -> SoundUtils.getKey(sound).getKey())
 			.toArray(String[]::new);
 	}
 

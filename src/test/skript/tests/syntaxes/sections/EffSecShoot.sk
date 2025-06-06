@@ -1,0 +1,87 @@
+test "EffSecShoot":
+	set {_loc} to spawn of world "world"
+	spawn pig at {_loc}:
+		set ai of entity to false
+		set {_shooter} to entity
+
+	shoot a pig from {_shooter}
+	assert last shot entity is a pig with "Last shot entity is not a pig"
+	clear last shot entity
+
+	spawn cow at {_loc}:
+		set ai of entity to false
+		set {_shooter2} to entity
+
+	shoot an arrow from {_shooter2}:
+		set {_other} to event-projectile
+	shoot a pig from {_shooter}:
+		assert (shooter of {_other}) = {_shooter2} with "ExprShooter did not get shooter of other projectile"
+		set {_projectile} to entity
+	clear entity within {_other}
+	clear entity within {_projectile}
+
+	set {_pigs::*} to pig, pig, pig, pig and pig
+	shoot {_pigs::*} from {_shooter}:
+		add entity to {_projectiles::*}
+		assert shooter = {_shooter} with "ExprShooter does not return shooter used in effect"
+	assert size of {_projectiles::*} = 5 with "1 or more projectiles did not spawn"
+	loop {_projectiles::*}:
+		assert loop-value is a pig with "Projectile on loop %loop-iteration% is not a pig"
+	clear entities within {_projectiles::*}
+	clear {_projectiles::*}
+
+	clear entity within {_shooter}
+	clear entity within {_shooter2}
+
+test "EffSecShoot From Entity - Velocity":
+	spawn a pig at test-location:
+		set {_shooter} to entity
+
+	make {_shooter} shoot an egg at speed 1:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_shooter} shoot an egg at speed 1
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from entity - egg velocities don't match"
+
+	make {_shooter} shoot a pig at speed 2:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_shooter} shoot a pig at speed 2
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from entity - pig velocities don't match"
+
+	make {_shooter} shoot an arrow at speed 3:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_shooter} shoot an arrow at speed 3
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from entity - arrow velocities don't match"
+
+	if running minecraft "1.20.0":
+		# 1.19.4 velocity is off by 1 vector-z
+		make {_shooter} shoot an fireball at speed 4:
+			set {_sectionVelocity} to velocity of event-entity
+		make {_shooter} shoot a fireball at speed 4
+		assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from entity - fireball velocities don't match"
+
+	clear all entities
+
+test "EffSecShoot From Location - Velocity":
+	set {_location} to test-location ~ vector(0,10,0)
+
+	make {_location} shoot an egg at speed 1:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_location} shoot an egg at speed 1
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from location - egg velocities don't match"
+
+	make {_location} shoot a pig at speed 2:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_location} shoot a pig at speed 2
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from location - pig velocities don't match"
+
+	make {_location} shoot an arrow at speed 3:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_location} shoot an arrow at speed 3
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from location - arrow velocities don't match"
+
+	make {_location} shoot an fireball at speed 4:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_location} shoot a fireball at speed 4
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot from location - fireball velocities don't match"
+
+	clear all entities
