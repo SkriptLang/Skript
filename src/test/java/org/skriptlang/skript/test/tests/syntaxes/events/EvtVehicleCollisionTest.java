@@ -22,7 +22,7 @@ public class EvtVehicleCollisionTest extends SkriptJUnitTest {
 	@Before
 	public void setUp() {
 		pig = spawnTestPig();
-		sheep = (Sheep) getTestWorld().spawnEntity(getTestLocation(), EntityType.SHEEP);
+		sheep = spawnTestEntity(EntityType.SHEEP);
 		old = getBlock().getType();
 		setBlock(Material.OBSIDIAN);
 	}
