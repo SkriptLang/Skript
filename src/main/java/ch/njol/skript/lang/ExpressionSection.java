@@ -76,8 +76,10 @@ public class ExpressionSection extends Section {
 		super.setTriggerItems(items);
 	}
 
-	public Trigger loadCodeTask(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
-		return super.loadCode(sectionNode, name, afterLoading, events);
+	public Trigger loadCodeTask(SectionNode sectionNode, String name,
+								@Nullable Runnable beforeLoading, @Nullable Runnable afterLoading,
+								Class<? extends Event>... events) {
+		return super.loadCode(sectionNode, name, beforeLoading, afterLoading, events);
 	}
 
 }
