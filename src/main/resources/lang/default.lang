@@ -1167,6 +1167,12 @@ entities:
 	strider:
 		name: strider¦s
 		pattern: <age> strider(|1¦s)|(4¦)strider (kid(|1¦s)|child(|1¦ren))
+	warm strider:
+		name: warm strider¦s
+		pattern: <age> warm strider(|1¦s)|(4¦)warm strider (kid(|1¦s)|child(|1¦ren))
+	shivering strider:
+		name: shivering strider¦s, cold strider¦s
+		pattern: <age> (cold|shivering) strider(|1¦s)|(4¦)(cold|shivering) strider (kid(|1¦s)|child(|1¦ren))
 	#1.16.2 entity
 	piglin brute:
 		name: piglin brute¦s
@@ -2592,6 +2598,11 @@ pig variants:
 	temperate: temperate
 	warm: warm
 
+# -- Villager Career Change Reasons
+villager career change reasons:
+	employed: employment
+	losing_job: losing job
+
 # -- Boolean --
 boolean:
 	true:
@@ -2696,6 +2707,7 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	villagercareerchangereason: villager career change reason¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
 
