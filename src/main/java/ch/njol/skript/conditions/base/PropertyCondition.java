@@ -7,11 +7,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Predicate;
-import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Priority;
@@ -204,6 +202,13 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 
 	protected PropertyType getPropertyType() {
 		return PropertyType.BE;
+	}
+
+	/**
+	 * Gets the expression this condition checks a property of.
+	 */
+	public final Expression<? extends T> getExpr() {
+		return expr;
 	}
 
 	/**
