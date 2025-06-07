@@ -27,7 +27,7 @@ public abstract class Effect extends Statement implements SyntaxRuntimeErrorProd
 	@Override
 	public boolean preInit() {
 		node = getParser().getNode();
-		return true;
+		return super.preInit();
 	}
 
 	/**

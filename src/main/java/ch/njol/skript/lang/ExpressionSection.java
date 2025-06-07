@@ -36,7 +36,7 @@ public class ExpressionSection extends Section {
 		SectionContext context = getParser().getData(SectionContext.class);
 		assert context != null;
 		if (context.sectionNode == null && expression.isSectionOnly()) {
-			Skript.error("This expression can only be used as a section.");
+			Skript.error("This expression requires a section.");
 			return false;
 		}
 		return this.init(expressions, matchedPattern, isDelayed, parseResult, context.sectionNode, context.triggerItems)

@@ -49,7 +49,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 	@Override
 	public boolean preInit() {
 		node = getParser().getNode();
-		return true;
+		return SyntaxElement.super.preInit();
 	}
 
 	/**

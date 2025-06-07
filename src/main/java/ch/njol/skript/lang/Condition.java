@@ -69,7 +69,7 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	@Override
 	public boolean preInit() {
 		node = getParser().getNode();
-		return true;
+		return super.preInit();
 	}
 
 	/**
