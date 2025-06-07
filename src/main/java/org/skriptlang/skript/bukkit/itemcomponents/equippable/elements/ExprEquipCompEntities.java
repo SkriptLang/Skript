@@ -8,7 +8,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -36,10 +36,10 @@ import java.util.List;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompEntities extends SimplePropertyExpression<EquippableWrapper, EntityData[]> implements EquippableExperiment {
+public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperiment {
 
 	static {
-		registerDefault(ExprEquipCompEntities.class, EntityData[].class, "allowed entities", "equippablecomponents");
+		registerDefault(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents");
 	}
 
 	@Override
@@ -50,17 +50,19 @@ public class ExprEquipCompEntities extends SimplePropertyExpression<EquippableWr
 	}
 
 	@Override
-	public EntityData @Nullable [] convert(EquippableWrapper wrapper) {
-		EquippableComponent component = wrapper.getComponent();
-		Collection<EntityType> allowed = component.getAllowedEntities();
-		if (allowed == null || allowed.isEmpty())
-			return null;
-		return allowed.stream()
-			.map(entityType -> {
+	protected EntityData @Nullable [] get(Event event, EquippableWrapper[] source) {
+		List<EntityData> types = new ArrayList<>();
+		for (EquippableWrapper wrapper : source) {
+			EquippableComponent component = wrapper.getComponent();
+			Collection<EntityType> allowed = component.getAllowedEntities();
+			if (allowed == null || allowed.isEmpty())
+				continue;
+			allowed.forEach(entityType -> {
 				Class<? extends Entity> entityClass = entityType.getEntityClass();
-				return (EntityData) EntityData.fromClass(entityClass);
-			})
-			.toArray(EntityData[]::new);
+				types.add(EntityData.fromClass(entityClass));
+			});
+		}
+		return types.toArray(EntityData[]::new);
 	}
 
 	@Override
@@ -107,13 +109,13 @@ public class ExprEquipCompEntities extends SimplePropertyExpression<EquippableWr
 	}
 
 	@Override
-	public Class<EntityData[]> getReturnType() {
-		return EntityData[].class;
+	public Class<EntityData> getReturnType() {
+		return EntityData.class;
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "allowed entities";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the allowed entities of " + getExpr().toString(event, debug);
 	}
 
 }

@@ -2,7 +2,11 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -11,6 +15,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Equippable Component - Can Be Dispensed")
 @Description("Whether an item can be dispensed by a dispenser. "
@@ -29,10 +37,10 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 public class CondEquipCompDispensable extends PropertyCondition<EquippableWrapper> implements EquippableExperiment {
 
 	static {
-		Skript.registerCondition(CondEquipCompDispensable.class, ConditionType.PROPERTY,
-			"%equippablecomponents% ((is|are) able to|can) be dispensed",
-			"%equippablecomponents% ((is not|isn't|are not|aren't) able to|(can not|can't)) be dispensed"
-		);
+		List<String> patterns = new ArrayList<>(Arrays.asList(getPatterns(PropertyType.CAN, "be dispensed", "equippablecomponents")));
+		patterns.addAll(Arrays.asList(getPatterns(PropertyType.BE, "(able to be dispensed|dispensable)", "equippablecomponents")));
+
+		Skript.registerCondition(CondEquipCompDispensable.class, ConditionType.PROPERTY, patterns.toArray(String[]::new));
 	}
 
 	private Expression<EquippableWrapper> wrappers;
@@ -43,7 +51,9 @@ public class CondEquipCompDispensable extends PropertyCondition<EquippableWrappe
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
 		dispensable = !parseResult.hasTag("un");
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		setExpr(wrappers);
+		setNegated(matchedPattern % 2 == 1);
+		return true;
 	}
 
 	@Override

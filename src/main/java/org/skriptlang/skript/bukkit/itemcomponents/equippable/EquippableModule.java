@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ItemSource;
 import ch.njol.skript.util.slot.Slot;
@@ -30,6 +31,7 @@ public class EquippableModule implements AddonModule {
 			.description("Represents an equippable component used for items.")
 			.requiredPlugins("Minecraft 1.21.2+")
 			.since("INSERT VERSION")
+			.defaultExpression(new EventValueExpression<>(EquippableWrapper.class))
 			.cloner(EquippableWrapper::clone)
 		);
 

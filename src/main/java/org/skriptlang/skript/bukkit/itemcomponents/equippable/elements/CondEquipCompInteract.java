@@ -2,14 +2,15 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
@@ -23,10 +24,7 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "isEquipOnInteract"))
-			Skript.registerCondition(CondEquipCompInteract.class, ConditionType.PROPERTY,
-				"%equippablecomponents% can be (equipped|put) on[to] entities",
-				"%equippablecomponents% (can not|can't) be (equipped|put) on[to] entities"
-			);
+			register(CondEquipCompInteract.class, PropertyType.CAN, "be (equipped|put) on[to] entities", "equippablecomponents");
 	}
 
 	private Expression<EquippableWrapper> wrappers;
@@ -35,9 +33,7 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		setNegated(matchedPattern == 1);
-		setExpr(wrappers);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -46,18 +42,13 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "equipped onto entities";
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(wrappers, "can");
-		if (isNegated())
-			builder.append("not");
-		builder.append("be equipped onto entities");
-		return builder.toString();
+	protected String getPropertyName() {
+		return "be equipped onto entities";
 	}
 
 }
