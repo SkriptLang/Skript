@@ -1,7 +1,65 @@
-test "custom model data expressions/condition":
+test "old custom model data expression":
 	set {_item} to a diamond sword with custom model data 456
 	assert {_item} has custom model data with "{_item} does not have custom model data"
-	if {_item} has custom model data:
-		assert custom model data of {_item} = 456 with "{_item}'s custom model data != 456: %custom model data of {_item}%"
-		set custom model data of {_item} to 987
-		assert custom model data of {_item} = 987 with "{_item}'s custom model data != 987: %custom model data of {_item}%"
+	assert custom model data of {_item} = 456 with "{_item}'s custom model data != 456: %custom model data of {_item}%"
+	set custom model data of {_item} to 987
+	assert custom model data of {_item} = 987 with "{_item}'s custom model data != 987: %custom model data of {_item}%"
+
+test "new custom model data expression" when running minecraft "1.21.4":
+	set {_item} to a diamond sword with custom model data 456 and 52
+
+	assert model data of {_item} is 456 with "wrong model data"
+	assert full model data of {_item} is 456 and 52 with "wrong full model data"
+	assert model data floats of {_item} is 456 and 52 with "wrong model data floats"
+	assert model data flags of {_item} is not set with "wrong model data flags"
+	assert model data strings of {_item} is not set with "wrong model data strings"
+	assert model data colours of {_item} is not set with "wrong model data colours"
+
+	set model data strings of {_item} to "hello" and "world"
+	assert model data of {_item} is 456 with "wrong model data"
+	broadcast full model data of {_item}
+	assert full model data of {_item} is 456, 52, "hello", and "world" with "wrong full model data"
+	assert model data floats of {_item} is 456 and 52 with "wrong model data floats"
+	assert model data flags of {_item} is not set with "wrong model data flags"
+	assert model data strings of {_item} is "hello" and "world" with "wrong model data strings"
+	assert model data colours of {_item} is not set with "wrong model data colours"
+
+	add true to model data flags of {_item}
+	assert model data of {_item} is 456 with "wrong model data"
+	assert full model data of {_item} is 456, 52, true, "hello" and "world" with "wrong full model data"
+	assert model data floats of {_item} is 456 and 52 with "wrong model data floats"
+	assert model data flags of {_item} is true with "wrong model data flags"
+	assert model data strings of {_item} is "hello" and "world" with "wrong model data strings"
+	assert model data colours of {_item} is not set with "wrong model data colours"
+
+	remove "hello" from model data strings of {_item}
+	assert model data of {_item} is 456 with "wrong model data"
+	assert full model data of {_item} is 456, 52, true, and "world" with "wrong full model data"
+	assert model data floats of {_item} is 456 and 52 with "wrong model data floats"
+	assert model data flags of {_item} is true with "wrong model data flags"
+	assert model data strings of {_item} is "world" with "wrong model data strings"
+	assert model data colours of {_item} is not set with "wrong model data colours"
+
+	clear model data strings of {_item}
+	assert model data of {_item} is 456 with "wrong model data"
+	assert full model data of {_item} is 456, 52, and true with "wrong full model data"
+	assert model data floats of {_item} is 456 and 52 with "wrong model data floats"
+	assert model data flags of {_item} is true with "wrong model data flags"
+	assert model data strings of {_item} is not set with "wrong model data strings"
+	assert model data colours of {_item} is not set with "wrong model data colours"
+
+	set full model data of {_item} to true, false, 1.0, -5.4, "yes", no, rgb(1,0,1), and white
+	assert model data of {_item} is 1 with "wrong model data"
+	assert full model data of {_item} is 1.0, -5.4, true, false, false, "yes", rgb(1,0,1), and white with "wrong full model data"
+	assert model data floats of {_item} is 1.0 and -5.4 with "wrong model data floats"
+	assert model data flags of {_item} is true, false and false with "wrong model data flags"
+	assert model data strings of {_item} is "yes" with "wrong model data strings"
+	assert model data colours of {_item} is rgb(1,0,1) and white with "wrong model data colours"
+
+	reset full model data of {_item}
+	assert model data of {_item} is 0 with "wrong model data"
+	assert full model data of {_item} is not set with "wrong full model data"
+	assert model data floats of {_item} is not set with "wrong model data floats"
+	assert model data flags of {_item} is not set with "wrong model data flags"
+	assert model data strings of {_item} is not set with "wrong model data strings"
+	assert model data colours of {_item} is not set with "wrong model data colours"
