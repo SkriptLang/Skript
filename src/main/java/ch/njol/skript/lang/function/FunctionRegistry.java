@@ -83,6 +83,8 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
 		}
 
+		// since we are getting a namespace and then updating it by putting it back in the map,
+		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
 		synchronized (namespaces) {
 			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
 
@@ -145,7 +147,8 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			register(namespace, function.getSignature());
 		}
 
-		// register
+		// since we are getting a namespace and then updating it by putting it back in the map,
+		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
 		synchronized (namespaces) {
 			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
 			Function<?> existing = ns.functions.put(identifier, function);
@@ -210,6 +213,26 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		}
 
 		return false;
+	}
+
+
+	public enum RetrievalResult {
+
+		/**
+		 * The specified function or signature has not been registered.
+		 */
+		NOT_REGISTERED,
+
+		/**
+		 * There are multiple functions or signatures that may fit the provided name and argument types.
+		 */
+		AMBIGUOUS,
+
+		/**
+		 * A single function or signature has been found which matches the name and argument types.
+		 */
+		EXACT
+
 	}
 
 	/**
@@ -351,25 +374,6 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		Signature<?> signature,
 		Class<?>[][] conflictingArgs
 	) {
-
-	}
-
-	public enum RetrievalResult {
-
-		/**
-		 * The specified function or signature has not been registered.
-		 */
-		NOT_REGISTERED,
-
-		/**
-		 * There are multiple functions or signatures that may fit the provided name and argument types.
-		 */
-		AMBIGUOUS,
-
-		/**
-		 * A single function or signature has been found which matches the name and argument types.
-		 */
-		EXACT
 
 	}
 
