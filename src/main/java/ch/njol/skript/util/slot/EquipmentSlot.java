@@ -178,6 +178,10 @@ public class EquipmentSlot extends SlotWithIndex {
 		this(holder.getEquipment(), BukkitUtils.getEquipmentSlotFromIndex(index), true);
 	}
 
+	public EquipmentSlot(@NotNull HumanEntity holder, @NotNull org.bukkit.inventory.EquipmentSlot bukkitSlot) {
+		this(holder.getEquipment(), bukkitSlot, true);
+	}
+
 	@Override
 	public @Nullable ItemStack getItem() {
 		if (skriptSlot != null)
