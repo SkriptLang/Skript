@@ -24,7 +24,7 @@ import java.util.List;
 
 @Name("Drops")
 @Description({
-	"Works in death and harvest events.",
+	"This expression only works in death and harvest events.",
 	"In a death event, will hold the drops of the dying creature.",
 	"Drops can be prevented by removing them with \"remove ... from drops\", "
 		+ "e.g. \"remove all pickaxes from the drops\", or \"clear drops\" if you don't want any drops at all."
