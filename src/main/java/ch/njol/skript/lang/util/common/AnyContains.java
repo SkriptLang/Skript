@@ -8,6 +8,14 @@ import org.jetbrains.annotations.UnknownNullability;
  * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.conditions.CondContains}
  * conditions.
  *
+ * @param <Type> the type of objects that this container can check for containment.
+ *               This represents the expected type of elements that the container
+ *               is designed to hold or work with.
+ *               When calling {@link #contains(Object)}, the parameter should be of this type,
+ *               or safely castable to it.
+ *               Implementations may use {@link #isSafeToCheck(Object)} to verify
+ *               that an object is a suitable candidate before performing a containment check.
+ *
  * @see AnyProvider
  */
 @FunctionalInterface
