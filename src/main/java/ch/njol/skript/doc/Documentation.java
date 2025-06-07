@@ -336,7 +336,7 @@ public class Documentation {
 			}
 		}
 		final String desc = validateHTML(StringUtils.join(info.getDescription(), "<br/>"), "events");
-		final String since = validateHTML(info.getSince(), "events");
+		final String since = validateHTML(StringUtils.join(info.getSince(), "<br/>"), "events");
 		if (desc == null || since == null) {
 			Skript.warning("description or 'since' of " + info.getName() + " (" + info.getElementClass().getSimpleName() + ") is invalid");
 			return;
