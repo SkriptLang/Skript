@@ -11,10 +11,10 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 
 @Name("Config (Experimental)")
 @Description({
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 		broadcast "Bonjour!"
 	"""})
 @Since("2.10")
-public class ExprConfig extends SimpleExpression<Config> {
+public class ExprConfig extends SimpleExpression<Config> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprConfig.class, Config.class, ExpressionType.SIMPLE,
@@ -39,8 +39,6 @@ public class ExprConfig extends SimpleExpression<Config> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
 		this.config = SkriptConfig.getConfig();
 		if (config == null) {
 			Skript.warning("The main config is unavailable here!");
