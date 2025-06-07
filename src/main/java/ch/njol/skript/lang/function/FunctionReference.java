@@ -7,6 +7,9 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.function.FunctionRegistry.FunctionRetrieval;
+import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
+import ch.njol.skript.lang.function.FunctionRegistry.SignatureRetrieval;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -21,14 +24,20 @@ import org.skriptlang.skript.util.Executable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Reference to a Skript function.
  */
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
-	static final String AMBIGUOUS_ERROR = "Skript cannot determine which function named '%s' to call. " +
-		"Try clarifying the type of the arguments using the 'value within' expression.";
+	private static final String AMBIGUOUS_ERROR = """
+		Skript cannot determine which function named '%s' to call. The following functions were matched:
+
+		 \t%s
+
+		 \tTry clarifying the type of the arguments using the 'value within' expression.""";
 
 	/**
 	 * Name of function that is called, for logging purposes.
@@ -285,19 +294,25 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			Skript.debug("Getting signature for '%s' with types %s",
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
-		Signature<?> sign = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
+
+		SignatureRetrieval attempt = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
+
+		if (attempt.result() == RetrievalResult.EXACT) {
+			return attempt.signature();
+		}
 
 		// if we can't find a signature based on param types, try to match any function
-		if (sign == null) {
-			sign = FunctionRegistry.getRegistry().getSignature(script, functionName);
+		attempt = FunctionRegistry.getRegistry().getSignature(script, functionName);
+
+		if (attempt.result() == RetrievalResult.EXACT) {
+			return attempt.signature();
 		}
 
-		if (sign == null) {
-			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
-			return null;
+		if (attempt.result() == RetrievalResult.AMBIGUOUS) {
+			ambiguousError(attempt.conflictingArgs());
 		}
 
-		return sign;
+		return null;
 	}
 
 	/**
@@ -310,19 +325,25 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			Skript.debug("Getting function '%s' with types %s",
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
-		Function<?> function = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
+
+		FunctionRetrieval attempt = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
+
+		if (attempt.result() == RetrievalResult.EXACT) {
+			return attempt.function();
+		}
 
 		// if we can't find a signature based on param types, try to match any function
-		if (function == null) {
-			function = FunctionRegistry.getRegistry().getFunction(script, functionName);
+		attempt = FunctionRegistry.getRegistry().getFunction(script, functionName);
+
+		if (attempt.result() == RetrievalResult.EXACT) {
+			return attempt.function();
 		}
 
-		if (function == null) {
-			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
-			return null;
+		if (attempt.result() == RetrievalResult.AMBIGUOUS) {
+			ambiguousError(attempt.conflictingArgs());
 		}
 
-		return function;
+		return null;
 	}
 
 	public @Nullable Function<? extends T> getFunction() {
@@ -447,6 +468,25 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 		return consigned;
 
+	}
+
+	void ambiguousError(Class<?>[][] conflictingArgs) {
+		StringJoiner joiner = new StringJoiner("\n\t");
+		for (Class<?>[] args : conflictingArgs) {
+			String argNames = Arrays.stream(args).map(arg -> {
+				String name = Classes.getExactClassName(arg);
+
+				if (name == null) {
+					return arg.getSimpleName();
+				} else {
+					return name.toLowerCase();
+				}
+			}).collect(Collectors.joining(", "));
+
+			joiner.add("- %s(%s)".formatted(functionName, argNames));
+		}
+
+		Skript.error(AMBIGUOUS_ERROR.formatted(functionName, joiner.toString()));
 	}
 
 }
