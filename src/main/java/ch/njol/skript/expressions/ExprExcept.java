@@ -58,7 +58,7 @@ public class ExprExcept extends SimpleExpression<Object> {
 	protected Object @Nullable [] get(Event event) {
 		Object[] exclude = this.exclude.getArray(event);
 		if (exclude == null || exclude.length == 0)
-			return isOrList ? source.getArray(event) : source.getAll(event);
+			return source.getArray(event);
 
 		return source.streamAll(event)
 			.filter(sourceObject -> {
@@ -72,7 +72,7 @@ public class ExprExcept extends SimpleExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
-		return isOrList;
+		return source.isSingle();
 	}
 
 	@Override
