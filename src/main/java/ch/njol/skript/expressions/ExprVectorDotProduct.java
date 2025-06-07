@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Dot Product")
 @Description("Gets the dot product between two vectors.")
@@ -55,6 +57,13 @@ public class ExprVectorDotProduct extends SimpleExpression<Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
+	}
+
+	@Override
+	public Expression<? extends Number> simplify() {
+		if (first instanceof Literal<Vector> && second instanceof Literal<Vector>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

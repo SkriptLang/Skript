@@ -34,6 +34,7 @@ import java.util.*;
 	"set {_item} to thing banner pattern item"
 })
 @Since("2.10")
+// TODO: turn this into a Literal
 public class ExprBannerItem extends SimpleExpression<ItemType> {
 
 	private static final Map<Object, Material> bannerMaterials = new HashMap<>();

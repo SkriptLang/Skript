@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
@@ -16,6 +17,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 
 /**
@@ -67,6 +69,13 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 	@Override
 	public Class<? extends Location> getReturnType() {
 		return Location.class;
+	}
+
+	@Override
+	public Expression<? extends Location> simplify() {
+		if (location instanceof Literal<Location> && vectors instanceof Literal<Vector>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override
