@@ -4,11 +4,14 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 /**
  * Represents an expression that is able to return a set of keys linked to its values.
  * This can be used to return index-linked values to store in a list variable,
- * using the {@link ChangeMode#SET} {@link Changer}.
+ * using the {@link ChangeMode#SET} {@link Changer} or passed to a function argument.
  * An expression can provide a set of keys to use, rather than numerical indices.
  * <br/>
  * Index-linking is not (currently) used with other change modes.
@@ -18,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
  * <ul>
  *     <li>Neither {@link #getArrayKeys(Event)} nor {@link #getAllKeys(Event)} should ever be called without
  *     a corresponding {@link #getArray(Event)} or {@link #getAll(Event)} call.</li>
+ *     <li>{@link #getArrayKeys(Event)} and {@link #getAllKeys(Event)} should only be called iff {@link #canReturnKeys()}
+ *     returns {@code true}.</li>
  *     <li>A caller may ask only for values and does not have to invoke either {@link #getArrayKeys(Event)} or
  *     {@link #getAllKeys(Event)}.</li>
  *     <li>{@link #getArrayKeys(Event)} might be called after the corresponding {@link #getArray(Event)}</li>
@@ -71,7 +76,8 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * A set of keys, matching the length and order of the immediately-previous
 	 * {@link #getArray(Event)} values array.
 	 * <br/>
-	 * This should <b>only</b> be called immediately after a {@link #getArray(Event)} invocation.
+	 * This should <b>only</b> be called immediately after a {@link #getArray(Event)} invocation,
+	 * and iff {@link #canReturnKeys()} returns {@code true}.
 	 * If it is called without a matching values request (or after a delay) then the behaviour
 	 * is undefined, in which case:
 	 * <ul>
@@ -83,6 +89,7 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * @param event The event context
 	 * @return A set of keys, of the same length as {@link #getArray(Event)}
 	 * @throws IllegalStateException If this was not called directly after a {@link #getArray(Event)} call
+	 * or if {@link #canReturnKeys()} returns {@code false}
 	 */
 	@NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException;
 
@@ -90,7 +97,8 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * A set of keys, matching the length and order of the immediately-previous
 	 * {@link #getAll(Event)} values array.
 	 * <br/>
-	 * This should <b>only</b> be called immediately after a {@link #getAll(Event)} invocation.
+	 * This should <b>only</b> be called immediately after a {@link #getArray(Event)} invocation,
+	 * and iff {@link #canReturnKeys()} returns {@code true}.
 	 * If it is called without a matching values request (or after a delay) then the behaviour
 	 * is undefined, in which case:
 	 * <ul>
@@ -102,6 +110,7 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * @param event The event context
 	 * @return A set of keys, of the same length as {@link #getAll(Event)}
 	 * @throws IllegalStateException If this was not called directly after a {@link #getAll(Event)} call
+	 * or if {@link #canReturnKeys()} returns {@code false}
 	 */
 	default @NotNull String @NotNull [] getAllKeys(Event event) {
 		return this.getArrayKeys(event);
@@ -116,13 +125,50 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	}
 
 	/**
-	 * While all keyed expressions <i>offer</i> their keys,
+	 * Returns whether this expression can return keys.
+	 * <br/>
+	 * If this returns false, then {@link #getArrayKeys(Event)} and {@link #getAllKeys(Event)} should never be called.
+	 *
+	 * @return Whether this expression can return keys
+	 */
+	default boolean canReturnKeys() {
+		return true;
+	}
+
+	/**
+	 * While all keyed expressions may <i>offer</i> their keys,
 	 * some may prefer that they are not used unless strictly required (e.g. variables).
 	 *
 	 * @return Whether the caller is recommended to ask for keys after asking for values
 	 */
 	default boolean areKeysRecommended() {
 		return true;
+	}
+
+	/**
+	 * Zips the given values and keys into a map entry array.
+	 *
+	 * @param values the values to zip
+	 * @param keys the keys to zip with the values, or null to use numerical indices (1, 2, 3, ..., n)
+	 * @return an array of map entries, where each entry is a key-value pair
+	 * @param <T> the type of the values
+	 * @throws IllegalArgumentException if the keys are present and the lengths of values and keys do not match
+	 */
+	static <T> Map.Entry<String, T> @NotNull [] zip(@NotNull T @NotNull [] values, @NotNull String @Nullable [] keys) {
+		if (keys == null) {
+			//noinspection unchecked
+			Map.Entry<String, T>[] entries = new Map.Entry[values.length];
+			for (int i = 0; i < values.length; i++)
+				entries[i] = Map.entry(String.valueOf(i + 1), values[i]);
+			return entries;
+		}
+		if (values.length != keys.length)
+			throw new IllegalArgumentException("Values and keys must have the same length");
+		//noinspection unchecked
+		Map.Entry<String, T>[] entries = new Map.Entry[values.length];
+		for (int i = 0; i < values.length; i++)
+			entries[i] = Map.entry(keys[i], values[i]);
+		return entries;
 	}
 
 }

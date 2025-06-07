@@ -270,6 +270,7 @@ public class EffChange extends Effect {
 		if (mode.supportsKeyedChange() && changer != null && delta != null
 			&& changer instanceof KeyProviderExpression<?> provider
 			&& changed instanceof KeyReceiverExpression<?> receiver
+			&& provider.canReturnKeys()
 			&& provider.areKeysRecommended()) {
 			receiver.change(event, delta, mode, provider.getArrayKeys(event));
 		} else {

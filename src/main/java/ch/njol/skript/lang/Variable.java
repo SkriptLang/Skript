@@ -694,6 +694,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
+	public boolean canReturnKeys() {
+		return list;
+	}
+
+	@Override
 	public boolean areKeysRecommended() {
 		return false; // We want `set {list::*} to {other::*}` reset numbering!
 	}

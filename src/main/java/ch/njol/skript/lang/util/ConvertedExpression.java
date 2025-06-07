@@ -4,6 +4,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -18,7 +19,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.function.Predicate;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -27,8 +27,6 @@ import java.util.function.Predicate;
  * <li>automatically lets the source expression handle everything apart from the get() methods</li>
  * <li>will never convert itself to another type, but rather request a new converted expression from the source expression.</li>
  * </ol>
- *
- * @author Peter Güttinger
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
 
@@ -95,8 +93,11 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 		if (!infos.isEmpty()) { // there are converters for (at least some of) the return types
 			// a note: casting <? extends F> to <? super F> is wrong, but since the converter is used only for values
 			//         returned by the expression (which are instances of <? extends F>), this won't result in any CCEs
-			// noinspection rawtypes, unchecked
-			return new ConvertedExpression(from, Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new)), infos, true);
+			Class<?> toType = Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new));
+			//noinspection unchecked,rawtypes
+			return from instanceof KeyProviderExpression<?>
+				? new ConvertedKeyProviderExpression((KeyProviderExpression) from, toType, infos, true)
+				: new ConvertedExpression(from, toType, infos, true);
 		}
 
 		return null;
@@ -260,7 +261,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	public Expression<?> getSource() {
+	public Expression<? extends F> getSource() {
 		return source;
 	}
 
