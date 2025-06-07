@@ -11,13 +11,12 @@ import org.bukkit.Location;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Center of World Border")
 @Description("The center of a world border.")
 @Examples("set world border center of {_worldborder} to location(10, 0, 20)")
 @Since("2.11")
-public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> implements SyntaxRuntimeErrorProducer {
+public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> {
 
 	static {
 		registerDefault(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders");
