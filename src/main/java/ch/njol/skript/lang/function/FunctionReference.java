@@ -470,7 +470,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 	}
 
-	void ambiguousError(Class<?>[][] conflictingArgs) {
+	private void ambiguousError(Class<?>[][] conflictingArgs) {
 		StringJoiner joiner = new StringJoiner("\n\t");
 		for (Class<?>[] args : conflictingArgs) {
 			String argNames = Arrays.stream(args).map(arg -> {
