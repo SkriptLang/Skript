@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.particles.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -13,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.GameEffect;
 import org.skriptlang.skript.bukkit.particles.ParticleEffect;
@@ -66,18 +68,7 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 		if (this.entities != null) {
 			Entity[] entities = this.entities.getArray(event);
 			EntityEffect[] effects = (EntityEffect[]) toDraw.getArray(event);
-			for (EntityEffect effect : effects) {
-				boolean played = false;
-				for (Entity entity : entities) {
-					if (effect.isApplicableTo(entity)) {
-						entity.playEffect(effect);
-						played = true;
-					}
-				}
-				if (entities.length > 0 && !played) {
-					warning("Effect " + Classes.toString(effect) + " is not applicable to any of the given entities: (" + Classes.toString(entities, this.entities.getAnd()) + ")");
-				}
-			}
+			drawEntityEffects(effects, entities);
 			return;
 		}
 
@@ -115,6 +106,33 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 							particleEffect.drawForPlayer(location, player, force);
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Helper method to draw entity effects on entities. Provides a runtime warning if no provided entities are applicable
+	 * @param effects the effects to draw
+	 * @param entities the entities to draw the effects on
+	 */
+	private void drawEntityEffects(EntityEffect @NotNull [] effects, Entity @NotNull [] entities) {
+		for (EntityEffect effect : effects) {
+			boolean played = false;
+			for (Entity entity : entities) {
+				if (effect.isApplicableTo(entity)) {
+					entity.playEffect(effect);
+					played = true;
+				}
+			}
+			if (entities.length > 0 && !played) {
+				// todo: cache?
+				String[] applicableClasses = effect.getApplicableClasses().stream()
+					.map(EntityData::toString)
+					.distinct().toArray(String[]::new);
+				assert this.entities != null;
+				warning("The '" + Classes.toString(effect) + "' is not applicable to any of the given entities " +
+					"(" + Classes.toString(entities, this.entities.getAnd()) + "), " +
+					"only to " + Classes.toString(applicableClasses, false) + ".");
 			}
 		}
 	}

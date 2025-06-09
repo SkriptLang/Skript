@@ -2527,82 +2527,96 @@ game effect:
 
 # -- Entity Effects --
 # all patterns should include the word 'effect' or 'animation'
+# 'effect' should be used for particles, 'sound effect' for sounds, 'animation' for model animations
 entity effect:
 	arrow_particles: tipped arrow particles effect
-	rabbit_jump: rabbit jump effect
+	rabbit_jump: rabbit jump animation
 	reset_spawner_minecart_delay: reset spawner minecart delay effect
 	hurt: hurt animation
+
+	# death was superseded by entity_death 1.12.2
+	entity_death: death animation
 	death: death animation
-	egg_break: egg break animation
-	snowball_break: snowball break animation
-	projectile_crack: projectile crack animation
-	entity_death: entity death animation
-	fang_attack: fang attack animation
+
+	egg_break: egg break effect
+	snowball_break: snowball break effect
+	projectile_crack: projectile crack effect
+	fang_attack: evoker fang attack animation
 	hoglin_attack: hoglin attack animation
 	iron_golen_attack: iron golem attack animation
 	ravager_attack: ravager attack animation
 	warden_attack: warden attack animation
 	zoglin_attack: zoglin attack animation
 	entity_attack: entity attack animation
-	wolf_smoke: wolf smoke effect
-	wolf_hearts: wolf hearts effect
+
+	# wolf effects superseded by taming effects 1.21
+	wolf_smoke: taming failed effect
+	wolf_hearts: taming succeeded effect
 	taming_failed: taming failed effect
 	taming_succeeded: taming succeeded effect
+
+	trusting_failed: ocelot distrust effect
+	trusting_succeeded: ocelot trust effect
 	wolf_shake: wolf shake animation
-	sheep_eat: sheep eat animation
-	sheep_eat_grass: sheep eat grass animation
+	wolf_shake_stop: stop wolf shake animation
 	tnt_minecart_ignite: ignite tnt minecart animation
 	iron_golem_rose: iron golem rose animation
+	iron_golem_sheath: iron golem sheath animation
 	villager_heart: villager heart effect
 	villager_angry: villager angry effect
 	villager_happy: villager happy effect
 	witch_magic: witch magic effect
-	zombie_transform: zombie transform animation
+	zombie_transform: zombie transform sound effect
 	firework_explode: firework explode animation
 	love_hearts: love hearts effect
-	squid_rotate: squid rotate animation
+	squid_rotate: squid rotation reset
 	entity_poof: entity poof effect
-	guardian_target: guardian target effect
-	shield_block: shield block animation
-	shield_break: shield break animation
-	armor_stand_hit: armor stand hit animation
-	thorns_hurt: thorns hurt animation
-	iron_golem_sheath: iron golem sheath animation
-	totem_resurrect: totem resurrect animation
-	protected_from_death: protected from death animation
-	hurt_drown: drown damage effect
-	hurt_explosion: explosion damage effect
-	dolphin_fed: fed dolphin animation
-	ravager_stunned: stunned ravager animation
-	cat_tame_fail: cat tame fail animation
-	cat_tame_success: cat tame success animation
-	trusting_failed: trusting failed
-	trusting_succeeded: trusting succeeded
-	villager_splash: villager splash effect
-	player_bad_omen_raid: player bad omen raid effect
-	hurt_berry_bush: hurt berry bush effect
-	fox_chew: fox chew animation
-	teleport_ender: ender teleport animation
-	break_equipment_main_hand: break equipment main hand effect
-	break_equipment_off_hand: break equipment off hand effect
-	break_equipment_helmet: break equipment helmet effect
-	break_equipment_chestplate: break equipment chestplate effect
-	break_equipment_leggings: break equipment leggings effect
-	break_equipment_boots: break equipment boots effect
-	honey_block_slide_particles: honey block slide particles
-	honey_block_fall_particles: honey block fall particles
-	swap_hand_items: swap hand items effect
-	wolf_shake_stop: wolf shake stop animation
-	goat_lower_head: goat lower head animation
-	goat_raise_head: goat raise head animation
-	spawn_death_smoke: spawn death smoke effect
+	shield_block: shield block sound effect
+	shield_break: shield break sound effect
+	armor_stand_hit: armor stand hit effect
+	dolphin_fed: fed dolphin effect
+	ravager_stunned: stunned ravager effect
+	villager_splash: villager sweat effect
+	player_bad_omen_raid: player bad omen raid effect # pre 1.20.5
+	fox_chew: fox chew effect
+	teleport_ender: ender teleport effect
+	break_equipment_main_hand: break main hand effect
+	break_equipment_off_hand: break off hand effect
+	break_equipment_helmet: break helmet effect
+	break_equipment_chestplate: break chestplate effect
+	break_equipment_leggings: break leggings effect
+	break_equipment_boots: break boots effect
+	body_break: break body armor effect, break body armour effect
+	honey_block_slide_particles: honey block slide effect
+	honey_block_fall_particles: honey block fall effect
+	swap_hand_items: swap hands effect # this actually makes players swap hands
+	goat_lower_head: goat lowering head animation
+	goat_raise_head: goat raising head animation
+	spawn_death_smoke: spawn in smoke effect
 	warden_tendril_shake: warden tendril shake animation
 	warden_sonic_attack: warden sonic attack animation
-	sniffer_dig: sniffer dig animation
+	sniffer_dig: sniffer dig sound effect # only if the sniffer is already in search/dig state
 	armadillo_peek: armadillo peek animation
-	body_break: break body animation
-	break_equipment_body: break equipment body effect
-	shake: shake animation
+	shake: creaking shake animation
+
+	# sheep eat superseded by sheep eat grass 1.12.2
+	sheep_eat: sheep eating grass animation
+	sheep_eat_grass: sheep eating grass animation
+
+	# identical
+	totem_resurrect: protected from death effect
+	protected_from_death: protected from death effect
+
+	# non-functional
+	guardian_target: guardian target sound effect
+	thorns_hurt: thorns hurt effect
+	hurt_drown: drown damage effect
+	hurt_explosion: explosion damage effect
+	hurt_berry_bush: hurt berry bush effect
+	cat_tame_fail: cat tame fail effect
+	cat_tame_success: cat tame success effect
+
+
 
 # -- Teleport Flags --
 teleport flags:
