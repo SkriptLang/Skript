@@ -35,7 +35,7 @@ public class JavaClasses {
 	 * The pattern is the letter {@code e} or {@code E} followed by a sign and one or more digits.
 	 * </p>
 	 */
-	public static final String SCIENTIFIC_PATTERN = "(?:[eE][+-]\\d+)?";
+	public static final String SCIENTIFIC_PATTERN = "(?:[eE][+-]?\\d+)?";
 
 	/**
 	 * The format of an integer.
@@ -57,7 +57,7 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?"
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
 			.formatted(INTEGER_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	/**
@@ -82,7 +82,7 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?"
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
 			.formatted(DECIMAL_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	static {
