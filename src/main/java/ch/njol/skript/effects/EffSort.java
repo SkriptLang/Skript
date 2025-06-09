@@ -2,19 +2,11 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.ExprInput;
 import ch.njol.skript.expressions.ExprSortedList;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.InputSource;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -22,11 +14,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Name("Sort")
 @Description("""
@@ -47,6 +35,8 @@ import java.util.Set;
 @Keywords("input")
 public class EffSort extends Effect implements InputSource {
 
+	private record MappedValue(Object original, Object mapped) { }
+
 	static {
 		Skript.registerEffect(EffSort.class, "sort %~objects% [in (:descending|ascending) order] [(by|based on) <.+>]");
 		if (!ParserInstance.isRegistered(InputData.class))
@@ -65,11 +55,11 @@ public class EffSort extends Effect implements InputSource {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (expressions[0].isSingle() || !(expressions[0] instanceof Variable)) {
+		if (expressions[0].isSingle() || !(expressions[0] instanceof Variable<?> variable)) {
 			Skript.error("You can only sort list variables!");
 			return false;
 		}
-		unsortedObjects = (Variable<?>) expressions[0];
+		unsortedObjects = variable;
 		descendingOrder = parseResult.hasTag("descending");
 
 		//noinspection DuplicatedCode
@@ -77,7 +67,12 @@ public class EffSort extends Effect implements InputSource {
 			@Nullable String unparsedExpression = parseResult.regexes.get(0).group();
 			assert unparsedExpression != null;
 			mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.PARSE_EXPRESSIONS);
-			return mappingExpr != null;
+			if (mappingExpr == null)
+				return false;
+			if (!mappingExpr.isSingle()) {
+				Skript.error("The mapping expression in the sort effect must only return a single value for a single input.");
+				return false;
+			}
 		}
 		return true;
 	}
@@ -95,7 +90,7 @@ public class EffSort extends Effect implements InputSource {
 				return;
 			}
 		} else {
-			Map<Object, Object> valueToMappedValue = new LinkedHashMap<>();
+			List<MappedValue> mappedValues = new ArrayList<>();
 			for (Iterator<Pair<String, Object>> it = unsortedObjects.variablesIterator(event); it.hasNext(); ) {
 				Pair<String, Object> pair = it.next();
 				currentIndex = pair.getKey();
@@ -103,12 +98,12 @@ public class EffSort extends Effect implements InputSource {
 				Object mappedValue = mappingExpr.getSingle(event);
 				if (mappedValue == null)
 					return;
-				valueToMappedValue.put(currentValue, mappedValue);
+				mappedValues.add(new MappedValue(currentValue, mappedValue));
 			}
 			try {
-				sorted = valueToMappedValue.entrySet().stream()
-					.sorted(Map.Entry.comparingByValue((o1, o2) -> ExprSortedList.compare(o1, o2) * sortingMultiplier))
-					.map(Map.Entry::getKey)
+				sorted = mappedValues.stream()
+					.sorted((o1, o2) -> ExprSortedList.compare(o1.mapped(), o2.mapped()) * sortingMultiplier)
+					.map(MappedValue::original)
 					.toArray();
 			} catch (IllegalArgumentException | ClassCastException e) {
 				return;

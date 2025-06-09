@@ -19,7 +19,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Time")
-@Description("Tests whether a given <a href='classes.html#date'>real time</a> was more or less than some <a href='classes.html#timespan'>time span</a> ago.")
+@Description("Tests whether a given <a href='#date'>real time</a> was more or less than some <a href='#timespan'>time span</a> ago.")
 @Examples({"command /command-with-cooldown:",
 		"	trigger:",
 		"		{command::%player's uuid%::last-usage} was less than a minute ago:",

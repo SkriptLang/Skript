@@ -25,11 +25,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public final class ParserInstance implements Experimented {
@@ -461,6 +457,19 @@ public final class ParserInstance implements Experimented {
 		return indentation;
 	}
 
+	// Parsing stack
+
+	private final ParsingStack parsingStack = new ParsingStack();
+
+	/**
+	 * Gets the current parsing stack.
+	 * <p>
+	 * Although the stack can be modified, doing so is not recommended.
+	 */
+	public ParsingStack getParsingStack() {
+		return parsingStack;
+	}
+
 	// Experiments API
 
 	@Override
@@ -513,6 +522,17 @@ public final class ParserInstance implements Experimented {
 		return new ExperimentSet(set);
 	}
 
+	/**
+	 * Get the {@link ExperimentSet} of the current {@link Script}
+	 */
+	public ExperimentSet getExperimentSet() {
+		Script script = this.getCurrentScript();
+		ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return new ExperimentSet();
+		return set;
+	}
+
 	// ParserInstance Data API
 
 	/**
@@ -535,9 +555,9 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptLoader.LoaderEvent}.
+		 * @deprecated See {@link ScriptLoader.LoaderEvent} instead.
 		 */
-		@Deprecated
+		@Deprecated(since = "2.11.0", forRemoval = true)
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
 		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
@@ -686,10 +706,10 @@ public final class ParserInstance implements Experimented {
 	// Deprecated API
 
 	/**
-	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained.
+	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained. 
 	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);
@@ -700,36 +720,36 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
-	 * @deprecated Use {@link #getCurrentStructure()}
+	 * @deprecated Use {@link #getCurrentStructure()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
-		if (structure instanceof SkriptEvent)
-			return (SkriptEvent) structure;
+		if (structure instanceof SkriptEvent event)
+			return event;
 		return null;
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)}.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
-		setCurrentStructure(currentSkriptEvent);
+		this.setCurrentStructure(currentSkriptEvent);
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null'.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null' instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void deleteCurrentSkriptEvent() {
-		setCurrentStructure(null);
+		this.setCurrentStructure(null);
 	}
 
 	/**
 	 * @deprecated Addons should no longer be modifying this.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentScript(@Nullable Config currentScript) {
 		if (currentScript == null)
 			return;

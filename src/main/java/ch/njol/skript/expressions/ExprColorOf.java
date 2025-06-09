@@ -37,15 +37,16 @@ import java.util.function.Consumer;
 
 @Name("Color of")
 @Description({
-	"The <a href='./classes.html#color'>color</a> of an item, entity, block, firework effect, or text display.",
+	"The <a href='#color'>color</a> of an item, entity, block, firework effect, or text display.",
 	"This can also be used to color chat messages with \"&lt;%color of ...%&gt;this text is colored!\".",
 	"Do note that firework effects support setting, adding, removing, resetting, and deleting; text displays support " +
 	"setting and resetting; and items, entities, and blocks only support setting, and only for very few items/blocks."
 })
 @Examples({
 	"on click on wool:",
-		"\tmessage \"This wool block is <%color of block%>%color of block%<reset>!\"",
-		"\tset the color of the block to black"
+		"if event-block is tagged with minecraft tag \"wool\":",
+			"\tmessage \"This wool block is <%color of block%>%color of block%<reset>!\"",
+			"\tset the color of the block to black"
 })
 @Since("1.2, 2.10 (displays)")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
