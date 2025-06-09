@@ -8,3 +8,4 @@ test "scientific notation":
 	assert 123e-2 is 1.23 with "123e-2 is not 1.23"
 
 	assert 1.23e+4 degs is 12300 with "1.23e+4 degs is not 12300"
+	assert 1.23e4 degs is 12300 with "1.23e4 degs is not 12300"
