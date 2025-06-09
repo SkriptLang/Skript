@@ -60,10 +60,10 @@ public class DynamicFunctionReference<Result>
 			// will return the first function found that matches name.
 			// TODO: add a way to specify param types
 			//noinspection unchecked
-			function = (Function<? extends Result>) FunctionRegistry.getRegistry().getFunction(source.getConfig().getFileName(), name).function();
+			function = (Function<? extends Result>) FunctionRegistry.getRegistry().getFunction(source.getConfig().getFileName(), name).retrieved();
 		} else {
 			//noinspection unchecked
-			function = (Function<? extends Result>) FunctionRegistry.getRegistry().getFunction(null, name).function();
+			function = (Function<? extends Result>) FunctionRegistry.getRegistry().getFunction(null, name).retrieved();
 		}
 
 		this.resolved = function != null;

@@ -236,37 +236,38 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
-	 * The result of trying to retrieve a function.
+	 * The result of trying to retrieve a function or signature.
 	 * <p>
-	 * When getting a function, the following situations may occur.
-	 * These are specified by {@code result}.
+	 * When getting a function or signature, the following situations may occur.
+	 * These are specified by {@code type}.
 	 * <ul>
 	 *     <li>
-	 *         {@code NOT_REGISTERED}. The specified function is not registered.
-	 *         Both {@code function} and {@code conflictingArgs} will be null.
+	 *         {@code NOT_REGISTERED}. The specified function or signature is not registered.
+	 *         Both {@code retrieved} and {@code conflictingArgs} will be null.
 	 *     </li>
 	 *     <li>
-	 *         {@code AMBIGUOUS}. There are multiple functions that
+	 *         {@code AMBIGUOUS}. There are multiple functions or signatures that
 	 *         may fit the provided name and argument types.
-	 *           {@code function} will be null, and {@code conflictingArgs}
-	 * 		   will contain the conflicting function parameters.
+	 *           {@code retrieved} will be null, and {@code conflictingArgs}
+	 * 		   will contain the conflicting function or signature parameters.
 	 *     </li>
 	 *     <li>
-	 *         {@code EXACT}. A single function has been found which matches the name and argument types.
-	 *         {@code function} will contain the function, and {@code conflictingArgs} will be null.
+	 *         {@code EXACT}. A single function or signature has been found which matches the name and argument types.
+	 *         {@code retrieved} will contain the function or signature, and {@code conflictingArgs} will be null.
 	 *     </li>
 	 * </ul>
 	 * </p>
 	 *
-	 * @param result          The result of the function retrieval.
-	 * @param function        The function that was found if {@code result} is {@code EXACT}.
+	 * @param result          The result of the function or signature retrieval.
+	 * @param retrieved       The function or signature that was found if {@code result} is {@code EXACT}.
 	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
 	 */
-	public record FunctionRetrieval(
+	public record Retrieval<T>(
 		@NotNull RetrievalResult result,
-		Function<?> function,
+		T retrieved,
 		Class<?>[][] conflictingArgs
-	) { }
+	) {
+	}
 
 	/**
 	 * Gets a function from a script. If no local function is found, checks for global functions.
@@ -282,9 +283,9 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param name      The name of the function.
 	 * @param args      The types of the arguments of the function.
 	 * @return Information related to the attempt to get the specified function,
-	 * stored in a {@link FunctionRetrieval} object.
+	 * stored in a {@link Retrieval} object.
 	 */
-	public @NotNull FunctionRetrieval getFunction(
+	public @NotNull Retrieval<Function<?>> getFunction(
 		@Nullable String namespace,
 		@NotNull String name, Class<?>... args
 	) {
@@ -292,7 +293,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		FunctionRetrieval attempt = getFunction(new NamespaceIdentifier(Scope.LOCAL, namespace),
+		Retrieval<Function<?>> attempt = getFunction(new NamespaceIdentifier(Scope.LOCAL, namespace),
 			FunctionIdentifier.of(name, true, args));
 		if (attempt.result != RetrievalResult.EXACT) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
@@ -307,9 +308,9 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 *                  Usually represents the path of the script this function is registered in.
 	 * @param provided  The provided identifier of the function.
 	 * @return Information related to the attempt to get the specified function,
-	 * stored in a {@link FunctionRetrieval} object.
+	 * stored in a {@link Retrieval} object.
 	 */
-	private @NotNull FunctionRetrieval getFunction(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
+	private @NotNull Retrieval<Function<?>> getFunction(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
 		Preconditions.checkNotNull(namespace, "namespace cannot be null");
 		Preconditions.checkNotNull(provided, "provided cannot be null");
 
@@ -317,16 +318,16 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		Set<FunctionIdentifier> existing = ns.identifiers.get(provided.name);
 		if (existing == null) {
 			Skript.debug("No functions named '%s' exist in the '%s' namespace".formatted(provided.name, namespace.name));
-			return new FunctionRetrieval(RetrievalResult.NOT_REGISTERED, null, null);
+			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		}
 
 		Set<FunctionIdentifier> candidates = candidates(provided, existing);
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a function for '%s'".formatted(provided.name));
-			return new FunctionRetrieval(RetrievalResult.NOT_REGISTERED, null, null);
+			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		} else if (candidates.size() == 1) {
 			Skript.debug("Matched function for '%s': %s".formatted(provided.name, candidates.stream().findAny().orElse(null)));
-			return new FunctionRetrieval(RetrievalResult.EXACT,
+			return new Retrieval<>(RetrievalResult.EXACT,
 				ns.functions.get(candidates.stream().findAny().orElse(null)),
 				null);
 		} else {
@@ -334,47 +335,12 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			Skript.debug("Failed to match an exact function for '%s'".formatted(provided.name));
 			Skript.debug("Identifier: %s".formatted(provided));
 			Skript.debug("Options: %s".formatted(options));
-			return new FunctionRetrieval(RetrievalResult.AMBIGUOUS,
+			return new Retrieval<>(RetrievalResult.AMBIGUOUS,
 				null,
 				candidates.stream()
 					.map(FunctionIdentifier::args)
 					.toArray(Class<?>[][]::new));
 		}
-	}
-
-	/**
-	 * The result of trying to retrieve a signature.
-	 * <p>
-	 * When getting a signature, the following situations may occur.
-	 * These are specified by {@code result}.
-	 * <ul>
-	 *     <li>
-	 *         {@code NOT_REGISTERED}. The specified signature is not registered.
-	 *         Both {@code signature} and {@code conflictingArgs} will be null.
-	 *     </li>
-	 *     <li>
-	 *         {@code AMBIGUOUS}. There are multiple signatures that
-	 *         may fit the provided name and argument types.
-	 *         {@code signature} will be null, and {@code conflictingArgs}
-	 * 		   will contain the conflicting signature parameters.
-	 *     </li>
-	 *     <li>
-	 *         {@code EXACT}. A single signature has been found which matches the name and argument types.
-	 *         {@code signature} will contain the signature, and {@code conflictingArgs} will be null.
-	 *     </li>
-	 * </ul>
-	 * </p>
-	 *
-	 * @param result          The result of the function retrieval.
-	 * @param signature       The signature that was found if {@code result} is {@code EXACT}.
-	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
-	 */
-	public record SignatureRetrieval(
-		@NotNull RetrievalResult result,
-		Signature<?> signature,
-		Class<?>[][] conflictingArgs
-	) {
-
 	}
 
 	/**
@@ -393,12 +359,12 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	public SignatureRetrieval getSignature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+	public Retrieval<Signature<?>> getSignature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
 		if (namespace == null) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		SignatureRetrieval attempt = getSignature(new NamespaceIdentifier(Scope.LOCAL, namespace),
+		Retrieval<Signature<?>> attempt = getSignature(new NamespaceIdentifier(Scope.LOCAL, namespace),
 			FunctionIdentifier.of(name, true, args));
 		if (attempt.result != RetrievalResult.EXACT) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
@@ -414,24 +380,24 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
 	 * in the specified namespace.
 	 */
-	private SignatureRetrieval getSignature(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
+	private Retrieval<Signature<?>> getSignature(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
 		Preconditions.checkNotNull(namespace, "namespace cannot be null");
 		Preconditions.checkNotNull(provided, "provided cannot be null");
 
 		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
 		if (!ns.identifiers.containsKey(provided.name)) {
 			Skript.debug("No signatures named '%s' exist in the '%s' namespace", provided.name, namespace.name);
-			return new SignatureRetrieval(RetrievalResult.NOT_REGISTERED, null, null);
+			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		}
 
 		Set<FunctionIdentifier> candidates = candidates(provided, ns.identifiers.get(provided.name));
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a signature for '%s'", provided.name);
-			return new SignatureRetrieval(RetrievalResult.NOT_REGISTERED, null, null);
+			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		} else if (candidates.size() == 1) {
 			Skript.debug("Matched signature for '%s': %s",
 				provided.name, ns.signatures.get(candidates.stream().findAny().orElse(null)));
-			return new SignatureRetrieval(RetrievalResult.EXACT,
+			return new Retrieval<>(RetrievalResult.EXACT,
 				ns.signatures.get(candidates.stream().findAny().orElse(null)),
 				null);
 		} else {
@@ -439,7 +405,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			Skript.debug("Failed to match an exact signature for '%s'", provided.name);
 			Skript.debug("Identifier: %s", provided);
 			Skript.debug("Options: %s", options);
-			return new SignatureRetrieval(RetrievalResult.AMBIGUOUS,
+			return new Retrieval<>(RetrievalResult.AMBIGUOUS,
 				null,
 				candidates.stream()
 					.map(FunctionIdentifier::args)

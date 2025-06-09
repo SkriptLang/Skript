@@ -7,9 +7,8 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.function.FunctionRegistry.FunctionRetrieval;
+import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
-import ch.njol.skript.lang.function.FunctionRegistry.SignatureRetrieval;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -295,17 +294,17 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
 
-		SignatureRetrieval attempt = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
+		Retrieval<Signature<?>> attempt = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
 
 		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.signature();
+			return attempt.retrieved();
 		}
 
 		// if we can't find a signature based on param types, try to match any function
 		attempt = FunctionRegistry.getRegistry().getSignature(script, functionName);
 
 		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.signature();
+			return attempt.retrieved();
 		}
 
 		if (attempt.result() == RetrievalResult.AMBIGUOUS) {
@@ -326,17 +325,17 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		}
 
-		FunctionRetrieval attempt = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
+		Retrieval<Function<?>> attempt = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
 
 		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.function();
+			return attempt.retrieved();
 		}
 
 		// if we can't find a signature based on param types, try to match any function
 		attempt = FunctionRegistry.getRegistry().getFunction(script, functionName);
 
 		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.function();
+			return attempt.retrieved();
 		}
 
 		if (attempt.result() == RetrievalResult.AMBIGUOUS) {
