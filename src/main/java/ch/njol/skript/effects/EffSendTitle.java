@@ -23,7 +23,7 @@ import ch.njol.util.Kleenean;
 	"be sent with the next title. To show only the subtitle, use: <code>send title \" \" with subtitle \"yourtexthere\" to player</code>.",
 	"",
 	"Note: if no input is given for the times, it will keep the ones from the last title sent, " +
-	"use the <a href='effects.html#EffResetTitle'>reset title</a> effect to restore the default values."
+	"use the <a href='#EffResetTitle'>reset title</a> effect to restore the default values."
 })
 @Examples({
 	"send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds",
