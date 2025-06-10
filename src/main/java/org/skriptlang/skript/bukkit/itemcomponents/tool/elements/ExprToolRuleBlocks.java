@@ -1,19 +1,23 @@
-package org.skriptlang.skript.bukkit.toolcomponent.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,13 +33,13 @@ import java.util.List;
 })
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
-public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> {
+
+@SuppressWarnings("UnstableApiUsage")
+public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> implements ToolExperiment {
 
 	static {
-		Skript.registerExpression(ExprToolRuleBlocks.class, ItemType.class, ExpressionType.PROPERTY,
-			"[the] tool rule[s] block types of %toolrules%");
+		register(ExprToolRuleBlocks.class, ItemType.class, "tool rule[s] block types", "toolrules");
 	}
-
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -62,11 +66,10 @@ public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		assert delta != null;
 		ItemType[] types = (ItemType[]) delta;
 		List<Material> materials = Arrays.stream(types).map(ItemType::getMaterial).toList();
-		for (ToolRule rule : getExpr().getArray(event)) {
-			rule.setBlocks(materials);
-		}
+		getExpr().stream(event).forEach(toolRule -> toolRule.setBlocks(materials));
 	}
 
 	@Override
@@ -81,7 +84,9 @@ public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the tool rule block types " + getExpr().toString(event, debug);
+		return new SyntaxStringBuilder(event, debug)
+			.append("the tool rule block types of", getExpr())
+			.toString();
 	}
 
 }

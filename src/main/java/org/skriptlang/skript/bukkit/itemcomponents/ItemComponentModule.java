@@ -6,6 +6,7 @@ import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolModule;
 
 public class ItemComponentModule implements AddonModule {
 
@@ -22,12 +23,16 @@ public class ItemComponentModule implements AddonModule {
 			.description("Represents an item component for items. i.e. equippable components.")
 			.since("INSERT VERSION")
 			.requiredPlugins("Minecraft 1.20.5+")
+			.cloner(ComponentWrapper::clone)
 		);
 	}
 
 	@Override
 	public void load(SkriptAddon addon) {
-		addon.loadModules(new EquippableModule());
+		addon.loadModules(
+			new EquippableModule(),
+			new ToolModule()
+		);
 	}
 
 }

@@ -1,14 +1,16 @@
-package org.skriptlang.skript.bukkit.toolcomponent.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 
 @Name("Tool Rule - Drops Enabled")
 @Description("If the drops of a tool rule are enabled.")
@@ -20,30 +22,32 @@ import org.jetbrains.annotations.Nullable;
 })
 @RequiredPlugins("Minecraft 1.20.6")
 @Since("INSERT VERSION")
-public class CondToolRuleDrops extends PropertyCondition<ToolRule> {
+
+@SuppressWarnings("UnstableApiUsage")
+public class CondToolRuleDrops extends PropertyCondition<ToolRule> implements ToolExperiment {
 
 	static {
 		Skript.registerCondition(CondToolRuleDrops.class, ConditionType.PROPERTY,
-			"[the] tool rule drops of %toolrules% (is|are) enabled",
-			"[the] tool rule drops of %toolrules% (is|are) disabled"
+			"[the] tool rule drops (of|for) %toolrules% (is|are) enabled",
+			"[the] tool rule drops (of|for) %toolrules% (is|are) disabled"
 		);
 	}
 
-	private boolean enable;
 	private Expression<ToolRule> toolRules;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		enable = matchedPattern == 0;
 		//noinspection unchecked
 		toolRules = (Expression<ToolRule>) exprs[0];
-		setExpr(toolRules);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	public boolean check(ToolRule toolRule) {
-		return toolRule.isCorrectForDrops() == enable;
+		Boolean correct = toolRule.isCorrectForDrops();
+		if (correct != null)
+			return correct;
+		return false;
 	}
 
 	@Override
@@ -53,7 +57,14 @@ public class CondToolRuleDrops extends PropertyCondition<ToolRule> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the tool rule drops of " + toolRules.toString(event, debug) + " are " + (enable ? "enabled" : "disabled");
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("the tool rule drops of", toolRules, "are");
+		if (!isNegated()) {
+			builder.append("enabled");
+		} else {
+			builder.append("disabled");
+		}
+		return builder.toString();
 	}
 
 }

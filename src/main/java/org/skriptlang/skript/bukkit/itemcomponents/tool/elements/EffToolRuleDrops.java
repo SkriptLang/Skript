@@ -1,14 +1,16 @@
-package org.skriptlang.skript.bukkit.toolcomponent.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 
 @Name("Tool Rule - Drops")
 @Description("If the tool with this tool rule should drop items of a block defined from the blocks of this tool rule.")
@@ -20,7 +22,9 @@ import org.jetbrains.annotations.Nullable;
 })
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
-public class EffToolRuleDrops extends Effect {
+
+@SuppressWarnings("UnstableApiUsage")
+public class EffToolRuleDrops extends Effect implements ToolExperiment {
 
 	static {
 		Skript.registerEffect(EffToolRuleDrops.class,
@@ -28,27 +32,32 @@ public class EffToolRuleDrops extends Effect {
 			"disable [the] tool rule drops (of|for) %toolrules%");
 	}
 
+	private Expression<? extends ToolRule> toolRules;
 	private boolean enable;
-	private Expression<? extends ToolRule> exprToolRule;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
-		exprToolRule = (Expression<? extends ToolRule>) exprs[0];
+		toolRules = (Expression<? extends ToolRule>) exprs[0];
 		enable = matchedPattern == 0;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (ToolRule rule : exprToolRule.getArray(event)) {
-			rule.setCorrectForDrops(enable);
-		}
+		toolRules.stream(event).forEach(toolRule -> toolRule.setCorrectForDrops(enable));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (enable ? "enable" : "disable") + " tool rule drops for " + exprToolRule.toString(event, debug);
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		if (enable) {
+			builder.append("enable");
+		} else {
+			builder.append("disable");
+		}
+		builder.append("the tool rule drops for", toolRules);
+		return builder.toString();
 	}
 
 }
