@@ -102,7 +102,7 @@ public class JavaClasses {
 					"Please note that many expressions only need integers, i.e. " +
 						"will discard any fractional parts of any numbers without producing an error.",
 					"Radians will be converted to degrees.")
-				.usage("[-]###[.###] [[in ](rad[ian][s]|deg[ree][s])]</code> (any amount of digits; very large numbers will be truncated though)")
+				.usage("[-]###[.###] [e[+|-]###] [[in ](rad[ian][s]|deg[ree][s])]")
 				.examples(
 					"set the player's health to 5.5",
 					"set {_temp} to 2*{_temp} - 2.5",
