@@ -21,7 +21,6 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Condition.ConditionType;
-import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -45,7 +44,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.papermc.lib.PaperLib;
@@ -81,6 +79,7 @@ import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.toolcomponent.ToolComponentModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
+import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -114,7 +113,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -400,8 +398,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
-		File aliasesFolder = new File(getDataFolder(), "aliases");
-		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists() || !aliasesFolder.exists()) {
+		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -416,11 +413,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (!lang.mkdirs())
 						throw new IOException("Could not create the directory " + lang);
 					populateLanguageFiles = true;
-				}
-
-				if (!aliasesFolder.isDirectory()) {
-					if (!aliasesFolder.mkdirs())
-						throw new IOException("Could not create the directory " + aliasesFolder);
 				}
 
 				f = new ZipFile(getFile());
@@ -570,6 +562,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
+			skript.loadModules(new ItemComponentModule());
 			ToolComponentModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());

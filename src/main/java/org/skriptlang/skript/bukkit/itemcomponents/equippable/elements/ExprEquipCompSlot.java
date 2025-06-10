@@ -1,0 +1,66 @@
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
+
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EquipmentSlot;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+
+@Name("Equippable Component - Equipment Slot")
+@Description("The equipment slot an item can be equipped to. "
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+@Example("set the equipment slot of {_item} to chest slot")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	set the equipment slot of {_component} to boots slot
+	""")
+@RequiredPlugins("Minecraft 1.21.2+")
+@Since("INSERT VERSION")
+public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperiment {
+
+	static {
+		registerDefault(ExprEquipCompSlot.class, EquipmentSlot.class, "equipment slot", "equippablecomponents");
+	}
+
+	@Override
+	public @Nullable EquipmentSlot convert(EquippableWrapper wrapper) {
+		return wrapper.getComponent().getSlot();
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(EquipmentSlot.class);
+		return null;
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (delta == null)
+			return;
+		EquipmentSlot providedSlot = (EquipmentSlot) delta[0];
+		if (providedSlot == null)
+			return;
+
+		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSlot(providedSlot)));
+	}
+
+	@Override
+	public Class<EquipmentSlot> getReturnType() {
+		return EquipmentSlot.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "equipment slot";
+	}
+
+}
