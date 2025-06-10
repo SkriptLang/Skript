@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
    "on fish catch:",
 		"\tadd 70 to dropped experience",
 })
-@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (breeding, fishing)")
+@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), 2.10 (breeding, fishing)")
 @Events({"experience spawn", "break / mine", "experience change", "entity breeding"})
 public class ExprExperience extends SimpleExpression<Experience> {
 

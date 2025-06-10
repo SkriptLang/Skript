@@ -10,14 +10,13 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.StringUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerBucketEntityEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -29,40 +28,17 @@ import java.util.List;
 	"on bucket catch of a puffer fish:",
 		"\tsend \"You caught a fish with a %future event-item%!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EvtBucketEntity extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Bucket Catch Entity", EvtBucketEntity.class, PlayerBucketEntityEvent.class,
 			"bucket (catch[ing]|captur(e|ing)) [[of] %-entitydatas%]");
 
-		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, new Getter<>() {
-			@Override
-			public ItemStack get(PlayerBucketEntityEvent event) {
-				return event.getOriginalBucket();
-			}
-		}, EventValues.TIME_NOW);
-
-		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, new Getter<>() {
-			@Override
-			public ItemStack get(PlayerBucketEntityEvent event) {
-				return event.getEntityBucket();
-			}
-		}, EventValues.TIME_FUTURE);
-
-		EventValues.registerEventValue(PlayerBucketEntityEvent.class, Player.class, new Getter<>() {
-			@Override
-			public Player get(PlayerBucketEntityEvent event) {
-				return event.getPlayer();
-			}
-		}, EventValues.TIME_NOW);
-
-		EventValues.registerEventValue(PlayerBucketEntityEvent.class, Entity.class, new Getter<>() {
-			@Override
-			public @NotNull Entity get(PlayerBucketEntityEvent event) {
-				return event.getEntity();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, PlayerBucketEntityEvent::getOriginalBucket);
+		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, PlayerBucketEntityEvent::getEntityBucket, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(PlayerBucketEntityEvent.class, Player.class, PlayerEvent::getPlayer);
+		EventValues.registerEventValue(PlayerBucketEntityEvent.class, Entity.class, PlayerBucketEntityEvent::getEntity);
 	}
 
 	private EntityData<?>[] entities;

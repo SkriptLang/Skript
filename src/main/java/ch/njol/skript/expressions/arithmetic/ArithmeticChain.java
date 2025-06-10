@@ -1,19 +1,18 @@
 package ch.njol.skript.expressions.arithmetic;
 
-import java.util.List;
-import java.util.function.Function;
-
-import org.bukkit.event.Event;
-
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operation;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Represents a chain of arithmetic operations between two operands.
@@ -25,7 +24,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 	@SuppressWarnings("unchecked")
-	private static final Checker<Object>[] CHECKERS = new Checker[] {
+	private static final Predicate<Object>[] CHECKERS = new Predicate[] {
 		o -> o.equals(Operator.ADDITION) || o.equals(Operator.SUBTRACTION),
 		o -> o.equals(Operator.MULTIPLICATION) || o.equals(Operator.DIVISION),
 		o -> o.equals(Operator.EXPONENTIATION)
@@ -35,8 +34,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 	private final ArithmeticGettable<R> right;
 	private final Operator operator;
 	private final Class<? extends T> returnType;
-	@Nullable
-	private OperationInfo<? extends L, ? extends R, ? extends T> operationInfo;
+	private final @Nullable OperationInfo<? extends L, ? extends R, ? extends T> operationInfo;
 
 	public ArithmeticChain(ArithmeticGettable<L> left, Operator operator, ArithmeticGettable<R> right, @Nullable OperationInfo<L, R, T> operationInfo) {
 		this.left = left;
@@ -64,6 +62,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		if (leftClass == Object.class && rightClass == Object.class)
 			return null;
 
+		OperationInfo<? extends L, ? extends R, ? extends T> operationInfo = this.operationInfo;
 		if (left == null && leftClass == Object.class) {
 			operationInfo = lookupOperationInfo(rightClass, OperationInfo::getRight);
 		} else if (right == null && rightClass == Object.class) {
@@ -111,7 +110,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <L, R, T> ArithmeticGettable<T> parse(List<Object> chain) {
-		for (Checker<Object> checker : CHECKERS) {
+		for (Predicate<Object> checker : CHECKERS) {
 			int lastIndex = Utils.findLastIndex(chain, checker);
 
 			if (lastIndex != -1) {

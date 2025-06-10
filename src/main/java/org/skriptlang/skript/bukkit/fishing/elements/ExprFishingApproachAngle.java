@@ -21,11 +21,14 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on fish approach:",
-		"\tif fishing approach angle is bigger than 300.5 degrees or fishing approach angle is smaller than 59.5 degrees:",
+		"\tif any:",
+			"\t\tmaximum fishing approach angle is bigger than 300.5 degrees",
+			"\t\tmin fishing approach angle is smaller than 59.5 degrees",
+		"\tthen:",
 			"\t\tcancel event"
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 
 	private static final float DEFAULT_MINIMUM_DEGREES = 0;

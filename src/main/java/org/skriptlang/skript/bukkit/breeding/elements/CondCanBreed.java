@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,7 +15,7 @@ import org.bukkit.entity.LivingEntity;
 		"\tevent-entity can't breed",
 		"\tsend \"Turns out %event-entity% is not breedable. Must be a Skript user!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
 	static {
@@ -26,6 +25,11 @@ public class CondCanBreed extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Breedable breedable && breedable.canBreed();
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
 	}
 
 	@Override

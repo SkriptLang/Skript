@@ -1,9 +1,11 @@
 package ch.njol.skript.classes;
 
-import ch.njol.util.Checker;
+import java.util.function.Predicate;
 
 /**
- * @author Peter Güttinger
+ * @deprecated use {@link Predicate} instead.
  */
-@Deprecated
-public interface SerializableChecker<T> extends Checker<T> {}
+@FunctionalInterface
+@Deprecated(since = "2.10.0", forRemoval = true)
+@SuppressWarnings("removal")
+public interface SerializableChecker<T> extends ch.njol.util.Checker<T>, Predicate<T> {}

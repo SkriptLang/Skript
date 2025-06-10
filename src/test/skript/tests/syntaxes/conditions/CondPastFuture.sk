@@ -24,12 +24,12 @@ test "date in past or future":
 	assert {_null} has not passed with "null should not have passed"
 
 	# multiple dates
-	set {_dates::*} to 1 day ago, 1 second ago, 100 years ago
+	set {_dates::*} to 1 day ago, 1 second ago, and 100 years ago
 	assert {_dates::*} are in the past with "all dates should be in the past"
 	assert {_dates::*} are not in the future with "all dates should not be in the future"
 	assert {_dates::*} have passed with "all dates should have passed"
 
-	set {_dates::*} to 1 day from now, 1 second from now, 100 years from now
+	set {_dates::*} to 1 day from now, 1 second from now, and 100 years from now
 	assert {_dates::*} are not in the past with "all dates should not be in the past"
 	assert {_dates::*} are in the future with "all dates should be in the future"
 	assert {_dates::*} have not passed with "all dates should not have passed"

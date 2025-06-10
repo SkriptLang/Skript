@@ -1,0 +1,29 @@
+test "transform effect":
+	set {_a::*} to integers between -10 and 10
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	transform {_a::*} using input + 2
+	assert {_a::*} is integers between -8 and 12 with "failed to transform with +2"
+
+	set {_a::*} to integers between -10 and 10
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	transform {_a::*} using input index
+	assert size of {_a::*} is 21 with "failed to transform using index"
+
+	loop {_a::*}:
+		assert loop-value is loop-index with "failed to transform to loop-index"
+
+	clear {_a::*}
+	set {_a::a} to "a"
+	set {_a::b} to "b"
+	set {_a::c} to "c"
+
+	transform {_a::*} using 1
+	assert {_a::*} is 1, 1, and 1 with "failed to transform with constant value"
+	assert indices of {_a::*} is "a", "b", and "c" with "transform failed to maintain indices"
+
+	transform {_a::*} using input and 2
+	assert {_a::*} is 1, 2, 1, 2, 1 and 2 with "failed to transform with plural expression"
+	assert indices of {_a::*} is "1", "2", "3", "4", "5" and "6" with "transform failed to re-set indices"
+

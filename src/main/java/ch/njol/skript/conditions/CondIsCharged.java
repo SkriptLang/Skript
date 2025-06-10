@@ -12,9 +12,11 @@ import org.bukkit.entity.WitherSkull;
 
 @Name("Is Charged")
 @Description("Checks if a creeper, wither, or wither skull is charged (powered).")
-@Examples({"if the last spawned creeper is charged:",
-	"\tbroadcast \"A charged creeper is at %location of last spawned creeper%\""})
-@Since("2.5, INSERT VERSION (withers, wither skulls)")
+@Examples({
+	"if the last spawned creeper is charged:",
+		"\tbroadcast \"A charged creeper is at %location of last spawned creeper%\""
+})
+@Since("2.5, 2.10 (withers, wither skulls)")
 public class CondIsCharged extends PropertyCondition<Entity> {
 
 	static {

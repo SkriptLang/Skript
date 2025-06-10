@@ -66,7 +66,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 			.parser(registryParser);
 
 		if (registerComparator)
-			Comparators.registerComparator(registryClass, registryClass, (o1, o2) -> Relation.get(o1.getKey() == o2.getKey()));
+			Comparators.registerComparator(registryClass, registryClass, (o1, o2) -> Relation.get(o1.getKey().equals(o2.getKey())));
 	}
 
 }

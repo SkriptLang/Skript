@@ -1,0 +1,966 @@
+
+# This is to test parsing of event-value expressions
+
+parse:
+	results: {EventValues::on beacon effect}
+	code:
+		on beacon effect:
+			set {_values::*} to event-player and event-block
+
+parse:
+	results: {EventValues::on beacon toggle}
+	code:
+		on beacon toggle:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on break}
+	code:
+		on break:
+			set {_values::*} to event-player, event-block and past event-block
+
+parse:
+	results: {EventValues::on burn}
+	code:
+		on burn:
+			set {_value::*} to event-block
+
+parse:
+	results: {EventValues::on place}
+	code:
+		on place:
+			set {_values::*} to event-player, event-block, past event-block, past event-item, event-item and future event-item
+
+parse:
+	results: {EventValues::on fade}
+	code:
+		on fade:
+			set {_values::*} to past event-block, event-block and future event-block
+
+parse:
+	results: {EventValues::on form}
+	code:
+		on form:
+			set {_values::*} to past event-block and event-block
+
+parse:
+	results: {EventValues::on block drop}
+	code:
+		on block drop:
+			set {_values::*} to past event-block, event-block, event-player, event-items and event-entities
+
+parse:
+	results: {EventValues::on book edit}
+	code:
+		on book edit:
+			set {_values::*} to event-player, past event-item, event-item, past event-strings and event-strings
+
+parse:
+	results: {EventValues::on click}
+	code:
+		on click:
+			set {_values::*} to event-item, event-block, event-direction, event-player and event-entity
+
+parse:
+	results: {EventValues::on command}
+	code:
+		on command:
+			set {_values::*} to event-player, event-sender, event-world and event-block
+
+parse:
+	results: {EventValues::on damage}
+	code:
+		on damage:
+			set {_values::*} to event-world, event-location, event-damage cause and event-projectile
+
+parse:
+	results: {EventValues::on death}
+	code:
+		on death:
+			set {_values::*} to event-world, event-location, event-damage cause, event-items and event-projectile
+
+parse:
+	results: {EventValues::on spawn}
+	code:
+		on spawn:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on entity change block}
+	code:
+		on entity change block:
+			set {_values::*} to past event-block, event-block, past event-block data and event-block data
+
+parse:
+	results: {EventValues::on entity potion effect}
+	code:
+		on entity potion effect:
+			set {_values::*} to past event-potion effect, event-potion effect and event-potion effect type
+
+parse:
+	results: {EventValues::on target}
+	code:
+		on target:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on entity transform}
+	code:
+		on entity transform:
+			set {_values::*} to event-entities and event-transform reason
+
+parse:
+	results: {EventValues::on xp change}
+	code:
+		on xp change:
+			set {_values::*} to event-player and event-experience
+
+parse:
+	results: {EventValues::on xp spawn}
+	code:
+		on xp spawn:
+			set {_values::*} to event-location and event-experience
+
+parse:
+	results: {EventValues::on firework explode}
+	code:
+		on firework explode:
+			set {_values::*} to event-firework, event-firework effect and event-colors
+
+parse:
+    results: {EventValues::on first join}
+    code:
+        on first join:
+            set {_values::*} to event-player
+
+parse:
+    results: {EventValues::on gamemode change}
+    code:
+        on gamemode change:
+            set {_values::*} to event-player
+
+parse:
+    results: {EventValues::on grow}
+    code:
+        on grow:
+            set {_values::*} to past event-block and event-block
+
+parse:
+    results: {EventValues::on heal}
+    code:
+        on heal:
+            set {_values::*} to event-entity and event-heal reason
+
+parse:
+    results: {EventValues::on dispense}
+    code:
+        on dispense:
+            set {_values::*} to event-block and event-item
+
+parse:
+    results: {EventValues::on item spawn}
+    code:
+        on item spawn:
+            set {_values::*} to event-item
+
+parse:
+    results: {EventValues::on entity drop}
+    code:
+        on entity drop:
+            set {_values::*} to event-entity, event-dropped item and event-item
+
+parse:
+    results: {EventValues::on player drop}
+    code:
+        on player drop:
+            set {_values::*} to event-player, event-dropped item and event-item
+
+parse:
+    results: {EventValues::on preparing craft}
+    code:
+        on preparing craft:
+            set {_values::*} to event-slot, event-item, event-inventory, event-player and event-string
+
+parse:
+    results: {EventValues::on craft}
+    code:
+        on craft:
+            set {_values::*} to event-string and event-item
+
+parse:
+    results: {EventValues::on entity pickup}
+    code:
+        on entity pickup:
+            set {_values::*} to event-entity, event-dropped item and event-itemtype
+
+parse:
+    results: {EventValues::on player pickup}
+    code:
+        on player pickup:
+            set {_values::*} to event-player, event-dropped item and event-itemtype
+
+parse:
+    results: {EventValues::on consume}
+    code:
+        on consume:
+            set {_values::*} to event-player and event-item
+
+parse:
+    results: {EventValues::on inventory click}
+    code:
+        on inventory click:
+            set {_values::*} to event-player, event-world, event-item, event-slot, event-inventory action, event-click type and event-inventory
+
+parse:
+    results: {EventValues::on item despawn}
+    code:
+        on item despawn:
+            set {_values::*} to event-dropped item and event-item
+
+parse:
+    results: {EventValues::on item merge}
+    code:
+        on item merge:
+            set {_values::*} to event-dropped item and event-item and future event-dropped item
+
+parse:
+    results: {EventValues::on inventory item move}
+    code:
+        on inventory item move:
+            set {_values::*} to event-inventory, future event-inventory, event-block, event-item and future event-block
+
+parse:
+    results: {EventValues::on stonecutting}
+    code:
+        on stonecutting:
+            set {_values::*} to event-player and event-item
+
+parse:
+    results: {EventValues::on leash}
+    code:
+        on leash:
+            set {_values::*} to event-player and event-entity
+
+parse:
+    results: {EventValues::on unleash}
+    code:
+        on unleash:
+            set {_values::*} to event-entity and event-unleash reason
+
+parse:
+    results: {EventValues::on player unleash}
+    code:
+        on player unleash:
+            set {_values::*} to event-player and event-unleash reason
+
+parse:
+    results: {EventValues::on level change}
+    code:
+        on level change:
+            set {_values::*} to event-player and event-entity
+
+parse:
+    results: {EventValues::on entity move}
+    code:
+        on entity move:
+            set {_values::*} to event-entity
+
+parse:
+    results: {EventValues::on step on dirt}
+    code:
+        on step on dirt:
+            set {_values::*} to event-player, event-block, past event-location, event-location, past event-chunk and event-chunk
+
+parse:
+    results: {EventValues::on send command list}
+    code:
+        on send command list:
+            set {_values::*} to event-player and event-entity
+
+parse:
+    results: {EventValues::on resource pack response}
+    code:
+        on resource pack response:
+            set {_values::*} to event-player and event-entity
+
+parse:
+    results: {EventValues::on load}
+    code:
+        on load:
+            set {_values::*} to event-sender
+
+parse:
+    results: {EventValues::on unload}
+    code:
+        on unload:
+            set {_values::*} to event-sender
+
+parse:
+    results: {EventValues::on skript load}
+    code:
+        on skript load:
+            set {_values::*} to event-sender
+
+parse:
+    results: {EventValues::on skript unload}
+    code:
+        on skript unload:
+            set {_values::*} to event-sender
+
+parse:
+	results: {EventValues::on start spectating}
+	code:
+		on start spectating:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on entity teleport}
+	code:
+		on entity teleport:
+			set {_values::*} to event-entity, past event-location and event-location
+
+parse:
+	results: {EventValues::on player teleport}
+	code:
+		on player teleport:
+			set {_values::*} to event-player, past event-location and event-location
+
+parse:
+	results: {EventValues::on vehicle collision}
+	code:
+		on vehicle collision:
+			set {_values::*} to event-world, event-entity and event-block
+
+parse:
+	results: {EventValues::on weather change}
+	code:
+		on weather change:
+			set {_values::*} to event-world
+
+parse:
+	results: {EventValues::on world save}
+	code:
+		on world save:
+			set {_values::*} to event-world
+
+parse:
+	results: {EventValues::on world init}
+	code:
+		on world init:
+			set {_values::*} to event-world
+
+parse:
+	results: {EventValues::on world load}
+	code:
+		on world load:
+			set {_values::*} to event-world
+
+parse:
+	results: {EventValues::on world unload}
+	code:
+		on world unload:
+			set {_values::*} to event-world
+
+parse:
+	results: {EventValues::on can build check}
+	code:
+		on can build check:
+			set {_values::*} to past event-block, event-block and event-player
+
+parse:
+	results: {EventValues::on block damage}
+	code:
+		on block damage:
+			set {_values::*} to event-block and event-player
+
+parse:
+	results: {EventValues::on flow}
+	code:
+		on flow:
+			set {_values::*} to event-block and future event-block
+
+parse:
+	results: {EventValues::on ignite}
+	code:
+		on ignite:
+			set {_values::*} to event-block and event-player
+
+parse:
+	results: {EventValues::on physics}
+	code:
+		on physics:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on piston extend}
+	code:
+		on piston extend:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on piston retract}
+	code:
+		on piston retract:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on redstone}
+	code:
+		on redstone:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on spread}
+	code:
+		on spread:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on chunk load}
+	code:
+		on chunk load:
+			set {_values::*} to event-world and event-chunk
+
+parse:
+	results: {EventValues::on chunk generate}
+	code:
+		on chunk generate:
+			set {_values::*} to event-world and event-chunk
+
+parse:
+	results: {EventValues::on chunk unload}
+	code:
+		on chunk unload:
+			set {_values::*} to event-world and event-chunk
+
+parse:
+	results: {EventValues::on creeper power}
+	code:
+		on creeper power:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on zombie break door}
+	code:
+		on zombie break door:
+			set {_values::*} to event-entity, past event-block, event-block, event-block data and future event-block data
+
+parse:
+	results: {EventValues::on combust}
+	code:
+		on combust:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on explode}
+	code:
+		on explode:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on portal enter}
+	code:
+		on portal enter:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on tame}
+	code:
+		on tame:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on explosion prime}
+	code:
+		on explosion prime:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on hunger level change}
+	code:
+		on hunger level change:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on leaves decay}
+	code:
+		on leaves decay:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on lightning}
+	code:
+		on lightning:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on pig zap}
+	code:
+		on pig zap:
+			set {_values::*} to event-entity, event-entities and event-transform reason
+
+parse:
+	results: {EventValues::on bed enter}
+	code:
+		on bed enter:
+			set {_values::*} to event-player and event-block
+
+parse:
+	results: {EventValues::on leave bed}
+	code:
+		on leave bed:
+			set {_values::*} to event-player and event-block
+
+parse:
+	results: {EventValues::on bucket empty}
+	code:
+		on bucket empty:
+			set {_values::*} to event-player, past event-block and event-block
+
+parse:
+	results: {EventValues::on bucket fill}
+	code:
+		on bucket fill:
+			set {_values::*} to event-player, event-block and future event-block
+
+parse:
+	results: {EventValues::on throw egg}
+	code:
+		on throw egg:
+			set {_values::*} to event-player and event-projectile
+
+parse:
+	results: {EventValues::on tool break}
+	code:
+		on tool break:
+			set {_values::*} to event-player and event-item
+
+parse:
+	results: {EventValues::on item damage}
+	code:
+		on item damage:
+			set {_values::*} to event-player and event-item
+
+parse:
+	results: {EventValues::on tool change}
+	code:
+		on tool change:
+			set {_values::*} to event-player, past event-slot and event-slot
+
+parse:
+	results: {EventValues::on join}
+	code:
+		on join:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on connect}
+	code:
+		on connect:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on kick}
+	code:
+		on kick:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on entity portal}
+	code:
+		on entity portal:
+			set {_values::*} to event-entity, past event-location and event-location
+
+parse:
+	results: {EventValues::on portal}
+	code:
+		on portal:
+			set {_values::*} to event-player, event-teleport cause, event-block, past event-location, event-location, past event-chunk and event-chunk
+
+parse:
+	results: {EventValues::on leave}
+	code:
+		on leave:
+			set {_values::*} to event-player and event-quit reason
+
+parse:
+	results: {EventValues::on respawn}
+	code:
+		on respawn:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on toggle sneak}
+	code:
+		on toggle sneak:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on toggle sprint}
+	code:
+		on toggle sprint:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on portal create}
+	code:
+		on portal create:
+			set {_values::*} to event-world, event-blocks and event-entity
+
+parse:
+	results: {EventValues::on projectile collide}
+	code:
+		on projectile collide:
+			set {_values::*} to event-projectile and event-entity
+
+parse:
+	results: {EventValues::on shoot}
+	code:
+		on shoot:
+			set {_values::*} to event-projectile
+
+parse:
+	results: {EventValues::on sign change}
+	code:
+		on sign change:
+			set {_values::*} to event-player, event-strings and event-block
+
+parse:
+	results: {EventValues::on spawn change}
+	code:
+		on spawn change:
+			set {_values::*} to event-world
+
+parse:
+	results: {EventValues::on vehicle create}
+	code:
+		on vehicle create:
+			set {_values::*} to event-vehicle, event-world and event-entity
+
+parse:
+	results: {EventValues::on vehicle damage}
+	code:
+		on vehicle damage:
+			set {_values::*} to event-vehicle, event-world and event-entity
+
+parse:
+	results: {EventValues::on vehicle enter}
+	code:
+		on vehicle enter:
+			set {_values::*} to event-vehicle, event-world and event-entity
+
+parse:
+	results: {EventValues::on vehicle destroy}
+	code:
+		on vehicle destroy:
+			set {_values::*} to event-vehicle, event-world and event-entity
+
+parse:
+	results: {EventValues::on vehicle exit}
+	code:
+		on vehicle exit:
+			set {_values::*} to event-vehicle, event-world and event-entity
+
+parse:
+	results: {EventValues::on mount}
+	code:
+		on mount:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on dismount}
+	code:
+		on dismount:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on toggle gliding}
+	code:
+		on toggle gliding:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on area effect}
+	code:
+		on area effect:
+			set {_values::*} to event-living entities and event-potion effect type
+
+parse:
+	results: {EventValues::on sheep grow wool}
+	code:
+		on sheep grow wool:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on inventory open}
+	code:
+		on inventory open:
+			set {_values::*} to event-player and event-inventory
+
+parse:
+	results: {EventValues::on inventory close}
+	code:
+		on inventory close:
+			set {_values::*} to event-player, event-inventory and event-inventory close reason
+
+parse:
+	results: {EventValues::on slime split}
+	code:
+		on slime split:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on resurrect}
+	code:
+		on resurrect:
+			set {_values::*} to event-entity and event-slot
+
+parse:
+	results: {EventValues::on world change}
+	code:
+		on world change:
+			set {_values::*} to event-player and past event-world
+
+parse:
+	results: {EventValues::on toggle flight}
+	code:
+		on toggle flight:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on locale change}
+	code:
+		on locale change:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on jump}
+	code:
+		on jump:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on swap item}
+	code:
+		on swap item:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on toggle swim}
+	code:
+		on toggle swim:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on riptide}
+	code:
+		on riptide:
+			set {_values::*} to event-player and event-item
+
+parse:
+	results: {EventValues::on armor change}
+	code:
+		on armor change:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on sponge absorb}
+	code:
+		on sponge absorb:
+			set {_values::*} to event-block, event-world and event-location
+
+parse:
+	results: {EventValues::on enchant prepare}
+	code:
+		on enchant prepare:
+			set {_values::*} to event-player, event-item, event-block and event-inventory
+
+parse:
+	results: {EventValues::on enchant}
+	code:
+		on enchant:
+			set {_values::*} to event-player, event-item, event-enchantment types and event-block
+
+parse:
+	results: {EventValues::on inventory pickup}
+	code:
+		on inventory pickup:
+			set {_values::*} to event-inventory, event-dropped item and event-item
+
+parse:
+	results: {EventValues::on horse jump}
+	code:
+		on horse jump:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on fertilize}
+	code:
+		on fertilize:
+			set {_values::*} to event-player and event-blocks
+
+parse:
+	results: {EventValues::on arm swing}
+	code:
+		on arm swing:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on anvil prepare}
+	code:
+		on anvil prepare:
+			set {_values::*} to event-item and event-inventory
+
+parse:
+	results: {EventValues::on player trade}
+	code:
+		on player trade:
+			set {_values::*} to event-player and event-entity
+
+parse:
+	results: {EventValues::on entity jump}
+	code:
+		on entity jump:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on anvil damage}
+	code:
+		on anvil damage:
+			set {_values::*} to event-inventory
+
+parse:
+	results: {EventValues::on stop item use}
+	code:
+		on stop item use:
+			set {_values::*} to event-player, event-timespan and event-item
+
+parse:
+	results: {EventValues::on ready arrow}
+	code:
+		on ready arrow:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on inventory slot change}
+	code:
+		on inventory slot change:
+			set {_values::*} to event-player, past event-item, event-item and event-slot
+
+parse:
+	results: {EventValues::on chat}
+	code:
+		on chat:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on deep sleep}
+	code:
+		on deep sleep:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on arrow pickup}
+	code:
+		on arrow pickup:
+			set {_values::*} to event-player, event-projectile and event-item
+
+parse:
+	results: {EventValues::on inventory drag}
+	code:
+		on inventory drag:
+			set {_values::*} to event-player, event-world, past event-item, event-item, event-items, event-slots, event-click type and event-inventories
+
+parse:
+	results: {EventValues::on piglin barter}
+	code:
+		on piglin barter:
+			set {_values::*} to event-entity
+
+parse:
+	results: {EventValues::on bell ring}
+	code:
+		on bell ring:
+			set {_values::*} to event-block, event-entity and event-direction
+
+parse:
+	results: {EventValues::on bell resonate}
+	code:
+		on bell resonate:
+			set {_values::*} to event-block and event-entities
+
+parse:
+	results: {EventValues::on enderman anger}
+	code:
+		on enderman anger:
+			set {_values::*} to event-entity and event-player
+
+parse:
+	results: {EventValues::on player change beacon effect}
+	code:
+		on player change beacon effect:
+			set {_values::*} to event-player and event-block
+
+parse:
+	results: {EventValues::on player xp cooldown change}
+	code:
+		on player xp cooldown change:
+			set {_values::*} to event-player, event-experience cooldown change reason, past event-timespan and event-timespan
+
+parse:
+	results: {EventValues::on vehicle move}
+	code:
+		on vehicle move:
+			set {_values::*} to event-vehicle, past event-location and event-location
+
+parse:
+	results: {EventValues::on elytra boost}
+	code:
+		on elytra boost:
+			set {_values::*} to event-player, event-item and event-entity
+
+parse:
+	results: {EventValues::on breed}
+	code:
+		on breed:
+			set {_values::*} to event-entity and event-item
+
+parse:
+	results: {EventValues::on fish caught}
+	code:
+		on fish caught:
+			set {_values::*} to event-player
+
+parse:
+	results: {EventValues::on smelt}
+	code:
+		on smelt:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on fuel burn}
+	code:
+		on fuel burn:
+			set {_values::*} to event-block
+
+parse:
+	results: {EventValues::on furnace extract}
+	code:
+		on furnace extract:
+			set {_values::*} to event-block, event-player and event-items
+
+parse:
+	results: {EventValues::on smelt start}
+	code:
+		on smelt start:
+			set {_values::*} to event-block
+
+test "Event Values":
+	if size of {EventValues::*} > 0:
+		set {_string} to "Event value error(s) in:"
+		loop {EventValues::*}:
+			set {_string} to {_string} + newline + "		%loop-index%: %loop-value%"
+		clear {EventValues::*}
+		assert true is false with {_string}
+	else:
+		clear {EventValues::*}

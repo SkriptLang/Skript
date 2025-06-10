@@ -24,11 +24,11 @@ import java.util.List;
 @Description("The items dropped by the piglin in a piglin bartering event.")
 @Examples({
 	"on piglin barter:",
-		"\tif the bartering drops contain a jack-o-lantern:",
-			"\t\tremove jack-o-lantern from bartering output",
+		"\tif the bartering drops contain a jack o lantern:",
+			"\t\tremove jack o lantern from bartering output",
 			"\t\tbroadcast \"it's not halloween yet!\""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	
 	static {
