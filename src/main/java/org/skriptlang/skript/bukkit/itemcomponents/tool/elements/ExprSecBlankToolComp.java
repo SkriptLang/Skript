@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -28,10 +28,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Blank Tool Component")
 @Description("Gets a blank tool component.")
-@Examples({
-	"set {_component} to a new blank tool component",
-	"set the tool component of {_item} to {_component}"
-})
+@Example("""
+	set {_component} to a blank tool component:
+		set the default mining speed to 20
+		set the damage per block to 10
+	set the tool component of {_item} to {_component}
+	""")
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
 public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> implements ToolExperiment {

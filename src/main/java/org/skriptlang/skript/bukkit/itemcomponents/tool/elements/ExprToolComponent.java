@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -17,20 +17,11 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
 @Name("Tool Component")
-@Description({
-	"The tool component of an item.",
-	"NOTE: Storing the tool component of an item in a variable is only a copy.",
-	"Meaning any changes applied to it do not get applied to the actual item.",
-	"Set the tool component of the item to the stored component to update the item.",
-	"or make changes directly to the item."
-})
-@Examples({
-	"set {_component} to the tool component of {_item}",
-	"set the mining speed of {_component} to 5",
-	"set the tool component of {_item} to {_component}",
-	"",
-	"set the mining speed of {_item} to 5",
-})
+@Description("The tool component of an item. Any changes made to the tool component will be present on the item.")
+@Example("""
+	set {_component} to the tool component of {_item}
+	set the mining speed of {_component} to 20
+	""")
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
 
@@ -38,7 +29,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 public class ExprToolComponent extends SimplePropertyExpression<ItemStack, ToolWrapper> implements ToolExperiment {
 
 	static {
-		register(ExprToolComponent.class, ToolWrapper.class, "tool component[s]", "itemstacks");
+		registerDefault(ExprToolComponent.class, ToolWrapper.class, "tool component[s]", "itemstacks");
 	}
 
 	@Override

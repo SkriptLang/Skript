@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -33,15 +33,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Custom Tool Rule")
 @Description({
-	"Gets a custom tool rule with provided block types.",
+	"Create a custom tool rule with provided block types.",
 	"NOTE: A tool rule must have at least one block type or will be considered invalid."
 })
-@Examples({
-	"set {_rule} to a custom tool rule with block types oak log, stone and obsidian",
-	"set the tool rule speed of {_rule} to 10",
-	"enable the tool rule drops of {_rule}",
-	"add {_rule} to the tool rules of {_item}"
-})
+@Example("""
+	set {_rule} to a custom tool rule with block types oak log, stone and obsidian:
+		enable the tool rule drops for event-tool rule
+		set the tool rule speed to 20
+	add {_rule} to the tool rules of {_item}
+	""")
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
 

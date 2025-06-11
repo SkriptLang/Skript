@@ -1,5 +1,4 @@
 using tool components
-using equippable components
 
 test "tool components - new" when running minecraft "1.20.6":
 	set {_component} to a blank tool component
@@ -51,7 +50,7 @@ test "tool components - slot" when running minecraft "1.20.6":
 	add {_rule} to the tool rules of (slot 1 of {_gui})
 	assert the tool rules of (slot 1 of {_gui}) contains {_rule} with "Tool rule was not added to slot"
 
-test "tool components - copy":
+test "tool components - copy" when running minecraft "1.20.6":
 	set {_item} to a golden pickaxe
 	set {_component} to a copy of (tool component of {_item})
 	set the default mining speed of {_component} to 20
@@ -64,7 +63,7 @@ test "tool components - copy":
 	add {_rule} to the tool rules of {_component}
 	assert the tool rules of {_component} contains {_rule} with "Tool rule was not added to copy"
 
-test "tool components - tool rule":
+test "tool components - tool rule" when running minecraft "1.20.6":
 	set {_rule} to a custom tool rule with block types stone and cobblestone
 	set the tool rule block types of {_rule} to diamond ore and gold ore
 	assert the tool rule block types of {_rule} is a diamond ore and a gold ore with "Block types of tool rule did not change"

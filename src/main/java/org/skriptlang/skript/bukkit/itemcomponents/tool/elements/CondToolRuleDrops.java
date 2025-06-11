@@ -2,24 +2,26 @@ package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 
 @Name("Tool Rule - Drops Enabled")
-@Description("If the drops of a tool rule are enabled.")
-@Examples({
-	"set {_rules::*} to the tool rules of {_item}",
-	"loop {_rules::*}:",
-		"\tif the tool rule drops of loop-value is enabled:",
-			"\tremove loop-value from the tool rules of {_item}"
-})
+@Description("If the block types set in the tool rule should drop their respective items, "
+	+ "when mined with the tool/item the tool rule is applied to.")
+@Example("""
+	set {_rules::*} to the tool rules of {_item}
+	loop {_rules::*}:
+		if the tool rule drops of loop-value is enabled:
+			remove loop-value from the tool rules of {_item}
+	""")
 @RequiredPlugins("Minecraft 1.20.6")
 @Since("INSERT VERSION")
 
@@ -31,15 +33,6 @@ public class CondToolRuleDrops extends PropertyCondition<ToolRule> implements To
 			"[the] tool rule drops (of|for) %toolrules% (is|are) enabled",
 			"[the] tool rule drops (of|for) %toolrules% (is|are) disabled"
 		);
-	}
-
-	private Expression<ToolRule> toolRules;
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		toolRules = (Expression<ToolRule>) exprs[0];
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -58,7 +51,7 @@ public class CondToolRuleDrops extends PropertyCondition<ToolRule> implements To
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("the tool rule drops of", toolRules, "are");
+		builder.append("the tool rule drops of", getExpr(), "are");
 		if (!isNegated()) {
 			builder.append("enabled");
 		} else {

@@ -13,13 +13,14 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 
 @Name("Tool Rule - Drops")
-@Description("If the tool with this tool rule should drop items of a block defined from the blocks of this tool rule.")
-@Examples({
-	"set {_rule} to a new tool rule with block types oak log, stone and obsidian",
-	"set the tool rule speed of {_rule} to 10",
-	"enable the tool rule drops of {_rule}",
-	"add {_rule} to the tool rules of {_item}"
-})
+@Description("Whether the block types set in the tool rule should drop their respective items "
+	+ "when mined with the tool/item the tool rule is applied to.")
+@Example("""
+	set {_rule} to a custom tool rule with block types oak log, stone and obsidian
+	set the tool rule speed of {_rule} to 10
+	enable the tool rule drops of {_rule}
+	add {_rule} to the tool rules of {_item}
+	""")
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
 

@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -24,12 +24,8 @@ import java.util.List;
 
 @Name("Tool Component - Tool Rules")
 @Description("The tool rules of a tool component.")
-@Examples({
-	"set {_rules::*} to the tool rules of {_item}",
-	"",
-	"set {_component} to the tool component of {_tool}",
-	"set {_rules::*} to the tool rules of {_component}"
-})
+@Example("set {_rules::*} to the tool rules of {_item}")
+@Example("set {_rules::*} to the tool rules of (the tool component of {_item})")
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
 
@@ -37,7 +33,7 @@ import java.util.List;
 public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRule> implements ToolExperiment {
 
 	static {
-		register(ExprToolCompRules.class, ToolRule.class, "tool rules", "toolcomponents");
+		registerDefault(ExprToolCompRules.class, ToolRule.class, "tool rules", "toolcomponents");
 	}
 
 	@Override

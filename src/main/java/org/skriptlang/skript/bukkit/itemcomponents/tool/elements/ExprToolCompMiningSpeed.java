@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -15,14 +15,8 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
 @Name("Tool Component - Mining Speed")
-@Description("The default mining speed of a tool.")
-@Examples({
-	"set the default mining speed of {_tool} to 10",
-	"",
-	"set {_component} to the tool component of {_tool}",
-	"set the mining speed of {_component} to 5",
-	"set the tool component of {_tool} to {_component}"
-})
+@Description("The default mining speed of a tool/item.")
+@Example("set the default mining speed of {_item} to 20")
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
 
@@ -30,7 +24,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 public class ExprToolCompMiningSpeed extends SimplePropertyExpression<ToolWrapper, Float> implements ToolExperiment {
 
 	static {
-		register(ExprToolCompMiningSpeed.class, Float.class, "(default|base) mining speed", "toolcomponents");
+		registerDefault(ExprToolCompMiningSpeed.class, Float.class, "(default|base) mining speed", "toolcomponents");
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -24,13 +24,19 @@ import java.util.Arrays;
 import java.util.List;
 
 @Name("Tool Rule - Blocks")
-@Description("The blocks of a tool rule.")
-@Examples({
-	"set {_rule} to a new tool rule with block types oak log, stone and obsidian",
-	"set the tool rule speed of {_rule} to 10",
-	"enable the tool rule drops of {_rule}",
-	"add {_rule} to the tool rules of {_item}"
-})
+@Description("""
+	The block types of a tool rule.
+	A tool rule consists of:
+		- Block types that the rule should be applied to
+		- Mining speed for the blocks
+		- Whether the blocks should drop their respective items
+	""")
+@Example("""
+	set {_rule} to a custom tool rule with block types oak log, stone and obsidian
+	set the tool rule speed of {_rule} to 10
+	enable the tool rule drops for {_rule}
+	add {_rule} to the tool rules of {_item}
+	""")
 @RequiredPlugins("Minecraft 1.20.6+")
 @Since("INSERT VERSION")
 
@@ -38,7 +44,7 @@ import java.util.List;
 public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> implements ToolExperiment {
 
 	static {
-		register(ExprToolRuleBlocks.class, ItemType.class, "tool rule[s] block types", "toolrules");
+		registerDefault(ExprToolRuleBlocks.class, ItemType.class, "tool rule[s] block types", "toolrules");
 	}
 
 	@Override
