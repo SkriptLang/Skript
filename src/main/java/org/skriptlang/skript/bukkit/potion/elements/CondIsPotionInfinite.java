@@ -8,33 +8,31 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect - Has Particles")
-@Description("Checks whether a potion effect has particles.")
+@Name("Potion Effect - Is Infinite")
+@Description({
+	"Checks whether a potion effect is infinite.",
+	"That is, whether the potion effect will ever expire."
+})
 @Example("""
 	on entity potion effect modification:
-		if the potion effect has particles:
-			 hide the particles of event-potioneffecttype for event-entity
+		if the potion effect is infinite:
+			message "You've been permanently affected by %event-potioneffect%!"
 """)
 @Since("INSERT VERSION")
-public class CondHasParticles extends PropertyCondition<SkriptPotionEffect> {
+public class CondIsPotionInfinite extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondHasParticles.class, PropertyType.HAVE, "particles", "potioneffects");
+		register(registry, CondIsPotionInfinite.class, PropertyType.BE, "infinite", "potioneffects");
 	}
 
 	@Override
 	public boolean check(SkriptPotionEffect potionEffect) {
-		return potionEffect.particles();
-	}
-
-	@Override
-	protected PropertyType getPropertyType() {
-		return PropertyType.HAVE;
+		return potionEffect.infinite();
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "particles";
+		return "infinite";
 	}
 
 }

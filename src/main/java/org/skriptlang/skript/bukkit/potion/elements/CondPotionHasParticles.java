@@ -8,31 +8,33 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect - Is Ambient")
-@Description({
-	"Checks whether a potion effect is ambient.",
-	"That is, whether the potion effect produces more, translucent, particles."
-})
+@Name("Potion Effect - Has Particles")
+@Description("Checks whether a potion effect has particles.")
 @Example("""
 	on entity potion effect modification:
-		if the potion effect is ambient:
-			message "It's particle time!"
+		if the potion effect has particles:
+			 hide the particles of event-potioneffecttype for event-entity
 """)
 @Since("INSERT VERSION")
-public class CondIsAmbient extends PropertyCondition<SkriptPotionEffect> {
+public class CondPotionHasParticles extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondIsAmbient.class, PropertyType.BE, "ambient", "potioneffects");
+		register(registry, CondPotionHasParticles.class, PropertyType.HAVE, "particles", "potioneffects");
 	}
 
 	@Override
 	public boolean check(SkriptPotionEffect potionEffect) {
-		return potionEffect.ambient();
+		return potionEffect.particles();
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "ambient";
+		return "particles";
 	}
 
 }

@@ -1,11 +1,13 @@
 package org.skriptlang.skript.bukkit.potion;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -58,6 +60,12 @@ public class PotionModule implements AddonModule {
 			Classes.registerClass(LegacyPotionEffectTypeInfo.getInfo());
 		}
 
+		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
+			.user("(entity )?potion ?effect ?cause")
+			.name("Entity Potion Cause")
+			.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
+			.since("2.10"));
+
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::fromType);
 	}
@@ -66,11 +74,11 @@ public class PotionModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		// Load Syntax
 		SyntaxRegistry registry = addon.syntaxRegistry();
-		CondHasIcon.register(registry);
-		CondHasParticles.register(registry);
+		CondPotionHasIcon.register(registry);
+		CondPotionHasParticles.register(registry);
 		CondHasPotion.register(registry);
-		CondIsAmbient.register(registry);
-		CondIsInfinite.register(registry);
+		CondIsPotionAmbient.register(registry);
+		CondIsPotionInfinite.register(registry);
 		CondIsPotionInstant.register(registry);
 		CondIsPoisoned.register(registry);
 		EffApplyPotionEffect.register(registry);

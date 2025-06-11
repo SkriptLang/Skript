@@ -38,7 +38,6 @@ import org.bukkit.entity.*;
 import org.bukkit.entity.Panda.Gene;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.EntityUnleashEvent;
@@ -1320,12 +1319,6 @@ public class BukkitClasses {
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description("Represents flags that may be applied to hide certain attributes of an item.")
-				.since("2.10"));
-
-		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
-				.user("(entity )?potion ?effect ?cause")
-				.name("Entity Potion Cause")
-				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("2.10"));
 
 		ClassInfo<?> wolfVariantClassInfo = getRegistryClassInfo(

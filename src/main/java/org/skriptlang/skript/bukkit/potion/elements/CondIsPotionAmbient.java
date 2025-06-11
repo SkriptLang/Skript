@@ -8,36 +8,31 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effect - Has Icon")
+@Name("Potion Effect - Is Ambient")
 @Description({
-	"Checks whether a potion effect has an icon.",
-	"That is, whether the potion effect"
+	"Checks whether a potion effect is ambient.",
+	"That is, whether the potion effect produces more, translucent, particles."
 })
 @Example("""
 	on entity potion effect modification:
-		if the potion effect has an icon:
-			hide the icon of event-potioneffecttype for event-entity
+		if the potion effect is ambient:
+			message "It's particle time!"
 """)
 @Since("INSERT VERSION")
-public class CondHasIcon extends PropertyCondition<SkriptPotionEffect> {
+public class CondIsPotionAmbient extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondHasIcon.class, PropertyType.HAVE, "([an] icon|icons)", "potioneffects");
+		register(registry, CondIsPotionAmbient.class, PropertyType.BE, "ambient", "potioneffects");
 	}
 
 	@Override
 	public boolean check(SkriptPotionEffect potionEffect) {
-		return potionEffect.icon();
-	}
-
-	@Override
-	protected PropertyType getPropertyType() {
-		return PropertyType.HAVE;
+		return potionEffect.ambient();
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "an icon";
+		return "ambient";
 	}
 
 }
