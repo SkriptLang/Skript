@@ -93,7 +93,8 @@ public class PotionModule implements AddonModule {
 		EvtEntityPotion.register(registry);
 		ExprPotionEffect.register(registry);
 		ExprPotionEffects.register(registry);
-		ExprPotionProperties.register(registry);
+		ExprPotionAmplifier.register(registry);
+		ExprPotionDuration.register(registry);
 	}
 
 }
