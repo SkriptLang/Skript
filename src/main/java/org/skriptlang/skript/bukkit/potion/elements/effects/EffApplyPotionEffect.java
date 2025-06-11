@@ -60,20 +60,20 @@ public class EffApplyPotionEffect extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		SkriptPotionEffect[] potionEffects = this.potions.getArray(event);
+		SkriptPotionEffect[] potions = this.potions.getArray(event);
 
 		if (duration != null) {
 			Timespan timespan = duration.getSingle(event);
 			if (timespan != null) {
 				int ticks = (int) timespan.getAs(TimePeriod.TICK);
-				for (SkriptPotionEffect potionEffect : potionEffects)
-					// TODO not sure if this should actually modify the potion effect
-					potionEffect.duration(ticks);
+				for (int i = 0; i < potions.length; i++) {
+					potions[i] = potions[i].clone().duration(ticks);
+				}
 			}
 		}
 
 		for (LivingEntity livingEntity : entities.getArray(event)) {
-			for (PotionEffect potionEffect : PotionUtils.convertSkriptPotionEffects(potionEffects))
+			for (PotionEffect potionEffect : PotionUtils.convertSkriptPotionEffects(potions))
 				livingEntity.addPotionEffect(potionEffect);
 		}
 	}

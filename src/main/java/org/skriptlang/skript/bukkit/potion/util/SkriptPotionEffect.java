@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
 
-public class SkriptPotionEffect implements YggdrasilExtendedSerializable {
+public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializable {
 
 	private PotionEffectType potionEffectType;
 	private int duration = PotionUtils.DEFAULT_DURATION_TICKS;
@@ -180,6 +180,15 @@ public class SkriptPotionEffect implements YggdrasilExtendedSerializable {
 		ambient(fields.getPrimitive("ambient", boolean.class));
 		particles(fields.getPrimitive("particles", boolean.class));
 		icon(fields.getPrimitive("icon", boolean.class));
+	}
+
+	@Override
+	public SkriptPotionEffect clone() {
+		try {
+			return (SkriptPotionEffect) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 
 }
