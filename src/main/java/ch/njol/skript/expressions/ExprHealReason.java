@@ -6,7 +6,6 @@ import ch.njol.skript.registrations.EventValues;
 
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
-import org.checkerframework.checker.units.qual.A;
 
 @Name("Heal Reason")
 @Description("The <a href='./classes.html#healreason'>heal reason</a> of a <a href='./events.html#heal'>heal event</a>.")

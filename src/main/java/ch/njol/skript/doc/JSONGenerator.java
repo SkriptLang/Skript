@@ -399,11 +399,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	private static void cacheEvents() {
 		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
 			for (Class<? extends Event> event : eventInfo.events) {
-				if (!events.containsKey(event)) {
-					events.put(event, new ArrayList<>(Collections.singleton(eventInfo)));
-					continue;
-				}
-				events.get(event).add(eventInfo);
+				events.computeIfAbsent(event, key -> new ArrayList<>()).add(eventInfo);
 			}
 		}
 	}
