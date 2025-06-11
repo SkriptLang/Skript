@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperiment {
+public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperiment {
 
 	public static class BlankEquippableSectionEvent extends Event {
 
@@ -60,7 +60,7 @@ public class ExprBlankEquipComp extends SectionExpression<EquippableWrapper> imp
 	}
 
 	static {
-		Skript.registerExpression(ExprBlankEquipComp.class, EquippableWrapper.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprSecBlankEquipComp.class, EquippableWrapper.class, ExpressionType.SIMPLE,
 			"a (blank|empty) equippable component");
 		EventValues.registerEventValue(BlankEquippableSectionEvent.class, EquippableWrapper.class, BlankEquippableSectionEvent::getWrapper);
 	}

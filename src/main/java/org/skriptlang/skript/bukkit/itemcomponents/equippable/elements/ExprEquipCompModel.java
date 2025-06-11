@@ -23,7 +23,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	"A namespaced key can be formatted as 'namespace:id' or 'id'. "
 		+ "It can only contain one ':' to separate the namespace and the id. "
 		+ "Only alphanumeric characters, periods, underscores, and dashes can be used.",
-	"NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended."
+	"NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended."
 })
 @Example("set the equipped model key of {_item} to \"custom_model\"")
 @Example("""

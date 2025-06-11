@@ -28,7 +28,7 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 @Name("Equippable Component - Allowed Entities")
 @Description("The entities allowed to wear the item. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
 @Example("set the allowed entities of {_item} to a zombie and a skeleton")
 @Example("""
 	set {_component} to the equippable component of {_item}
@@ -75,7 +75,6 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		EntityData[] types = (EntityData[]) delta;
 		List<EntityType> converted = new ArrayList<>();
 		if (delta != null) {
 			for (Object object : delta) {

@@ -2,10 +2,12 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
@@ -13,7 +15,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Will Lose Durability")
 @Description("Whether an item can be damaged when the wearer gets injured. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
 @Example("""
 	if {_item} will lose durability when hurt:
 		add "Damageable on injury" to lore of {_item}
@@ -34,17 +36,9 @@ public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> im
 		);
 	}
 
-	private Expression<EquippableWrapper> wrappers;
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
-	}
-
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
+		//noinspection UnstableApiUsage
 		return wrapper.getComponent().isDamageOnHurt();
 	}
 
@@ -55,8 +49,12 @@ public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> im
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return wrappers.toString(event, debug) + (isNegated() ? " will not " : " will ")
-			+ "lose durability when injured";
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append(getExpr(), "will");
+		if (isNegated())
+			builder.append("not");
+		builder.append("lose durability when injured");
+		return builder.toString();
 	}
 
 }

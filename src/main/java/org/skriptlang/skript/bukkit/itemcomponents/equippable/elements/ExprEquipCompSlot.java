@@ -16,7 +16,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equipment Slot")
 @Description("The equipment slot an item can be equipped to. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
 @Example("set the equipment slot of {_item} to chest slot")
 @Example("""
 	set {_component} to the equippable component of {_item}

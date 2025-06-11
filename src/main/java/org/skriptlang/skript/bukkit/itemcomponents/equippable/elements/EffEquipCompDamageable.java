@@ -5,6 +5,7 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +14,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Lose Durability")
 @Description("If the item should take damage when the wearer gets injured. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
 @Example("make {_item} lose durability when hurt")
 @Example("""
 	set {_component} to the equippable component of {_item}
@@ -51,8 +52,12 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "make " + wrappers.toString(event, debug) + (loseDurability ? " " : " not ")
-			+ "lose durability when injured";
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("make", wrappers);
+		if (loseDurability)
+			builder.append("not");
+		builder.append("lose durability when injured");
+		return builder.toString();
 	}
 
 }
