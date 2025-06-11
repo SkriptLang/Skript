@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.potion.elements;
+package org.skriptlang.skript.bukkit.potion.elements.conditions;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;

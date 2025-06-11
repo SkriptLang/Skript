@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.potion.elements;
+package org.skriptlang.skript.bukkit.potion.elements.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;

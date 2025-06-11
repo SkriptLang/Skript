@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.potion.elements;
+package org.skriptlang.skript.bukkit.potion.elements.events;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;

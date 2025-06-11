@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.potion.elements;
+package org.skriptlang.skript.bukkit.potion.elements.expressions;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
