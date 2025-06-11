@@ -6,9 +6,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
@@ -36,15 +33,6 @@ public class CondEquipCompSwapEquipment extends PropertyCondition<EquippableWrap
 			"swap equipment [on right click|when right clicked]", "equippablecomponents");
 	}
 
-	private Expression<EquippableWrapper> wrappers;
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
-	}
-
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
 		return wrapper.getComponent().isSwappable();
@@ -59,6 +47,5 @@ public class CondEquipCompSwapEquipment extends PropertyCondition<EquippableWrap
 	protected String getPropertyName() {
 		return "swappable";
 	}
-
 
 }

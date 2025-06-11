@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.generic;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -8,21 +8,19 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
 
-@Name("Equippable Component - Copy")
-@Description("Grab a copy of an equippable component of an item. Any changes made to the copy will not be present on the item. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+@Name("Item Component - Copy")
+@Description("Grab a copy of an item component of an item. Any changes made to the copy will not be present on the item.")
 @Example("set {_component} to the copied equippable component of {_item}")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.2+")
 
 @SuppressWarnings("rawtypes")
-public class ExprEquipCompCopy extends SimplePropertyExpression<ComponentWrapper, ComponentWrapper> implements EquippableExperiment {
+public class ExprItemCompCopy extends SimplePropertyExpression<ComponentWrapper, ComponentWrapper> {
 
 	static {
-		register(ExprEquipCompCopy.class, ComponentWrapper.class,
-			"(([the|a] copy|[the] copies)|copied)", "itemcomponents");
+		register(ExprItemCompCopy.class, ComponentWrapper.class,
+			"(([the|a] copy|[the] copies)) [component[s]]", "itemcomponents");
 	}
 
 	@Override
@@ -37,7 +35,7 @@ public class ExprEquipCompCopy extends SimplePropertyExpression<ComponentWrapper
 
 	@Override
 	protected String getPropertyName() {
-		return "copies";
+		return "the copies";
 	}
 
 }

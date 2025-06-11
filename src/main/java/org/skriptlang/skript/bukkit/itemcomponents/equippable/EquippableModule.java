@@ -43,11 +43,11 @@ public class EquippableModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-        try {
-            Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents.equippable", "elements");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		try {
+			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents.equippable", "elements");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }

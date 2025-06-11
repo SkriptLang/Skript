@@ -22,7 +22,7 @@ import java.util.List;
 
 @Name("Equippable Component - Can Be Dispensed")
 @Description("Whether an item can be dispensed by a dispenser. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
 @Example("""
 	if {_item} can be dispensed:
 		add "Dispensable" to lore of {_item}
@@ -43,22 +43,17 @@ public class CondEquipCompDispensable extends PropertyCondition<EquippableWrappe
 		Skript.registerCondition(CondEquipCompDispensable.class, ConditionType.PROPERTY, patterns.toArray(String[]::new));
 	}
 
-	private Expression<EquippableWrapper> wrappers;
-	private boolean dispensable;
-
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
-		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		dispensable = !parseResult.hasTag("un");
-		setExpr(wrappers);
+		setExpr((Expression<? extends EquippableWrapper>) exprs[0]);
 		setNegated(matchedPattern % 2 == 1);
 		return true;
 	}
 
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
-		return wrapper.getComponent().isDispensable() == dispensable;
+		return wrapper.getComponent().isDispensable();
 	}
 
 	@Override
@@ -69,8 +64,8 @@ public class CondEquipCompDispensable extends PropertyCondition<EquippableWrappe
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(wrappers, "are");
-		if (!dispensable)
+		builder.append(getExpr(), "are");
+		if (isNegated())
 			builder.append("not");
 		builder.append("able to be dispensed");
 		return builder.toString();

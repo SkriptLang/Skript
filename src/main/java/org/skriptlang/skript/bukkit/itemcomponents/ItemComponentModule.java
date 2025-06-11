@@ -8,6 +8,8 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolModule;
 
+import java.io.IOException;
+
 public class ItemComponentModule implements AddonModule {
 
 	@Override
@@ -33,6 +35,12 @@ public class ItemComponentModule implements AddonModule {
 			new EquippableModule(),
 			new ToolModule()
 		);
+
+		try {
+			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents", "generic");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
