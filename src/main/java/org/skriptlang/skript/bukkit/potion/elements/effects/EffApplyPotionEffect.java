@@ -37,8 +37,8 @@ public class EffApplyPotionEffect extends Effect {
 		// it allows syntax like "apply haste 3 to the player for 5 seconds" to work
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffApplyPotionEffect.class)
 				.addPatterns(
-						"apply %potioneffects% to %livingentities% [for %-timespan%]",
-						"effect %livingentities% with %potioneffects% [for %-timespan%]"
+						"apply %skriptpotioneffects% to %livingentities% [for %-timespan%]",
+						"effect %livingentities% with %skriptpotioneffects% [for %-timespan%]"
 				)
 				.build()
 		);

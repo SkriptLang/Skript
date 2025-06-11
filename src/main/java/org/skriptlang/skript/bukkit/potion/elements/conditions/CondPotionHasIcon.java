@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondPotionHasIcon extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondPotionHasIcon.class, PropertyType.HAVE, "([an] icon|icons)", "potioneffects");
+		register(registry, CondPotionHasIcon.class, PropertyType.HAVE, "([an] icon|icons)", "skriptpotioneffects");
 	}
 
 	@Override

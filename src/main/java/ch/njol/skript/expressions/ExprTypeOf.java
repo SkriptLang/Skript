@@ -10,11 +10,11 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.util.EnchantmentType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.potion.PotionEffect;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffectType;
-import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Type of")
@@ -50,8 +50,8 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 			return itemType.getBaseType();
 		} else if (object instanceof Inventory inventory) {
 			return inventory.getType();
-		} else if (object instanceof SkriptPotionEffect potionEffect) {
-			return potionEffect.potionEffectType();
+		} else if (object instanceof PotionEffect potionEffect) {
+			return potionEffect.getType();
 		} else if (object instanceof BlockData blockData) {
 			return new ItemType(blockData.getMaterial());
 		} else if (object instanceof EnchantmentType enchantmentType) {

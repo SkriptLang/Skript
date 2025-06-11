@@ -22,11 +22,11 @@ abstract class PotionPropertyEffect extends Effect {
 	public static String[] getPatterns(Type type, String property) {
 		return switch (type) {
 			case MAKE -> new String[]{
-				"make %potioneffects% [:not] " + property,
+				"make %skriptpotioneffects% [:not] " + property,
 				"make %potioneffecttypes% (of|for|on) %livingentities% [:not] " + property
 			};
 			case SHOW -> new String[]{
-				"(show|not:hide) [the] [potion] " + property + " (of|for) %potioneffects%",
+				"(show|not:hide) [the] [potion] " + property + " (of|for) %skriptpotioneffects%",
 				"(show|not:hide) [the] [potion] " + property + " (of|for) %potioneffecttypes% (of|for|on) %livingentities%"
 			};
 		};

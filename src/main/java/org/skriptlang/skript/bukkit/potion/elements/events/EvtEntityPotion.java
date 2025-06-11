@@ -36,19 +36,19 @@ public class EvtEntityPotion extends SkriptEvent {
 				.build());
 
 		// Entity Potion Effect
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, SkriptPotionEffect.class, event -> {
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, event -> {
 			PotionEffect effect = event.getOldEffect();
 			if (effect == null) {
 				return null;
 			}
-			return SkriptPotionEffect.fromBukkitEffect(effect);
+			return effect;
 		}, TIME_PAST);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, SkriptPotionEffect.class, event -> {
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, event -> {
 			PotionEffect effect = event.getNewEffect();
 			if (effect == null) {
 				return null;
 			}
-			return SkriptPotionEffect.fromBukkitEffect(effect);
+			return effect;
 		});
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, EntityPotionEffectEvent::getModifiedType);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, EntityPotionEffectEvent::getCause);

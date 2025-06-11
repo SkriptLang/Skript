@@ -3,11 +3,14 @@ package org.skriptlang.skript.bukkit.potion;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.yggdrasil.Fields;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -20,17 +23,14 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.io.StreamCorruptedException;
+
 public class PotionModule implements AddonModule {
 
 	@Override
 	public void init(SkriptAddon addon) {
 		// Register ClassInfos
-		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "potioneffect")
-			.user("potion ?effects?")
-			.name("Potion Effect")
-			.description("A potion effect, including the potion effect type, tier and duration.")
-			.usage("speed of tier 1 for 10 seconds")
-			.since("2.5.2")
+		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "skriptpotioneffect")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -44,10 +44,79 @@ public class PotionModule implements AddonModule {
 
 				@Override
 				public String toVariableNameString(SkriptPotionEffect potionEffect) {
-					return "potioneffect:" + potionEffect.potionEffectType().getKey().getKey();
+					return "potion_effect:" + potionEffect.potionEffectType().getKey().getKey();
 				}
 			})
 			.serializer(new YggdrasilSerializer<>()));
+
+		Classes.registerClass(new ClassInfo<>(PotionEffect.class, "potioneffect")
+			.user("potion ?effects?")
+			.name("Potion Effect")
+			.description("A potion effect, including the potion effect type, tier and duration.")
+			.usage("speed of tier 1 for 10 seconds")
+			.since("2.5.2")
+			.parser(new Parser<>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(PotionEffect potionEffect, int flags) {
+					return SkriptPotionEffect.fromBukkitEffect(potionEffect).toString(flags);
+				}
+
+				@Override
+				public String toVariableNameString(PotionEffect potionEffect) {
+					return "potion_effect:" + potionEffect.getType().getKey().getKey();
+				}
+			})
+			.serializer(new Serializer<>() {
+				@Override
+				public Fields serialize(PotionEffect potionEffect) {
+					Fields fields = new Fields();
+					fields.putObject("potion", SkriptPotionEffect.fromBukkitEffect(potionEffect));
+					return fields;
+				}
+
+				@Override
+				public void deserialize(PotionEffect potionEffect, Fields fields) {
+					assert false;
+				}
+
+				@Override
+				protected PotionEffect deserialize(Fields fields) throws StreamCorruptedException {
+					//<editor-fold desc="Legacy deserialization handling" defaultstate="collapsed">
+					if (!fields.hasField("potion")) {
+						String typeName = fields.getObject("type", String.class);
+						assert typeName != null;
+						PotionEffectType type = PotionEffectType.getByName(typeName);
+						if (type == null)
+							throw new StreamCorruptedException("Invalid PotionEffectType " + typeName);
+						int amplifier = fields.getPrimitive("amplifier", int.class);
+						int duration = fields.getPrimitive("duration", int.class);
+						boolean particles = fields.getPrimitive("particles", boolean.class);
+						boolean ambient = fields.getPrimitive("ambient", boolean.class);
+						return new PotionEffect(type, duration, amplifier, ambient, particles);
+					}
+					//</editor-fold>
+					SkriptPotionEffect potionEffect = fields.getObject("potion", SkriptPotionEffect.class);
+					if (potionEffect == null) {
+						throw new StreamCorruptedException();
+					}
+					return potionEffect.toPotionEffect();
+				}
+
+				@Override
+				public boolean mustSyncDeserialization() {
+					return false;
+				}
+
+				@Override
+				protected boolean canBeInstantiated() {
+					return false;
+				}
+			}));
 
 		var petRegistry = PotionUtils.getPotionEffectTypeRegistry();
 		if (petRegistry != null) {
@@ -69,6 +138,10 @@ public class PotionModule implements AddonModule {
 			.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 			.since("2.10"));
 
+		// SkriptPotionEffect -> PotionEffect
+		Converters.registerConverter(SkriptPotionEffect.class, PotionEffect.class, SkriptPotionEffect::toPotionEffect);
+		// PotionEffect -> SkriptPotionEffect
+		Converters.registerConverter(PotionEffect.class, SkriptPotionEffect.class, SkriptPotionEffect::fromBukkitEffect);
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::fromType);
 	}

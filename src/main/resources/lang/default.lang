@@ -2657,6 +2657,7 @@ types:
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
+	skriptpotioneffect: potion effect¦s @a
 	entitypotioncause: entity potion cause¦s @an
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a

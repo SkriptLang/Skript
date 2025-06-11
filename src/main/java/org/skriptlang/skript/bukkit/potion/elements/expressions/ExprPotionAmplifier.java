@@ -36,8 +36,8 @@ public class ExprPotionAmplifier extends SimpleExpression<Integer> {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionAmplifier.class, Integer.class)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
-				"[the] [potion] (amplifier|tier|level) of %potioneffects%",
-				"%potioneffects%'[s] [potion] (amplifier|tier|level)",
+				"[the] [potion] (amplifier|tier|level) of %skriptpotioneffects%",
+				"%skriptpotioneffects%'[s] [potion] (amplifier|tier|level)",
 				"[the] [potion] (amplifier|tier) of %potioneffecttypes% (of|for|on) %livingentities%"
 			)
 			.build()

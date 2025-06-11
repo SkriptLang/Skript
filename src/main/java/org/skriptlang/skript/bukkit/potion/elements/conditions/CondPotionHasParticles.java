@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondPotionHasParticles extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondPotionHasParticles.class, PropertyType.HAVE, "particles", "potioneffects");
+		register(registry, CondPotionHasParticles.class, PropertyType.HAVE, "particles", "skriptpotioneffects");
 	}
 
 	@Override

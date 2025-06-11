@@ -22,7 +22,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondIsPotionAmbient extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondIsPotionAmbient.class, PropertyType.BE, "ambient", "potioneffects");
+		register(registry, CondIsPotionAmbient.class, PropertyType.BE, "ambient", "skriptpotioneffects");
 	}
 
 	@Override

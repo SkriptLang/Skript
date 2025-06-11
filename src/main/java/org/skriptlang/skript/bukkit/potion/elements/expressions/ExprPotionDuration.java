@@ -39,8 +39,8 @@ public class ExprPotionDuration extends SimpleExpression<Timespan> {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionDuration.class, Timespan.class)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
-				"[the] [potion] (duration|length) of %potioneffects%",
-				"%potioneffects%'[s] [potion] (duration|length)",
+				"[the] [potion] (duration|length) of %skriptpotioneffects%",
+				"%skriptpotioneffects%'[s] [potion] (duration|length)",
 				"[the] [potion] (duration|length) of %potioneffecttypes% (of|for|on) %livingentities%"
 			)
 			.build()
