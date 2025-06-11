@@ -11,7 +11,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Potion Effect - Has Icon")
 @Description({
 	"Checks whether a potion effect has an icon.",
-	"That is, whether the potion effect"
 })
 @Example("""
 	on entity potion effect modification:

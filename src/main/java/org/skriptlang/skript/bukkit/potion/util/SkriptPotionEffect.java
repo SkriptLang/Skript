@@ -59,9 +59,13 @@ public class SkriptPotionEffect implements YggdrasilExtendedSerializable {
 		return this;
 	}
 
-	// TODO should document to set duration to PotionUtils.INFINITE_DURATION
 	public boolean infinite() {
 		return duration == PotionUtils.INFINITE_DURATION;
+	}
+
+	// TODO docs note: making not infinite resets duration
+	public SkriptPotionEffect infinite(boolean infinite) {
+		return duration(infinite ? PotionUtils.INFINITE_DURATION : PotionUtils.DEFAULT_DURATION_TICKS);
 	}
 
 	public int duration() {
