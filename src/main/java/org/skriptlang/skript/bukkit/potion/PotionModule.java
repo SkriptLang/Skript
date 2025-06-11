@@ -77,24 +77,28 @@ public class PotionModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		// Load Syntax
 		SyntaxRegistry registry = addon.syntaxRegistry();
-		CondPotionHasIcon.register(registry);
-		CondPotionHasParticles.register(registry);
+		// conditions
 		CondHasPotion.register(registry);
+		CondIsPoisoned.register(registry);
 		CondIsPotionAmbient.register(registry);
 		CondIsPotionInfinite.register(registry);
 		CondIsPotionInstant.register(registry);
-		CondIsPoisoned.register(registry);
+		CondPotionHasIcon.register(registry);
+		CondPotionHasParticles.register(registry);
+		// effects
 		EffApplyPotionEffect.register(registry);
 		EffPoison.register(registry);
 		EffPotionAmbient.register(registry);
 		EffPotionIcon.register(registry);
 		EffPotionInfinite.register(registry);
 		EffPotionParticles.register(registry);
+		// events
 		EvtEntityPotion.register(registry);
-		ExprPotionEffect.register(registry);
-		ExprPotionEffects.register(registry);
+		// expressions
 		ExprPotionAmplifier.register(registry);
 		ExprPotionDuration.register(registry);
+		ExprPotionEffect.register(registry);
+		ExprPotionEffects.register(registry);
 	}
 
 }

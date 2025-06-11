@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.potion.elements.effects;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -19,14 +19,16 @@ import org.bukkit.potion.PotionEffect;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Effects")
-@Description("Apply potion effects to/from entities.")
-@Examples({
-	"apply swiftness 2 to the player",
-	"on join:",
-		"\tapply potion of strength of tier {strength::%player's uuid%} to the player for 999 days",
-	"apply potion effects of player's tool to player"
-})
+@Name("Apply Potion Effect")
+@Description("Applies a potion effect to an entity.")
+@Example("apply swiftness 2 to the player")
+@Example("""
+	command /strengthboost:
+		trigger:
+			apply strength 10 to the player for 5 minutes
+""")
+@Example("apply the potion effects of the player's tool to the player")
+// TODO new since
 @Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects), INSERT VERSION (syntax changes)")
 public class EffApplyPotionEffect extends Effect {
 
@@ -42,7 +44,7 @@ public class EffApplyPotionEffect extends Effect {
 		);
 	}
 
-	private Expression<SkriptPotionEffect> potionEffects;
+	private Expression<SkriptPotionEffect> potions;
 	private Expression<LivingEntity> entities;
 	private @Nullable Expression<Timespan> duration;
 
@@ -50,7 +52,7 @@ public class EffApplyPotionEffect extends Effect {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean first = matchedPattern == 0;
-		potionEffects = (Expression<SkriptPotionEffect>) exprs[first ? 0 : 1];
+		potions = (Expression<SkriptPotionEffect>) exprs[first ? 0 : 1];
 		entities = (Expression<LivingEntity>) exprs[first ? 1 : 0];
 		duration = (Expression<Timespan>) exprs[2];
 		return true;
@@ -58,7 +60,7 @@ public class EffApplyPotionEffect extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		SkriptPotionEffect[] potionEffects = this.potionEffects.getArray(event);
+		SkriptPotionEffect[] potionEffects = this.potions.getArray(event);
 
 		if (duration != null) {
 			Timespan timespan = duration.getSingle(event);
@@ -78,7 +80,7 @@ public class EffApplyPotionEffect extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "apply " + potionEffects.toString(event, debug) + " to " + entities.toString(event, debug);
+		return "apply " + potions.toString(event, debug) + " to " + entities.toString(event, debug);
 	}
 
 }

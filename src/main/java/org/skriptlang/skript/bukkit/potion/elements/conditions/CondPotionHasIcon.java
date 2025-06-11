@@ -9,9 +9,7 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Has Icon")
-@Description({
-	"Checks whether a potion effect has an icon.",
-})
+@Description("Checks whether a potion effect has an icon.")
 @Example("""
 	on entity potion effect modification:
 		if the potion effect has an icon:
