@@ -1,0 +1,192 @@
+# ExprPotionAmplifier
+test "potion amplifier property":
+	# setup
+	set {_potion} to a potion effect of speed
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test modifying potion effect object
+	set the amplifier of {_potion} to 5
+	assert the amplifier of {_potion} is 5 with "amplifier is not 5"
+	add 5 to the amplifier of {_potion}
+	assert the amplifier of {_potion} is 10 with "amplifier is not 10"
+	remove 5 from the amplifier of {_potion}
+	assert the amplifier of {_potion} is 5 with "amplifier is not 5"
+
+	# test modifying potion effect of entity
+	apply speed to {_entity}
+	set the amplifier of speed for {_entity} to 5
+	assert the amplifier of the first element of the potion effects of {_entity} is 5 with "amplifier is not 5"
+	add 5 to the amplifier of speed for {_entity}
+	assert the amplifier of the first element of the potion effects of {_entity} is 10 with "amplifier is not 10"
+	remove 5 from the amplifier of speed for {_entity}
+	assert the amplifier of the first element of the potion effects of {_entity} is 5 with "amplifier is not 5"
+
+	# cleanup
+	delete the entity within {_entity}
+
+# ExprPotionAmplifier
+test "potion duration property":
+	# setup
+	set {_potion} to a potion effect of speed
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test modifying potion effect object
+	set the duration of {_potion} to 5 seconds
+	assert the duration of {_potion} is 5 seconds with "duration is not 5 seconds"
+	add 5 seconds to the duration of {_potion}
+	assert the duration of {_potion} is 10 seconds with "duration is not 10 seconds"
+	remove 5 seconds from the duration of {_potion}
+	assert the duration of {_potion} is 5 seconds with "duration is not 5 seconds"
+
+	# test modifying potion effect of entity
+	apply speed to {_entity}
+	set the duration of speed for {_entity} to 5 seconds
+	assert compare_timespans(5 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 5 seconds"
+	add 5 seconds to the duration of speed for {_entity}
+	assert compare_timespans(10 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 10 seconds"
+	remove 5 seconds from the duration of speed for {_entity}
+	assert compare_timespans(5 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 5 seconds"
+
+	# cleanup
+	delete the entity within {_entity}
+
+# ExprPotionDuration
+test "potion duration property":
+
+# CondIsPotionAmbient, EffPotionAmbient
+test "potion ambient property":
+	# setup
+	set {_potion} to a potion effect of speed
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test modifying potion effect object
+	make {_potion} ambient
+	assert {_potion} is ambient with "potion is not ambient"
+	make {_potion} not ambient
+	assert {_potion} is not ambient with "potion is ambient"
+
+	# test modifying potion effect of entity
+	apply speed to {_entity}
+	make speed for {_entity} ambient
+	assert potion effects of {_entity} are ambient with "potion is not ambient"
+	make speed for {_entity} not ambient
+	assert potion effects of {_entity} are not ambient with "potion is ambient"
+
+	# cleanup
+	delete the entity within {_entity}
+
+# CondIsPotionInfinite, EffPotionInfinite
+test "potion infinite property":
+	# setup
+	set {_potion} to a potion effect of speed
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test modifying potion effect object
+	make {_potion} infinite
+	assert {_potion} is infinite with "potion is not infinite"
+	make {_potion} not infinite
+	assert {_potion} is not infinite with "potion is infinite"
+
+	# test modifying potion effect of entity
+	apply speed to {_entity}
+	make speed for {_entity} infinite
+	assert potion effects of {_entity} are infinite with "potion is not infinite"
+	make speed for {_entity} not infinite
+	assert potion effects of {_entity} are not infinite with "potion is infinite"
+
+	# cleanup
+	delete the entity within {_entity}
+
+# CondPotionHasIcon, EffPotionIcon
+test "potion icon property":
+	# setup
+	set {_potion} to a potion effect of speed
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test modifying potion effect object
+	show the icon for {_potion}
+	assert {_potion} has an icon with "potion does not have an icon"
+	hide the icon for {_potion}
+	assert {_potion} does not have an icon with "potion has an icon"
+
+	# test modifying potion effect of entity
+	apply speed to {_entity}
+	show the icon for speed for {_entity}
+	assert potion effects of {_entity} have an icon with "potion does not have an icon"
+	hide the icon for speed for {_entity}
+	assert potion effects of {_entity} do not have an icon with "potion has an icon"
+
+	# cleanup
+	delete the entity within {_entity}
+
+# CondPotionHasParticles, EffPotionParticles
+test "potion particles property":
+	# setup
+	set {_potion} to a potion effect of speed
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test modifying potion effect object
+	show the particles for {_potion}
+	assert {_potion} has particles with "potion does not have particles"
+	hide the particles for {_potion}
+	assert {_potion} does not have particles with "potion has particles"
+
+	# test modifying potion effect of entity
+	apply speed to {_entity}
+	show particles for speed for {_entity}
+	assert potion effects of {_entity} have particles with "potion does not have particles"
+	hide particles for speed for {_entity}
+	assert potion effects of {_entity} do not have particles with "potion has particles"
+
+	# cleanup
+	delete the entity within {_entity}
+
+test "CondIsPotionInstant":
+	assert instant health is instant with "instant health is not instant"
+	assert speed is not instant with "speed is instant"
+
+# CondHasPotion, CondIsPoisoned, EffPoison
+test "poison":
+	# setup
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test simple poisoning
+	assert {_entity} is not poisoned with "entity is poisoned"
+	assert {_entity} does not have the potion effect poison with "entity is poisoned"
+	poison {_entity}
+	assert {_entity} has the potion effect poison with "entity is not poisoned"
+	assert {_entity} is poisoned with "entity is not poisoned"
+
+	# test curing
+	cure {_entity} of poison
+	assert {_entity} is not poisoned with "entity is poisoned"
+
+	# test custom duration poisoning
+	poison {_entity} for 15 seconds
+	set {_poison} to the first element of the potion effects of {_entity}
+	assert type of {_poison} is poison with "entity is not poisoned"
+	assert compare_timespans(15 seconds, duration of {_poison}) is true with "poison duration is not 15 seconds"
+
+	# cleanup
+	delete the entity within {_entity}
+
+#
+# Regression Tests
+#
+
+test "potion missing base type": #6756
+	assert potion effects of (plain potion of mundane) is not set with "it should not have any effects"
+
+#
+# Utilities
+#
+
+local function compare_timespans(expected: timespan, found: timespan) returns boolean:
+	return whether difference between {_expected} and {_found} is less than or equal to 0.5 seconds

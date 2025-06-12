@@ -36,9 +36,9 @@ public class ExprPotionAmplifier extends SimpleExpression<Integer> {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionAmplifier.class, Integer.class)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
-				"[the] [potion] (amplifier|tier|level) of %skriptpotioneffects%",
-				"%skriptpotioneffects%'[s] [potion] (amplifier|tier|level)",
-				"[the] [potion] (amplifier|tier) of %potioneffecttypes% (of|for|on) %livingentities%"
+				"[the] [potion] (amplifier|tier|level)[s] of %skriptpotioneffects%",
+				"%skriptpotioneffects%'[s] [potion] (amplifier|tier|level)[s]",
+				"[the] [potion] (amplifier|tier)[s] of %potioneffecttypes% (of|for|on) %livingentities%"
 			)
 			.build()
 		);
@@ -65,7 +65,7 @@ public class ExprPotionAmplifier extends SimpleExpression<Integer> {
 		List<Integer> amplifiers = new ArrayList<>();
 		if (potions != null) {
 			for (SkriptPotionEffect potionEffect : potions.getArray(event)) {
-				amplifiers.add(potionEffect.amplifier());
+				amplifiers.add(potionEffect.amplifier() + 1);
 			}
 		} else {
 			//noinspection DataFlowIssue - not null by potions==null
@@ -92,7 +92,7 @@ public class ExprPotionAmplifier extends SimpleExpression<Integer> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
-		int change = (int) delta[0] + 1;
+		int change = (int) delta[0];
 
 		if (potions != null) {
 			for (SkriptPotionEffect potionEffect : potions.getArray(event)) {
@@ -122,11 +122,12 @@ public class ExprPotionAmplifier extends SimpleExpression<Integer> {
 	}
 
 	private static void changeSafe(SkriptPotionEffect potionEffect, int change, ChangeMode mode) {
-		int base = mode == ChangeMode.SET ? 0 : potionEffect.amplifier();
+		// need to subtract 1 for setting
+		int base = mode == ChangeMode.SET ? -1 : potionEffect.amplifier();
 		if (mode == ChangeMode.REMOVE) {
 			change = -change;
 		}
-		potionEffect.amplifier(Math2.fit(0, change + base, Integer.MAX_VALUE));
+		potionEffect.amplifier(Math2.fit(Integer.MIN_VALUE, change + base, Integer.MAX_VALUE));
 	}
 
 	@Override
