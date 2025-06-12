@@ -10,10 +10,10 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.util.EnchantmentType;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.potion.PotionEffect;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 

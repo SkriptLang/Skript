@@ -273,7 +273,6 @@ public class DefaultConverters {
 		// EnchantmentOffer - EnchantmentType
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
-		// String - World
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 
 		if (Skript.classExists("org.bukkit.entity.EntitySnapshot"))
