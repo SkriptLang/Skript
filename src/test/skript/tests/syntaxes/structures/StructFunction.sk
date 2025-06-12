@@ -13,7 +13,11 @@ local function local() :: number:
 local function bar() :: boolean:
 	return true
 
+local function _blob() :: string:
+	return "blub"
+
 test "functions":
 	assert foo() is true with "function return type failed"
 	assert local() is not 1 with "global function parsed before local function"
 	assert bar() is true with "local function didn't execute correctly"
+	assert _blob() is "blub" with "function that starts with underscore didn't execute correctly"
