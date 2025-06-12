@@ -178,14 +178,16 @@ public class EvtClick extends SkriptEvent {
 				if (entity != null) {
 					if (object instanceof EntityData<?> entityData) {
 						return entityData.isInstance(entity);
-					} else {
-						Relation compare = DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) object);
+					} else if (object instanceof ItemType itemType) {
+						// for cases like `on right click on oak boat` try to compare the boat item to the boat entity
+						// therefore blockdata check isn't needed here
+						Relation compare = DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), itemType);
 						return Relation.EQUAL.isImpliedBy(compare);
 					}
 				} else if (object instanceof ItemType itemType) {
 					return itemType.isOfType(block);
-				} else if (blockDataCheck != null && object instanceof BlockData blockData)  {
-					return blockDataCheck.matches(blockData);
+				} else if (object instanceof BlockData blockData) {
+					return blockDataCheck != null && blockDataCheck.matches(blockData);
 				}
 				return false;
 			});

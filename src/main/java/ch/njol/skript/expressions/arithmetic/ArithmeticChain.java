@@ -34,8 +34,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 	private final ArithmeticGettable<R> right;
 	private final Operator operator;
 	private final Class<? extends T> returnType;
-	@Nullable
-	private OperationInfo<? extends L, ? extends R, ? extends T> operationInfo;
+	private final @Nullable OperationInfo<? extends L, ? extends R, ? extends T> operationInfo;
 
 	public ArithmeticChain(ArithmeticGettable<L> left, Operator operator, ArithmeticGettable<R> right, @Nullable OperationInfo<L, R, T> operationInfo) {
 		this.left = left;
@@ -63,6 +62,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		if (leftClass == Object.class && rightClass == Object.class)
 			return null;
 
+		OperationInfo<? extends L, ? extends R, ? extends T> operationInfo = this.operationInfo;
 		if (left == null && leftClass == Object.class) {
 			operationInfo = lookupOperationInfo(rightClass, OperationInfo::getRight);
 		} else if (right == null && rightClass == Object.class) {
