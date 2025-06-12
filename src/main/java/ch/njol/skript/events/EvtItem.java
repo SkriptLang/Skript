@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.inventory.ComplexRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.jetbrains.annotations.Nullable;
@@ -173,7 +174,12 @@ public class EvtItem extends SkriptEvent {
 		} else if (event instanceof EntityDropItemEvent) {
 			itemStack = ((EntityDropItemEvent) event).getItemDrop().getItemStack();
 		} else if (event instanceof CraftItemEvent) {
-			itemStack = ((CraftItemEvent) event).getRecipe().getResult();
+			Recipe recipe = ((CraftItemEvent) event).getRecipe();
+			if (recipe instanceof ComplexRecipe) {
+				itemStack = ((CraftItemEvent) event).getCurrentItem();
+			} else {
+				itemStack = ((CraftItemEvent) event).getRecipe().getResult();
+			}
 		} else if (hasPrepareCraftEvent && event instanceof PrepareItemCraftEvent) {
 			Recipe recipe = ((PrepareItemCraftEvent) event).getRecipe();
 			if (recipe != null) {
