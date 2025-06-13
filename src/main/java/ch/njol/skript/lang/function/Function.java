@@ -135,14 +135,7 @@ public abstract class Function<T> {
 			//noinspection unchecked
 			return (Map.Entry<String, Object>[]) values;
 
-		//noinspection unchecked
-		Map.Entry<String, Object>[] keyed = new Map.Entry[values.length];
-		for (int i = 0; i < values.length; i++) {
-			keyed[i] = values[i] instanceof Map.Entry<?,?> entry
-				? Map.entry(entry.getKey().toString(), entry.getValue())
-				: Map.entry(String.valueOf(i + 1), values[i]);
-		}
-		return keyed;
+		return KeyProviderExpression.zip(values, null);
 	}
 
 	private boolean shouldUseKeys(Parameter<?> parameter, Expression<?> expression) {
