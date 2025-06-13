@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
  * <li>automatically lets the source expression handle everything apart from the get() methods</li>
  * <li>will never convert itself to another type, but rather request a new converted expression from the source expression.</li>
  * </ol>
+ *
+ * @see ConvertedKeyProviderExpression
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
 
@@ -95,8 +97,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 			//         returned by the expression (which are instances of <? extends F>), this won't result in any CCEs
 			Class<?> toType = Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new));
 			//noinspection unchecked,rawtypes
-			return from instanceof KeyProviderExpression<?>
-				? new ConvertedKeyProviderExpression((KeyProviderExpression) from, toType, infos, true)
+			return from instanceof KeyProviderExpression<?> keyProvider
+				? new ConvertedKeyProviderExpression(keyProvider, toType, infos, true)
 				: new ConvertedExpression(from, toType, infos, true);
 		}
 

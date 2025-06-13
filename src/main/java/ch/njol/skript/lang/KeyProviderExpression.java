@@ -97,7 +97,7 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * A set of keys, matching the length and order of the immediately-previous
 	 * {@link #getAll(Event)} values array.
 	 * <br/>
-	 * This should <b>only</b> be called immediately after a {@link #getArray(Event)} invocation,
+	 * This should <b>only</b> be called immediately after a {@link #getAll(Event)} invocation,
 	 * and iff {@link #canReturnKeys()} returns {@code true}.
 	 * If it is called without a matching values request (or after a delay) then the behaviour
 	 * is undefined, in which case:

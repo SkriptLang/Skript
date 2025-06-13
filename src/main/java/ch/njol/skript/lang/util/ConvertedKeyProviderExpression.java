@@ -13,7 +13,13 @@ import java.util.Collection;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
-public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F, T> implements KeyProviderExpression<T> {
+/**
+ * A {@link ConvertedExpression} that converts a keyed expression to another type with consideration of keys.
+ * This expression is used when the source expression is a {@link KeyProviderExpression}
+ *
+ * @see ConvertedExpression
+ */
+public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F, T> implements KeyProviderExpression<T>, KeyReceiverExpression<T> {
 
 	private final WeakHashMap<Event, KeyedValues> arrayKeysCache = new WeakHashMap<>();
 	private final WeakHashMap<Event, KeyedValues> allKeysCache = new WeakHashMap<>();
