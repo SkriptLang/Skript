@@ -81,7 +81,7 @@ public class ExprPotionDuration extends SimpleExpression<Timespan> {
 						continue;
 					}
 					int duration = potionEffect.getDuration();
-					if (duration == PotionUtils.INFINITE_DURATION) {
+					if (duration == PotionEffect.INFINITE_DURATION) {
 						duration = Integer.MAX_VALUE;
 					}
 					timespans.add(new Timespan(TimePeriod.TICK, duration));
@@ -136,7 +136,7 @@ public class ExprPotionDuration extends SimpleExpression<Timespan> {
 			duration = change;
 		} else {
 			int base = potionEffect.duration();
-			if (base == PotionUtils.INFINITE_DURATION) {
+			if (base == PotionEffect.INFINITE_DURATION) {
 				base = Integer.MAX_VALUE;
 			}
 			duration = new Timespan(TimePeriod.TICK, base);

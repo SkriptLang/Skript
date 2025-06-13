@@ -83,29 +83,28 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 		if (potionEffectType == null) {
 			return new SkriptPotionEffect[0];
 		}
+		SkriptPotionEffect potionEffect = SkriptPotionEffect.fromType(potionEffectType)
+				.ambient(ambient)
+				.particles(particles)
+				.icon(icon);
 
-		int amplifier = 0;
 		if (this.amplifier != null) {
 			Number amplifierNumber = this.amplifier.getSingle(event);
 			if (amplifierNumber != null) {
-				amplifier = amplifierNumber.intValue() - 1;
+				potionEffect.amplifier(amplifierNumber.intValue() - 1);
 			}
 		}
 
-		int duration = infinite ? PotionUtils.INFINITE_DURATION : PotionUtils.DEFAULT_DURATION_TICKS;
 		if (this.duration != null) {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan != null) {
-				duration = (int) Math2.fit(0, timespan.getAs(TimePeriod.TICK), Integer.MAX_VALUE);
+				potionEffect.duration((int) Math2.fit(0, timespan.getAs(TimePeriod.TICK), Integer.MAX_VALUE));
 			}
+		} else if (infinite) { // We do not want to call this when 'infinite' is false as the duration will be overridden
+			potionEffect.infinite(true);
 		}
 
-		return new SkriptPotionEffect[]{SkriptPotionEffect.fromType(potionEffectType)
-				.duration(duration)
-				.amplifier(amplifier)
-				.ambient(ambient)
-				.particles(particles)
-				.icon(icon)};
+		return new SkriptPotionEffect[]{potionEffect};
 	}
 	
 	@Override

@@ -81,7 +81,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#isInfinite()
 	 */
 	public boolean infinite() {
-		return duration == PotionUtils.INFINITE_DURATION;
+		return duration == PotionEffect.INFINITE_DURATION;
 	}
 
 	/**
@@ -92,12 +92,12 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 */
 	@Contract("_ -> this")
 	public SkriptPotionEffect infinite(boolean infinite) {
-		return duration(infinite ? PotionUtils.INFINITE_DURATION : PotionUtils.DEFAULT_DURATION_TICKS);
+		return duration(infinite ? PotionEffect.INFINITE_DURATION : PotionUtils.DEFAULT_DURATION_TICKS);
 	}
 
 	/**
 	 * @return The duration of this potion effect.
-	 * Will be {@link PotionEffect#INFINITE_DURATION} or {@link Integer#MAX_VALUE} if this effect is {@link #infinite()}.
+	 * Will be {@link PotionEffect#INFINITE_DURATION} if this effect is {@link #infinite()}.
 	 * @see PotionEffect#getDuration()
 	 */
 	public int duration() {
