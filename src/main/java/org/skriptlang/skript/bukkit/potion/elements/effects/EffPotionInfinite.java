@@ -20,9 +20,9 @@ public class EffPotionInfinite extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionInfinite.class)
-			.addPatterns(getPatterns(Type.MAKE, "infinite"))
-			.build()
-		);
+				.supplier(EffPotionInfinite::new)
+				.addPatterns(getPatterns(Type.MAKE, "infinite"))
+				.build());
 	}
 
 	@Override

@@ -37,20 +37,20 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 	public static void register(SyntaxRegistry registry) {
 		String postProperties = "[no particles:without [the|any] particles] [no icon:(whilst hiding the|without (the|a[n])) [potion] icon]";
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class, SkriptPotionEffect.class)
+				.supplier(ExprPotionEffect::new)
 				.addPatterns(
 						"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties + " [for %-timespan%]",
 						"[an] infinite [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties,
 						"[an] infinite [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] " + postProperties
 				)
-				.build()
-		);
+				.build());
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class, SkriptPotionEffect.class)
+				.supplier(ExprPotionEffect::new)
 				.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
 				.addPatterns(
 						"%*potioneffecttype% %*number%"
 				)
-				.build()
-		);
+				.build());
 	}
 
 	private Expression<PotionEffectType> potionEffectType;

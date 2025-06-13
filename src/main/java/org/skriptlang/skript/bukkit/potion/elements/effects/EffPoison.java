@@ -31,12 +31,12 @@ public class EffPoison extends Effect {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPoison.class)
+				.supplier(EffPoison::new)
 				.addPatterns(
 						"poison %livingentities% [for %-timespan%]",
 						"(cure|unpoison) %livingentities% [(from|of) poison]"
 				)
-				.build()
-		);
+				.build());
 	}
 
 	private Expression<LivingEntity> entities;

@@ -19,9 +19,9 @@ public class EffPotionParticles extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionParticles.class)
-			.addPatterns(getPatterns(Type.SHOW, "particles"))
-			.build()
-		);
+				.supplier(EffPotionParticles::new)
+				.addPatterns(getPatterns(Type.SHOW, "particles"))
+				.build());
 	}
 
 	@Override

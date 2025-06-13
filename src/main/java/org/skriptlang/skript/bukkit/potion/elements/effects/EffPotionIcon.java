@@ -19,9 +19,9 @@ public class EffPotionIcon extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionIcon.class)
-			.addPatterns(getPatterns(Type.SHOW, "icon[s]"))
-			.build()
-		);
+				.supplier(EffPotionIcon::new)
+				.addPatterns(getPatterns(Type.SHOW, "icon[s]"))
+				.build());
 	}
 
 	@Override

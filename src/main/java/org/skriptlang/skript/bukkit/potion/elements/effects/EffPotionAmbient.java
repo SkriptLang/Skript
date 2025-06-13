@@ -20,9 +20,9 @@ public class EffPotionAmbient extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionAmbient.class)
-			.addPatterns(getPatterns(Type.MAKE, "ambient"))
-			.build()
-		);
+				.supplier(EffPotionAmbient::new)
+				.addPatterns(getPatterns(Type.MAKE, "ambient"))
+				.build());
 	}
 
 	@Override

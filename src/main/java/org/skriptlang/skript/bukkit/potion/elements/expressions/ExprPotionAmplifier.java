@@ -34,14 +34,14 @@ public class ExprPotionAmplifier extends SimpleExpression<Integer> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionAmplifier.class, Integer.class)
-			.priority(PropertyExpression.DEFAULT_PRIORITY)
-			.addPatterns(
-				"[the] [potion] (amplifier|tier|level)[s] of %skriptpotioneffects%",
-				"%skriptpotioneffects%'[s] [potion] (amplifier|tier|level)[s]",
-				"[the] [potion] (amplifier|tier)[s] of %potioneffecttypes% (of|for|on) %livingentities%"
-			)
-			.build()
-		);
+				.supplier(ExprPotionAmplifier::new)
+				.priority(PropertyExpression.DEFAULT_PRIORITY)
+				.addPatterns(
+					"[the] [potion] (amplifier|tier|level)[s] of %skriptpotioneffects%",
+					"%skriptpotioneffects%'[s] [potion] (amplifier|tier|level)[s]",
+					"[the] [potion] (amplifier|tier)[s] of %potioneffecttypes% (of|for|on) %livingentities%"
+				)
+				.build());
 	}
 
 	private @Nullable Expression<SkriptPotionEffect> potions;

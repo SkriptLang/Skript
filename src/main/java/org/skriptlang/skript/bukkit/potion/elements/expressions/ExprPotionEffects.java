@@ -42,7 +42,8 @@ import java.util.List;
 public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, ExprPotionEffects.class, SkriptPotionEffect.class, "[active] potion effects", "livingentities/itemtypes");
+		register(registry, ExprPotionEffects.class, SkriptPotionEffect.class,
+				"[active] potion effects", "livingentities/itemtypes");
 	}
 
 	@Override

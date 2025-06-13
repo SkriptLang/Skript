@@ -37,14 +37,14 @@ public class ExprPotionDuration extends SimpleExpression<Timespan> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionDuration.class, Timespan.class)
-			.priority(PropertyExpression.DEFAULT_PRIORITY)
-			.addPatterns(
-				"[the] [potion] (duration|length)[s] of %skriptpotioneffects%",
-				"%skriptpotioneffects%'[s] [potion] (duration|length)[s]",
-				"[the] [potion] (duration|length)[s] of %potioneffecttypes% (of|for|on) %livingentities%"
-			)
-			.build()
-		);
+				.supplier(ExprPotionDuration::new)
+				.priority(PropertyExpression.DEFAULT_PRIORITY)
+				.addPatterns(
+					"[the] [potion] (duration|length)[s] of %skriptpotioneffects%",
+					"%skriptpotioneffects%'[s] [potion] (duration|length)[s]",
+					"[the] [potion] (duration|length)[s] of %potioneffecttypes% (of|for|on) %livingentities%"
+				)
+				.build());
 	}
 
 	private @Nullable Expression<SkriptPotionEffect> potions;
