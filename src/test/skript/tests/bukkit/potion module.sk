@@ -37,7 +37,7 @@ test "potion effect creation":
 test "potion effects of entities/items":
 	# setup
 	set {_potions::1} to a potion effect of slowness 3 without the particles for 73 seconds
-	set {_potions::2} to an ambient potion effect of speed of tier 5 without the particles whilst hiding the icon for 15 seconds
+	set {_potions::2} to an ambient potion effect of speed of tier 5 without the particles for 15 seconds
 	set {_potions::3} to speed 5
 	spawn a pig at event-location:
 		set {_holders::1} to event-entity
