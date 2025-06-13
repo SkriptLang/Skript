@@ -251,15 +251,16 @@ test "poison":
 	delete the entity within {_entity}
 
 on entity potion effect modification:
-	event-potioneffecttype is glowing
-	event-potioneffectcause is plugin
-	event-potioneffect does not have particles
-	duration of event-potioneffect is 17 seconds
+	the event-potion effect type is glowing
+	the event-potion effect action is added
+	the event-potion effect cause is plugin
+	the event-potion effect does not have particles
+	the duration of the event-potion effect is 17 seconds
 	set {potion_event::1} to true
 
-on entity potion effect modification of glowing due to plugin:
-	event-potioneffect does not have particles
-	duration of event-potioneffect is 17 seconds
+on entity potion effect of glowing added due to plugin:
+	the event-potion effect does not have particles
+	the duration of the event-potion effect is 17 seconds
 	set {potion_event::2} to true
 
 test "potion application event":

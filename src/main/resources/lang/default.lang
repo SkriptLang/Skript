@@ -2390,6 +2390,12 @@ entity potion causes:
 	villager_trade: villager trade
 	patrol_captain: pillager captain, patrol captain
 	wither_rose: wither rose infliction
+# -- Entity Potion Actions --
+entity potion actions:
+	added: added
+	changed: changed
+	cleared: cleared
+	removed: removed
 
 # -- Moon Phases --
 moon phases:

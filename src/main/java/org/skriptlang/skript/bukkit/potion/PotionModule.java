@@ -138,9 +138,18 @@ public class PotionModule implements AddonModule {
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 			.user("(entity )?potion ?effect ?cause")
-			.name("Entity Potion Cause")
-			.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
+			.name("Entity Potion Effect Event Cause")
+			.description("Represents the cause of an 'entity potion effect' event. For example, an arrow hitting an entity or a command being executed.")
 			.since("2.10"));
+		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Action.class, "entitypotionaction", "entity potion actions")
+			.user("(entity )?potion ?effect ?action")
+			.name("Entity Potion Effect Event Action")
+			.description("Represents the action being performed in an 'entity potion effect' event.",
+				"'added' indicates the entity does not already have a potion effect of the event potion effect type.",
+				"'changed' indicates the entity already has a potion effect of the event potion effect type, but some property about the potion effect is changing.",
+				"'cleared' indicates that the effect is being removed because all of the entity's effects are being removed.",
+				"'removed' indicates that the event potion effect type has been specifically removed from the entity.")
+			.since("INSERT VERSION"));
 
 		// Added in 1.21
 		if (Skript.classExists("org.bukkit.potion.PotionEffectTypeCategory")) {
