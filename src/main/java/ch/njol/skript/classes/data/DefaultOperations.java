@@ -4,7 +4,6 @@ import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Math2;
 import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
@@ -91,9 +90,9 @@ public class DefaultOperations {
 		});
 
 		// Timespan - Timespan
-		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(Math2.addClamped(left.getAs(TimePeriod.MILLISECOND), right.getAs(TimePeriod.MILLISECOND))));
-		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, (left, right) -> new Timespan(Math.max(0, left.getAs(TimePeriod.MILLISECOND) - right.getAs(TimePeriod.MILLISECOND))));
-		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getAs(TimePeriod.MILLISECOND) - right.getAs(TimePeriod.MILLISECOND))));
+		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, Timespan::add);
+		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, Timespan::subtract);
+		Arithmetics.registerDifference(Timespan.class, Timespan::difference);
 		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
 
 		// Timespan - Number
