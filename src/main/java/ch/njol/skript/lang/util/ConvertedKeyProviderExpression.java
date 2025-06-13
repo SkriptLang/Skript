@@ -1,6 +1,8 @@
 package ch.njol.skript.lang.util;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyReceiverExpression;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -23,13 +25,16 @@ public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F,
 
 	private final WeakHashMap<Event, KeyedValues> arrayKeysCache = new WeakHashMap<>();
 	private final WeakHashMap<Event, KeyedValues> allKeysCache = new WeakHashMap<>();
+	private final boolean supportsKeyedChange;
 
 	public ConvertedKeyProviderExpression(KeyProviderExpression<? extends F> source, Class<T> to, ConverterInfo<? super F, ? extends T> info) {
 		super(source, to, info);
+		this.supportsKeyedChange = source instanceof KeyReceiverExpression<?>;
 	}
 
 	public ConvertedKeyProviderExpression(KeyProviderExpression<? extends F> source, Class<T> to, Collection<ConverterInfo<? super F, ? extends T>> converterInfos, boolean performFromCheck) {
 		super(source, to, converterInfos, performFromCheck);
+		this.supportsKeyedChange = source instanceof KeyReceiverExpression<?>;
 	}
 
 	@Override
@@ -78,6 +83,15 @@ public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F,
 	@Override
 	public boolean areKeysRecommended() {
 		return getSource().areKeysRecommended();
+	}
+
+	@Override
+	public void change(Event event, Object @NotNull [] delta, ChangeMode mode, @NotNull String @NotNull [] keys) {
+		if (supportsKeyedChange) {
+			((KeyReceiverExpression<?>) getSource()).change(event, delta, mode, keys);
+		} else {
+			getSource().change(event, delta, mode);
+		}
 	}
 
 	private record KeyedValues(@Nullable Object[] values, String[] keys) {
