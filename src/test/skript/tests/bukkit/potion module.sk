@@ -275,10 +275,16 @@ test "potion application event":
 	delete the entity within {_entity}
 	delete {potion_event::*}
 
-test "CondIsPotionInstant":
+test "potion effect type properties":
+	# CondIsPotionInstant
 	assert instant health is instant with "instant health is not instant"
 	assert speed is not instant with "speed is instant"
 
+	# ExprColorOf - PotionEffectType
+	assert color of speed is set with "color of speed is not set"
+	assert color of night vision is set with "color of night vision is not set"
+
+# TODO merge into test above when only 1.21+ is supported
 test "ExprPotionEffectTypeCategory" when running minecraft "1.21":
 	assert category of instant health is beneficial with "instant health is not beneficial"
 	assert weakness is harmful with "weakness is not harmful"
