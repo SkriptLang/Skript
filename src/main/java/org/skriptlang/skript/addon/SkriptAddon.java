@@ -4,6 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.localization.Localizer;
+import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
@@ -114,6 +115,15 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 	@Contract("-> new")
 	default SkriptAddon unmodifiableView() {
 		return new SkriptAddonImpl.UnmodifiableAddon(this);
+	}
+
+	/**
+	 * Constructs a {@link SyntaxOrigin} from this {@link SkriptAddon}.
+	 * @return An origin pointing to this {@link SkriptAddon}.
+	 */
+	@Contract("-> new")
+	default SyntaxOrigin asOrigin() {
+		return SyntaxOrigin.of(this);
 	}
 
 }
