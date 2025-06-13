@@ -149,6 +149,11 @@ potion effect types:
 	trial_omen: trial omen
 	oozing: oozing
 
+potion effect type categories:
+	beneficial: beneficial
+	harmful: harmful
+	neutral: neutral
+
 # -- Weather --
 weather:
 	clear:
@@ -2385,6 +2390,12 @@ entity potion causes:
 	villager_trade: villager trade
 	patrol_captain: pillager captain, patrol captain
 	wither_rose: wither rose infliction
+# -- Entity Potion Actions --
+entity potion actions:
+	added: added
+	changed: changed
+	cleared: cleared
+	removed: removed
 
 # -- Moon Phases --
 moon phases:
@@ -2656,7 +2667,9 @@ types:
 	itemflag: item flag¦s @an
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
+	potioneffecttypecategory: potion effect type categor¦y¦ies @a
 	potioneffect: potion effect¦s @a
+	skriptpotioneffect: potion effect¦s @a
 	entitypotioncause: entity potion cause¦s @an
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
