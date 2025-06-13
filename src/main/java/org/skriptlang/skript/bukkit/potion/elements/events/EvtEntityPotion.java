@@ -10,7 +10,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -36,20 +35,8 @@ public class EvtEntityPotion extends SkriptEvent {
 				.build());
 
 		// Entity Potion Effect
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, event -> {
-			PotionEffect effect = event.getOldEffect();
-			if (effect == null) {
-				return null;
-			}
-			return effect;
-		}, TIME_PAST);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, event -> {
-			PotionEffect effect = event.getNewEffect();
-			if (effect == null) {
-				return null;
-			}
-			return effect;
-		});
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getOldEffect, TIME_PAST);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getNewEffect);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, EntityPotionEffectEvent::getModifiedType);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, EntityPotionEffectEvent::getCause);
 	}

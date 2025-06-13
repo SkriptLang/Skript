@@ -1,3 +1,81 @@
+# ExprPotionEffect
+test "potion effect creation":
+	# test first pattern
+	set {_potion} to an ambient potion effect of speed of tier 5 without the particles whilst hiding the icon for 15 seconds
+	assert {_potion} is ambient with "potion is not ambient"
+	assert type of {_potion} is speed with "type is not speed"
+	assert amplifier of {_potion} is 5 with "amplifier is not 5"
+	assert {_potion} does not have particles with "potion has particles"
+	assert {_potion} does not have an icon with "potion has an icon"
+	assert duration of {_potion} is 15 seconds with "duration is not 15 seconds"
+	assert {_potion} is not infinite with "potion is infinite"
+
+	# test second pattern
+	set {_potion} to an infinite ambient potion effect of speed of tier 5 without the particles whilst hiding the icon
+	assert {_potion} is ambient with "potion is not ambient"
+	assert type of {_potion} is speed with "type is not speed"
+	assert amplifier of {_potion} is 5 with "amplifier is not 5"
+	assert {_potion} does not have particles with "potion has particles"
+	assert {_potion} does not have an icon with "potion has an icon"
+	assert {_potion} is infinite with "potion is infinite"
+
+	# test third pattern
+	set {_potion} to an infinite ambient speed 5 without the particles whilst hiding the icon
+	assert {_potion} is ambient with "potion is not ambient"
+	assert type of {_potion} is speed with "type is not speed"
+	assert amplifier of {_potion} is 5 with "amplifier is not 5"
+	assert {_potion} does not have particles with "potion has particles"
+	assert {_potion} does not have an icon with "potion has an icon"
+	assert {_potion} is infinite with "potion is infinite"
+
+	# test "matches everything" type+amplifier
+	set {_potion} to speed 5
+	assert type of {_potion} is speed with "type is not speed"
+	assert amplifier of {_potion} is 5 with "amplifier is not 5"
+
+# ExprPotionEffects
+test "potion effects of entities/items":
+	# setup
+	set {_potions::1} to a potion effect of slowness 3 without the particles for 73 seconds
+	set {_potions::2} to an ambient potion effect of speed of tier 5 without the particles whilst hiding the icon for 15 seconds
+	set {_potions::3} to speed 5
+	spawn a pig at event-location:
+		set {_holders::1} to event-entity
+	set {_holders::2} to a potion of mundane
+
+	loop {_potions::*}:
+		loop {_holders::*}:
+			add loop-value-1 to the potion effects of loop-value-2
+			assert potion effects of loop-value-2 contains loop-value-1 with "holder doesn't have potion effect"
+			remove loop-value-1 from the potion effects of loop-value-2
+			assert potion effects of loop-value-2 doesn't contain loop-value-1 with "holder has potion effect"
+			add loop-value-1 to the potion effects of loop-value-2
+			assert potion effects of loop-value-2 contains loop-value-1 with "holder doesn't have potion effect"
+			clear potion effects of loop-value-2
+			assert potion effects of loop-value-2 are not set with "holder has potion effect"
+
+	# cleanup
+	delete the entity within {_entity}
+
+# EffApplyPotionEffect:
+test "potion effect application":
+	# setup
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test simple application
+	apply speed to {_entity}
+	assert {_entity} has the potion effect speed
+	clear potion effects of {_entity}
+
+	# test timed application
+	apply slowness to {_entity} for 13 seconds
+	assert {_entity} has the potion effect slowness
+	assert compare_timespans(13 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 13 seconds"
+
+	# cleanup
+	delete the entity within {_entity}
+
 # ExprPotionAmplifier
 test "potion amplifier property":
 	# setup
@@ -25,7 +103,7 @@ test "potion amplifier property":
 	# cleanup
 	delete the entity within {_entity}
 
-# ExprPotionAmplifier
+# ExprPotionDuration
 test "potion duration property":
 	# setup
 	set {_potion} to a potion effect of speed
@@ -51,9 +129,6 @@ test "potion duration property":
 
 	# cleanup
 	delete the entity within {_entity}
-
-# ExprPotionDuration
-test "potion duration property":
 
 # CondIsPotionAmbient, EffPotionAmbient
 test "potion ambient property":
@@ -102,7 +177,9 @@ test "potion infinite property":
 	delete the entity within {_entity}
 
 # CondPotionHasIcon, EffPotionIcon
-test "potion icon property":
+# Unfortunately, potion icons are improperly handled on older versions
+# They are not properly set when converting to/from Bukkit PotionEffects
+test "potion icon property" when running minecraft "1.20":
 	# setup
 	set {_potion} to a potion effect of speed
 	spawn a pig at event-location:
@@ -176,6 +253,31 @@ test "poison":
 
 	# cleanup
 	delete the entity within {_entity}
+
+on entity potion effect modification:
+	event-potioneffecttype is glowing
+	event-potioneffectcause is plugin
+	event-potioneffect does not have particles
+	duration of event-potioneffect is 17 seconds
+	set {potion_event::1} to true
+
+on entity potion effect modification of glowing due to plugin:
+	event-potioneffect does not have particles
+	duration of event-potioneffect is 17 seconds
+	set {potion_event::2} to true
+
+test "potion application event":
+	# setup
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	apply potion effect of glowing without particles for 17 seconds to {_event-entity}
+	loop {potion_event::*}:
+		assert loop-value is true with "potion event %loop-index% failed"
+
+	# cleanup
+	delete the entity within {_entity}
+	delete {potion_event::*}
 
 #
 # Regression Tests
