@@ -2,6 +2,7 @@ package ch.njol.skript.expressions.base;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.ConvertedExpression;
@@ -11,6 +12,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Iterator;
 
@@ -120,7 +122,10 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	
 	@Override
 	public Expression<? extends T> simplify() {
-		return expr;
+		setExpr(expr.simplify());
+		if (getExpr() instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 	
 	@Override

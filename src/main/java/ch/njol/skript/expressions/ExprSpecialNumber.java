@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Special number values, namely NaN, Infinity and -Infinity")
 @Examples({"if {_number} is infinity value:"})
 @Since("2.2-dev32d")
+// TODO: turn into Literal
 public class ExprSpecialNumber extends SimpleExpression<Number> {
 	private int value;
 

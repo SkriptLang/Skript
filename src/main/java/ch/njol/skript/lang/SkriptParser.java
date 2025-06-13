@@ -42,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import ch.njol.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -69,6 +70,8 @@ public class SkriptParser {
 	public final static int PARSE_LITERALS = 2;
 	public final static int ALL_FLAGS = PARSE_EXPRESSIONS | PARSE_LITERALS;
 	private final int flags;
+
+	public final boolean doSimplification = SkriptConfig.simplifySyntaxesOnParse.value();
 
 	public final ParseContext context;
 
@@ -246,6 +249,9 @@ public class SkriptParser {
 							boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
 								log.printLog();
+								if (doSimplification && element instanceof Simplifiable<?> simplifiable)
+									//noinspection unchecked
+									return (T) simplifiable.simplify();
 								return element;
 							}
 						}
