@@ -224,10 +224,6 @@ test "potion particles property":
 	# cleanup
 	delete the entity within {_entity}
 
-test "CondIsPotionInstant":
-	assert instant health is instant with "instant health is not instant"
-	assert speed is not instant with "speed is instant"
-
 # CondHasPotion, CondIsPoisoned, EffPoison
 test "poison":
 	# setup
@@ -278,6 +274,15 @@ test "potion application event":
 	# cleanup
 	delete the entity within {_entity}
 	delete {potion_event::*}
+
+test "CondIsPotionInstant":
+	assert instant health is instant with "instant health is not instant"
+	assert speed is not instant with "speed is instant"
+
+test "ExprPotionEffectTypeCategory" when running minecraft "1.21":
+	assert category of instant health is beneficial with "instant health is not beneficial"
+	assert weakness is harmful with "weakness is not harmful"
+	assert potion effect type category of glowing is neutral with "glowing is not neutral"
 
 #
 # Regression Tests

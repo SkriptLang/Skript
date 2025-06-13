@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.potion;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -12,6 +13,7 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionEffectTypeCategory;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.*;
@@ -20,6 +22,8 @@ import org.skriptlang.skript.bukkit.potion.elements.events.*;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.*;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -138,6 +142,17 @@ public class PotionModule implements AddonModule {
 			.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 			.since("2.10"));
 
+		// Added in 1.21
+		if (Skript.classExists("org.bukkit.potion.PotionEffectTypeCategory")) {
+			Classes.registerClass(new EnumClassInfo<>(PotionEffectTypeCategory.class, "potioneffecttypecategory", "potion effect type categories")
+				.user("potion ?effect ?type? category?(ies)?")
+				.name("Potion Effect Type Category")
+				.description("Represents the type of effect a potion effect type has on an entity.")
+				.since("INSERT VERSION"));
+			Comparators.registerComparator(PotionEffectType.class, PotionEffectTypeCategory.class,
+				(type, category) -> Relation.get(type.getCategory() == category));
+		}
+
 		// SkriptPotionEffect -> PotionEffect
 		Converters.registerConverter(SkriptPotionEffect.class, PotionEffect.class, SkriptPotionEffect::toPotionEffect);
 		// PotionEffect -> SkriptPotionEffect
@@ -172,6 +187,7 @@ public class PotionModule implements AddonModule {
 		ExprPotionDuration.register(registry);
 		ExprPotionEffect.register(registry);
 		ExprPotionEffects.register(registry);
+		ExprPotionEffectTypeCategory.register(registry);
 	}
 
 }

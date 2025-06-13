@@ -149,6 +149,11 @@ potion effect types:
 	trial_omen: trial omen
 	oozing: oozing
 
+potion effect type categories:
+	beneficial: beneficial
+	harmful: harmful
+	neutral: neutral
+
 # -- Weather --
 weather:
 	clear:
@@ -2656,6 +2661,7 @@ types:
 	itemflag: item flag¦s @an
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
+	potioneffecttypecategory: potion effect type categor¦y¦ies @a
 	potioneffect: potion effect¦s @a
 	skriptpotioneffect: potion effect¦s @a
 	entitypotioncause: entity potion cause¦s @an
