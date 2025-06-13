@@ -9,16 +9,14 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.WrapperExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Value Within")
@@ -34,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 	"broadcast the strings within {_list::*} # \"something\", \"test\""
 })
 @Since("2.7")
-public class ExprValueWithin extends WrapperExpression<Object> {
+public class ExprValueWithin extends WrapperExpression<Object> implements KeyProviderExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprValueWithin.class, Object.class, ExpressionType.COMBINED, "[the] (%-*classinfo%|value[:s]) (within|in) %~objects%");
@@ -46,6 +44,8 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 	@Nullable
 	@SuppressWarnings("rawtypes")
 	private Changer changer;
+
+	private boolean returnsKeys;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -72,7 +72,26 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 		if (expr == null)
 			return false;
 		setExpr(expr);
+		if (expr instanceof KeyProviderExpression<?> keyProvider)
+			returnsKeys = keyProvider.canReturnKeys();
 		return true;
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
+		if (!returnsKeys)
+			throw new IllegalStateException();
+		return ((KeyProviderExpression<?>) getExpr()).getArrayKeys(event);
+	}
+
+	@Override
+	public boolean canReturnKeys() {
+		return returnsKeys;
+	}
+
+	@Override
+	public boolean areKeysRecommended() {
+		return false;
 	}
 
 	@Override
