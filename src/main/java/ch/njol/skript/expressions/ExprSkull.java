@@ -22,7 +22,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 public class ExprSkull extends SimplePropertyExpression<OfflinePlayer, ItemType> {
 
 	static {
-		register(ExprSkull.class, ItemType.class, "(head|skull)", "offlineplayers");
+		register(ExprSkull.class, ItemType.class, "skull", "offlineplayers");
 	}
 
 	@Override
