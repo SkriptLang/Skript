@@ -1,0 +1,27 @@
+test "armour stand properties":
+	spawn an armor stand at (spawn of world "world")
+	set {_e} to last spawned armor stand
+
+	assert {_e} isn't small with "a normally spawned armour stand should not be small"
+	assert {_e} isn't a marker with "a normally spawned armour stand should not be a marker"
+
+	make {_e} small
+	make {_e} a marker
+	assert {_e} is small with "making an armour stand small should do exactly that"
+	assert {_e} is a marker with "making an armour stand a marker should do exactly that"
+
+	make {_e} not small
+	make {_e} not a marker
+	assert {_e} is not small with "making an armour stand not small should do exactly that"
+	assert {_e} is not a marker with "making an armour stand not a marker should do exactly that"
+
+	make {_} small
+	assert {_} isn't small with "invalid entity should not do anything"
+
+	spawn a zombie at (spawn of world "world")
+	set {_z} to last spawned zombie
+	make {_z} small
+	assert {_z} is not small with "modifying the properties of a non-armour stand should do nothing"
+
+	kill value within {_e}
+	kill value within {_z}
