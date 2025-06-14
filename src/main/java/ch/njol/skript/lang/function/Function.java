@@ -2,7 +2,6 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
@@ -94,7 +93,7 @@ public abstract class Function<T> {
 			if (parameterValue == null) { // Go for default value
 				assert parameter.def != null; // Should've been parse error
 				Object[] defaultValue = parameter.def.getArray(event);
-				if (shouldUseKeys(parameter, parameter.def)) {
+				if (parameter.keyed && KeyProviderExpression.areKeysRecommended(parameter.def)) {
 					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
 					parameterValue = KeyProviderExpression.zip(defaultValue, keys);
 				} else {
@@ -136,13 +135,6 @@ public abstract class Function<T> {
 			return (Map.Entry<String, Object>[]) values;
 
 		return KeyProviderExpression.zip(values, null);
-	}
-
-	private boolean shouldUseKeys(Parameter<?> parameter, Expression<?> expression) {
-		return parameter.keyed
-			&& expression instanceof KeyProviderExpression<?> provider
-			&& provider.canReturnKeys()
-			&& provider.areKeysRecommended();
 	}
 
 	/**

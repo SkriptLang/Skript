@@ -7,11 +7,13 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProviderExpression<T> {
@@ -43,10 +45,25 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 
 	@Override
 	protected T @Nullable [] get(Event event) {
-		Object[] returnValue = function.execute(event);
-		cache.put(event, new KeyedValues(function.returnedKeys(), returnValue));
+		Object[] values = function.execute(event);
+		String[] keys = function.returnedKeys();
 		function.resetReturnValue();
-		return Converters.convert(returnValue, returnTypes, returnType);
+		//noinspection unchecked
+		T[] convertedValues = (T[]) Array.newInstance(returnType, values != null ? values.length : 0);
+		if (values == null || values.length == 0) {
+			cache.put(event, new KeyedValues(keys, null));
+			return convertedValues;
+		}
+
+		Converters.convert(values, convertedValues, returnTypes);
+		if (keys != null) {
+			for (int i = 0; i < convertedValues.length; i++)
+				keys[i] = convertedValues[i] != null ? keys[i] : null;
+		}
+		convertedValues = ArrayUtils.removeAllOccurrences(convertedValues, null);
+		keys = ArrayUtils.removeAllOccurrences(keys, null);
+		cache.put(event, new KeyedValues(keys, convertedValues));
+		return convertedValues;
 	}
 
 	@Override
@@ -67,9 +84,8 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
 		assert function.getReturnType() != null;
-		if (Converters.converterExists(function.getReturnType(), to)) {
+		if (Converters.converterExists(function.getReturnType(), to))
 			return new ExprFunctionCall<>(function, to);
-		}
 		return null;
 	}
 
@@ -81,6 +97,11 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	@Override
 	public Class<? extends T> getReturnType() {
 		return returnType;
+	}
+
+	@Override
+	public boolean isLoopOf(String input) {
+		return KeyProviderExpression.super.isLoopOf(input);
 	}
 
 	@Override

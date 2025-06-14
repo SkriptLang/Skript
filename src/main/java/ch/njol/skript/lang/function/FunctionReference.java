@@ -305,8 +305,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		int keyIndex = 1;
 		for (Expression<?> parameter : parameters) {
 			Object[] valuesArray = parameter.getArray(event);
-			String[] keysArray = parameter instanceof KeyProviderExpression<?> keyProvider && keyProvider.canReturnKeys() && keyProvider.areKeysRecommended()
-				? keyProvider.getArrayKeys(event)
+			String[] keysArray = KeyProviderExpression.areKeysRecommended(parameter)
+				? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
 				: null;
 
 			// Don't allow mutating across function boundary; same hack is applied to variables
@@ -337,8 +337,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		if (!keyed)
 			return values;
 
-		String[] keys = parameter instanceof KeyProviderExpression<?> keyProvider && keyProvider.canReturnKeys() && keyProvider.areKeysRecommended()
-			? keyProvider.getArrayKeys(event)
+		String[] keys = KeyProviderExpression.areKeysRecommended(parameter)
+			? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
 			: null;
 		return KeyProviderExpression.zip(values, keys);
 	}

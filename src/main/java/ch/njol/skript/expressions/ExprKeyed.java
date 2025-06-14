@@ -59,7 +59,7 @@ public class ExprKeyed extends WrapperExpression<Object> implements KeyProviderE
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!(expressions[0] instanceof KeyProviderExpression<?> keyProvider) || !keyProvider.canReturnKeys()) {
+		if (!KeyProviderExpression.canReturnKeys(expressions[0])) {
 			Skript.error(expressions[0] + " is not a keyed expression.");
 			return false;
 		}
@@ -75,6 +75,11 @@ public class ExprKeyed extends WrapperExpression<Object> implements KeyProviderE
 	@Override
 	public @NotNull String @NotNull [] getAllKeys(Event event) {
 		return ((KeyProviderExpression<?>) getExpr()).getAllKeys(event);
+	}
+
+	@Override
+	public boolean isLoopOf(String input) {
+		return getExpr().isLoopOf(input);
 	}
 
 	@Override

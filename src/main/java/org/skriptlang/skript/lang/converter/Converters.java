@@ -410,6 +410,25 @@ public final class Converters {
 	}
 
 	/**
+	 * A method for converting objects into one of several provided types.
+	 * @param from The objects to convert.
+	 * @param destination An array that will be filled with the converted objects.
+	 *                    The size of this array will be used to determine how many objects to convert.
+	 *                    Objects that cannot be converted will be set to null.
+	 * @param toTypes A list of types that should be tried for converting <code>from</code>.
+	 */
+	public static <From, To> void convert(@Nullable From[] from, To[] destination, Class<? extends To>[] toTypes) {
+		assertIsDoneLoading();
+
+		int length = Math.min(from.length, destination.length);
+		if (length == 0)
+			return;
+
+		for (int i = 0; i < length; i++)
+			destination[i] = from[i] != null ? Converters.convert(from[i], toTypes) : null;
+	}
+
+	/**
 	 * Standard method for bulk-conversion of objects into a different type.
 	 * @param from The objects to convert.
 	 * @param toType The type that <code>from</code> should be converted into.

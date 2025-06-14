@@ -97,8 +97,8 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		assert !returnValueSet;
 		returnValueSet = true;
 		this.returnValues = value.getArray(event);
-		if (value instanceof KeyProviderExpression<?> provider && provider.canReturnKeys())
-			this.returnKeys = provider.getArrayKeys(event);
+		if (KeyProviderExpression.canReturnKeys(value))
+			this.returnKeys = ((KeyProviderExpression<?>) value).getArrayKeys(event);
 	}
 
 	@Override

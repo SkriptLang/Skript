@@ -94,6 +94,11 @@ public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F,
 		}
 	}
 
+	@Override
+	public boolean isLoopOf(String input) {
+		return getSource().isLoopOf(input);
+	}
+
 	private record KeyedValues(@Nullable Object[] values, String[] keys) {
 
 		@Override
