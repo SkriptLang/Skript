@@ -99,7 +99,7 @@ public class CondIsWithin extends Condition {
 			return locsToCheck.check(event, box::contains, isNegated());
 		}
 
-		Object[] areas = area.getArray(event);
+		Object[] areas = area.getAll(event);
 		return locsToCheck.check(event, location ->
 				SimpleExpression.check(areas, object -> {
 					if (object instanceof Entity entity) {
@@ -120,8 +120,8 @@ public class CondIsWithin extends Condition {
 					} else if (object instanceof World world) {
 						return location.getWorld().equals(world);
 					} else if (object instanceof WorldBorder worldBorder) {
-            return worldBorder.isInside(location);
-          }
+						return worldBorder.isInside(location);
+					}
 					return false;
 				}, false, area.getAnd()),
 			isNegated());
