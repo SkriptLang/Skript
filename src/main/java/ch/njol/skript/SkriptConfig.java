@@ -1,7 +1,7 @@
 package ch.njol.skript;
 
+import ch.njol.skript.classes.EnumParser;
 import ch.njol.skript.config.Config;
-import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.OptionSection;
 import ch.njol.skript.hooks.Hook;
