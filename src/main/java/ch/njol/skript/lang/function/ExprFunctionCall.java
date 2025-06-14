@@ -10,6 +10,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.util.Arrays;
+
 public class ExprFunctionCall<T> extends SimpleExpression<T> {
 
 	private final FunctionReference<?> function;
@@ -63,6 +65,11 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	@Override
 	public Class<? extends T> getReturnType() {
 		return returnType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(returnTypes, returnTypes.length);
 	}
 
 	@Override

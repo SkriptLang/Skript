@@ -30,6 +30,14 @@ public class JavaClasses {
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
 
 	/**
+	 * The pattern for scientific notation.
+	 * <p>
+	 * The pattern is the letter {@code e} or {@code E} followed by a sign and one or more digits.
+	 * </p>
+	 */
+	public static final String SCIENTIFIC_PATTERN = "(?:[eE][+-]?\\d+)?";
+
+	/**
 	 * The format of an integer.
 	 * <p>
 	 * Has an optional negative sign and may contain one underscores followed by any number of digits.
@@ -49,8 +57,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>" + INTEGER_NUMBER_PATTERN + ")" +
-			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
+			.formatted(INTEGER_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	/**
 	 * The format of a decimal number.
@@ -74,8 +82,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>" + DECIMAL_NUMBER_PATTERN + ")" +
-			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
+			.formatted(DECIMAL_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
@@ -94,7 +102,7 @@ public class JavaClasses {
 					"Please note that many expressions only need integers, i.e. " +
 						"will discard any fractional parts of any numbers without producing an error.",
 					"Radians will be converted to degrees.")
-				.usage("[-]###[.###] [[in ](rad[ian][s]|deg[ree][s])]</code> (any amount of digits; very large numbers will be truncated though)")
+				.usage("[-]###[.###] [e[+|-]###] [[in ](rad[ian][s]|deg[ree][s])]")
 				.examples(
 					"set the player's health to 5.5",
 					"set {_temp} to 2*{_temp} - 2.5",
