@@ -266,6 +266,8 @@ public class DefaultConverters {
 
 		// Enchantment - EnchantmentType
 		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
+		// EnchantmentType - Enchantment
+		Converters.registerConverter(EnchantmentType.class, Enchantment.class, EnchantmentType::getType);
 
 		// Vector - Direction
 		Converters.registerConverter(Vector.class, Direction.class, Direction::new);

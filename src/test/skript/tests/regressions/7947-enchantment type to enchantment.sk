@@ -1,0 +1,4 @@
+test "enchantment type to enchantment":
+	set {_item} to a diamond axe
+	enchant {_item} with sharpness 1, knockback 20 and silk touch 255
+	assert (the enchantments of {_item}) contains (sharpness, knockback and silk touch) with "Enchantment could not be compared to Enchantment Type"
