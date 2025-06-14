@@ -589,8 +589,9 @@ public class DefaultComparators {
 			}
 		});
 
-		Comparators.registerComparator(EnchantmentType.class, Enchantment.class, ((o1, o2) ->
-			Relation.get(o1.getType().equals(o2))));
+		//EnchantmentType - Enchantment
+		Comparators.registerComparator(EnchantmentType.class, Enchantment.class, ((enchantmentType, enchantment) ->
+			Relation.get(enchantmentType.getType().equals(enchantment))));
 
 		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
 			@Override
