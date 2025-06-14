@@ -1,0 +1,105 @@
+
+using error catching
+
+test "midpoint locations - simple":
+	set {_loc1} to location(0, 0, 0)
+	set {_loc2} to {_loc1} ~ vector(10, 10, 10)
+	set {_midpoint} to the midpoint between {_loc1} and {_loc2}
+	assert {_midpoint} is location(5, 5, 5) with "Simple midpoint loc1 -> loc2 is incorrect"
+	set {_midpoint2} to the midpoint between {_loc2} and {_loc1}
+	assert {_midpoint2} is location(5, 5, 5) with "Simple midpoint loc2 -> loc1 is incorrect"
+
+test "midpoint locations - complex":
+	set {_loc1} to location(10.3, 38.6, 72.9)
+	set {_loc2} to location(-24.2, 63.8, 598.1)
+	set {_midpoint} to the midpoint between {_loc1} and {_loc2}
+	assert {_midpoint} is location(-6.95, 51.2, 335.5) with "Complex midpoint loc1 -> loc2 is incorrect"
+	set {_midpoint2} to the midpoint between {_loc2} and {_loc1}
+	assert {_midpoint2} is location(-6.95, 51.2, 335.5) with "Complex midpoint loc2 -> loc1 is incorrect"
+
+test "midpoint locations - negative":
+	set {_loc1} to location(-48.2, -33.6, -97.8)
+	set {_loc2} to location(-257.3, -59.3, -327.4)
+	set {_midpoint} to the midpoint between {_loc1} and {_loc2}
+	assert {_midpoint} is location(-152.75, -46.45, -212.6) with "Negative midpoint loc1 -> loc2 is incorrect"
+	set {_midpoint2} to the midpoint between {_loc2} and {_loc1}
+	assert {_midpoint2} is location(-152.75, -46.45, -212.6) with "Negative midpoint loc2 -> loc1 is incorrect"
+
+test "midpoint locations - function/variable":
+	set {_loc} to location(20, 30, 40)
+	set {_midpoint} to the midpoint between location(50, 60, 70) and {_loc}
+	assert {_midpoint} is location(35, 45, 55) with "Midpoint locations function -> variable is incorrect"
+	set {_midpoint2} to the midpoint between {_loc} and location(50, 60, 70)
+	assert {_midpoint2} is location(35, 45, 55) with "Midpoint locations variable -> function is incorrect"
+
+test "midpoint location - world error":
+	set {_loc1} to location(0, 0, 0)
+	set {_loc2} to location(0, 0, 0, "world_the_end")
+	catch runtime errors:
+		set {_midpoint} to the midpoint between {_loc1} and {_loc2}
+	assert last caught errors is "Cannot get the midpoint of two locations in different worlds." with "ExprMidpoint should error when getting midpoint of locations in different worlds"
+
+test "midpoint vectors - simple":
+	set {_vector1} to vector(0, 0, 0)
+	set {_vector2} to vector(10, 10, 10)
+	set {_midpoint} to the midpoint between {_vector1} and {_vector2}
+	assert {_midpoint} is vector(5, 5, 5) with "Simple midpoint vector1 -> vector2 is incorrect"
+	set {_midpoint2} to the midpoint between {_vector2} and {_vector1}
+	assert {_midpoint2} is vector(5, 5, 5) with "Simple midpoint vector2 -> vector1 is incorrect"
+
+test "midpoint vectors - complex":
+	set {_vector1} to vector(10.3, 38.6, 72.9)
+	set {_vector2} to vector(-24.2, 63.8, 598.1)
+	set {_midpoint} to the midpoint between {_vector1} and {_vector2}
+	assert {_midpoint} is vector(-6.95, 51.2, 335.5) with "Complex midpoint vector1 -> vector2 is incorrect"
+	set {_midpoint2} to the midpoint between {_vector2} and {_vector1}
+	assert {_midpoint2} is vector(-6.95, 51.2, 335.5) with "Complex midpoint vector2 -> vector1 is incorrect"
+
+test "midpoint vectors - negative":
+	set {_vector1} to vector(-48.2, -33.6, -97.8)
+	set {_vector2} to vector(-257.3, -59.3, -327.4)
+	set {_midpoint} to the midpoint between {_vector1} and {_vector2}
+	assert {_midpoint} is vector(-152.75, -46.45, -212.6) with "Negative midpoint vector1 -> vector2 is incorrect"
+	set {_midpoint2} to the midpoint between {_vector2} and {_vector1}
+	assert {_midpoint2} is vector(-152.75, -46.45, -212.6) with "Negative midpoint vector2 -> vector1 is incorrect"
+
+test "midpoint vectors - function/variable":
+	set {_vec} to vector(20, 30, 40)
+	set {_midpoint} to the midpoint between vector(50, 60, 70) and {_vec}
+	assert {_midpoint} is vector(35, 45, 55) with "Midpoint vectors function -> variable is incorrect"
+	set {_midpoint2} to the midpoint between {_vec} and vector(50, 60, 70)
+	assert {_midpoint2} is vector(35, 45, 55) with "Midpoint vectors variable -> function is incorrect"
+
+test "midpoint type error":
+	parse:
+		set {_midpoint} to the midpoint between location(0, 0, 0) and vector(0, 0, 0)
+	assert last parse logs is set with "Midpoint between location and vector should error"
+	assert last parse logs is "You can only get the midpoint between two locations or two vectors." with "Incorrect error of midpoint between location and vector"
+
+	set {_loc} to location(0, 0, 0)
+	set {_vector} to vector(0, 0, 0)
+
+	set {_error} to "You can only get the midpoint between two locations or two vectors."
+	catch runtime errors:
+		set {_midpoint} to the midpoint between {_loc} and {_vector}
+	assert last caught errors is {_error} with "Midpoint of location variable -> vector variable should error"
+
+	catch runtime errors:
+		set {_midpoint2} to the midpoint between {_vector} and {_loc}
+	assert last caught errors is {_error} with "Midpoint of vector variable -> location variable should error"
+
+	catch runtime errors:
+		set {_midpoint3} to the midpoint between location(0, 0, 0) and {_vector}
+	assert last caught errors is {_error} with "Midpoint of location function -> vector variable should error"
+
+	catch runtime errors:
+		set {_midpoint4} to the midpoint between {_vector} and location(0, 0, 0)
+	assert last caught errors is {_error} with "Midpoint of vector variable -> location function should error"
+
+	catch runtime errors:
+		set {_midpoint5} to the midpoint between vector(0, 0, 0) and {_loc}
+	assert last caught errors is {_error} with "Midpoint of vector function -> location variable should error"
+
+	catch runtime errors:
+		set {_midpoint6} to the midpoint between {_loc} and vector(0, 0, 0)
+	assert last caught errors is {_error} with "Midpoint of location variable -> vector function should error"
