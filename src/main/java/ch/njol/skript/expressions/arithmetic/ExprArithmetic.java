@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprArgument;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
@@ -26,8 +27,8 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
@@ -112,6 +113,9 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		leftGrouped = patternInfo.leftGrouped;
 		rightGrouped = patternInfo.rightGrouped;
 		operator = patternInfo.operator;
+
+		// print warning for arg-1 confusion scenario
+		printArgWarning(first, second, operator);
 
 		/*
 		 * Step 1: UnparsedLiteral Resolving
@@ -292,6 +296,22 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 
 		arithmeticGettable = ArithmeticChain.parse(chain);
 		return arithmeticGettable != null || error(firstClass, secondClass);
+	}
+
+	private void printArgWarning(Expression<L> first, Expression<R> second, Operator operator) {
+		if (operator == Operator.SUBTRACTION && !rightGrouped && !leftGrouped // if the operator is '-' and the user didn't use ()
+			&& first instanceof ExprArgument argument && argument.couldCauseArithmeticConfusion() // if the first expression is 'arg'
+			&& second instanceof ExprArithmetic<?, ?, ?> secondArith && secondArith.first instanceof Literal<?> literal // this ambiguity only occurs when the code is parsed as `arg - (1 * 2)` or a similar PEMDAS priority.
+			&& literal.canReturn(Number.class)) {
+			// ensure that the second literal is a 1
+			Literal<?> secondLiteral = (Literal<?>) LiteralUtils.defendExpression(literal);
+			if (LiteralUtils.canInitSafely(secondLiteral)) {
+				double number = ((Number) secondLiteral.getSingle()).doubleValue();
+				if (number == 1)
+					Skript.warning("This subtraction is ambiguous and could be interpreted as either the 'first argument' expression ('argument-1') or as subtraction from the argument value ('(argument) - 1'). " +
+					"If you meant to use 'argument-1', omit the hyphen ('arg 1') or use parentheses to clarify your intent.");
+			}
+		}
 	}
 
 	@Override
