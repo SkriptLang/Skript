@@ -1,0 +1,8 @@
+test "comparing enchantment type to enchantment":
+	set {_item} to a diamond axe
+	enchant {_item} with sharpness 1, knockback 20 and silk touch 255
+	set {_enchants::*} to the enchantments of {_item}
+	assert {_enchants::*} contains (sharpness, knockback and silk touch) with "Enchantment could not be compared to Enchantment Type"
+
+	# Ensures that if provided a specific level, does not convert and do a generalization check
+	assert {_enchants::*} does not contain (sharpness 3, knockback 30 or silk touch 50) with "EnchantmentType comparing to specific EnchantmentType should fail"
