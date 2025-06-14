@@ -33,6 +33,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -587,6 +588,9 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		Comparators.registerComparator(EnchantmentType.class, Enchantment.class, ((o1, o2) ->
+			Relation.get(o1.getType().equals(o2))));
 
 		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
 			@Override
