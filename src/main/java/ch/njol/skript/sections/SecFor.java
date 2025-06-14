@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.KeyProviderExpression;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -116,6 +117,7 @@ public class SecFor extends SecLoop implements ExperimentalSyntax {
 			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}
+		keyed = KeyProviderExpression.canReturnKeys(expression);
 		//</editor-fold>
 		this.loadOptionalCode(sectionNode);
 		this.setInternalNext(this);

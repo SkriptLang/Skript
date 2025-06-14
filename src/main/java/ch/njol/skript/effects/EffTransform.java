@@ -16,7 +16,6 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -96,8 +95,8 @@ public class EffTransform extends Effect implements InputSource {
 		boolean local = unmappedObjects.isLocal();
 
 		int i = 1;
-		for (Iterator<Pair<String, Object>> it = unmappedObjects.variablesIterator(event); it.hasNext(); ) {
-			Pair<String, Object> pair = it.next();
+		for (Iterator<? extends Map.Entry<String, ?>> it = unmappedObjects.keyedIterator(event); it.hasNext(); ) {
+			Map.Entry<String, ?> pair = it.next();
 			currentIndex = pair.getKey();
 			currentValue = pair.getValue();
 

@@ -17,7 +17,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -101,8 +100,8 @@ public class EffSort extends Effect implements InputSource {
 			}
 		} else {
 			Map<Object, Object> valueToMappedValue = new LinkedHashMap<>();
-			for (Iterator<Pair<String, Object>> it = unsortedObjects.variablesIterator(event); it.hasNext(); ) {
-				Pair<String, Object> pair = it.next();
+			for (Iterator<? extends Map.Entry<String, ?>> it = unsortedObjects.keyedIterator(event); it.hasNext(); ) {
+				Map.Entry<String, ?> pair = it.next();
 				currentIndex = pair.getKey();
 				currentValue = pair.getValue();
 				Object mappedValue = mappingExpr.getSingle(event);
