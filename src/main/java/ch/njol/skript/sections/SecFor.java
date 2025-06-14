@@ -8,7 +8,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
@@ -21,7 +20,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,9 @@ import java.util.Map;
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("2.10")
-public class SecFor extends SecLoop implements ExperimentalSyntax {
+public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.FOR_EACH_LOOPS);
 
 	static {
 		Skript.registerSection(SecFor.class,
@@ -123,8 +125,8 @@ public class SecFor extends SecLoop implements ExperimentalSyntax {
 	}
 
 	@Override
-	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return experimentSet.hasExperiment(Feature.FOR_EACH_LOOPS);
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override
