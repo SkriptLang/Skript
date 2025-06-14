@@ -1,0 +1,28 @@
+test "is enchanted":
+	set {_a} to an iron sword
+	enchant {_a} with sharpness 3, efficiency 1, and knockback 7
+	assert {_a}'s enchantments contains sharpness 3, efficiency 1, and knockback 7 with "failed to enchant iron sword"
+
+	assert {_a} is enchanted with sharpness with "failed to check enchant against generic level"
+	assert {_a} is enchanted with efficiency with "failed to check enchant against generic level"
+	assert {_a} is enchanted with knockback with "failed to check enchant against generic level"
+	assert {_a} is not enchanted with fire aspect with "failed to check missing enchant against generic level"
+
+	assert {_a} is enchanted with sharpness 3 with "failed to check enchant against level"
+	assert {_a} is enchanted with efficiency 1 with "failed to check enchant against level"
+	assert {_a} is enchanted with knockback 7 with "failed to check enchant against level"
+	assert {_a} is not enchanted with fire aspect 4 with "failed to check missing enchant against level"
+
+	assert {_a} is not enchanted with sharpness 2 with "failed to check enchant against wrong level"
+	assert {_a} is not enchanted with efficiency 4 with "failed to check enchant against wrong level"
+	assert {_a} is not enchanted with knockback 2 with "failed to check enchant against wrong level"
+
+	assert {_a} is enchanted with sharpness 2 or greater with "failed to check enchant against lesser/equal level"
+	assert {_a} is enchanted with efficiency 1 or greater with "failed to check enchant against lesser/equal level"
+	assert {_a} is enchanted with knockback 2 or greater with "failed to check enchant against lesser/equal level"
+	assert {_a} is not enchanted with fire aspect 4 or greater with "failed to check missing enchant against lesser/equal level"
+
+	assert {_a} is enchanted with sharpness 3 or lesser with "failed to check enchant against greater/equal level"
+	assert {_a} is enchanted with efficiency 2 or lesser with "failed to check enchant against greater/equal level"
+	assert {_a} is enchanted with knockback 19 or lesser with "failed to check enchant against greater/equal level"
+	assert {_a} is not enchanted with fire aspect 4 or lesser with "failed to check missing enchant against greater/equal level"
