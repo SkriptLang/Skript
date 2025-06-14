@@ -238,6 +238,22 @@ public class ExprElement<T> extends SimpleExpression<T> {
 	}
 
 	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		if (!queue) {
+			return expr.possibleReturnTypes();
+		}
+		return super.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		if (!queue) {
+			return expr.canReturn(returnType);
+		}
+		return super.canReturn(returnType);
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String prefix;
 		switch (type) {
