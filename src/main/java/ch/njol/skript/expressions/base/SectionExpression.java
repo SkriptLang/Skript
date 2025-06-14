@@ -91,6 +91,13 @@ public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 	}
 
 	/**
+	 * Get if this {@link SectionExpression} can only be used as a {@link Section}.
+	 */
+	public boolean isSectionOnly() {
+		return false;
+	}
+
+	/**
 	 * @return A dummy trigger item representing the section belonging to this
 	 */
 	public final Section getAsSection() {

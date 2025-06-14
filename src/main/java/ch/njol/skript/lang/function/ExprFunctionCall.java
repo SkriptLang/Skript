@@ -100,6 +100,11 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	}
 
 	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(returnTypes, returnTypes.length);
+	}
+
+	@Override
 	public boolean isLoopOf(String input) {
 		return KeyProviderExpression.super.isLoopOf(input);
 	}

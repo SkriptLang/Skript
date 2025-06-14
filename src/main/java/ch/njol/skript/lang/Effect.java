@@ -1,12 +1,14 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.Iterator;
 
@@ -16,9 +18,17 @@ import java.util.Iterator;
  *
  * @see Skript#registerEffect(Class, String...)
  */
-public abstract class Effect extends Statement {
+public abstract class Effect extends Statement implements SyntaxRuntimeErrorProducer {
 
 	protected Effect() {}
+
+	private Node node;
+
+	@Override
+	public boolean preInit() {
+		node = getParser().getNode();
+		return super.preInit();
+	}
 
 	/**
 	 * Executes this effect.
@@ -62,6 +72,11 @@ public abstract class Effect extends Statement {
 			log.printError();
 			return null;
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override
