@@ -84,7 +84,7 @@ public class SecLoop extends LoopSection {
 	private Object nextValue = null;
 	private boolean loopPeeking;
 	protected boolean iterableSingle;
-	private boolean keyed;
+	protected boolean keyed;
 
 	@Override
 	@SuppressWarnings("unchecked")
