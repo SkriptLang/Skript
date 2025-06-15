@@ -2,6 +2,8 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
+import ch.njol.skript.lang.KeyedValue.UnzippedKeyValues;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
@@ -21,7 +23,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	private final FunctionReference<?> function;
 	private final Class<? extends T>[] returnTypes;
 	private final Class<T> returnType;
-	private final Map<Event, KeyedValues> cache = new WeakHashMap<>();
+	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
 	public ExprFunctionCall(FunctionReference<T> function) {
 		this(function, function.returnTypes);
@@ -48,10 +50,11 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		Object[] values = function.execute(event);
 		String[] keys = function.returnedKeys();
 		function.resetReturnValue();
+
 		//noinspection unchecked
 		T[] convertedValues = (T[]) Array.newInstance(returnType, values != null ? values.length : 0);
 		if (values == null || values.length == 0) {
-			cache.put(event, new KeyedValues(keys, null));
+			cache.put(event, new String[0]);
 			return convertedValues;
 		}
 
@@ -59,10 +62,12 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		if (keys != null) {
 			for (int i = 0; i < convertedValues.length; i++)
 				keys[i] = convertedValues[i] != null ? keys[i] : null;
+			convertedValues = ArrayUtils.removeAllOccurrences(convertedValues, null);
+			cache.put(event, ArrayUtils.removeAllOccurrences(keys, null));
+		} else {
+			convertedValues = ArrayUtils.removeAllOccurrences(convertedValues, null);
+			cache.put(event, generateNumericalKeys(convertedValues.length));
 		}
-		convertedValues = ArrayUtils.removeAllOccurrences(convertedValues, null);
-		keys = ArrayUtils.removeAllOccurrences(keys, null);
-		cache.put(event, new KeyedValues(keys, convertedValues));
 		return convertedValues;
 	}
 
@@ -70,7 +75,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
 		if (!cache.containsKey(event))
 			throw new IllegalStateException();
-		return cache.remove(event).keys();
+		return cache.remove(event);
 	}
 
 	@Override
@@ -120,24 +125,11 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		return false;
 	}
 
-	private record KeyedValues(String @Nullable [] keys, Object @Nullable [] values) {
-		public KeyedValues {
-			if (keys != null && values == null)
-				throw new IllegalStateException("Keys cannot be set without values.");
-			if (keys != null && keys.length != values.length)
-				throw new IllegalStateException("Keys and values must have the same length.");
-		}
-
-		public String[] keys() {
-			if (keys != null)
-				return keys;
-			if (values == null)
-				return new String[0];
-			String[] keys = new String[values.length];
-			for (int i = 0; i < values.length; i++)
-				keys[i] = String.valueOf(i + 1);
-			return keys;
-		}
+	private static String[] generateNumericalKeys(int length) {
+		String[] keys = new String[length];
+		for (int i = 0; i < length; i++)
+			keys[i] = String.valueOf(i);
+		return keys;
 	}
 
 }

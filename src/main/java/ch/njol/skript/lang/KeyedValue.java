@@ -101,13 +101,32 @@ public record KeyedValue<T>(@NotNull String key, @NotNull T value) implements Ma
 	 * This is used to store the result of unzipping {@link KeyedValue}s into separate lists.
 	 * <br>
 	 * Both lists are guaranteed to be of the same length, and each key corresponds to the value at the same index.
-	 *
+	 * <br>
+	 * If the keys are not provided, numerical indices (1, 2, 3, ..., n) are used as keys.
 	 * @param <T> The type of the values in the list.
 	 * @param keys A list of keys extracted from the {@link KeyedValue}s.
 	 * @param values A list of values extracted from the {@link KeyedValue}s.
 	 * @see KeyedValue#unzip(KeyedValue[])
 	 * @see #unzip(Iterator)
 	 */
-	public record UnzippedKeyValues<T>(List<String> keys, List<T> values) {}
+	public record UnzippedKeyValues<T>(@NotNull List<@NotNull String> keys, @NotNull List<@NotNull T> values) {
+
+		public UnzippedKeyValues(@Nullable List<@NotNull String> keys, @NotNull List<@NotNull T> values) {
+			this.values = Objects.requireNonNull(values, "values");
+			this.keys = keys != null ? keys : new ArrayList<>(values.size());
+			if (keys == null) {
+				// If keys are null, we assume numerical indices (1, 2, 3, ..., n)
+				for (int i = 1; i <= values.size(); i++)
+					this.keys.add(String.valueOf(i));
+			} else if (keys.size() != values.size()) {
+				throw new IllegalArgumentException("Keys and values must have the same length");
+			}
+		}
+
+		public UnzippedKeyValues(@NotNull String @Nullable [] keys, @NotNull T @NotNull [] values) {
+			this(keys != null ? Arrays.asList(keys) : null, Arrays.asList(values));
+		}
+
+	}
 
 }
