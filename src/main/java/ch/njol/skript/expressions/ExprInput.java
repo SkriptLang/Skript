@@ -92,7 +92,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 				break;
 			case 2:
 				if (!inputSource.hasIndices()) {
-					Skript.error("You cannot use 'input index' on lists without indices!");
+					Skript.error("You cannot use 'input index' on expressions without indices!");
 					return false;
 				}
 				specifiedType = DefaultClasses.STRING;
