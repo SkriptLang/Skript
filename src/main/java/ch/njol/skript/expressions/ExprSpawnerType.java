@@ -2,6 +2,14 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.EntityUtils;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.TrialSpawner;
@@ -10,23 +18,13 @@ import org.bukkit.event.Event;
 import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.coll.CollectionUtils;
-
 @Name("Spawner Type")
 @Description("Retrieves, sets, or resets the spawner's entity type")
-@Examples({
-	"on right click:",
-		"\tif event-block is spawner:",
-			"\t\tsend \"Spawner's type is %target block's entity type%\""
-})
+@Example("""
+	on right click:
+		if event-block is a spawner:
+			send "Spawner's type if %spawner type of event-block%" to player
+	""")
 @Since("2.4, 2.9.2 (trial spawner)")
 public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData> {
 
@@ -38,14 +36,12 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 
 	@Nullable
 	public EntityData convert(Block block) {
-		if (block.getState() instanceof CreatureSpawner) {
-			EntityType type = ((CreatureSpawner) block.getState()).getSpawnedType();
+		if (block.getState() instanceof CreatureSpawner creatureSpawner) {
+			EntityType type = creatureSpawner.getSpawnedType();
 			if (type == null)
 				return null;
 			return EntityUtils.toSkriptEntityData(type);
-		}
-		if (HAS_TRIAL_SPAWNER && block.getState() instanceof TrialSpawner) {
-			TrialSpawner trialSpawner = (TrialSpawner) block.getState();
+		} else if (HAS_TRIAL_SPAWNER && block.getState() instanceof TrialSpawner trialSpawner) {
 			EntityType type;
 			if (trialSpawner.isOminous()) {
 				type = trialSpawner.getOminousConfiguration().getSpawnedType();
@@ -58,52 +54,37 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 		}
 		return null;
 	}
-	
-	@Nullable
+
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case RESET:
-				return CollectionUtils.array(EntityData.class);
-			default:
-				return null;
-		}
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET, RESET, DELETE -> CollectionUtils.array(EntityData.class);
+			default -> null;
+		};
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		EntityType entityType = null;
+		if (delta != null) {
+			//noinspection rawtypes
+			entityType = EntityUtils.toBukkitEntityType(((EntityData) delta[0]));
+		} else if (mode == ChangeMode.RESET) {
+			entityType = EntityType.PIG;
+		}
+
 		for (Block block : getExpr().getArray(event)) {
-			if (block.getState() instanceof CreatureSpawner) {
-				CreatureSpawner spawner = (CreatureSpawner) block.getState();
-				switch (mode) {
-					case SET:
-						assert delta != null;
-						spawner.setSpawnedType(EntityUtils.toBukkitEntityType((EntityData) delta[0]));
-						break;
-					case RESET:
-						spawner.setSpawnedType(EntityType.PIG);
-						break;
-				}
-				spawner.update(); // Actually trigger the spawner's update
-			} else if (HAS_TRIAL_SPAWNER && block.getState() instanceof TrialSpawner) {
-				TrialSpawner trialSpawner = (TrialSpawner) block.getState();
+			if (block.getState() instanceof CreatureSpawner creatureSpawner) {
+				creatureSpawner.setSpawnedType(entityType);
+				creatureSpawner.update(); // Actually trigger the spawner's update
+			} else if (HAS_TRIAL_SPAWNER && block.getState() instanceof TrialSpawner trialSpawner) {
 				TrialSpawnerConfiguration config;
 				if (trialSpawner.isOminous()) {
 					config = trialSpawner.getOminousConfiguration();
 				} else {
 					config = trialSpawner.getNormalConfiguration();
 				}
-				switch (mode) {
-					case SET:
-						assert delta != null;
-						config.setSpawnedType((EntityUtils.toBukkitEntityType((EntityData) delta[0])));
-						break;
-					case RESET:
-						config.setSpawnedType(EntityType.PIG);
-						break;
-				}
+				config.setSpawnedType(entityType);
 				trialSpawner.update();
 			}
 		}
