@@ -5,6 +5,7 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
@@ -13,7 +14,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.Map;
 
 @Name("Indices of List")
 @Description({
@@ -74,9 +74,9 @@ public class ExprIndices extends SimpleExpression<String> {
 		String[] keys = keyedExpression.getArrayKeys(event);
 		if (sort) {
 			int direction = descending ? -1 : 1;
-			return Arrays.stream(KeyProviderExpression.zip(values, keys))
-				.sorted((a, b) -> ExprSortedList.compare(a.getValue(), b.getValue()) * direction)
-				.map(Map.Entry::getKey)
+			return Arrays.stream(KeyedValue.zip(values, keys))
+				.sorted((a, b) -> ExprSortedList.compare(a.value(), b.value()) * direction)
+				.map(KeyedValue::key)
 				.toArray(String[]::new);
 		}
 

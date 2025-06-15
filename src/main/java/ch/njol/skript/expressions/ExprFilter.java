@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.KeyedValue.UnzippedKeyValues;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -73,7 +74,7 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource,
 	@Override
 	public @NotNull Iterator<?> iterator(Event event) {
 		if (keyed)
-			return Iterators.transform(keyedIterator(event), Map.Entry::getValue);
+			return Iterators.transform(keyedIterator(event), KeyedValue::value);
 
 		// clear current index just to be safe
 		currentIndex = null;
@@ -88,13 +89,13 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource,
 	}
 
 	@Override
-	public Iterator<Map.Entry<String, Object>> keyedIterator(Event event) {
-		Iterator<? extends Map.Entry<String, ?>> keyedIterator = ((KeyProviderExpression<?>) unfilteredObjects).keyedIterator(event);
+	public Iterator<KeyedValue<Object>> keyedIterator(Event event) {
 		//noinspection unchecked
-		return (Iterator<Map.Entry<String, Object>>) StreamSupport.stream(Spliterators.spliteratorUnknownSize(keyedIterator, Spliterator.ORDERED), false)
-			.filter(entry -> {
-				currentValue = entry.getValue();
-				currentIndex = entry.getKey();
+		Iterator<KeyedValue<Object>> keyedIterator = ((KeyProviderExpression<Object>) unfilteredObjects).keyedIterator(event);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(keyedIterator, Spliterator.ORDERED), false)
+			.filter(keyedValue -> {
+				currentValue = keyedValue.value();
+				currentIndex = keyedValue.key();
 				return filterCondition.check(event);
 			})
 			.iterator();
@@ -104,7 +105,7 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource,
 	protected Object @Nullable [] get(Event event) {
 		if (!keyed)
 			return Converters.convertStrictly(Iterators.toArray(iterator(event), Object.class), getReturnType());
-		Unzipped<Object> unzipped = KeyProviderExpression.unzip(keyedIterator(event));
+		UnzippedKeyValues<Object> unzipped = KeyedValue.unzip(keyedIterator(event));
 		cache.put(event, unzipped.keys());
 		return Converters.convertStrictly(unzipped.values().toArray(), getReturnType());
 	}

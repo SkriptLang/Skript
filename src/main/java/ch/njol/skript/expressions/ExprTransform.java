@@ -83,7 +83,7 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	@Override
 	public @NotNull Iterator<?> iterator(Event event) {
 		if (keyed)
-			return Iterators.transform(keyedIterator(event), Map.Entry::getValue);
+			return Iterators.transform(keyedIterator(event), KeyedValue::value);
 
 		// clear current index just to be safe
 		currentIndex = null;
@@ -100,32 +100,33 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	}
 
 	@Override
-	public Iterator<Map.Entry<String, Object>> keyedIterator(Event event) {
-		Iterator<? extends Map.Entry<String, ?>> iterator = ((KeyProviderExpression<?>) unmappedObjects).keyedIterator(event);
-		Stream<? extends Map.Entry<String, ?>> stream = StreamSupport.stream(
+	public Iterator<KeyedValue<Object>> keyedIterator(Event event) {
+		//noinspection unchecked
+		Iterator<KeyedValue<Object>> iterator = ((KeyProviderExpression<Object>) unmappedObjects).keyedIterator(event);
+		Stream<KeyedValue<Object>> stream = StreamSupport.stream(
 			Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED),
 			false
 		);
 
 		if (!mappingExpr.isSingle()) {
 			int[] index = {0};
-			//noinspection unchecked,rawtypes
-			return (Iterator) stream
-				.flatMap(entry -> {
-					currentValue = entry.getValue();
-					currentIndex = entry.getKey();
-					return mappingExpr.stream(event);
+			return stream
+				.flatMap(keyedValue -> {
+					currentValue = keyedValue.value();
+					currentIndex = keyedValue.key();
+					//noinspection unchecked
+					return (Stream<Object>) mappingExpr.stream(event);
 				})
-				.map(mapped -> Map.entry(++index[0] + "", mapped))
+				.map(mapped -> new KeyedValue<>(++index[0] + "", mapped))
 				.iterator();
 		}
 
 		return stream
-			.map(entry -> {
-				currentValue = entry.getValue();
-				currentIndex = entry.getKey();
+			.map(keyedValue -> {
+				currentValue = keyedValue.value();
+				currentIndex = keyedValue.key();
 				Object mappedValue = mappingExpr.getSingle(event);
-				return mappedValue != null ? Map.entry(currentIndex, mappedValue) : null;
+				return mappedValue != null ? new KeyedValue<>(currentIndex, mappedValue) : null;
 			})
 			.filter(Objects::nonNull)
 			.iterator();
@@ -135,7 +136,7 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	protected Object @Nullable [] get(Event event) {
 		if (!keyed)
 			return Converters.convertStrictly(Iterators.toArray(iterator(event), Object.class), getReturnType());
-		Unzipped<Object> unzipped = KeyProviderExpression.unzip(keyedIterator(event));
+		KeyedValue.UnzippedKeyValues<Object> unzipped = KeyedValue.unzip(keyedIterator(event));
 		cache.put(event, unzipped.keys());
 		return Converters.convertStrictly(unzipped.values().toArray(), getReturnType());
 	}

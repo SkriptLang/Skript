@@ -175,21 +175,21 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	}
 
 	private String[] getIndices(KeyProviderExpression<?> expression, Object value, Event event) {
-		Iterator<? extends Map.Entry<String, ?>> iterator = expression.keyedIterator(event);
+		Iterator<? extends KeyedValue<?>> iterator = expression.keyedIterator(event);
 		if (iterator == null)
 			return new String[0];
 
 		List<String> indices = new ArrayList<>();
 
 		while (iterator.hasNext()) {
-			var entry = iterator.next();
+			var keyedValue = iterator.next();
 
-			if (!entry.getValue().equals(value))
+			if (!keyedValue.value().equals(value))
 				continue;
 			if (indexType == IndexType.FIRST)
-				return new String[]{entry.getKey()};
+				return new String[]{keyedValue.key()};
 
-			indices.add(entry.getKey());
+			indices.add(keyedValue.key());
 		}
 
 		if (indices.isEmpty())

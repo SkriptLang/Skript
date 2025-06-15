@@ -2,10 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.KeyProviderExpression;
-import ch.njol.skript.lang.ReturnHandler;
-import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
@@ -13,8 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
-
-import java.util.Map;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
@@ -56,9 +51,8 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 				Variables.setVariable(parameter.name, val[0], event, true);
 			} else {
 				for (Object value : val) {
-					//noinspection unchecked
-					Map.Entry<String, Object> entry = (Map.Entry<String, Object>) value;
-					Variables.setVariable(parameter.name + "::" + entry.getKey(), entry.getValue(), event, true);
+					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
+					Variables.setVariable(parameter.name + "::" + keyedValue.key(), keyedValue.value(), event, true);
 				}
 			}
 		}

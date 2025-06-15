@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -21,7 +22,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,13 +77,11 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		}
 		Skript.registerExpression(ExprLoopValue.class, Object.class, ExpressionType.SIMPLE, patterns);
 	}
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
 	private String name;
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
 	private SecLoop loop;
-	
+
 	// whether this loops a keyed expression (e.g. a variable)
 	boolean isKeyedLoop = false;
 	// if this loops a variable and isIndex is true, return the index of the variable instead of the value
@@ -187,7 +185,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	protected Object @Nullable [] get(Event event) {
 		if (isKeyedLoop) {
 			//noinspection unchecked
-			Entry<String, Object> value = (Entry<String, Object>) switch (selectedState) {
+			KeyedValue<Object> value = (KeyedValue<Object>) switch (selectedState) {
 				case CURRENT ->  loop.getCurrent(event);
 				case NEXT -> loop.getNext(event);
 				case PREVIOUS -> loop.getPrevious(event);
@@ -195,9 +193,9 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			if (value == null)
 				return null;
 			if (isIndex)
-				return new String[] {value.getKey()};
+				return new String[] {value.key()};
 			Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
-			one[0] = value.getValue();
+			one[0] = value.value();
 			return one;
 		}
 
@@ -209,21 +207,21 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		};
 		return one;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (event == null)
 			return name;
 		if (isKeyedLoop) {
 			//noinspection unchecked
-			Entry<String, Object> value = (Entry<String, Object>) switch (selectedState) {
+			KeyedValue<Object> value = (KeyedValue<Object>) switch (selectedState) {
 				case CURRENT ->  loop.getCurrent(event);
 				case NEXT -> loop.getNext(event);
 				case PREVIOUS -> loop.getPrevious(event);
 			};
 			if (value == null)
 				return Classes.getDebugMessage(null);
-			return isIndex ? "\"" + value.getKey() + "\"" : Classes.getDebugMessage(value.getValue());
+			return isIndex ? "\"" + value.key() + "\"" : Classes.getDebugMessage(value.value());
 		}
 		return Classes.getDebugMessage(switch (selectedState) {
 			case CURRENT -> loop.getCurrent(event);
@@ -231,5 +229,5 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			case PREVIOUS -> loop.getPrevious(event);
 		});
 	}
-	
+
 }

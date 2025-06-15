@@ -53,7 +53,7 @@ public final class Parameter<T> {
 	/**
 	 * Whether this parameter takes in key-value pairs.
 	 * <br>
-	 * If this is true, a {@link java.util.Map.Entry} array containing key-value pairs will be passed to
+	 * If this is true, a {@link ch.njol.skript.lang.KeyedValue} array containing key-value pairs will be passed to
 	 * {@link Function#execute(FunctionEvent, Object[][])} rather than a value-only object array.
 	 */
 	final boolean keyed;

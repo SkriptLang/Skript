@@ -5,12 +5,8 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Represents an expression that is able to return a set of keys linked to its values.
@@ -73,6 +69,7 @@ import java.util.Map;
  *
  * @see Expression
  * @see KeyReceiverExpression
+ * @see KeyedValue
  */
 public interface KeyProviderExpression<T> extends Expression<T> {
 
@@ -121,15 +118,15 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	}
 
 	/**
-	 * Returns an iterator over the entries of this expression, where each entry is a key-value pair.
+	 * Returns an iterator over the keyed values of this expression.
 	 * <br/>
 	 * This should <b>only</b> be called iff {@link #canReturnKeys()} returns {@code true}.
 	 *
 	 * @param event The event context
 	 * @return An iterator over the key-value pairs of this expression
 	 */
-	default Iterator<Map.Entry<String, T>> keyedIterator(Event event) {
-		return new ArrayIterator<>(zip(getArray(event), getArrayKeys(event)));
+	default Iterator<KeyedValue<T>> keyedIterator(Event event) {
+		return new ArrayIterator<>(KeyedValue.zip(getArray(event), getArrayKeys(event)));
 	}
 
 	/**
@@ -171,67 +168,6 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	}
 
 	/**
-	 * Zips the given values and keys into a map entry array.
-	 *
-	 * @param values the values to zip
-	 * @param keys the keys to zip with the values, or null to use numerical indices (1, 2, 3, ..., n)
-	 * @return an array of map entries, where each entry is a key-value pair
-	 * @param <T> the type of the values
-	 * @throws IllegalArgumentException if the keys are present and the lengths of values and keys do not match
-	 */
-	static <T> Map.Entry<String, T> @NotNull [] zip(@NotNull T @NotNull [] values, @NotNull String @Nullable [] keys) {
-		if (keys == null) {
-			//noinspection unchecked
-			Map.Entry<String, T>[] entries = new Map.Entry[values.length];
-			for (int i = 0; i < values.length; i++)
-				entries[i] = Map.entry(String.valueOf(i + 1), values[i]);
-			return entries;
-		}
-		if (values.length != keys.length)
-			throw new IllegalArgumentException("Values and keys must have the same length");
-		//noinspection unchecked
-		Map.Entry<String, T>[] entries = new Map.Entry[values.length];
-		for (int i = 0; i < values.length; i++)
-			entries[i] = Map.entry(keys[i], values[i]);
-		return entries;
-	}
-
-	/**
-	 * Unzips an array of map entries into separate lists of keys and values.
-	 *
-	 * @param entries An array of map entries to unzip.
-	 * @param <T> The type of the values in the map entries.
-	 * @return An {@link Unzipped} object containing two lists: one for keys and one for values.
-	 */
-	static <T> Unzipped<T> unzip(@NotNull Map.Entry<String, T> @NotNull [] entries) {
-		List<String> keys = new ArrayList<>(entries.length);
-		List<T> values = new ArrayList<>(entries.length);
-		for (Map.Entry<String, T> entry : entries) {
-			keys.add(entry.getKey());
-			values.add(entry.getValue());
-		}
-		return new Unzipped<>(keys, values);
-	}
-
-	/**
-	 * Unzips an iterator of map entries into separate lists of keys and values.
-	 *
-	 * @param entries An iterator of map entries to unzip.
-	 * @param <T> The type of the values in the map entries.
-	 * @return An {@link Unzipped} object containing two lists: one for keys and one for values.
-	 */
-	static <T> Unzipped<T> unzip(Iterator<Map.Entry<String, T>> entries) {
-		List<String> keys = new ArrayList<>();
-		List<T> values = new ArrayList<>();
-		while (entries.hasNext()) {
-			Map.Entry<String, T> entry = entries.next();
-			keys.add(entry.getKey());
-			values.add(entry.getValue());
-		}
-		return new Unzipped<>(keys, values);
-	}
-
-	/**
 	 * Checks if the given expression can return keys.
 	 *
 	 * @param expression the expression to check
@@ -253,19 +189,5 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	static boolean areKeysRecommended(Expression<?> expression) {
 		return canReturnKeys(expression) && ((KeyProviderExpression<?>) expression).areKeysRecommended();
 	}
-
-	/**
-	 * A record that represents a pair of lists: one for keys and one for values.
-	 * This is used to store the result of unzipping map entries into separate lists.
-	 * <br>
-	 * Both lists are guaranteed to be of the same length, and each key corresponds to the value at the same index.
-	 *
-	 * @param <T> The type of the values in the list.
-	 * @param keys A list of keys extracted from the map entries.
-	 * @param values A list of values extracted from the map entries.
-	 * @see #unzip(Map.Entry[])
-	 * @see #unzip(Iterator)
-	 */
-	record Unzipped<T>(List<String> keys, List<T> values) {}
 
 }

@@ -9,12 +9,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprInput;
 import ch.njol.skript.expressions.ExprSortedList;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.InputSource;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -100,10 +96,10 @@ public class EffSort extends Effect implements InputSource {
 			}
 		} else {
 			Map<Object, Object> valueToMappedValue = new LinkedHashMap<>();
-			for (Iterator<? extends Map.Entry<String, ?>> it = unsortedObjects.keyedIterator(event); it.hasNext(); ) {
-				Map.Entry<String, ?> pair = it.next();
-				currentIndex = pair.getKey();
-				currentValue = pair.getValue();
+			for (Iterator<? extends KeyedValue<?>> it = unsortedObjects.keyedIterator(event); it.hasNext(); ) {
+				KeyedValue<?> keyedValue = it.next();
+				currentIndex = keyedValue.key();
+				currentValue = keyedValue.value();
 				Object mappedValue = mappingExpr.getSingle(event);
 				if (mappedValue == null)
 					return;

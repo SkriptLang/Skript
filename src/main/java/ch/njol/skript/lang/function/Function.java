@@ -3,13 +3,13 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * Functions can be called using arguments.
@@ -95,7 +95,7 @@ public abstract class Function<T> {
 				Object[] defaultValue = parameter.def.getArray(event);
 				if (parameter.keyed && KeyProviderExpression.areKeysRecommended(parameter.def)) {
 					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
-					parameterValue = KeyProviderExpression.zip(defaultValue, keys);
+					parameterValue = KeyedValue.zip(defaultValue, keys);
 				} else {
 					parameterValue = defaultValue;
 				}
@@ -125,16 +125,16 @@ public abstract class Function<T> {
 		return r == null || r.length > 0 ? r : null;
 	}
 
-	private Map.Entry<String, Object> @Nullable [] convertToKeyed(Object[] values) {
-		if (values == null)
+	private KeyedValue<Object> @Nullable [] convertToKeyed(Object[] values) {
+		if (values == null || values.length == 0)
 			//noinspection unchecked
-			return new Map.Entry[0];
+			return new KeyedValue[0];
 
-		if (values.length == 0 || values instanceof Map.Entry[])
+		if (values instanceof KeyedValue[])
 			//noinspection unchecked
-			return (Map.Entry<String, Object>[]) values;
+			return (KeyedValue<Object>[]) values;
 
-		return KeyProviderExpression.zip(values, null);
+		return KeyedValue.zip(values, null);
 	}
 
 	/**

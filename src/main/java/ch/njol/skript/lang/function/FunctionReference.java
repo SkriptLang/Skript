@@ -7,6 +7,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -324,7 +325,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				keys.add(String.valueOf(keyIndex++));
 			}
 		}
-		return KeyProviderExpression.zip(values.toArray(), keys.toArray(new String[0]));
+		return KeyedValue.zip(values.toArray(), keys.toArray(new String[0]));
 	}
 
 	private Object[] evaluateParameter(Expression<?> parameter, Event event, boolean keyed) {
@@ -340,7 +341,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		String[] keys = KeyProviderExpression.areKeysRecommended(parameter)
 			? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
 			: null;
-		return KeyProviderExpression.zip(values, keys);
+		return KeyedValue.zip(values, keys);
 	}
 
 	public boolean isSingle() {

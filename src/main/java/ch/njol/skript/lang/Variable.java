@@ -11,7 +11,6 @@ import java.util.function.Function;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.AliasesProvider;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
@@ -368,17 +367,17 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
-	public Iterator<Entry<String, T>> keyedIterator(Event event) {
+	public Iterator<KeyedValue<T>> keyedIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Invalid call to keyedIterator");
-		Iterator<Entry<String, T>> transformed = Iterators.transform(variablesIterator(event), pair -> {
+		Iterator<KeyedValue<T>> transformed = Iterators.transform(variablesIterator(event), pair -> {
 			Object value = pair.getValue();
 			if (value instanceof Map<?, ?> map)
 				value = map.get(null);
 			T converted = Converters.convert(value, types);
 			if (converted == null)
 				return null;
-			return Map.entry(pair.getKey(), converted);
+			return new KeyedValue<>(pair.getKey(), converted);
 		});
 		return Iterators.filter(transformed, Objects::nonNull);
 	}
@@ -693,9 +692,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			set(event, changeFunction.apply(value));
 			return;
 		}
-		keyedIterator(event).forEachRemaining(entry -> {
-			String index = entry.getKey();
-			Object newValue = changeFunction.apply(entry.getValue());
+		keyedIterator(event).forEachRemaining(keyedValue -> {
+			String index = keyedValue.key();
+			Object newValue = changeFunction.apply(keyedValue.value());
 			setIndex(event, index, newValue);
 		});
 	}
