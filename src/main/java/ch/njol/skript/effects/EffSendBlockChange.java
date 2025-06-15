@@ -11,7 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
-import org.bukkit.block.Block;
+import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -30,13 +30,13 @@ public class EffSendBlockChange extends Effect {
 
 	static {
 		Skript.registerEffect(EffSendBlockChange.class,
-			"make %players% see %blocks% as %itemtype/blockdata%",
-			"make %players% see %blocks% as (original|normal)"
+			"make %players% see %locations% as %itemtype/blockdata%",
+			"make %players% see %locations% as [the|its] (original|normal|actual) [block]"
 		);
 	}
 
 	private Expression<Player> players;
-	private Expression<Block> blocks;
+	private Expression<Location> locations;
 	private @Nullable Expression<Object> type;
 	private boolean asOriginal;
 	
@@ -44,7 +44,7 @@ public class EffSendBlockChange extends Effect {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
-		blocks = (Expression<Block>) exprs[1];
+		locations = (Expression<Location>) exprs[1];
 		asOriginal = matchedPattern == 1;
 		if (!asOriginal)
 			type = (Expression<Object>) exprs[2];
@@ -55,9 +55,9 @@ public class EffSendBlockChange extends Effect {
 	protected void execute(Event event) {
 		if (asOriginal) {
 			Player[] players = this.players.getArray(event);
-			for (Block block : blocks.getArray(event)) {
+			for (Location location : locations.getArray(event)) {
 				for (Player player : players)
-					player.sendBlockChange(block.getLocation(), block.getBlockData());
+					player.sendBlockChange(location, location.getBlock().getBlockData());
 			}
 			return;
 		}
@@ -67,14 +67,14 @@ public class EffSendBlockChange extends Effect {
 			return;
 		Player[] players = this.players.getArray(event);
 		if (type instanceof ItemType itemType) {
-			for (Block block : blocks.getArray(event))  {
+			for (Location location : locations.getArray(event))  {
 				for (Player player : players)
-					itemType.sendBlockChange(player, block.getLocation());
+					itemType.sendBlockChange(player, location);
 			}
 		} else if (type instanceof BlockData blockData) {
-			for (Block block : blocks.getArray(event)) {
+			for (Location location : locations.getArray(event)) {
 				for (Player player : players)
-					player.sendBlockChange(block.getLocation(), blockData);
+					player.sendBlockChange(location, blockData);
 			}
 		}
 	}
@@ -82,7 +82,7 @@ public class EffSendBlockChange extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("make", players, "see", blocks, "as");
+		builder.append("make", players, "see", locations, "as");
 		if (asOriginal) {
 			builder.append("original");
 		} else {
