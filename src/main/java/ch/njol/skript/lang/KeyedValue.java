@@ -36,6 +36,27 @@ public record KeyedValue<T>(@NotNull String key, @NotNull T value) implements Ma
 	}
 
 	/**
+	 * Creates a new {@link KeyedValue} with the same value but a different key.
+	 *
+	 * @param newKey the new key for the {@link KeyedValue}
+	 * @return a new {@link KeyedValue} with the specified key and the same value
+	 */
+	public KeyedValue<T> withKey(@NotNull String newKey) {
+		return new KeyedValue<>(newKey, value());
+	}
+
+	/**
+	 * Creates a new {@link KeyedValue} with the same key but a different value.
+	 *
+	 * @param newValue the new value for the {@link KeyedValue}
+	 * @param <U>      the type of the new value
+	 * @return a new {@link KeyedValue} with the same key and the specified value
+	 */
+	public <U> KeyedValue<U> withValue(@NotNull U newValue) {
+		return new KeyedValue<>(key(), newValue);
+	}
+
+	/**
 	 * Zips the given values and keys into a {@link KeyedValue} array.
 	 *
 	 * @param values the values to zip
