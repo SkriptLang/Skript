@@ -71,6 +71,16 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 	}
 
 	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return getExpr().possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		return getExpr().canReturn(returnType);
+	}
+
+	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return amount.toString(e, debug) + " of " + getExpr().toString(e, debug);
 	}
