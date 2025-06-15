@@ -72,7 +72,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 			if (RUNNING_1_20_0) {
 				return CollectionUtils.array(EntityData.class);
 			} else {
-				Skript.error("You can 'delete' the spawner type of a spawner on Minecraft 1.20.0+");
+				Skript.error("You can't 'delete' the spawner type of a spawner on Minecraft 1.20.0+");
 			}
 		}
 		return null;
