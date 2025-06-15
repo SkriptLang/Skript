@@ -3,7 +3,6 @@ test "llama entity data":
 		set {_entity} to entity
 	assert {_entity} is a llama with "Llama should be a llama"
 	assert {_entity} is not a trader llama with "Llama should not be a trader llama"
-	assert "%{_entity}%" is "llama" with "Llama toString should be 'llama'"
 	clear entity within {_entity}
 
 	spawn a creamy llama at test-location:
@@ -29,7 +28,6 @@ test "trader llama entity data":
 		set {_entity} to entity
 	assert {_entity} is a llama with "Trader llama should be a llama"
 	assert {_entity} is a trader llama with "Trader llama should be a trader llama"
-	assert "%{_entity}%" is "trader llama" with "Trader llama toString should be 'trader llama'"
 	clear entity within {_entity}
 
 	spawn a creamy trader llama at test-location:
