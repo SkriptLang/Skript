@@ -6,6 +6,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,16 +20,24 @@ import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Spawner Type")
-@Description("Retrieves, sets, or resets the spawner's entity type")
+@Description("""
+	The entity type of a spawner (mob spawner).
+	Change the entity type, reset it (pig) or clear it (Minecraft 1.20.0+).
+	""")
 @Example("""
 	on right click:
 		if event-block is a spawner:
 			send "Spawner's type if %spawner type of event-block%" to player
 	""")
-@Since("2.4, 2.9.2 (trial spawner)")
+@Example("set the creature type of {_spawner} to a trader llama")
+@Example("reset {_spawner}'s entity type # Pig")
+@Example("clear the spawner type of {_spawner} # Minecraft 1.20.0+")
+@Since("2.4, 2.9.2 (trial spawner), INSERT VERSION (delete)")
+@RequiredPlugins("Minecraft 1.20.0+ (delete)")
 public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData> {
 
 	private static final boolean HAS_TRIAL_SPAWNER = Skript.classExists("org.bukkit.block.TrialSpawner");
+	private static final boolean RUNNING_1_20_0 = Skript.isRunningMinecraft(1, 20, 0);
 
 	static {
 		register(ExprSpawnerType.class, EntityData.class, "(spawner|entity|creature) type[s]", "blocks");
@@ -57,10 +66,16 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return switch (mode) {
-			case SET, RESET, DELETE -> CollectionUtils.array(EntityData.class);
-			default -> null;
-		};
+		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
+			return CollectionUtils.array(EntityData.class);
+		} else if (mode == ChangeMode.DELETE) {
+			if (RUNNING_1_20_0) {
+				return CollectionUtils.array(EntityData.class);
+			} else {
+				Skript.error("You can 'delete' the spawner type of a spawner on Minecraft 1.20.0+");
+			}
+		}
+		return null;
 	}
 
 	@Override

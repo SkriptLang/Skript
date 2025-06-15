@@ -21,3 +21,17 @@ test "trial spawner type" when running minecraft "1.21":
 	assert spawner type of {_block} is pig with "Spawner type was not reset correctly"
 
 	set block at {_block} to air
+
+test "delete spawner type":
+	set test-block to spawner
+	if running minecraft "1.20.0":
+		set the spawner type of test-block to a trader llama
+		assert the spawner type of test-block is a trader llama with "Spawner type should be a trader llama"
+		clear the spawner type of test-block
+		assert the spawner type of test-block is not set with "Spawner type was not cleared"
+	else:
+		parse:
+			delete the spawner type of test-block
+		set {_error} to "You can 'delete' the spawner type of a spawner on Minecraft 1.20.0+"
+		assert last parse logs is {_error} with "Deleting Spawner Type on unsupported version did not throw parse error"
+	set test-block to air
