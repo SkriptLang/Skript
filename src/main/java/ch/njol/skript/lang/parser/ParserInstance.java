@@ -588,7 +588,7 @@ public final class ParserInstance implements Experimented {
 	 * or null (after {@code false} has been asserted) if the given data class isn't registered.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends Data> T getData(Class<T> dataClass) {
+	public @NotNull <T extends Data> T getData(Class<T> dataClass) {
 		if (dataMap.containsKey(dataClass)) {
 			return (T) dataMap.get(dataClass);
 		} else if (dataRegister.containsKey(dataClass)) {
@@ -600,14 +600,13 @@ public final class ParserInstance implements Experimented {
 		return null;
 	}
 
-	private List<? extends Data> getDataInstances() {
+	private @NotNull List<? extends Data> getDataInstances() {
 		// List<? extends Data> gave errors, so using this instead
 		List<Data> dataList = new ArrayList<>();
 		for (Class<? extends Data> dataClass : dataRegister.keySet()) {
 			// This will include all registered data, even if not already initiated
 			Data data = getData(dataClass);
-			if (data != null)
-				dataList.add(data);
+			dataList.add(data);
 		}
 		return dataList;
 	}
