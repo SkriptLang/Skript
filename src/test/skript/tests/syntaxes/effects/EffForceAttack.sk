@@ -27,6 +27,8 @@ test "entity damage entity by amount":
 	clear entity within {_attacker}
 	clear entity within {_victim}
 
+using error catching
+
 test "entity damage entity by negative":
 	spawn a zombie at test-location:
 		set {_attacker} to entity
@@ -34,10 +36,10 @@ test "entity damage entity by negative":
 		set {_victim} to entity
 
 	set {_max} to the max health of {_victim}
-	# TODO: Catch Runtime Error
-	make {_attacker} damage {_victim} by -2
-	assert the health of {_victim} is {_max} with "Victim's health should be max - negative value"
-	assert the last damage of {_victim} is 0 with "Victim should not have taken damage - negative value"
+	catch errors:
+		make {_attacker} damage {_victim} by -2
+	set {_error} to "Cannot damage an entity by 0 or less. Consider healing instead."
+	assert last caught errors is {_error} with "Damaging by negative value did not throw error"
 
 	clear entity within {_attacker}
 	clear entity within {_victim}
