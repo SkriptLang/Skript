@@ -126,7 +126,7 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		if (!keyed)
+		if (!canReturnKeys())
 			return Converters.convertStrictly(Iterators.toArray(iterator(event), Object.class), getReturnType());
 		KeyedValue.UnzippedKeyValues<Object> unzipped = KeyedValue.unzip(keyedIterator(event));
 		cache.put(event, unzipped.keys());
@@ -142,7 +142,7 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 
 	@Override
 	public boolean canReturnKeys() {
-		return keyed && mappingExpr.isSingle();
+		return hasIndices() && mappingExpr.isSingle();
 	}
 
 	@Override
