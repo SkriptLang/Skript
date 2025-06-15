@@ -1,0 +1,6 @@
+test "decimal places":
+	assert (the number of decimal places of 1.234) is 3 with "Should return 3 decimal places"
+	assert (the number of decimal places of 1.23456789) is 8 with "Should return 8 decimal places"
+	assert (the number of decimal places of 1.000000000000001) is 15 with "Should return 15 decimal places
+	assert (the number of decimal places of 1.0000000000) is not set with "Should return null for trailing zeros"
+	assert (the number of decimal places of 1) is not set with "Should return null for no decimal number"
