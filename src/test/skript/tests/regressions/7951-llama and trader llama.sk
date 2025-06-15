@@ -1,0 +1,49 @@
+test "llama entity data":
+	spawn a llama at test-location:
+		set {_entity} to entity
+	assert {_entity} is a llama with "Llama should be a llama"
+	assert {_entity} is not a trader llama with "Llama should not be a trader llama"
+	clear entity within {_entity}
+
+	spawn a creamy llama at test-location:
+		set {_entity} to entity
+	assert {_entity} is a llama with "Creamy llama should be a llama"
+	assert {_entity} is a creamy llama with "Creamy llama should be a creamy llama"
+	assert {_entity} is not a gray llama with "Creamy llama should not be a gray llama"
+	assert {_entity} is not a trader llama with "Creamy llama should not be a trader llama"
+	assert {_entity} is not a creamy trader llama with "Creamy llama should not be a creamy trader llama"
+	assert {_entity} is not a gray trader llama with "Creamy llama should not be a gray trader llama"
+	clear entity within {_entity}
+
+	set {_old} to blockdata of test-block
+	set test-block to a spawner
+	set spawner type of test-block to a llama
+	assert spawner type of test-block is a llama with "Monster spawner should be a llama"
+	assert spawner type of test-block is not a trader llama with "Monster spawner should not be a trader llama"
+	set blockdata of test-block to {_old}
+	clear all entities
+
+test "trader llama entity data":
+	spawn a trader llama at test-location:
+		set {_entity} to entity
+	assert {_entity} is a llama with "Trader llama should be a llama"
+	assert {_entity} is a trader llama with "Trader llama should be a trader llama"
+	clear entity within {_entity}
+
+	spawn a creamy trader llama at test-location:
+		set {_entity} to entity
+	assert {_entity} is a llama with "Creamy trader llama should be a llama"
+	assert {_entity} is a creamy llama with "Creamy trader llama should be a creamy llama"
+	assert {_entity} is not a gray llama with "Creamy trader llama should not be a gray llama"
+	assert {_entity} is a trader llama with "Creamy trader llama should be a trader llama"
+	assert {_entity} is a creamy trader llama with "Creamy trader llama should be a creamy trader llama"
+	assert {_entity} is not a gray trader llama with "Creamy trader llama should not be a gray trader llama"
+	clear entity within {_entity}
+
+	set {_old} to blockdata of test-block
+	set test-block to a spawner
+	set spawner type of test-block to a trader llama
+	assert spawner type of test-block is a llama with "Monster spawner should be a llama"
+	assert spawner type of test-block is a trader llama with "Monster spawner should be a trader llama"
+	set blockdata of test-block to {_old}
+	clear all entities
