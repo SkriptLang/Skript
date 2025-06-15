@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Keyed")
 @Description({
-	"This expression is used to explicitly pass the values of an expression alongside its keys.",
+	"This expression is used to explicitly pass the keys of an expression alongside its values.",
 	"For example, when setting a list variable or passing an expression to a function.",
 })
 @Example("""
