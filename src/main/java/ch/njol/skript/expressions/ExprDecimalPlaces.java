@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Number of Decimal Places")
 @Description("Gets the number of decimal places in a number.")
 @Example("""
-	set {_decimalPlaces} to the number of decimal places from 1.23456789
+	set {_decimalPlaces} to the number of decimal places of 1.23456789
 	# {_decimalPlaces} = 8
 	""")
 @Since("INSERT VERSION")
