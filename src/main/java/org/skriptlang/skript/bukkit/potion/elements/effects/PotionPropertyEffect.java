@@ -16,7 +16,7 @@ abstract class PotionPropertyEffect extends Effect {
 
 	public enum Type {
 		MAKE,
-		SHOW;
+		SHOW
 	}
 
 	public static String[] getPatterns(Type type, String property) {
@@ -26,7 +26,8 @@ abstract class PotionPropertyEffect extends Effect {
 				"make %potioneffecttypes% (of|for|on) %livingentities% [:not] " + property
 			};
 			case SHOW -> new String[]{
-				"(show|not:hide) [the] [potion] " + property + " (of|for) %skriptpotioneffects%",
+				"(show|not:hide) [the] [potion] " + property + " [(of|for) %skriptpotioneffects%]",
+				"(show|not:hide) %skriptpotioneffects%'[s] " + property,
 				"(show|not:hide) [the] [potion] " + property + " (of|for) %potioneffecttypes% (of|for|on) %livingentities%"
 			};
 		};
@@ -41,7 +42,7 @@ abstract class PotionPropertyEffect extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0) {
+		if (expressions.length == 1) {
 			potions = (Expression<SkriptPotionEffect>) expressions[0];
 		} else {
 			types = (Expression<PotionEffectType>) expressions[0];

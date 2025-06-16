@@ -1,7 +1,9 @@
 # ExprPotionEffect
 test "potion effect creation":
 	# test first pattern
-	set {_potion} to an ambient potion effect of speed of tier 5 without the particles whilst hiding the icon for 15 seconds
+	set {_potion} to an ambient potion effect of speed of tier 5 for 15 seconds:
+		hide the particles
+		hide the icon
 	assert {_potion} is ambient with "potion is not ambient"
 	assert type of {_potion} is speed with "type is not speed"
 	assert amplifier of {_potion} is 5 with "amplifier is not 5"
@@ -11,7 +13,9 @@ test "potion effect creation":
 	assert {_potion} is not infinite with "potion is infinite"
 
 	# test second pattern
-	set {_potion} to an infinite ambient potion effect of speed of tier 5 without the particles whilst hiding the icon
+	set {_potion} to an infinite ambient potion effect of speed of tier 5:
+		hide the particles
+		hide the icon
 	assert {_potion} is ambient with "potion is not ambient"
 	assert type of {_potion} is speed with "type is not speed"
 	assert amplifier of {_potion} is 5 with "amplifier is not 5"
@@ -20,7 +24,9 @@ test "potion effect creation":
 	assert {_potion} is infinite with "potion is infinite"
 
 	# test third pattern
-	set {_potion} to an infinite ambient speed 5 without the particles whilst hiding the icon
+	set {_potion} to an infinite ambient speed 5:
+		hide the particles
+		hide the icon
 	assert {_potion} is ambient with "potion is not ambient"
 	assert type of {_potion} is speed with "type is not speed"
 	assert amplifier of {_potion} is 5 with "amplifier is not 5"
@@ -36,8 +42,12 @@ test "potion effect creation":
 # ExprPotionEffects
 test "potion effects of entities/items":
 	# setup
-	set {_potions::1} to a potion effect of slowness 3 without the particles whilst hiding the icon for 73 seconds
-	set {_potions::2} to an ambient potion effect of speed of tier 5 without the particles whilst hiding the icon for 15 seconds
+	set {_potions::1} to a potion effect of slowness 3 for 73 seconds:
+		hide the particles
+		hide the icon
+	set {_potions::2} to an ambient potion effect of speed of tier 5 for 15 seconds:
+		hide the effect's particles
+		hide the effect's icon
 	set {_potions::3} to speed 5
 	spawn a pig at event-location:
 		set {_holders::1} to event-entity
@@ -268,7 +278,8 @@ test "potion application event":
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
-	apply potion effect of glowing without particles for 17 seconds to {_event-entity}
+	apply potion effect of glowing for 17 seconds to {_event-entity}:
+		hide the particles
 	loop {potion_event::*}:
 		assert loop-value is true with "potion event %loop-index% failed"
 

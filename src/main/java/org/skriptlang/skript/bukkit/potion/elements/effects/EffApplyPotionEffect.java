@@ -33,7 +33,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class EffApplyPotionEffect extends Effect {
 
 	public static void register(SyntaxRegistry registry) {
-		// While allowing the user to specify the timespan here is repetitive as you can do it in ExprPotionEffect,
+		// While allowing the user to specify the timespan here is repetitive as you can do it in ExprSecPotionEffect,
 		// it allows syntax like "apply haste 3 to the player for 5 seconds" to work
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffApplyPotionEffect.class)
 				.supplier(EffApplyPotionEffect::new)

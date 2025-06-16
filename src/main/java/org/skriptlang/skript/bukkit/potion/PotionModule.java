@@ -7,6 +7,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.Fields;
@@ -35,6 +36,7 @@ public class PotionModule implements AddonModule {
 	public void init(SkriptAddon addon) {
 		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "skriptpotioneffect")
+			.defaultExpression(new EventValueExpression<>(SkriptPotionEffect.class))
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -194,9 +196,10 @@ public class PotionModule implements AddonModule {
 		// expressions
 		ExprPotionAmplifier.register(registry);
 		ExprPotionDuration.register(registry);
-		ExprPotionEffect.register(registry);
+		ExprSecPotionEffect.register(registry);
 		ExprPotionEffects.register(registry);
 		ExprPotionEffectTypeCategory.register(registry);
+		ExprSkriptPotionEffect.register(registry);
 	}
 
 }

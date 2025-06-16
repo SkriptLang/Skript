@@ -40,7 +40,7 @@ public class ExprPotionDuration extends SimpleExpression<Timespan> {
 				.supplier(ExprPotionDuration::new)
 				.priority(PropertyExpression.DEFAULT_PRIORITY)
 				.addPatterns(
-					"[the] [potion] (duration|length)[s] of %skriptpotioneffects%",
+					"[the] [potion] (duration|length)[s] [of %skriptpotioneffects%]",
 					"%skriptpotioneffects%'[s] [potion] (duration|length)[s]",
 					"[the] [potion] (duration|length)[s] of %potioneffecttypes% (of|for|on) %livingentities%"
 				)

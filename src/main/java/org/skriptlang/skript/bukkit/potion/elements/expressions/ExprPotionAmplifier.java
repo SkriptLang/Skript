@@ -37,7 +37,7 @@ public class ExprPotionAmplifier extends SimpleExpression<Integer> {
 				.supplier(ExprPotionAmplifier::new)
 				.priority(PropertyExpression.DEFAULT_PRIORITY)
 				.addPatterns(
-					"[the] [potion] (amplifier|tier|level)[s] of %skriptpotioneffects%",
+					"[the] [potion] (amplifier|tier|level)[s] [of %skriptpotioneffects%]",
 					"%skriptpotioneffects%'[s] [potion] (amplifier|tier|level)[s]",
 					"[the] [potion] (amplifier|tier)[s] of %potioneffecttypes% (of|for|on) %livingentities%"
 				)
