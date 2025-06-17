@@ -13,7 +13,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"Modify whether a potion effect shows particles.",
 })
 @Example("hide the particles for the player's potion effects")
-@Example("hide the particles for speed for the player")
 @Since("INSERT VERSION")
 public class EffPotionParticles extends PotionPropertyEffect {
 

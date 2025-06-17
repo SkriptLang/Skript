@@ -1,4 +1,4 @@
-# ExprPotionEffect
+# ExprSecPotionEffect
 test "potion effect creation":
 	# test first pattern
 	set {_potion} to an ambient potion effect of speed of tier 5 for 15 seconds:
@@ -49,25 +49,153 @@ test "potion effects of entities/items":
 		hide the effect's particles
 		hide the effect's icon
 	set {_potions::3} to speed 5
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_holders::1} to event-entity
 	set {_holders::2} to a potion of mundane
 
+	# test getting/deleting/resetting
+	loop {_holders::*}:
+		loop-value is an entity
+		apply {_weaker} to loop-value
+		apply {_stronger} to loop-value
+		assert the potion effects of loop-value are {_stronger} with "holder doesn't have potion effect"
+		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effect"
+		assert the active and hidden potion effects of loop-value are {_stronger} and {_weaker} with "holder doesn't have both potion effects"
+		clear the potion effects of loop-value
+		assert active and hidden potion effects of loop-value are not set with "holder still has potion effects"
+		apply {_weaker} to loop-value
+		apply {_stronger} to loop-value
+		clear the hidden potion effects of loop-value
+		assert the potion effects of loop-value are {_stronger} with "holder doesn't have potion effect"
+		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are not set with "holder has hidden potion effect"
+		assert the active and hidden potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
+		clear the potion effects of loop-value
+		assert the active and hidden potion effects of loop-value are not set with "holder still has potion effects"
+		apply {_weaker} to loop-value
+		apply {_stronger} to loop-value
+		clear the active potion effects of loop-value
+		assert the potion effects of loop-value are {_weaker} with "holder doesn't have potion effect"
+		assert the active potion effects of loop-value are {_weaker} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are not set with "holder has hidden potion effect"
+		assert the active and hidden potion effects of loop-value are {_weaker} with "holder doesn't have active potion effect"
+		apply {_stronger} to loop-value
+		clear the active and hidden potion effects of loop-value
+		assert the active and hidden potion effects of loop-value are not set with "holder still has potion effects"
+
+	# test other change modes
 	loop {_potions::*}:
 		loop {_holders::*}:
+			# set
+			add nausea 5 to the potion effects of loop-value-2
+			set the potion effects of loop-value-2 to loop-value-1
+			assert the potion effects of loop-value-2 is loop-value-1 with "holder doesn't have potion effect"
+			# reset
+			reset the potion effects of loop-value-2
+			assert the potion effects of loop-value-2 are not set with "holder has potion effect"
+			# add
 			add loop-value-1 to the potion effects of loop-value-2
-			assert potion effects of loop-value-2 contains loop-value-1 with "holder doesn't have potion effect"
+			assert the potion effects of loop-value-2 is loop-value-1 with "holder doesn't have potion effect"
+			# remove
 			remove loop-value-1 from the potion effects of loop-value-2
-			assert potion effects of loop-value-2 doesn't contain loop-value-1 with "holder has potion effect"
+			assert the potion effects of loop-value-2 are not set with "holder has potion effect"
+			# clear
 			add loop-value-1 to the potion effects of loop-value-2
-			assert potion effects of loop-value-2 contains loop-value-1 with "holder doesn't have potion effect"
-			clear potion effects of loop-value-2
-			assert potion effects of loop-value-2 are not set with "holder has potion effect"
+			assert the potion effects of loop-value-2 is loop-value-1 with "holder doesn't have potion effect"
+			clear the potion effects of loop-value-2
+			assert the potion effects of loop-value-2 are not set with "holder has potion effect"
+			# remove all
+			loop-value-2 is an entity
+			add {_weaker} to the potion effects of loop-value-2
+			add {_stronger} to the potion effects of loop-value-2
+			assert the size of active and hidden potion effects of loop-value-2 is 2 with "holder missing active/hidden potion effects"
+			remove all speed from the potion effects of loop-value-2
+			assert the potion effects of loop-value-2 are not set with "holder has potion effects"
+
+	# test multiple hidden effects
+	loop {_holders::*}:
+		loop-value is an entity
+		apply {_weaker} to loop-value
+		apply {_stronger} to loop-value
+		apply {_strongest} to loop-value
+		assert the active potion effects of loop-value are {_strongest} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are {_stronger} and {_weaker} with "holder doesn't have hidden potion effects"
+		clear the active potion effects of loop-value
+		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effects"
+		clear the potion effects of loop-value
 
 	# cleanup
 	delete the entity within {_entity}
 
-# EffApplyPotionEffect:
+# ExprPotionEffect
+test "specific potion effect of entities/items":
+	# setup
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	# test getting
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	assert the speed effect of {_entity} is {_stronger} with "holder doesn't have speed effect"
+	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effect"
+	assert the active and hidden speed effects of {_entity} are {_stronger} and {_weaker} with "holder doesn't have both speed effects"
+
+	# test deleting/resetting
+	clear the speed effects of {_entity}
+	assert the active and hidden speed effects of {_entity} are not set with "holder still has speed effects"
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	clear the hidden speed effects of {_entity}
+	assert the speed effect of {_entity} is {_stronger} with "holder doesn't have speed effect"
+	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effect"
+	assert the active and hidden speed effects of {_entity} are {_stronger} with "holder doesn't have active speed effect"
+	clear the speed effects of {_entity}
+	assert the active and hidden speed effects of {_entity} are not set with "holder still has speed effects"
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	clear the active speed effects of {_entity}
+	assert the speed effect of {_entity} is {_weaker} with "holder doesn't have speed effect"
+	assert the active speed effect of {_entity} is {_weaker} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effect"
+	assert the active and hidden speed effects of {_entity} are {_weaker} with "holder doesn't have active speed effect"
+	apply {_stronger} to {_entity}
+	clear the active and hidden speed effects of {_entity}
+	assert the active and hidden speed effects of {_entity} are not set with "holder still has speed effects"
+
+	# test adding/removing
+	apply {_stronger} to {_entity}
+	assert compare_timespans(30 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 30 seconds"
+	add 15 seconds to {_entity}'s speed effect
+	assert compare_timespans(45 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 45 seconds"
+	remove 30 seconds from {_entity}'s speed effect
+	assert compare_timespans(15 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 15 seconds"
+	clear the speed effects of {_entity}
+
+	# test multiple hidden effects
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	assert the active speed effect of {_entity} is {_strongest} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are {_stronger} and {_weaker} with "holder doesn't have hidden speed effects"
+	clear the active speed effect of {_entity}
+	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effects"
+	clear the speed effects of {_entity}
+
+	# cleanup
+	delete the entity within {_entity}
+
+# EffApplyPotionEffect
 test "potion effect application":
 	# setup
 	spawn a pig at event-location:
@@ -103,11 +231,11 @@ test "potion amplifier property":
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	set the amplifier of speed for {_entity} to 5
+	set the amplifier of {_entity}'s speed effect to 5
 	assert the amplifier of the first element of the potion effects of {_entity} is 5 with "amplifier is not 5"
-	add 5 to the amplifier of speed for {_entity}
+	add 5 to the amplifier of {_entity}'s speed effect
 	assert the amplifier of the first element of the potion effects of {_entity} is 10 with "amplifier is not 10"
-	remove 5 from the amplifier of speed for {_entity}
+	remove 5 from the amplifier of {_entity}'s speed effect
 	assert the amplifier of the first element of the potion effects of {_entity} is 5 with "amplifier is not 5"
 
 	# cleanup
@@ -130,11 +258,11 @@ test "potion duration property":
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	set the duration of speed for {_entity} to 5 seconds
+	set the duration of {_entity}'s speed effect to 5 seconds
 	assert compare_timespans(5 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 5 seconds"
-	add 5 seconds to the duration of speed for {_entity}
+	add 5 seconds to the duration of {_entity}'s speed effect
 	assert compare_timespans(10 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 10 seconds"
-	remove 5 seconds from the duration of speed for {_entity}
+	remove 5 seconds from the duration of {_entity}'s speed effect
 	assert compare_timespans(5 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 5 seconds"
 
 	# cleanup
@@ -155,9 +283,9 @@ test "potion ambient property":
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	make speed for {_entity} ambient
+	make {_entity}'s speed effect ambient
 	assert potion effects of {_entity} are ambient with "potion is not ambient"
-	make speed for {_entity} not ambient
+	make {_entity}'s speed effect not ambient
 	assert potion effects of {_entity} are not ambient with "potion is ambient"
 
 	# cleanup
@@ -178,9 +306,9 @@ test "potion infinite property":
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	make speed for {_entity} infinite
+	make {_entity}'s speed effect infinite
 	assert potion effects of {_entity} are infinite with "potion is not infinite"
-	make speed for {_entity} not infinite
+	make {_entity}'s speed effect not infinite
 	assert potion effects of {_entity} are not infinite with "potion is infinite"
 
 	# cleanup
@@ -203,9 +331,9 @@ test "potion icon property" when running minecraft "1.20":
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	show the icon for speed for {_entity}
+	show the icon for {_entity}'s speed effect
 	assert potion effects of {_entity} have an icon with "potion does not have an icon"
-	hide the icon for speed for {_entity}
+	hide the icon for {_entity}'s speed effect
 	assert potion effects of {_entity} do not have an icon with "potion has an icon"
 
 	# cleanup
@@ -226,9 +354,9 @@ test "potion particles property":
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	show particles for speed for {_entity}
+	show the particles of {_entity}'s speed effect
 	assert potion effects of {_entity} have particles with "potion does not have particles"
-	hide particles for speed for {_entity}
+	hide the particles of {_entity}'s speed effect
 	assert potion effects of {_entity} do not have particles with "potion has particles"
 
 	# cleanup

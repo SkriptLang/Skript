@@ -16,7 +16,6 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public final class PotionUtils {
@@ -36,7 +35,6 @@ public final class PotionUtils {
 	 */
 	public static final String DEFAULT_DURATION_STRING = new Timespan(TimePeriod.TICK, DEFAULT_DURATION_TICKS).toString();
 
-	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
 	private static final boolean HAS_GET_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "getBasePotionType");
 	private static final boolean HAS_HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
@@ -54,55 +52,6 @@ public final class PotionUtils {
 			return Registry.EFFECT;
 		}
 		return null;
-	}
-
-	/**
-	 * Converts an array of SkriptPotionEffects into an array of Bukkit PotionEffects.
-	 * @param potionEffects The potion effects to convert.
-	 * @return The converted potion effects.
-	 */
-	public static PotionEffect[] convertSkriptPotionEffects(SkriptPotionEffect[] potionEffects) {
-		PotionEffect[] convertedEffects = new PotionEffect[potionEffects.length];
-		for (int i = 0; i < convertedEffects.length; i++)
-			convertedEffects[i] = potionEffects[i].toPotionEffect();
-		return convertedEffects;
-	}
-
-	/**
-	 * Converts a collection of SkriptPotionEffects into a list of Bukkit PotionEffects.
-	 * @param potionEffects The potion effects to convert.
-	 * @return The converted potion effects.
-	 */
-	public static List<PotionEffect> convertSkriptPotionEffects(Collection<SkriptPotionEffect> potionEffects) {
-		List<PotionEffect> convertedEffects = new ArrayList<>();
-		for (SkriptPotionEffect potionEffect : potionEffects)
-			convertedEffects.add(potionEffect.toPotionEffect());
-		return convertedEffects;
-	}
-
-	/**
-	 * Converts an array of Bukkit PotionEffects into an array of SkriptPotionEffects.
-	 * @param potionEffects The potion effects to convert.
-	 * @return The converted potion effects.
-	 */
-	public static SkriptPotionEffect[] convertBukkitPotionEffects(PotionEffect[] potionEffects) {
-		SkriptPotionEffect[] convertedEffects = new SkriptPotionEffect[potionEffects.length];
-		for (int i = 0; i < convertedEffects.length; i++) {
-			convertedEffects[i] = SkriptPotionEffect.fromBukkitEffect(potionEffects[i]);
-		}
-		return convertedEffects;
-	}
-
-	/**
-	 * Converts a collection of Bukkit PotionEffects into a list of SkriptPotionEffects.
-	 * @param potionEffects The potion effects to convert.
-	 * @return The converted potion effects.
-	 */
-	public static List<SkriptPotionEffect> convertBukkitPotionEffects(Collection<PotionEffect> potionEffects) {
-		List<SkriptPotionEffect> convertedEffects = new ArrayList<>();
-		for (PotionEffect potionEffect : potionEffects)
-			convertedEffects.add(SkriptPotionEffect.fromBukkitEffect(potionEffect));
-		return convertedEffects;
 	}
 
 	/**
@@ -132,7 +81,7 @@ public final class PotionUtils {
 				if (potionData != null)
 					effects.addAll(PotionDataUtils.getPotionEffects(potionData));
 			}
-		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
 			effects.addAll(stewMeta.getCustomEffects());
 		}
 		return effects;
@@ -145,11 +94,13 @@ public final class PotionUtils {
 	 */
 	public static void addPotionEffects(ItemType itemType, PotionEffect... potionEffects) {
 		ItemMeta meta = itemType.getItemMeta();
-		for (PotionEffect potionEffect : potionEffects) {
-			if (meta instanceof PotionMeta potionMeta) {
-				potionMeta.addCustomEffect(potionEffect, false);
-			} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
-				stewMeta.addCustomEffect(potionEffect, false);
+		if (meta instanceof PotionMeta potionMeta) {
+			for (PotionEffect potionEffect : potionEffects) {
+				potionMeta.addCustomEffect(potionEffect, true);
+			}
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
+			for (PotionEffect potionEffect : potionEffects) {
+				stewMeta.addCustomEffect(potionEffect, true);
 			}
 		}
 		itemType.setItemMeta(meta);
@@ -162,10 +113,12 @@ public final class PotionUtils {
 	 */
 	public static void removePotionEffects(ItemType itemType, PotionEffectType... potionEffectTypes) {
 		ItemMeta meta = itemType.getItemMeta();
-		for (PotionEffectType potionEffectType : potionEffectTypes) {
-			if (meta instanceof PotionMeta potionMeta) {
+		if (meta instanceof PotionMeta potionMeta) {
+			for (PotionEffectType potionEffectType : potionEffectTypes) {
 				potionMeta.removeCustomEffect(potionEffectType);
-			} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
+			}
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
+			for (PotionEffectType potionEffectType : potionEffectTypes) {
 				stewMeta.removeCustomEffect(potionEffectType);
 			}
 		}
@@ -180,7 +133,7 @@ public final class PotionUtils {
 		ItemMeta meta = itemType.getItemMeta();
 		if (meta instanceof PotionMeta potionMeta) {
 			potionMeta.clearCustomEffects();
-		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
+		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
 			stewMeta.clearCustomEffects();
 		}
 		itemType.setItemMeta(meta);

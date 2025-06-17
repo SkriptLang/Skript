@@ -14,14 +14,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"That is, whether the potion effect will ever expire."
 })
 @Example("make the player's potion effects infinite")
-@Example("make speed for the player not infinite")
 @Since("INSERT VERSION")
 public class EffPotionInfinite extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionInfinite.class)
 				.supplier(EffPotionInfinite::new)
-				.addPatterns(getPatterns(Type.MAKE, "infinite"))
+				.addPatterns(getPatterns(Type.MAKE, "(infinite|permanent)"))
 				.build());
 	}
 

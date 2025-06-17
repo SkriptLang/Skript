@@ -1,15 +1,18 @@
 package org.skriptlang.skript.bukkit.potion.util;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
 
@@ -25,7 +28,17 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	private boolean particles = true;
 	private boolean icon = true;
 
-	private PotionEffect lastEffect;
+	/**
+	 * Last effect built by {@link #toPotionEffect()}.
+	 */
+	private @Nullable PotionEffect lastEffect;
+
+	/**
+	 * Sources for where this effect was created from.
+	 * Modifying this effect will update the effect on any sources.
+	 */
+	private @Nullable LivingEntity entitySource;
+	private @Nullable ItemType itemSource;
 
 	/**
 	 * Internal usage only for serialization.
@@ -34,6 +47,8 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	public SkriptPotionEffect() { }
 
 	/**
+	 * Constructs a SkriptPotionEffect from a Bukkit PotionEffectType.
+	 * @param potionEffectType The type of effect for this potion effect.
 	 * @return A potion effect with {@link #potionEffectType()} as <code>potionEffectType</code>.
 	 * Other properties hold their default values.
 	 * @see #fromBukkitEffect(PotionEffect)
@@ -44,6 +59,8 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	}
 
 	/**
+	 * Constructs a SkriptPotionEffect from a Bukkit PotionEffect.
+	 * @param potionEffect The potion effect to obtain properties from.
 	 * @return A potion effect whose properties are set from <code>potionEffect</code>.
 	 * @see #fromType(PotionEffectType)
 	 */
@@ -54,6 +71,36 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 			.ambient(potionEffect.isAmbient())
 			.particles(potionEffect.hasParticles())
 			.icon(potionEffect.hasIcon());
+	}
+
+	/**
+	 * Constructs a SkriptPotionEffect from a Bukkit PotionEffect and source entity.
+	 * <code>source</code> is expected to currently be affected by <code>potionEffect</code>.
+	 * When changes are made to this potion effect, they will be reflected on <code>source</code>.
+	 * @param potionEffect The potion effect to obtain properties from.
+	 * @param source An entity that should mirror the changes to this potion effect.
+	 * @return A potion effect whose properties are set from <code>potionEffect</code>.
+	 * @see #fromBukkitEffect(PotionEffect)
+	 */
+	public static SkriptPotionEffect fromBukkitEffect(PotionEffect potionEffect, LivingEntity source) {
+		SkriptPotionEffect skriptPotionEffect = fromBukkitEffect(potionEffect);
+		skriptPotionEffect.entitySource = source;
+		return skriptPotionEffect;
+	}
+
+	/**
+	 * Constructs a SkriptPotionEffect from a Bukkit PotionEffect and source item.
+	 * <code>source</code> is expected to be an item (potion, stew, etc.) whose meta contains <code>potionEffect</code>.
+	 * When changes are made to this potion effect, they will be reflected on <code>source</code>.
+	 * @param potionEffect The potion effect to obtain properties from.
+	 * @param source An item that should mirror the changes to this potion effect.
+	 * @return A potion effect whose properties are set from <code>potionEffect</code>.
+	 * @see #fromBukkitEffect(PotionEffect)
+	 */
+	public static SkriptPotionEffect fromBukkitEffect(PotionEffect potionEffect, ItemType source) {
+		SkriptPotionEffect skriptPotionEffect = fromBukkitEffect(potionEffect);
+		skriptPotionEffect.itemSource = source;
+		return skriptPotionEffect;
 	}
 
 	/**
@@ -72,7 +119,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect potionEffectType(PotionEffectType potionEffectType) {
 		lastEffect = null;
+		removeFromSource();
 		this.potionEffectType = potionEffectType;
+		addToSource();
 		return this;
 	}
 
@@ -112,7 +161,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect duration(int duration) {
 		lastEffect = null;
+		removeFromSource();
 		this.duration = duration;
+		addToSource();
 		return this;
 	}
 
@@ -131,7 +182,10 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 */
 	@Contract("_ -> this")
 	public SkriptPotionEffect amplifier(int amplifier) {
+		lastEffect = null;
+		removeFromSource();
 		this.amplifier = amplifier;
+		addToSource();
 		return this;
 	}
 
@@ -151,7 +205,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect ambient(boolean ambient) {
 		lastEffect = null;
+		removeFromSource();
 		this.ambient = ambient;
+		addToSource();
 		return this;
 	}
 
@@ -171,7 +227,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect particles(boolean particles) {
 		lastEffect = null;
+		removeFromSource();
 		this.particles = particles;
+		addToSource();
 		return this;
 	}
 
@@ -191,7 +249,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect icon(boolean icon) {
 		lastEffect = null;
+		removeFromSource();
 		this.icon = icon;
+		addToSource();
 		return this;
 	}
 
@@ -260,6 +320,26 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	}
 
 	/*
+	 * Source Utilities
+	 */
+
+	private void removeFromSource() {
+		if (entitySource != null) {
+			entitySource.removePotionEffect(potionEffectType);
+		} else if (itemSource != null) {
+			PotionUtils.removePotionEffects(itemSource, potionEffectType);
+		}
+	}
+
+	private void addToSource() {
+		if (entitySource != null) {
+			entitySource.addPotionEffect(toPotionEffect());
+		} else if (itemSource != null) {
+			PotionUtils.addPotionEffects(itemSource, toPotionEffect());
+		}
+	}
+
+	/*
 	 * YggdrasilExtendedSerializable
 	 */
 
@@ -288,7 +368,10 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Override
 	public SkriptPotionEffect clone() {
 		try {
-			return (SkriptPotionEffect) super.clone();
+			SkriptPotionEffect skriptPotionEffect = (SkriptPotionEffect) super.clone();
+			skriptPotionEffect.entitySource = null;
+			skriptPotionEffect.itemSource = null;
+			return skriptPotionEffect;
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError();
 		}

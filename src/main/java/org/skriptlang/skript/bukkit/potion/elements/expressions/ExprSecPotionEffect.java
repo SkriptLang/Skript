@@ -55,8 +55,8 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 				.supplier(ExprSecPotionEffect::new)
 				.addPatterns(
 						"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] [for %-timespan%]",
-						"[an] infinite [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] ",
-						"[an] infinite [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] "
+						"[an] (infinite|permanent) [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] ",
+						"[an] (infinite|permanent) [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] "
 				)
 				.build());
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecPotionEffect.class, SkriptPotionEffect.class)
@@ -87,12 +87,12 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult parseResult,
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean delayed, ParseResult parseResult,
 						@Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		potionEffectType = (Expression<PotionEffectType>) expressions[0];
 		amplifier = (Expression<Number>) expressions[1];
-		infinite = expressions.length != 3;
-		if (!infinite) {
+		infinite = matchedPattern != 0;
+		if (expressions.length == 3) {
 			duration = (Expression<Timespan>) expressions[2];
 		}
 		ambient = parseResult.hasTag("ambient");

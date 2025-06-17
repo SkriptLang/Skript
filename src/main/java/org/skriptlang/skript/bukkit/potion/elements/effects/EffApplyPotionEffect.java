@@ -72,9 +72,11 @@ public class EffApplyPotionEffect extends Effect {
 			}
 		}
 
-		for (LivingEntity livingEntity : entities.getArray(event)) {
-			for (PotionEffect potionEffect : PotionUtils.convertSkriptPotionEffects(potions))
+		for (SkriptPotionEffect skriptPotionEffect : potions) {
+			PotionEffect potionEffect = skriptPotionEffect.toPotionEffect();
+			for (LivingEntity livingEntity : entities.getArray(event)) {
 				livingEntity.addPotionEffect(potionEffect);
+			}
 		}
 	}
 

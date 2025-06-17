@@ -14,7 +14,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"That is, whether the potion effect produces more, translucent, particles."
 })
 @Example("make the player's potion effects ambient")
-@Example("make speed for the player not ambient")
 @Since("INSERT VERSION")
 public class EffPotionAmbient extends PotionPropertyEffect {
 

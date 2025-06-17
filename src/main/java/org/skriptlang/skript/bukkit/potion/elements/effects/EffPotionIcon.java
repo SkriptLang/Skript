@@ -13,7 +13,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"Modify whether a potion effect shows an icon.",
 })
 @Example("hide the icon for the player's potion effects")
-@Example("hide the icon for speed for the player")
 @Since("INSERT VERSION")
 public class EffPotionIcon extends PotionPropertyEffect {
 
