@@ -218,6 +218,9 @@ test "potion effect application":
 test "potion amplifier property":
 	# setup
 	set {_potion} to a potion effect of speed
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
@@ -232,11 +235,31 @@ test "potion amplifier property":
 	# test modifying potion effect of entity
 	apply speed to {_entity}
 	set the amplifier of {_entity}'s speed effect to 5
-	assert the amplifier of the first element of the potion effects of {_entity} is 5 with "amplifier is not 5"
+	assert the amplifier of {_entity}'s speed effect is 5 with "amplifier is not 5"
 	add 5 to the amplifier of {_entity}'s speed effect
-	assert the amplifier of the first element of the potion effects of {_entity} is 10 with "amplifier is not 10"
+	assert the amplifier of {_entity}'s speed effect is 10 with "amplifier is not 10"
 	remove 5 from the amplifier of {_entity}'s speed effect
-	assert the amplifier of the first element of the potion effects of {_entity} is 5 with "amplifier is not 5"
+	assert the amplifier of {_entity}'s speed effect is 5 with "amplifier is not 5"
+	clear {_entity}'s speed effects
+
+	# test modifying potion effect of entity when they have a hidden effect
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	set the amplifier of {_entity}'s speed effect to 20
+	assert the amplifier of {_entity}'s speed effect is 20 with "amplifier is not 20"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	add 5 to the amplifier of {_entity}'s speed effect
+	assert the amplifier of {_entity}'s speed effect is 25 with "amplifier is not 25"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	remove 5 from the amplifier of {_entity}'s speed effect
+	assert the amplifier of {_entity}'s speed effect is 20 with "amplifier is not 20"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	# test reducing amplifier and causing reorganization
+	set the amplifier of {_entity}'s speed effect to 8
+	assert the amplifier of {_entity}'s speed effect is 10 with "hidden effect did not take over"
+	assert {_entity}'s hidden speed effects are {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -245,6 +268,9 @@ test "potion amplifier property":
 test "potion duration property":
 	# setup
 	set {_potion} to a potion effect of speed
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
@@ -259,11 +285,27 @@ test "potion duration property":
 	# test modifying potion effect of entity
 	apply speed to {_entity}
 	set the duration of {_entity}'s speed effect to 5 seconds
-	assert compare_timespans(5 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 5 seconds"
+	assert compare_timespans(5 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 5 seconds"
 	add 5 seconds to the duration of {_entity}'s speed effect
-	assert compare_timespans(10 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 10 seconds"
+	assert compare_timespans(10 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 10 seconds"
 	remove 5 seconds from the duration of {_entity}'s speed effect
-	assert compare_timespans(5 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 5 seconds"
+	assert compare_timespans(5 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 5 seconds"
+	clear {_entity}'s speed effects
+
+	# test modifying potion effect of entity when they have a hidden effect
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	set the duration of {_entity}'s speed effect to 20 seconds
+	assert compare_timespans(20 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 20 seconds"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	add 5 seconds to the duration of {_entity}'s speed effect
+	assert compare_timespans(25 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 25 seconds"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	remove 5 seconds from the duration of {_entity}'s speed effect
+	assert compare_timespans(20 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 20 seconds"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -272,6 +314,9 @@ test "potion duration property":
 test "potion ambient property":
 	# setup
 	set {_potion} to a potion effect of speed
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
@@ -287,6 +332,19 @@ test "potion ambient property":
 	assert potion effects of {_entity} are ambient with "potion is not ambient"
 	make {_entity}'s speed effect not ambient
 	assert potion effects of {_entity} are not ambient with "potion is ambient"
+	clear {_entity}'s speed effects
+
+	# test modifying potion effect of entity when they have a hidden effect
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	make {_entity}'s speed effect ambient
+	assert {_entity}'s speed effect is ambient with "specific potion effect is not ambient"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	make {_entity}'s speed effect not ambient
+	assert {_entity}'s speed effect is not ambient with "specific potion effect is ambient"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -295,6 +353,9 @@ test "potion ambient property":
 test "potion infinite property":
 	# setup
 	set {_potion} to a potion effect of speed
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
@@ -310,6 +371,19 @@ test "potion infinite property":
 	assert potion effects of {_entity} are infinite with "potion is not infinite"
 	make {_entity}'s speed effect not infinite
 	assert potion effects of {_entity} are not infinite with "potion is infinite"
+	clear {_entity}'s speed effects
+
+	# test modifying potion effect of entity when they have a hidden effect
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	make {_entity}'s speed effect infinite
+	assert {_entity}'s speed effect is infinite with "specific potion effect is not infinite"
+	assert {_entity}'s hidden speed effects are not set with "hidden potion effects were reapplied"
+	make {_entity}'s speed effect not infinite
+	assert {_entity}'s speed effect is not infinite with "specific potion effect is infinite"
+	assert {_entity}'s hidden speed effects are not set with "hidden potion effects appeared"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -320,6 +394,9 @@ test "potion infinite property":
 test "potion icon property" when running minecraft "1.20":
 	# setup
 	set {_potion} to a potion effect of speed
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
@@ -335,6 +412,19 @@ test "potion icon property" when running minecraft "1.20":
 	assert potion effects of {_entity} have an icon with "potion does not have an icon"
 	hide the icon for {_entity}'s speed effect
 	assert potion effects of {_entity} do not have an icon with "potion has an icon"
+	clear {_entity}'s speed effects
+
+	# test modifying potion effect of entity when they have a hidden effect
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	show the icon for {_entity}'s speed effect
+	assert {_entity}'s speed effect has an icon with "specific potion effect doesn't have an icon"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	hide the icon for {_entity}'s speed effect
+	assert {_entity}'s speed effect doesn't have an icon with "specific potion effect has an icon"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -343,6 +433,9 @@ test "potion icon property" when running minecraft "1.20":
 test "potion particles property":
 	# setup
 	set {_potion} to a potion effect of speed
+	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_stronger} to a potion effect of speed 10 for 30 seconds
+	set {_strongest} to a potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
@@ -358,6 +451,19 @@ test "potion particles property":
 	assert potion effects of {_entity} have particles with "potion does not have particles"
 	hide the particles of {_entity}'s speed effect
 	assert potion effects of {_entity} do not have particles with "potion has particles"
+	clear {_entity}'s speed effects
+
+	# test modifying potion effect of entity when they have a hidden effect
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	show the particles for {_entity}'s speed effect
+	assert {_entity}'s speed effect has particles with "specific potion effect doesn't have particles"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	hide the particles for {_entity}'s speed effect
+	assert {_entity}'s speed effect doesn't have particles with "specific potion effect has particles"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}

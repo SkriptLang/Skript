@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * A wrapper class for passing around a modifiable {@link PotionEffect}.
@@ -119,9 +121,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect potionEffectType(PotionEffectType potionEffectType) {
 		lastEffect = null;
-		removeFromSource();
-		this.potionEffectType = potionEffectType;
-		addToSource();
+		withSource(() -> this.potionEffectType = potionEffectType);
 		return this;
 	}
 
@@ -161,9 +161,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect duration(int duration) {
 		lastEffect = null;
-		removeFromSource();
-		this.duration = duration;
-		addToSource();
+		withSource(() -> this.duration = duration);
 		return this;
 	}
 
@@ -183,9 +181,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect amplifier(int amplifier) {
 		lastEffect = null;
-		removeFromSource();
-		this.amplifier = amplifier;
-		addToSource();
+		withSource(() -> this.amplifier = amplifier);
 		return this;
 	}
 
@@ -205,9 +201,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect ambient(boolean ambient) {
 		lastEffect = null;
-		removeFromSource();
-		this.ambient = ambient;
-		addToSource();
+		withSource(() -> this.ambient = ambient);
 		return this;
 	}
 
@@ -227,9 +221,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect particles(boolean particles) {
 		lastEffect = null;
-		removeFromSource();
-		this.particles = particles;
-		addToSource();
+		withSource(() -> this.particles = particles);
 		return this;
 	}
 
@@ -249,9 +241,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Contract("_ -> this")
 	public SkriptPotionEffect icon(boolean icon) {
 		lastEffect = null;
-		removeFromSource();
-		this.icon = icon;
-		addToSource();
+		withSource(() -> this.icon = icon);
 		return this;
 	}
 
@@ -323,17 +313,39 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * Source Utilities
 	 */
 
-	private void removeFromSource() {
-		if (entitySource != null) {
+	private void withSource(Runnable runnable) {
+		Deque<PotionEffect> hiddenEffects = null;
+		if (entitySource != null && entitySource.hasPotionEffect(potionEffectType)) {
+			// build hidden effects chain to reapply
+			//noinspection DataFlowIssue = getPotionEffect NotNull due to hasPotionEffect check
+			PotionEffect hiddenEffect = entitySource.getPotionEffect(potionEffectType).getHiddenPotionEffect();
+			hiddenEffects = new ArrayDeque<>();
+			while (hiddenEffect != null) {
+				hiddenEffects.push(hiddenEffect);
+				hiddenEffect = hiddenEffect.getHiddenPotionEffect();
+			}
 			entitySource.removePotionEffect(potionEffectType);
 		} else if (itemSource != null) {
 			PotionUtils.removePotionEffects(itemSource, potionEffectType);
 		}
-	}
-
-	private void addToSource() {
+		runnable.run();
 		if (entitySource != null) {
-			entitySource.addPotionEffect(toPotionEffect());
+			PotionEffect thisPotionEffect = toPotionEffect();
+			if (hiddenEffects != null) { // reapply hidden effects
+				for (PotionEffect hiddenEffect : hiddenEffects) {
+					// we need to add this potion effect in the right order
+					// it might end up not being applied at all, but we'll let the game determine that
+					if (thisPotionEffect != null &&
+						(hiddenEffect.isShorterThan(thisPotionEffect) || hiddenEffect.getAmplifier() > thisPotionEffect.getAmplifier())) {
+						entitySource.addPotionEffect(thisPotionEffect);
+						thisPotionEffect = null;
+					}
+					entitySource.addPotionEffect(hiddenEffect);
+				}
+			}
+			if (thisPotionEffect != null) {
+				entitySource.addPotionEffect(toPotionEffect());
+			}
 		} else if (itemSource != null) {
 			PotionUtils.addPotionEffects(itemSource, toPotionEffect());
 		}
