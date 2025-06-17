@@ -39,6 +39,11 @@ public final class PotionUtils {
 	private static final boolean HAS_HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
 	/**
+	 * Whether {@link PotionEffect#getHiddenPotionEffect()} is available.
+	 */
+	public static boolean HAS_HIDDEN_EFFECTS = Skript.methodExists(PotionEffect.class, "getHiddenPotionEffect");
+
+	/**
 	 * A convenience method for obtaining the Registry representing PotionEffectTypes,
 	 * as the API has two different names for the same registry.
 	 *

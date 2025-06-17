@@ -316,13 +316,15 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	private void withSource(Runnable runnable) {
 		Deque<PotionEffect> hiddenEffects = null;
 		if (entitySource != null && entitySource.hasPotionEffect(potionEffectType)) {
-			// build hidden effects chain to reapply
-			//noinspection DataFlowIssue = getPotionEffect NotNull due to hasPotionEffect check
-			PotionEffect hiddenEffect = entitySource.getPotionEffect(potionEffectType).getHiddenPotionEffect();
-			hiddenEffects = new ArrayDeque<>();
-			while (hiddenEffect != null) {
-				hiddenEffects.push(hiddenEffect);
-				hiddenEffect = hiddenEffect.getHiddenPotionEffect();
+			if (PotionUtils.HAS_HIDDEN_EFFECTS) {
+				// build hidden effects chain to reapply
+				//noinspection DataFlowIssue = getPotionEffect NotNull due to hasPotionEffect check
+				PotionEffect hiddenEffect = entitySource.getPotionEffect(potionEffectType).getHiddenPotionEffect();
+				hiddenEffects = new ArrayDeque<>();
+				while (hiddenEffect != null) {
+					hiddenEffects.push(hiddenEffect);
+					hiddenEffect = hiddenEffect.getHiddenPotionEffect();
+				}
 			}
 			entitySource.removePotionEffect(potionEffectType);
 		} else if (itemSource != null) {

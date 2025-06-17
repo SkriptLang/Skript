@@ -6,6 +6,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -42,6 +43,7 @@ import java.util.Set;
 @Example("clear the player's hidden strength effects")
 @Example("reset the player's weakness effects")
 @Example("delete the player's active jump boost effect")
+@RequiredPlugins("Paper 1.20.4+ for hidden effects")
 @Since("INSERT VERSION")
 public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEffect> {
 
@@ -60,6 +62,10 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 		types = (Expression<PotionEffectType>) expressions[matchedPattern % 2];
 		setExpr(expressions[(matchedPattern + 1) % 2]);
 		state = State.fromParseTag(parseResult.tags.isEmpty() ? "" : parseResult.tags.get(0));
+		if (!PotionUtils.HAS_HIDDEN_EFFECTS && state.includesHidden()) {
+			Skript.error("Usage of hidden effects requires Paper 1.20.4 or newer");
+			return false;
+		}
 		return true;
 	}
 
@@ -120,7 +126,7 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 				PotionEffectType[] types = this.types.getArray(event);
 				for (Object holder : holders) {
 					if (holder instanceof LivingEntity livingEntity) {
-						if (state == State.ACTIVE) {
+						if (PotionUtils.HAS_HIDDEN_EFFECTS && state == State.ACTIVE) {
 							for (PotionEffectType type : types) {
 								PotionEffect potionEffect = livingEntity.getPotionEffect(type);
 								if (potionEffect == null) {
