@@ -1,0 +1,69 @@
+
+using damage source
+
+test "custom damage source" when running minecraft "1.20.4":
+	set {_damageLoc} to test-location
+	set {_sourceLoc} to (test-location) ~ vector(10, 0, 0)
+	spawn a pig at {_sourceLoc}:
+		set {_causing} to entity
+	spawn an arrow at {_damageLoc}:
+		set {_direct} to entity
+
+	set {_source} to a custom damage source:
+		set the damage type to magic
+		set the causing entity to {_causing}
+		set the direct entity to {_direct}
+		set the damage location to {_damageLoc}
+	assert the damage type of {_source} is magic with "Damage Type of damage source is incorrect"
+	assert the causing entity of {_source} is {_causing} with "Causing Entity of damage source is incorrect"
+	assert the direct entity of {_source} is {_direct} with "Direct Entity of damage source is incorrect"
+	assert the damage location of {_source} is {_damageLoc} with "Damage Location of damage source is incorrect"
+	assert the source location of {_source} is {_damageLoc} with "Source Location of damage source is incorrect"
+	assert the food exhaustion of {_source} is 0 with "Food Exhaustion of damage source is incorrect"
+	assert {_source} does scale damage with difficulty with "Damage Source should scale with difficulty"
+	assert {_source} was indirectly caused with "Damage Source should be indirect"
+
+	spawn a villager at test-location:
+		set {_victim} to entity
+	# Ensure no errors occur when using 'source' to damage an entity
+	damage {_victim} by 2 using {_source}
+
+	clear entity within {_causing}
+	clear entity within {_source}
+	clear entity within {_victim}
+
+test "damage source error" when running minecraft "1.20.4":
+	parse:
+		set {_source} to a custom damage source:
+			set the damage type to magic
+	assert last parse logs is not set with "Setting attribute of valid damage source should not error"
+
+	parse:
+		set {_source2} to a custom damage source:
+			set the damage type of event-damage source to magic
+	assert last parse logs is not set with "Setting attribute of valid damage source should not error"
+
+	set {_error} to "You can only change the attributes of the damage source being created in this section."
+	parse:
+		set {_source3} to a custom damage source:
+			set the damage type of {_source2} to magic
+	assert last parse logs is {_error} with "Setting attributes of invalid damage source should error"
+
+	parse:
+		set {_source4} to a custom damage source:
+			set the damage type of event-damage source and {_source2} to magic
+	assert last parse logs is {_error} with "Setting attributes of multiple damage sources should error"
+
+parse:
+	results: {DamageSourceError}
+	code:
+		on damage:
+			set the damage type of event-damage source to player attack
+
+test "damage source outside section error":
+	if running minecraft "1.20.4":
+		set {_error} to "You cannot change the attributes of a damage source outside a 'custom damage source' section."
+		assert {DamageSourceError} is {_error} with "Setting attribute of damage source outside of ExprSec should error"
+	else:
+		assert {DamageSourceError} partially matches "Can't understand this" with "Damage source usage on non-supported version should error"
+	clear {DamageSourceError}
