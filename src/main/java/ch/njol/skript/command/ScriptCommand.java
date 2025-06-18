@@ -209,7 +209,7 @@ public class ScriptCommand implements TabExecutor {
 
 		HintManager hintManager = ParserInstance.get().getHintManager();
 		try {
-			hintManager.enterScope();
+			hintManager.enterScope(false);
 			for (Argument<?> argument : arguments) {
 				String hintName = argument.getName();
 				if (hintName == null) {

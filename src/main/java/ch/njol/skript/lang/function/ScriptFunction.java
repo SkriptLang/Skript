@@ -36,7 +36,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		Functions.currentFunction = this;
 		HintManager hintManager = ParserInstance.get().getHintManager();
 		try {
-			hintManager.enterScope();
+			hintManager.enterScope(false);
 			for (Parameter<?> parameter : sign.getParameters()) {
 				String hintName = parameter.getName();
 				if (!parameter.isSingleValue()) {

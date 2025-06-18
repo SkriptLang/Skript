@@ -1,5 +1,6 @@
 package ch.njol.skript.variables;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.SkriptLogger;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,8 +20,8 @@ import java.util.Set;
  * <p>
  * Type hints are tracked in scopes which are essentially equivalent to sections.
  * Hints are only shared between scopes when they are entered or exited.
- * That is, when entering a scope ({@link #enterScope()}, it is initialized with the hints of the previous top-level scope.
- * When exiting a scope {@link #enterScope()}, remaining hints from that scope are added to the existing hints of the new top-level scope.
+ * That is, when entering a scope ({@link #enterScope(boolean)}, it is initialized with the hints of the previous top-level scope.
+ * When exiting a scope {@link #enterScope(boolean)}, remaining hints from that scope are added to the existing hints of the new top-level scope.
  * Thus, it is only necessary to obtain hints for the current scope.
  * {@link #get(Variable)} is provided for obtaining the hints of a variable in the current scope.
  * </p>
@@ -85,28 +87,48 @@ import java.util.Set;
  */
 public class HintManager {
 
-	private final LinkedList<Map<String, Set<Class<?>>>> typeHints = new LinkedList<>();
+	private record Scope(Map<String, Set<Class<?>>> hintMap, boolean isSection) { }
+
+	private final LinkedList<Scope> typeHints = new LinkedList<>();
+	private boolean isActive;
+
+	public HintManager(boolean active) {
+		isActive = active;
+	}
+
+	/**
+	 *
+	 * @param active Whether this HintManager should be active.
+	 */
+	public void setActive(boolean active) {
+		isActive = active;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
 
 	/**
 	 * Enters a new scope for storing hints.
 	 * Hints from the previous (current top-level) scope are copied over.
+	 * @param isSection Whether this scope represents a section in a trigger.
 	 * @see #exitScope()
 	 */
-	public void enterScope() {
-		typeHints.push(new HashMap<>());
+	public void enterScope(boolean isSection) {
+		typeHints.push(new Scope(new HashMap<>(), isSection));
 		if (typeHints.size() > 1) { // copy existing values into new scope
-			mergeScope(1, 0);
+			mergeScope(1, 0, false);
 		}
 	}
 
 	/**
 	 * Exits the current (top-level) scope.
 	 * Hints from the exited scope will be copied over to the new top-level scope.
-	 * @see #enterScope()
+	 * @see #enterScope(boolean)
 	 */
 	public void exitScope() {
 		if (typeHints.size() > 1) { // copy over updated hints
-			mergeScope(0, 1);
+			mergeScope(0, 1, false);
 		}
 		typeHints.pop();
 	}
@@ -114,25 +136,65 @@ public class HintManager {
 	/**
 	 * Resets (clears) all type hints for the current (top-level) scope.
 	 * Scopes are represented as integers, where <code>0</code> represents the most recently entered scope
-	 * (i.e. the scope pushed by the most recent {@link #enterScope()} call).
+	 * (i.e. the scope pushed by the most recent {@link #enterScope(boolean)} call).
+	 * @param sectionOnly Whether only scopes representing sections should be considered.
 	 */
-	public void clearScope(int level) {
-		typeHints.get(level).clear();
+	public void clearScope(int level, boolean sectionOnly) {
+		if (!sectionOnly) {
+			typeHints.get(level).hintMap().clear();
+			return;
+		}
+		int currentLevel = 0;
+		var iterator = typeHints.iterator();
+		while (iterator.hasNext()) {
+			Scope scope = iterator.next();
+			if (!scope.isSection()) {
+				continue;
+			}
+			if (currentLevel == level) {
+				iterator.remove();
+				break;
+			}
+			currentLevel++;
+		}
 	}
 
 	/**
 	 * Copies hints from one scope to another.
 	 * Scopes are represented as integers, where <code>0</code> represents the most recently entered scope
-	 * (i.e. the scope pushed by the most recent {@link #enterScope()} call).
+	 * (i.e. the scope pushed by the most recent {@link #enterScope(boolean)} call).
 	 * <p>
 	 * <b>Note: This does not overwrite the existing hints of <code>to</code>. Instead, the hints are merged together.</b>
 	 * @param from The scope to copy hints from.
  	 * @param to The scope to copy hints to.
+	 * @param sectionOnly Whether only scopes representing sections should be considered.
 	 */
-	public void mergeScope(int from, int to) {
-		var fromMap = typeHints.get(from);
-		var toMap = typeHints.get(to);
-		mergeHints(fromMap, toMap);
+	public void mergeScope(int from, int to, boolean sectionOnly) {
+		Scope fromScope = null;
+		Scope toScope = null;
+		if (sectionOnly) {
+			int currentLevel = 0;
+			for (Scope scope : typeHints) {
+				if (!scope.isSection()) {
+					continue;
+				}
+				if (currentLevel == from) {
+					fromScope = scope;
+				}
+				if (currentLevel == to) {
+					toScope = scope;
+				}
+				if (fromScope != null && toScope != null) {
+					break;
+				}
+				currentLevel++;
+			}
+		} else {
+			fromScope = typeHints.get(from);
+			toScope = typeHints.get(to);
+		}
+		assert fromScope != null && toScope != null;
+		mergeHints(fromScope.hintMap(), toScope.hintMap());
 	}
 
 	private static void mergeHints(Map<String, Set<Class<?>>> from, Map<String, Set<Class<?>>> to) {
@@ -163,16 +225,9 @@ public class HintManager {
 			return;
 		}
 
-		Set<Class<?>> hintSet = new HashSet<>();
-		for (Class<?> hint : hints) {
-			if (hint != Object.class) { // ignore some useless types
-				hintSet.add(hint);
-			}
-		}
-
 		delete_i(variableName);
-		if (!hintSet.isEmpty()) {
-			add_i(variableName, hintSet);
+		if (hints.length != 0) {
+			add_i(variableName, Set.of(hints));
 		}
 	}
 
@@ -199,12 +254,16 @@ public class HintManager {
 	}
 
 	private void delete_i(String variableName) {
-		typeHints.getFirst().remove(variableName);
+		if (SkriptConfig.caseInsensitiveVariables.value()) {
+			variableName = variableName.toLowerCase(Locale.ENGLISH);
+		}
+
+		typeHints.getFirst().hintMap().remove(variableName);
 
 		// Attempt to also clear hints for the list variable if applicable
 		if (variableName.endsWith(Variable.SEPARATOR + "*")) {
 			String prefix = variableName.substring(0, variableName.length() - 1);
-			typeHints.getFirst().keySet().removeIf(key -> key.startsWith(prefix));
+			typeHints.getFirst().hintMap().keySet().removeIf(key -> key.startsWith(prefix));
 		}
 	}
 
@@ -230,25 +289,28 @@ public class HintManager {
 			return;
 		}
 
-		Set<Class<?>> hintSet = new HashSet<>();
-		for (Class<?> hint : hints) {
-			if (hint != Object.class) { // ignore some useless types
-				hintSet.add(hint);
-			}
-		}
-
-		add_i(variableName, hintSet);
+		add_i(variableName, Set.of(hints));
 	}
 
 	private void add_i(String variableName, Set<Class<?>> hintSet) {
-		typeHints.getFirst().computeIfAbsent(variableName, key -> new HashSet<>()).addAll(hintSet);
+		if (SkriptConfig.caseInsensitiveVariables.value()) {
+			variableName = variableName.toLowerCase(Locale.ENGLISH);
+		}
+
+		// Edge case: see Expression#beforeChange
+		if (hintSet.contains(ch.njol.skript.util.slot.Slot.class)) {
+			hintSet = new HashSet<>(hintSet);
+			hintSet.add(org.bukkit.inventory.ItemStack.class);
+		}
+
+		typeHints.getFirst().hintMap().computeIfAbsent(variableName, key -> new HashSet<>()).addAll(hintSet);
 
 		// Attempt to also add hints for the list variable if applicable
 		if (!variableName.isEmpty() && variableName.charAt(variableName.length() - 1) != '*') {
 			int listEnd = variableName.lastIndexOf(Variable.SEPARATOR);
 			if (listEnd != -1) {
 				String listVariableName = variableName.substring(0, listEnd + Variable.SEPARATOR.length()) + "*";
-				typeHints.getFirst().computeIfAbsent(listVariableName, key -> new HashSet<>()).addAll(hintSet);
+				typeHints.getFirst().hintMap().computeIfAbsent(listVariableName, key -> new HashSet<>()).addAll(hintSet);
 			}
 		}
 	}
@@ -274,7 +336,12 @@ public class HintManager {
 		if (areHintsUnavailable()) {
 			return;
 		}
-		Set<Class<?>> hintSet = typeHints.getFirst().get(variableName);
+
+		if (SkriptConfig.caseInsensitiveVariables.value()) {
+			variableName = variableName.toLowerCase(Locale.ENGLISH);
+		}
+		Set<Class<?>> hintSet = typeHints.getFirst().hintMap().get(variableName);
+
 		if (hintSet != null) {
 			for (Class<?> hint : hints) {
 				hintSet.remove(hint);
@@ -306,7 +373,12 @@ public class HintManager {
 		if (areHintsUnavailable()) {
 			return ImmutableSet.of();
 		}
-		Set<Class<?>> hintSet = typeHints.getFirst().get(variableName);
+
+		if (SkriptConfig.caseInsensitiveVariables.value()) {
+			variableName = variableName.toLowerCase(Locale.ENGLISH);
+		}
+		Set<Class<?>> hintSet = typeHints.getFirst().hintMap().get(variableName);
+
 		if (hintSet != null) {
 			return ImmutableSet.copyOf(hintSet);
 		}
@@ -325,7 +397,7 @@ public class HintManager {
 	 * @param backup The backup to apply.
 	 */
 	public void restore(Backup backup) {
-		typeHints.set(0, backup.hints);
+		typeHints.set(0, backup.scope);
 	}
 
 	/**
@@ -333,16 +405,19 @@ public class HintManager {
 	 */
 	public static final class Backup {
 
-		private final Map<String, Set<Class<?>>> hints;
+		private final Scope scope;
 
 		private Backup(HintManager source) {
-			hints = new HashMap<>();
-			mergeHints(source.typeHints.getFirst(), hints);
+			scope = new Scope(new HashMap<>(), source.typeHints.getFirst().isSection);
+			mergeHints(source.typeHints.getFirst().hintMap(), scope.hintMap());
 		}
 
 	}
 
 	private boolean areHintsUnavailable() {
+		if (!isActive) {
+			return true;
+		}
 		if (typeHints.isEmpty()) {
 			if (SkriptLogger.debug()) { // not ideal, print a warning on debug level
 				SkriptLogger.LOGGER.warning("Attempted to use type hints outside of any scope");

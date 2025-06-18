@@ -197,7 +197,7 @@ public class EffSecShoot extends EffectSection {
 			AtomicBoolean delayed = new AtomicBoolean(false);
 			AtomicReference<HintManager.Backup> hintBackup = new AtomicReference<>();
 			// Copy hints and ensure no delays
-			Runnable beforeLoading = () -> getParser().getHintManager().enterScope();
+			Runnable beforeLoading = () -> getParser().getHintManager().enterScope(false);
 			Runnable afterLoading = () -> {
 				delayed.set(!getParser().getHasDelayBefore().isFalse());
 				HintManager hintManager = getParser().getHintManager();
@@ -212,7 +212,7 @@ public class EffSecShoot extends EffectSection {
 				return false;
 			}
 			HintManager hintManager = getParser().getHintManager();
-			hintManager.enterScope();
+			hintManager.enterScope(false);
 			hintManager.restore(hintBackup.get());
 			hintManager.exitScope();
 		}

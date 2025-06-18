@@ -54,7 +54,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 			AtomicBoolean delayed = new AtomicBoolean(false);
 			AtomicReference<Backup> hintBackup = new AtomicReference<>();
 			// Copy hints and ensure no delays
-			Runnable beforeLoading = () -> getParser().getHintManager().enterScope();
+			Runnable beforeLoading = () -> getParser().getHintManager().enterScope(false);
 			Runnable afterLoading = () -> {
 				delayed.set(!getParser().getHasDelayBefore().isFalse());
 				HintManager hintManager = getParser().getHintManager();
@@ -70,7 +70,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 				return false;
 			}
 			HintManager hintManager = getParser().getHintManager();
-			hintManager.enterScope();
+			hintManager.enterScope(false);
 			hintManager.restore(hintBackup.get());
 			hintManager.exitScope();
 		}

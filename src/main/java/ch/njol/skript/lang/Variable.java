@@ -96,7 +96,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		this.name = name;
 
 		this.types = types;
-		this.superType = (Class<T>) Utils.getSuperType(types);
+		this.superType = (Class<T>) Classes.getSuperClassInfo(types).getC();
 
 		this.source = source;
 	}
@@ -198,13 +198,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			Set<Class<?>> hints = parser.getHintManager().get(variableString.toString(null));
 			if (!hints.isEmpty()) { // Type hint(s) available
 				if (types[0] == Object.class) { // Object is generic, so we initialize with the hints instead
-					//noinspection unchecked, rawtypes
-					List<Class<? extends T>> variableTypes = new ArrayList<>((Collection) hints);
-					// TODO don't include Object. Without it, a lot breaks right now.
 					//noinspection unchecked
-					variableTypes.add(0, (Class<? extends T>) Object.class);
-					//noinspection unchecked
-					return new Variable<>(variableString, variableTypes.toArray(Class[]::new), true, isPlural, null);
+					return new Variable<>(variableString, hints.toArray(new Class[0]), true, isPlural, null);
 				}
 
 				List<Class<? extends T>> potentialTypes = new ArrayList<>();
@@ -212,14 +207,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				// Determine what types are applicable based on our known hints
 				for (Class<? extends T> type : types) {
 					// Check whether we could resolve to 'type' at runtime
-					if (hints.stream().anyMatch(hint -> {
-						// Edge case: see Expression#beforeChange
-						if (hint == ch.njol.skript.util.slot.Slot.class && type == org.bukkit.inventory.ItemStack.class) {
-							return true;
-						}
-						// Typically, check whether the types align
-						return type.isAssignableFrom(hint) || Converters.converterExists(hint, type);
-					})) {
+					if (hints.stream().anyMatch(hint -> type.isAssignableFrom(hint) || Converters.converterExists(hint, type))) {
 						potentialTypes.add(type);
 					}
 				}
@@ -238,8 +226,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 						.toArray(ClassInfo[]::new);
 				String isTypes = Utils.a(Classes.toString(hintInfos, false));
 				String notTypes = Utils.a(Classes.toString(infos, false));
-				Skript.warning("Expected variable '{_" + variableString.toString(null) + "}' to be " + notTypes + ", but it is " + isTypes);
-				// Fall back to not having any type hints
+				Skript.error("Expected variable '{_" + variableString.toString(null) + "}' to be " + notTypes + ", but it is " + isTypes);
+				return null;
 			}
 		}
 
@@ -304,6 +292,18 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R> Variable<R> getConvertedExpression(Class<R>... to) {
+		boolean converterExists = superType == Object.class;
+		if (!converterExists) {
+			for (Class<?> type : types) {
+				if (type != Object.class && Converters.converterExists(type, to)) {
+					converterExists = true;
+					break;
+				}
+			}
+		}
+		if (!converterExists) {
+			return null;
+		}
 		return new Variable<>(name, to, local, list, this);
 	}
 

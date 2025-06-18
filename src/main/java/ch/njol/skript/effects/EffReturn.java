@@ -86,6 +86,8 @@ public class EffReturn extends Effect {
 		List<TriggerSection> innerSections = parser.getSectionsUntil((TriggerSection) handler);
 		innerSections.add(0, (TriggerSection) handler);
 		breakLevels = innerSections.size();
+		if (parser.getCurrentSections().size() < breakLevels)
+			breakLevels = -1;
 		sectionsToExit = innerSections.stream()
 			.filter(SectionExitHandler.class::isInstance)
 			.map(SectionExitHandler.class::cast)
@@ -112,6 +114,8 @@ public class EffReturn extends Effect {
 
 	@Override
 	public ExecutionIntent executionIntent() {
+		if (breakLevels == -1)
+			return ExecutionIntent.stopTrigger();
 		return ExecutionIntent.stopSections(breakLevels);
 	}
 

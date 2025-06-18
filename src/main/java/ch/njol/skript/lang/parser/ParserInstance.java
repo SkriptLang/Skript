@@ -52,6 +52,9 @@ public final class ParserInstance implements Experimented {
 		this.isActive = false;
 		reset();
 		setCurrentScript((Script) null);
+		// When the script itself changes, the HintManager should become active
+		//  rather than inheriting the state of the previous manager upon reset()
+		this.hintManager.setActive(true);
 	}
 
 	/**
@@ -86,7 +89,7 @@ public final class ParserInstance implements Experimented {
 		this.currentSections = new ArrayList<>();
 		this.hasDelayBefore = Kleenean.FALSE;
 		this.node = null;
-		this.hintManager = new HintManager();
+		this.hintManager = new HintManager(this.hintManager.isActive());
 		dataMap.clear();
 	}
 
@@ -537,7 +540,7 @@ public final class ParserInstance implements Experimented {
 
 	// Type Hints
 
-	private HintManager hintManager = new HintManager();
+	private HintManager hintManager = new HintManager(true);
 
 	public HintManager getHintManager() {
 		return hintManager;

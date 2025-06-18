@@ -21,6 +21,7 @@ import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
@@ -952,7 +953,7 @@ public class ScriptLoader {
 		ArrayList<TriggerItem> items = new ArrayList<>();
 
 		// Begin local variable type hints
-		parser.getHintManager().enterScope();
+		parser.getHintManager().enterScope(true);
 		// Track if the scope has been frozen
 		// This is the case when a statement that stops further execution is encountered
 		// Further statements would not run, meaning the hints from them are inaccurate
@@ -995,6 +996,14 @@ public class ScriptLoader {
 				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
 				find_section:
 				try {
+					// enter capturing scope
+					// it is possible that the line may successful parse and initialize (via init), but some other issue
+					// prevents it from being able to load. for example:
+					// - a statement with a section that has no expression to claim the section
+					// - a statement with a section that has multiple expressions attempting to claim the section
+					// thus, hints may be added, but we do not want to save them as the line is invalid
+					parser.getHintManager().enterScope(false);
+
 					item = Section.parse(expr, "Can't understand this section: " + expr, subSection, items);
 					if (item != null)
 						break find_section;
@@ -1021,6 +1030,13 @@ public class ScriptLoader {
 					}
 					continue;
 				} finally {
+					// exit hint scope (see above)
+					HintManager hintManager = parser.getHintManager();
+					if (item == null) { // unsuccessful, wipe out hints
+						hintManager.clearScope(0, false);
+					}
+					hintManager.exitScope();
+
 					RetainingLogHandler afterParse = handler.backup();
 					handler.clear();
 					handler.printLog();
@@ -1047,7 +1063,7 @@ public class ScriptLoader {
 				// Execution might stop for some sections but not all
 				// We want to pass hints up to the scope that execution resumes in
 				if (item.executionIntent() instanceof ExecutionIntent.StopSections intent) {
-					parser.getHintManager().mergeScope(0, intent.levels());
+					parser.getHintManager().mergeScope(0, intent.levels(), true);
 				}
 			}
 		}
@@ -1055,7 +1071,7 @@ public class ScriptLoader {
 		// If the scope was frozen, then we need to clear it to prevent passing up inaccurate hints
 		// They will have already been copied as necessary
 		if (freezeScope) {
-			parser.getHintManager().clearScope(0);
+			parser.getHintManager().clearScope(0, false);
 		}
 		// Destroy local variable type hints for this section
 		parser.getHintManager().exitScope();

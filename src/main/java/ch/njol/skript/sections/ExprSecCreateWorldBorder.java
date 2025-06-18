@@ -65,7 +65,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
 			AtomicReference<Backup> hintBackup = new AtomicReference<>();
 			// Copy hints and ensure no delays
-			Runnable beforeLoading = () -> getParser().getHintManager().enterScope();
+			Runnable beforeLoading = () -> getParser().getHintManager().enterScope(false);
 			Runnable afterLoading = () -> {
 				isDelayed.set(!getParser().getHasDelayBefore().isFalse());
 				HintManager hintManager = getParser().getHintManager();
@@ -80,7 +80,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 				return false;
 			}
 			HintManager hintManager = getParser().getHintManager();
-			hintManager.enterScope();
+			hintManager.enterScope(false);
 			hintManager.restore(hintBackup.get());
 			hintManager.exitScope();
 		}

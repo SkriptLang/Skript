@@ -21,6 +21,7 @@ test "long underflow, subtraction":
 	assert {_long} is 9000000000000000000 * -100.0 with "wrong final value"
 
 test "long overflow, multiplication":
+	suppress type hints
 	set {_double} to 10.0
 	set {_long} to 10
 
@@ -31,4 +32,4 @@ test "long overflow, multiplication":
 
 	# the 6 is due to floating point error
 	assert {_long} is 100000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000 with "wrong final value"
-
+	unsuppress type hints

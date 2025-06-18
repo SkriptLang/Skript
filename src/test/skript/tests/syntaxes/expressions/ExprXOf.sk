@@ -4,7 +4,9 @@ function ExprXOf(c: number) :: item:
 
 test "X of":
 	set {_x} to 5
+	suppress type hints
 	assert 1 of {_x} is not set with "incorrect type failed"
+	unsuppress type hints
 	set {_y} to "zombie" parsed as entitytype
 	assert 2 of {_y} is 2 zombie with "entity type amount failed"
 	set {_z} to stone
