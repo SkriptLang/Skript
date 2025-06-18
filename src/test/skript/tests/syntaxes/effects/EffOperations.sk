@@ -1,0 +1,156 @@
+test "operations effect numbers by literal numbers":
+	set {_num} to 1
+	multiply {_num} by 15
+	assert {_num} is 15 with "Failed multiplication for single number by literal number"
+	divide {_num} by 5
+	assert {_num} is 3 with "Failed division for single number by literal number"
+	raise {_num} to the power of 2
+	assert {_num} is 9 with "Failed exponentiation for single number by literal number"
+
+	set {_nums::*} to 2, 3, 4 and 5
+	multiply {_nums::*} by 10
+	assert {_nums::*} is (20, 30, 40 and 50) with "Failed multiplication for number list by literal number"
+	divide {_nums::*} by 5
+	assert {_nums::*} is (4, 6, 8 and 10) with "Failed division for number list by literal number"
+	raise {_nums::*} to the power of 2
+	assert {_nums::*} is (16, 36, 64 and 100) with "Failed exponentiation for number list by literal number"
+
+test "operations effect numbers by variable numbers":
+	set {_num} to 1
+	set {_multiply} to 10
+	set {_divide} to 5
+	set {_raise} to 2
+	multiply {_num} by {_multiply}
+	assert {_num} is 10 with "Failed multiplication for single number by variable number"
+	divide {_num} by {_divide}
+	assert {_num} is 2 with "Failed division for single number by variable number"
+	raise {_num} to the power of {_raise}
+	assert {_num} is 4 with "Failed exponentiation for single number by variable number"
+
+	set {_nums::*} to 2, 3, 4 and 5
+	multiply {_nums::*} by {_multiply}
+	assert {_nums::*} is (20, 30, 40 and 50) with "Failed multiplication for number list by variable number"
+	divide {_nums::*} by {_divide}
+	assert {_nums::*} is (4, 6, 8 and 10) with "Failed division for number list by variable number"
+	raise {_nums::*} to the power of {_raise}
+	assert {_nums::*} is (16, 36, 64 and 100) with "Failed exponentiation for number list by variable number"
+
+test "operations effect vectors by function vectors":
+	set {_vector} to vector(1,1,1)
+	multiply {_vector} by vector(4,6,8)
+	assert {_vector} is vector(4,6,8) with "Failed multiplication for single vector by function vector"
+	divide {_vector} by vector(2,3,4)
+	assert {_vector} is vector(2,2,2) with "Failed division for single vector by function vector"
+
+	set {_vectors::*} to vector(2,2,2), vector(3,3,3) and vector(4,4,4)
+	multiply {_vectors::*} by vector(2,5,10)
+	assert {_vectors::*} is (vector(4,10,20), vector(6,15,30) and vector(8,20,40)) with "Failed multiplication for vector list by function vector"
+	divide {_vectors::*} by vector(1,5,5)
+	assert {_vectors::*} is (vector(4,2,4), vector(6,3,6) and vector(8,4,8))  with "Failed division for vector list by function vector"
+
+test "operations effect vectors by variable vectors":
+	set {_vector} to vector(1,1,1)
+	set {_multiply} to vector(10,20,30)
+	set {_divide} to vector(5,5,5)
+	multiply {_vector} by {_multiply}
+	assert {_vector} is vector(10,20,30) with "Failed multiplication for single vector by vector"
+	divide {_vector} by {_divide}
+	assert {_vector} is vector(2,4,6) with "Failed division for single vector by vector"
+
+	set {_vectors::*} to vector(2,2,2), vector(3,3,3) and vector(4,4,4)
+	multiply {_vectors::*} by {_multiply}
+	assert {_vectors::*} is (vector(20,40,60), vector(30,60,90) and vector(40,80,120)) with "Failed multiplication for vector list by variable vector"
+	divide {_vectors::*} by {_divide}
+	assert {_vectors::*} is (vector(4,8,12), vector(6,12,18) and vector(8,16,24))  with "Failed division for vector list by variable vector"
+
+test "operations effect vectors by literal numbers":
+	set {_vector} to vector(1,1,1)
+	multiply {_vector} by 10
+	assert {_vector} is vector(10,10,10) with "Failed multiplication for single vector by literal number"
+	divide {_vector} by 2
+	assert {_vector} is vector(5,5,5) with "Failed division for single vector by literal number"
+
+	set {_vectors::*} to vector(2,2,2), vector(3,3,3) and vector(4,4,4)
+	multiply {_vectors::*} by 4
+	assert {_vectors::*} is (vector(8,8,8), vector(12,12,12) and vector(16,16,16)) with "Failed multiplication for vector list by literal number"
+	divide {_vectors::*} by 2
+	assert {_vectors::*} is (vector(4,4,4), vector(6,6,6) and vector(8,8,8)) with "Failed division for vector list by literal number"
+
+test "operations effect vectors by variable numbers":
+	set {_vector} to vector(1,1,1)
+	set {_multiply} to 15
+	set {_divide} to 3
+	multiply {_vector} by {_multiply}
+	assert {_vector} is vector(15,15,15) with "Failed multiplication for single vector by variable number"
+	divide {_vector} by {_divide}
+	assert {_vector} is vector(5,5,5) with "Failed division for single vector by variable number"
+
+	set {_vectors::*} to vector(2,2,2), vector(3,3,3) and vector(4,4,4)
+	multiply {_vectors::*} by {_multiply}
+	assert {_vectors::*} is (vector(30,30,30), vector(45,45,45) and vector(60,60,60)) with "Failed multiplication for vector list by variable number"
+	divide {_vectors::*} by {_divide}
+	assert {_vectors::*} is (vector(10,10,10), vector(15,15,15) and vector(20,20,20)) with "Failed division for vector list by variable number"
+
+test "operations effect timespans by literal numbers":
+	set {_timespan} to 1 hour
+	multiply {_timespan} by 4
+	assert {_timespan} is 4 hours with "Failed multiplication for single timespan by literal number"
+	divide {_timespan} by 2
+	assert {_timespan} is 2 hours with "Failed division for single timespan by literal number"
+
+	set {_timespans::*} to (1 minute), (5 minutes) and (10 minutes)
+	multiply {_timespans::*} by 5
+	assert {_timespans::*} is ((5 minutes), (25 minutes) and (50 minutes)) with "Failed multiplication for timespan list by literal number"
+	divide {_timespans::*} by 2
+	assert {_timespans::*} is ((2 minutes and 30 seconds), (12 minutes and 30 seconds) and (25 minutes)) with "Failed division for timespan list by literal number"
+
+test "operations effect timespans by variable numbers":
+	set {_timespan} to 1 hour
+	set {_multiply} to 6
+	set {_divide} to 2
+	multiply {_timespan} by {_multiply}
+	assert {_timespan} is 6 hours with "Failed multiplication for single timespan by variable number"
+	divide {_timespan} by {_divide}
+	assert {_timespan} is 3 hours with "Failed division for single timespan by variable number"
+
+	set {_timespans::*} to (1 minute), (5 minutes) and (10 minutes)
+	multiply {_timespans::*} by {_multiply}
+	assert {_timespans::*} is ((6 minutes), (30 minutes) and (60 minutes)) with "Failed multiplication for timespan list by variable number"
+	divide {_timespans::*} by {_divide}
+	assert {_timespans::*} is ((3 minutes), (15 minutes) and (30 minutes)) with "Failed division for timespan list by variable number"
+
+test "operations effect literals error":
+	parse:
+		multiply 1 by 2
+	assert last parse logs is set with "Operations should not work for left side literals - multiplication"
+
+	parse:
+		divide 20 by 4
+	assert last parse logs is set with "Operations should not work for left side literals - division"
+
+	parse:
+		raise 3 to the power of 100
+	assert last parse logs is set with "Operations should not work for left side literals - exponentiation"
+
+test "operations effect expression errors":
+	parse:
+		multiply (the hunger level of (random element out of all players)) by 1 hour
+	assert last parse logs contains "'the food level of a random element of all entities of type player' cannot be multiplied by a time span." with "Hunger level should not be able to be multiplied by timespan"
+
+	parse:
+		divide all worlds by 2
+	assert last parse logs contains "'worlds' cannot be set to anything and therefore cannot be divided." with "ExprWorlds should not have a 'SET' ChangeMode"
+
+test "operations effect invalid operation": # TODO: test for runtime errors
+	set {_date} to now
+	multiply {_date} by 2
+
+	set {_span} to 1 second
+	divide {_date} by {_span}
+
+test "operations effect on expression":
+	set {_player} to "Notch" parsed as offline player
+	set time played of {_player} to 1 second
+	multiply the time played of {_player} by 60
+	assert the time played of {_player} is 1 minute with "ExprTimePlayed was not changed with EffOperations"
+	set the time played of {_player} to 0 seconds
