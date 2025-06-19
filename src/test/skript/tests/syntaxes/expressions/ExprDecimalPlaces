@@ -1,6 +1,19 @@
 test "decimal places":
-	assert (the number of decimal places of 1.234) is 3 with "Should return 3 decimal places"
-	assert (the number of decimal places of 1.23456789) is 8 with "Should return 8 decimal places"
-	assert (the number of decimal places of 1.000000000000001) is 15 with "Should return 15 decimal places
-	assert (the number of decimal places of 1.0000000000) is not set with "Should return null for trailing zeros"
-	assert (the number of decimal places of 1) is not set with "Should return null for no decimal number"
+	assert (the number of decimal places of 1.2) is 1 with "Decimal places should be 1 (number accuracy)"
+	assert (the number of decimal places of 1.234) is 2 with "Decimal places should be limited to 2 (number accuracy)"
+
+	assert (the number of decimal places of 1.2345 with a limit of 3) is 3 with "Decimal places should be limited to 3 (limit)"
+	assert (the number of decimal places of 1.2345 with a limit of 4) is 4 with "Decimal places should be 4 (limit)"
+
+	assert (the number of decimal places of 1.23456789 with no limit) is 8 with "Decimal places should be 8 (no limit)"
+	assert (the number of decimal places of 1.23456789123456789 with no limit) is 17 with "Decimal places should be 17 (no limit)"
+
+	assert (the number of decimal places of 1.00000000) is not set with "Decimal places should return null for trailing zeros"
+	assert (the number of decimal places of 1.00000000 with a limit of 4) is not set with "Decimal places should return null for trailing zeros (limit)"
+	assert (the number of decimal places of 1.00000000 with no limit) is not set with "Decimal places should return null for trailing zeros (no limit)"
+
+	assert (the number of decimal places of 1.0000001) is 2 with "Decimal places of trailing zeros and a one, should be 2 (number accuracy)"
+	assert (the number of decimal places of 1.0000001 with a limit of 5) is 5 with "Decimal places of trailing zeros and a one, should be 5 (limit)"
+	assert (the number of decimal places of 1.0000001 with no limit) is 7 with "Decimal places of trailing zeros and a one, should be 7 (no limit)"
+
+	assert (the number of decimal places of 1) is not set with "Decimal places of '1' should be null"
