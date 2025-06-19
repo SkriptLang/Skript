@@ -26,8 +26,8 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	"Using `to` sets to the specified size."
 })
 @Examples({
-	"expand world border of player by 100 in 5 seconds",
-	"shrink world border of world \"world\" to 100 in 10 seconds"
+	"expand world border of player by 100 over 5 seconds",
+	"shrink world border of world \"world\" to 100 over 10 seconds"
 })
 @Since("2.11")
 public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorProducer {

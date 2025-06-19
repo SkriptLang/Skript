@@ -69,6 +69,8 @@ import java.util.stream.Collectors;
 
 public class BukkitClasses {
 
+	// TODO - remove unnecessary classExists checks when Spigot support is dropped
+
 	public BukkitClasses() {}
 
 	static {
@@ -1262,15 +1264,13 @@ public class BukkitClasses {
 						"See the <a href='#EffPlaySound'>play sound</a> and <a href='#EffStopSound'>stop sound</a> effects.")
 				.since("2.4"));
 
-		if (Skript.classExists("org.bukkit.entity.Panda$Gene")) {
-			Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
-					.user("(panda )?genes?")
-					.name("Gene")
-					.description("Represents a Panda's main or hidden gene. " +
-							"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
-					.since("2.4")
-					.requiredPlugins("Minecraft 1.14 or newer"));
-		}
+		Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
+				.user("(panda )?genes?")
+				.name("Gene")
+				.description("Represents a Panda's main or hidden gene. " +
+					"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
+				.since("2.4")
+				.requiredPlugins("Minecraft 1.14 or newer"));
 
 		Classes.registerClass(new EnumClassInfo<>(RegainReason.class, "healreason", "heal reasons")
 				.user("(regen|heal) (reason|cause)")
@@ -1278,23 +1278,22 @@ public class BukkitClasses {
 				.description("The health regain reason in a <a href='#heal'>heal</a> event.")
 				.since("2.5"));
 
-		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
-			ClassInfo<Cat.Type> catTypeClassInfo;
-			if (BukkitUtils.registryExists("CAT_VARIANT")) {
-				catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
-			} else {
-				//noinspection unchecked, rawtypes - it is an enum on other versions
-				catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
-			}
-			Classes.registerClass(catTypeClassInfo
-					.user("cat ?(type|race)s?")
-					.name("Cat Type")
-					.description("Represents the race/type of a cat entity.",
-						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:british_shorthair'.")
-					.since("2.4")
-					.requiredPlugins("Minecraft 1.14 or newer")
-					.documentationId("CatType"));
+		ClassInfo<Cat.Type> catTypeClassInfo;
+		if (BukkitUtils.registryExists("CAT_VARIANT")) {
+			catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
+		} else {
+			//noinspection unchecked, rawtypes - it is an enum on other versions
+			catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
 		}
+		Classes.registerClass(catTypeClassInfo
+			.user("cat ?(type|race)s?")
+			.name("Cat Type")
+			.description("Represents the race/type of a cat entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:british_shorthair'.")
+			.since("2.4")
+			.requiredPlugins("Minecraft 1.14 or newer")
+			.documentationId("CatType"));
+
 
 		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
 			.user("gamerules?")

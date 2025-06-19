@@ -31,10 +31,8 @@ import ch.njol.util.coll.CollectionUtils;
 
 @SuppressWarnings("deprecation")
 public class EvtItem extends SkriptEvent {
-	
-	private final static boolean hasConsumeEvent = Skript.classExists("org.bukkit.event.player.PlayerItemConsumeEvent");
-	private final static boolean hasPrepareCraftEvent = Skript.classExists("org.bukkit.event.inventory.PrepareItemCraftEvent");
-	private final static boolean hasEntityPickupItemEvent = Skript.classExists("org.bukkit.event.entity.EntityPickupItemEvent");
+
+	// TODO - remove this when Spigot support is dropped
 	private final static boolean HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT = Skript.classExists("io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent");
 
 	static {
@@ -59,41 +57,31 @@ public class EvtItem extends SkriptEvent {
 						"\tif event-entity is a chicken:",
 						"\t\tset item of event-dropped item to a diamond")
 				.since("unknown (before 2.1), 2.7 (entity)");
-		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
-			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
-					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
-					.examples("on preparing craft of torch:")
-					.since("2.2-Fixes-V10");
-		}
+		Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
+				.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
+				.examples("on preparing craft of torch:")
+				.since("2.2-Fixes-V10");
+
 		// TODO limit to InventoryAction.PICKUP_* and similar (e.g. COLLECT_TO_CURSOR)
 		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
 				.description("Called when a player crafts an item.")
 				.examples("on craft:")
 				.since("unknown (before 2.1)");
-		if (hasEntityPickupItemEvent) {
-			Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
+		Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
 					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:", "on entity pickup of wheat:")
 				.since("unknown (before 2.1), 2.5 (entity)")
 				.keywords("pickup");
-		} else {
-			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %-itemtypes%]")
-				.description("Called when a player picks up an item. Please note that the item is still on the ground when this event is called.")
-				.examples("on pick up:")
-				.since("unknown (before 2.1)");
-		}
 		// TODO brew event
 //		Skript.registerEvent("Brew", EvtItem.class, BrewEvent.class, "brew[ing] [[of] %itemtypes%]")
 //				.description("Called when a potion finished brewing.")
 //				.examples("on brew:")
 //				.since("2.0");
-		if (hasConsumeEvent) {
-			Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
-					.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
-					.examples("on consume:")
-					.since("2.0");
-		}
+		Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
+				.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
+				.examples("on consume:")
+				.since("2.0");
 		Skript.registerEvent("Inventory Click", EvtItem.class, InventoryClickEvent.class, "[player] inventory(-| )click[ing] [[at] %-itemtypes%]")
 				.description("Called when clicking on inventory slot.")
 				.examples("on inventory click:",
@@ -156,55 +144,56 @@ public class EvtItem extends SkriptEvent {
 	@Override
 	@SuppressWarnings("null")
 	public boolean check(final Event event) {
-		if (event instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
-			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) event).getEntity();
-		if (hasEntityPickupItemEvent && ((!entity && event instanceof EntityPickupItemEvent) || (entity && event instanceof PlayerPickupItemEvent)))
+		if (event instanceof ItemSpawnEvent itemSpawnEvent) // To make 'last dropped item' possible.
+			EffSecSpawn.lastSpawned = itemSpawnEvent.getEntity();
+		if ((!entity && event instanceof EntityPickupItemEvent) || (entity && event instanceof PlayerPickupItemEvent))
 			return false;
 		if ((!entity && event instanceof EntityDropItemEvent) || (entity && event instanceof PlayerDropItemEvent))
 			return false;
 		if (types == null)
 			return true;
 		final ItemStack itemStack;
-		if (event instanceof BlockDispenseEvent) {
-			itemStack = ((BlockDispenseEvent) event).getItem();
-		} else if (event instanceof ItemSpawnEvent) {
-			itemStack = ((ItemSpawnEvent) event).getEntity().getItemStack();
-		} else if (event instanceof PlayerDropItemEvent) {
-			itemStack = ((PlayerDropItemEvent) event).getItemDrop().getItemStack();
-		} else if (event instanceof EntityDropItemEvent) {
-			itemStack = ((EntityDropItemEvent) event).getItemDrop().getItemStack();
-		} else if (event instanceof CraftItemEvent) {
-			Recipe recipe = ((CraftItemEvent) event).getRecipe();
+    if (event instanceof BlockDispenseEvent blockDispenseEvent) {
+			itemStack = blockDispenseEvent.getItem();
+		} else if (event instanceof ItemSpawnEvent itemSpawnEvent) {
+			itemStack = itemSpawnEvent.getEntity().getItemStack();
+		} else if (event instanceof PlayerDropItemEvent playerDropItemEvent) {
+			itemStack = playerDropItemEvent.getItemDrop().getItemStack();
+		} else if (event instanceof EntityDropItemEvent entityDropItemEvent) {
+			itemStack = entityDropItemEvent.getItemDrop().getItemStack();
+		} else if (event instanceof CraftItemEvent craftItemEvent) {
+			Recipe recipe = craftItemEvent.getRecipe();
 			if (recipe instanceof ComplexRecipe) {
-				itemStack = ((CraftItemEvent) event).getCurrentItem();
+				itemStack = craftItemEvent.getCurrentItem();
 			} else {
-				itemStack = ((CraftItemEvent) event).getRecipe().getResult();
+				itemStack = recipe.getResult();
 			}
-		} else if (hasPrepareCraftEvent && event instanceof PrepareItemCraftEvent) {
-			Recipe recipe = ((PrepareItemCraftEvent) event).getRecipe();
+		} else if (event instanceof PrepareItemCraftEvent prepareItemCraftEvent) {
+			Recipe recipe = prepareItemCraftEvent.getRecipe();
 			if (recipe != null) {
 				itemStack = recipe.getResult();
 			} else {
 				return false;
 			}
-		} else if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT && event instanceof PlayerStonecutterRecipeSelectEvent) {
-			itemStack = ((PlayerStonecutterRecipeSelectEvent) event).getStonecuttingRecipe().getResult();
-		} else if (event instanceof EntityPickupItemEvent) {
-			itemStack = ((EntityPickupItemEvent) event).getItem().getItemStack();
-		} else if (event instanceof PlayerPickupItemEvent) {
-			itemStack = ((PlayerPickupItemEvent) event).getItem().getItemStack();
-		} else if (hasConsumeEvent && event instanceof PlayerItemConsumeEvent) {
-			itemStack = ((PlayerItemConsumeEvent) event).getItem();
+		} else if (HAS_PLAYER_STONECUTTER_RECIPE_SELECT_EVENT
+			&& event instanceof PlayerStonecutterRecipeSelectEvent stonecutterRecipeSelectEvent) {
+			itemStack = stonecutterRecipeSelectEvent.getStonecuttingRecipe().getResult();
+		} else if (event instanceof EntityPickupItemEvent entityPickupItemEvent) {
+			itemStack = entityPickupItemEvent.getItem().getItemStack();
+		} else if (event instanceof PlayerPickupItemEvent playerPickupItemEvent) {
+			itemStack = playerPickupItemEvent.getItem().getItemStack();
+		} else if (event instanceof PlayerItemConsumeEvent playerItemConsumeEvent) {
+			itemStack = playerItemConsumeEvent.getItem();
 //		} else if (e instanceof BrewEvent)
 //			itemStack = ((BrewEvent) e).getContents().getContents()
-		} else if (event instanceof InventoryClickEvent) {
-			itemStack = ((InventoryClickEvent) event).getCurrentItem();
-		} else if (event instanceof ItemDespawnEvent) {
-			itemStack = ((ItemDespawnEvent) event).getEntity().getItemStack();
-		} else if (event instanceof ItemMergeEvent) {
-			itemStack = ((ItemMergeEvent) event).getTarget().getItemStack();
-		} else if (event instanceof InventoryMoveItemEvent) {
-			itemStack = ((InventoryMoveItemEvent) event).getItem();
+		} else if (event instanceof InventoryClickEvent inventoryClickEvent) {
+			itemStack = inventoryClickEvent.getCurrentItem();
+		} else if (event instanceof ItemDespawnEvent itemDespawnEvent) {
+			itemStack = itemDespawnEvent.getEntity().getItemStack();
+		} else if (event instanceof ItemMergeEvent itemMergeEvent) {
+			itemStack = itemMergeEvent.getTarget().getItemStack();
+		} else if (event instanceof InventoryMoveItemEvent inventoryMoveItemEvent) {
+			itemStack = inventoryMoveItemEvent.getItem();
 		} else {
 			assert false;
 			return false;
