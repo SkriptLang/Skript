@@ -374,6 +374,7 @@ time:
 		short: y
 	real: real, rl, irl
 	minecraft: mc, minecraft
+	forever: forever
 
 # -- Chat and Wool Colours --
 colors:

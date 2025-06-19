@@ -28,8 +28,8 @@ import ch.njol.util.Kleenean;
 public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	static {
 		Skript.registerExpression(ExprPotionEffect.class, PotionEffect.class, ExpressionType.COMBINED,
-			"[new] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]",
-			"[new] ambient potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]");
+			"[a] [new] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]",
+			"[a] [new] ambient potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]");
 	}
 	
 	@SuppressWarnings("null")
@@ -66,8 +66,9 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 		int ticks = 15 * 20; // 15 second default potion length
 		if (this.timespan != null) {
 			Timespan timespan = this.timespan.getSingle(e);
-			if (timespan != null)
-				ticks = (int) timespan.getAs(Timespan.TimePeriod.TICK);
+			if (timespan != null) {
+				ticks = timespan.isInfinite() ? -1 : (int) timespan.getAs(Timespan.TimePeriod.TICK);
+			}
 		}
 		return new PotionEffect[]{new PotionEffect(potionEffectType, ticks, tier, ambient, particles)};
 	}
