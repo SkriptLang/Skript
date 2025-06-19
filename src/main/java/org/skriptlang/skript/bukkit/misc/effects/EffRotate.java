@@ -9,13 +9,14 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.bukkit.util.Transformation;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.skriptlang.skript.bukkit.misc.rotation.DisplayRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.QuaternionRotator;
@@ -60,7 +61,7 @@ public class EffRotate extends Effect {
 	private Expression<?> toRotate;
 
 	private @UnknownNullability Expression<Number> angle;
-	private @UnknownNullability Expression<Vector> vector;
+	private @UnknownNullability Expression<Vector3d> vector;
 	private @UnknownNullability Axis axis;
 
 	private @UnknownNullability Expression<Number> x, y, z;
@@ -81,7 +82,7 @@ public class EffRotate extends Effect {
 				axis = Axis.valueOf(axisString);
 			}
 			case 2 -> {
-				vector = (Expression<Vector>) exprs[1];
+				vector = (Expression<Vector3d>) exprs[1];
 				angle = (Expression<Number>) exprs[2];
 				axis = Axis.ARBITRARY;
 			}
@@ -134,20 +135,20 @@ public class EffRotate extends Effect {
 		if (Double.isInfinite(radAngle) || Double.isNaN(radAngle))
 			return;
 
-		Rotator<Vector> vectorRotator;
+		Rotator<Vector3d> vectorRotator;
 		Rotator<Quaternionf> quaternionRotator;
 		Rotator<Display> displayRotator;
 
 		if (axis == Axis.ARBITRARY) {
 			// rotate around arbitrary axis
-			Vector axis = vector.getSingle(event);
-			if (axis == null || axis.isZero())
+			Vector3d axis = vector.getSingle(event);
+			if (axis == null || Math2.vectorIsZero(axis))
 				return;
 			axis.normalize();
-			Vector3f jomlAxis = axis.toVector3f();
+			Vector3f v3fAxis = new Vector3f((float) axis.x, (float) axis.y, (float) axis.z);
 			vectorRotator = new VectorRotator(Axis.ARBITRARY, axis, radAngle);
-			quaternionRotator = new QuaternionRotator(Axis.LOCAL_ARBITRARY, jomlAxis, (float) radAngle);
-			displayRotator = new DisplayRotator(Axis.LOCAL_ARBITRARY, jomlAxis, (float) radAngle);
+			quaternionRotator = new QuaternionRotator(Axis.LOCAL_ARBITRARY, v3fAxis, (float) radAngle);
+			displayRotator = new DisplayRotator(Axis.LOCAL_ARBITRARY, v3fAxis, (float) radAngle);
 		} else {
 			vectorRotator = new VectorRotator(axis, radAngle);
 			quaternionRotator = new QuaternionRotator(axis, (float) radAngle);
@@ -155,7 +156,7 @@ public class EffRotate extends Effect {
 		}
 
 		for (Object object : toRotate.getArray(event)) {
-			if (object instanceof Vector vectorToRotate) {
+			if (object instanceof Vector3d vectorToRotate) {
 				vectorRotator.rotate(vectorToRotate);
 			} else if (object instanceof Quaternionf quaternion) {
 				quaternionRotator.rotate(quaternion);

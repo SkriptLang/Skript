@@ -1,9 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -15,6 +11,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Vectors - Dot Product")
 @Description("Gets the dot product between two vectors.")
@@ -27,24 +26,24 @@ public class ExprVectorDotProduct extends SimpleExpression<Number> {
 	}
 
 	@SuppressWarnings("null")
-	private Expression<Vector> first, second;
+	private Expression<Vector3d> first, second;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		first = (Expression<Vector>) exprs[0];
-		second = (Expression<Vector>) exprs[1];
+		first = (Expression<Vector3d>) exprs[0];
+		second = (Expression<Vector3d>) exprs[1];
 		return true;
 	}
 
 	@Override
 	@SuppressWarnings("null")
 	protected Number[] get(Event event) {
-		Vector first = this.first.getSingle(event);
-		Vector second = this.second.getSingle(event);
+		Vector3d first = this.first.getSingle(event);
+		Vector3d second = this.second.getSingle(event);
 		if (first == null || second == null)
 			return null;
-		return CollectionUtils.array(first.getX() * second.getX() + first.getY() * second.getY() + first.getZ() * second.getZ());
+		return CollectionUtils.array(first.dot(second));
 	}
 
 	@Override

@@ -12,8 +12,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import static ch.njol.skript.expressions.ExprYawPitch.fromYawAndPitch;
 
@@ -21,10 +21,10 @@ import static ch.njol.skript.expressions.ExprYawPitch.fromYawAndPitch;
 @Description("Creates a vector from a yaw and pitch value.")
 @Examples("set {_v} to vector from yaw 45 and pitch 45")
 @Since("2.2-dev28")
-public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
+public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector3d> {
 
 	static {
-		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector3d.class, ExpressionType.COMBINED,
 			"[a] [new] vector (from|with) yaw %number% and pitch %number%",
 			"[a] [new] vector (from|with) pitch %number% and yaw %number%");
 	}
@@ -40,7 +40,7 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	protected Vector[] get(Event event) {
+	protected Vector3d[] get(Event event) {
 		Number skriptYaw = yaw.getSingle(event);
 		Number skriptPitch = pitch.getSingle(event);
 		if (skriptYaw == null || skriptPitch == null)
@@ -56,8 +56,8 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override

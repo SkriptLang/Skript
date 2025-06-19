@@ -16,8 +16,10 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 
 import java.io.StreamCorruptedException;
 import java.util.UUID;
@@ -302,6 +304,18 @@ public class JavaClasses {
 						return false;
 					}
 				}));
+
+		Classes.registerClass(new ClassInfo<>(Vector3d.class, "vector")
+			.user("vectors?")
+			.name("Vector")
+			.description("Vector is a collection of numbers. In Minecraft, 3D vectors are used to express velocities of entities.")
+			.usage("vector(x, y, z)")
+			.examples("")
+			.since("2.2-dev23")
+			.defaultExpression(new EventValueExpression<>(Vector3d.class))
+			.parser(new Vector3dParser())
+			.serializer(new Vector3dSerializer())
+			.cloner(Vector3d::new));
 
 		// joml type - for display entities
 		if (Skript.classExists("org.joml.Quaternionf"))
@@ -859,6 +873,70 @@ public class JavaClasses {
 			long mostSignificantBits = fields.getAndRemovePrimitive("mostsignificantbits", long.class);
 			long leastSignificantBits = fields.getAndRemovePrimitive("leastsignificantbits", long.class);
 			return new UUID(mostSignificantBits, leastSignificantBits);
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+
+		@Override
+		protected boolean canBeInstantiated() {
+			return false;
+		}
+
+	}
+
+	private static class Vector3dParser extends Parser<Vector3d> {
+
+		@Override
+		public @Nullable Vector3d parse(String s, ParseContext context) {
+			return null;
+		}
+
+		@Override
+		public boolean canParse(ParseContext context) {
+			return false;
+		}
+
+		@Override
+		public @NotNull String toString(@NotNull Vector3d vec, int flags) {
+			return "x: " + Skript.toString(vec.x()) + ", y: " + Skript.toString(vec.y()) + ", z: " + Skript.toString(vec.z());
+		}
+
+		@Override
+		public @NotNull String toVariableNameString(@NotNull Vector3d vec) {
+			return "vector:" + vec.x() + "," + vec.y() + "," + vec.z();
+		}
+
+		@Override
+		public @NotNull String getDebugMessage(@NotNull Vector3d vec) {
+			return "(" + vec.x() + "," + vec.y() + "," + vec.z() + ")";
+		}
+
+	}
+
+	private static class Vector3dSerializer extends Serializer<Vector3d> {
+		@Override
+		public Fields serialize(Vector3d vector3d) {
+			Fields f = new Fields();
+			f.putPrimitive("x", vector3d.x());
+			f.putPrimitive("y", vector3d.y());
+			f.putPrimitive("z", vector3d.z());
+			return f;
+		}
+
+		@Override
+		public void deserialize(Vector3d o, Fields f) {
+			assert false;
+		}
+
+		@Override
+		public Vector3d deserialize(Fields fields) throws StreamCorruptedException {
+			return new Vector3d(
+				fields.getPrimitive("x", double.class),
+				fields.getPrimitive("y", double.class),
+				fields.getPrimitive("z", double.class));
 		}
 
 		@Override

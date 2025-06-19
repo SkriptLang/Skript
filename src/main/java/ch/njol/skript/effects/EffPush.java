@@ -14,6 +14,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Push")
 @Description("Push entities around.")
@@ -50,14 +51,14 @@ public class EffPush extends Effect {
 			return;
 		Entity[] entities = this.entities.getArray(event);
 		for (Entity entity : entities) {
-			Vector pushDirection = direction.getDirection(entity);
+			Vector3d pushDirection = direction.getDirection(entity);
 			if (speed != null)
-				pushDirection.normalize().multiply(speed.doubleValue());
-			if (!(Double.isFinite(pushDirection.getX()) && Double.isFinite(pushDirection.getY()) && Double.isFinite(pushDirection.getZ()))) {
+				pushDirection.normalize(speed.doubleValue());
+			if (!pushDirection.isFinite()) {
 				// Some component of the mod vector is not finite, so just stop
 				return;
 			}
-			entity.setVelocity(entity.getVelocity().add(pushDirection));
+			entity.setVelocity(entity.getVelocity().add(Vector.fromJOML(pushDirection)));
 		}
 	}
 	

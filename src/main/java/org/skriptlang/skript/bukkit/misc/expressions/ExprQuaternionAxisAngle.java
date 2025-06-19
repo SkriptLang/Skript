@@ -13,11 +13,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Math;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 
 @Name("Rotation Axis/Angle")
 @Description({
@@ -53,7 +53,7 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 		AxisAngle4f axisAngle = new AxisAngle4f();
 		axisAngle.set(from);
 		if (isAxis)
-			return new Vector(axisAngle.x, axisAngle.y, axisAngle.z);
+			return new Vector3d(axisAngle.x, axisAngle.y, axisAngle.z);
 		return (float) (axisAngle.angle * 180 / Math.PI);
 	}
 
@@ -62,7 +62,7 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 		return switch (mode) {
 			case ADD, SET, REMOVE ->  {
 				if (Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Quaternionf.class))
-					yield CollectionUtils.array(isAxis ? Vector.class : Number.class);
+					yield CollectionUtils.array(isAxis ? Vector3d.class : Number.class);
 				yield null;
 			}
 			default -> null;
@@ -74,10 +74,10 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 		assert delta != null; // reset/delete not supported
 		Quaternionf[] quaternions = getExpr().getArray(event);
 		AxisAngle4f axisAngle = new AxisAngle4f();
-		if (isAxis && delta[0] instanceof Vector vector) {
+		if (isAxis && delta[0] instanceof Vector3d vector) {
 			for (Quaternionf quaternion : quaternions) {
 				axisAngle.set(quaternion);
-				axisAngle.set(axisAngle.angle, (float) vector.getX(), (float) vector.getY(), (float) vector.getZ());
+				axisAngle.set(axisAngle.angle, (float) vector.x(), (float) vector.y(), (float) vector.z());
 				quaternion.set(axisAngle);
 			}
 		} else if (delta[0] instanceof Number number) {
@@ -93,7 +93,7 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 
 	@Override
 	public Class<?> getReturnType() {
-		return isAxis ? Vector.class : Float.class;
+		return isAxis ? Vector3d.class : Float.class;
 	}
 
 	@Override

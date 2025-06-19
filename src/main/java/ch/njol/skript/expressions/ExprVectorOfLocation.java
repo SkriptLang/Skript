@@ -1,10 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,15 +11,19 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Vectors - Vector from Location")
 @Description("Creates a vector from a location.")
 @Examples("set {_v} to vector of {_loc}")
 @Since("2.2-dev28")
-public class ExprVectorOfLocation extends SimpleExpression<Vector> {
+public class ExprVectorOfLocation extends SimpleExpression<Vector3d> {
 
 	static {
-		Skript.registerExpression(ExprVectorOfLocation.class, Vector.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprVectorOfLocation.class, Vector3d.class, ExpressionType.PROPERTY,
 				"[the] vector (of|from|to) %location%",
 				"%location%'s vector");
 	}
@@ -41,11 +40,11 @@ public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event event) {
+	protected Vector3d[] get(Event event) {
 		Location location = this.location.getSingle(event);
 		if (location == null)
 			return null;
-		return CollectionUtils.array(location.toVector());
+		return CollectionUtils.array(location.toVector().toVector3d());
 	}
 
 	@Override
@@ -54,8 +53,8 @@ public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override

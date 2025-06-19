@@ -1,16 +1,15 @@
 package ch.njol.skript.registrations;
 
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
-
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 
 // When using these fields, be aware all ClassInfo's must be registered!
 public class DefaultClasses {
@@ -26,7 +25,7 @@ public class DefaultClasses {
 	// Bukkit
 	public static ClassInfo<OfflinePlayer> OFFLINE_PLAYER = getClassInfo(OfflinePlayer.class);
 	public static ClassInfo<Location> LOCATION = getClassInfo(Location.class);
-	public static ClassInfo<Vector> VECTOR = getClassInfo(Vector.class);
+	public static ClassInfo<Vector3d> VECTOR = getClassInfo(Vector3d.class);
 	public static ClassInfo<Player> PLAYER = getClassInfo(Player.class);
 	public static ClassInfo<World> WORLD = getClassInfo(World.class);
 

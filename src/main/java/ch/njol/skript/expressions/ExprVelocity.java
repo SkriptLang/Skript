@@ -12,6 +12,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.joml.Vector3d;
 
 /**
  * @author Sashie
@@ -20,16 +21,16 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("Gets or changes velocity of an entity.")
 @Examples({"set player's velocity to {_v}"})
 @Since("2.2-dev31")
-public class ExprVelocity extends SimplePropertyExpression<Entity, Vector> {
+public class ExprVelocity extends SimplePropertyExpression<Entity, Vector3d> {
 
 	static {
-		register(ExprVelocity.class, Vector.class, "velocit(y|ies)", "entities");
+		register(ExprVelocity.class, Vector3d.class, "velocit(y|ies)", "entities");
 	}
 
 	@Override
 	@Nullable
-	public Vector convert(Entity e) {
-		return e.getVelocity();
+	public Vector3d convert(Entity e) {
+		return e.getVelocity().toVector3d();
 	}
 
 	@Override
@@ -37,7 +38,7 @@ public class ExprVelocity extends SimplePropertyExpression<Entity, Vector> {
 	@SuppressWarnings("null")
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if ((mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET))
-			return CollectionUtils.array(Vector.class);
+			return CollectionUtils.array(Vector3d.class);
 		return null;
 	}
 
@@ -45,36 +46,35 @@ public class ExprVelocity extends SimplePropertyExpression<Entity, Vector> {
 	@SuppressWarnings("null")
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET || delta != null;
+		Vector vector = delta == null ? new Vector() : Vector.fromJOML((Vector3d) delta[0]);
 		for (final Entity entity : getExpr().getArray(e)) {
 			if (entity == null)
 				return;
 			switch (mode) {
 				case ADD:
-					entity.setVelocity(entity.getVelocity().add((Vector) delta[0]));
+					entity.setVelocity(entity.getVelocity().add(vector));
 					break;
 				case REMOVE:
-					entity.setVelocity(entity.getVelocity().subtract((Vector) delta[0]));
+					entity.setVelocity(entity.getVelocity().subtract(vector));
 					break;
 				case REMOVE_ALL:
 					break;
 				case DELETE:
 				case RESET:
-					entity.setVelocity(new Vector());
-					break;	
 				case SET:
-					entity.setVelocity((Vector) delta[0]);
+					entity.setVelocity(vector);
 			}
 		}
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "velocity";
+	public Class<Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override
-	public Class<Vector> getReturnType() {
-		return Vector.class;
+	protected String getPropertyName() {
+		return "velocity";
 	}
 
 }
