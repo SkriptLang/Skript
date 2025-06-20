@@ -460,7 +460,7 @@ public class ScriptCommand implements TabExecutor {
 	}
 
 	public void unregisterHelp() {
-		new Task(Skript.getInstance(), 1) {
+		new Task(Skript.getInstance(), 0) {
 			@Override
 			public void run() {
 				Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
