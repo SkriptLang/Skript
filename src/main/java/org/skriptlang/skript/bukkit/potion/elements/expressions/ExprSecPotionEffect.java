@@ -19,6 +19,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import org.bukkit.event.HandlerList;
+import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
@@ -37,16 +38,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	"Note that when applying potion effects to items like tipped arrows and lingering potions, Minecraft reduces the timespan."
 })
 @Example("""
-	set {_p} to potion effect of speed 2 for 10 minutes:
+	set {_potion} to a potion effect of speed 2 for 10 minutes:
 		hide the effect's icon
 		hide the effect's particles
 """)
-@Example("add strength 5 to potion effects of player's tool")
+@Example("add strength 5 to the potion effects of the player's tool")
 @Example("""
 	apply invisibility to the player for 5 minutes:
 		hide the effect's particles
 """)
 @Example("add a potion effect of speed 1 to the potion effects of the player")
+@Example("""
+	# creates a potion effect with the properties of an existing potion effect
+	set {_potion} to a potion effect of slowness based on the player's speed effect
+""")
 @Since("2.5.2, INSERT VERSION (syntax changes, infinite duration support, no icon support)")
 public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
@@ -56,7 +61,8 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 				.addPatterns(
 						"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] [for %-timespan%]",
 						"[an] (infinite|permanent) [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] ",
-						"[an] (infinite|permanent) [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] "
+						"[an] (infinite|permanent) [:ambient] %potioneffecttype% [[of tier] %-number%] [potion [effect]] ",
+						"[a] potion effect [of %-potioneffecttype%] (from|using|based on) %potioneffect%"
 				)
 				.build());
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecPotionEffect.class, SkriptPotionEffect.class)
@@ -77,11 +83,13 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		}
 	}
 
-	private Expression<PotionEffectType> potionEffectType;
+	private @Nullable Expression<PotionEffectType> potionEffectType;
 	private @Nullable Expression<Number> amplifier;
 	private @Nullable Expression<Timespan> duration;
 	private boolean ambient;
 	private boolean infinite;
+
+	private @Nullable Expression<PotionEffect> source;
 
 	private @Nullable Trigger trigger;
 
@@ -90,12 +98,16 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean delayed, ParseResult parseResult,
 						@Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		potionEffectType = (Expression<PotionEffectType>) expressions[0];
-		amplifier = (Expression<Number>) expressions[1];
-		infinite = matchedPattern != 0;
-		if (expressions.length == 3) {
-			duration = (Expression<Timespan>) expressions[2];
+		if (matchedPattern == 3) {
+			source = (Expression<PotionEffect>) expressions[1];
+		} else {
+			amplifier = (Expression<Number>) expressions[1];
+			infinite = matchedPattern != 0;
+			if (expressions.length == 3) {
+				duration = (Expression<Timespan>) expressions[2];
+			}
+			ambient = parseResult.hasTag("ambient");
 		}
-		ambient = parseResult.hasTag("ambient");
 
 		if (node != null) {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
@@ -113,11 +125,28 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 	@Override
 	@Nullable
 	protected SkriptPotionEffect[] get(Event event) {
-		PotionEffectType potionEffectType = this.potionEffectType.getSingle(event);
-		if (potionEffectType == null) {
-			return new SkriptPotionEffect[0];
+		SkriptPotionEffect potionEffect = null;
+		if (source != null) {
+			PotionEffect source = this.source.getSingle(event);
+			if (source == null) {
+				return new SkriptPotionEffect[0];
+			}
+			potionEffect = SkriptPotionEffect.fromBukkitEffect(source);
 		}
-		SkriptPotionEffect potionEffect = SkriptPotionEffect.fromType(potionEffectType);
+
+		PotionEffectType potionEffectType = null;
+		if (this.potionEffectType != null) {
+			potionEffectType = this.potionEffectType.getSingle(event);
+			if (potionEffectType == null) {
+				return new SkriptPotionEffect[0];
+			}
+		}
+
+		if (potionEffect == null) {
+			potionEffect = SkriptPotionEffect.fromType(potionEffectType);
+		} else {
+			potionEffect.potionEffectType(potionEffectType);
+		}
 
 		if (ambient) {
 			potionEffect.ambient(true);
@@ -167,11 +196,16 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		if (infinite) {
 			builder.append("infinite");
 		}
-		builder.append("potion effect of", potionEffectType);
+		builder.append("potion effect");
+		if (potionEffectType != null) {
+			builder.append("of", potionEffectType);
+		}
 		if (amplifier != null) {
 			builder.append("of tier", amplifier);
 		}
-		if (!infinite) {
+		if (source != null) {
+			builder.append("based on", source);
+		} else if (!infinite) {
 			builder.append("for", duration != null ? duration : PotionUtils.DEFAULT_DURATION_STRING);
 		}
 		return builder.toString();

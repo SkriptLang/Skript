@@ -39,6 +39,14 @@ test "potion effect creation":
 	assert type of {_potion} is speed with "type is not speed"
 	assert amplifier of {_potion} is 5 with "amplifier is not 5"
 
+	# test creation from existing potion effect
+	set {_potion} to an infinite ambient potion effect of speed of tier 5
+	set {_potion} to a potion effect of slowness based on {_potion}
+	assert {_potion} is ambient with "potion is not ambient"
+	assert type of {_potion} is slowness with "type is not slowness"
+	assert amplifier of {_potion} is 5 with "amplifier is not 5"
+	assert {_potion} is infinite with "potion is infinite"
+
 # ExprPotionEffects
 test "potion effects of entities/items":
 	# setup
