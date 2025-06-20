@@ -24,6 +24,8 @@ test "string concatenation":
 	# string + number = <none>
 	# parser prevents us adding "foo" + 1 or comparing "foo" + 1 with a string
 	# we test the edge case where somebody slips past us!
+	suppress type hints
 	set {_var} to 1
 	set {_var} to "foo" + {_var}
 	assert {_var} doesn't exist with "string + number concat succeeded"
+	unsuppress type hints

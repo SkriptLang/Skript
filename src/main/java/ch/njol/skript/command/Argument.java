@@ -130,6 +130,10 @@ public class Argument<T> {
 	public T[] getCurrent(final Event e) {
 		return current.get(e);
 	}
+
+	public @Nullable String getName() {
+		return name;
+	}
 	
 	public Class<T> getType() {
 		return type.getC();

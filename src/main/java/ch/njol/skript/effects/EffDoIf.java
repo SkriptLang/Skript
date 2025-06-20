@@ -1,5 +1,6 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.lang.ExecutionIntent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +44,19 @@ public class EffDoIf extends Effect  {
 			return false;
 		}
 		condition = Condition.parse(cond, "Can't understand this condition: " + cond);
-		return effect != null && condition != null;
+
+		if (effect == null || condition == null) {
+			return false;
+		}
+
+		// handle special hint cases
+		// if this statement could result in execution stopping, we want to pass up hints
+		if (effect.executionIntent() instanceof ExecutionIntent.StopSections intent) {
+			// copy up current hints
+			getParser().getHintManager().mergeScope(0, intent.levels(), true);
+		}
+
+		return true;
 	}
 
 	@Override

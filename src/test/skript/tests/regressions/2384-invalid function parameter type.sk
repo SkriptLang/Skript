@@ -1,4 +1,5 @@
 test "invalid function parameter type":
+	suppress type hints
 	set {_list::*} to "hello" and "bye"
 	set {_test} to max({_list::*}) # This code should not throw an ArrayIndexOutOfBoundException 
 	assert {_test} is not set with "invalid function parameter type failed" # Shouldn't return anything... 

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.function.Supplier;
@@ -79,7 +80,13 @@ public final class Arithmetics {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <T> List<OperationInfo<T, ?, ?>> getOperations(Operator operator, Class<T> type) {
 		return (List) getOperations(operator).stream()
-			.filter(info -> info.getLeft().isAssignableFrom(type))
+			.map(info -> {
+				if (info.getLeft().isAssignableFrom(type)) {
+					return info;
+				}
+				return info.getConverted(type, info.getRight(), info.getReturnType());
+			})
+			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
 	}
 

@@ -8,7 +8,9 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
@@ -23,6 +25,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.MessageComponent;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
 import com.google.common.base.Preconditions;
@@ -204,8 +207,24 @@ public class ScriptCommand implements TabExecutor {
 		this.pattern = pattern;
 		this.arguments = arguments;
 
-		trigger = new Trigger(script, "command /" + name, new SimpleEvent(), ScriptLoader.loadItems(node));
-		trigger.setLineNumber(node.getLine());
+		HintManager hintManager = ParserInstance.get().getHintManager();
+		try {
+			hintManager.enterScope(false);
+			for (Argument<?> argument : arguments) {
+				String hintName = argument.getName();
+				if (hintName == null) {
+					continue;
+				}
+				if (!argument.isSingle()) {
+					hintName += Variable.SEPARATOR + "*";
+				}
+				hintManager.set(hintName, argument.getType());
+			}
+			trigger = new Trigger(script, "command /" + name, new SimpleEvent(), ScriptLoader.loadItems(node));
+			trigger.setLineNumber(node.getLine());
+		} finally {
+			hintManager.exitScope();
+		}
 
 		bukkitCommand = setupBukkitCommand();
 	}

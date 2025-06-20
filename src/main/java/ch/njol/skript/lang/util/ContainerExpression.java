@@ -65,6 +65,11 @@ public class ContainerExpression extends SimpleExpression<Object> {
 	}
 
 	@Override
+	public boolean isLoopOf(String input) {
+		return expr.isLoopOf(input);
+	}
+
+	@Override
 	public boolean isSingle() {
 		return false;
 	}

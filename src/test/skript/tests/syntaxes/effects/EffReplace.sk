@@ -60,6 +60,7 @@ test "replace strings":
 	regex replace "(?i)[bAc]" in {_x} with "z"
 	assert {_x} is "yxxxzzzz" with "regex replace failed"
 
+	suppress type hints
 	set {_x} to "a" parsed as number
 	regex replace "a" in {_x} with "b"
 	assert {_x} is not set with "regex replace with invalid value succeeded"
@@ -71,3 +72,4 @@ test "replace strings":
 	assert {_y} is "a" with "regex replace with invalid pattern and replacement succeeded"
 	regex replace "a" in {_y} with {_x}
 	assert {_y} is "a" with "regex replace with invalid pattern succeeded"
+	unsuppress type hints
