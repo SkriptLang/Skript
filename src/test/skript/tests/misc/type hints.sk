@@ -6,21 +6,21 @@ test "type hints":
 	parse:
 		set {_x} to 10
 		set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
 		set {_x::*} to 10
 		set {_x} to "Hello"
 		set {_a::*} to {_x::*} in lowercase
-	assert last parse logs contains "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_x::*}
 	delete {_x}
 
 	parse:
 		set {_x::1} to 10
 		set {_a::*} to {_x::*} in lowercase
-	assert last parse logs contains "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_x::*}
 
 	parse:
@@ -39,7 +39,7 @@ test "type hints":
 		if true is true: # some condition
 			set {_x} to true
 			set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is a boolean (yes/no)" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is a boolean (yes/no)" with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -50,7 +50,7 @@ test "type hints":
 	# ordering not guaranteed
 	set {_o1} to "Expected variable '{_x}' to be a text, but it is an integer or boolean (yes/no)"
 	set {_o2} to "Expected variable '{_x}' to be a text, but it is a boolean (yes/no) or integer"
-	assert last parse logs contains {_o1} or {_o2} with "Hint failed (%last parse logs%)"
+	assert last parse logs is {_o1} or {_o2} with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -59,7 +59,7 @@ test "type hints":
 			set {_x} to true
 			delete {_x} # should remove typehint
 		set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -68,7 +68,7 @@ test "type hints":
 			set {_x} to true
 			stop # should prevent type hints from being copied
 		set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -78,7 +78,7 @@ test "type hints":
 			stop # should prevent type hints from being copied
 			set {_x} to 10.0
 		set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -91,7 +91,7 @@ test "type hints":
 	# ordering not guaranteed
 	set {_o1} to "Expected variable '{_x}' to be a text, but it is an integer or boolean (yes/no)"
 	set {_o2} to "Expected variable '{_x}' to be a text, but it is a boolean (yes/no) or integer"
-	assert last parse logs contains {_o1} or {_o2} with "Hint failed (%last parse logs%)"
+	assert last parse logs is {_o1} or {_o2} with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -104,7 +104,7 @@ test "type hints":
 	# ordering not guaranteed
 	set {_o1} to "Expected variable '{_x}' to be a text, but it is an integer or boolean (yes/no)"
 	set {_o2} to "Expected variable '{_x}' to be a text, but it is a boolean (yes/no) or integer"
-	assert last parse logs contains {_o1} or {_o2} with "Hint failed (%last parse logs%)"
+	assert last parse logs is {_o1} or {_o2} with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -114,7 +114,7 @@ test "type hints":
 				set {_x} to true
 				exit 2 sections # should prevent type hints from statements below from being copied for the first outer section
 			set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_x}
 
 	parse:
@@ -124,5 +124,5 @@ test "type hints":
 				set {_x} to true
 				exit 2 sections
 				set {_a} to {_x} in lowercase # ensure type hints still work for unreachable code
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is a boolean (yes/no)" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is a boolean (yes/no)" with "Hint failed (%last parse logs%)"
 	delete {_x}

@@ -40,6 +40,6 @@ parse:
 				set {_a::*} to {_x::*} in lowercase
 
 test "command structure type hints":
-	assert {StructCommand::hints::1::*} contains "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
-	assert {StructCommand::hints::2::*} contains "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
+	assert {StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
+	assert {StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
 

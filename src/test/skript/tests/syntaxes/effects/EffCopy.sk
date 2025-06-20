@@ -34,7 +34,7 @@ test "copy effect type hints":
 	copy {_var} into {_x}
 	parse:
 		set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_var}
 	delete {_x}
 
@@ -42,12 +42,12 @@ test "copy effect type hints":
 	copy {_var::*} into {_x::*}
 	parse:
 		set {_a::*} to {_x::*} in lowercase
-	assert last parse logs contains "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
 	delete {_var::*}
 	delete {_x::*}
 
 	copy pi into {_x}
 	parse:
 		set {_a} to {_x} in lowercase
-	assert last parse logs contains "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%last parse logs%)"
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%last parse logs%)"
 	delete {_foo}
