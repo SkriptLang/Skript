@@ -28,6 +28,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.displays.DisplayData;
 
@@ -52,7 +53,7 @@ import java.util.function.Consumer;
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	static {
-		String types = "blocks/itemtypes/entities/fireworkeffects";
+		String types = "blocks/itemtypes/entities/fireworkeffects/potioneffecttypes";
 		if (Skript.isRunningMinecraft(1, 19, 4))
 			types += "/displays";
 		register(ExprColorOf.class, Color.class, "colo[u]r[s]", types);
@@ -235,6 +236,9 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		if (object instanceof Block block) {
 			if (block.getState() instanceof Banner banner)
 				return SkriptColor.fromDyeColor(banner.getBaseColor());
+		}
+		if (object instanceof PotionEffectType potionEffectType) {
+			return ColorRGB.fromBukkitColor(potionEffectType.getColor());
 		}
 		return null;
 	}
