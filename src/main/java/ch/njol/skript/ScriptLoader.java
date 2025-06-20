@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Struct;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -846,8 +847,11 @@ public class ScriptLoader {
 			script.eventRegistry().events(ScriptUnloadEvent.class)
 					.forEach(event -> event.onUnload(parser, script));
 
-			for (Structure structure : script.getStructures())
-				structure.unload();
+			Stream<Structure> structuresStream = script.getStructures().stream();
+			if (isParallel())
+				structuresStream = structuresStream.parallel();
+
+			structuresStream.forEachOrdered(Structure::unload);
 		}
 
 		parser.setInactive();

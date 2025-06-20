@@ -460,27 +460,24 @@ public class ScriptCommand implements TabExecutor {
 	}
 
 	public void unregisterHelp() {
-		new Task(Skript.getInstance(), 0) {
-			@Override
-			public void run() {
-				Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
-
-				final HelpTopic aliases = Bukkit.getHelpMap().getHelpTopic("Aliases");
-				if (aliases != null && aliases instanceof IndexHelpTopic) {
-					try {
-						final Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
-						topics.setAccessible(true);
-						@SuppressWarnings("unchecked")
-						final ArrayList<HelpTopic> as = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
-						as.removeAll(helps);
-						topics.set(aliases, as);
-					} catch (final Exception e) {
-						Skript.outdatedError(e);//, "error unregistering aliases for /" + getName());
-					}
+		Task.callSync(() -> {
+			Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
+			final HelpTopic aliases = Bukkit.getHelpMap().getHelpTopic("Aliases");
+			if (aliases != null && aliases instanceof IndexHelpTopic) {
+				try {
+					final Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
+					topics.setAccessible(true);
+					@SuppressWarnings("unchecked")
+					final ArrayList<HelpTopic> as = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
+					as.removeAll(helps);
+					topics.set(aliases, as);
+				} catch (final Exception e) {
+					Skript.outdatedError(e);//, "error unregistering aliases for /" + getName());
 				}
-				helps.clear();
 			}
-		};
+			helps.clear();
+			return null;
+		});
 	}
 
 	public String getName() {
