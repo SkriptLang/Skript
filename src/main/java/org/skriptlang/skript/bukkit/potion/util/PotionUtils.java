@@ -15,7 +15,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 public final class PotionUtils {
@@ -142,6 +144,29 @@ public final class PotionUtils {
 			stewMeta.clearCustomEffects();
 		}
 		itemType.setItemMeta(meta);
+	}
+
+	/**
+	 * A utility method to obtain the hidden effects of a potion effect.
+	 * @param effect The effect to obtain hidden effects from.
+	 * @return A deque of the hidden effects of {@code effect} ordered from most hidden to least hidden.
+	 * If {@link #HAS_HIDDEN_EFFECTS} is {@code false}, this returns an empty deque.
+	 */
+	public static Deque<PotionEffect> getHiddenEffects(PotionEffect effect) {
+		Deque<PotionEffect> hiddenEffects = new ArrayDeque<>();
+
+		if (!PotionUtils.HAS_HIDDEN_EFFECTS) {
+			return hiddenEffects;
+		}
+
+		// build hidden effects chain to reapply
+		PotionEffect hiddenEffect = effect.getHiddenPotionEffect();
+		while (hiddenEffect != null) {
+			hiddenEffects.push(hiddenEffect);
+			hiddenEffect = hiddenEffect.getHiddenPotionEffect();
+		}
+
+		return hiddenEffects;
 	}
 
 }

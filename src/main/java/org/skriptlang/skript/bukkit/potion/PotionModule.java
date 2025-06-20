@@ -170,6 +170,8 @@ public class PotionModule implements AddonModule {
 		Converters.registerConverter(PotionEffect.class, SkriptPotionEffect.class, SkriptPotionEffect::fromBukkitEffect);
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::fromType);
+		// SkriptPotionEffect -> PotionEffectType
+		Converters.registerConverter(SkriptPotionEffect.class, PotionEffectType.class, SkriptPotionEffect::potionEffectType);
 	}
 
 	@Override

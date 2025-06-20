@@ -13,18 +13,25 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionEffect;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Has Potion")
-@Description("Checks whether an entity has a potion effect of a certain type.")
+@Description({
+	"Checks whether an entity has a potion effect with certain properties.",
+	"An entity is considered having a potion effect if it has a potion effect with at least the specified properties.",
+	"For example, if an entity has an 'ambient speed 5' effect, they would be considered as having 'speed 5'.",
+	"For exact comparisons, consider using the <a href='./expressions.html#ExprPotionEffect'>Potion Effect of Entity/Item</a>" +
+			" expression in an 'is' comparison."
+})
 @Example("""
-	if player has the potion effect speed:
+	if the player has a potion effect of speed:
 		message "You are sonic!"
 """)
 @Example("""
-	if all players have the potion effects speed and haste:
+	if all players have speed and haste active:
 		broadcast "This server is ready to mine!"
 """)
 @Since("2.6.1, INSERT VERSION (\"the\" support)")
@@ -32,35 +39,42 @@ public class CondHasPotion extends Condition {
 
 	public static void register(SyntaxRegistry registry) {
 		PropertyCondition.register(registry, CondHasPotion.class, PropertyType.HAVE,
-				"[the] potion[s] [effect[s]] %potioneffecttypes%",
+				"%skriptpotioneffects% [active]",
 				"livingentities");
 	}
 
 	private Expression<LivingEntity> entities;
-	private Expression<PotionEffectType> types;
+	private Expression<SkriptPotionEffect> effects;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
-		types = (Expression<PotionEffectType>) exprs[1];
+		effects = (Expression<SkriptPotionEffect>) exprs[1];
 		setNegated(matchedPattern == 1);
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		PotionEffectType[] types = this.types.getArray(event);
-		return entities.check(event,
-				entity -> SimpleExpression.check(types, entity::hasPotionEffect, isNegated(), this.types.getAnd()));
+		SkriptPotionEffect[] effects = this.effects.getArray(event);
+		return entities.check(event, entity -> SimpleExpression.check(effects,
+				base -> {
+					for (PotionEffect potionEffect : entity.getActivePotionEffects()) {
+						if (base.matchesQualities(potionEffect)) {
+							return true;
+						}
+					}
+					return false;
+				},
+				isNegated(),
+				this.effects.getAnd()));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return PropertyCondition.toString(
-				this, PropertyType.HAVE, event, debug, entities,
-				"the potion effects " + types.toString(event, debug)
-		);
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug,
+				entities, effects.toString(event, debug));
 	}
 
 }

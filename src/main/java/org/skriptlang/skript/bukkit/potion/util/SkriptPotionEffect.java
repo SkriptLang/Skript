@@ -24,11 +24,11 @@ import java.util.Deque;
 public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializable {
 
 	private PotionEffectType potionEffectType;
-	private int duration = PotionUtils.DEFAULT_DURATION_TICKS;
-	private int amplifier = 0;
-	private boolean ambient = false;
-	private boolean particles = true;
-	private boolean icon = true;
+	private Integer duration = null;
+	private Integer amplifier = null;
+	private Boolean ambient = null;
+	private Boolean particles = null;
+	private Boolean icon = null;
 
 	/**
 	 * Last effect built by {@link #toPotionEffect()}.
@@ -150,6 +150,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#getDuration()
 	 */
 	public int duration() {
+		if (duration == null) {
+			return PotionUtils.DEFAULT_DURATION_TICKS;
+		}
 		return duration;
 	}
 
@@ -170,6 +173,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#getAmplifier()
 	 */
 	public int amplifier() {
+		if (amplifier == null) {
+			return 0;
+		}
 		return amplifier;
 	}
 
@@ -190,6 +196,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#isAmbient()
 	 */
 	public boolean ambient() {
+		if (ambient == null) {
+			return false;
+		}
 		return ambient;
 	}
 
@@ -210,6 +219,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#hasParticles()
 	 */
 	public boolean particles() {
+		if (particles == null) {
+			return true;
+		}
 		return particles;
 	}
 
@@ -230,6 +242,9 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#hasIcon()
 	 */
 	public boolean icon() {
+		if (icon == null) {
+			return true;
+		}
 		return icon;
 	}
 
@@ -253,7 +268,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 */
 	public PotionEffect toPotionEffect() {
 		if (lastEffect == null) {
-			lastEffect = new PotionEffect(potionEffectType, duration, amplifier, ambient, particles, icon);
+			lastEffect = new PotionEffect(potionEffectType(), duration(), amplifier(), ambient(), particles(), icon());
 		}
 		return lastEffect;
 	}
@@ -270,7 +285,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 */
 	public String toString(int flags) {
 		StringBuilder builder = new StringBuilder();
-		if (ambient) {
+		if (ambient()) {
 			builder.append("ambient ");
 		}
 		boolean infinite = infinite();
@@ -278,17 +293,17 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 			builder.append("infinite ");
 		}
 		builder.append("potion effect of ");
-		builder.append(Classes.toString(potionEffectType));
+		builder.append(Classes.toString(potionEffectType()));
 		builder.append(" ");
-		builder.append(amplifier + 1);
-		if (!particles) {
+		builder.append(amplifier() + 1);
+		if (!particles()) {
 			builder.append(" without particles");
 		}
-		if (!icon) {
+		if (!icon()) {
 			builder.append(" without an icon");
 		}
-		if (!infinite) {
-			builder.append(" for ").append(new Timespan(TimePeriod.TICK, duration));
+		if (duration != null && !infinite) {
+			builder.append(" for ").append(new Timespan(TimePeriod.TICK, duration()));
 		}
 		return builder.toString();
 	}
@@ -301,12 +316,27 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 		if (!(other instanceof SkriptPotionEffect otherPotion)) {
 			return false;
 		}
-		return this.potionEffectType.equals(otherPotion.potionEffectType)
-				&& this.duration == otherPotion.duration
-				&& this.amplifier == otherPotion.amplifier
-				&& this.ambient == otherPotion.ambient
-				&& this.particles == otherPotion.particles
-				&& this.icon == otherPotion.icon;
+		return this.potionEffectType().equals(otherPotion.potionEffectType())
+				&& this.duration() == otherPotion.duration()
+				&& this.amplifier() == otherPotion.amplifier()
+				&& this.ambient() == otherPotion.ambient()
+				&& this.particles() == otherPotion.particles()
+				&& this.icon() == otherPotion.icon();
+	}
+
+	/**
+	 * Determines whether a potion effect has (at least) all the qualities of this potion effect.
+	 * @param potionEffect The potion effect whose qualities will be checked.
+	 * @return Whether {@code potionEffect} has all the qualities of this potion effect.
+	 * Note that {@code potionEffect} may have additional qualities.
+	 */
+	public boolean matchesQualities(PotionEffect potionEffect) {
+		return potionEffectType() == potionEffect.getType() &&
+				(duration == null || duration() == potionEffect.getDuration()) &&
+				(amplifier == null || amplifier() == potionEffect.getAmplifier()) &&
+				(ambient == null || ambient() == potionEffect.isAmbient()) &&
+				(particles == null || particles() == potionEffect.hasParticles()) &&
+				(icon == null || icon() == potionEffect.hasIcon());
 	}
 
 	/*
@@ -316,16 +346,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	private void withSource(Runnable runnable) {
 		Deque<PotionEffect> hiddenEffects = null;
 		if (entitySource != null && entitySource.hasPotionEffect(potionEffectType)) {
-			if (PotionUtils.HAS_HIDDEN_EFFECTS) {
-				// build hidden effects chain to reapply
-				//noinspection DataFlowIssue = getPotionEffect NotNull due to hasPotionEffect check
-				PotionEffect hiddenEffect = entitySource.getPotionEffect(potionEffectType).getHiddenPotionEffect();
-				hiddenEffects = new ArrayDeque<>();
-				while (hiddenEffect != null) {
-					hiddenEffects.push(hiddenEffect);
-					hiddenEffect = hiddenEffect.getHiddenPotionEffect();
-				}
-			}
+			hiddenEffects = PotionUtils.getHiddenEffects(entitySource.getPotionEffect(potionEffectType));
 			entitySource.removePotionEffect(potionEffectType);
 		} else if (itemSource != null) {
 			PotionUtils.removePotionEffects(itemSource, potionEffectType);
@@ -360,23 +381,23 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	@Override
 	public Fields serialize() {
 		Fields fields = new Fields();
-		fields.putObject("type", this.potionEffectType());
-		fields.putPrimitive("duration", this.duration());
-		fields.putPrimitive("amplifier", this.amplifier());
-		fields.putPrimitive("ambient", this.ambient());
-		fields.putPrimitive("particles", this.particles());
-		fields.putPrimitive("icon", this.icon());
+		fields.putObject("type", this.potionEffectType);
+		fields.putObject("duration", this.duration);
+		fields.putObject("amplifier", this.amplifier);
+		fields.putObject("ambient", this.ambient);
+		fields.putObject("particles", this.particles);
+		fields.putObject("icon", this.icon);
 		return fields;
 	}
 
 	@Override
 	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException {
-		potionEffectType(fields.getObject("type", PotionEffectType.class));
-		duration(fields.getPrimitive("duration", int.class));
-		amplifier(fields.getPrimitive("amplifier", int.class));
-		ambient(fields.getPrimitive("ambient", boolean.class));
-		particles(fields.getPrimitive("particles", boolean.class));
-		icon(fields.getPrimitive("icon", boolean.class));
+		potionEffectType = fields.getObject("type", PotionEffectType.class);
+		duration = fields.getObject("duration", Integer.class);
+		amplifier = fields.getObject("amplifier", Integer.class);
+		ambient = fields.getObject("ambient", Boolean.class);
+		particles = fields.getObject("particles", Boolean.class);
+		icon = fields.getObject("icon", Boolean.class);
 	}
 
 	@Override

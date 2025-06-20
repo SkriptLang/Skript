@@ -94,8 +94,11 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 			} else if (object instanceof ItemType itemType) {
 				Set<PotionEffectType> types = Set.of(this.types.getArray(event));
 				for (PotionEffect effect : PotionUtils.getPotionEffects(itemType)) {
-					if (types.contains(effect.getType())) {
-						potionEffects.add(SkriptPotionEffect.fromBukkitEffect(effect, itemType));
+					for (PotionEffectType type : types) {
+						if (type.equals(effect.getType())) {
+							potionEffects.add(SkriptPotionEffect.fromBukkitEffect(effect, itemType));
+							break;
+						}
 					}
 				}
 			}
@@ -106,14 +109,13 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, REMOVE -> {
+			case ADD, DELETE, RESET -> CollectionUtils.array(Timespan.class);
+			case REMOVE -> {
 				if (state.includesHidden()) {
-					Skript.error("The hidden potion effects of an entity can only be deleted or reset");
-					yield null;
+					yield CollectionUtils.array(SkriptPotionEffect[].class, Timespan.class);
 				}
 				yield CollectionUtils.array(Timespan.class);
 			}
-			case DELETE, RESET -> CollectionUtils.array();
 			default -> null;
 		};
 	}
@@ -121,24 +123,18 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Object[] holders = getExpr().getArray(event);
+		PotionEffectType[] types = this.types.getArray(event);
 		switch (mode) {
 			case DELETE, RESET -> {
-				PotionEffectType[] types = this.types.getArray(event);
 				for (Object holder : holders) {
 					if (holder instanceof LivingEntity livingEntity) {
-						if (PotionUtils.HAS_HIDDEN_EFFECTS && state == State.ACTIVE) {
+						if (state == State.ACTIVE) {
 							for (PotionEffectType type : types) {
 								PotionEffect potionEffect = livingEntity.getPotionEffect(type);
 								if (potionEffect == null) {
 									continue;
 								}
-								// build hidden effects chain to reapply
-								PotionEffect hiddenEffect = potionEffect.getHiddenPotionEffect();
-								Deque<PotionEffect> hiddenEffects = new ArrayDeque<>();
-								while (hiddenEffect != null) {
-									hiddenEffects.push(hiddenEffect);
-									hiddenEffect = hiddenEffect.getHiddenPotionEffect();
-								}
+								Deque<PotionEffect> hiddenEffects = PotionUtils.getHiddenEffects(potionEffect);
 								livingEntity.removePotionEffect(type);
 								livingEntity.addPotionEffects(hiddenEffects);
 							}
@@ -162,10 +158,46 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 			}
 			case ADD, REMOVE -> {
 				assert delta != null;
-				Timespan change = (Timespan) delta[0];
-				SkriptPotionEffect[] potionEffects = get(event, holders);
-				for (SkriptPotionEffect potionEffect : potionEffects) {
-					ExprPotionDuration.changeSafe(potionEffect, change, mode);
+				for (Object holder : holders) {
+					if (holder instanceof LivingEntity entity) {
+						for (PotionEffectType type : types) {
+							PotionEffect potionEffect = entity.getPotionEffect(type);
+							if (potionEffect == null) {
+								continue;
+							}
+							Deque<PotionEffect> hiddenEffects = PotionUtils.getHiddenEffects(potionEffect);
+							hiddenEffects.push(potionEffect);
+							Deque<PotionEffect> finalEffects = new ArrayDeque<>();
+							effectLoop: for (PotionEffect effect : hiddenEffects) {
+								SkriptPotionEffect skriptEffect = SkriptPotionEffect.fromBukkitEffect(effect);
+								for (Object object : delta) {
+									if (object instanceof Timespan timespan) {
+										ExprPotionDuration.changeSafe(skriptEffect, timespan, mode);
+									} else if (object instanceof SkriptPotionEffect base) {
+										if (base.matchesQualities(effect)) { // remove this effect
+											continue effectLoop;
+										}
+									}
+								}
+								finalEffects.push(skriptEffect.toPotionEffect());
+							}
+							entity.removePotionEffect(type);
+							entity.addPotionEffects(finalEffects);
+						}
+					} else if (holder instanceof ItemType itemType) {
+						if (!(delta[0] instanceof Timespan timespan)) {
+							continue;
+						}
+						for (PotionEffect effect : PotionUtils.getPotionEffects(itemType)) {
+							for (PotionEffectType type : types) {
+								if (type.equals(effect.getType())) {
+									// use SkriptPotionEffect source system to handle removal and application
+									ExprPotionDuration.changeSafe(SkriptPotionEffect.fromBukkitEffect(effect, itemType), timespan, mode);
+									break;
+								}
+							}
+						}
+					}
 				}
 			}
 			default -> {

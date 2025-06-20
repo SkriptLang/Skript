@@ -49,9 +49,9 @@ test "potion effects of entities/items":
 		hide the effect's particles
 		hide the effect's icon
 	set {_potions::3} to speed 5
-	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_weaker} to an ambient potion effect of speed 5 for 1 minute
 	set {_stronger} to a potion effect of speed 10 for 30 seconds
-	set {_strongest} to a potion effect of speed 15 for 15 seconds
+	set {_strongest} to an ambient potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_holders::1} to event-entity
 	set {_holders::2} to a potion of mundane
@@ -134,6 +134,14 @@ test "potion effects of entities/items":
 			assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
 			assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effects"
 			clear the potion effects of loop-value
+			# test specific removals
+			apply {_weaker} to loop-value
+			apply {_stronger} to loop-value
+			apply {_strongest} to loop-value
+			remove ambient potion effect of speed from loop-value's active and hidden potion effects
+			assert the potion effects of loop-value are {_stronger} with "holder doesn't have stronger potion effect"
+			assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active stronger potion effect"
+			assert the hidden potion effects of loop-value are not set with "holder has hidden potion effects"
 
 	# cleanup
 	delete the entity within {_entity}
@@ -141,9 +149,9 @@ test "potion effects of entities/items":
 # ExprPotionEffect
 test "specific potion effect of entities/items":
 	# setup
-	set {_weaker} to a potion effect of speed 5 for 1 minute
+	set {_weaker} to an ambient potion effect of speed 5 for 1 minute
 	set {_stronger} to a potion effect of speed 10 for 30 seconds
-	set {_strongest} to a potion effect of speed 15 for 15 seconds
+	set {_strongest} to an ambient potion effect of speed 15 for 15 seconds
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
@@ -202,6 +210,14 @@ test "specific potion effect of entities/items":
 		assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
 		assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effects"
 		clear the speed effects of {_entity}
+		# test specific removals
+		apply {_weaker} to {_entity}
+		apply {_stronger} to {_entity}
+		apply {_strongest} to {_entity}
+		remove ambient potion effect of speed from {_entity}'s active and hidden speed effects
+		assert the speed effects of {_entity} are {_stronger} with "holder doesn't have stronger speed effect"
+		assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active stronger speed effect"
+		assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effects"
 
 	# cleanup
 	delete the entity within {_entity}
@@ -214,12 +230,12 @@ test "potion effect application":
 
 	# test simple application
 	apply speed to {_entity}
-	assert {_entity} has the potion effect speed
+	assert {_entity} has potion effect of speed
 	clear potion effects of {_entity}
 
 	# test timed application
 	apply slowness to {_entity} for 13 seconds
-	assert {_entity} has the potion effect slowness
+	assert {_entity} has potion effect of slowness
 	assert compare_timespans(13 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 13 seconds"
 
 	# cleanup
@@ -485,7 +501,25 @@ test "potion particles property":
 	# cleanup
 	delete the entity within {_entity}
 
-# CondHasPotion, CondIsPoisoned, EffPoison
+# CondHasPotion
+test "has potion effect":
+	# setup
+	spawn a pig at event-location:
+		set {_entity} to event-entity
+
+	apply ambient potion effect of speed 5 to {_entity} for 15 seconds
+	assert {_entity} has speed with "entity does not have speed"
+	assert {_entity} has speed 5 with "entity does not have speed 5"
+	assert {_entity} has ambient potion effect of speed with "entity does not have ambient speed"
+	assert {_entity} has potion effect of speed for 15 seconds with "entity does not have speed for 15 seconds"
+	assert {_entity} has ambient potion effect of speed 5 for 15 seconds with "entity does not have ambient speed 5 for 15 seconds"
+	assert {_entity} does not have speed 2 with "entity has speed 2"
+	assert {_entity} does not have slowness 5 with "entity has slowness 5"
+
+	# cleanup
+	delete the entity within {_entity}
+
+# CondIsPoisoned, EffPoison
 test "poison":
 	# setup
 	spawn a pig at event-location:
@@ -493,9 +527,9 @@ test "poison":
 
 	# test simple poisoning
 	assert {_entity} is not poisoned with "entity is poisoned"
-	assert {_entity} does not have the potion effect poison with "entity is poisoned"
+	assert {_entity} does not have potion effect of poison with "entity is poisoned"
 	poison {_entity}
-	assert {_entity} has the potion effect poison with "entity is not poisoned"
+	assert {_entity} has potion effect of poison with "entity is not poisoned"
 	assert {_entity} is poisoned with "entity is not poisoned"
 
 	# test curing

@@ -117,8 +117,11 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		if (potionEffectType == null) {
 			return new SkriptPotionEffect[0];
 		}
-		SkriptPotionEffect potionEffect = SkriptPotionEffect.fromType(potionEffectType)
-				.ambient(ambient);
+		SkriptPotionEffect potionEffect = SkriptPotionEffect.fromType(potionEffectType);
+
+		if (ambient) {
+			potionEffect.ambient(true);
+		}
 
 		if (this.amplifier != null) {
 			Number amplifierNumber = this.amplifier.getSingle(event);
