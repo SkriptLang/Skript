@@ -219,17 +219,7 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("the");
-		if (state.includesActive()) {
-			builder.append("active");
-			if (state.includesHidden()) {
-				builder.append("and");
-			}
-		}
-		if (state.includesHidden()) {
-			builder.append("hidden");
-		}
-		builder.append(types, "effect", (isSingle() ? "" : "s"), "of", getExpr());
+		builder.append("the", state.displayName(), types, "effect", (isSingle() ? "" : "s"), "of", getExpr());
 		return builder.toString();
 	}
 

@@ -11,7 +11,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +22,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -73,6 +71,14 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			return this == State.HIDDEN || this == State.BOTH;
 		}
 
+		public String displayName() {
+			return switch (this) {
+				case UNSET -> "";
+				case ACTIVE -> "active";
+				case HIDDEN -> "hidden";
+				case BOTH -> "active and hidden";
+			};
+		}
 	}
 
 	private State state;
@@ -262,19 +268,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("the");
-		if (state.includesActive()) {
-			builder.append("active");
-			if (state.includesHidden()) {
-				builder.append("and");
-			}
-		}
-		if (state.includesHidden()) {
-			builder.append("hidden");
-		}
-		builder.append("potion effects of", getExpr());
-		return builder.toString();
+		return "the " + state.displayName() + " potion effects of " + getExpr().toString(event, debug);
 	}
 
 }
