@@ -84,7 +84,12 @@ public class EffPoison extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(cure ? "cure" : "poison", entities);
+		if (cure) {
+			builder.append("cure");
+		} else {
+			builder.append("poison");
+		}
+		builder.append(entities);
 		if (duration != null) {
 			builder.append("for", duration);
 		}

@@ -55,8 +55,7 @@ final class LegacyPotionEffectTypeInfo {
 			.supplier(PotionEffectType.values())
 			.parser(new Parser<>() {
 				@Override
-				@Nullable
-				public PotionEffectType parse(String input, ParseContext context) {
+				public @Nullable PotionEffectType parse(String input, ParseContext context) {
 					return types.get(input.toLowerCase(Locale.ENGLISH));
 				}
 

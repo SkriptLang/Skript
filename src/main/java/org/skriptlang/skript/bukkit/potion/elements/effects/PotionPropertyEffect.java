@@ -57,7 +57,14 @@ abstract class PotionPropertyEffect extends Effect {
 				}
 				builder.append(getPropertyName());
 			}
-			case SHOW -> builder.append(isNegated ? "hide" : "show", "the potion", getPropertyName(), "of", potions);
+			case SHOW -> {
+				if (isNegated) {
+					builder.append("hide");
+				} else {
+					builder.append("show");
+				}
+				builder.append("the potion", getPropertyName(), "of", potions);
+			}
 		}
 		return builder.toString();
 	}

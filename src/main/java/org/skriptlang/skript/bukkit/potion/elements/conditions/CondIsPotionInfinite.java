@@ -22,7 +22,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondIsPotionInfinite extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondIsPotionInfinite.class, PropertyType.BE, "(infinite|permanent)", "skriptpotioneffects");
+		register(registry, CondIsPotionInfinite.class, "(infinite|permanent)", "skriptpotioneffects");
 	}
 
 	@Override

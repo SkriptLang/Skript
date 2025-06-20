@@ -40,8 +40,8 @@ public class BukkitUtils {
 	 * @return PotionEffectType Registry
 	 * @deprecated Use {@link org.skriptlang.skript.bukkit.potion.util.PotionUtils#getPotionEffectTypeRegistry()}
 	 */
-	@Deprecated
 	@SuppressWarnings("NullableProblems")
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @Nullable Registry<PotionEffectType> getPotionEffectTypeRegistry() {
 		if (registryExists("MOB_EFFECT")) { // Paper (1.21.4)
 			return Registry.MOB_EFFECT;
