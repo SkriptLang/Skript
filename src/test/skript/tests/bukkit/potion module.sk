@@ -151,10 +151,10 @@ test "potion effects of entities/items":
 			assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active stronger potion effect"
 			assert the hidden potion effects of loop-value are not set with "holder has hidden potion effects"
 
-	# test invalid usage
-	parse:
-		clear the hidden potion effects of {_holders::1}'s tool
-	assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden potion effects of item did not error"
+		# test invalid usage
+		parse:
+			clear the hidden potion effects of {_holders::1}'s tool
+		assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden potion effects of item did not error"
 
 	# cleanup
 	delete the entity within {_holders::1}
@@ -232,10 +232,10 @@ test "specific potion effect of entities/items":
 		assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active stronger speed effect"
 		assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effects"
 
-	# test invalid usage
-	parse:
-		clear the hidden speed effects of {_entity}'s tool
-	assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden speed effects of item did not error"
+		# test invalid usage
+		parse:
+			clear the hidden speed effects of {_entity}'s tool
+		assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden speed effects of item did not error"
 
 	# cleanup
 	delete the entity within {_entity}
