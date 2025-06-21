@@ -1,6 +1,5 @@
 package org.skriptlang.skript.test.tests.syntaxes.events;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
@@ -22,8 +21,8 @@ public class EvtFishTest extends SkriptJUnitTest {
 
 	@Before
 	public void setup() {
-		salmon = getTestLocation().getWorld().spawn(getTestLocation(), Salmon.class);
-		cod = getTestLocation().getWorld().spawn(getTestLocation(), Cod.class);
+		salmon = spawnTestEntity(EntityType.SALMON);
+		cod = spawnTestEntity(EntityType.COD);
 	}
 
 	@Test
