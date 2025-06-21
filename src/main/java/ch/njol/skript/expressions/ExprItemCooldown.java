@@ -3,10 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -15,24 +12,39 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Name("Item Cooldown")
-@Description("Change the cooldown of a specific material to a certain amount of <a href='./classes.html#timespan'>Timespan</a>.")
+@Description("""
+	Gets the current cooldown of a provided item for a player.
+	If the provided item has a cooldown group component specified the cooldown of the group will be prioritized.
+	Otherwise the cooldown of the item material will be used.
+	""")
 @Examples({
 	"on right click using stick:",
 		"\tset item cooldown of player's tool for player to 1 minute",
 		"\tset item cooldown of stone and grass for all players to 20 seconds",
 		"\treset item cooldown of cobblestone and dirt for all players"
 })
-@Since("2.8.0")
+@RequiredPlugins("MC 1.21.2 (cooldown group)")
+@Since({"2.8.0", "INSERT VERSION (cooldown group)"})
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
-	
+
+	// Cooldown groups were added in 1.21.2, to add cooldowns to a "group" of items
+	// a link to the data component can be found here https://minecraft.wiki/w/Data_component_format#use_cooldown
+	// The cooldown is applied to the material if no cooldown group is defined on the provided itemstack.
+	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "getCooldown", ItemStack.class);
+
 	static {
 		Skript.registerExpression(ExprItemCooldown.class, Timespan.class, ExpressionType.COMBINED, 
 				"[the] [item] cooldown of %itemtypes% for %players%",
@@ -55,20 +67,18 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	@Override
 	protected Timespan[] get(Event event) {
 		Player[] players = this.players.getArray(event);
-
-		List<ItemType> itemTypes = this.itemtypes.stream(event)
-				.filter(ItemType::hasType)
-				.collect(Collectors.toList());
-
-		Timespan[] timespan = new Timespan[players.length * itemTypes.size()];
-		
-		int i = 0;
+		List<ItemStack> itemStacks = convertToItemList(this.itemtypes.getArray(event));
+		List<Timespan> timespans = new ArrayList<>();
 		for (Player player : players) {
-			for (ItemType itemType : itemTypes) {
-				timespan[i++] = new Timespan(Timespan.TimePeriod.TICK, player.getCooldown(itemType.getMaterial()));
+			for (ItemStack item : itemStacks) {
+				if (SUPPORTS_COOLDOWN_GROUP) {
+					timespans.add(new Timespan(Timespan.TimePeriod.TICK, player.getCooldown(item)));
+					continue;
+				}
+				timespans.add(new Timespan(Timespan.TimePeriod.TICK, player.getCooldown(item.getType())));
 			}
 		}
-		return timespan;
+		return timespans.toArray(Timespan[]::new);
 	}
 
 	@Override
@@ -83,29 +93,45 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 			return;
 		
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0; // 0 for DELETE/RESET
+		if (mode == ChangeMode.REMOVE && ticks != 0)
+			ticks = -ticks;
 		Player[] players = this.players.getArray(event);
-		List<ItemType> itemTypes = this.itemtypes.stream(event)
-				.filter(ItemType::hasType)
-				.collect(Collectors.toList());
+		List<ItemStack> itemStacks = convertToItemList(itemtypes.getArray(event));
 
 		for (Player player : players) {
-			for (ItemType itemtype : itemTypes) {
-				Material material = itemtype.getMaterial();
+			for (ItemStack itemStack : itemStacks) {
+				Material material = itemStack.getType();
 				switch (mode) {
-					case RESET:
-					case DELETE:
-					case SET:
+					case RESET, DELETE, SET -> {
+						if (SUPPORTS_COOLDOWN_GROUP) {
+							player.setCooldown(itemStack, ticks);
+							break;
+						}
 						player.setCooldown(material, ticks);
-						break;
-					case REMOVE:
-						player.setCooldown(material, Math.max(player.getCooldown(material) - ticks, 0));
-						break;
-					case ADD:
-						player.setCooldown(material, player.getCooldown(material) + ticks);
-						break;
+					}
+					case ADD, REMOVE -> {
+						if (SUPPORTS_COOLDOWN_GROUP) {
+							player.setCooldown(itemStack, Math.max(player.getCooldown(itemStack) + ticks, 0));
+							break;
+						}
+						player.setCooldown(material, Math.max(player.getCooldown(material) + ticks, 0));
+					}
 				}
 			}
 		}
+	}
+
+	private List<ItemStack> convertToItemList(ItemType... itemTypes) {
+		return Arrays.stream(itemTypes)
+			.filter(ItemType::hasType)
+			.map(ItemType::getAll)
+			.flatMap(iterator -> {
+				List<ItemStack> itemStacks = new ArrayList<>();
+				iterator.forEach(itemStacks::add);
+				return itemStacks.stream();
+			})
+			.distinct()
+			.toList();
 	}
 
 	@Override
