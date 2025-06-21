@@ -402,11 +402,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(InventoryClickEvent.class, Player.class,
 			event -> event.getWhoClicked() instanceof Player player ? player : null);
 		EventValues.registerEventValue(InventoryClickEvent.class, World.class, event -> event.getWhoClicked().getWorld());
-		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, event -> {
-			if (event instanceof CraftItemEvent craftItemEvent)
-				return craftItemEvent.getRecipe().getResult();
-			return event.getCurrentItem();
-		});
+		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, InventoryClickEvent::getCurrentItem);
 		EventValues.registerEventValue(InventoryClickEvent.class, Slot.class, event -> {
 			Inventory invi = event.getClickedInventory(); // getInventory is WRONG and dangerous
 			if (invi == null)
