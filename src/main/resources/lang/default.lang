@@ -1412,6 +1412,7 @@ teleport causes:
 	unknown: unknown
 	dismount: dismount, dismounted
 	exit_bed: exit bed, exiting bed, bed exit
+	consumable_effect: consumable effect
 
 # -- Inventory Close Reasons --
 inventory close reasons:
@@ -2232,6 +2233,7 @@ sound categories:
 	records: record category, records category, jukebox category, jukeboxes category, noteblock category, noteblocks category, note block category, note blocks category
 	voice: voice category, speech category
 	weather: weather category
+	ui: ui, user interface
 
 # -- Panda Genes --
 genes:
@@ -2344,6 +2346,9 @@ attribute types:
 	submerged_mining_speed: player submerged mining speed, submerged mining speed
 	sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	spawn_reinforcements: zombie spawn reinforcements
+	camera_distance: camera distance
+	waypoint_transmit_range: waypoint transmit range
+	waypoint_receive_range: waypoint receive range
 
 # -- Environments --
 environments:
