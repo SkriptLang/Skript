@@ -121,7 +121,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		}
 	}
 
-	private List<ItemStack> convertToItemList(ItemType ...itemTypes) {
+	private List<ItemStack> convertToItemList(ItemType... itemTypes) {
 		return Arrays.stream(itemTypes)
 			.filter(ItemType::hasType)
 			.map(ItemType::getAll)
