@@ -153,7 +153,7 @@ public class EvtItem extends SkriptEvent {
 		if (types == null)
 			return true;
 		final ItemStack itemStack;
-    if (event instanceof BlockDispenseEvent blockDispenseEvent) {
+		if (event instanceof BlockDispenseEvent blockDispenseEvent) {
 			itemStack = blockDispenseEvent.getItem();
 		} else if (event instanceof ItemSpawnEvent itemSpawnEvent) {
 			itemStack = itemSpawnEvent.getEntity().getItemStack();
