@@ -42,8 +42,8 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		register(ExprYawPitch.class, Float.class, "(:yaw|pitch)", "entities/locations/vectors");
 	}
 
-	// For non-Paper versions lower than 1.19, changing the rotation of an entity is not supported for players.
-	private static final boolean SUPPORTS_PLAYERS = Skript.isRunningMinecraft(1, 19) && Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER;
+	// For non-Paper servers, changing the rotation of an entity is not supported for players.
+	private static final boolean SUPPORTS_PLAYERS = Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER;
 
 	private boolean usesYaw;
 
@@ -55,8 +55,8 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 
 	@Override
 	public Float convert(Object object) {
-		if (object instanceof Entity) {
-			Location location = ((Entity) object).getLocation();
+		if (object instanceof Entity entity) {
+			Location location = entity.getLocation();
 			return usesYaw
 				? normalizeYaw(location.getYaw())
 				: location.getPitch();
@@ -77,119 +77,121 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		if (Player.class.isAssignableFrom(getExpr().getReturnType()) && !SUPPORTS_PLAYERS)
 			return null;
 
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-				return CollectionUtils.array(Number.class);
-			case RESET:
-				return new Class[0];
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case SET, ADD, REMOVE -> CollectionUtils.array(Number.class);
+			case RESET -> new Class[0];
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null && mode != ChangeMode.RESET)
+		float value;
+		if (mode == ChangeMode.RESET)
+			value = 0f;
+		else if (delta == null || delta.length == 0 || delta[0] == null)
 			return;
-		float value = ((Number) delta[0]).floatValue();
+		else
+			value = ((Number) delta[0]).floatValue();
 		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof Player && !SUPPORTS_PLAYERS)
 				continue;
 
-			if (object instanceof Entity) {
-				changeForEntity((Entity) object, value, mode);
-			} else if (object instanceof Location) {
-				changeForLocation(((Location) object), value, mode);
-			} else if (object instanceof Vector) {
-				changeForVector(((Vector) object), value, mode);
-			}
+			if (object instanceof Entity entity)
+				changeForEntity(entity, value, mode);
+			else if (object instanceof Location location)
+				changeForLocation(location, value, mode);
+			else if (object instanceof Vector vector)
+				changeForVector(vector, value, mode);
 		}
 	}
 
 	private void changeForEntity(Entity entity, float value, ChangeMode mode) {
 		Location location = entity.getLocation();
+		float yaw = location.getYaw();
+		float pitch = location.getPitch();
+
 		switch (mode) {
-			case SET:
-				if (usesYaw) {
-					entity.setRotation(value, location.getPitch());
-				} else {
-					entity.setRotation(location.getYaw(), value);
-				}
-				break;
-			case REMOVE:
-				value = -value;
-			case ADD:
-				if (usesYaw) {
-					entity.setRotation(location.getYaw() + value, location.getPitch());
-				} else {
-					// Subtracting because of Minecraft's upside-down pitch.
-					entity.setRotation(location.getYaw(), location.getPitch() - value);
-				}
-				break;
-			case RESET:
-				if (usesYaw) {
-					entity.setRotation(0, location.getPitch());
-				} else {
-					entity.setRotation(location.getYaw(), 0);
-				}
-				break;
-			default:
-				break;
+			case SET -> {
+				yaw = usesYaw ? value : yaw;
+				pitch = usesYaw ? pitch : value;
+			}
+			case ADD -> {
+				yaw = usesYaw ? yaw + value : yaw;
+				pitch = usesYaw ? pitch : pitch - value;
+			}
+			case REMOVE -> {
+				yaw = usesYaw ? yaw - value : yaw;
+				pitch = usesYaw ? pitch : pitch + value;
+			}
+			case RESET -> {
+				yaw = usesYaw ? 0 : yaw;
+				pitch = usesYaw ? pitch : 0;
+			}
+			default -> {
+				return;
+			}
 		}
+		entity.setRotation(yaw, pitch);
 	}
 
 	private void changeForLocation(Location location, float value, ChangeMode mode) {
+		float yaw = location.getYaw();
+		float pitch = location.getPitch();
+
 		switch (mode) {
 			case SET:
-				if (usesYaw) {
-					location.setYaw(value);
-				} else {
-					location.setPitch(value);
-				}
+				if (usesYaw) yaw = value;
+				else pitch = value;
+				break;
+			case ADD:
+				if (usesYaw) yaw += value;
+				else pitch -= value; // Subtracting because of Minecraft's upside-down pitch.
 				break;
 			case REMOVE:
-				value = -value;
-			case ADD:
-				if (usesYaw) {
-					location.setYaw(location.getYaw() + value);
-				} else {
-					// Subtracting because of Minecraft's upside-down pitch.
-					location.setPitch(location.getPitch() - value);
-				}
+				if (usesYaw) yaw -= value;
+				else pitch += value;
 				break;
 			case RESET:
-				if (usesYaw) {
-					location.setYaw(0);
-				} else {
-					location.setPitch(0);
-				}
-			default:
+				if (usesYaw) yaw = 0f;
+				else pitch = 0f;
 				break;
+			default:
+				return;
 		}
+		if (usesYaw)
+			location.setYaw(yaw);
+		else
+			location.setPitch(pitch);
 	}
 
 	private void changeForVector(Vector vector, float value, ChangeMode mode) {
 		float yaw = getYaw(vector);
 		float pitch = getPitch(vector);
 		switch (mode) {
-			case REMOVE:
-				value = -value;
-				// $FALL-THROUGH$
-			case ADD:
-				if (usesYaw) {
+			case REMOVE -> {
+				if (usesYaw)
+					yaw -= value;
+				else
+					// Adding because of Minecraft's upside-down pitch.
+					pitch += value;
+			}
+			case ADD -> {
+				if (usesYaw)
 					yaw += value;
-				} else {
+				else
 					// Subtracting because of Minecraft's upside-down pitch.
 					pitch -= value;
-				}
-				break;
-			case SET:
+			}
+			case SET -> {
 				if (usesYaw)
 					yaw = fromSkriptYaw(value);
 				else
 					pitch = fromSkriptPitch(value);
+			}
+			default -> {
+				return;
+			}
 		}
 		Vector newVector = fromYawAndPitch(yaw, pitch).multiply(vector.length());
 		vector.copy(newVector);

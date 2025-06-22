@@ -3,3 +3,5 @@ test "yaw and pitch":
 	assert yaw of {_test} is 0 with "The yaw of the spawn location was not 0"
 	set yaw of {_test} to 90
 	assert yaw of {_test} is 90 with "The yaw of the spawn location was not set to 90"
+	reset yaw of {_test}
+	assert yaw of {_test} is 0 with "The yaw of the spawn location was not reset to 0"
