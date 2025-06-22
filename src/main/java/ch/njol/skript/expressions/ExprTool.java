@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @Name("Tool")
 @Description("The item an entity is holding in their main or off hand.")
-@Examples({"player's tool is a pickaxe",
+@Examples({"player's tool is tagged with minecraft tag \"pickaxes\"",
 	"player's off hand tool is a shield",
 	"set tool of all players to a diamond sword",
 	"set offhand tool of target entity to a bow"})
@@ -88,7 +88,7 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 			EntityEquipment equipment = entity.getEquipment();
 			if (equipment == null)
 				return null;
-			return new EquipmentSlot(equipment, offHand ? EquipmentSlot.EquipSlot.OFF_HAND : EquipmentSlot.EquipSlot.TOOL) {
+			return new EquipmentSlot(equipment, offHand ? org.bukkit.inventory.EquipmentSlot.OFF_HAND : org.bukkit.inventory.EquipmentSlot.HAND) {
 				@Override
 				public String toString(@Nullable Event event, boolean debug) {
 					String time = getTime() == 1 ? "future " : getTime() == -1 ? "former " : "";

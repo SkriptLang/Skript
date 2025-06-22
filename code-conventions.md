@@ -314,3 +314,14 @@ The exceptions are `Material.AIR`, which is a good way to represent "nothing"
 and `Material.STONE` which can be used to get a dummy `ItemMeta`.
 
 Prefer to avoid referencing the Biome enum directly, since it has changed between versons in the past.
+
+### Deprecating
+
+When deprecating a Java element (such as a class, method, or constructor):
+
+1. Replace all internal usages of the deprecated element within the Skript codebase.
+2. Add a Javadoc `@deprecated` tag that states the recommended alternative.
+3. Annotate the element with `@Deprecated(since = "INSERT VERSION", forRemoval = true)` to indicate it is scheduled for removal and what feature version it was deprecated.
+
+Deprecation PRs are typically merged for a feature release, so the PR should target `dev/feature` branch.
+Deprecated elements may be removed three feature releases after the version they were deprecated in.

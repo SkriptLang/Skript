@@ -185,7 +185,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	 * Also removes user comments.
 	 * Use {@link #updateNodes(Config)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public boolean setValues(final Config other) {
 		return getMainNode().setValues(other.getMainNode());
 	}
@@ -196,7 +196,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	 * Also removes user comments.
 	 * Use {@link #updateNodes(Config)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public boolean setValues(final Config other, final String... excluded) {
 		return getMainNode().setValues(other.getMainNode(), excluded);
 	}

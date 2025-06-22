@@ -17,7 +17,7 @@ import java.util.Arrays;
 public class EvtCommand extends SkriptEvent { // TODO condition to check whether a given command exists, & a conditon to check whether it's a custom skript command
 	static {
 		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class), "command [%-strings%]")
-				.description("Called when a player enters a command (not necessarily a Skript command) but you can check if command is a skript command, see <a href='conditions.html#CondIsSkriptCommand'>Is a Skript command condition</a>.")
+				.description("Called when a player enters a command (not necessarily a Skript command) but you can check if command is a skript command, see <a href='#CondIsSkriptCommand'>Is a Skript command condition</a>.")
 				.examples("on command:", "on command \"/stop\":", "on command \"pm Njol \":")
 				.since("2.0");
 	}

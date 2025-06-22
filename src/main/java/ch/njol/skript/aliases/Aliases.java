@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -316,6 +317,15 @@ public abstract class Aliases {
 		if (itemType != null)
 			return itemType.clone();
 
+		// Try to parse as Minecraft key `minecraft:some_item` or `some_item`
+		if ((input.contains(":") || input.contains("_")) && !input.contains(" ")) {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(input);
+			if (namespacedKey != null) {
+				Material material = Registry.MATERIAL.get(namespacedKey);
+				if (material != null)
+					return new ItemType(material);
+			}
+		}
 		// try to parse `ACTUALNAME block` as ACTUALNAME
 		if (input.endsWith(" " + blockSingular) || input.endsWith(" " + blockPlural)) {
 			String stripped = input.substring(0, input.lastIndexOf(" "));
@@ -371,7 +381,7 @@ public abstract class Aliases {
 	 *
 	 * @deprecated Freezes server on call. Use {@link #loadAsync()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static void load() {
 		try {
 			long start = System.currentTimeMillis();
@@ -598,7 +608,7 @@ public abstract class Aliases {
 	 * @return An item.
 	 * @throws IllegalArgumentException When item is not found.
 	 */
-	@Deprecated(forRemoval = true, since = "2.9.0")
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	public static ItemType javaItemType(String name) {
 		ItemType type = parseItemType(name);
 		if (type == null) {

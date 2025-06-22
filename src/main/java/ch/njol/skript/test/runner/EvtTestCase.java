@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtTestCase extends SkriptEvent {
 
 	static {
-		if (TestMode.ENABLED) {
+		if (TestMode.ENABLED && !TestMode.GEN_DOCS) {
 			Skript.registerEvent("Test Case", EvtTestCase.class, SkriptTestEvent.class, "test %string% [when <.+>]")
 					.description("Contents represent one test case.")
 					.examples("")

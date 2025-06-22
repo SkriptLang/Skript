@@ -1,14 +1,13 @@
 package ch.njol.util;
 
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Function;
 
 /**
- * @deprecated use {@link Function}
+ * @deprecated use {@link Function} instead.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface
 public interface Callback<R, A> extends Function<A, R> {
 

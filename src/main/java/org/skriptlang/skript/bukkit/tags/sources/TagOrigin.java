@@ -41,8 +41,8 @@ public enum TagOrigin {
 	@Contract(pure = true)
 	public static @NotNull String getFullPattern() {
 		if (TagModule.PAPER_TAGS_EXIST)
-			return "[:minecraft|:datapack|:paper|:custom]";
-		return "[:minecraft|:datapack|:custom]";
+			return "[:minecraft|:datapack|:paper|custom:(custom|skript)]";
+		return "[:minecraft|:datapack|custom:(custom|skript)]";
 	}
 
 	/**
