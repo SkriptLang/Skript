@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	on entity potion effect modification:
 		if the potion effect type category is harmful:
 			 message "You have been afflicted with %potion effect type%"
-""")
+	""")
 @RequiredPlugins("Minecraft 1.21+")
 @Since("INSERT VERSION")
 public class ExprPotionEffectTypeCategory extends SimplePropertyExpression<PotionEffectType, PotionEffectTypeCategory> {

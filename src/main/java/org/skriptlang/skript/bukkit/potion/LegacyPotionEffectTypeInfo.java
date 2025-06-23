@@ -9,18 +9,27 @@ import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 
 import java.io.StreamCorruptedException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Utility for obtaining a {@link ClassInfo} for {@link PotionEffectType} using legacy methods.
+ * This applies for versions older than 1.20.3, or more specifically,
+ *  where {@link PotionUtils#getPotionEffectTypeRegistry()} is null.
+ */
 final class LegacyPotionEffectTypeInfo {
 
 	private static Map<String, PotionEffectType> types;
 	private static Map<String, String> names;
 
 	private static void init() {
+		if (types != null) {
+			return;
+		}
 		types = new HashMap<>();
 		names = new HashMap<>();
 		Language.addListener(() -> {
@@ -39,6 +48,9 @@ final class LegacyPotionEffectTypeInfo {
 
 	private LegacyPotionEffectTypeInfo() { }
 
+	/**
+	 * Initializes and returns a ClassInfo for working with {@link PotionEffectType}s.
+	 */
 	public static ClassInfo<PotionEffectType> getInfo() {
 		init();
 		return new ClassInfo<>(PotionEffectType.class, "potioneffecttype")
@@ -60,36 +72,37 @@ final class LegacyPotionEffectTypeInfo {
 				}
 
 				@Override
-				public String toString(PotionEffectType potionEffectType, int flags) {
-					return names.get(potionEffectType.getKey().getKey());
+				public String toString(PotionEffectType type, int flags) {
+					return names.get(type.getKey().getKey());
 				}
 
 				@Override
-				public String toVariableNameString(PotionEffectType p) {
-					return "potioneffecttype:" + p.getName();
+				public String toVariableNameString(PotionEffectType type) {
+					return "potioneffecttype:" + type.getName();
 				}
 			})
 			.serializer(new Serializer<>() {
 				@Override
-				public Fields serialize(final PotionEffectType o) {
-					final Fields f = new Fields();
-					f.putObject("name", o.getName());
-					return f;
+				public Fields serialize(PotionEffectType type) {
+					Fields fields = new Fields();
+					fields.putObject("name", type.getName());
+					return fields;
 				}
 
 				@Override
-				public void deserialize(final PotionEffectType o, final Fields f) {
+				public void deserialize(PotionEffectType type, Fields fields) {
 					assert false;
 				}
 
 				@Override
-				protected PotionEffectType deserialize(final Fields fields) throws StreamCorruptedException {
-					final String name = fields.getObject("name", String.class);
+				protected PotionEffectType deserialize(Fields fields) throws StreamCorruptedException {
+					String name = fields.getObject("name", String.class);
 					assert name != null;
-					final PotionEffectType t = PotionEffectType.getByName(name);
-					if (t == null)
+					PotionEffectType type = PotionEffectType.getByName(name);
+					if (type == null) {
 						throw new StreamCorruptedException("Invalid PotionEffectType " + name);
-					return t;
+					}
+					return type;
 				}
 
 				@Override

@@ -16,7 +16,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	if the player is poisoned:
 		cure the player from poison
 		message "You have been cured!" to the player
-""")
+	""")
 @Since("1.4.4")
 public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 

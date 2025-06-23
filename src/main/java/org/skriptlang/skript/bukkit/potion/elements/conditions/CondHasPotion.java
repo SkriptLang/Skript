@@ -29,11 +29,11 @@ import org.jetbrains.annotations.Nullable;
 @Example("""
 	if the player has a potion effect of speed:
 		message "You are sonic!"
-""")
+	""")
 @Example("""
 	if all players have speed and haste active:
 		broadcast "This server is ready to mine!"
-""")
+	""")
 @Since("2.6.1, INSERT VERSION (\"the\" support)")
 public class CondHasPotion extends Condition {
 

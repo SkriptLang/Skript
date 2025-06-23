@@ -17,12 +17,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	on entity potion effect modification:
 		if the potion effect is ambient:
 			message "It's particle time!"
-""")
+	""")
 @Since("INSERT VERSION")
 public class CondIsPotionAmbient extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondIsPotionAmbient.class, PropertyType.BE, "ambient", "skriptpotioneffects");
+		register(registry, CondIsPotionAmbient.class, "ambient", "skriptpotioneffects");
 	}
 
 	@Override

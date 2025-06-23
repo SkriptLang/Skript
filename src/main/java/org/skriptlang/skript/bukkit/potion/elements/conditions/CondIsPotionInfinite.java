@@ -17,7 +17,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	on entity potion effect modification:
 		if the potion effect is infinite:
 			message "You've been permanently affected by %event-potioneffect%!"
-""")
+	""")
 @Since("INSERT VERSION")
 public class CondIsPotionInfinite extends PropertyCondition<SkriptPotionEffect> {
 

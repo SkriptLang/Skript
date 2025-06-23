@@ -9,9 +9,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Particles")
-@Description({
-	"Modify whether a potion effect shows particles.",
-})
+@Description("Modify whether a potion effect shows particles.")
 @Example("hide the particles for the player's potion effects")
 @Since("INSERT VERSION")
 public class EffPotionParticles extends PotionPropertyEffect {

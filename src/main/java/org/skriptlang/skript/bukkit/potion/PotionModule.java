@@ -25,6 +25,7 @@ import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -96,6 +97,7 @@ public class PotionModule implements AddonModule {
 					if (!fields.hasField("potion")) {
 						String typeName = fields.getObject("type", String.class);
 						assert typeName != null;
+						//noinspection deprecation - legacy compatibility method
 						PotionEffectType type = PotionEffectType.getByName(typeName);
 						if (type == null)
 							throw new StreamCorruptedException("Invalid PotionEffectType " + typeName);
@@ -144,7 +146,7 @@ public class PotionModule implements AddonModule {
 			.description("Represents the cause of an 'entity potion effect' event. For example, an arrow hitting an entity or a command being executed.")
 			.since("2.10"));
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Action.class, "entitypotionaction", "entity potion actions")
-			.user("(entity )?potion ?effect ?action")
+			.user("(entity ?)?potion ?effect ?action")
 			.name("Entity Potion Effect Event Action")
 			.description("Represents the action being performed in an 'entity potion effect' event.",
 				"'added' indicates the entity does not already have a potion effect of the event potion effect type.",
@@ -156,7 +158,7 @@ public class PotionModule implements AddonModule {
 		// Added in 1.21
 		if (Skript.classExists("org.bukkit.potion.PotionEffectTypeCategory")) {
 			Classes.registerClass(new EnumClassInfo<>(PotionEffectTypeCategory.class, "potioneffecttypecategory", "potion effect type categories")
-				.user("potion ?effect ?type? category?(ies)?")
+				.user("potion ?effect ?type? categor(y|ies)")
 				.name("Potion Effect Type Category")
 				.description("Represents the type of effect a potion effect type has on an entity.")
 				.since("INSERT VERSION"));
@@ -165,13 +167,13 @@ public class PotionModule implements AddonModule {
 		}
 
 		// SkriptPotionEffect -> PotionEffect
-		Converters.registerConverter(SkriptPotionEffect.class, PotionEffect.class, SkriptPotionEffect::toPotionEffect);
+		Converters.registerConverter(SkriptPotionEffect.class, PotionEffect.class, SkriptPotionEffect::toPotionEffect, Converter.NO_CHAINING);
 		// PotionEffect -> SkriptPotionEffect
-		Converters.registerConverter(PotionEffect.class, SkriptPotionEffect.class, SkriptPotionEffect::fromBukkitEffect);
+		Converters.registerConverter(PotionEffect.class, SkriptPotionEffect.class, SkriptPotionEffect::fromBukkitEffect, Converter.NO_CHAINING);
 		// PotionEffectType -> SkriptPotionEffect
-		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::fromType);
+		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::fromType, Converter.NO_CHAINING);
 		// SkriptPotionEffect -> PotionEffectType
-		Converters.registerConverter(SkriptPotionEffect.class, PotionEffectType.class, SkriptPotionEffect::potionEffectType);
+		Converters.registerConverter(SkriptPotionEffect.class, PotionEffectType.class, SkriptPotionEffect::potionEffectType, Converter.NO_CHAINING);
 	}
 
 	@Override

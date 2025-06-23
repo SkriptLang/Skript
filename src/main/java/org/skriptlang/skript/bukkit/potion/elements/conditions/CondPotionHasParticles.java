@@ -14,7 +14,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	on entity potion effect modification:
 		if the potion effect has particles:
 			 hide the particles of event-potioneffecttype for event-entity
-""")
+	""")
 @Since("INSERT VERSION")
 public class CondPotionHasParticles extends PropertyCondition<SkriptPotionEffect> {
 

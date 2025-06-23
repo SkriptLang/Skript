@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -42,13 +41,13 @@ public class ExprPotionAmplifier extends SimplePropertyExpression<SkriptPotionEf
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
 		int change = (int) delta[0];
+		if (mode == ChangeMode.REMOVE) {
+			change = -change;
+		}
 		for (SkriptPotionEffect potionEffect : getExpr().getArray(event)) {
 			// need to subtract 1 for setting
 			int base = mode == ChangeMode.SET ? -1 : potionEffect.amplifier();
-			if (mode == ChangeMode.REMOVE) {
-				change = -change;
-			}
-			potionEffect.amplifier(Math2.fit(Integer.MIN_VALUE, change + base, Integer.MAX_VALUE));
+			potionEffect.amplifier(change + base);
 		}
 	}
 

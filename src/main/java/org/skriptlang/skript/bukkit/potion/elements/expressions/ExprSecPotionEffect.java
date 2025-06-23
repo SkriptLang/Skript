@@ -41,17 +41,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	set {_potion} to a potion effect of speed 2 for 10 minutes:
 		hide the effect's icon
 		hide the effect's particles
-""")
+	""")
 @Example("add strength 5 to the potion effects of the player's tool")
 @Example("""
 	apply invisibility to the player for 5 minutes:
 		hide the effect's particles
-""")
+	""")
 @Example("add a potion effect of speed 1 to the potion effects of the player")
 @Example("""
 	# creates a potion effect with the properties of an existing potion effect
 	set {_potion} to a potion effect of slowness based on the player's speed effect
-""")
+	""")
 @Since("2.5.2, INSERT VERSION (syntax changes, infinite duration support, no icon support)")
 public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
@@ -123,7 +123,6 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 	}
 
 	@Override
-	@Nullable
 	protected SkriptPotionEffect[] get(Event event) {
 		SkriptPotionEffect potionEffect = null;
 		if (source != null) {
@@ -206,7 +205,12 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		if (source != null) {
 			builder.append("based on", source);
 		} else if (!infinite) {
-			builder.append("for", duration != null ? duration : PotionUtils.DEFAULT_DURATION_STRING);
+			builder.append("for");
+			if (duration == null) {
+				builder.append(PotionUtils.DEFAULT_DURATION_STRING);
+			} else {
+				builder.append(duration);
+			}
 		}
 		return builder.toString();
 	}

@@ -11,7 +11,6 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
@@ -26,10 +25,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	command /strengthboost:
 		trigger:
 			apply strength 10 to the player for 5 minutes
-""")
+	""")
 @Example("apply the potion effects of the player's tool to the player")
-// TODO new since
-@Since("2.0, 2.2-dev27 (ambient and particle-less potion effects), 2.5 (replacing existing effect), 2.5.2 (potion effects), INSERT VERSION (syntax changes)")
+@Since("2.0, INSERT VERSION (syntax rework)")
 public class EffApplyPotionEffect extends Effect {
 
 	public static void register(SyntaxRegistry registry) {
