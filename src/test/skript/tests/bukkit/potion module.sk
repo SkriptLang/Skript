@@ -571,7 +571,7 @@ on entity potion effect modification:
 	the duration of the event-potion effect is 17 seconds
 	set {potion_event::1} to true
 
-on entity potion effect of glowing added due to plugin:
+on entity potion effect of glowing added and removed due to plugin or drinking milk:
 	the event-potion effect does not have particles
 	the duration of the event-potion effect is 17 seconds
 	set {potion_event::2} to true

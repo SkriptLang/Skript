@@ -16,6 +16,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
+
 import static ch.njol.skript.registrations.EventValues.TIME_PAST;
 
 public class EvtEntityPotion extends SkriptEvent {
@@ -24,13 +26,17 @@ public class EvtEntityPotion extends SkriptEvent {
 		registry.register(BukkitRegistryKeys.EVENT, BukkitSyntaxInfos.Event.builder(EvtEntityPotion.class, "Entity Potion Effect")
 				.supplier(EvtEntityPotion::new)
 				.addEvent(EntityPotionEffectEvent.class)
-				.addPattern("entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [%-entitypotionaction%] [due to %-entitypotioncause%]")
+				.addPattern("entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [%-entitypotionactions%] [due to %-entitypotioncauses%]")
 				.addDescription("Called when an entity's potion effect is modified.")
 				.addExamples(
 					"on entity potion effect modification:",
 						"\tbroadcast \"A potion effect was added to %event-entity%!\"",
 					"",
-					"on entity potion effect modification of night vision:"
+					"on entity potion effect of night vision added:",
+						"\tmessage \"You can now see in the dark!\"",
+					"",
+					"on entity potion effect of strength removed:",
+						"\tmessage \"You're now weaker!\""
 				)
 				.since("2.10, INSERT VERSION (action support)")
 				.build());
@@ -43,16 +49,16 @@ public class EvtEntityPotion extends SkriptEvent {
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Action.class, EntityPotionEffectEvent::getAction);
 	}
 
-	private Literal<EntityPotionEffectEvent.Action> action;
+	private Literal<EntityPotionEffectEvent.Action> actions;
 	private Expression<PotionEffectType> types;
-	private Literal<EntityPotionEffectEvent.Cause> cause;
+	private Literal<EntityPotionEffectEvent.Cause> causes;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		types = (Expression<PotionEffectType>) args[0];
-		action = (Literal<EntityPotionEffectEvent.Action>) args[1];
-		cause = (Literal<EntityPotionEffectEvent.Cause>) args[2];
+		actions = (Literal<EntityPotionEffectEvent.Action>) args[1];
+		causes = (Literal<EntityPotionEffectEvent.Cause>) args[2];
 		return true;
 	}
 
@@ -60,7 +66,7 @@ public class EvtEntityPotion extends SkriptEvent {
 	public boolean check(Event event) {
 		EntityPotionEffectEvent potionEvent = (EntityPotionEffectEvent) event;
 
-		if (action != null && action.getSingle() != potionEvent.getAction()) {
+		if (actions != null && Arrays.stream(actions.getAll()).noneMatch(action -> action == potionEvent.getAction())) {
 			return false;
 		}
 
@@ -72,7 +78,7 @@ public class EvtEntityPotion extends SkriptEvent {
 			}
 		}
 
-		return cause == null || cause.getSingle() == potionEvent.getCause();
+		return causes == null || Arrays.stream(causes.getAll()).anyMatch(cause -> cause == potionEvent.getCause());
 	}
 
 	@Override
@@ -82,11 +88,11 @@ public class EvtEntityPotion extends SkriptEvent {
 		if (types != null) {
 			builder.append("of", types);
 		}
-		if (action != null) {
-			builder.append(action);
+		if (actions != null) {
+			builder.append(actions);
 		}
-		if (cause != null) {
-			builder.append("due to", cause);
+		if (causes != null) {
+			builder.append("due to", causes);
 		}
 		return builder.toString();
 	}

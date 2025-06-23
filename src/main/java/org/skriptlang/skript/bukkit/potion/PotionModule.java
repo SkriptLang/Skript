@@ -141,7 +141,7 @@ public class PotionModule implements AddonModule {
 		}
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
-			.user("(entity )?potion ?effect ?cause")
+			.user("(entity ?)?potion ?effect ?cause")
 			.name("Entity Potion Effect Event Cause")
 			.description("Represents the cause of an 'entity potion effect' event. For example, an arrow hitting an entity or a command being executed.")
 			.since("2.10"));
