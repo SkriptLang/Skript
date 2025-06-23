@@ -148,25 +148,8 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 		switch (mode) {
 			case SET, DELETE, RESET:
 				for (Object holder : holders) {
-					if (holder instanceof LivingEntity livingEntity) {
-						Collection<PotionEffect> potionEffects = livingEntity.getActivePotionEffects();
-						if (state == State.ACTIVE) {
-							for (PotionEffect potionEffect : potionEffects) {
-								Deque<PotionEffect> hiddenEffects = PotionUtils.getHiddenEffects(potionEffect);
-								livingEntity.removePotionEffect(potionEffect.getType());
-								livingEntity.addPotionEffects(hiddenEffects);
-							}
-						} else if (state == State.HIDDEN) {
-							for (PotionEffect potionEffect : potionEffects) {
-								livingEntity.removePotionEffect(potionEffect.getType());
-								// reapply active effect
-								livingEntity.addPotionEffect(potionEffect);
-							}
-						} else {
-							for (PotionEffect potionEffect : potionEffects) {
-								livingEntity.removePotionEffect(potionEffect.getType());
-							}
-						}
+					if (holder instanceof LivingEntity entity) {
+						reset(entity);
 					} else if (holder instanceof ItemType itemType) {
 						PotionUtils.clearPotionEffects(itemType);
 					}
@@ -178,9 +161,9 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			case ADD:
 				assert delta != null;
 				for (Object holder : holders) {
-					if (holder instanceof LivingEntity livingEntity) {
+					if (holder instanceof LivingEntity entity) {
 						for (Object object : delta) {
-							livingEntity.addPotionEffect((PotionEffect) object);
+							entity.addPotionEffect((PotionEffect) object);
 						}
 					} else if (holder instanceof ItemType itemType) {
 						for (Object object : delta) {
@@ -192,53 +175,13 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			case REMOVE:
 				assert delta != null;
 				for (Object holder : holders) {
-					if (holder instanceof LivingEntity livingEntity) {
+					if (holder instanceof LivingEntity entity) {
 						for (Object object : delta) {
-							SkriptPotionEffect potionEffect = (SkriptPotionEffect) object;
-							PotionEffect entityEffect = livingEntity.getPotionEffect(potionEffect.potionEffectType());
-							if (entityEffect == null) {
-								continue;
-							}
-							Deque<PotionEffect> hiddenEffects = PotionUtils.getHiddenEffects(entityEffect);
-
-							boolean madeChanges = false;
-
-							// retain (some or all) hidden effects
-							// if the state is ACTIVE, then we do not want to touch any hidden effects
-							// otherwise, only retain the hidden effects that do not match
-							if (state != State.ACTIVE) {
-								var hiddenEffectsIterator = hiddenEffects.iterator();
-								while (hiddenEffectsIterator.hasNext()) {
-									if (potionEffect.matchesQualities(hiddenEffectsIterator.next())) {
-										hiddenEffectsIterator.remove();
-										madeChanges = true;
-									}
-								}
-							}
-
-							// retain the active effect
-							// if the state is HIDDEN, then we do not want to touch the active effect
-							// otherwise, only retain the active effect if it does not match
-							if (state == State.HIDDEN || !potionEffect.matchesQualities(entityEffect)) {
-								hiddenEffects.push(entityEffect);
-							} else {
-								madeChanges = true;
-							}
-
-							if (madeChanges) { // only remove and apply if changes were made
-								livingEntity.removePotionEffect(entityEffect.getType());
-								livingEntity.addPotionEffects(hiddenEffects);
-							}
+							remove(entity, (SkriptPotionEffect) object);
 						}
 					} else if (holder instanceof ItemType itemType) {
 						for (Object object : delta) {
-							SkriptPotionEffect potionEffect = (SkriptPotionEffect) object;
-							for (PotionEffect itemEffect : PotionUtils.getPotionEffects(itemType)) {
-								if (potionEffect.matchesQualities(itemEffect)) {
-									PotionUtils.removePotionEffects(itemType, potionEffect.potionEffectType());
-									break; // API doesn't support multiple effects of the same type
-								}
-							}
+							remove(itemType, (SkriptPotionEffect) object);
 						}
 					}
 				}
@@ -246,9 +189,9 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			case REMOVE_ALL:
 				assert delta != null;
 				for (Object holder : holders) {
-					if (holder instanceof LivingEntity livingEntity) {
+					if (holder instanceof LivingEntity entity) {
 						for (Object object : delta) {
-							livingEntity.removePotionEffect((PotionEffectType) object);
+							entity.removePotionEffect((PotionEffectType) object);
 						}
 					} else if (holder instanceof ItemType itemType) {
 						for (Object object : delta) {
@@ -259,6 +202,71 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 				break;
 			default:
 				assert false;
+		}
+	}
+
+	private void reset(LivingEntity entity) {
+		Collection<PotionEffect> potionEffects = entity.getActivePotionEffects();
+		if (state == State.ACTIVE) { // preserve hidden effects
+			for (PotionEffect potionEffect : potionEffects) {
+				Deque<PotionEffect> hiddenEffects = PotionUtils.getHiddenEffects(potionEffect);
+				entity.removePotionEffect(potionEffect.getType());
+				entity.addPotionEffects(hiddenEffects);
+			}
+		} else if (state == State.HIDDEN) { // preserve active effect
+			for (PotionEffect potionEffect : potionEffects) {
+				entity.removePotionEffect(potionEffect.getType());
+				// applying a potion effect ignores the hidden effect value
+				entity.addPotionEffect(potionEffect);
+			}
+		} else {
+			for (PotionEffect potionEffect : potionEffects) {
+				entity.removePotionEffect(potionEffect.getType());
+			}
+		}
+	}
+
+	private void remove(LivingEntity entity, SkriptPotionEffect potionEffect) {
+		PotionEffect entityEffect = entity.getPotionEffect(potionEffect.potionEffectType());
+		if (entityEffect == null) {
+			return;
+		}
+
+		Deque<PotionEffect> effects = PotionUtils.getHiddenEffects(entityEffect);
+		boolean madeChanges = false;
+
+		// retain (some or all) hidden effects
+		// we only remove hidden effects if the user explicitly included them
+		if (state.includesHidden()) {
+			var effectsIterator = effects.iterator();
+			while (effectsIterator.hasNext()) {
+				if (potionEffect.matchesQualities(effectsIterator.next())) {
+					effectsIterator.remove();
+					madeChanges = true;
+				}
+			}
+		}
+
+		// retain the active effect
+		// unless the user is only removing hidden effects, we attempt to filter the active effect
+		if (state == State.HIDDEN || !potionEffect.matchesQualities(entityEffect)) { // preserve the effect
+			effects.addLast(entityEffect);
+		} else {
+			madeChanges = true;
+		}
+
+		if (madeChanges) { // only remove and apply if changes were made
+			entity.removePotionEffect(entityEffect.getType());
+			entity.addPotionEffects(effects);
+		}
+	}
+
+	private void remove(ItemType itemType, SkriptPotionEffect potionEffect) {
+		for (PotionEffect itemEffect : PotionUtils.getPotionEffects(itemType)) {
+			if (potionEffect.matchesQualities(itemEffect)) {
+				PotionUtils.removePotionEffects(itemType, potionEffect.potionEffectType());
+				break; // API doesn't support multiple effects of the same type
+			}
 		}
 	}
 

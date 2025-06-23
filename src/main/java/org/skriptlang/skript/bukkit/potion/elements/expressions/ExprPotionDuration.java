@@ -55,11 +55,10 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
 			duration = change;
 		} else {
-			int base = potionEffect.duration();
-			if (base == PotionEffect.INFINITE_DURATION) {
-				base = Integer.MAX_VALUE;
+			if (potionEffect.infinite()) { // add/remove should not affect infinite potions
+				return;
 			}
-			duration = new Timespan(TimePeriod.TICK, base);
+			duration = new Timespan(TimePeriod.TICK, potionEffect.duration());
 			if (mode == ChangeMode.ADD) {
 				duration = duration.add(change);
 			} else {
