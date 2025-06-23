@@ -75,7 +75,7 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		EventValues.registerEventValue(PotionEffectSectionEvent.class, SkriptPotionEffect.class, event -> event.effect);
 	}
 
-	private static class PotionEffectSectionEvent extends Event {
+	static class PotionEffectSectionEvent extends Event {
 		public SkriptPotionEffect effect;
 		@Override
 		public @NotNull HandlerList getHandlers() {
