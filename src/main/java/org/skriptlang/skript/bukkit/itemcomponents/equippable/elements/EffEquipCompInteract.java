@@ -23,8 +23,8 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "setEquipOnInteract", boolean.class))
 			Skript.registerEffect(EffEquipCompInteract.class,
-				"allow %equippablecomponents% to be equipped on[to] entities",
-				"prevent %equippablecomponents% from being equipped on[to] entities");
+				"(allow|force) %equippablecomponents% to be equipped on[to] entities",
+				"(block|prevent|disallow) %equippablecomponents% from being equipped on[to] entities");
 	}
 
 	private boolean equip;

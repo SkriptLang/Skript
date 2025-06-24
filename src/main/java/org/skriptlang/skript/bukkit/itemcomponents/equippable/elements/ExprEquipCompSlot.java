@@ -44,8 +44,7 @@ public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrappe
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
+		assert delta != null;
 		EquipmentSlot providedSlot = (EquipmentSlot) delta[0];
 		if (providedSlot == null)
 			return;

@@ -13,7 +13,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
 @Name("Equippable Component - Allowed Entities")
 @Description("The entities allowed to wear the item. "
 	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
@@ -36,6 +34,7 @@ import java.util.List;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
+@SuppressWarnings({"rawtypes", "UnstableApiUsage"})
 public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperiment {
 
 	static {
@@ -57,10 +56,7 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 			Collection<EntityType> allowed = component.getAllowedEntities();
 			if (allowed == null || allowed.isEmpty())
 				continue;
-			allowed.forEach(entityType -> {
-				Class<? extends Entity> entityClass = entityType.getEntityClass();
-				types.add(EntityData.fromClass(entityClass));
-			});
+			allowed.forEach(entityType -> types.add(EntityUtils.toSkriptEntityData(entityType)));
 		}
 		return types.toArray(EntityData[]::new);
 	}
@@ -96,7 +92,7 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 					current.removeAll(converted);
 					component.setAllowedEntities(current);
 				}
-				case DELETE -> component.setAllowedEntities(new ArrayList<>());
+				case DELETE -> component.setAllowedEntities((EntityType) null);
 				default -> throw new IllegalStateException("Unexpected value: " + mode);
 			}
 		}));

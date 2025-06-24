@@ -27,10 +27,10 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 
 	static {
 		Skript.registerEffect(EffEquipCompDamageable.class,
-			"make %equippablecomponents% lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
-			"(allow|force) %equippablecomponents% to lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
-			"make %equippablecomponents% not lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
-			"(disallow|prevent) %equippablecomponents% from losing durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))"
+			"(make|let) %equippablecomponents% (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"(allow|force) %equippablecomponents% to (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"(make|let) %equippablecomponents% not (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"(disallow|prevent|disallow) %equippablecomponents% from (lose durability|being damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
 		);
 	}
 

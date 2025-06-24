@@ -31,8 +31,8 @@ public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> im
 
 	static {
 		Skript.registerCondition(CondEquipCompDamage.class, ConditionType.PROPERTY,
-			"%equippablecomponents% will lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
-			"%equippablecomponents% (will not|won't) lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))"
+			"%equippablecomponents% will (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"%equippablecomponents% (will not|won't) (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
 		);
 	}
 

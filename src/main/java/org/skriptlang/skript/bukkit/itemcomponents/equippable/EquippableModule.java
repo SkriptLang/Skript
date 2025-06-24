@@ -32,7 +32,6 @@ public class EquippableModule implements AddonModule {
 			.requiredPlugins("Minecraft 1.21.2+")
 			.since("INSERT VERSION")
 			.defaultExpression(new EventValueExpression<>(EquippableWrapper.class))
-			.cloner(EquippableWrapper::clone)
 		);
 
 		Converters.registerConverter(EquippableComponent.class, EquippableWrapper.class, EquippableWrapper::new, Converter.NO_RIGHT_CHAINING);

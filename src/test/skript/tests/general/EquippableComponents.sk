@@ -8,7 +8,7 @@ options:
 
 using equippable components
 
-test "equippable components - new" when running minecraft "1.21.2":
+local function newEquippableComponent():: equippable component:
 	set {_component} to a blank equippable component
 	set the equip sound of {_component} to {@sound}
 	assert the equip sound of {_component} is {@sound} with "Equip sound of component was not set"
@@ -38,6 +38,11 @@ test "equippable components - new" when running minecraft "1.21.2":
 		assert {_component} can be equipped onto entities with "Component should equip onto entities"
 		prevent {_component} from being equipped onto entities
 		assert {_component} can not be equipped onto entities with "Component should not equip onto entities"
+
+	return {_component}
+
+test "equippable components - new" when running minecraft "1.21.2":
+	newEquippableComponent()
 
 test "equippable components - itemtype" when running minecraft "1.21.2":
 	set {_item} to a leather helmet (item type)
@@ -102,36 +107,44 @@ test "equippable components - itemstack" when running minecraft "1.21.2":
 		assert {_item} can not be equipped onto entities with "ItemStack should not equip onto entities"
 
 test "equippable components - copy" when running minecraft "1.21.2":
-	set {_item} to a golden helmet
-	set {_component} to a copy of (equippable component of {_item})
-	set the equip sound of {_component} to {@sound}
-	assert the equip sound of {_component} is {@sound} with "Equip sound of copy was not set"
-	set the equipment slot of {_component} to {@slot}
-	assert the equipment slot of {_component} is {@slot} with "Equipment slot of copy was not set"
-	set the equipped model key of {_component} to {@model}
-	assert the equipped model key of {_component} is {@model} with "Model of copy was not set"
-	set the allowed entities of {_component} to {@allowed}
-	assert the allowed entities of {_component} is {@allowed} with "Allowed entities of copy was not set"
-	set the camera overlay of {_component} to {@camera}
-	assert the camera overlay of {_component} is {@camera} with "Camera overlay of copy was not set"
-	allow {_component} to swap equipment
-	assert {_component} can swap equipment with "Copy should be swappable"
-	prevent {_component} from swapping equipment
-	assert {_component} can not swap equipment with "Copy should not be swappable"
-	allow {_component} to be dispensed
-	assert {_item} can be dispensed with "Copy should be dispensable"
-	prevent {_item} from being dispensed
-	assert {_item} can not be dispensed with "Copy should not be dispensable"
-	make {_component} lose durability when hurt
-	assert {_component} will lose durability when hurt with "Copy should lose durability when hurt"
-	make {_component} not lose durability when hurt
-	assert {_component} will not lose durability when hurt with "Copy should not lose durability when hurt"
+	set {_original} to newEquippableComponent()
+	set {_copy} to a item component copy of {_original}
+	set the equip sound of {_copy} to "item.armor.equip_diamond"
+	assert the equip sound of {_copy} is "item.armor.equip_diamond" with "Equip sound of copy was not set"
+	set the equipment slot of {_copy} to helmet slot
+	assert the equipment slot of {_copy} is helmet slot with "Equipment slot of copy was not set"
+	set the equipped model key of {_copy} to "skript:model_key_copy"
+	assert the equipped model key of {_copy} is "skript:model_key_copy" with "Model of copy was not set"
+	set the allowed entities of {_copy} to a villager and a zombie villager
+	assert the allowed entities of {_copy} is a villager and a zombie villager with "Allowed entities of copy was not set"
+	set the camera overlay of {_copy} to "skript:camera_key_copy"
+	assert the camera overlay of {_copy} is "skript:camera_key_copy" with "Camera overlay of copy was not set"
+	allow {_copy} to swap equipment
+	assert {_copy} can swap equipment with "Copy should be swappable"
+	prevent {_copy} from swapping equipment
+	assert {_copy} can not swap equipment with "Copy should not be swappable"
+	allow {_copy} to be dispensed
+	assert {_copy} can be dispensed with "Copy should be dispensable"
+	prevent {_copy} from being dispensed
+	assert {_copy} can not be dispensed with "Copy should not be dispensable"
+	make {_copy} lose durability when hurt
+	assert {_copy} will lose durability when hurt with "Copy should lose durability when hurt"
+	make {_copy} not lose durability when hurt
+	assert {_copy} will not lose durability when hurt with "Copy should not lose durability when hurt"
 
 	parse if method {@method} exists:
-		allow {_component} to be equipped onto entities
-		assert {_component} can be equipped onto entities with "Copy should equip onto entities"
-		prevent {_component} from being equipped onto entities
-		assert {_component} can not be equipped onto entities with "Copy should not equip onto entities"
+		allow {_copy} to be equipped onto entities
+		assert {_copy} can be equipped onto entities with "Copy should equip onto entities"
+		prevent {_copy} from being equipped onto entities
+		assert {_copy} can not be equipped onto entities with "Copy should not equip onto entities"
+
+	# Compare to original
+	assert the equip sound of {_copy} is not the equip sound of {_original} with "Equip sound of copy should not be the same as original"
+	assert the equipment slot of {_copy} is not the equipment slot of {_original} with "Equipment slot of copy should not be the same as original"
+	assert the equipped model key of {_copy} is not the equipped model key of {_original} with "Model key of copy should not be the same as original"
+	assert the allowed entities of {_copy} is not the allowed entities of {_original} with "Allowed entities of copy should not be the same as original"
+	assert the camera overlay of {_copy} is not the camera overlay of {_original} with "Camera overlay of copy should not be the same as original"
+
 
 test "equippable components - slot" when running minecraft "1.21.2":
 	set {_gui} to a chest inventory with 1 row

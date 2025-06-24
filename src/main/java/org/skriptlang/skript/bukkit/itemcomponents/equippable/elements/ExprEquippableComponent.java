@@ -35,7 +35,7 @@ public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack,
 	}
 
 	@Override
-	public @Nullable EquippableWrapper convert(ItemStack itemStack) {
+	public EquippableWrapper convert(ItemStack itemStack) {
 		return new EquippableWrapper(itemStack);
 	}
 

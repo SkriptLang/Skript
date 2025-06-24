@@ -25,8 +25,8 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 
 	static {
 		Skript.registerEffect(EffEquipCompSwapEquipment.class,
-			"allow %equippablecomponents% to swap equipment [on right click|when right clicked]",
-			"prevent %equippablecomponents% from swapping equipment [on right click|when right clicked]"
+			"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
+			"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]"
 		);
 	}
 

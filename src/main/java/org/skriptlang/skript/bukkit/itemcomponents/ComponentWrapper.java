@@ -15,10 +15,9 @@ import java.util.function.Consumer;
  * or a stand-alone component.
  * @param <T> The type of component
  */
-public abstract class ComponentWrapper<T> {
+public abstract class ComponentWrapper<T> implements Cloneable {
 
 	private final @Nullable ItemSource itemSource;
-	private final @Nullable ItemStack itemStack;
 	private final T component;
 
 	/**
@@ -37,8 +36,7 @@ public abstract class ComponentWrapper<T> {
 	 */
 	public ComponentWrapper(ItemSource itemSource) {
 		this.itemSource = itemSource;
-		this.itemStack = itemSource.getItemStack();
-		this.component = this.getComponent(itemStack.getItemMeta());
+		this.component = this.getComponent(itemSource.getItemMeta());
 	}
 
 	/**
@@ -47,7 +45,6 @@ public abstract class ComponentWrapper<T> {
 	public ComponentWrapper(T component) {
 		this.component = component;
 		this.itemSource = null;
-		this.itemStack = null;
 	}
 
 	/**
@@ -57,8 +54,7 @@ public abstract class ComponentWrapper<T> {
 	 */
 	public T getComponent() {
 		if (itemSource != null) {
-			assert itemStack != null;
-			return this.getComponent(itemStack.getItemMeta());
+			return this.getComponent(itemSource.getItemMeta());
 		}
 		return component;
 	}
@@ -67,7 +63,7 @@ public abstract class ComponentWrapper<T> {
 	 * Returns the {@link ItemStack} associated with this {@link ComponentWrapper}, if available.
 	 */
 	public @Nullable ItemStack getItemStack() {
-		return itemStack;
+		return itemSource == null ? null : itemSource.getItemStack();
 	}
 
 	/**
@@ -100,8 +96,7 @@ public abstract class ComponentWrapper<T> {
 	public void applyComponent(@NotNull T component) {
 		if (itemSource == null)
 			return;
-		assert itemStack != null;
-		ItemMeta itemMeta = itemStack.getItemMeta();
+		ItemMeta itemMeta = itemSource.getItemMeta();
 		setComponent(itemMeta, component);
 		itemSource.setItemMeta(itemMeta);
 	}
@@ -121,8 +116,8 @@ public abstract class ComponentWrapper<T> {
 		if (!(obj instanceof ComponentWrapper<?> other))
 			return false;
 		boolean relation = true;
-		if (this.itemStack != null && other.itemStack != null)
-			relation = this.itemStack.equals(other.itemStack);
+		if (this.itemSource != null && other.itemSource != null)
+			relation = this.itemSource.getItemStack().equals(other.itemSource.getItemStack());
 		relation &= this.getComponent().equals(other.getComponent());
 		return relation;
 	}

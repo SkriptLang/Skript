@@ -1,10 +1,10 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.util.slot.Slot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ch.njol.skript.util.slot.Slot;
-import ch.njol.skript.aliases.ItemType;
 
 /**
  * Container class for containing the origin of a {@link Slot}, {@link ItemStack}, and {@link ItemType}.
@@ -32,6 +32,13 @@ public class ItemSource<T> {
 	 */
 	public ItemStack getItemStack() {
 		return ItemUtils.asItemStack(source);
+	}
+
+	/**
+	 * Get the {@link ItemMeta} retrieved from {@link #source}.
+	 */
+	public ItemMeta getItemMeta() {
+		return getItemStack().getItemMeta();
 	}
 
 	/**

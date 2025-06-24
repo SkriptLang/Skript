@@ -25,8 +25,8 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 
 	static {
 		Skript.registerEffect(EffEquipCompDispensable.class,
-			"allow %equippablecomponents% to be dispensed",
-			"(block|prevent) %equippablecomponents% from being dispensed"
+			"(allow|force) %equippablecomponents% to be dispensed",
+			"(block|prevent|disallow) %equippablecomponents% from being dispensed"
 		);
 	}
 

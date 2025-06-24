@@ -10,8 +10,7 @@ import org.bukkit.NamespacedKey;
  */
 public class NamespacedUtils {
 
-	public static final Message NAMEDSPACED_FORMAT_MESSAGE =
-		new ArgsMessage("misc.namespacedutils.format");
+	public static final Message NAMEDSPACED_FORMAT_MESSAGE = new ArgsMessage("misc.namespacedutils.format");
 
 	/**
 	 * Check if {@code character} is a valid {@link Character} for the namespace section of a {@link NamespacedKey}.
@@ -72,11 +71,12 @@ public class NamespacedUtils {
 			namespacedKey = NamespacedKey.minecraft(key);
 		}
 
-		if (emptyNamespace)
+		if (emptyNamespace) {
 			return new ValidationResult<>(
 				true,
 				"The namespace section of the key is empty. Consider removing the ':'.",
 				namespacedKey);
+		}
 		return new ValidationResult<>(true, namespacedKey);
 	}
 

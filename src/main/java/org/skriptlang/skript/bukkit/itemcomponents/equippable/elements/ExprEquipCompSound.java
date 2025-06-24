@@ -49,6 +49,10 @@ public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapp
 		if (delta != null) {
 			String soundString = (String) delta[0];
 			enumSound = SoundUtils.getSound(soundString);
+			if (enumSound == null) {
+				error("Could not find a sound with the id '" + soundString + "'.");
+				return;
+			}
 		}
 		Sound finalSound = enumSound;
 

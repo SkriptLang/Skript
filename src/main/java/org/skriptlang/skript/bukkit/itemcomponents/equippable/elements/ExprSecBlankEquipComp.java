@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Since("INSERT VERSION")
 public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperiment {
 
-	public static class BlankEquippableSectionEvent extends Event {
+	private static class BlankEquippableSectionEvent extends Event {
 
 		private final EquippableWrapper wrapper;
 
