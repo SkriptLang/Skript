@@ -134,6 +134,16 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	}
 
 	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return mappingExpr.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		return mappingExpr.canReturn(returnType);
+	}
+
+	@Override
 	public boolean isLoopOf(String candidateString) {
 		return mappingExpr.isLoopOf(candidateString) || matchesReturnType(candidateString);
 	}
