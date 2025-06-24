@@ -113,19 +113,16 @@ public class ExperimentData {
 				.map(experiment -> "'" + experiment.codeName() + "'")
 				.collect(Collectors.joining(", ")));
 			if (!disallowed.isEmpty()) {
-				builder.append(" and disable ");
-				builder.append(disallowed.stream()
-					.map(experiment -> "'" + experiment.codeName() + "'")
-					.collect(Collectors.joining(", ")));
+				builder.append(" and ");
 			}
-			builder.append(".");
-		} else {
-			assert !disallowed.isEmpty();
+		}
+		if (!disallowed.isEmpty()) {
 			builder.append("disable ");
 			builder.append(disallowed.stream()
 				.map(experiment -> "'" + experiment.codeName() + "'")
 				.collect(Collectors.joining(", ")));
 		}
+		builder.append(".");
 		return builder.toString();
 	}
 
