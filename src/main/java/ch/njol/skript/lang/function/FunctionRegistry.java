@@ -2,9 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -78,29 +76,35 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		Skript.debug("Registering signature '" + signature.getName() + "'");
 
 		// namespace
-		NamespaceIdentifier namespaceId = GLOBAL_NAMESPACE;
+		NamespaceIdentifier namespaceId;
 		if (namespace != null && signature.isLocal()) {
 			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
+		} else {
+			namespaceId = GLOBAL_NAMESPACE;
 		}
 
 		// since we are getting a namespace and then updating it by putting it back in the map,
 		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
 		synchronized (namespaces) {
-			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
+			namespaces.compute(namespaceId, (id, ns) -> {
+				if (ns == null) {
+					ns = new Namespace();
+				}
 
-			FunctionIdentifier identifier = FunctionIdentifier.of(signature);
+				FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-			// register
-			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.getOrDefault(identifier.name, new HashSet<>());
-			boolean exists = identifiersWithName.add(identifier);
-			if (!exists) {
-				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
-			}
-			ns.identifiers.put(identifier.name, identifiersWithName);
+				// register
+				Set<FunctionIdentifier> identifiersWithName = ns.identifiers.getOrDefault(identifier.name, new HashSet<>());
+				boolean exists = identifiersWithName.add(identifier);
+				if (!exists) {
+					alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+				}
+				ns.identifiers.put(identifier.name, identifiersWithName);
 
-			ns.signatures.put(identifier, signature);
+				ns.signatures.put(identifier, signature);
 
-			namespaces.put(namespaceId, ns);
+				return ns;
+			});
 		}
 	}
 
@@ -137,9 +141,11 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		}
 
 		// namespace
-		NamespaceIdentifier namespaceId = GLOBAL_NAMESPACE;
+		NamespaceIdentifier namespaceId;
 		if (namespace != null && function.getSignature().isLocal()) {
 			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
+		} else {
+			namespaceId = GLOBAL_NAMESPACE;
 		}
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
@@ -150,13 +156,18 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		// since we are getting a namespace and then updating it by putting it back in the map,
 		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
 		synchronized (namespaces) {
-			Namespace ns = namespaces.getOrDefault(namespaceId, new Namespace());
-			Function<?> existing = ns.functions.put(identifier, function);
-			if (existing != null) {
-				alreadyRegisteredError(name, identifier, namespaceId);
-			}
+			namespaces.compute(namespaceId, (id, ns) -> {
+				if (ns == null) {
+					ns = new Namespace();
+				}
 
-			namespaces.put(namespaceId, ns);
+				Function<?> existing = ns.functions.put(identifier, function);
+				if (existing != null) {
+					alreadyRegisteredError(name, identifier, namespaceId);
+				}
+
+				return ns;
+			});
 		}
 	}
 
