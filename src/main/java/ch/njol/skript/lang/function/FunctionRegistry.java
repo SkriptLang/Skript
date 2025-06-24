@@ -73,7 +73,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 */
 	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
-		Skript.debug("Registering signature '" + signature.getName() + "'");
+		Skript.debug("Registering signature '%s'", signature.getName());
 
 		// namespace
 		NamespaceIdentifier namespaceId;
@@ -133,7 +133,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 */
 	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
-		Skript.debug("Registering function '" + function.getName() + "'");
+		Skript.debug("Registering function '%s'", function.getName());
 
 		String name = function.getName();
 		if (!name.matches(FUNCTION_NAME_PATTERN)) {
@@ -344,15 +344,19 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			Skript.debug("Failed to find a function for '%s'", provided.name);
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		} else if (candidates.size() == 1) {
-			Skript.debug("Matched function for '%s': %s", provided.name, candidates.stream().findAny().orElse(null));
+			if (Skript.debug()) {
+				Skript.debug("Matched function for '%s': %s", provided.name, candidates.stream().findAny().orElse(null));
+			}
 			return new Retrieval<>(RetrievalResult.EXACT,
 				ns.functions.get(candidates.stream().findAny().orElse(null)),
 				null);
 		} else {
-			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
-			Skript.debug("Failed to match an exact function for '%s'", provided.name);
-			Skript.debug("Identifier: %s", provided);
-			Skript.debug("Options: %s", options);
+			if (Skript.debug()) {
+				String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
+				Skript.debug("Failed to match an exact function for '%s'", provided.name);
+				Skript.debug("Identifier: %s", provided);
+				Skript.debug("Options: %s", options);
+			}
 			return new Retrieval<>(RetrievalResult.AMBIGUOUS,
 				null,
 				candidates.stream()
@@ -413,16 +417,20 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			Skript.debug("Failed to find a signature for '%s'", provided.name);
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		} else if (candidates.size() == 1) {
-			Skript.debug("Matched signature for '%s': %s",
-				provided.name, ns.signatures.get(candidates.stream().findAny().orElse(null)));
+			if (Skript.debug()) {
+				Skript.debug("Matched signature for '%s': %s",
+					provided.name, ns.signatures.get(candidates.stream().findAny().orElse(null)));
+			}
 			return new Retrieval<>(RetrievalResult.EXACT,
 				ns.signatures.get(candidates.stream().findAny().orElse(null)),
 				null);
 		} else {
-			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
-			Skript.debug("Failed to match an exact signature for '%s'", provided.name);
-			Skript.debug("Identifier: %s", provided);
-			Skript.debug("Options: %s", options);
+			if (Skript.debug()) {
+				String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
+				Skript.debug("Failed to match an exact signature for '%s'", provided.name);
+				Skript.debug("Identifier: %s", provided);
+				Skript.debug("Options: %s", options);
+			}
 			return new Retrieval<>(RetrievalResult.AMBIGUOUS,
 				null,
 				candidates.stream()
