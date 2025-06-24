@@ -8,7 +8,7 @@ options:
 
 using equippable components
 
-local function newEquippableComponent():: equippable component:
+local function newEquippableComponent():: object:
 	set {_component} to a blank equippable component
 	set the equip sound of {_component} to {@sound}
 	assert the equip sound of {_component} is {@sound} with "Equip sound of component was not set"
