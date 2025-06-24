@@ -20,7 +20,6 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-
 @SuppressWarnings("UnstableApiUsage")
 public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperiment {
 

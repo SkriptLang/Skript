@@ -54,11 +54,11 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-        try {
-            Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		try {
+			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }

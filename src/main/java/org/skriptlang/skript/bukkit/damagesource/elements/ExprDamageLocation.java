@@ -34,7 +34,6 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-
 @SuppressWarnings("UnstableApiUsage")
 public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperiment {
 
@@ -72,7 +71,7 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-        sectionEvent.damageLocation = delta == null ? null : (Location) delta[0];
+		sectionEvent.damageLocation = delta == null ? null : (Location) delta[0];
 	}
 
 	@Override

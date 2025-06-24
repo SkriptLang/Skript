@@ -71,7 +71,7 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-        sectionEvent.causingEntity = delta == null ? null : (Entity) delta[0];
+		sectionEvent.causingEntity = delta == null ? null : (Entity) delta[0];
 	}
 
 	@Override

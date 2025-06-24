@@ -24,7 +24,6 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-
 @SuppressWarnings("UnstableApiUsage")
 public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperiment {
 
@@ -35,14 +34,11 @@ public class CondWasIndirect extends PropertyCondition<DamageSource> implements 
 		);
 	}
 
-	private Expression<DamageSource> sources;
 	private boolean indirect;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		indirect = parseResult.hasTag("in");
-		//noinspection unchecked
-		sources = (Expression<DamageSource>) exprs[0];
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -59,8 +55,8 @@ public class CondWasIndirect extends PropertyCondition<DamageSource> implements 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(sources);
-		if (sources.isSingle()) {
+		builder.append(getExpr());
+		if (getExpr().isSingle()) {
 			builder.append("was");
 		} else {
 			builder.append("were");

@@ -1,9 +1,7 @@
 package org.skriptlang.skript.util;
 
-import ch.njol.skript.Skript;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,13 +9,6 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 public class ClassLoaderTest {
-
-	private static final List<String> ignore = new ArrayList<>();
-
-	static {
-		if (!Skript.classExists("org.bukkit.damage.DamageSource"))
-			ignore.add("MutableDamageSource");
-	}
 
 	private static void load(ClassLoader loader) {
 		loader.loadClasses(ClassLoaderTest.class);
@@ -72,13 +63,6 @@ public class ClassLoaderTest {
 		Set<Class<?>> classes = new HashSet<>();
 		ClassLoader.Builder builder = ClassLoader.builder()
 				.basePackage("org.skriptlang.skript")
-				.filter(string -> {
-					if (ignore.contains(string))
-						return false;
-					String[] split = string.split("\\.");
-					String className = split[split.length - 1];
-					return !ignore.contains(className);
-				})
 				.forEachClass(classes::add);
 
 		// test without deep

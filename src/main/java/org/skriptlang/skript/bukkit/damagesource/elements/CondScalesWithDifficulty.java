@@ -20,25 +20,21 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-
 @SuppressWarnings("UnstableApiUsage")
 public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperiment {
 
 	static {
 		Skript.registerCondition(CondScalesWithDifficulty.class,
-			"%damagesources% (does scale|scales) damage with difficulty",
+			"%damagesources% ((does|do) scale|scales) damage with difficulty",
 			"%damagesources% (do not|don't|does not|doesn't) scale damage with difficulty",
-			"%damagesources%'[s] damage (does scale|scales) with difficulty",
+			"%damagesources%'[s] damage ((does|do) scale|scales) with difficulty",
 			"%damagesources%'[s] damage (do not|don't|does not|doesn't) scale with difficulty");
 	}
-
-	private Expression<DamageSource> sources;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
-		sources = (Expression<DamageSource>) exprs[0];
-		setExpr(sources);
+		setExpr((Expression<? extends DamageSource>) exprs[0]);
 		setNegated(matchedPattern % 2 == 1);
 		return true;
 	}
@@ -56,7 +52,7 @@ public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> im
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(sources);
+		builder.append(getExpr());
 		if (isNegated()) {
 			builder.append("does not scale");
 		} else {

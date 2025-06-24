@@ -50,11 +50,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-
 @SuppressWarnings("UnstableApiUsage")
 public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperiment {
 
-	public static class DamageSourceSectionEvent extends Event {
+	static class DamageSourceSectionEvent extends Event {
 
 		public DamageType damageType = DamageType.GENERIC;
 		public @Nullable Entity causingEntity = null;
