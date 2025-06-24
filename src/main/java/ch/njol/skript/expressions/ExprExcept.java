@@ -5,12 +5,12 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -29,7 +29,7 @@ import org.skriptlang.skript.lang.comparator.Relation;
 	set {_except::*} to {_items::*} excluding copper ingot
 	""")
 @Since("INSERT VERSION")
-public class ExprExcept extends SimpleExpression<Object> {
+public class ExprExcept extends WrapperExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprExcept.class, Object.class, ExpressionType.COMBINED,
@@ -51,6 +51,7 @@ public class ExprExcept extends SimpleExpression<Object> {
 			isOrList = true;
 		}
 		exclude = LiteralUtils.defendExpression(exprs[1]);
+		setExpr(source);
 		return LiteralUtils.canInitSafely(source, exclude);
 	}
 
