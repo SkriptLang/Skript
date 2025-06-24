@@ -186,6 +186,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 */
 	default boolean canReturn(Class<?> returnType) {
 		for (Class<?> type : this.possibleReturnTypes()) {
+			// if a possible return type is Object, then this Expression could return anything
 			if (returnType.isAssignableFrom(type) || type == Object.class)
 				return true;
 		}
