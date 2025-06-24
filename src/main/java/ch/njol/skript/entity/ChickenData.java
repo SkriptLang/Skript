@@ -54,9 +54,8 @@ public class ChickenData extends EntityData<Chicken> {
 
 	@Override
 	protected boolean init(@Nullable Class<? extends Chicken> entityClass, @Nullable Chicken chicken) {
-		if (chicken != null) {
-			if (VARIANTS_ENABLED)
-				variant = chicken.getVariant();
+		if (chicken != null && VARIANTS_ENABLED) {
+			variant = chicken.getVariant();
 		}
 		return true;
 	}
