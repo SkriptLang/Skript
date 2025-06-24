@@ -44,16 +44,19 @@ public class DefaultFunctions {
 
 		// basic math functions
 
-		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true) {
-			@Override
-			public Long[] executeSimple(Object[][] params) {
-				if (params[0][0] instanceof Long)
-					return new Long[] {(Long) params[0][0]};
-				return new Long[] {Math2.floor(((Number) params[0][0]).doubleValue())};
-			}
-		}.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
+		Functions.register(DefaultFunction.builder("floor", Long.class)
+			.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
-			.since("2.2"));
+			.since("2.2")
+			.parameter("n", Number.class)
+			.build(args -> {
+				Number value = args.get("n");
+
+				if (value instanceof Long l)
+					return l;
+
+				return Math2.floor(value.doubleValue());
+			}));
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
@@ -350,53 +353,52 @@ public class DefaultFunctions {
 			.examples("set {_nether} to world(\"%{_world}%_nether\")")
 			.since("2.2");
 
-		Functions.registerFunction(new JavaFunction<Location>("location", new Parameter[] {
-			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("z", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("world", DefaultClasses.WORLD, true, new EventValueExpression<>(World.class)),
-			new Parameter<>("yaw", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true)),
-			new Parameter<>("pitch", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true))
-		}, DefaultClasses.LOCATION, true) {
-			@Override
-			@Nullable
-			public Location[] execute(FunctionEvent<?> event, Object[][] params) {
-				for (int i : new int[] {0, 1, 2, 4, 5}) {
-					if (params[i] == null || params[i].length == 0 || params[i][0] == null)
-						return null;
-				}
+		Functions.register(DefaultFunction.builder("location", Location.class)
+			.description(
+				"Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
+				"If for whatever reason the world is not found, it will fallback to the server's main world.")
+			.examples(
+				"# TELEPORTING",
+				"teleport player to location(1,1,1, world \"world\")",
+				"teleport player to location(1,1,1, world \"world\", 100, 0)",
+				"teleport player to location(1,1,1, world \"world\", yaw of player, pitch of player)",
+				"teleport player to location(1,1,1, world of player)",
+				"teleport player to location(1,1,1, world(\"world\"))",
+				"teleport player to location({_x}, {_y}, {_z}, {_w}, {_yaw}, {_pitch})",
+				"# SETTING BLOCKS",
+				"set block at location(1,1,1, world \"world\") to stone",
+				"set block at location(1,1,1, world \"world\", 100, 0) to stone",
+				"set block at location(1,1,1, world of player) to stone",
+				"set block at location(1,1,1, world(\"world\")) to stone",
+				"set block at location({_x}, {_y}, {_z}, {_w}) to stone",
+				"# USING VARIABLES",
+				"set {_l1} to location(1,1,1)",
+				"set {_l2} to location(10,10,10)",
+				"set blocks within {_l1} and {_l2} to stone",
+				"if player is within {_l1} and {_l2}:",
+				"# OTHER",
+				"kill all entities in radius 50 around location(1,65,1, world \"world\")",
+				"delete all entities in radius 25 around location(50,50,50, world \"world_nether\")",
+				"ignite all entities in radius 25 around location(1,1,1, world of player)")
+			.since("2.2")
+			.parameter("x", Number.class)
+			.parameter("y", Number.class)
+			.parameter("z", Number.class)
+			.optionalParameter("world", World.class)
+			.optionalParameter("yaw", Float.class)
+			.optionalParameter("pitch", Float.class)
+			.build((event, args) -> {
+				System.out.println((Object) args.get("x"));
+				System.out.println((Object) args.get("y"));
+				System.out.println((Object) args.get("z"));
+				System.out.println((Object) args.get("world"));
 
-				World world = params[3].length == 1 ? (World) params[3][0] : Bukkit.getWorlds().get(0); // fallback to main world of server
+				World world = args.getOrDefault("world", new EventValueExpression<>(World.class).getSingle(event));
 
-				return new Location[] {new Location(world,
-					((Number) params[0][0]).doubleValue(), ((Number) params[1][0]).doubleValue(), ((Number) params[2][0]).doubleValue(),
-					((Number) params[4][0]).floatValue(), ((Number) params[5][0]).floatValue())};
-			}
-		}.description("Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
-						"If for whatever reason the world is not found, it will fallback to the server's main world.")
-			.examples("# TELEPORTING",
-					"teleport player to location(1,1,1, world \"world\")",
-					"teleport player to location(1,1,1, world \"world\", 100, 0)",
-					"teleport player to location(1,1,1, world \"world\", yaw of player, pitch of player)",
-					"teleport player to location(1,1,1, world of player)",
-					"teleport player to location(1,1,1, world(\"world\"))",
-					"teleport player to location({_x}, {_y}, {_z}, {_w}, {_yaw}, {_pitch})",
-					"# SETTING BLOCKS",
-					"set block at location(1,1,1, world \"world\") to stone",
-					"set block at location(1,1,1, world \"world\", 100, 0) to stone",
-					"set block at location(1,1,1, world of player) to stone",
-					"set block at location(1,1,1, world(\"world\")) to stone",
-					"set block at location({_x}, {_y}, {_z}, {_w}) to stone",
-					"# USING VARIABLES",
-					"set {_l1} to location(1,1,1)",
-					"set {_l2} to location(10,10,10)",
-					"set blocks within {_l1} and {_l2} to stone",
-					"if player is within {_l1} and {_l2}:",
-					"# OTHER",
-					"kill all entities in radius 50 around location(1,65,1, world \"world\")",
-					"delete all entities in radius 25 around location(50,50,50, world \"world_nether\")",
-					"ignite all entities in radius 25 around location(1,1,1, world of player)")
-			.since("2.2"));
+				return new Location(world == null ? Bukkit.getWorlds().get(0) : world,
+					args.<Number>get("x").doubleValue(), args.<Number>get("y").doubleValue(), args.<Number>get("z").doubleValue(),
+					args.getOrDefault("yaw", 0f), args.getOrDefault("pitch", 0f));
+			}));
 
 		Functions.registerFunction(new SimpleJavaFunction<Date>("date", new Parameter[] {
 			new Parameter<>("year", DefaultClasses.NUMBER, true, null),

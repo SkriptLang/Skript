@@ -56,11 +56,31 @@ public abstract class Functions {
 
 	static boolean callFunctionEvents = false;
 
+
 	/**
-	 * Registers a function written in Java.
+	 * Registers a {@link DefaultFunction}.
 	 *
-	 * @return The passed function
+	 * @param function The function to register.
+	 * @return The registered function.
 	 */
+	public static DefaultFunction<?> register(DefaultFunction<?> function) {
+		Skript.checkAcceptRegistrations();
+
+		String name = function.getName();
+		if (!name.matches(functionNamePattern))
+			throw new SkriptAPIException("Invalid function name '%s'".formatted(name));
+
+		javaNamespace.addSignature(function.getSignature());
+		javaNamespace.addFunction(function);
+		globalFunctions.put(function.getName(), javaNamespace);
+
+		return function;
+	}
+
+	/**
+	 * @deprecated Use {@link #register(DefaultFunction)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static JavaFunction<?> registerFunction(JavaFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 		String name = function.getName();
@@ -391,10 +411,22 @@ public abstract class Functions {
 		toValidate.clear();
 	}
 
+	/**
+	 * @deprecated Use {@link #getFunctions()}.
+	 */
 	@SuppressWarnings({"unchecked"})
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static Collection<JavaFunction<?>> getJavaFunctions() {
 		// We know there are only Java functions in that namespace
 		return (Collection<JavaFunction<?>>) (Object) javaNamespace.getFunctions();
+	}
+
+	/**
+	 * Returns all functions.
+	 * @return All functions.
+	 */
+	public static Collection<Function<?>> getFunctions() {
+		return javaNamespace.getFunctions();
 	}
 
 	/**

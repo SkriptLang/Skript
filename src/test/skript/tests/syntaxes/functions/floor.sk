@@ -1,0 +1,5 @@
+test "floor function":
+	assert floor(1) = 1 with "floor(1) should be 1"
+	assert floor(1.24) = 1 with "floor(1.24) should be 1"
+	assert floor(1346356276) = 1346356276 with "floor(1346356276) should be 1346356276"
+	assert floor(1346356276.24) = 1346356276 with "floor(1346356276.24) should be 1346356276"

@@ -43,7 +43,9 @@ public final class Parameter<T> {
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
-	final @Nullable Expression<? extends T> def;
+	@Nullable Expression<? extends T> def;
+
+	final boolean optional;
 	
 	/**
 	 * Whether this parameter takes one or many values.
@@ -56,8 +58,20 @@ public final class Parameter<T> {
 		this.type = type;
 		this.def = def;
 		this.single = single;
+		this.optional = def != null;
 	}
-	
+
+	Parameter(String name, ClassInfo<T> type, boolean single, boolean optional) {
+		this.name = name;
+		this.type = type;
+		this.single = single;
+		this.optional = optional;
+	}
+
+	public boolean isOptional() {
+		return optional || def != null;
+	}
+
 	/**
 	 * Get the Type of this parameter.
 	 * @return Type of the parameter
