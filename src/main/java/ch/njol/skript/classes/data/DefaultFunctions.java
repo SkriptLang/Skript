@@ -388,11 +388,6 @@ public class DefaultFunctions {
 			.optionalParameter("yaw", Float.class)
 			.optionalParameter("pitch", Float.class)
 			.build((event, args) -> {
-				System.out.println((Object) args.get("x"));
-				System.out.println((Object) args.get("y"));
-				System.out.println((Object) args.get("z"));
-				System.out.println((Object) args.get("world"));
-
 				World world = args.getOrDefault("world", new EventValueExpression<>(World.class).getSingle(event));
 
 				return new Location(world == null ? Bukkit.getWorlds().get(0) : world,
@@ -464,23 +459,19 @@ public class DefaultFunctions {
 			.examples("date(2014, 10, 1) # 0:00, 1st October 2014", "date(1990, 3, 5, 14, 30) # 14:30, 5th May 1990", "date(1999, 12, 31, 23, 59, 59, 999, -3*60, 0) # almost year 2000 in parts of Brazil (-3 hours offset, no DST)")
 			.since("2.2"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Vector>("vector", new Parameter[] {
-			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("z", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.VECTOR, true) {
-			@Override
-			public Vector[] executeSimple(Object[][] params) {
-				return new Vector[] {new Vector(
-					((Number)params[0][0]).doubleValue(),
-					((Number)params[1][0]).doubleValue(),
-					((Number)params[2][0]).doubleValue()
-				)};
-			}
-
-		}.description("Creates a new vector, which can be used with various expressions, effects and functions.")
+		Functions.register(DefaultFunction.builder("vector", Vector.class)
+			.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 			.examples("vector(0, 0, 0)")
-			.since("2.2-dev23"));
+			.since("2.2-dev23")
+			.parameter("x", Number.class)
+			.parameter("y", Number.class)
+			.parameter("z", Number.class)
+			.build(args -> new Vector(
+				args.<Number>get("x").doubleValue(),
+				args.<Number>get("y").doubleValue(),
+				args.<Number>get("z").doubleValue()
+			))
+		);
 
 		Functions.registerFunction(new SimpleJavaFunction<Long>("calcExperience", new Parameter[] {
 			new Parameter<>("level", DefaultClasses.LONG, true, null)
@@ -528,24 +519,31 @@ public class DefaultFunctions {
 			)
 			.since("2.5, 2.10 (alpha)");
 
-		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
-			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),
-			new Parameter<>("getExactPlayer", DefaultClasses.BOOLEAN, true, new SimpleLiteral<Boolean>(false, true)) // getExactPlayer -- grammar ¯\_ (ツ)_/¯
-		}, DefaultClasses.PLAYER, true) {
-			@Override
-			public Player[] executeSimple(Object[][] params) {
-				String name = (String) params[0][0];
-				boolean isExact = (boolean) params[1][0];
+		Functions.register(DefaultFunction.builder("player", Player.class)
+			.description(
+				"Returns an online player from their name or UUID, if player is offline function will return nothing.",
+				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name."
+			)
+			.examples(
+				"set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'",
+				"set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'",
+				"set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline"
+			)
+			.since("2.8.0")
+			.parameter("nameOrUUID", String.class)
+			.optionalParameter("getExactPlayer", Boolean.class)
+			.build((event, args) -> {
+				String name = args.get("nameOrUUID");
+				boolean isExact = args.getOrDefault("getExactPlayer", false);
+
 				UUID uuid = null;
-				if (name.length() > 16 || name.contains("-")) { // shortcut
+				if (name.length() > 16 || name.contains("-")) {
 					if (Utils.isValidUUID(name))
 						uuid = UUID.fromString(name);
 				}
-				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
-			}
-		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.", "Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
-			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
-			.since("2.8.0");
+
+				return uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name));
+			}));
 
 		{ // offline player function
 			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
@@ -603,22 +601,22 @@ public class DefaultFunctions {
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
 
-		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
-			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
-		}, DefaultClasses.STRING, true) {
-			@Override
-			public String[] executeSimple(Object[][] params) {
-				StringBuilder builder = new StringBuilder();
-				for (Object object : params[0]) {
-					builder.append(Classes.toString(object));
-				}
-				return new String[] {builder.toString()};
-			}
-		}).description("Joins the provided texts (and other things) into a single text.")
+		Functions.register(DefaultFunction.builder("concat", String.class)
+			.description("Joins the provided texts (and other things) into a single text.")
 			.examples(
 				"concat(\"hello \", \"there\") # hello there",
 				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
-			).since("2.9.0");
+			)
+			.since("2.9.0")
+			.parameter("texts", Object[].class)
+			.build(args -> {
+				StringBuilder builder = new StringBuilder();
+				Object[] objects = args.get("texts");
+				for (Object object : objects) {
+					builder.append(Classes.toString(object));
+				}
+				return builder.toString();
+			}));
 
 		// joml functions - for display entities
 		{

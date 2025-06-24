@@ -40,304 +40,323 @@ import java.util.function.Function;
  */
 public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Function<T> {
 
-	/**
-	 * Creates a new builder for a function.
-	 *
-	 * @param name       The name of the function.
-	 * @param returnType The type of the function.
-	 * @param <T>        The return type.
-	 * @return The builder for a function.
-	 */
-	public static <T> Builder<T> builder(@NotNull String name, @NotNull Class<T> returnType) {
-		return new Builder<>(name, returnType);
-	}
+    /**
+     * Creates a new builder for a function.
+     *
+     * @param name       The name of the function.
+     * @param returnType The type of the function.
+     * @param <T>        The return type.
+     * @return The builder for a function.
+     */
+    public static <T> Builder<T> builder(@NotNull String name, @NotNull Class<T> returnType) {
+        return new Builder<>(name, returnType);
+    }
 
-	private final Parameter<?>[] parameters;
-	private final Function<FunctionArguments, T> execute;
-	private final BiFunction<Event, FunctionArguments, T> execute2;
+    private final Parameter<?>[] parameters;
+    private final Function<FunctionArguments, T> execute;
+    private final BiFunction<Event, FunctionArguments, T> execute2;
 
-	private final String[] description;
-	private final String[] since;
-	private final String[] examples;
-	private final String[] keywords;
+    private final String[] description;
+    private final String[] since;
+    private final String[] examples;
+    private final String[] keywords;
 
-	private DefaultFunction(
-		String name, Parameter<?>[] parameters,
-		ClassInfo<T> returnType, boolean single,
-		@Nullable Contract contract, Function<FunctionArguments, T> execute,
-		String[] description, String[] since, String[] examples, String[] keywords
-	) {
-		super(new Signature<>("none", name, parameters, false,
-			returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
+    private DefaultFunction(
+            String name, Parameter<?>[] parameters,
+            ClassInfo<T> returnType, boolean single,
+            @Nullable Contract contract, Function<FunctionArguments, T> execute,
+            String[] description, String[] since, String[] examples, String[] keywords
+    ) {
+        super(new Signature<>("none", name, parameters, false,
+                returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 
-		this.parameters = parameters;
-		this.execute = execute;
-		this.execute2 = null;
-		this.description = description;
-		this.since = since;
-		this.examples = examples;
-		this.keywords = keywords;
-	}
+        Preconditions.checkNotNull(name, "name cannot be null");
+        Preconditions.checkNotNull(parameters, "parameters cannot be null");
+        Preconditions.checkNotNull(returnType, "return type cannot be null");
+        Preconditions.checkNotNull(execute, "execute cannot be null");
 
-	private DefaultFunction(
-		String name, Parameter<?>[] parameters,
-		ClassInfo<T> returnType, boolean single,
-		@Nullable Contract contract, BiFunction<Event, FunctionArguments, T> execute2,
-		String[] description, String[] since, String[] examples, String[] keywords
-	) {
-		super(new Signature<>("none", name, parameters, false,
-			returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
+        this.parameters = parameters;
+        this.execute = execute;
+        this.execute2 = null;
+        this.description = description;
+        this.since = since;
+        this.examples = examples;
+        this.keywords = keywords;
+    }
 
-		this.parameters = parameters;
-		this.execute = null;
-		this.execute2 = execute2;
-		this.description = description;
-		this.since = since;
-		this.examples = examples;
-		this.keywords = keywords;
-	}
+    private DefaultFunction(
+            String name, Parameter<?>[] parameters,
+            ClassInfo<T> returnType, boolean single,
+            @Nullable Contract contract, BiFunction<Event, FunctionArguments, T> execute2,
+            String[] description, String[] since, String[] examples, String[] keywords
+    ) {
+        super(new Signature<>("none", name, parameters, false,
+                returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 
-	@Override
-	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
-		LinkedHashMap<String, Object> args = new LinkedHashMap<>();
+        Preconditions.checkNotNull(name, "name cannot be null");
+        Preconditions.checkNotNull(parameters, "parameters cannot be null");
+        Preconditions.checkNotNull(returnType, "return type cannot be null");
+        Preconditions.checkNotNull(execute2, "execute2 cannot be null");
 
-		for (int i = 0; i < parameters.length; i++) {
-			if (i >= params.length) {
-				continue;
-			}
+        this.parameters = parameters;
+        this.execute = null;
+        this.execute2 = execute2;
+        this.description = description;
+        this.since = since;
+        this.examples = examples;
+        this.keywords = keywords;
+    }
 
-			Object[] arg = params[i];
-			Parameter<?> parameter = parameters[i];
+    @Override
+    public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
+        LinkedHashMap<String, Object> args = new LinkedHashMap<>();
 
-			if (arg == null || arg.length == 0) {
-				if (parameter.isOptional()) {
-					continue;
-				} else {
-					return null;
-				}
-			}
+        for (int i = 0; i < parameters.length; i++) {
+            if (i >= params.length) {
+                continue;
+            }
 
-			if (arg.length == 1 || parameter.isSingleValue()) {
-				args.put(parameter.getName(), arg[0]);
-			} else {
-				args.put(parameter.getName(), arg);
-			}
-		}
+            Object[] arg = params[i];
+            Parameter<?> parameter = parameters[i];
 
-		FunctionArguments arguments = new FunctionArguments(args);
-		T result;
-		if (execute == null) {
-			result = execute2.apply(event, arguments);
-		} else {
-			result = execute.apply(arguments);
-		}
+            if (arg == null || arg.length == 0) {
+                if (parameter.isOptional()) {
+                    continue;
+                } else {
+                    return null;
+                }
+            }
 
-		if (isArray(result)) {
-			//noinspection unchecked
-			return (T[]) result;
-		} else {
-			//noinspection unchecked
-			T[] array = (T[]) Array.newInstance(result.getClass(), 1);
-			array[0] = result;
-			return array;
-		}
-	}
+            if (arg.length == 1 || parameter.isSingleValue()) {
+                assert parameter.getType().getC().isAssignableFrom(arg[0].getClass()) : "argument type does not match parameter";
 
-	private boolean isArray(Object obj) {
-		return obj instanceof Object[] || obj instanceof boolean[] ||
-			obj instanceof byte[] || obj instanceof short[] ||
-			obj instanceof char[] || obj instanceof int[] ||
-			obj instanceof long[] || obj instanceof float[] ||
-			obj instanceof double[];
-	}
+                args.put(parameter.getName(), arg[0]);
+            } else {
+                assert parameter.getType().getC().isAssignableFrom(arg.getClass()) : "argument type does not match parameter";
 
-	@Override
-	public boolean resetReturnValue() {
-		return true;
-	}
+                args.put(parameter.getName(), arg);
+            }
+        }
 
-	/**
-	 * Returns this function's description.
-	 *
-	 * @return The description.
-	 */
-	public String @NotNull [] description() {
-		return description;
-	}
+        FunctionArguments arguments = new FunctionArguments(args);
+        T result;
+        if (execute == null) {
+            result = execute2.apply(event, arguments);
+        } else {
+            result = execute.apply(arguments);
+        }
 
-	/**
-	 * Returns this function's version history.
-	 *
-	 * @return The version history.
-	 */
-	public String @NotNull [] since() {
-		return since;
-	}
+        if (result == null) {
+            return null;
+        } else if (isArray(result)) {
+            //noinspection unchecked
+            return (T[]) result;
+        } else {
+            //noinspection unchecked
+            T[] array = (T[]) Array.newInstance(result.getClass(), 1);
+            array[0] = result;
+            return array;
+        }
+    }
 
-	/**
-	 * Returns this function's examples.
-	 *
-	 * @return The examples.
-	 */
-	public String @NotNull [] examples() {
-		return examples;
-	}
+    private boolean isArray(Object obj) {
+        return obj instanceof Object[] || obj instanceof boolean[] ||
+                obj instanceof byte[] || obj instanceof short[] ||
+                obj instanceof char[] || obj instanceof int[] ||
+                obj instanceof long[] || obj instanceof float[] ||
+                obj instanceof double[];
+    }
 
-	/**
-	 * Returns this function's keywords.
-	 *
-	 * @return The keywords.
-	 */
-	public String[] keywords() {
-		return keywords;
-	}
+    @Override
+    public boolean resetReturnValue() {
+        return true;
+    }
 
-	public static class Builder<T> {
+    /**
+     * Returns this function's description.
+     *
+     * @return The description.
+     */
+    public String @NotNull [] description() {
+        return description;
+    }
 
-		private final String name;
-		private final Class<T> returnType;
-		private final Map<String, Parameter<?>> parameters = new LinkedHashMap<>();
+    /**
+     * Returns this function's version history.
+     *
+     * @return The version history.
+     */
+    public String @NotNull [] since() {
+        return since;
+    }
 
-		private Contract contract = null;
+    /**
+     * Returns this function's examples.
+     *
+     * @return The examples.
+     */
+    public String @NotNull [] examples() {
+        return examples;
+    }
 
-		private String[] description, since, examples, keywords;
+    /**
+     * Returns this function's keywords.
+     *
+     * @return The keywords.
+     */
+    public String[] keywords() {
+        return keywords;
+    }
 
-		private Builder(@NotNull String name, @NotNull Class<T> returnType) {
-			Preconditions.checkNotNull(name, "name cannot be null");
-			Preconditions.checkNotNull(returnType, "return type cannot be null");
+    public static class Builder<T> {
 
-			this.name = name;
-			this.returnType = returnType;
-		}
+        private final String name;
+        private final Class<T> returnType;
+        private final Map<String, Parameter<?>> parameters = new LinkedHashMap<>();
 
-		public Builder<T> contract(@NotNull Contract contract) {
-			Preconditions.checkNotNull(contract, "contract cannot be null");
+        private Contract contract = null;
 
-			this.contract = contract;
-			return this;
-		}
+        private String[] description, since, examples, keywords;
 
-		/**
-		 * Sets this function builder's description.
-		 *
-		 * @return This builder.
-		 */
-		public Builder<T> description(@NotNull String... description) {
-			Preconditions.checkNotNull(description, "description cannot be null");
+        private Builder(@NotNull String name, @NotNull Class<T> returnType) {
+            Preconditions.checkNotNull(name, "name cannot be null");
+            Preconditions.checkNotNull(returnType, "return type cannot be null");
 
-			this.description = description;
-			return this;
-		}
+            this.name = name;
+            this.returnType = returnType;
+        }
 
-		/**
-		 * Sets this function builder's version history.
-		 *
-		 * @return This builder.
-		 */
-		public Builder<T> since(@NotNull String... since) {
-			Preconditions.checkNotNull(since, "since cannot be null");
+        public Builder<T> contract(@NotNull Contract contract) {
+            Preconditions.checkNotNull(contract, "contract cannot be null");
 
-			this.since = since;
-			return this;
-		}
+            this.contract = contract;
+            return this;
+        }
 
-		/**
-		 * Sets this function builder's examples.
-		 *
-		 * @return This builder.
-		 */
-		public Builder<T> examples(@NotNull String... examples) {
-			Preconditions.checkNotNull(examples, "examples cannot be null");
+        /**
+         * Sets this function builder's description.
+         *
+         * @return This builder.
+         */
+        public Builder<T> description(@NotNull String... description) {
+            Preconditions.checkNotNull(description, "description cannot be null");
 
-			this.examples = examples;
-			return this;
-		}
+            this.description = description;
+            return this;
+        }
 
-		/**
-		 * Sets this function builder's keywords.
-		 *
-		 * @return This builder.
-		 */
-		public Builder<T> keywords(@NotNull String... keywords) {
-			Preconditions.checkNotNull(keywords, "keywords cannot be null");
+        /**
+         * Sets this function builder's version history.
+         *
+         * @return This builder.
+         */
+        public Builder<T> since(@NotNull String... since) {
+            Preconditions.checkNotNull(since, "since cannot be null");
 
-			this.keywords = keywords;
-			return this;
-		}
+            this.since = since;
+            return this;
+        }
 
-		/**
-		 * Adds a parameter to this function builder.
-		 *
-		 * @param name The parameter name.
-		 * @param type The type of the parameter.
-		 * @return This builder.
-		 */
-		public <PT> Builder<T> parameter(@NotNull String name, @NotNull Class<PT> type) {
-			Preconditions.checkNotNull(name, "name cannot be null");
-			Preconditions.checkNotNull(type, "type cannot be null");
+        /**
+         * Sets this function builder's examples.
+         *
+         * @return This builder.
+         */
+        public Builder<T> examples(@NotNull String... examples) {
+            Preconditions.checkNotNull(examples, "examples cannot be null");
 
-			ClassInfo<PT> classInfo = Classes.getExactClassInfo(type);
-			if (classInfo == null) {
-				throw new IllegalArgumentException("No type found for " + type.getSimpleName());
-			}
-			parameters.put(name, new Parameter<>(name, classInfo, !type.isArray(), null));
-			return this;
-		}
+            this.examples = examples;
+            return this;
+        }
 
-		/**
-		 * Adds an optional parameter to this function builder.
-		 *
-		 * @param name The parameter name.
-		 * @param type The type of the parameter.
-		 * @return This builder.
-		 */
-		public <PT> Builder<T> optionalParameter(@NotNull String name, @NotNull Class<PT> type) {
-			Preconditions.checkNotNull(name, "name cannot be null");
-			Preconditions.checkNotNull(type, "type cannot be null");
+        /**
+         * Sets this function builder's keywords.
+         *
+         * @return This builder.
+         */
+        public Builder<T> keywords(@NotNull String... keywords) {
+            Preconditions.checkNotNull(keywords, "keywords cannot be null");
 
-			ClassInfo<PT> classInfo = Classes.getExactClassInfo(type);
-			if (classInfo == null) {
-				throw new IllegalArgumentException("No type found for " + type.getSimpleName());
-			}
-			parameters.put(name, new Parameter<>(name, classInfo, !type.isArray(), true));
-			return this;
-		}
+            this.keywords = keywords;
+            return this;
+        }
 
-		/**
-		 * Completes this builder with the code to execute on call of this function.
-		 *
-		 * @param execute The code to execute.
-		 * @return The final function.
-		 */
-		public DefaultFunction<T> build(Function<FunctionArguments, T> execute) {
-			Preconditions.checkNotNull(execute, "execute cannot be null");
-			ClassInfo<T> classInfo = Classes.getExactClassInfo(returnType);
+        /**
+         * Adds a parameter to this function builder.
+         *
+         * @param name The parameter name.
+         * @param type The type of the parameter.
+         * @return This builder.
+         */
+        public <PT> Builder<T> parameter(@NotNull String name, @NotNull Class<PT> type) {
+            Preconditions.checkNotNull(name, "name cannot be null");
+            Preconditions.checkNotNull(type, "type cannot be null");
 
-			if (classInfo == null) {
-				throw new IllegalArgumentException("No type found for " + returnType.getSimpleName());
-			}
+            parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), null));
+            return this;
+        }
 
-			return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), classInfo,
-				!returnType.isArray(), contract, execute, description, since, examples, keywords);
-		}
+        /**
+         * Adds an optional parameter to this function builder.
+         *
+         * @param name The parameter name.
+         * @param type The type of the parameter.
+         * @return This builder.
+         */
+        public <PT> Builder<T> optionalParameter(@NotNull String name, @NotNull Class<PT> type) {
+            Preconditions.checkNotNull(name, "name cannot be null");
+            Preconditions.checkNotNull(type, "type cannot be null");
 
-		/**
-		 * Completes this builder with the code to execute on call of this function.
-		 *
-		 * @param execute The code to execute.
-		 * @return The final function.
-		 */
-		public DefaultFunction<T> build(BiFunction<Event, FunctionArguments, T> execute) {
-			Preconditions.checkNotNull(execute, "execute cannot be null");
-			ClassInfo<T> classInfo = Classes.getExactClassInfo(returnType);
+            parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), true));
+            return this;
+        }
 
-			if (classInfo == null) {
-				throw new IllegalArgumentException("No type found for " + returnType.getSimpleName());
-			}
+        /**
+         * Completes this builder with the code to execute on call of this function.
+         *
+         * @param execute The code to execute.
+         * @return The final function.
+         */
+        public DefaultFunction<T> build(Function<FunctionArguments, T> execute) {
+            Preconditions.checkNotNull(execute, "execute cannot be null");
 
-			return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), classInfo,
-				!returnType.isArray(), contract, execute, description, since, examples, keywords);
-		}
-	}
+            return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), getClassInfo(returnType),
+                    !returnType.isArray(), contract, execute, description, since, examples, keywords);
+        }
+
+        /**
+         * Completes this builder with the code to execute on call of this function.
+         *
+         * @param execute The code to execute.
+         * @return The final function.
+         */
+        public DefaultFunction<T> build(BiFunction<Event, FunctionArguments, T> execute) {
+            Preconditions.checkNotNull(execute, "execute cannot be null");
+
+            return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), getClassInfo(returnType),
+                    !returnType.isArray(), contract, execute, description, since, examples, keywords);
+        }
+    }
+
+    /**
+     * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
+     *
+     * @param cls The class.
+     * @param <X> The type of class.
+     * @return The non-array {@link ClassInfo} of {@code cls}.
+     */
+    static <X> ClassInfo<X> getClassInfo(Class<X> cls) {
+        ClassInfo<X> classInfo;
+        if (cls.isArray()) {
+            //noinspection unchecked
+            classInfo = (ClassInfo<X>) Classes.getExactClassInfo(cls.componentType());
+        } else {
+            classInfo = Classes.getExactClassInfo(cls);
+        }
+        if (classInfo == null) {
+            throw new IllegalArgumentException("No type found for " + cls.getSimpleName());
+        }
+        return classInfo;
+    }
 
 }
