@@ -31,7 +31,7 @@ public class CowData extends EntityData<Cow> {
 		} catch (Exception ignored) {}
 
 		COW_CLASS = cowClass;
-		register(CowData.class, "cow", CowData.COW_CLASS, 0, "cow");
+		register(CowData.class, "cow", COW_CLASS, 0, "cow");
 		if (Skript.classExists("org.bukkit.entity.Cow$Variant")) {
 			VARIANTS_ENABLED = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Cow.Variant.class).getSupplier().get(), Cow.Variant.class);
@@ -76,27 +76,23 @@ public class CowData extends EntityData<Cow> {
 
 	@Override
 	protected boolean init(@Nullable Class<? extends Cow> entityClass, @Nullable Cow cow) {
-		if (cow != null) {
-			if (VARIANTS_ENABLED) {
-				variant = getVariant(cow);
-			}
+		if (cow != null && VARIANTS_ENABLED) {
+			variant = getVariant(cow);
 		}
 		return true;
 	}
 
 	@Override
 	public void set(Cow entity) {
-		if (VARIANTS_ENABLED) {
-			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
-			assert finalVariant != null;
-			setVariant(entity, finalVariant);
-		}
+		if (!VARIANTS_ENABLED)
+			return;
+		Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
+		assert finalVariant != null;
+		setVariant(entity, finalVariant);
 	}
 
 	@Override
 	protected boolean match(Cow entity) {
-		if (!VARIANTS_ENABLED)
-			return true;
 		return variant == null || getVariant(entity) == variant;
 	}
 
