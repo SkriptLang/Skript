@@ -114,7 +114,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		SecLoop loop = null;
 
 		for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || "value".equalsIgnoreCase(s) || l.getLoopedExpression().isLoopOf(s)) {
+			if ((c != null && l.getLoopedExpression().canReturn(c)) || "value".equalsIgnoreCase(s) || l.getLoopedExpression().isLoopOf(s)) {
 				if (j < i) {
 					j++;
 					continue;
@@ -170,12 +170,26 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	public Class<? extends Object> getReturnType() {
+	public Class<?> getReturnType() {
 		if (isIndex)
 			return String.class;
 		return loop.getLoopedExpression().getReturnType();
 	}
-	
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		if (isIndex)
+			return new Class[]{String.class};
+		return loop.getLoopedExpression().possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		if (isIndex)
+			return super.canReturn(returnType);
+		return loop.getLoopedExpression().canReturn(returnType);
+	}
+
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		if (isVariableLoop) {
