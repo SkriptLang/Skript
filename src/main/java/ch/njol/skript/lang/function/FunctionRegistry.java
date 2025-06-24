@@ -435,10 +435,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 		candidates:
 		for (FunctionIdentifier candidate : existing) {
-			// if the provided name does not match the candidate name, skip
-			if (!candidate.name.equals(provided.name)) {
-				continue;
-			}
+			// by this point, all candidates have matching names
 
 			// if we have no provided arguments, we can match any function
 			// we can skip the rest of the checks
@@ -477,7 +474,9 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		// and allow overloaded({_x}, 1) to match Long, Long and avoid String, String
 		// despite not being an exact match in all arguments,
 		// since variables have an unknown type at runtime.
-		for (FunctionIdentifier candidate : new HashSet<>(candidates)) {
+		Iterator<FunctionIdentifier> iterator = candidates.iterator();
+		while (iterator.hasNext()) {
+			FunctionIdentifier candidate = iterator.next();
 			int argIndex = 0;
 
 			while (argIndex < provided.args.length) {
@@ -487,7 +486,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 				}
 
 				if (provided.args[argIndex] != candidate.args[argIndex]) {
-					candidates.remove(candidate);
+					iterator.remove();
 					break;
 				}
 
