@@ -8,7 +8,7 @@ options:
 
 using equippable components
 
-local function newEquippableComponent():: object:
+test "equippable components - new" when running minecraft "1.21.2":
 	set {_component} to a blank equippable component
 	set the equip sound of {_component} to {@sound}
 	assert the equip sound of {_component} is {@sound} with "Equip sound of component was not set"
@@ -38,11 +38,6 @@ local function newEquippableComponent():: object:
 		assert {_component} can be equipped onto entities with "Component should equip onto entities"
 		prevent {_component} from being equipped onto entities
 		assert {_component} can not be equipped onto entities with "Component should not equip onto entities"
-
-	return {_component}
-
-test "equippable components - new" when running minecraft "1.21.2":
-	newEquippableComponent()
 
 test "equippable components - itemtype" when running minecraft "1.21.2":
 	set {_item} to a leather helmet (item type)
@@ -107,7 +102,37 @@ test "equippable components - itemstack" when running minecraft "1.21.2":
 		assert {_item} can not be equipped onto entities with "ItemStack should not equip onto entities"
 
 test "equippable components - copy" when running minecraft "1.21.2":
-	set {_original} to newEquippableComponent()
+	set {_component} to a blank equippable component
+	set the equip sound of {_component} to {@sound}
+	assert the equip sound of {_component} is {@sound} with "Equip sound of component was not set"
+	set the equipment slot of {_component} to {@slot}
+	assert the equipment slot of {_component} is {@slot} with "Equipment slot of component was not set"
+	set the equipped model key of {_component} to {@model}
+	assert the equipped model key of {_component} is {@model} with "Model of component was not set"
+	set the allowed entities of {_component} to {@allowed}
+	assert the allowed entities of {_component} is {@allowed} with "Allowed entities of component was not set"
+	set the camera overlay of {_component} to {@camera}
+	assert the camera overlay of {_component} is {@camera} with "Camera overlay of component was not set"
+	allow {_component} to swap equipment
+	assert {_component} can swap equipment with "Component should be swappable"
+	prevent {_component} from swapping equipment
+	assert {_component} can not swap equipment with "Component should not be swappable"
+	allow {_component} to be dispensed
+	assert {_component} can be dispensed with "Component should be dispensable"
+	prevent {_component} from being dispensed
+	assert {_component} can not be dispensed with "Component should not be dispensable"
+	make {_component} lose durability when hurt
+	assert {_component} will lose durability when hurt with "Component should lose durability when hurt"
+	make {_component} not lose durability when hurt
+	assert {_component} will not lose durability when hurt with "Component should not lose durability when hurt"
+
+	parse if method {@method} exists:
+		allow {_component} to be equipped onto entities
+		assert {_component} can be equipped onto entities with "Component should equip onto entities"
+		prevent {_component} from being equipped onto entities
+		assert {_component} can not be equipped onto entities with "Component should not equip onto entities"
+	set {_original} to {_component}
+
 	set {_copy} to a item component copy of {_original}
 	set the equip sound of {_copy} to "item.armor.equip_diamond"
 	assert the equip sound of {_copy} is "item.armor.equip_diamond" with "Equip sound of copy was not set"
