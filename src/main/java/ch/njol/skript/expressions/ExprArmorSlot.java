@@ -1,7 +1,11 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
@@ -11,12 +15,24 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Llama;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.Strider;
+import org.bukkit.entity.TraderLlama;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Name("Armor Slot")
@@ -38,10 +54,9 @@ import java.util.stream.Stream;
 @Since("1.0, 2.8.0 (armor), 2.10 (body armor), INSERT VERSION (saddle)")
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
-	private static final Set<Class<? extends Entity>> bodyEntities =
-		new HashSet<>(Arrays.asList(Horse.class, Llama.class, TraderLlama.class));
-	private static final Set<Class<? extends Entity>> saddleEntities =
-		new HashSet<>(Arrays.asList(Pig.class, Strider.class, AbstractHorse.class));
+	private static final Set<Class<? extends Entity>> BODY_ENTITIES =
+		new HashSet<>(Set.of(Horse.class, Llama.class, TraderLlama.class));
+	private static final Set<Class<? extends Entity>> SADDLE_ENTITIES = Set.of(Pig.class, Strider.class, AbstractHorse.class);
 
 	private static final boolean HAS_BODY_SLOT =
 		Skript.fieldExists(org.bukkit.inventory.EquipmentSlot.class, "BODY");
@@ -55,7 +70,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	static {
 		if (Material.getMaterial("WOLF_ARMOR") != null)
-			bodyEntities.add(Wolf.class);
+			BODY_ENTITIES.add(Wolf.class);
 
 		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r[s]) [item:item[s]]", "livingentities");
 	}
@@ -100,8 +115,8 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 				}).toArray(Slot[]::new);
 		}
 		org.bukkit.inventory.EquipmentSlot[] equipmentSlots = this.slots.getArray(event);
-		if (equipmentSlots == null || equipmentSlots.length == 0)
-			return null;
+		if (equipmentSlots.length == 0)
+			return new EquipmentSlot[0];
 		List<EquipmentSlot> slots = new ArrayList<>();
 		for (LivingEntity entity : source) {
 			EntityEquipment equipment = entity.getEquipment();
@@ -118,12 +133,16 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	private boolean canUseEquipmentSlot(Entity entity, org.bukkit.inventory.EquipmentSlot equipmentSlot) {
 		Class<? extends Entity> entityClass = entity.getType().getEntityClass();
+		Set<Class<? extends Entity>> entityClasses = null;
 		if (HAS_BODY_SLOT && equipmentSlot == BODY_SLOT) {
-			return bodyEntities.contains(entityClass);
+			entityClasses = BODY_ENTITIES;
 		} else if (HAS_SADDLE_SLOT && equipmentSlot == SADDLE_SLOT) {
-			if (saddleEntities.contains(entityClass))
+			entityClasses = SADDLE_ENTITIES;
+		}
+		if (entityClasses != null) {
+			if (entityClasses.contains(entityClass))
 				return true;
-			for (Class<? extends Entity> type : saddleEntities) {
+			for (Class<? extends Entity> type : entityClasses) {
 				if ((entityClass != null && type.isAssignableFrom(entityClass)) || type.isInstance(entity))
 					return true;
 			}
@@ -149,7 +168,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 		if (slots != null) {
 			builder.append(slots);
 		} else {
-			builder.append("armour");
+			builder.append("armor");
 		}
 		if (!explicitSlot)
 			builder.append("items");
