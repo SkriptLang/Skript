@@ -2,6 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 /**
  * A registry for functions.
  */
-@ApiStatus.Internal // for now
 final class FunctionRegistry implements Registry<Function<?>> {
 
 	private static FunctionRegistry registry;
@@ -201,7 +201,11 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		Preconditions.checkNotNull(namespace, "namespace cannot be null");
 		Preconditions.checkNotNull(identifier, "identifier cannot be null");
 
-		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
+		Namespace ns = namespaces.get(namespace);
+		if (ns == null) {
+			return false;
+		}
+
 		if (!ns.identifiers.containsKey(identifier.name)) {
 			return false;
 		}
@@ -215,7 +219,10 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		return false;
 	}
 
-
+	/**
+	 * The result of attempting to retrieve a function.
+	 * Depending on the type, a {@link Retrieval} will feature different data.
+	 */
 	public enum RetrievalResult {
 
 		/**
@@ -317,24 +324,24 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		Namespace ns = namespaces.getOrDefault(namespace, new Namespace());
 		Set<FunctionIdentifier> existing = ns.identifiers.get(provided.name);
 		if (existing == null) {
-			Skript.debug("No functions named '%s' exist in the '%s' namespace".formatted(provided.name, namespace.name));
+			Skript.debug("No functions named '%s' exist in the '%s' namespace", provided.name, namespace.name);
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		}
 
 		Set<FunctionIdentifier> candidates = candidates(provided, existing);
 		if (candidates.isEmpty()) {
-			Skript.debug("Failed to find a function for '%s'".formatted(provided.name));
+			Skript.debug("Failed to find a function for '%s'", provided.name);
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		} else if (candidates.size() == 1) {
-			Skript.debug("Matched function for '%s': %s".formatted(provided.name, candidates.stream().findAny().orElse(null)));
+			Skript.debug("Matched function for '%s': %s", provided.name, candidates.stream().findAny().orElse(null));
 			return new Retrieval<>(RetrievalResult.EXACT,
 				ns.functions.get(candidates.stream().findAny().orElse(null)),
 				null);
 		} else {
 			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
-			Skript.debug("Failed to match an exact function for '%s'".formatted(provided.name));
-			Skript.debug("Identifier: %s".formatted(provided));
-			Skript.debug("Options: %s".formatted(options));
+			Skript.debug("Failed to match an exact function for '%s'", provided.name);
+			Skript.debug("Identifier: %s", provided);
+			Skript.debug("Options: %s", options);
 			return new Retrieval<>(RetrievalResult.AMBIGUOUS,
 				null,
 				candidates.stream()
@@ -671,12 +678,6 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return true;
 		}
 
-		@Override
-		public String toString() {
-			return "FunctionIdentifier{name='%s', local=%s, minArgCount=%d, args=[%s]}".formatted(
-				name, local, minArgCount,
-				Arrays.stream(args).map(Class::getSimpleName).collect(Collectors.joining(", ")));
-		}
 	}
 
 }
