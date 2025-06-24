@@ -5,8 +5,9 @@ import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Use {@link DefaultFunction} instead.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public abstract class JavaFunction<T> extends Function<T> {
 	
 	public JavaFunction(Signature<T> sign) {

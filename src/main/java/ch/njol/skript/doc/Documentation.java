@@ -6,6 +6,7 @@ import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.function.DefaultFunction;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
@@ -18,12 +19,7 @@ import ch.njol.util.coll.iterator.IteratorIterable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -157,7 +153,7 @@ public class Documentation {
 				"examples VARCHAR(2000) NOT NULL," +
 				"since VARCHAR(100) NOT NULL" +
 				");");
-		for (final JavaFunction<?> func : Functions.getJavaFunctions()) {
+		for (ch.njol.skript.lang.function.Function<?> func : Functions.getFunctions()) {
 			assert func != null;
 			insertFunction(pw, func);
 		}
@@ -381,15 +377,29 @@ public class Documentation {
 				since);
 	}
 
-	private static void insertFunction(final PrintWriter pw, final JavaFunction<?> func) {
+	private static void insertFunction(final PrintWriter pw, final ch.njol.skript.lang.function.Function<?> func) {
+		String[] typeSince, typeDescription, typeExamples;
+		if (func instanceof DefaultFunction<?> defaultFunction) {
+			typeSince = defaultFunction.since();
+			typeDescription = defaultFunction.description();
+			typeExamples = defaultFunction.examples();
+		} else if (func instanceof JavaFunction<?> javaFunction) {
+			typeSince = javaFunction.getSince() != null ? javaFunction.getSince().split("\n") : null;
+			typeDescription = javaFunction.getDescription();
+			typeExamples = javaFunction.getExamples();
+		} else {
+			assert false;
+			return;
+		}
+
 		final StringBuilder params = new StringBuilder();
 		for (final Parameter<?> p : func.getParameters()) {
 			if (params.length() != 0)
 				params.append(", ");
 			params.append(p.toString());
 		}
-		final String desc = validateHTML(StringUtils.join(func.getDescription(), "<br/>"), "functions");
-		final String since = validateHTML(func.getSince(), "functions");
+		final String desc = validateHTML(StringUtils.join(typeDescription, "<br/>"), "functions");
+		final String since = validateHTML(StringUtils.join(typeExamples, "\n"), "functions");
 		if (desc == null || since == null) {
 			Skript.warning("Function " + func.getName() + "'s description or 'since' is invalid");
 			return;
@@ -398,7 +408,7 @@ public class Documentation {
 				escapeHTML(func.getName()),
 				escapeHTML(params.toString()),
 				desc,
-				escapeHTML(StringUtils.join(func.getExamples(), "\n")),
+				escapeHTML(StringUtils.join(typeExamples, "\n")),
 				since);
 	}
 
