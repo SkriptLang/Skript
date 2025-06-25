@@ -9,7 +9,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
  */
 public interface DamageSourceExperiment extends ExperimentalSyntax {
 
-	// TODO: Change this to implement `SimpleExperimentalSyntax` when PR containing is merged
+	// TODO: Change this to extend `SimpleExperimentalSyntax` when PR containing is merged
 
 	@Override
 	default boolean isSatisfiedBy(ExperimentSet experimentSet) {

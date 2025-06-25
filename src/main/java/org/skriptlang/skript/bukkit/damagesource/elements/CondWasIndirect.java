@@ -28,7 +28,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperiment {
 
 	static {
-		Skript.registerCondition(CondWasIndirect.class,
+		Skript.registerCondition(CondWasIndirect.class, ConditionType.PROPERTY,
 			"%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
 			"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)"
 		);
