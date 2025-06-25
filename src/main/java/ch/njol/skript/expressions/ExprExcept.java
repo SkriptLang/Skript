@@ -36,13 +36,13 @@ public class ExprExcept extends WrapperExpression<Object> {
 				"%objects% (except|excluding|not including) %objects%");
 	}
 
-	private Expression<?> source;
 	private Expression<?> exclude;
 	private boolean isOrList = false;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		source = LiteralUtils.defendExpression(exprs[0]);
+		Expression<?> source = LiteralUtils.defendExpression(exprs[0]);
+		setExpr(source);
 		if (source.isSingle()) {
 			if (!(source instanceof ExpressionList<?>)) {
 				Skript.error("Must provide a list containing more than one object to exclude objects from.");
@@ -51,17 +51,16 @@ public class ExprExcept extends WrapperExpression<Object> {
 			isOrList = true;
 		}
 		exclude = LiteralUtils.defendExpression(exprs[1]);
-		setExpr(source);
 		return LiteralUtils.canInitSafely(source, exclude);
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object[] exclude = this.exclude.getArray(event);
-		if (exclude == null || exclude.length == 0)
-			return source.getArray(event);
+		if (exclude.length == 0)
+			return getExpr().getArray(event);
 
-		return source.streamAll(event)
+		return getExpr().streamAll(event)
 			.filter(sourceObject -> {
 				for (Object excludeObject : exclude)
 					if (sourceObject.equals(excludeObject) || Comparators.compare(sourceObject, excludeObject) == Relation.EQUAL)
@@ -72,24 +71,9 @@ public class ExprExcept extends WrapperExpression<Object> {
 	}
 
 	@Override
-	public boolean isSingle() {
-		return source.isSingle();
-	}
-
-	@Override
-	public Class<?> getReturnType() {
-		return source.getReturnType();
-	}
-
-	@Override
-	public boolean getAnd() {
-		return source.getAnd();
-	}
-
-	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (new SyntaxStringBuilder(event, debug))
-			.append(source, "except", exclude)
+			.append(getExpr(), "except", exclude)
 			.toString();
 	}
 
