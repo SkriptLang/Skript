@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SequencedMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -84,7 +85,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
     @Override
     public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
-        LinkedHashMap<String, Object> args = new LinkedHashMap<>();
+        SequencedMap<String, Object> args = new LinkedHashMap<>();
 
 		int length = Math.min(parameters.length, params.length);
         for (int i = 0; i < length; i++) {
