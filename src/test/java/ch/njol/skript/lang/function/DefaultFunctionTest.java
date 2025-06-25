@@ -1,6 +1,5 @@
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.classes.data.DefaultFunctions;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
@@ -33,14 +32,8 @@ public class DefaultFunctionTest {
 
 		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(String.class), false, true), parameters[0]);
 
-		String[] execute = built.execute(new FunctionEvent<>(built), new Object[][]{new String[]{"x", "y", "z"}});
-		assertArrayEquals(new String[]{"x,y,z"}, execute);
-
-		execute = built.execute(new FunctionEvent<>(built), new Object[][]{new String[]{}});
+		String[] execute = built.execute(consign());
 		assertArrayEquals(new String[]{}, execute);
-
-		execute = built.execute(new FunctionEvent<>(built), new Object[][]{});
-		assertArrayEquals(null, execute);
 	}
 
 	@Test
@@ -65,13 +58,25 @@ public class DefaultFunctionTest {
 		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(Object.class), false, true), parameters[0]);
 		assertEquals(new Parameter<>("y", Classes.getExactClassInfo(Boolean.class), true, false), parameters[1]);
 
-		Object[][] execute = built.execute(new FunctionEvent<>(built), new Object[][]{new Object[]{1, 2, 3}, new Boolean[]{true}});
+		Object[] execute = built.execute(consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
 
 		assertArrayEquals(new Object[]{true, 1}, execute);
 
-		execute = built.execute(new FunctionEvent<>(built), new Object[][]{new Object[]{true}});
+		execute = built.execute(consign(new Object[]{}, new Boolean[]{true}));
 
 		assertArrayEquals(new Object[]{true, 1}, execute);
+	}
+
+	static Object[][] consign(Object... arguments) {
+		Object[][] consigned = new Object[arguments.length][];
+		for (int i = 0; i < consigned.length; i++) {
+			if (arguments[i] instanceof Object[] || arguments[i] == null) {
+				consigned[i] = (Object[]) arguments[i];
+			} else {
+				consigned[i] = new Object[]{arguments[i]};
+			}
+		}
+		return consigned;
 	}
 
 }

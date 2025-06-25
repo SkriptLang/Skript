@@ -101,11 +101,15 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
             }
 
             if (arg.length == 1 || parameter.isSingleValue()) {
-                assert parameter.getType().getC().isAssignableFrom(arg[0].getClass()) : "argument type does not match parameter";
+				assert parameter.getType().getC().isAssignableFrom(arg[0].getClass())
+					: "argument type %s does not match parameter type %s".formatted(parameter.getType().getC().getSimpleName(),
+					arg[0].getClass().getSimpleName());
 
                 args.put(parameter.getName(), arg[0]);
             } else {
-                assert parameter.getType().getC().isAssignableFrom(arg.getClass()) : "argument type does not match parameter";
+                assert parameter.getType().getC().isAssignableFrom(arg.getClass())
+					: "argument type %s does not match parameter type %s".formatted(parameter.getType().getC().getSimpleName(),
+					arg.getClass().getSimpleName());
 
                 args.put(parameter.getName(), arg);
             }
