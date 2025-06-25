@@ -82,9 +82,6 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 
 	@Override
 	public @NotNull Iterator<?> iterator(Event event) {
-		if (canReturnKeys())
-			return Iterators.transform(keyedIterator(event), KeyedValue::value);
-
 		if (hasIndices()) {
 			Iterator<? extends KeyedValue<?>> iterator = ((KeyProviderExpression<?>) unmappedObjects).keyedIterator(event);
 			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)

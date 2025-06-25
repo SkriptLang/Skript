@@ -60,8 +60,10 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 
 		Converters.convert(values, convertedValues, returnTypes);
 		if (keys != null) {
-			for (int i = 0; i < convertedValues.length; i++)
-				keys[i] = convertedValues[i] != null ? keys[i] : null;
+			for (int i = 0; i < convertedValues.length; i++) {
+				if (convertedValues[i] == null)
+					keys[i] = null;
+			}
 			convertedValues = ArrayUtils.removeAllOccurrences(convertedValues, null);
 			cache.put(event, ArrayUtils.removeAllOccurrences(keys, null));
 		} else {

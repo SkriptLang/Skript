@@ -163,6 +163,14 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 		return canReturnKeys() && isIndexLoop(input);
 	}
 
+
+	/**
+	 * Checks whether the 'loop-...' expression should match this loop's index,
+	 * e.g. loop-index matches the index of a loop that iterates over a list variable.
+	 *
+	 * @param input the input to check
+	 * @return true if the input matches the index loop, false otherwise
+	 */
 	default boolean isIndexLoop(String input) {
 		return input.equalsIgnoreCase("index");
 	}

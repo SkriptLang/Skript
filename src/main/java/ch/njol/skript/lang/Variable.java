@@ -454,8 +454,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		//noinspection unchecked
 		T[] converted = (T[]) Array.newInstance(superType, values.length);
 		Converters.convert(values, converted, types);
-		for (int i = 0; i < converted.length; i++)
-			keys[i] = converted[i] != null ? keys[i] : null;
+		for (int i = 0; i < converted.length; i++) {
+			if (converted[i] == null)
+				keys[i] = null;
+		}
 		cache.put(event, ArrayUtils.removeAllOccurrences(keys, null));
 		return ArrayUtils.removeAllOccurrences(converted, null);
 	}
