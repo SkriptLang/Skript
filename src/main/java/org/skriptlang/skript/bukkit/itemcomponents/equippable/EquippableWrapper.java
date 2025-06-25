@@ -40,8 +40,8 @@ public class EquippableWrapper extends ComponentWrapper<EquippableComponent> {
 
 	@Override
 	public EquippableWrapper clone() {
+		EquippableWrapper clone = newWrapper();
 		EquippableComponent base = getComponent();
-		EquippableWrapper clone = newInstance();
 		clone.editComponent(component -> {
 			component.setSlot(base.getSlot());
 			component.setEquipSound(base.getEquipSound());

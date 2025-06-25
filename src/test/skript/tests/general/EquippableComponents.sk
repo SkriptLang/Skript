@@ -136,40 +136,41 @@ test "equippable components - copy" when running minecraft "1.21.2":
 	set {_copy} to a item component copy of {_original}
 	set the equip sound of {_copy} to "item.armor.equip_diamond"
 	assert the equip sound of {_copy} is "item.armor.equip_diamond" with "Equip sound of copy was not set"
+	assert the equip sound of {_copy} is not the equip sound of {_original} with "Equip sound of copy should not be the same as original"
 	set the equipment slot of {_copy} to helmet slot
 	assert the equipment slot of {_copy} is helmet slot with "Equipment slot of copy was not set"
+	assert the equipment slot of {_copy} is not the equipment slot of {_original} with "Equipment slot of copy should not be the same as original"
 	set the equipped model key of {_copy} to "skript:model_key_copy"
 	assert the equipped model key of {_copy} is "skript:model_key_copy" with "Model of copy was not set"
+	assert the equipped model key of {_copy} is not the equipped model key of {_original} with "Model key of copy should not be the same as original"
 	set the allowed entities of {_copy} to a villager and a zombie villager
 	assert the allowed entities of {_copy} is a villager and a zombie villager with "Allowed entities of copy was not set"
+	assert the allowed entities of {_copy} is not the allowed entities of {_original} with "Allowed entities of copy should not be the same as original"
 	set the camera overlay of {_copy} to "skript:camera_key_copy"
 	assert the camera overlay of {_copy} is "skript:camera_key_copy" with "Camera overlay of copy was not set"
+	assert the camera overlay of {_copy} is not the camera overlay of {_original} with "Camera overlay of copy should not be the same as original"
 	allow {_copy} to swap equipment
 	assert {_copy} can swap equipment with "Copy should be swappable"
+	assert (whether {_copy} can swap equipment) is not (whether {_original} can swap equipment) with "Copy should be swappable and original should not"
 	prevent {_copy} from swapping equipment
 	assert {_copy} can not swap equipment with "Copy should not be swappable"
 	allow {_copy} to be dispensed
 	assert {_copy} can be dispensed with "Copy should be dispensable"
+	assert (whether {_copy} can be dispensed) is not (whether {_original} can be dispensed) with "Copy should be dispensable and original should not"
 	prevent {_copy} from being dispensed
 	assert {_copy} can not be dispensed with "Copy should not be dispensable"
 	make {_copy} lose durability when hurt
 	assert {_copy} will lose durability when hurt with "Copy should lose durability when hurt"
+	assert (whether {_copy} will lose durability when hurt) is not (whether {_original} will lose durability when hurt) with "Copy should lose durability and original should not"
 	make {_copy} not lose durability when hurt
 	assert {_copy} will not lose durability when hurt with "Copy should not lose durability when hurt"
 
 	parse if method {@method} exists:
 		allow {_copy} to be equipped onto entities
 		assert {_copy} can be equipped onto entities with "Copy should equip onto entities"
+		assert (whether {_copy} can be equipped onto entities) is not (whether {_original} can be equipped onto entities) with "Copy should be equipped onto entities and original should not"
 		prevent {_copy} from being equipped onto entities
 		assert {_copy} can not be equipped onto entities with "Copy should not equip onto entities"
-
-	# Compare to original
-	assert the equip sound of {_copy} is not the equip sound of {_original} with "Equip sound of copy should not be the same as original"
-	assert the equipment slot of {_copy} is not the equipment slot of {_original} with "Equipment slot of copy should not be the same as original"
-	assert the equipped model key of {_copy} is not the equipped model key of {_original} with "Model key of copy should not be the same as original"
-	assert the allowed entities of {_copy} is not the allowed entities of {_original} with "Allowed entities of copy should not be the same as original"
-	assert the camera overlay of {_copy} is not the camera overlay of {_original} with "Camera overlay of copy should not be the same as original"
-
 
 test "equippable components - slot" when running minecraft "1.21.2":
 	set {_gui} to a chest inventory with 1 row

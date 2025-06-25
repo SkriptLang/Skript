@@ -26,7 +26,9 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 	static {
 		Skript.registerEffect(EffEquipCompSwapEquipment.class,
 			"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
-			"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]"
+			"(make|let) %equippablecomponents% swap equipment [on right click|when right clicked]",
+			"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]",
+			"(make|let) %equippablecomponents% not swap equipment [on right click|when right clicked]"
 		);
 	}
 
@@ -37,7 +39,7 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		swappable = matchedPattern == 0;
+		swappable = matchedPattern < 2;
 		return true;
 	}
 

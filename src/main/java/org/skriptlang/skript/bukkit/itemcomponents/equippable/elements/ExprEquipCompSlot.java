@@ -46,8 +46,6 @@ public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrappe
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
 		EquipmentSlot providedSlot = (EquipmentSlot) delta[0];
-		if (providedSlot == null)
-			return;
 
 		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSlot(providedSlot)));
 	}

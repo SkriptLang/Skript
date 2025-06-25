@@ -49,7 +49,7 @@ public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack,
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		EquippableComponent equippableComponent = null;
-		if (delta != null && delta[0] != null)
+		if (delta != null)
 			equippableComponent = ((EquippableWrapper) delta[0]).getComponent();
 
 		for (ItemStack itemStack : getExpr().getArray(event)) {

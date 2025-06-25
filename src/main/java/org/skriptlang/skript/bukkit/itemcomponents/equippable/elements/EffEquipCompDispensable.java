@@ -26,7 +26,11 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 	static {
 		Skript.registerEffect(EffEquipCompDispensable.class,
 			"(allow|force) %equippablecomponents% to be dispensed",
-			"(block|prevent|disallow) %equippablecomponents% from being dispensed"
+			"make %equippablecomponents% dispensable",
+			"let %equippablecomponents% be dispensed",
+			"(block|prevent|disallow) %equippablecomponents% from being dispensed",
+			"make %equippablecomponents% not dispensable",
+			"let %equippablecomponents% not be dispensed"
 		);
 	}
 
@@ -37,7 +41,7 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		dispensable = matchedPattern == 0;
+		dispensable = matchedPattern < 3;
 		return true;
 	}
 

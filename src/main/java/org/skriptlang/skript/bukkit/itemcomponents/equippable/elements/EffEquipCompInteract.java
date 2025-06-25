@@ -24,7 +24,12 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 		if (Skript.methodExists(EquippableComponent.class, "setEquipOnInteract", boolean.class))
 			Skript.registerEffect(EffEquipCompInteract.class,
 				"(allow|force) %equippablecomponents% to be equipped on[to] entities",
-				"(block|prevent|disallow) %equippablecomponents% from being equipped on[to] entities");
+				"make %equippablecomponents% equippable on[to] entities",
+				"let %equippablecomponents% be equipped on[to] entities",
+				"(block|prevent|disallow) %equippablecomponents% from being equipped on[to] entities",
+				"make %equippablecomponents% not equippable on[to] entities",
+				"let %equippablecomponents% not be equipped on[to] entities"
+			);
 	}
 
 	private boolean equip;
@@ -34,7 +39,7 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		equip = matchedPattern == 0;
+		equip = matchedPattern < 3;
 		return true;
 	}
 
