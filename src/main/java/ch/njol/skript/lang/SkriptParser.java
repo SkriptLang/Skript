@@ -680,7 +680,7 @@ public class SkriptParser {
 				}
 			}
 			if (allowUnparsedLiteral && containsObjectClass)
-                return getUnparsedLiteral(log, error);
+				return getUnparsedLiteral(log, error);
 			if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
 				for (ClassInfo<?> aClass : exprInfo.classes) {
 					if (!aClass.getC().isAssignableFrom(String.class))
