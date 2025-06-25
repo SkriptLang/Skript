@@ -143,7 +143,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 			if (entityClasses.contains(entityClass))
 				return true;
 			for (Class<? extends Entity> type : entityClasses) {
-				if ((entityClass != null && type.isAssignableFrom(entityClass)) || type.isInstance(entity))
+				if (type.isInstance(entity))
 					return true;
 			}
 			return false;
