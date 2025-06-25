@@ -71,7 +71,7 @@ public final class Parameter<T> {
 	}
 
 	public boolean isOptional() {
-		return optional || def != null;
+		return optional;
 	}
 
 	/**

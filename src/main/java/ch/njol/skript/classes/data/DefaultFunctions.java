@@ -387,10 +387,10 @@ public class DefaultFunctions {
 			.optionalParameter("world", World.class)
 			.optionalParameter("yaw", Float.class)
 			.optionalParameter("pitch", Float.class)
-			.build((event, args) -> {
-				World world = args.getOrDefault("world", new EventValueExpression<>(World.class).getSingle(event));
+			.build(args -> {
+				World world = args.getOrDefault("world", Bukkit.getWorlds().get(0));
 
-				return new Location(world == null ? Bukkit.getWorlds().get(0) : world,
+				return new Location(world,
 					args.<Number>get("x").doubleValue(), args.<Number>get("y").doubleValue(), args.<Number>get("z").doubleValue(),
 					args.getOrDefault("yaw", 0f), args.getOrDefault("pitch", 0f));
 			}));
@@ -532,7 +532,7 @@ public class DefaultFunctions {
 			.since("2.8.0")
 			.parameter("nameOrUUID", String.class)
 			.optionalParameter("getExactPlayer", Boolean.class)
-			.build((event, args) -> {
+			.build(args -> {
 				String name = args.get("nameOrUUID");
 				boolean isExact = args.getOrDefault("getExactPlayer", false);
 

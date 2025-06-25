@@ -4,10 +4,7 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class containing all arguments in a function call.
@@ -16,7 +13,7 @@ public final class FunctionArguments {
 
     private final Map<String, Object> arguments;
 
-    public FunctionArguments(@NotNull LinkedHashMap<String, Object> arguments) {
+    public FunctionArguments(@NotNull SequencedMap<String, Object> arguments) {
         Preconditions.checkNotNull(arguments, "arguments cannot be null");
 
         this.arguments = arguments;
@@ -52,7 +49,7 @@ public final class FunctionArguments {
      * to avoid having to cast from Object. Use this method as follows.
      * <pre><code>
      * Number value = args.getOrDefault("n", 3.0);
-     * boolean value = args.get("b", false);
+     * boolean value = args.getOrDefault("b", false);
      * </code></pre>
      * </p>
      *

@@ -54,7 +54,6 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
     private final Parameter<?>[] parameters;
     private final Function<FunctionArguments, T> execute;
-    private final BiFunction<Event, FunctionArguments, T> execute2;
 
     private final String[] description;
     private final String[] since;
@@ -77,30 +76,6 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
         this.parameters = parameters;
         this.execute = execute;
-        this.execute2 = null;
-        this.description = description;
-        this.since = since;
-        this.examples = examples;
-        this.keywords = keywords;
-    }
-
-    private DefaultFunction(
-            String name, Parameter<?>[] parameters,
-            ClassInfo<T> returnType, boolean single,
-            @Nullable Contract contract, BiFunction<Event, FunctionArguments, T> execute2,
-            String[] description, String[] since, String[] examples, String[] keywords
-    ) {
-        super(new Signature<>("none", name, parameters, false,
-                returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
-
-        Preconditions.checkNotNull(name, "name cannot be null");
-        Preconditions.checkNotNull(parameters, "parameters cannot be null");
-        Preconditions.checkNotNull(returnType, "return type cannot be null");
-        Preconditions.checkNotNull(execute2, "execute2 cannot be null");
-
-        this.parameters = parameters;
-        this.execute = null;
-        this.execute2 = execute2;
         this.description = description;
         this.since = since;
         this.examples = examples;
@@ -111,11 +86,8 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
     public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
         LinkedHashMap<String, Object> args = new LinkedHashMap<>();
 
-        for (int i = 0; i < parameters.length; i++) {
-            if (i >= params.length) {
-                continue;
-            }
-
+		int length = Math.min(parameters.length, params.length);
+        for (int i = 0; i < length; i++) {
             Object[] arg = params[i];
             Parameter<?> parameter = parameters[i];
 
@@ -139,16 +111,11 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
         }
 
         FunctionArguments arguments = new FunctionArguments(args);
-        T result;
-        if (execute == null) {
-            result = execute2.apply(event, arguments);
-        } else {
-            result = execute.apply(arguments);
-        }
+        T result= execute.apply(arguments);
 
         if (result == null) {
             return null;
-        } else if (isArray(result)) {
+        } else if (result.getClass().isArray()) {
             //noinspection unchecked
             return (T[]) result;
         } else {
@@ -157,14 +124,6 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
             array[0] = result;
             return array;
         }
-    }
-
-    private boolean isArray(Object obj) {
-        return obj instanceof Object[] || obj instanceof boolean[] ||
-                obj instanceof byte[] || obj instanceof short[] ||
-                obj instanceof char[] || obj instanceof int[] ||
-                obj instanceof long[] || obj instanceof float[] ||
-                obj instanceof double[];
     }
 
     @Override
@@ -324,18 +283,6 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
                     !returnType.isArray(), contract, execute, description, since, examples, keywords);
         }
 
-        /**
-         * Completes this builder with the code to execute on call of this function.
-         *
-         * @param execute The code to execute.
-         * @return The final function.
-         */
-        public DefaultFunction<T> build(BiFunction<Event, FunctionArguments, T> execute) {
-            Preconditions.checkNotNull(execute, "execute cannot be null");
-
-            return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), getClassInfo(returnType),
-                    !returnType.isArray(), contract, execute, description, since, examples, keywords);
-        }
     }
 
     /**
