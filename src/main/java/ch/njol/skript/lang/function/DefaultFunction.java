@@ -141,7 +141,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The description.
 	 */
-	public String @NotNull [] description() {
+	public @NotNull String[] description() {
 		return description;
 	}
 
@@ -150,7 +150,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The version history.
 	 */
-	public String @NotNull [] since() {
+	public @NotNull String[] since() {
 		return since;
 	}
 
@@ -159,7 +159,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The examples.
 	 */
-	public String @NotNull [] examples() {
+	public @NotNull String[] examples() {
 		return examples;
 	}
 
@@ -168,7 +168,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The keywords.
 	 */
-	public String[] keywords() {
+	public @NotNull String[] keywords() {
 		return keywords;
 	}
 
