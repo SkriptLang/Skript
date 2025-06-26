@@ -287,12 +287,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@Override
 	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.matchedPattern = matchedPattern;
-		// plural bits (0x3): 0 = singular, 1 = plural, 2 = unknown
-		int pluralBits = parseResult.mark & 0x3;
-		this.plural = pluralBits == 1 ? Kleenean.TRUE : pluralBits == 0 ? Kleenean.FALSE : Kleenean.UNKNOWN;
-		// age bits (0xC): 0 = unknown, 4 = baby, 8 = adult
-		int ageBits = parseResult.mark & 0xC;
-		this.baby = ageBits == 4 ? Kleenean.TRUE : ageBits == 8 ? Kleenean.FALSE : Kleenean.UNKNOWN;
+		this.plural = parseResult.hasTag("unknownplural") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("plural"));
+		this.baby = parseResult.hasTag("unknownage") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("baby"));
 		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedPattern, parseResult);
 	}
 
