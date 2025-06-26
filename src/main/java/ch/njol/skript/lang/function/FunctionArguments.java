@@ -13,7 +13,7 @@ public final class FunctionArguments {
 
 	private final Map<String, Object> arguments;
 
-	public FunctionArguments(@NotNull SequencedMap<String, Object> arguments) {
+	public FunctionArguments(@NotNull Map<String, Object> arguments) {
 		Preconditions.checkNotNull(arguments, "arguments cannot be null");
 
 		this.arguments = arguments;
@@ -75,16 +75,6 @@ public final class FunctionArguments {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
 		return arguments.containsKey(name);
-	}
-
-	/**
-	 * Returns an unmodifiable set of all names.
-	 *
-	 * @return All names.
-	 */
-	@Unmodifiable
-	@NotNull Set<String> getNames() {
-		return Collections.unmodifiableSet(arguments.keySet());
 	}
 
 }

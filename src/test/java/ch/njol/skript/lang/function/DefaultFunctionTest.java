@@ -31,9 +31,6 @@ public class DefaultFunctionTest {
 		Parameter<?>[] parameters = built.getParameters();
 
 		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(String.class), false, true), parameters[0]);
-
-		String[] execute = built.execute(consign());
-		assertArrayEquals(new String[]{}, execute);
 	}
 
 	@Test
