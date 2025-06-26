@@ -63,6 +63,14 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 		return originClassPath;
 	}
 
+	public boolean hasMultiLinedPatterns() {
+		return false;
+	}
+
+	public int getPatternIndex(String pattern) {
+		throw new SkriptAPIException("Method should be overridden by extended class.");
+	}
+
 	@Contract("_ -> new")
 	@ApiStatus.Experimental
 	@SuppressWarnings("unchecked")

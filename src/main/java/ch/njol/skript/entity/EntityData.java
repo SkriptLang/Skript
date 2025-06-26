@@ -180,6 +180,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final @Nullable EntityType entityType;
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
+		private final Map<String, Integer> codeNamePlacements = new HashMap<>();
+		private final Map<String, String> multiPatternCorrelation = new HashMap<>();
 
 		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
 			this(dataClass, codeName, codeNames, defaultName, EntityUtils.toBukkitEntityType(entityClass), entityClass);
@@ -211,8 +213,36 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 		@Override
 		public void onLanguageChange() {
-			for (int i = 0; i < codeNames.length; i++)
-				patterns[i] = Language.get(LANGUAGE_NODE + "." + codeNames[i] + ".pattern").replace("<age>", m_age_pattern.toString());
+			codeNamePlacements.clear();
+			int patternCount = 0;
+			for (int i = 0; i < codeNames.length; i++) {
+				String codeName = codeNames[i];
+				codeNamePlacements.put(codeName, i);
+				if (Language.keyExists(LANGUAGE_NODE + "." + codeName + ".pattern")) {
+					String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".pattern").replace("<age>", m_age_pattern.toString());
+					multiPatternCorrelation.put(pattern, codeName);
+					patterns[patternCount++] = pattern;
+				}
+				if (Language.keyExists(LANGUAGE_NODE + "." + codeName + ".patterns")) {
+					int multiCount = 0;
+                    while (Language.keyExists(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)) {
+                        String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount).replace("<age>", m_age_pattern.toString());
+                        multiCount++;
+                        multiPatternCorrelation.put(pattern, codeName);
+                        patterns[patternCount++] = pattern;
+                    }
+				}
+			}
+		}
+
+		@Override
+		public boolean hasMultiLinedPatterns() {
+			return true;
+		}
+
+		@Override
+		public int getPatternIndex(String pattern) {
+			return codeNamePlacements.get(multiPatternCorrelation.get(pattern));
 		}
 
 		@Override
