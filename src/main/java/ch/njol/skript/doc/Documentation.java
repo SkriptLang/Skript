@@ -399,7 +399,7 @@ public class Documentation {
 			params.append(p.toString());
 		}
 		String desc = validateHTML(StringUtils.join(typeDescription, "<br/>"), "functions");
-		String since = validateHTML(StringUtils.join(typeExamples, "\n"), "functions");
+		String since = validateHTML(StringUtils.join(typeSince, "\n"), "functions");
 		if (desc == null || since == null) {
 			Skript.warning("Function " + func.getName() + "'s description or 'since' is invalid");
 			return;
