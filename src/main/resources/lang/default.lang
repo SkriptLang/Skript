@@ -701,7 +701,7 @@ entities:
 		pattern: painting(|1¦s)
 	pig:
 		name: pig¦s
-		pattern: <age> [%-pigvariant%] pig(|1¦s)|(4¦)piglet(|1¦s)
+		pattern: <age> [%-pigvariant%] pig[1:s]|(4:)[%-pigvariant%]piglet[1:s]
 	saddled pig:
 		name: saddled pig¦s
 		pattern: saddled [%-pigvariant%] pig(|1¦s)
