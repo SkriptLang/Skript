@@ -468,10 +468,12 @@ directions:
 
 # -- Entities --
 # about patterns:
-#	the marks (1¦..) are only required in the english file, i.e. you can use (..|..) or [..] for plurals in other languages
-#	the exception to this rule is the 'f' and the corresponding marks (4¦ and 8¦)
+#	the tag "plural" is to indicate the pattern is referencing multiple
+#	the tag "unknown_plural" is to indicate the pattern is grammatically correct for both singular and plural
+#		without a suffix, such as "sheep"
+#	the tag "baby" is to indicate the pattern is referencing the baby state of an entity
 entities:
-	age pattern: (unknownage:|baby:(baby|young)|adult:(adult|grown(-| )up))
+	age pattern: (unknown_age:|baby:(baby|young)|adult:(adult|grown(-| )up))
 	age adjectives:
 		baby: baby
 		adult: adult
@@ -674,7 +676,7 @@ entities:
 		pattern: explosive [mine]cart[plural:s]|[mine]cart[plural:s] with TNT[s]
 	spawner minecart:
 		name: spawner minecart¦s
-		pattern: (monster|mob|) spawner [mine]cart[plural:s]|[mine]cart[plural:s] with (monster|mob|) spawner[s]
+		pattern: [monster|mob] spawner [mine]cart[plural:s]|[mine]cart[plural:s] with [monster|mob] spawner[s]
 	command minecart:
 		name: command minecart¦s
 		pattern: command [mine]cart[plural:s]|[mine]cart[plural:s] with command block[s]
@@ -717,13 +719,13 @@ entities:
 	sheep:
 		name: sheep
 		# while sheep is ambiguous, sheeps is plural (even though it's wrong)
-		pattern: [%-colors%] <age> sheep(unknownplural:|plural:s)|(baby:)[%-colors%] lamb[plural:s]
+		pattern: [%-colors%] <age> sheep(unknown_plural:|plural:s)|(baby:)[%-colors%] lamb[plural:s]
 	unsheared sheep:
 		name: unsheared sheep @an
-		pattern: unsheared [%-colors%] sheep(unknownplural:|plural:s)
+		pattern: unsheared [%-colors%] sheep(unknown_plural:|plural:s)
 	sheared sheep:
 		name: sheared sheep
-		pattern: sheared [%-colors%] sheep(unknownplural:|plural:s)
+		pattern: sheared [%-colors%] sheep(unknown_plural:|plural:s)
 	silverfish:
 		name: silverfish¦es
 		pattern: silverfish[plural:es]
@@ -750,7 +752,7 @@ entities:
 		pattern: [thrown] bottle[plural:s] o(f|') enchanting|[e]xp[erience] bottle[plural:s]
 	tnt:
 		name: TNT
-		pattern: ([primed] TNT(unknownplural:|plural:s)|TNT entit(y|plural:ies))
+		pattern: ([primed] TNT(unknown_plural:|plural:s)|TNT entit(y|plural:ies))
 	villager:
 		name: villager¦s
 		pattern: <age> villager[plural:s]|(baby:)[villager] (kid[plural:s]|child[plural:ren])
@@ -844,16 +846,16 @@ entities:
 		pattern: firework[plural:s] [rocket[plural:s]]
 	falling block:
 		name: falling block¦s
-		pattern: falling (block[plural:s]|(unknownplural:)%-itemtype%)
+		pattern: falling (block[plural:s]|(unknown_plural:)%-itemtype%)
 		adjective: falling
 		not a block error: Falling blocks must be blocks, not items
 	thrown potion:
 		name: thrown potion¦s
-		pattern: thrown (potion[plural:s]|(unknownplural:)%-itemtypes%)
+		pattern: thrown (potion[plural:s]|(unknown_plural:)%-itemtypes%)
 		adjective: thrown
 	dropped item:
 		name: dropped item¦s
-		pattern: dropped (item[plural:s]|(unknownplural:)%-itemtypes%)|item entit(y|plural:ies)
+		pattern: dropped (item[plural:s]|(unknown_plural:)%-itemtypes%)|item entit(y|plural:ies)
 		adjective: dropped
 	horse:
 		name: horse¦s

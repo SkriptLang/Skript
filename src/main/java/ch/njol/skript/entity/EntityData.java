@@ -283,12 +283,11 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		throw new IllegalStateException();
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.matchedPattern = matchedPattern;
-		this.plural = parseResult.hasTag("unknownplural") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("plural"));
-		this.baby = parseResult.hasTag("unknownage") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("baby"));
+		this.plural = parseResult.hasTag("unknown_plural") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("plural"));
+		this.baby = parseResult.hasTag("unknown_age") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("baby"));
 		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedPattern, parseResult);
 	}
 
