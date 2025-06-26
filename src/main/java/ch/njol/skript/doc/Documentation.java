@@ -377,7 +377,7 @@ public class Documentation {
 				since);
 	}
 
-	private static void insertFunction(final PrintWriter pw, final ch.njol.skript.lang.function.Function<?> func) {
+	private static void insertFunction(PrintWriter pw, ch.njol.skript.lang.function.Function<?> func) {
 		String[] typeSince, typeDescription, typeExamples;
 		if (func instanceof DefaultFunction<?> defaultFunction) {
 			typeSince = defaultFunction.since();
@@ -392,14 +392,14 @@ public class Documentation {
 			return;
 		}
 
-		final StringBuilder params = new StringBuilder();
-		for (final Parameter<?> p : func.getParameters()) {
+		StringBuilder params = new StringBuilder();
+		for (Parameter<?> p : func.getParameters()) {
 			if (params.length() != 0)
 				params.append(", ");
 			params.append(p.toString());
 		}
-		final String desc = validateHTML(StringUtils.join(typeDescription, "<br/>"), "functions");
-		final String since = validateHTML(StringUtils.join(typeExamples, "\n"), "functions");
+		String desc = validateHTML(StringUtils.join(typeDescription, "<br/>"), "functions");
+		String since = validateHTML(StringUtils.join(typeExamples, "\n"), "functions");
 		if (desc == null || since == null) {
 			Skript.warning("Function " + func.getName() + "'s description or 'since' is invalid");
 			return;
