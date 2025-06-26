@@ -412,7 +412,7 @@ public abstract class Functions {
 	}
 
 	/**
-	 * @deprecated Use {@link #getFunctions()}.
+	 * @deprecated Use {@link #getDefaultFunctions()} instead.
 	 */
 	@SuppressWarnings({"unchecked"})
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
@@ -422,10 +422,11 @@ public abstract class Functions {
 	}
 
 	/**
-	 * Returns all functions.
-	 * @return All functions.
+	 * Returns all functions registered using Java.
+	 *
+	 * @return All {@link JavaFunction} or {@link DefaultFunction} functions.
 	 */
-	public static Collection<Function<?>> getFunctions() {
+	public static Collection<Function<?>> getDefaultFunctions() {
 		return javaNamespace.getFunctions();
 	}
 

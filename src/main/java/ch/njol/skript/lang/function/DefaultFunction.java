@@ -2,8 +2,8 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Contract;
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +61,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	private DefaultFunction(
 		String name, Parameter<?>[] parameters,
 		ClassInfo<T> returnType, boolean single,
-		@Nullable Contract contract, Function<FunctionArguments, T> execute,
+		@Nullable ch.njol.skript.util.Contract contract, Function<FunctionArguments, T> execute,
 		String[] description, String[] since, String[] examples, String[] keywords
 	) {
 		super(new Signature<>("none", name, parameters, false,
@@ -175,7 +175,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		private final Class<T> returnType;
 		private final Map<String, Parameter<?>> parameters = new LinkedHashMap<>();
 
-		private Contract contract = null;
+		private ch.njol.skript.util.Contract contract = null;
 
 		private String[] description, since, examples, keywords;
 
@@ -187,7 +187,14 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 			this.returnType = returnType;
 		}
 
-		public Builder<T> contract(@NotNull Contract contract) {
+		/**
+		 * Sets this function builder's {@link Contract}.
+		 *
+		 * @param contract The contract.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		public Builder<T> contract(@NotNull ch.njol.skript.util.Contract contract) {
 			Preconditions.checkNotNull(contract, "contract cannot be null");
 
 			this.contract = contract;
@@ -197,8 +204,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		/**
 		 * Sets this function builder's description.
 		 *
+		 * @param description The description.
 		 * @return This builder.
 		 */
+		@Contract("_ -> this")
 		public Builder<T> description(@NotNull String... description) {
 			Preconditions.checkNotNull(description, "description cannot be null");
 
@@ -209,8 +218,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		/**
 		 * Sets this function builder's version history.
 		 *
+		 * @param since The version information.
 		 * @return This builder.
 		 */
+		@Contract("_ -> this")
 		public Builder<T> since(@NotNull String... since) {
 			Preconditions.checkNotNull(since, "since cannot be null");
 
@@ -221,8 +232,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		/**
 		 * Sets this function builder's examples.
 		 *
+		 * @param examples The examples.
 		 * @return This builder.
 		 */
+		@Contract("_ -> this")
 		public Builder<T> examples(@NotNull String... examples) {
 			Preconditions.checkNotNull(examples, "examples cannot be null");
 
@@ -233,8 +246,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		/**
 		 * Sets this function builder's keywords.
 		 *
+		 * @param keywords The keywords.
 		 * @return This builder.
 		 */
+		@Contract("_ -> this")
 		public Builder<T> keywords(@NotNull String... keywords) {
 			Preconditions.checkNotNull(keywords, "keywords cannot be null");
 
@@ -249,7 +264,8 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 * @param type The type of the parameter.
 		 * @return This builder.
 		 */
-		public <PT> Builder<T> parameter(@NotNull String name, @NotNull Class<PT> type) {
+		@Contract("_, _ -> this")
+		public Builder<T> parameter(@NotNull String name, @NotNull Class<?> type) {
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 
@@ -264,7 +280,8 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 * @param type The type of the parameter.
 		 * @return This builder.
 		 */
-		public <PT> Builder<T> optionalParameter(@NotNull String name, @NotNull Class<PT> type) {
+		@Contract("_, _ -> this")
+		public Builder<T> optionalParameter(@NotNull String name, @NotNull Class<?> type) {
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 
@@ -278,7 +295,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 * @param execute The code to execute.
 		 * @return The final function.
 		 */
-		public DefaultFunction<T> build(Function<FunctionArguments, T> execute) {
+		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
 			return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), getClassInfo(returnType),

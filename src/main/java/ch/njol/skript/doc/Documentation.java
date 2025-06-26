@@ -153,7 +153,7 @@ public class Documentation {
 				"examples VARCHAR(2000) NOT NULL," +
 				"since VARCHAR(100) NOT NULL" +
 				");");
-		for (ch.njol.skript.lang.function.Function<?> func : Functions.getFunctions()) {
+		for (ch.njol.skript.lang.function.Function<?> func : Functions.getDefaultFunctions()) {
 			assert func != null;
 			insertFunction(pw, func);
 		}

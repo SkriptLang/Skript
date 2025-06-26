@@ -424,7 +424,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("structures", generateStructureElementArray(structuresExcludingEvents.iterator()));
 		jsonDocs.add("sections", generateSyntaxElementArray(Skript.getSections().iterator()));
 
-		jsonDocs.add("functions", generateFunctionArray(Functions.getFunctions().iterator()));
+		jsonDocs.add("functions", generateFunctionArray(Functions.getDefaultFunctions().iterator()));
 
 		saveDocs(outputDir.toPath().resolve("docs.json"), jsonDocs);
 	}

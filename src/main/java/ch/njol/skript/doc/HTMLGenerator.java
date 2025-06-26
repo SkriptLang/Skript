@@ -334,7 +334,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 					}
 				}
 				if (genType.equals("functions") || isDocsPage) {
-					List<Function<?>> functions = new ArrayList<>(Functions.getFunctions());
+					List<Function<?>> functions = new ArrayList<>(Functions.getDefaultFunctions());
 					functions.sort(functionComparator);
 					for (Function<?> info : functions) {
 						assert info != null;
