@@ -83,22 +83,21 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
 
-		// since we are getting a namespace and then updating it by putting it back in the map,
-		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
-		synchronized (namespaces) {
-			Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-			FunctionIdentifier identifier = FunctionIdentifier.of(signature);
-
-			// register
+		// register
+		// since we are getting a set and then updating it,
+		// avoid race conditions by ensuring only one thread can access this namespace for this operation
+		synchronized (ns) {
 			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
 			boolean exists = identifiersWithName.add(identifier);
 			if (!exists) {
 				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
 			}
-
-			ns.signatures.put(identifier, signature);
 		}
+
+		ns.signatures.put(identifier, signature);
 	}
 
 	/**
@@ -146,15 +145,11 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			register(namespace, function.getSignature());
 		}
 
-		// since we are getting a namespace and then updating it by putting it back in the map,
-		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
-		synchronized (namespaces) {
-			Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
+		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 
-			Function<?> existing = ns.functions.put(identifier, function);
-			if (existing != null) {
-				alreadyRegisteredError(name, identifier, namespaceId);
-			}
+		Function<?> existing = ns.functions.putIfAbsent(identifier, function);
+		if (existing != null) {
+			alreadyRegisteredError(name, identifier, namespaceId);
 		}
 	}
 
@@ -512,21 +507,18 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		synchronized (namespaces) {
-			for (Namespace namespace : namespaces.values()) {
-				if (!namespace.identifiers.containsKey(name)) {
-					continue;
-				}
+		Namespace namespace = namespaces.get(new NamespaceIdentifier(signature.script));
+		if (namespace == null) {
+			return;
+		}
 
-				for (FunctionIdentifier other : namespace.identifiers.get(name)) {
-					if (!identifier.equals(other)) {
-						continue;
-					}
-
-					removeUpdateMaps(namespace, other, name);
-					return;
-				}
+		for (FunctionIdentifier other : namespace.identifiers.get(name)) {
+			if (!identifier.equals(other)) {
+				continue;
 			}
+
+			removeUpdateMaps(namespace, other, name);
+			return;
 		}
 	}
 
