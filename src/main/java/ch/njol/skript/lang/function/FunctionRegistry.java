@@ -5,12 +5,12 @@ import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -40,9 +40,9 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	final static String FUNCTION_NAME_PATTERN = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*";
 
 	/**
-	 * The namespace for functions registered using Java.
+	 * The namespace for registered global functions.
 	 */
-	private final NamespaceIdentifier GLOBAL_NAMESPACE = new NamespaceIdentifier(Scope.GLOBAL, null);
+	private final NamespaceIdentifier GLOBAL_NAMESPACE = new NamespaceIdentifier(null);
 
 	/**
 	 * All registered namespaces.
@@ -78,7 +78,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		// namespace
 		NamespaceIdentifier namespaceId;
 		if (namespace != null && signature.isLocal()) {
-			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
+			namespaceId = new NamespaceIdentifier(namespace);
 		} else {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
@@ -86,25 +86,18 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		// since we are getting a namespace and then updating it by putting it back in the map,
 		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
 		synchronized (namespaces) {
-			namespaces.compute(namespaceId, (id, ns) -> {
-				if (ns == null) {
-					ns = new Namespace();
-				}
+			Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 
-				FunctionIdentifier identifier = FunctionIdentifier.of(signature);
+			FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-				// register
-				Set<FunctionIdentifier> identifiersWithName = ns.identifiers.getOrDefault(identifier.name, new HashSet<>());
-				boolean exists = identifiersWithName.add(identifier);
-				if (!exists) {
-					alreadyRegisteredError(signature.getName(), identifier, namespaceId);
-				}
-				ns.identifiers.put(identifier.name, identifiersWithName);
+			// register
+			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
+			boolean exists = identifiersWithName.add(identifier);
+			if (!exists) {
+				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+			}
 
-				ns.signatures.put(identifier, signature);
-
-				return ns;
-			});
+			ns.signatures.put(identifier, signature);
 		}
 	}
 
@@ -143,7 +136,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		// namespace
 		NamespaceIdentifier namespaceId;
 		if (namespace != null && function.getSignature().isLocal()) {
-			namespaceId = new NamespaceIdentifier(Scope.LOCAL, namespace);
+			namespaceId = new NamespaceIdentifier(namespace);
 		} else {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
@@ -156,18 +149,12 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		// since we are getting a namespace and then updating it by putting it back in the map,
 		// avoid race conditions by ensuring only one thread can access the namespaces map at a time.
 		synchronized (namespaces) {
-			namespaces.compute(namespaceId, (id, ns) -> {
-				if (ns == null) {
-					ns = new Namespace();
-				}
+			Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
 
-				Function<?> existing = ns.functions.put(identifier, function);
-				if (existing != null) {
-					alreadyRegisteredError(name, identifier, namespaceId);
-				}
-
-				return ns;
-			});
+			Function<?> existing = ns.functions.put(identifier, function);
+			if (existing != null) {
+				alreadyRegisteredError(name, identifier, namespaceId);
+			}
 		}
 	}
 
@@ -197,7 +184,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		return signatureExists(new NamespaceIdentifier(Scope.LOCAL, namespace.toLowerCase()),
+		return signatureExists(new NamespaceIdentifier(namespace.toLowerCase()),
 			FunctionIdentifier.of(name, true, args));
 	}
 
@@ -311,7 +298,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Retrieval<Function<?>> attempt = getFunction(new NamespaceIdentifier(Scope.LOCAL, namespace),
+		Retrieval<Function<?>> attempt = getFunction(new NamespaceIdentifier(namespace),
 			FunctionIdentifier.of(name, true, args));
 		if (attempt.result != RetrievalResult.EXACT) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
@@ -386,7 +373,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Retrieval<Signature<?>> attempt = getSignature(new NamespaceIdentifier(Scope.LOCAL, namespace),
+		Retrieval<Signature<?>> attempt = getSignature(new NamespaceIdentifier(namespace),
 			FunctionIdentifier.of(name, true, args));
 		if (attempt.result != RetrievalResult.EXACT) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
@@ -440,13 +427,13 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
-	 * Returns a list of candidates for the provided function identifier.
+	 * Returns an unmodifiable list of candidates for the provided function identifier.
 	 *
 	 * @param provided The provided function.
 	 * @param existing The existing functions with the same name.
-	 * @return A list of candidates for the provided function.
+	 * @return An unmodifiable list of candidates for the provided function.
 	 */
-	private static @NotNull Set<FunctionIdentifier> candidates(
+	private static @Unmodifiable @NotNull Set<FunctionIdentifier> candidates(
 		@NotNull FunctionIdentifier provided,
 		Set<FunctionIdentifier> existing
 	) {
@@ -479,13 +466,11 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			candidates.add(candidate);
 		}
 
-		if (candidates.isEmpty()) {
-			return Set.of();
-		} else if (candidates.size() == 1 || provided.args == null || provided.args.length == 0) {
+		if (candidates.size() <= 1 || provided.args == null || provided.args.length == 0) {
 			// if there is only one candidate,
 			// or we should match any function if provided.args == null || provided.args.length == 0,
 			// then return without trying to convert
-			return candidates;
+			return Collections.unmodifiableSet(candidates);
 		}
 
 		// let overloaded(Long, Long) and overloaded(String, String) be two functions.
@@ -513,7 +498,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			}
 		}
 
-		return candidates;
+		return Collections.unmodifiableSet(candidates);
 	}
 
 	/**
@@ -528,10 +513,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		synchronized (namespaces) {
-			for (Entry<NamespaceIdentifier, Namespace> entry : namespaces.entrySet()) {
-				NamespaceIdentifier namespaceId = entry.getKey();
-				Namespace namespace = entry.getValue();
-
+			for (Namespace namespace : namespaces.values()) {
 				if (!namespace.identifiers.containsKey(name)) {
 					continue;
 				}
@@ -542,8 +524,6 @@ final class FunctionRegistry implements Registry<Function<?>> {
 					}
 
 					removeUpdateMaps(namespace, other, name);
-					namespaces.put(namespaceId, namespace);
-
 					return;
 				}
 			}
@@ -573,17 +553,18 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
-	 * Scope of functions in namespace.
+	 * An identifier for a function namespace.
 	 */
-	private enum Scope {
-		GLOBAL,
-		LOCAL
-	}
+	private record NamespaceIdentifier(@Nullable String name) {
 
-	/**
-	 * A namespace for a function.
-	 */
-	private record NamespaceIdentifier(@NotNull Scope scope, @Nullable String name) {
+		/**
+		 * Returns whether this identifier is for local namespaces.
+		 * @return Whether this identifier is for local namespaces.
+		 */
+		public boolean local() {
+			return name == null;
+		}
+
 	}
 
 	/**
