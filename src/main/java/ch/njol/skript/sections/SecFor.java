@@ -111,7 +111,7 @@ public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
 		}
 		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
 			&& expression.isSingle()
-			&& (expression instanceof Variable<?> || Iterable.class.isAssignableFrom(expression.getReturnType()))) {
+			&& (expression instanceof Variable<?> || expression.canReturn(Iterable.class))) {
 			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
 			super.iterableSingle = true;
 		} else if (expression.isSingle()) {
