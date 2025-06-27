@@ -1,10 +1,7 @@
 package ch.njol.skript.lang;
 
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Array;
 
 /**
  * A list of literals. Can contain {@link UnparsedLiteral}s.
@@ -63,17 +60,7 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Expression<T> simplify() {
-		boolean isSimpleList = true;
-		for (Expression<? extends T> expression : expressions)
-			isSimpleList &= expression.isSingle();
-		if (isSimpleList) {
-			T[] values = (T[]) Array.newInstance(getReturnType(), expressions.length);
-			for (int i = 0; i < values.length; i++)
-				values[i] = ((Literal<? extends T>) expressions[i]).getSingle();
-			return new SimpleLiteral<>(values, getReturnType(), and);
-		}
 		return this;
 	}
 

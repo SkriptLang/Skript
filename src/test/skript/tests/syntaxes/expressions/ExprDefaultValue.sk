@@ -6,7 +6,8 @@ test "ExprDefaultValue":
 	set {_x} to length of ({_none} otherwise "Hello")
 	assert {_x} is set with "default value was not returned"
 
-	set {_x} to length of (5 otherwise "Hello")
+	set {_y} to 5
+	set {_x} to length of ({_y} otherwise "Hello")
 	assert {_x} is not set with "invalid regular value was not returned"
 
 	parse:

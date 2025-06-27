@@ -1,25 +1,25 @@
 package ch.njol.skript.expressions;
 
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Name("Join & Split")
 @Description("Joins several texts with a common delimiter (e.g. \", \"), or splits a text into multiple texts at a given delimiter.")
@@ -100,6 +100,13 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (strings instanceof Literal<String> && (delimiter == null || delimiter instanceof Literal<String>))
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override
