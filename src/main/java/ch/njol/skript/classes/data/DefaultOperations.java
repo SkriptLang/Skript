@@ -4,7 +4,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.skript.util.Utils;
-import org.bukkit.util.Vector;
+import org.joml.Vector3d;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 
@@ -64,30 +64,22 @@ public class DefaultOperations {
 		Arithmetics.registerDefaultValue(Number.class, () -> 0L);
 
 		// Vector - Vector
-		Arithmetics.registerOperation(Operator.ADDITION, Vector.class, (left, right) -> left.clone().add(right));
-		Arithmetics.registerOperation(Operator.SUBTRACTION, Vector.class, (left, right) -> left.clone().subtract(right));
-		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector.class, (left, right) -> left.clone().multiply(right));
-		Arithmetics.registerOperation(Operator.DIVISION, Vector.class, (left, right) -> left.clone().divide(right));
-		Arithmetics.registerDifference(Vector.class,
-			(left, right) -> new Vector(Math.abs(left.getX() - right.getX()), Math.abs(left.getY() - right.getY()), Math.abs(left.getZ() - right.getZ())));
-		Arithmetics.registerDefaultValue(Vector.class, Vector::new);
+		Arithmetics.registerOperation(Operator.ADDITION, Vector3d.class, (left, right) -> left.add(right, new Vector3d()));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, Vector3d.class, (left, right) -> left.sub(right, new Vector3d()));
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector3d.class, (left, right) -> left.mul(right, new Vector3d()));
+		Arithmetics.registerOperation(Operator.DIVISION, Vector3d.class, (left, right) -> left.div(right, new Vector3d()));
+		Arithmetics.registerDifference(Vector3d.class,
+			(left, right) -> new Vector3d(Math.abs(left.x() - right.x()), Math.abs(left.y() - right.y()), Math.abs(left.z() - right.z())));
+		Arithmetics.registerDefaultValue(Vector3d.class, Vector3d::new);
 
 		// Vector - Number
 		// Number - Vector
-		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector.class, Number.class, (left, right) -> left.clone().multiply(right.doubleValue()), (left, right) -> {
-			double number = left.doubleValue();
-			Vector leftVector = new Vector(number, number, number);
-			return leftVector.multiply(right);
-		});
-		Arithmetics.registerOperation(Operator.DIVISION, Vector.class, Number.class, (left, right) -> {
-			double number = right.doubleValue();
-			Vector rightVector = new Vector(number, number, number);
-			return left.clone().divide(rightVector);
-		}, (left, right) -> {
-			double number = left.doubleValue();
-			Vector leftVector = new Vector(number, number, number);
-			return leftVector.divide(right);
-		});
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, Vector3d.class, Number.class,
+			(left, right) -> left.mul(right.doubleValue(), new Vector3d()),
+			(left, right) -> right.mul(left.doubleValue(), new Vector3d()));
+		Arithmetics.registerOperation(Operator.DIVISION, Vector3d.class, Number.class,
+			(left, right) -> left.div(right.doubleValue(), new Vector3d()),
+			(left, right) -> new Vector3d(left.doubleValue()).div(right));
 
 		// Timespan - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, Timespan::add);

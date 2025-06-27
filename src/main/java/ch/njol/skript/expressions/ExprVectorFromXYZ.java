@@ -1,9 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -15,15 +11,18 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Vectors - Create from XYZ")
 @Description("Creates a vector from x, y and z values.")
 @Examples("set {_v} to vector 0, 1, 0")
 @Since("2.2-dev28")
-public class ExprVectorFromXYZ extends SimpleExpression<Vector> {
+public class ExprVectorFromXYZ extends SimpleExpression<Vector3d> {
 
 	static {
-		Skript.registerExpression(ExprVectorFromXYZ.class, Vector.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprVectorFromXYZ.class, Vector3d.class, ExpressionType.COMBINED,
 				"[a] [new] vector [(from|at|to)] %number%,[ ]%number%(,[ ]| and )%number%");
 	}
 
@@ -41,13 +40,13 @@ public class ExprVectorFromXYZ extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event event) {
+	protected Vector3d[] get(Event event) {
 		Number x = this.x.getSingle(event);
 		Number y = this.y.getSingle(event);
 		Number z = this.z.getSingle(event);
 		if (x == null || y == null || z == null)
 			return null;
-		return CollectionUtils.array(new Vector(x.doubleValue(), y.doubleValue(), z.doubleValue()));
+		return CollectionUtils.array(new Vector3d(x.doubleValue(), y.doubleValue(), z.doubleValue()));
 	}
 
 	@Override
@@ -56,8 +55,8 @@ public class ExprVectorFromXYZ extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override

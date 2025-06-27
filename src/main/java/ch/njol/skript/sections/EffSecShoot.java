@@ -215,7 +215,7 @@ public class EffSecShoot extends EffectSection {
 				Entity finalProjectile = null;
 				Vector vector;
 				if (shooter instanceof LivingEntity livingShooter) {
-					vector = finalDirection.getDirection(livingShooter.getLocation()).multiply(finalVelocity.doubleValue());
+					vector = Vector.fromJOML(finalDirection.getDirection(livingShooter.getLocation()).mul(finalVelocity.doubleValue()));
 					//noinspection rawtypes
 					Consumer afterSpawn = afterSpawn(event, entityData, livingShooter, vector);
 					Class<? extends Entity> type = entityData.getType();
@@ -248,7 +248,7 @@ public class EffSecShoot extends EffectSection {
 						finalProjectile = caseUsage.shootHandler(entityData, livingShooter, shooterLoc, type, vector, afterSpawn);
 					}
 				} else {
-					vector = finalDirection.getDirection((Location) shooter).multiply(finalVelocity.doubleValue());
+					vector = Vector.fromJOML(finalDirection.getDirection((Location) shooter).mul(finalVelocity.doubleValue()));
 					if (trigger != null) {
 						//noinspection unchecked,rawtypes
 						entityData.spawn((Location) shooter, (Consumer) afterSpawn(event, entityData, null, vector));

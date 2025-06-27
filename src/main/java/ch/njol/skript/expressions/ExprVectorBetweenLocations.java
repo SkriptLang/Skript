@@ -1,10 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,15 +11,19 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Vectors - Vector Between Locations")
 @Description("Creates a vector between two locations.")
 @Examples("set {_v} to vector between {_loc1} and {_loc2}")
 @Since("2.2-dev28")
-public class ExprVectorBetweenLocations extends SimpleExpression<Vector> {
+public class ExprVectorBetweenLocations extends SimpleExpression<Vector3d> {
 
 	static {
-		Skript.registerExpression(ExprVectorBetweenLocations.class, Vector.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprVectorBetweenLocations.class, Vector3d.class, ExpressionType.COMBINED,
 				"[the] vector (from|between) %location% (to|and) %location%");
 	}
 
@@ -41,12 +40,12 @@ public class ExprVectorBetweenLocations extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event event) {
+	protected Vector3d[] get(Event event) {
 		Location from = this.from.getSingle(event);
 		Location to = this.to.getSingle(event);
 		if (from == null || to == null)
 			return null;
-		return CollectionUtils.array(new Vector(to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - from.getZ()));
+		return CollectionUtils.array(new Vector3d(to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - from.getZ()));
 	}
 
 	@Override
@@ -54,8 +53,8 @@ public class ExprVectorBetweenLocations extends SimpleExpression<Vector> {
 		return true;
 	}
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override

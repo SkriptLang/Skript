@@ -10,17 +10,7 @@ import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Color;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.GameruleValue;
-import ch.njol.skript.util.StructureType;
-import ch.njol.skript.util.Time;
-import ch.njol.skript.util.Timeperiod;
-import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.WeatherType;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
@@ -41,6 +31,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+import org.joml.Vector3d;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -619,12 +611,12 @@ public class DefaultComparators {
 		});
 
 		// Location - Location
-		Comparators.registerComparator(Location.class, Location.class, new Comparator<Location, Location>() {
+		Comparators.registerComparator(Location.class, Location.class, new Comparator<>() {
 			@Override
 			public Relation compare(Location first, Location second) {
 				return Relation.get(
-						// compare worlds
-						Objects.equals(first.getWorld(), second.getWorld()) &&
+					// compare worlds
+					Objects.equals(first.getWorld(), second.getWorld()) &&
 						// compare xyz coords
 						first.toVector().equals(second.toVector()) &&
 						// normalize yaw and pitch to [-180, 180) and [-90, 90] respectively
@@ -633,12 +625,19 @@ public class DefaultComparators {
 						Location.normalizePitch(first.getPitch()) == Location.normalizePitch(second.getPitch())
 				);
 			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
-			}
 		});
+
+		// Vectors
+
+		double vectorEpsilon = 0.000001; // vectors often are made from float sources, so can't use 1e-10.
+		Comparators.registerComparator(Vector3d.class, Vector3d.class, (a, b) -> Relation.get(
+				Math.abs(a.x - b.x) < vectorEpsilon
+				&& Math.abs(a.y - b.y) < vectorEpsilon
+				&& Math.abs(a.z - b.z) < vectorEpsilon));
+		Comparators.registerComparator(Vector.class, Vector3d.class, (a, b) -> Relation.get(
+			Math.abs(a.getX() - b.x) < vectorEpsilon
+				&& Math.abs(a.getY() - b.y) < vectorEpsilon
+				&& Math.abs(a.getZ() - b.z) < vectorEpsilon));
 
 		// Potion Effect Type
 		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, (one, two) -> Relation.get(one.equals(two)));

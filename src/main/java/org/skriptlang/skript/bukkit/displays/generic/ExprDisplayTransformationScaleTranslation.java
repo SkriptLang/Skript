@@ -13,18 +13,18 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.bukkit.util.Transformation;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 @Name("Display Transformation Scale/Translation")
 @Description("Returns or changes the transformation scale or translation of <a href='classes.html#display'>displays</a>.")
 @Examples("set transformation translation of display to vector from -0.5, -0.5, -0.5 # Center the display in the same position as a block")
 @Since("2.10")
-public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExpression<Display, Vector> {
+public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExpression<Display, Vector3d> {
 
 	static {
-		register(ExprDisplayTransformationScaleTranslation.class, Vector.class, "(display|[display] transformation) (:scale|translation)", "displays");
+		register(ExprDisplayTransformationScaleTranslation.class, Vector3d.class, "(display|[display] transformation) (:scale|translation)", "displays");
 	}
 
 	private boolean scale;
@@ -36,26 +36,26 @@ public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExp
 	}
 
 	@Override
-	public @Nullable Vector convert(Display display) {
+	public @Nullable Vector3d convert(Display display) {
 		Transformation transformation = display.getTransformation();
-		return Vector.fromJOML(scale ? transformation.getScale() : transformation.getTranslation());
+		return new Vector3d(scale ? transformation.getScale() : transformation.getTranslation());
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, RESET -> CollectionUtils.array(Vector.class);
+			case SET, RESET -> CollectionUtils.array(Vector3d.class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Vector3f vector = null;
-		if (mode == ChangeMode.RESET)
-			vector = scale ? new Vector3f(1F, 1F, 1F) : new Vector3f(0F, 0F, 0F);
+		Vector3f vector = new Vector3f();
+		if (mode == ChangeMode.RESET && scale)
+			vector.set(1F, 1F, 1F);
 		if (delta != null)
-			vector = ((Vector) delta[0]).toVector3f();
-		if (vector == null || !vector.isFinite())
+			vector.set((Vector3d) delta[0]);
+		if (!vector.isFinite())
 			return;
 		for (Display display : getExpr().getArray(event)) {
 			Transformation transformation = display.getTransformation();
@@ -70,8 +70,8 @@ public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExp
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override
