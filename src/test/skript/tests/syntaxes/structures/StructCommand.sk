@@ -25,6 +25,8 @@ test "commands":
 	execute command "skriptcommand taco"
 	execute command "//somecommand burrito is tasty"
 
+using local variable type hints
+
 parse:
 	results: {StructCommand::hints::1::*}
 	code:

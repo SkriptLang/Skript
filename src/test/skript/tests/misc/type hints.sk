@@ -1,3 +1,5 @@
+using local variable type hints
+
 on script load:
 	suppress unreachable code warnings
 
@@ -7,6 +9,18 @@ test "type hints":
 		set {_x} to 10
 		set {_a} to {_x} in lowercase
 	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	delete {_x}
+
+	parse:
+		suppress local variable type hints
+		set {_x} to 10
+		set {_a} to {_x} in lowercase
+		unsuppress local variable type hints
+		set {_x} to 10
+		suppress local variable type hints
+		set {_a} to {_x} in lowercase
+		unsuppress local variable type hints
+	assert last parse logs is not set with "last parse logs is set (%last parse logs%)"
 	delete {_x}
 
 	parse:

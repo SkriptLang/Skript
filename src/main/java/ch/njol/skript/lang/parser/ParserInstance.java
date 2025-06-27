@@ -52,9 +52,6 @@ public final class ParserInstance implements Experimented {
 		this.isActive = false;
 		reset();
 		setCurrentScript((Script) null);
-		// When the script itself changes, the HintManager should become active
-		//  rather than inheriting the state of the previous manager upon reset()
-		this.hintManager.setActive(true);
 	}
 
 	/**
@@ -63,8 +60,12 @@ public final class ParserInstance implements Experimented {
 	 */
 	@ApiStatus.Internal
 	public void setActive(Script script) {
-		this.isActive = true;
 		reset(); // just to be safe
+
+		// Needs to be explicitly marked as it will be false from the 'reset' call
+		this.hintManager.setActive(true);
+
+		this.isActive = true; // we want it to be active for script events
 		setCurrentScript(script);
 	}
 
@@ -542,6 +543,7 @@ public final class ParserInstance implements Experimented {
 
 	private HintManager hintManager = new HintManager(true);
 
+	@ApiStatus.Experimental
 	public HintManager getHintManager() {
 		return hintManager;
 	}

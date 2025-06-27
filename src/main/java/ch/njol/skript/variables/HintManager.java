@@ -4,7 +4,9 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Feature;
 import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.HashMap;
@@ -96,6 +98,7 @@ import java.util.Set;
  * </pre>
  * @see ParserInstance#getHintManager()
  */
+@ApiStatus.Experimental
 public class HintManager {
 
 	private record Scope(Map<String, Set<Class<?>>> hintMap, boolean isSection) { }
@@ -125,7 +128,8 @@ public class HintManager {
 	 * @see #setActive(boolean)
 	 */
 	public boolean isActive() {
-		return isActive;
+		ParserInstance parser = ParserInstance.get();
+		return isActive && parser.isActive() && parser.hasExperiment(Feature.TYPE_HINTS);
 	}
 
 	/**
@@ -435,7 +439,7 @@ public class HintManager {
 	}
 
 	private boolean areHintsUnavailable() {
-		if (!isActive) {
+		if (!isActive()) {
 			return true;
 		}
 		if (typeHints.isEmpty()) {

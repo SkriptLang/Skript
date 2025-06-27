@@ -29,6 +29,8 @@ test "single copy":
 	copy {_none} into {_foo}
 	assert {_foo} is not set with "Copying nothing didn't delete variable"
 
+using local variable type hints
+
 test "copy effect type hints":
 	set {_var} to 10
 	copy {_var} into {_x}

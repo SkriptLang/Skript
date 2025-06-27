@@ -22,6 +22,8 @@ test "functions":
 	assert bar() is true with "local function didn't execute correctly"
 	assert _blob() is "blub" with "function that starts with underscore didn't execute correctly"
 
+using local variable type hints
+
 parse:
 	results: {StructFunction::hints::1::*}
 	code:

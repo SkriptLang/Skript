@@ -5,6 +5,8 @@ test "do if":
 	set {_unset} to true if 1 is 2
 	assert {_unset} is not set with "Do if ran when it shouldn't have"
 
+using local variable type hints
+
 test "do if type hints":
 	parse:
 		if true is true:
