@@ -8,7 +8,7 @@ import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 /**
  * Typed {@link SimpleExperimentalSyntax} for {@link SyntaxElement}s that require {@link Feature#EQUIPPABLE_COMPONENTS}.
  */
-public interface EquippableExperiment extends SimpleExperimentalSyntax {
+public interface EquippableExperimentSyntax extends SimpleExperimentalSyntax {
 
 	ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.EQUIPPABLE_COMPONENTS);
 

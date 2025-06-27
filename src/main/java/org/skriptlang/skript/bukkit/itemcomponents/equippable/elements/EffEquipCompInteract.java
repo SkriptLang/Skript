@@ -9,7 +9,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equip On Entities")
@@ -18,7 +18,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Example("allow {_item} to be equipped onto entities")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.5+")
-public class EffEquipCompInteract extends Effect implements EquippableExperiment {
+public class EffEquipCompInteract extends Effect implements EquippableExperimentSyntax {
 
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "setEquipOnInteract", boolean.class))

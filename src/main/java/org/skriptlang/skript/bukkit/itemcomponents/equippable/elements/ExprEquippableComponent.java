@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component")
@@ -27,7 +27,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Example("clear the equippable component of {_item}")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack, EquippableWrapper> implements EquippableExperiment {
+public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack, EquippableWrapper> implements EquippableExperimentSyntax {
 
 	static {
 		register(ExprEquippableComponent.class,  EquippableWrapper.class,

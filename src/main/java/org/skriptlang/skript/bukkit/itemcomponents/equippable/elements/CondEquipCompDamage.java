@@ -10,7 +10,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Will Lose Durability")
@@ -27,7 +27,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> implements EquippableExperiment {
+public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	static {
 		Skript.registerCondition(CondEquipCompDamage.class, ConditionType.PROPERTY,

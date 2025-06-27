@@ -17,7 +17,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import java.util.List;
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
 @SuppressWarnings({"rawtypes", "UnstableApiUsage"})
-public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperiment {
+public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperimentSyntax {
 
 	static {
 		registerDefault(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents");

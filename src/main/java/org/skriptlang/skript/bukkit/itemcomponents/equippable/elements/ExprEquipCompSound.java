@@ -12,7 +12,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Sound;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equip Sound")
@@ -25,7 +25,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
+public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	static {
 		registerDefault(ExprEquipCompSound.class, String.class, "equip sound", "equippablecomponents");
