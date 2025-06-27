@@ -53,12 +53,12 @@ public class EffToggle extends Effect {
 		
 		/**
 		 * Determines the appropriate Type based on the return type of an expression.
-		 * @param returnType The class representing the return type
+		 * @param expression The expression to determine the type of.
 		 * @return The corresponding Type
 		 */
-		public static Type fromClass(Class<?> returnType) {
-			boolean isBlockType = Block.class.isAssignableFrom(returnType);
-			boolean isBooleanType = Boolean.class.isAssignableFrom(returnType);
+		public static Type fromClass(Expression<?> expression) {
+			boolean isBlockType = expression.canReturn(Block.class);
+			boolean isBooleanType = expression.canReturn(Boolean.class);
 			
 			if (isBlockType && !isBooleanType) {
 				return BLOCKS;
@@ -90,7 +90,7 @@ public class EffToggle extends Effect {
 		action = patterns.getInfo(matchedPattern);
 
 		// Determine expression type using the enum method
-		type = Type.fromClass(togglables.getReturnType());
+		type = Type.fromClass(togglables);
 		
 		// Validate based on type
 		if (type == Type.BOOLEANS && 
