@@ -193,10 +193,10 @@ public class SkriptParser {
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			while (source.hasNext()) {
 				SyntaxElementInfo<? extends T> info = source.next();
-				patternsLoop: for (int patternIndex = 0; patternIndex < info.patterns.length; patternIndex++) {
+				patternsLoop: for (int patternIndex = 0; patternIndex < info.getPatterns().length; patternIndex++) {
 					log.clear();
 					try {
-						String pattern = info.patterns[patternIndex];
+						String pattern = info.getPatterns()[patternIndex];
 						assert pattern != null;
 						ParseResult parseResult;
 						try {
@@ -228,7 +228,7 @@ public class SkriptParser {
 										types = parseResult.source.getElements(TypePatternElement.class);;
 									ExprInfo exprInfo = types.get(i).getExprInfo();
 									if (!exprInfo.isOptional) {
-										DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
+										DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.getPatterns()[patternIndex]);
 										if (!expr.init())
 											continue patternsLoop;
 										parseResult.exprs[i] = expr;
@@ -243,10 +243,10 @@ public class SkriptParser {
 							if (!checkExperimentalSyntax(element))
 								continue;
 
-							int multiPatternIndex = patternIndex;
-							if (info.hasMultiLinedPatterns())
-								multiPatternIndex = info.getPatternIndex(pattern);
-							boolean success = element.preInit() && element.init(parseResult.exprs, multiPatternIndex, getParser().getHasDelayBefore(), parseResult);
+							int actualPatternIndex = patternIndex;
+							if (info instanceof MultiPatternedSyntaxInfo<?> multiInfo)
+								actualPatternIndex = multiInfo.getPatternIndex(pattern);
+							boolean success = element.preInit() && element.init(parseResult.exprs, actualPatternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
 								log.printLog();
 								return element;

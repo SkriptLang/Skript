@@ -6,18 +6,29 @@ import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.MultiPatternedSyntaxInfo;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.*;
+import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.RegionAccessor;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -29,7 +40,10 @@ import java.io.StreamCorruptedException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -171,8 +185,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
-	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T>
-		implements LanguageChangeListener {
+	private final static class EntityDataInfo<T extends EntityData<?>> extends MultiPatternedSyntaxInfo<T> {
 
 		final String codeName;
 		final String[] codeNames;
@@ -180,8 +193,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final @Nullable EntityType entityType;
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
-		private final Map<String, Integer> codeNamePlacements = new HashMap<>();
-		private final Map<String, String> multiPatternCorrelation = new HashMap<>();
 
 		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
 			this(dataClass, codeName, codeNames, defaultName, EntityUtils.toBukkitEntityType(entityClass), entityClass);
@@ -195,7 +206,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			@Nullable EntityType entityType,
 			Class<? extends Entity> entityClass
 		) {
-			super(new String[codeNames.length], dataClass, dataClass.getName());
+			super(dataClass, codeNames, LANGUAGE_NODE, LanguageListenerPriority.LATEST);
 			assert codeName != null && entityClass != null && codeNames.length > 0;
 			this.codeName = codeName;
 			this.codeNames = codeNames;
@@ -207,56 +218,16 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				assert codeNames[i] != null;
 				names[i] = new Noun(LANGUAGE_NODE + "." + codeNames[i] + ".name");
 			}
-
-			Language.addListener(this, LanguageListenerPriority.LATEST); // will initialise patterns, LATEST to make sure that m_age_pattern is updated before this
 		}
 
 		@Override
-		public void onLanguageChange() {
-			codeNamePlacements.clear();
-			int patternCount = 0;
-			for (int i = 0; i < codeNames.length; i++) {
-				String codeName = codeNames[i];
-				codeNamePlacements.put(codeName, i);
-				if (Language.keyExists(LANGUAGE_NODE + "." + codeName + ".pattern")) {
-					String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".pattern").replace("<age>", m_age_pattern.toString());
-					multiPatternCorrelation.put(pattern, codeName);
-					patterns[patternCount++] = pattern;
-				}
-				if (Language.keyExists(LANGUAGE_NODE + "." + codeName + ".patterns")) {
-					int multiCount = 0;
-                    while (Language.keyExists(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)) {
-                        String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount).replace("<age>", m_age_pattern.toString());
-                        multiCount++;
-                        multiPatternCorrelation.put(pattern, codeName);
-                        patterns[patternCount++] = pattern;
-                    }
-				}
-			}
-		}
-
-		@Override
-		public boolean hasMultiLinedPatterns() {
-			return true;
-		}
-
-		@Override
-		public int getPatternIndex(String pattern) {
-			return codeNamePlacements.get(multiPatternCorrelation.get(pattern));
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hashCode(codeName);
+		public String patternChanger(String pattern) {
+			return pattern.replace("<age>", m_age_pattern.toString());
 		}
 
 		@Override
 		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (!(obj instanceof EntityDataInfo other))
+			if (!(obj instanceof EntityDataInfo<?> other))
 				return false;
 			if (!codeName.equals(other.codeName))
 				return false;

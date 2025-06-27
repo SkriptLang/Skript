@@ -546,10 +546,14 @@ entities:
 		pattern: blaze[plural:s]
 	chicken:
 		name: chicken¦s
-		pattern: <age> chicken[plural:s]|baby:chick[plural:s]
+		patterns:
+			0: <age> chicken[plural:s]
+			1: baby:chick[plural:s]
 	cow:
 		name: cow¦s
-		pattern: <age> cow[plural:s]|baby:cal(f|plural:ves)
+		patterns:
+			0: <age> cow[plural:s]
+			1: baby:cal(f|plural:ves)
 	cave spider:
 		name: cave spider¦s
 		pattern: cave[ ]spider[plural:s]
@@ -664,31 +668,47 @@ entities:
 		pattern: regular [mine]cart[plural:s]
 	storage minecart:
 		name: storage minecart¦s
-		pattern: storage [mine]cart[plural:s]|[mine]cart[plural:s] with chest[s]
+		patterns:
+			0: storage [mine]cart[plural:s]
+			1: [mine]cart[plural:s] with chest[s]
 	powered minecart:
 		name: powered minecart¦s
-		pattern: powered [mine]cart[plural:s]|[mine]cart[plural:s] with furnace[s]
+		patterns:
+			0: powered [mine]cart[plural:s]
+			1: [mine]cart[plural:s] with furnace[s]
 	hopper minecart:
 		name: hopper minecart¦s
-		pattern: hopper [mine]cart[plural:s]|[mine]cart[plural:s] with hopper[s]
+		patterns:
+			0: hopper [mine]cart[plural:s]
+			1: [mine]cart[plural:s] with hopper[s]
 	explosive minecart:
 		name: explosive minecart¦s
-		pattern: explosive [mine]cart[plural:s]|[mine]cart[plural:s] with TNT[s]
+		patterns:
+			0: explosive [mine]cart[plural:s]
+			1: [mine]cart[plural:s] with TNT[s]
 	spawner minecart:
 		name: spawner minecart¦s
-		pattern: [monster|mob] spawner [mine]cart[plural:s]|[mine]cart[plural:s] with [monster|mob] spawner[s]
+		patterns:
+			0: [monster|mob] spawner [mine]cart[plural:s]
+			1: [mine]cart[plural:s] with [monster|mob] spawner[s]
 	command minecart:
 		name: command minecart¦s
-		pattern: command [mine]cart[plural:s]|[mine]cart[plural:s] with command block[s]
+		patterns:
+			0: command [block] [mine]cart[plural:s]
+			1: [mine]cart[plural:s] with command block[s]
 	mooshroom:
 		name: mooshroom¦s
 		pattern: <age> (mooshroom[ cow]|mushroom cow)[plural:s]
 	red mooshroom:
 		name: red mooshroom¦s
-		pattern: <age> red (mooshroom[ cow]|mushroom cow)[plural:s]|baby:mooshroom (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> red (mooshroom[ cow]|mushroom cow)[plural:s]
+			1: baby:mooshroom (kid[plural:s]|child[plural:ren])
 	brown mooshroom:
 		name: brown mooshroom¦s
-		pattern: <age> brown (mooshroom[ cow]|mushroom cow)[plural:s]|baby:mooshroom (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> brown (mooshroom[ cow]|mushroom cow)[plural:s]
+			1: baby:mooshroom (kid[plural:s]|child[plural:ren])
 	ocelot:
 		name: ocelot¦s @an
 		pattern: <age> ocelot[plural:s]
@@ -697,13 +717,18 @@ entities:
 		pattern: (wild|untamed) <age> ocelot[plural:s]
 	cat:
 		name: cat¦s
-		pattern: <age> [%-cattype%] cat[plural:s]|tamed <age> ocelot[plural:s]|baby:[%-cattype%] kitten[plural:s]
+		patterns:
+			0: <age> [%-cattype%] cat[plural:s]
+			1: tamed <age> ocelot[plural:s]
+			2: baby:[%-cattype%] kitten[plural:s]
 	painting:
 		name: painting¦s
 		pattern: painting[plural:s]
 	pig:
 		name: pig¦s
-		pattern: <age> [%-pigvariant%] pig[plural:s]|baby:piglet[plural:s]
+		patterns:
+			0: <age> [%-pigvariant%] pig[plural:s]
+			1: baby:[%-pigvariant%] piglet[plural:s]
 	saddled pig:
 		name: saddled pig¦s
 		pattern: saddled [%-pigvariant%] pig[plural:s]
@@ -715,11 +740,18 @@ entities:
 		pattern: player[plural:s]
 	zombie pigman:
 		name: zombie pig¦man¦men|zombified piglin
-		pattern: <age> (zombie pigm(an|plural:en)|zombified piglin[plural:s])|baby:(zombie pigletboy[plural:s]|zombified piglin (kid[plural:s]|child[plural:ren]))
+		patterns:
+			0: <age> zombie pigm(an|plural:en)
+			1: <age> zombified piglin[plural:s]
+			2: baby:zombie pigletboy[plural:s]
+			3: baby:zombified piglin (kid[plural:s]|child[plural:ren])
 	sheep:
 		name: sheep
 		# while sheep is ambiguous, sheeps is plural (even though it's wrong)
-		pattern: [%-colors%] <age> sheep(unknown_plural:|plural:s)|baby:[%-colors%] lamb[plural:s]
+		patterns:
+			0: [%-colors%] <age> sheep(unknown_plural:|plural:s)
+			1: <age> [%-colors%] sheep(unknown_plural:|plural:s)
+			2: baby:[%-colors%] lamb[plural:s]
 	unsheared sheep:
 		name: unsheared sheep @an
 		pattern: unsheared [%-colors%] sheep(unknown_plural:|plural:s)
@@ -755,58 +787,94 @@ entities:
 		pattern: ([primed] TNT(unknown_plural:|plural:s)|TNT entit(y|plural:ies))
 	villager:
 		name: villager¦s
-		pattern: <age> villager[plural:s]|baby:[villager] (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> villager[plural:s]
+			1: baby:[villager] (kid[plural:s]|child[plural:ren])
 	normal:
 		name: villager¦s
-		pattern: <age> [unemployed] villager[plural:s]|baby:[[unemployed] villager] (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> [unemployed] villager[plural:s]
+			1: baby:[[unemployed] villager] (kid[plural:s]|child[plural:ren])
 	armorer:
 		name: armorer¦s
-		pattern: <age> armo[u]rer[plural:s]|baby:armo[u]rer (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> armo[u]rer[plural:s]
+			1: baby:armo[u]rer (kid[plural:s]|child[plural:ren])
 	cartographer:
 		name: cartographer¦s
-		pattern: <age> cartographer[plural:s]|baby:cartographer (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> cartographer[plural:s]
+			1: baby:cartographer (kid[plural:s]|child[plural:ren])
 	cleric:
 		name: cleric¦s
-		pattern: <age> (priest|cleric)[plural:s]|baby:(priest|cleric) (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> (priest|cleric)[plural:s]
+			1: baby:(priest|cleric) (kid[plural:s]|child[plural:ren])
 	fisherman:
 		name: fisherman¦s
-		pattern: <age> fisherman[plural:s]|baby:fisherman (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> fisherman[plural:s]
+			1: baby:fisherman (kid[plural:s]|child[plural:ren])
 	fletcher:
 		name: fletcher¦s
-		pattern: <age> fletcher[plural:s]|baby:fletcher (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> fletcher[plural:s]
+			1: baby:fletcher (kid[plural:s]|child[plural:ren])
 	leatherworker:
 		name: leatherworker¦s
-		pattern: <age> leatherworker[plural:s]|baby:leatherworker (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> leatherworker[plural:s]
+			1: baby:leatherworker (kid[plural:s]|child[plural:ren])
 	mason:
 		name: mason¦s
-		pattern: <age> mason[plural:s]|baby:mason (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> mason[plural:s]
+			1: baby:mason (kid[plural:s]|child[plural:ren])
 	shepherd:
 		name: shepherd¦s
-		pattern: <age> shepherd[plural:s]|baby:shepherd (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> shepherd[plural:s]
+			1: baby:shepherd (kid[plural:s]|child[plural:ren])
 	toolsmith:
 		name: toolsmith¦s
-		pattern: <age> tool[ ](smith|maker)[plural:s]|baby:tool[ ](smith|maker) (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> tool[ ](smith|maker)[plural:s]
+			1: baby:tool[ ](smith|maker) (kid[plural:s]|child[plural:ren])
 	weaponsmith:
 		name: weaponsmith¦s
-		pattern: <age> weapon[ ]smith[plural:s]|baby:weapon[ ]smith (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> weapon[ ]smith[plural:s]
+			1: baby:weapon[ ]smith (kid[plural:s]|child[plural:ren])
 	farmer:
 		name: farmer¦s
-		pattern: <age> farmer[plural:s]|baby:farmer (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> farmer[plural:s]
+			1: baby:farmer (kid[plural:s]|child[plural:ren])
 	librarian:
 		name: librarian¦s
-		pattern: <age> librarian[plural:s]|baby:librarian (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> librarian[plural:s]
+			1: baby:librarian (kid[plural:s]|child[plural:ren])
 	priest:
 		name: priest¦s
-		pattern: <age> (priest|cleric)[plural:s]|baby:(priest|cleric) (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> (priest|cleric)[plural:s]
+			1: baby:(priest|cleric) (kid[plural:s]|child[plural:ren])
 	blacksmith:
 		name: blacksmith¦s
-		pattern: <age> [black]smith[plural:s]|baby:[black]smith (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> [black]smith[plural:s]
+			1: baby:[black]smith (kid[plural:s]|child[plural:ren])
 	butcher:
 		name: butcher¦s
-		pattern: <age> butcher[plural:s]|baby:butcher (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> butcher[plural:s]
+			1: baby:butcher (kid[plural:s]|child[plural:ren])
 	nitwit:
 		name: nitwit¦s
-		pattern: <age> nitwit[plural:s]|baby:nitwit (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> nitwit[plural:s]
+			1: baby:nitwit (kid[plural:s]|child[plural:ren])
 	witch:
 		name: witch¦es
 		pattern: witch[plural:es]
@@ -818,13 +886,16 @@ entities:
 		pattern: wither skeleton[plural:s]
 	wither skull:
 		name: wither skull¦s
-		pattern: wither skull([plural:s]| projectile[plural:s])
+		pattern: wither skull[ projectile][plural:s]
 	wolf:
 		name: wol¦f¦ves
 		pattern: <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]
 	tamed wolf:
 		name: tamed wol¦f¦ves
-		pattern: (<age> [%-wolfvariant%] dog[plural:s]|tamed <age> [%-wolfvariant%] wol(f|plural:ves)|baby:[%-wolfvariant%] [wolf] pup[py|plural:pies]) [[with collar] colo[u]r[ed] %-color%]
+		patterns:
+			0: <age> [%-wolfvariant%] dog[plural:s] [[with collar] colo[u]r[ed] %-color%]
+			1: tamed <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]
+			2: baby:[%-wolfvariant%] [wolf] pup[py|plural:pies] [[with collar] colo[u]r[ed] %-color%]
 	wild wolf:
 		name: wild wol¦f¦ves
 		pattern: (wild|untamed) <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]
@@ -836,26 +907,33 @@ entities:
 		pattern: (peaceful|neutral|unaggressive) <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]
 	zombie:
 		name: zombie¦s
-		pattern: <age> zombie[plural:s]|baby:zombie (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> zombie[plural:s]
+			1: baby:zombie (kid[plural:s]|child[plural:ren])
 	xp-orb:
 		name: experience orb¦s @an
 		pattern: ([e]xp|experience)( |-)orb[plural:s]
 		format: %2$s-%1$s
 	firework:
 		name: firework rocket¦s
-		pattern: firework[plural:s] [rocket[plural:s]]
+		pattern: firework[ rocket][plural:s]
 	falling block:
 		name: falling block¦s
-		pattern: falling (block[plural:s]|(unknown_plural:)%-itemtype%)
+		patterns:
+			0: falling block[plural:s]
+			1: unknown_plural:falling %-itemtype%
 		adjective: falling
 		not a block error: Falling blocks must be blocks, not items
 	thrown potion:
 		name: thrown potion¦s
-		pattern: thrown (potion[plural:s]|(unknown_plural:)%-itemtypes%)
+		pattern: thrown (potion[plural:s]|unknown_plural:%-itemtypes%)
 		adjective: thrown
 	dropped item:
 		name: dropped item¦s
-		pattern: dropped (item[plural:s]|(unknown_plural:)%-itemtypes%)|item entit(y|plural:ies)
+		patterns:
+			0: dropped item[plural:s]
+			1: unknown_plural:dropped %-itemtypes%
+			2: dropped item entit(y|plural:ies)
 		adjective: dropped
 	horse:
 		name: horse¦s
@@ -871,43 +949,71 @@ entities:
 		pattern: <age> chested horse[plural:s]
 	undead horse:
 		name: undead horse¦s @an
-		pattern: <age> (zombie|undead) horse[plural:s]|(zombie|undead) <age> horse[plural:s]|baby:(zombie|undead) foal[plural:s]
+		patterns:
+			0: <age> (zombie|undead) horse[plural:s]
+			1: (zombie|undead) <age> horse[plural:s]
+			2: baby:(zombie|undead) foal[plural:s]
 	skeleton horse:
 		name: skeleton horse¦s
-		pattern: <age> skeleton horse[plural:s]|skeleton <age> horse[plural:s]|baby:skeleton foal[plural:s]
+		patterns:
+			0: <age> skeleton horse[plural:s]
+			1: skeleton <age> horse[plural:s]
+			2: baby:skeleton foal[plural:s]
 	any horse:
 		name: any horse¦s
-		pattern: <age> any horse[plural:s]|baby:foal[plural:s]
+		patterns:
+			0: <age> any horse[plural:s]
+			1: baby:foal[plural:s]
 	llama:
 		name: llama¦s
-		pattern: <age> llama[plural:s]|<age> llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> llama[plural:s]
+			1: baby:llama cria[plural:s]
 	creamy llama:
 		name: creamy llama¦s
-		pattern: <age> creamy llama[plural:s]|<age> creamy llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> creamy llama[plural:s]
+			1: baby:creamy llama cria[plural:s]
 	white llama:
 		name: white llama¦s
-		pattern: <age> white llama[plural:s]|<age> white llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> white llama[plural:s]
+			1: baby:white llama cria[plural:s]
 	brown llama:
 		name: brown llama¦s
-		pattern: <age> brown llama[plural:s]|<age> brown llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> brown llama[plural:s]
+			1: baby:brown llama cria[plural:s]
 	gray llama:
 		name: gray llama¦s
-		pattern: <age> gray llama[plural:s]|<age> gray llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> gray llama[plural:s]
+			1: baby:gray llama cria[plural:s]
 	trader llama:
 		name: trader llama¦s
-		pattern: <age> trader llama[plural:s]|<age> trader llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> trader llama[plural:s]
+			1: baby:trader llama cria[plural:s]
 	creamy trader llama:
 		name: creamy trader llama¦s
-		pattern: <age> creamy trader llama[plural:s]|<age> creamy trader llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> creamy trader llama[plural:s]
+			1: baby:creamy trader llama cria[plural:s]
 	white trader llama:
 		name: white trader llama¦s
-		pattern: <age> white trader llama[plural:s]|<age> white trader llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> white trader llama[plural:s]
+			1: baby:white trader llama cria[plural:s]
 	brown trader llama:
 		name: brown trader llama¦s
-		pattern: <age> brown trader llama[plural:s]|<age> brown trader llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> brown trader llama[plural:s]
+			1: baby:brown trader llama cria[plural:s]
 	gray trader llama:
 		name: gray trader llama¦s
-		pattern: <age> gray trader llama[plural:s]|<age> gray trader llama (baby:)cria[plural:s]
+		patterns:
+			0: <age> gray trader llama[plural:s]
+			1: baby:gray trader llama cria[plural:s]
 	llama spit:
 		name: llama spit¦s
 		pattern: llama spit[plural:s]
@@ -922,28 +1028,44 @@ entities:
 		pattern: normal guardian[plural:s]
 	rabbit:
 		name: rabbit¦s
-		pattern: <age> rabbit[plural:s]|rabbit <age>[plural:s]
+		patterns:
+			0: <age> rabbit[plural:s]
+			1: rabbit <age>[plural:s]
 	brown rabbit:
 		name: brown rabbit¦s
-		pattern: brown <age> rabbit[plural:s]|brown rabbit <age>[plural:s]
+		patterns:
+			0: brown <age> rabbit[plural:s]
+			1: brown rabbit <age>[plural:s]
 	black and white rabbit:
 		name: black and white rabbit¦s
-		pattern: black [and] white <age> rabbit[plural:s]|black [and] white rabbit <age>[plural:s]
+		patterns:
+			0: black [and] white <age> rabbit[plural:s]
+			1: black [and] white rabbit <age>[plural:s]
 	white rabbit:
 		name: white rabbit¦s
-		pattern: white <age> rabbit[plural:s]|white rabbit <age>[plural:s]
+		patterns:
+			0: white <age> rabbit[plural:s]
+			1: white rabbit <age>[plural:s]
 	black rabbit:
 		name: black rabbit¦s
-		pattern: black <age> rabbit[plural:s]|black rabbit <age>[plural:s]
+		patterns:
+			0: black <age> rabbit[plural:s]
+			1: black rabbit <age>[plural:s]
 	gold rabbit:
 		name: gold rabbit¦s
-		pattern: gold <age> rabbit[plural:s]|gold rabbit <age>[plural:s]
+		patterns:
+			0: gold <age> rabbit[plural:s]
+			1: gold rabbit <age>[plural:s]
 	salt and pepper rabbit:
 		name: salt and pepper rabbit¦s
-		pattern: salt [and] pepper <age> rabbit[plural:s]|salt [and] pepper rabbit <age>[plural:s]
+		patterns:
+			0: salt [and] pepper <age> rabbit[plural:s]
+			1: salt [and] pepper rabbit <age>[plural:s]
 	killer rabbit:
 		name: killer rabbit¦s
-		pattern: killer <age> rabbit[plural:s]|killer rabbit <age>[plural:s]
+		patterns:
+			0: killer <age> rabbit[plural:s]
+			1: killer rabbit <age>[plural:s]
 	fish hook:
 		name: fish hook¦s
 		pattern: fish[ ]hook[plural:s]
@@ -1096,7 +1218,9 @@ entities:
 		pattern: tropical fish[plural:es]
 	drowned:
 		name: drowned¦s
-		pattern: <age> drowned[plural:s]|baby:drowned (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> drowned[plural:s]
+			1: baby:drowned (kid[plural:s]|child[plural:ren])
 	dolphin:
 		name: dolphin¦s
 		pattern: <age> dolphin[plural:s]
@@ -1105,7 +1229,9 @@ entities:
 		pattern: phantom[plural:s]
 	turtle:
 		name: turtle¦s
-		pattern: <age> turtle[plural:s]|baby:turtle (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> turtle[plural:s]
+			1: baby:turtle (kid[plural:s]|child[plural:ren])
 	trident:
 		name: trident¦s
 		pattern: trident[plural:s]
@@ -1115,13 +1241,19 @@ entities:
 	#1.14 entities
 	fox:
 		name: fox¦es
-		pattern: <age> fox[plural:es]|baby:fox (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> fox[plural:es]
+			1: baby:fox (kid[plural:s]|child[plural:ren])
 	red fox:
 		name: red fox¦es
-		pattern: <age> red fox[plural:es]|baby:fox (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> red fox[plural:es]
+			1: baby:red fox (kid[plural:s]|child[plural:ren])
 	snow fox:
 		name: snow fox¦es
-		pattern: <age> snow fox[plural:es]|baby:fox (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> snow fox[plural:es]
+			1: baby:snow fox (kid[plural:s]|child[plural:ren])
 	pillager:
 		name: pillager¦s
 		pattern: pillager[plural:s]
@@ -1130,7 +1262,9 @@ entities:
 		pattern: ravager[plural:s]
 	wandering trader:
 		name: wandering trader¦s
-		pattern: <age> wandering trader[plural:s]|baby:wandering trader (kid[plural:s]|child[plural:ren]) //supposed to be ageable, but not working, spigot bug?
+		patterns:
+			0: <age> wandering trader[plural:s]
+			1: baby:wandering trader (kid[plural:s]|child[plural:ren])
 	raider:
 		name: raider¦s
 		pattern: raider[plural:s]
@@ -1159,57 +1293,89 @@ entities:
 	#1.16 entities
 	piglin:
 		name: piglin¦s
-		pattern: <age> piglin[plural:s]|baby:piglin (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> piglin[plural:s]
+			1: baby:piglin (kid[plural:s]|child[plural:ren])
 	hoglin:
 		name: hoglin¦s
-		pattern: <age> hoglin[plural:s]|baby:hoglin (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> hoglin[plural:s]
+			1: baby:hoglin (kid[plural:s]|child[plural:ren])
 	zoglin:
 		name: zoglin¦s
-		pattern: <age> zoglin[plural:s]|baby:zoglin (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> zoglin[plural:s]
+			1: baby:zoglin (kid[plural:s]|child[plural:ren])
 	strider:
 		name: strider¦s
-		pattern: <age> strider[plural:s]|baby:strider (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> strider[plural:s]
+			1: baby:strider (kid[plural:s]|child[plural:ren])
 	warm strider:
 		name: warm strider¦s
-		pattern: <age> warm strider[plural:s]|baby:warm strider (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> warm strider[plural:s]
+			1: baby:warm strider (kid[plural:s]|child[plural:ren])
 	shivering strider:
 		name: shivering strider¦s, cold strider¦s
-		pattern: <age> (cold|shivering) strider[plural:s]|baby:(cold|shivering) strider (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> (cold|shivering) strider[plural:s]
+			1: baby:(cold|shivering) strider (kid[plural:s]|child[plural:ren])
 	#1.16.2 entity
 	piglin brute:
 		name: piglin brute¦s
-		pattern: <age> piglin brute[plural:s]|baby:piglin brute (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> piglin brute[plural:s]
+			1: baby:piglin brute (kid[plural:s]|child[plural:ren])
 	#1.17 entities
 	goat:
 		name: goat¦s
-		pattern: <age> goat[plural:s]|baby:goat (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> goat[plural:s]
+			1: baby:goat (kid[plural:s]|child[plural:ren])
 	screaming goat:
 		name: goat¦s
-		pattern: <age> screaming goat[plural:s]|baby:screaming goat (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> screaming goat[plural:s]
+			1: baby:screaming goat (kid[plural:s]|child[plural:ren])
 	quiet goat:
 		name: goat¦s
-		pattern: <age> quiet goat[plural:s]|baby:quiet goat (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> quiet goat[plural:s]
+			1: baby:quiet goat (kid[plural:s]|child[plural:ren])
 	glow squid:
 		name: glow squid¦s
 		pattern: <age> glow squid[plural:s]
 	axolotl:
 		name: axolotl¦s @an
-		pattern: <age> axolotl[plural:s]|baby:axolotl (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> axolotl[plural:s]
+			1: baby:axolotl (kid[plural:s]|child[plural:ren])
 	lucy axolotl:
 		name: axolotl¦s
-		pattern: <age> lucy axolotl[plural:s]|baby:lucy axolotl (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> lucy axolotl[plural:s]
+			1: baby:lucy axolotl (kid[plural:s]|child[plural:ren])
 	wild axolotl:
 		name: axolotl¦s
-		pattern: <age> wild axolotl[plural:s]|baby:wild axolotl (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> wild axolotl[plural:s]
+			1: baby:wild axolotl (kid[plural:s]|child[plural:ren])
 	gold axolotl:
 		name: axolotl¦s
-		pattern: <age> gold axolotl[plural:s]|baby:gold axolotl (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> gold axolotl[plural:s]
+			1: baby:gold axolotl (kid[plural:s]|child[plural:ren])
 	cyan axolotl:
 		name: axolotl¦s
-		pattern: <age> cyan axolotl[plural:s]|baby:cyan axolotl (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> cyan axolotl[plural:s]
+			1: baby:cyan axolotl (kid[plural:s]|child[plural:ren])
 	blue axolotl:
 		name: axolotl¦s
-		pattern: <age> blue axolotl[plural:s]|baby:blue axolotl (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> blue axolotl[plural:s]
+			1: baby:blue axolotl (kid[plural:s]|child[plural:ren])
 	marker:
 		name: marker¦s
 		pattern: marker[plural:s]
@@ -1255,16 +1421,24 @@ entities:
 		pattern: pale oak chest boat[plural:s]
 	frog:
 		name: frog¦s
-		pattern: <age> frog[plural:s]|baby:frog (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> frog[plural:s]
+			1: baby:frog (kid[plural:s]|child[plural:ren])
 	temperate frog:
 		name: temperate frog¦s
-		pattern: <age> temperate frog[plural:s]|baby:temperate frog (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> temperate frog[plural:s]
+			1: baby:temperate frog (kid[plural:s]|child[plural:ren])
 	warm frog:
 		name: warm frog¦s
-		pattern: <age> warm frog[plural:s]|baby:warm frog (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> warm frog[plural:s]
+			1: baby:warm frog (kid[plural:s]|child[plural:ren])
 	cold frog:
 		name: cold frog¦s
-		pattern: <age> cold frog[plural:s]|baby:cold frog (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> cold frog[plural:s]
+			1: baby:cold frog (kid[plural:s]|child[plural:ren])
 	allay:
 		name: allay¦s
 		pattern: allay[plural:s]
@@ -1290,16 +1464,28 @@ entities:
 		pattern: interaction[plural:s]
 	display:
 		name: display¦s
-		pattern: display(plural:s| [entit(y|plural:ies)])
+		patterns:
+			0: display[plural:s]
+			1: display entit(y|plural:ies)
 	block display:
 		name: block display¦s
-		pattern: (block display(plural:s| [entit(y|plural:ies)]) [of %-blockdata/itemtype%]|alt:%-blockdata/itemtype% block display(plural:s| [entit(y|plural:ies)]))
+		patterns:
+			0: block display[plural:s] [of %-blockdata/itemtype%]
+			1: block display entit(y|plural:ies) [of %-blockdata/itemtype%]
+			2: %-blockdata/itemtype% block display[plural:s]
+			3: %-blockdata/itemtype% block display entit(y|plural:ies)
 	item display:
 		name: item display¦s
-		pattern: (item display(plural:s| [entit(y|plural:ies)]) [of %-itemtype%]|alt:%-itemtype% item display(plural:s| [entit(y|plural:ies)]))
+		patterns:
+			0: item display[plural:s] [of %-itemtype%]
+			1: item display entit(y|plural:ies) [of %-itemtype%]
+			2: %-itemtype% item display[plural:s]
+			3: %-itemtype% item display entit(y|plural:ies)
 	text display:
 		name: text display¦s
-		pattern: text display(plural:s| [entit(y|plural:ies)])
+		patterns:
+			0: text display[plural:s]
+			1: text display entit(y|plural:ies)
 	# 1.20.3 Entities
 	breeze:
 		name: breeze¦s
@@ -1310,7 +1496,9 @@ entities:
 	# 1.20.5 Entities
 	armadillo:
 		name: armadillo¦s @an
-		pattern: <age> armadillo[plural:s]|baby:armadillo (kid[plural:s]|child[plural:ren])
+		patterns:
+			0: <age> armadillo[plural:s]
+			1: baby:armadillo (kid[plural:s]|child[plural:ren])
 	bogged:
 		name: bogged¦s
 		pattern: bogged[plural:s]

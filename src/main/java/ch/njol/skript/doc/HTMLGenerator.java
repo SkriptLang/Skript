@@ -528,7 +528,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
-			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
+			for (String line : getDefaultIfNullOrEmpty(info.getPatterns(), "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
@@ -667,7 +667,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
-			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
+			for (String line : getDefaultIfNullOrEmpty(info.getPatterns(), "Missing patterns.")) {
 				assert line != null;
 				line = "[on] " + cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);

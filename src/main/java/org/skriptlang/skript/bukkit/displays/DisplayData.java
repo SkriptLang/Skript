@@ -88,12 +88,11 @@ public class DisplayData extends EntityData<Display> {
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		type = DisplayType.values()[matchedPattern];
 		// default to 0, use 1 for alternate pattern: %x% display instead of display of %x%
-		int exprIndex = parseResult.hasTag("alt") ? 1 : 0;
-		if (exprs.length == 0 || exprs[exprIndex] == null)
+		if (exprs.length == 0 || exprs[0] == null)
 			return true;
 
 		if (type == DisplayType.BLOCK) {
-			Object object = ((Literal<Object>) exprs[exprIndex]).getSingle();
+			Object object = ((Literal<Object>) exprs[0]).getSingle();
 			if (object instanceof ItemType itemType) {
 				if (!itemType.hasBlock()) {
 					Skript.error("A block display must be of a block item. " + Classes.toString(itemType.getMaterial()) + " is not a block. If you want to display an item, use an 'item display'.");
@@ -104,7 +103,7 @@ public class DisplayData extends EntityData<Display> {
 				blockData = (BlockData) object;
 			}
 		} else if (type == DisplayType.ITEM) {
-			ItemType itemType = ((Literal<ItemType>) exprs[exprIndex]).getSingle();
+			ItemType itemType = ((Literal<ItemType>) exprs[0]).getSingle();
 			if (!itemType.hasItem()) {
 				Skript.error("An item display must be of a valid item. " + Classes.toString(itemType.getMaterial()) + " is not a valid item. If you want to display a block, use a 'block display'.");
 				return false;
