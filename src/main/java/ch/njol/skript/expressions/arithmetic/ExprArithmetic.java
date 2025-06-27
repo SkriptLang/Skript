@@ -164,22 +164,21 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			} else { // first needs converting
 				// attempt to convert <first> to types that make valid operations with <second>
 				Class<?> secondClass = second.getReturnType();
-				Class[] leftTypes = Arithmetics.getOperations(operator).stream()
-					.filter(info -> info.getRight().isAssignableFrom(secondClass))
-					.map(OperationInfo::getLeft)
-					.toArray(Class[]::new);
-				if (leftTypes.length == 0) { // no known operations with second's type
+				List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.lookupRightOperations(operator, secondClass);
+				if (operations.isEmpty()) { // no known operations with second's type
 					if (secondClass != Object.class) // there won't be any operations
 						return error(first.getReturnType(), secondClass);
 					first = (Expression<L>) first.getConvertedExpression(Object.class);
 				} else {
-					first = (Expression<L>) first.getConvertedExpression(leftTypes);
+					first = (Expression<L>) first.getConvertedExpression(operations.stream()
+							.map(OperationInfo::getLeft)
+							.toArray(Class[]::new));
 				}
 			}
 		} else if (second instanceof UnparsedLiteral) { // second needs converting
 			// attempt to convert <second> to types that make valid operations with <first>
 			Class<?> firstClass = first.getReturnType();
-			List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.getOperations(operator, firstClass);
+			List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.lookupLeftOperations(operator, firstClass);
 			if (operations.isEmpty()) { // no known operations with first's type
 				if (firstClass != Object.class) // there won't be any operations
 					return error(firstClass, second.getReturnType());
@@ -187,8 +186,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			} else {
 				second = (Expression<R>) second.getConvertedExpression(operations.stream()
 						.map(OperationInfo::getRight)
-						.toArray(Class[]::new)
-				);
+						.toArray(Class[]::new));
 			}
 		}
 
@@ -223,14 +221,13 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			Class<?>[] returnTypes = null;
 			if (!(firstClass == Object.class && secondClass == Object.class)) { // both aren't object
 				if (firstClass == Object.class) {
-					returnTypes = Arithmetics.getOperations(operator).stream()
-							.filter(info -> info.getRight().isAssignableFrom(secondClass))
+					returnTypes = Arithmetics.lookupRightOperations(operator, secondClass).stream()
 							.map(OperationInfo::getReturnType)
 							.toArray(Class[]::new);
 				} else { // secondClass is Object
-					returnTypes = Arithmetics.getOperations(operator, firstClass).stream()
-						.map(OperationInfo::getReturnType)
-						.toArray(Class[]::new);
+					returnTypes = Arithmetics.lookupLeftOperations(operator, firstClass).stream()
+							.map(OperationInfo::getReturnType)
+							.toArray(Class[]::new);
 				}
 			}
 			if (returnTypes == null) { // both are object; can't determine anything
