@@ -18,12 +18,22 @@ import java.util.Set;
  * Used for managing local variable type hints during the parsing process.
  * <h4>Hint Tracking</h4>
  * <p>
- * Type hints are tracked in scopes which are essentially equivalent to sections.
- * Hints are only shared between scopes when they are entered or exited.
- * That is, when entering a scope ({@link #enterScope(boolean)}, it is initialized with the hints of the previous top-level scope.
- * When exiting a scope {@link #enterScope(boolean)}, remaining hints from that scope are added to the existing hints of the new top-level scope.
+ * Type hints are tracked in scopes which are generally equivalent to sections.
+ * However, there may be additional scopes that are not associated with sections.
+ * These scopes may be used for a variety of reasons.
+ * For example, a non-section scope could be used for capturing the hints of a section.
+ * These hints could be filtered before being passed back up.
+ * </p>
+ * <p>
+ * When entering a scope ({@link #enterScope(boolean)}), it is initialized with the hints of the previous top-level scope.
+ * When exiting a scope ({@link #enterScope(boolean)}), remaining hints from that scope are added to the existing hints of the new top-level scope.
+ * This merging of scopes is provided and described by {@link #mergeScope(int, int, boolean)}.
  * Thus, it is only necessary to obtain hints for the current scope.
  * {@link #get(Variable)} is provided for obtaining the hints of a variable in the current scope.
+ * </p>
+ * <p>
+ * It is possible to disable the collection and usage of hints through the activity state of a manager.
+ * See {@link #setActive(boolean)} and {@link #isActive} for detailed information.
  * </p>
  * <h4>Hint Modification</h4>
  * <p>
@@ -62,6 +72,7 @@ import java.util.Set;
  * Essentially, an ADD operation is handled similarly to a SET operation, but hints are combined rather than overridden,
  *  as the list may contain other types.
  * Note that REMOVE is <b>not</b> a handled operation, as a list variable might contain multiple values of some type.
+ * However, for use cases where applicable, {@link #remove(Variable, Class[])} is provided.
  * Finally, a DELETE operation (see {@link #delete(Variable)}) allows us to trim down context where applicable.
  * Consider the following examples:
  * <pre>
@@ -97,13 +108,22 @@ public class HintManager {
 	}
 
 	/**
-	 *
-	 * @param active Whether this HintManager should be active.
+	 * Marks this hint manager as active or inactive.
+	 * An inactive hint manager does not collect hints.
+	 * That is, actions such as setting, adding, etc. have no effect on the currently stored hints.
+	 * Additionally, any calls to obtain hints will always result in an empty collection.
+	 * As a result, type hints are effectively not used.
+	 * @param active Whether this hint manager should be active.
+	 * @see #isActive
 	 */
 	public void setActive(boolean active) {
 		isActive = active;
 	}
 
+	/**
+	 * @return Whether this manager is active.
+	 * @see #setActive(boolean)
+	 */
 	public boolean isActive() {
 		return isActive;
 	}
@@ -135,7 +155,7 @@ public class HintManager {
 
 	/**
 	 * Resets (clears) all type hints for the current (top-level) scope.
-	 * Scopes are represented as integers, where <code>0</code> represents the most recently entered scope
+	 * Scopes are represented as integers, where {@code 0} represents the most recently entered scope
 	 * (i.e. the scope pushed by the most recent {@link #enterScope(boolean)} call).
 	 * @param sectionOnly Whether only scopes representing sections should be considered.
 	 */
@@ -161,10 +181,10 @@ public class HintManager {
 
 	/**
 	 * Copies hints from one scope to another.
-	 * Scopes are represented as integers, where <code>0</code> represents the most recently entered scope
+	 * Scopes are represented as integers, where {@code 0} represents the most recently entered scope
 	 * (i.e. the scope pushed by the most recent {@link #enterScope(boolean)} call).
 	 * <p>
-	 * <b>Note: This does not overwrite the existing hints of <code>to</code>. Instead, the hints are merged together.</b>
+	 * <b>Note: This does not overwrite the existing hints of {@code to}. Instead, the hints are merged together.</b>
 	 * @param from The scope to copy hints from.
  	 * @param to The scope to copy hints to.
 	 * @param sectionOnly Whether only scopes representing sections should be considered.
