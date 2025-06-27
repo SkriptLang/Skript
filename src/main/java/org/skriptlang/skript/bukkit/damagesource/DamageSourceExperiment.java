@@ -1,19 +1,20 @@
 package org.skriptlang.skript.bukkit.damagesource;
 
+import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.registrations.Feature;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
 /**
- * A {@link ExperimentalSyntax} for using {@link Feature#DAMAGE_SOURCE}
+ * Typed {@link SimpleExperimentalSyntax} for {@link SyntaxElement}s that require {@link Feature#DAMAGE_SOURCE}.
  */
-public interface DamageSourceExperiment extends ExperimentalSyntax {
+public interface DamageSourceExperiment extends SimpleExperimentalSyntax {
 
-	// TODO: Change this to extend `SimpleExperimentalSyntax` when PR containing is merged
+	ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.DAMAGE_SOURCE);
 
 	@Override
-	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return experimentSet.hasExperiment(Feature.DAMAGE_SOURCE);
-	};
+	default ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
+	}
 
 }
