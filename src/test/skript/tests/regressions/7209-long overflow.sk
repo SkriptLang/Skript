@@ -31,3 +31,4 @@ test "long overflow, multiplication":
 
 	# the 6 is due to floating point error
 	assert {_long} is 100000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000 with "wrong final value"
+

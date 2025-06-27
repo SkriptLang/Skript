@@ -295,7 +295,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		boolean converterExists = superType == Object.class;
 		if (!converterExists) {
 			for (Class<?> type : types) {
-				if (type != Object.class && Converters.converterExists(type, to)) {
+				if (Converters.converterExists(type, to)) {
 					converterExists = true;
 					break;
 				}

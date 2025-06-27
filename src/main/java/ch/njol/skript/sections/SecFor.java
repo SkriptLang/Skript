@@ -103,7 +103,7 @@ public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
 			Skript.error("Can't understand this loop: '" + parseResult.expr + "'");
 			return false;
 		}
-		if (Container.class.isAssignableFrom(expression.getReturnType())) {
+		if (!(expression instanceof Variable) && Container.class.isAssignableFrom(expression.getReturnType())) {
 			ContainerType type = expression.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
 				throw new SkriptAPIException(expression.getReturnType()
