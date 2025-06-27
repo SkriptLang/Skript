@@ -10,7 +10,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
+import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 
 @Name("Damage Source - Does Scale With Difficulty")
 @Description("Whether the damage from a damage source scales with the difficulty of the server.")
@@ -21,7 +21,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
-public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperiment {
+public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
 
 	static {
 		Skript.registerCondition(CondScalesWithDifficulty.class,

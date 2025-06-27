@@ -8,7 +8,7 @@ import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 /**
  * Typed {@link SimpleExperimentalSyntax} for {@link SyntaxElement}s that require {@link Feature#DAMAGE_SOURCE}.
  */
-public interface DamageSourceExperiment extends SimpleExperimentalSyntax {
+public interface DamageSourceExperimentSyntax extends SimpleExperimentalSyntax {
 
 	ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.DAMAGE_SOURCE);
 

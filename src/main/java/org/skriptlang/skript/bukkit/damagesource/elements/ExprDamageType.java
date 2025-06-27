@@ -12,7 +12,7 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
+import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 
 @Name("Damage Source - Damage Type")
@@ -35,7 +35,7 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
-public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperiment {
+public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperimentSyntax {
 
 	static {
 		registerDefault(ExprDamageType.class, DamageType.class, "damage type", "damagesources");

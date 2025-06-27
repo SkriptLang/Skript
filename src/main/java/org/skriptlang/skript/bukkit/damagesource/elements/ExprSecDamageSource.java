@@ -24,7 +24,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperiment;
+import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
-public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperiment {
+public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperimentSyntax {
 
 	static class DamageSourceSectionEvent extends Event {
 
