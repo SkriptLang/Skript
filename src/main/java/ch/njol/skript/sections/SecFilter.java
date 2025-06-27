@@ -1,22 +1,14 @@
 package ch.njol.skript.sections;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprInput;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.InputSource;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -25,14 +17,10 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.condition.Conditional;
+import org.skriptlang.skript.lang.condition.Conditional.Operator;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 @Name("Filter")
@@ -63,7 +51,7 @@ public class SecFilter extends Section implements InputSource {
 
 
 	private @UnknownNullability Variable<?> unfilteredObjects;
-	private final List<Condition> conditions = new ArrayList<>();
+	private Conditional<Event> conditional;
 	private boolean isAny;
 
 	private @Nullable Object currentValue;
@@ -79,37 +67,17 @@ public class SecFilter extends Section implements InputSource {
 		unfilteredObjects = (Variable<?>) expressions[0];
 		isAny = parseResult.hasTag("any");
 
-		// Code pulled from SecConditional
 		ParserInstance parser = getParser();
-		if (sectionNode.isEmpty()) {
-			Skript.error("filter sections must contain at least one condition");
-			return false;
-		}
-		InputSource.InputData inputData = getParser().getData(InputSource.InputData.class);
+		InputSource.InputData inputData = parser.getData(InputSource.InputData.class);
 		InputSource originalSource = inputData.getSource();
 		inputData.setSource(this);
-		try {
-			for (Node childNode : sectionNode) {
-				if (!(childNode instanceof SimpleNode)) {
-					Skript.error("Filter sections may not contain other sections");
-					return false;
-				}
-				String childKey = childNode.getKey();
-				if (childKey != null) {
-					childKey = ScriptLoader.replaceOptions(childKey);
-					parser.setNode(childNode);
-					Condition condition = Condition.parse(childKey, "Can't understand this condition: '" + childKey + "'");
-					parser.setNode(sectionNode);
-					// if this condition was invalid, don't bother parsing the rest
-					if (condition == null)
-						return false;
-					conditions.add(condition);
-				}
-			}
-		} finally {
-			inputData.setSource(originalSource);
-		}
 
+
+		List<Conditional<Event>> conditionals = parseMultiline(sectionNode, parser, "filter", 1);
+		if (conditionals == null)
+			return false;
+		conditional = Conditional.compound(isAny ? Operator.OR : Operator.AND, conditionals);
+		inputData.setSource(originalSource);
 		return true;
 	}
 
@@ -133,27 +101,38 @@ public class SecFilter extends Section implements InputSource {
 
 		var variableIterator = Variables.getVariableIterator(varName, local, event);
 		var stream = StreamSupport.stream(Spliterators.spliteratorUnknownSize(variableIterator, Spliterator.ORDERED), false);
-		if (isAny) {
-			stream.forEach(pair -> {
-				currentValue = pair.getValue();
-				currentIndex = pair.getKey();
-				if (conditions.stream().anyMatch(c -> c.check(event))) {
-					toKeep.add(pair);
-				} else {
-					toRemove.add(pair.getKey());
-				}
-			});
-		} else {
-			stream.forEach(pair -> {
-				currentValue = pair.getValue();
-				currentIndex = pair.getKey();
-				if (conditions.stream().allMatch(c -> c.check(event))) {
-					toKeep.add(pair);
-				} else {
-					toRemove.add(pair.getKey());
-				}
-			});
-		}
+
+		stream.forEach(pair -> {
+			currentValue = pair.getValue();
+			currentIndex = pair.getKey();
+			if (conditional.evaluate(event).isTrue()) {
+				toKeep.add(pair);
+			} else {
+				toRemove.add(pair.getKey());
+			}
+		});
+
+//		if (isAny) {
+//			stream.forEach(pair -> {
+//				currentValue = pair.getValue();
+//				currentIndex = pair.getKey();
+//				if (conditions.stream().anyMatch(c -> c.check(event))) {
+//					toKeep.add(pair);
+//				} else {
+//					toRemove.add(pair.getKey());
+//				}
+//			});
+//		} else {
+//			stream.forEach(pair -> {
+//				currentValue = pair.getValue();
+//				currentIndex = pair.getKey();
+//				if (conditions.stream().allMatch(c -> c.check(event))) {
+//					toKeep.add(pair);
+//				} else {
+//					toRemove.add(pair.getKey());
+//				}
+//			});
+//		}
 
 		// optimize by either removing or clearing + adding depending on which is fewer operations
 		// for instances where only a handful of values are removed from a large list, this can be a 400% speedup
