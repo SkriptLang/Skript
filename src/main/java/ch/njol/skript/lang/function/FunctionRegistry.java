@@ -507,18 +507,15 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		Namespace namespace = namespaces.get(new NamespaceIdentifier(signature.script));
-		if (namespace == null) {
-			return;
-		}
+		for (Namespace namespace : namespaces.values()) {
+			for (FunctionIdentifier other : namespace.identifiers.getOrDefault(name, Set.of())) {
+				if (!identifier.equals(other)) {
+					continue;
+				}
 
-		for (FunctionIdentifier other : namespace.identifiers.get(name)) {
-			if (!identifier.equals(other)) {
-				continue;
+				removeUpdateMaps(namespace, other, name);
+				return;
 			}
-
-			removeUpdateMaps(namespace, other, name);
-			return;
 		}
 	}
 

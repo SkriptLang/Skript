@@ -29,7 +29,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 	@ApiStatus.Internal
 	JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local, @Nullable Contract contract) {
-		this(new Signature<>("none", name, parameters, local, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
+		this(new Signature<>(null, name, parameters, local, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 	}
 	
 	@Override
