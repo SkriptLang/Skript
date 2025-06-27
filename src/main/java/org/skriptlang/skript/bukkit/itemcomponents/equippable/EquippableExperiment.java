@@ -1,16 +1,20 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable;
 
+import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.registrations.Feature;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
-public interface EquippableExperiment extends ExperimentalSyntax {
+/**
+ * Typed {@link SimpleExperimentalSyntax} for {@link SyntaxElement}s that require {@link Feature#EQUIPPABLE_COMPONENTS}.
+ */
+public interface EquippableExperiment extends SimpleExperimentalSyntax {
 
-	// TODO: Change this to 'SimpleExperimentalSyntax' when the PR containing is merged.
+	ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.EQUIPPABLE_COMPONENTS);
 
 	@Override
-	default boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return experimentSet.hasExperiment(Feature.EQUIPPABLE_COMPONENTS);
+	default ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 }
