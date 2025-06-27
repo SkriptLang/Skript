@@ -18,6 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
+import java.lang.reflect.Array;
+
 @Name("Except")
 @Description("Filter a list by providing objects to be excluded.")
 @Example("""
@@ -37,7 +39,6 @@ public class ExprExcept extends WrapperExpression<Object> {
 	}
 
 	private Expression<?> exclude;
-	private boolean isOrList = false;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -48,7 +49,6 @@ public class ExprExcept extends WrapperExpression<Object> {
 				Skript.error("Must provide a list containing more than one object to exclude objects from.");
 				return false;
 			}
-			isOrList = true;
 		}
 		exclude = LiteralUtils.defendExpression(exprs[1]);
 		return LiteralUtils.canInitSafely(source, exclude);
@@ -67,7 +67,7 @@ public class ExprExcept extends WrapperExpression<Object> {
 						return false;
 				return true;
 			})
-			.toArray();
+			.toArray(o -> (Object[]) Array.newInstance(getReturnType(), o));
 	}
 
 	@Override
