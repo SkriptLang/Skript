@@ -9,6 +9,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.HintManager;
@@ -50,32 +51,16 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean isDelayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
-		if (node != null) {
-			AtomicBoolean delayed = new AtomicBoolean(false);
-			AtomicReference<Backup> hintBackup = new AtomicReference<>();
-			// Copy hints and ensure no delays
-			Runnable beforeLoading = () -> getParser().getHintManager().enterScope(false);
-			Runnable afterLoading = () -> {
-				delayed.set(!getParser().getHasDelayBefore().isFalse());
-				HintManager hintManager = getParser().getHintManager();
-				hintBackup.set(hintManager.backup());
-				hintManager.exitScope();
-			};
-
-			//noinspection unchecked
-			trigger = loadCode(node, "create loot context", beforeLoading, afterLoading, LootContextCreateEvent.class);
-
-			if (delayed.get()) {
-				Skript.error("Delays cannot be used within a 'create loot context' section.");
-				return false;
-			}
-			HintManager hintManager = getParser().getHintManager();
-			hintManager.enterScope(false);
-			hintManager.restore(hintBackup.get());
-			hintManager.exitScope();
-		}
 		//noinspection unchecked
 		location = Direction.combine((Expression<Direction>) exprs[0], (Expression<Location>) exprs[1]);
+
+		if (node != null) {
+			//noinspection unchecked
+			trigger = SectionUtils.loadLinkedCode("create loot context", (beforeLoading, afterLoading)
+					-> loadCode(node, "create loot context", beforeLoading, afterLoading, LootContextCreateEvent.class));
+			return trigger != null;
+		}
+
 		return true;
 	}
 

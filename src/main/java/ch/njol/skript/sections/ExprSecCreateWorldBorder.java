@@ -3,7 +3,6 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
@@ -12,9 +11,8 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.variables.HintManager;
-import ch.njol.skript.variables.HintManager.Backup;
 import ch.njol.skript.variables.Variables;
 import ch.njol.skript.doc.Example;
 import ch.njol.util.Kleenean;
@@ -26,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Name("Create WorldBorder")
 @Description({
@@ -62,27 +58,10 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
-			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			AtomicReference<Backup> hintBackup = new AtomicReference<>();
-			// Copy hints and ensure no delays
-			Runnable beforeLoading = () -> getParser().getHintManager().enterScope(false);
-			Runnable afterLoading = () -> {
-				isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-				HintManager hintManager = getParser().getHintManager();
-				hintBackup.set(hintManager.backup());
-				hintManager.exitScope();
-			};
-
-			trigger = loadCode(node, "create worldborder", beforeLoading, afterLoading, CreateWorldborderEvent.class);
-
-			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'create worldborder' section.");
-				return false;
-			}
-			HintManager hintManager = getParser().getHintManager();
-			hintManager.enterScope(false);
-			hintManager.restore(hintBackup.get());
-			hintManager.exitScope();
+			//noinspection unchecked
+			trigger = SectionUtils.loadLinkedCode("create worldborder", (beforeLoading, afterLoading)
+					-> loadCode(node, "create worldborder", beforeLoading, afterLoading, CreateWorldborderEvent.class));
+			return trigger != null;
 		}
 		return true;
 	}

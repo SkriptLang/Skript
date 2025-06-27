@@ -12,9 +12,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -30,11 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 @Name("Shoot")
@@ -194,28 +190,11 @@ public class EffSecShoot extends EffectSection {
 		direction = (Expression<Direction>) exprs[3];
 
 		if (sectionNode != null) {
-			AtomicBoolean delayed = new AtomicBoolean(false);
-			AtomicReference<HintManager.Backup> hintBackup = new AtomicReference<>();
-			// Copy hints and ensure no delays
-			Runnable beforeLoading = () -> getParser().getHintManager().enterScope(false);
-			Runnable afterLoading = () -> {
-				delayed.set(!getParser().getHasDelayBefore().isFalse());
-				HintManager hintManager = getParser().getHintManager();
-				hintBackup.set(hintManager.backup());
-				hintManager.exitScope();
-			};
-
-			trigger = loadCode(sectionNode, "shoot", beforeLoading, afterLoading, ShootEvent.class);
-
-			if (delayed.get()) {
-				Skript.error("Delays cannot be used within a 'shoot' effect section");
-				return false;
-			}
-			HintManager hintManager = getParser().getHintManager();
-			hintManager.enterScope(false);
-			hintManager.restore(hintBackup.get());
-			hintManager.exitScope();
+			trigger = SectionUtils.loadLinkedCode("shoot", (beforeLoading, afterLoading)
+					-> loadCode(sectionNode, "shoot", beforeLoading, afterLoading, ShootEvent.class));
+			return trigger != null;
 		}
+
 		return true;
 	}
 
