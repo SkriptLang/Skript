@@ -2,6 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,7 +98,10 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			}
 		}
 
-		ns.signatures.put(identifier, signature);
+		Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
+		if (existing != null) {
+			alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+		}
 	}
 
 	/**
@@ -507,15 +511,19 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		for (Namespace namespace : namespaces.values()) {
-			for (FunctionIdentifier other : namespace.identifiers.getOrDefault(name, Set.of())) {
-				if (!identifier.equals(other)) {
-					continue;
-				}
+		Namespace namespace = namespaces.getOrDefault(new NamespaceIdentifier(signature.script),
+			namespaces.get(GLOBAL_NAMESPACE));
+		if (namespace == null) {
+			return;
+		}
 
-				removeUpdateMaps(namespace, other, name);
-				return;
+		for (FunctionIdentifier other : namespace.identifiers.getOrDefault(name, Set.of())) {
+			if (!identifier.equals(other)) {
+				continue;
 			}
+
+			removeUpdateMaps(namespace, other, name);
+			return;
 		}
 	}
 
@@ -664,6 +672,16 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public @NotNull String toString() {
+			return MoreObjects.toStringHelper(this)
+				.add("name", name)
+				.add("local", local)
+				.add("minArgCount", minArgCount)
+				.add("args", Arrays.stream(args).map(Class::getSimpleName).collect(Collectors.joining(", ")))
+				.toString();
 		}
 
 	}

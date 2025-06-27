@@ -19,17 +19,17 @@ public abstract class JavaFunction<T> extends Function<T> {
 	}
 
 	@ApiStatus.Internal
-	JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local) {
-		this(name, parameters, returnType, single, local, null);
+	JavaFunction(String script, String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
+		this(script, name, parameters, returnType, single, true, null);
 	}
 
 	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
-		this(name, parameters, returnType, single, false, contract);
+		this(null, name, parameters, returnType, single, false, contract);
 	}
 
 	@ApiStatus.Internal
-	JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local, @Nullable Contract contract) {
-		this(new Signature<>(null, name, parameters, local, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
+	JavaFunction(String script, String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local, @Nullable Contract contract) {
+		this(new Signature<>(script, name, parameters, local, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 	}
 	
 	@Override

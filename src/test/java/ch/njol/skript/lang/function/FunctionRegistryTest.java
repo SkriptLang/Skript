@@ -47,6 +47,8 @@ public class FunctionRegistryTest {
 		assertEquals(RetrievalResult.EXACT, registry.getFunction(null, FUNCTION_NAME).result());
 		assertEquals(TEST_FUNCTION, registry.getFunction(null, FUNCTION_NAME).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME).conflictingArgs());
+
+		registry.remove(TEST_FUNCTION.getSignature());
 	}
 
 	@Test
@@ -97,8 +99,8 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION.getSignature());
 	}
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION = new SimpleJavaFunction<>(FUNCTION_NAME, new Parameter[0],
-		DefaultClasses.BOOLEAN, true, true) {
+	private static final Function<Boolean> LOCAL_TEST_FUNCTION = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME, new Parameter[0],
+		DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
 			return new Boolean[]{true};
@@ -123,7 +125,9 @@ public class FunctionRegistryTest {
 
 		assertFalse(registry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
 		assertFalse(registry.signatureExists(null, FUNCTION_NAME));
+		assertNull(registry.getSignature(TEST_SCRIPT, FUNCTION_NAME).retrieved());
 		assertNull(registry.getSignature(null, FUNCTION_NAME).retrieved());
+		assertNull(registry.getFunction(TEST_SCRIPT, FUNCTION_NAME).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME).retrieved());
 
 		registry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
@@ -250,20 +254,20 @@ public class FunctionRegistryTest {
 		registry.remove(TEST_FUNCTION_N.getSignature());
 	}
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION_B = new SimpleJavaFunction<>(FUNCTION_NAME,
+	private static final Function<Boolean> LOCAL_TEST_FUNCTION_B = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
 		new Parameter[]{
 			new Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
-		}, DefaultClasses.BOOLEAN, true, true) {
+		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
 			return new Boolean[]{true};
 		}
 	};
 
-	private static final Function<Boolean> LOCAL_TEST_FUNCTION_N = new SimpleJavaFunction<>(FUNCTION_NAME,
+	private static final Function<Boolean> LOCAL_TEST_FUNCTION_N = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
 		new Parameter[]{
 			new Parameter<>("a", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.BOOLEAN, true, true) {
+		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
 			return new Boolean[]{true};

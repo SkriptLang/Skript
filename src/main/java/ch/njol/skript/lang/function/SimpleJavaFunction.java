@@ -22,8 +22,8 @@ public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 	}
 
 	@ApiStatus.Internal
-	SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local) {
-		super(name, parameters, returnType, single, local);
+	SimpleJavaFunction(String script, String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
+		super(script, name, parameters, returnType, single);
 	}
 
 	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, Contract contract) {
