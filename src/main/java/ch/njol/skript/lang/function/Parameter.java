@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +44,9 @@ public final class Parameter<T> {
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
-	final @Nullable Expression<? extends T> def;
+	@Nullable Expression<? extends T> def;
+
+	final boolean optional;
 	
 	/**
 	 * Whether this parameter takes one or many values.
@@ -56,8 +59,21 @@ public final class Parameter<T> {
 		this.type = type;
 		this.def = def;
 		this.single = single;
+		this.optional = def != null;
 	}
-	
+
+	Parameter(String name, ClassInfo<T> type, boolean single, boolean optional) {
+		this.name = name;
+		this.type = type;
+		this.def = null;
+		this.single = single;
+		this.optional = optional;
+	}
+
+	public boolean isOptional() {
+		return optional;
+	}
+
 	/**
 	 * Get the Type of this parameter.
 	 * @return Type of the parameter
@@ -178,7 +194,20 @@ public final class Parameter<T> {
 	public boolean isSingleValue() {
 		return single;
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Parameter<?> parameter)) {
+			return false;
+		}
+
+		return optional == parameter.optional
+			&& single == parameter.single
+			&& name.equals(parameter.name)
+			&& type.equals(parameter.type)
+			&& Objects.equals(def, parameter.def);
+	}
+
 	@Override
 	public String toString() {
 		return toString(Skript.debug());

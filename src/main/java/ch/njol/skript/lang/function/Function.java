@@ -4,6 +4,7 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -87,7 +88,7 @@ public abstract class Function<T> {
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> p = parameters[i];
 			Object[] val = ps[i];
-			if (val == null) { // Go for default value
+			if (!(this instanceof DefaultFunction<T>) && val == null) { // Go for default value
 				assert p.def != null; // Should've been parse error
 				val = p.def.getArray(e);
 			}
@@ -98,7 +99,7 @@ public abstract class Function<T> {
 			 * really have a concept of nulls, it was changed. The config
 			 * option may be removed in future.
 			 */
-			if (!executeWithNulls && val.length == 0)
+			if (!(this instanceof DefaultFunction<T>) && !executeWithNulls && val.length == 0)
 				return null;
 			ps[i] = val;
 		}

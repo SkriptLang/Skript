@@ -145,7 +145,7 @@ public class Signature<T> {
 	 */
 	public int getMinParameters() {
 		for (int i = parameters.length - 1; i >= 0; i--) {
-			if (parameters[i].def == null)
+			if (!parameters[i].isOptional())
 				return i + 1;
 		}
 		return 0; // No-args function
