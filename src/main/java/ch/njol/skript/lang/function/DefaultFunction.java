@@ -169,6 +169,15 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		return keywords;
 	}
 
+	/**
+	 * Registers this function.
+	 *
+	 * @see Functions#register(DefaultFunction)
+	 */
+	public void register() {
+		Functions.register(this);
+	}
+
 	public static class Builder<T> {
 
 		private final String name;

@@ -44,7 +44,7 @@ public class DefaultFunctions {
 
 		// basic math functions
 
-		Functions.register(DefaultFunction.builder("floor", Long.class)
+		DefaultFunction.builder("floor", Long.class)
 			.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 			.since("2.2")
@@ -56,7 +56,8 @@ public class DefaultFunctions {
 					return l;
 
 				return Math2.floor(value.doubleValue());
-			}));
+			})
+			.register();
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
@@ -353,38 +354,39 @@ public class DefaultFunctions {
 			.examples("set {_nether} to world(\"%{_world}%_nether\")")
 			.since("2.2");
 
-		Functions.register(DefaultFunction.builder("location", Location.class)
+		DefaultFunction.builder("location", Location.class)
 			.description(
 				"Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
-				"If for whatever reason the world is not found, it will fallback to the server's main world.")
-			.examples(
+				"If for whatever reason the world is not found, it will fallback to the server's main world."
+			)
+			.examples("""
+				# TELEPORTING
+				teleport player to location(1,1,1, world "world")
+				teleport player to location(1,1,1, world "world", 100, 0)
+				teleport player to location(1,1,1, world "world", yaw of player, pitch of player)
+				teleport player to location(1,1,1, world of player)
+				teleport player to location(1,1,1, world("world"))
+				teleport player to location({_x}, {_y}, {_z}, {_w}, {_yaw}, {_pitch})
+				
+				# SETTING BLOCKS
+				set block at location(1,1,1, world "world") to stone
+				set block at location(1,1,1, world "world", 100, 0) to stone
+				set block at location(1,1,1, world of player) to stone
+				set block at location(1,1,1, world("world")) to stone
+				set block at location({_x}, {_y}, {_z}, {_w}) to stone
+				
+				# USING VARIABLES
+				set {_l1} to location(1,1,1)
+				set {_l2} to location(10,10,10)
+				set blocks within {_l1} and {_l2} to stone
+				if player is within {_l1} and {_l2}:
+				
+				# OTHER
+				kill all entities in radius 50 around location(1,65,1, world "world")
+				delete all entities in radius 25 around location(50,50,50, world "world_nether")
+				ignite all entities in radius 25 around location(1,1,1, world of player)
 				"""
-					# TELEPORTING
-					teleport player to location(1,1,1, world "world")
-					teleport player to location(1,1,1, world "world", 100, 0)
-					teleport player to location(1,1,1, world "world", yaw of player, pitch of player)
-					teleport player to location(1,1,1, world of player)
-					teleport player to location(1,1,1, world("world"))
-					teleport player to location({_x}, {_y}, {_z}, {_w}, {_yaw}, {_pitch})
-					
-					# SETTING BLOCKS
-					set block at location(1,1,1, world "world") to stone
-					set block at location(1,1,1, world "world", 100, 0) to stone
-					set block at location(1,1,1, world of player) to stone
-					set block at location(1,1,1, world("world")) to stone
-					set block at location({_x}, {_y}, {_z}, {_w}) to stone
-					
-					# USING VARIABLES
-					set {_l1} to location(1,1,1)
-					set {_l2} to location(10,10,10)
-					set blocks within {_l1} and {_l2} to stone
-					if player is within {_l1} and {_l2}:
-					
-					# OTHER
-					kill all entities in radius 50 around location(1,65,1, world "world")
-					delete all entities in radius 25 around location(50,50,50, world "world_nether")
-					ignite all entities in radius 25 around location(1,1,1, world of player)
-					""")
+			)
 			.since("2.2")
 			.parameter("x", Number.class)
 			.parameter("y", Number.class)
@@ -398,7 +400,8 @@ public class DefaultFunctions {
 				return new Location(world,
 					args.<Number>get("x").doubleValue(), args.<Number>get("y").doubleValue(), args.<Number>get("z").doubleValue(),
 					args.getOrDefault("yaw", 0f), args.getOrDefault("pitch", 0f));
-			}));
+			})
+			.register();
 
 		Functions.registerFunction(new SimpleJavaFunction<Date>("date", new Parameter[] {
 			new Parameter<>("year", DefaultClasses.NUMBER, true, null),
@@ -464,7 +467,7 @@ public class DefaultFunctions {
 			.examples("date(2014, 10, 1) # 0:00, 1st October 2014", "date(1990, 3, 5, 14, 30) # 14:30, 5th May 1990", "date(1999, 12, 31, 23, 59, 59, 999, -3*60, 0) # almost year 2000 in parts of Brazil (-3 hours offset, no DST)")
 			.since("2.2"));
 
-		Functions.register(DefaultFunction.builder("vector", Vector.class)
+		DefaultFunction.builder("vector", Vector.class)
 			.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 			.examples("vector(0, 0, 0)")
 			.since("2.2-dev23")
@@ -476,7 +479,7 @@ public class DefaultFunctions {
 				args.<Number>get("y").doubleValue(),
 				args.<Number>get("z").doubleValue()
 			))
-		);
+			.register();
 
 		Functions.registerFunction(new SimpleJavaFunction<Long>("calcExperience", new Parameter[] {
 			new Parameter<>("level", DefaultClasses.LONG, true, null)
@@ -606,7 +609,7 @@ public class DefaultFunctions {
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
 
-		Functions.register(DefaultFunction.builder("concat", String.class)
+		DefaultFunction.builder("concat", String.class)
 			.description("Joins the provided texts (and other things) into a single text.")
 			.examples(
 				"concat(\"hello \", \"there\") # hello there",
@@ -621,7 +624,8 @@ public class DefaultFunctions {
 					builder.append(Classes.toString(object));
 				}
 				return builder.toString();
-			}));
+			})
+			.register();
 
 		// joml functions - for display entities
 		{
