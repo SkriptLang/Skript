@@ -172,10 +172,14 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	/**
 	 * Registers this function.
 	 *
+	 * @return This function.
 	 * @see Functions#register(DefaultFunction)
 	 */
-	public void register() {
+	@Contract(" -> this")
+	public DefaultFunction<T> register() {
 		Functions.register(this);
+
+		return this;
 	}
 
 	public static class Builder<T> {
