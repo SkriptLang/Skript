@@ -455,6 +455,19 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return r;
 	}
 
+	Map<String, Node> toKeyNodeMap(String prefix, String separator) {
+		Map<String, Node> map = new HashMap<>();
+		for (Node node : this) {
+			if (node instanceof EntryNode entryNode) {
+				map.put(prefix + node.getKey(), entryNode);
+			} else if (node instanceof SectionNode sectionNode) {
+				map.put(prefix + node.getKey(), sectionNode);
+				map.putAll(sectionNode.toKeyNodeMap(prefix + node.getKey() + separator, separator));
+			}
+		}
+		return map;
+	}
+
 	/**
 	 * @return True if this section and all children are valid, i.e. they contain no invalid nodes.
 	 */
