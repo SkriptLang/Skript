@@ -6,14 +6,12 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import ch.njol.skript.registrations.experiments.QueueExperimentSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.util.Arrays;
@@ -34,7 +32,7 @@ import java.util.Arrays;
 	broadcast the first element of {queue} # hello
 	# queue is now empty""")
 @Since("2.10 (experimental)")
-public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> implements ExperimentalSyntax {
+public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> implements QueueExperimentSyntax {
 
 	static {
 		register(ExprQueueStartEnd.class, Object.class, "(:start|end)", "queue");
@@ -46,11 +44,6 @@ public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Obj
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		this.start = result.hasTag("start");
 		return super.init(expressions, pattern, delayed, result);
-	}
-
-	@Override
-	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return experimentSet.hasExperiment(Feature.QUEUES);
 	}
 
 	@Override

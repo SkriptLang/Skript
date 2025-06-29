@@ -772,6 +772,34 @@ public class SimpleEvents {
 				)
 				.since("2.11");
 		}
+
+		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
+			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
+					"vault display[ing] item")
+				.description("Called when a vault in a trial chamber is about to display an item.")
+				.examples(
+					"""
+					on vault display item:
+						set event-item to a netherite ingot	
+					"""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Minecraft 1.21.1+");
+		}
+
+		Skript.registerEvent("Villager Career Change", SimpleEvent.class, VillagerCareerChangeEvent.class,
+				"villager career chang(e[d]|ing)")
+			.description("Called when a villager changes its career. Can be caused by being employed or losing their job.")
+			.examples("""
+				on villager career change:
+					if all:
+						event-career change reason is employment
+						event-villager profession is armorer profession
+					then:
+						cancel event
+				""")
+			.since("INSERT VERSION");
+
 	}
 
 }
