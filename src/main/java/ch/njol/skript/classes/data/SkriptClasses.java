@@ -53,7 +53,7 @@ public class SkriptClasses {
 				.user("types?")
 				.name("Type")
 				.description("Represents a type, e.g. number, object, item type, location, block, world, entity type, etc.",
-						"This is mostly used for expressions like 'event-&lt;type&gt;', '&lt;type&gt;-argument', 'loop-&lt;type&gt;', etc., e.g. event-world, number-argument and loop-player.")
+						"This is mostly used for expressions like 'event-<type>', '<type>-argument', 'loop-<type>', etc., e.g. event-world, number-argument and loop-player.")
 				.usage("See the type name patterns of all types - including this one")
 				.examples("{variable} is a number # check whether the variable contains a number, e.g. -1 or 5.5",
 						"{variable} is a type # check whether the variable contains a type, e.g. number or player",
@@ -165,7 +165,7 @@ public class SkriptClasses {
 						"and unlike <a href='#itemstack'>items</a> they are well suited for checking whether an inventory contains a certain item or whether a certain item is of a certain type.",
 						"An item type can also have one or more <a href='#enchantmenttype'>enchantments</a> with or without a specific level defined, " +
 								"and can optionally start with 'all' or 'every' to make this item type represent <i>all</i> types that the alias represents, including data ranges.")
-				.usage("[&lt;number&gt; [of]] [all/every] &lt;alias&gt; [of &lt;enchantment&gt; [&lt;level&gt;] [,/and &lt;more enchantments...&gt;]]")
+				.usage("[<number> [of]] [all/every] <alias> [of <enchantment> [<level>] [,/and <more enchantments...>]]")
 				.examples("give 4 torches to the player",
 						"add oak slab to the inventory of the block",
 						"player's tool is a diamond sword of sharpness",
@@ -257,7 +257,7 @@ public class SkriptClasses {
 						"e.g. '5 minecraft days and 12 hours'.",
 						"NOTE: Months always have the value of 30 days, and years of 365 days.",
 						"See <a href='#date'>date</a> and <a href='#time'>time</a> for the other time types of Skript.")
-				.usage("&lt;number&gt; [minecraft/mc/real/rl/irl] ticks/seconds/minutes/hours/days/weeks/months/years [[,/and] &lt;more...&gt;]",
+				.usage("<number> [minecraft/mc/real/rl/irl] ticks/seconds/minutes/hours/days/weeks/months/years [[,/and] <more...>]",
 						"[###:]##:##[.####] ([hours:]minutes:seconds[.milliseconds])")
 				.examples("every 5 minecraft days:",
 						"	wait a minecraft second and 5 ticks",
@@ -340,7 +340,7 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Date.class, "date")
 				.user("dates?")
 				.name("Date")
-				.description("A date is a certain point in the real world's time which can be obtained with <a href='./expressions.html#ExprNow'>now expression</a>, <a href='./expressions.html#ExprUnixDate'>unix date expression</a> and <a href='./functions.html#date'>date function</a>.",
+				.description("A date is a certain point in the real world's time which can be obtained with <a href='#ExprNow'>now expression</a>, <a href='#ExprUnixDate'>unix date expression</a> and <a href='#date'>date function</a>.",
 						"See <a href='#time'>time</a> and <a href='#timespan'>timespan</a> for the other time types of Skript.")
 				.usage("")
 				.examples("set {_yesterday} to now",
@@ -390,7 +390,7 @@ public class SkriptClasses {
 				.description("A direction, e.g. north, east, behind, 5 south east, 1.3 meters to the right, etc.",
 						"<a href='#location'>Locations</a> and some <a href='#block'>blocks</a> also have a direction, but without a length.",
 						"Please note that directions have changed extensively in the betas and might not work perfectly. They can also not be used as command arguments.")
-				.usage("see <a href='./expressions.html#ExprDirection'>direction (expression)</a>")
+				.usage("see <a href='#ExprDirection'>direction (expression)</a>")
 				.examples("set the block below the victim to a chest",
 						"loop blocks from the block infront of the player to the block 10 below the player:",
 						"	set the block behind the loop-block to water")
@@ -424,11 +424,11 @@ public class SkriptClasses {
 				.user("(inventory )?slots?")
 				.name("Slot")
 				.description("Represents a single slot of an <a href='#inventory'>inventory</a>. " +
-						"Notable slots are the <a href='./expressions.html#ExprArmorSlot'>armour slots</a> and <a href='./expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
+						"Notable slots are the <a href='#ExprArmorSlot'>armour slots</a> and <a href='./expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
 						"The most important property that distinguishes a slot from an <a href='#itemstack'>item</a> is its ability to be changed, e.g. it can be set, deleted, enchanted, etc. " +
 								"(Some item expressions can be changed as well, e.g. items stored in variables. " +
 								"For that matter: slots are never saved to variables, only the items they represent at the time when the variable is set).",
-						"Please note that <a href='./expressions.html#ExprTool'>tool</a> can be regarded a slot, but it can actually change it's position, i.e. doesn't represent always the same slot.")
+						"Please note that <a href='#ExprTool'>tool</a> can be regarded a slot, but it can actually change it's position, i.e. doesn't represent always the same slot.")
 				.usage("")
 				.examples("set tool of player to dirt",
 						"delete helmet of the victim",
@@ -571,8 +571,8 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
-				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='./effects.html#EffTree'>generate tree</a> effect.")
-				.usage("[any] &lt;general tree/mushroom type&gt;, e.g. tree/any jungle tree/etc.", "&lt;specific tree/mushroom species&gt;, e.g. red mushroom/small jungle tree/big regular tree/etc.")
+				.description("A tree type represents a tree species or a huge mushroom species. These can be generated in a world with the <a href='#EffTree'>generate tree</a> effect.")
+				.usage("[any] <general tree/mushroom type>, e.g. tree/any jungle tree/etc.", "<specific tree/mushroom species>, e.g. red mushroom/small jungle tree/big regular tree/etc.")
 				.examples("grow any regular tree at the block",
 						"grow a huge red mushroom above the block")
 				.since("")
@@ -599,7 +599,7 @@ public class SkriptClasses {
 				.user("enchant(ing|ment) types?")
 				.name("Enchantment Type")
 				.description("An enchantment with an optional level, e.g. 'sharpness 2' or 'fortune'.")
-				.usage("&lt;enchantment&gt; [&lt;level&gt;]")
+				.usage("<enchantment> [<level>]")
 				.examples("enchant the player's tool with sharpness 5",
 						"helmet is enchanted with waterbreathing")
 				.since("1.4.6")
@@ -626,8 +626,8 @@ public class SkriptClasses {
 				.user("experience ?(points?)?")
 				.name("Experience")
 				.description("Experience points. Please note that Bukkit only allows to give XP, but not remove XP from players. " +
-						"You can however change a player's <a href='./expressions.html#ExprLevel'>level</a> and <a href='./expressions/#ExprLevelProgress'>level progress</a> freely.")
-				.usage("[&lt;number&gt;] ([e]xp|experience [point[s]])")
+						"You can however change a player's <a href='#ExprLevel'>level</a> and <a href='./expressions/#ExprLevelProgress'>level progress</a> freely.")
+				.usage("[<number>] ([e]xp|experience [point[s]])")
 				.examples("give 10 xp to the player")
 				.since("2.0")
 				.parser(new Parser<Experience>() {

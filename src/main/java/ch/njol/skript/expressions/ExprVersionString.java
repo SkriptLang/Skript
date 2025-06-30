@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"The text to show if the protocol version of the server doesn't match with protocol version of the client. " +
 	"You can check the <a href='#ExprProtocolVersion'>protocol version</a> expression for more information about this.",
-	"This can only be set in a <a href='events.html#server_list_ping'>server list ping</a> event."
+	"This can only be set in a <a href='#server_list_ping'>server list ping</a> event."
 })
 @Examples({
 	"on server list ping:",

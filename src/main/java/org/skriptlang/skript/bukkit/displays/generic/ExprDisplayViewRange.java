@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Display View Range")
 @Description({
-	"Returns or changes the view range of <a href='classes.html#display'>displays</a>.",
+	"Returns or changes the view range of <a href='#display'>displays</a>.",
 	"Default value is 1.0. This value is then multiplied by 64 and the player's entity view distance setting to determine the actual range.",
 	"For example, a player with 150% entity view distance will see a block display with a view range of 1.2 at 1.2 * 64 * 150% = 115.2 blocks away."
 })

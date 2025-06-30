@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Parrot.Variant;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -84,7 +85,7 @@ public class ParrotData extends EntityData<Parrot> {
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new ParrotData(variant);
 	}
 
