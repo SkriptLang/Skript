@@ -1785,6 +1785,17 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
+	 * Sends an error message with formatted objects.
+	 *
+	 * @param message The message to send
+	 * @param objects The objects to format the message with
+	 * @see String#formatted(Object...)
+	 */
+	public static void error(String message, Object... objects) {
+		error(message.formatted(objects));
+	}
+
+	/**
 	 * Use this in {@link Expression#init(Expression[], int, Kleenean, ch.njol.skript.lang.SkriptParser.ParseResult)} (and other methods that are called during the parsing) to log
 	 * errors with a specific {@link ErrorQuality}.
 	 *

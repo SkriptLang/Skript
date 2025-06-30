@@ -31,12 +31,10 @@ import java.util.stream.Collectors;
  */
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
-	private static final String AMBIGUOUS_ERROR = """
-		Skript cannot determine which function named '%s' to call. The following functions were matched:
-
-		 \t%s
-
-		 \tTry clarifying the type of the arguments using the 'value within' expression.""";
+	private static final String AMBIGUOUS_ERROR =
+		"Skript cannot determine which function named '%s' to call. " +
+		"The following functions were matched: %s. " +
+		"Try clarifying the type of the arguments using the 'value within' expression.";
 
 	/**
 	 * Name of function that is called, for logging purposes.
@@ -469,7 +467,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	}
 
 	private void ambiguousError(Class<?>[][] conflictingArgs) {
-		StringJoiner joiner = new StringJoiner("\n\t");
+		List<String> parts = new ArrayList<>();
 		for (Class<?>[] args : conflictingArgs) {
 			String argNames = Arrays.stream(args).map(arg -> {
 				String name = Classes.getExactClassName(arg);
@@ -481,12 +479,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				}
 			}).collect(Collectors.joining(", "));
 
-			joiner.add("- %s(%s)".formatted(functionName, argNames));
+			parts.add("%s(%s)".formatted(functionName, argNames));
 		}
 
-		for (String line : AMBIGUOUS_ERROR.split("\\n")) {
-			Skript.error(line.formatted(functionName, joiner.toString()));
-		}
+		Skript.error(AMBIGUOUS_ERROR, functionName, StringUtils.join(parts, ", ", " and "));
 	}
 
 }
