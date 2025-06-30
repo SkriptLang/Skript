@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 
 @Name("Color of")
 @Description({
-	"The <a href='./classes.html#color'>color</a> of an item, entity, block, firework effect, or text display.",
+	"The <a href='#color'>color</a> of an item, entity, block, firework effect, or text display.",
 	"This can also be used to color chat messages with \"&lt;%color of ...%&gt;this text is colored!\".",
 	"Do note that firework effects support setting, adding, removing, resetting, and deleting; text displays support " +
 	"setting and resetting; and items, entities, and blocks only support setting, and only for very few items/blocks."
@@ -92,27 +92,19 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		Class<?> returnType = getExpr().getReturnType();
+		Expression<?> expression = getExpr();
 
-		if (returnType.isAssignableFrom(FireworkEffect.class))
+		if (expression.canReturn(FireworkEffect.class))
 			return CollectionUtils.array(Color[].class);
 
-		// double assignable checks are to allow both parent and child types, since variables return Object
-		// This does mean we have to be more stringent in checking the validity of the change mode in change() itself.
-		if ((returnType.isAssignableFrom(Display.class) || Display.class.isAssignableFrom(returnType)) && (mode == ChangeMode.RESET || mode == ChangeMode.SET))
+		if ((mode == ChangeMode.RESET || mode == ChangeMode.SET) && expression.canReturn(Display.class))
 			return CollectionUtils.array(Color.class);
 
-		// the following only support SET
-		if (mode != ChangeMode.SET)
-			return null;
-		if (returnType.isAssignableFrom(Entity.class)
-			|| Entity.class.isAssignableFrom(returnType)
-			|| returnType.isAssignableFrom(Block.class)
-			|| Block.class.isAssignableFrom(returnType)
-			|| returnType.isAssignableFrom(ItemType.class)
-		) {
+		if (mode == ChangeMode.SET &&
+			(expression.canReturn(Entity.class) || expression.canReturn(Block.class) || expression.canReturn(ItemType.class))) {
 			return CollectionUtils.array(Color.class);
 		}
+
 		return null;
 	}
 

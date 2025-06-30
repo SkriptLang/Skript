@@ -8,7 +8,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Fishing Hook")
-@Description("The <a href='classes.html#entity'>fishing hook</a> in a fishing event.")
+@Description("The <a href='#entity'>fishing hook</a> in a fishing event.")
 @Examples({
 	"on fish line cast:",
 		"\twait a second",

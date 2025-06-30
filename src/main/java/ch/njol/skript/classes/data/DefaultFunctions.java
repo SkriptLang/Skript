@@ -554,6 +554,7 @@ public class DefaultFunctions {
 			}));
 
 		{ // offline player function
+			// TODO - remove this when Spigot support is dropped
 			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
 
 			List<Parameter<?>> params = new ArrayList<>();

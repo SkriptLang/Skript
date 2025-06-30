@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.stream.Stream;
 
 @Name("Enchantment Level")
-@Description("The level of a particular <a href='classes.html#enchantment'>enchantment</a> on an item.")
+@Description("The level of a particular <a href='#enchantment'>enchantment</a> on an item.")
 @Examples({"player's tool is a sword of sharpness:",
 	"\tmessage \"You have a sword of sharpness %level of sharpness of the player's tool% equipped\""})
 @Since("2.0")

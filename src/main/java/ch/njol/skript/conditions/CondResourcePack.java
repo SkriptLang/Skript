@@ -17,7 +17,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Resource Pack")
-@Description("Checks state of the resource pack in a <a href='events.html#resource_pack_request_action'>resource pack request response</a> event.")
+@Description("Checks state of the resource pack in a <a href='#resource_pack_request_action'>resource pack request response</a> event.")
 @Examples({"on resource pack response:",
 		"	if the resource pack wasn't accepted:",
 		"		kick the player due to \"You have to install the resource pack to play in this server!\""})

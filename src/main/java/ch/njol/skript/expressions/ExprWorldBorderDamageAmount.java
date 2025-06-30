@@ -10,7 +10,6 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Damage Amount of World Border")
 @Description({
@@ -19,7 +18,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 })
 @Examples("set world border damage amount of {_worldborder} to 1")
 @Since("2.11")
-public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double> implements SyntaxRuntimeErrorProducer {
+public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double>  {
 
 	static {
 		registerDefault(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders");
