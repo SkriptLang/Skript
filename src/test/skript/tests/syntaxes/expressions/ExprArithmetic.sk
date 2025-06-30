@@ -278,3 +278,10 @@ test "arithmetic type switcheroo":
 	loop 2 times:
 		set {_x} to {_a} + {_b}
 		set {_b} to 5
+
+local function arithmetic_xp() returns experience:
+	return 5 xp
+
+test "arithmetic parse time conversion":
+	set {_x} to arithmetic_xp() + 5
+	assert {_x} is 10 with "failed to calculate experience + number"
