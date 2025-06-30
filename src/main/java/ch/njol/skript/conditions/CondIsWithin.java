@@ -1,11 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -28,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"Whether a location is within something else. The \"something\" can be a block, an entity, a chunk, a world, " +
 	"or a cuboid formed by two other locations.",
-	"Note that using the <a href='conditions.html#CondCompare'>is between</a> condition will refer to a straight line " +
+	"Note that using the <a href='#CondCompare'>is between</a> condition will refer to a straight line " +
 	"between locations, while this condition will refer to the cuboid between locations."
 })
 @Examples({
@@ -53,15 +49,11 @@ import org.jetbrains.annotations.Nullable;
 public class CondIsWithin extends Condition {
 
 	static {
-		String validTypes = "entities/chunks/worlds/worldborders";
-		if (Skript.methodExists(Block.class, "getCollisionShape"))
-			validTypes += "/blocks";
-
 		Skript.registerCondition(CondIsWithin.class,
 				"%locations% (is|are) within %location% and %location%",
 				"%locations% (isn't|is not|aren't|are not) within %location% and %location%",
-				"%locations% (is|are) (within|in[side [of]]) %" + validTypes + "%",
-				"%locations% (isn't|is not|aren't|are not) (within|in[side [of]]) %" + validTypes + "%"
+				"%locations% (is|are) (within|in[side [of]]) %entities/chunks/worlds/worldborders/blocks%",
+				"%locations% (isn't|is not|aren't|are not) (within|in[side [of]]) %entities/chunks/worlds/worldborders/blocks%"
 		);
 	}
 
@@ -99,7 +91,7 @@ public class CondIsWithin extends Condition {
 			return locsToCheck.check(event, box::contains, isNegated());
 		}
 
-		Object[] areas = area.getArray(event);
+		Object[] areas = area.getAll(event);
 		return locsToCheck.check(event, location ->
 				SimpleExpression.check(areas, object -> {
 					if (object instanceof Entity entity) {
@@ -120,8 +112,8 @@ public class CondIsWithin extends Condition {
 					} else if (object instanceof World world) {
 						return location.getWorld().equals(world);
 					} else if (object instanceof WorldBorder worldBorder) {
-            return worldBorder.isInside(location);
-          }
+						return worldBorder.isInside(location);
+					}
 					return false;
 				}, false, area.getAnd()),
 			isNegated());

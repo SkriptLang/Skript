@@ -6,6 +6,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Wolf;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -145,7 +146,7 @@ public class WolfData extends EntityData<Wolf> {
 	}
 
 	@Override
-	public EntityData<Wolf> getSuperType() {
+	public @NotNull EntityData<Wolf> getSuperType() {
 		return new WolfData();
 	}
 

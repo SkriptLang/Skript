@@ -5,6 +5,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -75,7 +76,7 @@ public class FrogData extends EntityData<Frog> {
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new FrogData(variant);
 	}
 
