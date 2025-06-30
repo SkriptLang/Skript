@@ -47,7 +47,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMax = parseResult.hasTag("max");
 		setExpr(exprs[0]);
-		if (isMax && Entity.class.isAssignableFrom(getExpr().getReturnType())) {
+		if (isMax && !getExpr().canReturn(Block.class)) {
 			Skript.error("Cannot use 'max age' expression with entities, use just the 'age' expression instead");
 			return false;
 		}

@@ -137,7 +137,7 @@ public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 	 * @param s
 	 * @return The deserialised object or null if the input is invalid. An error message may be logged to specify the cause.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public T deserialize(final String s) {
 		return null; // if this method is not overridden then no objects of this class will ever have been saved using the old format, so any input is invalid.

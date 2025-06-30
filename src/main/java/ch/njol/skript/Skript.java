@@ -210,7 +210,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Version version = null;
-	@Deprecated(forRemoval = true) // TODO this field will be replaced by a proper registry later
+	@Deprecated(since = "2.9.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
 	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 
 	public static Version getVersion() {
@@ -396,7 +396,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
-		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
+		File aliasesFolder = new File(getDataFolder(), "aliases");
+		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists() || !aliasesFolder.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -413,6 +414,11 @@ public final class Skript extends JavaPlugin implements Listener {
 					populateLanguageFiles = true;
 				}
 
+				if (!aliasesFolder.isDirectory()) {
+					if (!aliasesFolder.mkdirs())
+						throw new IOException("Could not create the directory " + aliasesFolder);
+				}
+				
 				f = new ZipFile(getFile());
 				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
@@ -1078,18 +1084,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * Used to test whether certain Bukkit features are supported.
-	 *
-	 * @param className
-	 * @return Whether the given class exists.
-	 * @deprecated use {@link #classExists(String)}
-	 */
-	@Deprecated
-	public static boolean supports(final String className) {
-		return classExists(className);
-	}
-
-	/**
 	 * Tests whether a given class exists in the classpath.
 	 *
 	 * @param className The {@link Class#getCanonicalName() canonical name} of the class
@@ -1379,7 +1373,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	// ================ ADDONS ================
 
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	private static final Set<SkriptAddon> addons = new HashSet<>();
 
 	/**
@@ -1429,7 +1423,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		return Collections.unmodifiableCollection(addons);
 	}
 
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	private static @Nullable SkriptAddon addon;
 
 	/**

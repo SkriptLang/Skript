@@ -541,11 +541,15 @@ public class DefaultFunctions {
 				}
 				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
 			}
-		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.", "Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
-			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
+		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.",
+				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
+			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'",
+				"set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'",
+				"set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
 			.since("2.8.0");
 
 		{ // offline player function
+			// TODO - remove this when Spigot support is dropped
 			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
 
 			List<Parameter<?>> params = new ArrayList<>();
@@ -714,7 +718,7 @@ public class DefaultFunctions {
 			}
 			.description("Returns a UUID from the given string. The string must be in the format of a UUID.")
 			.examples("uuid(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
-			.since("INSERT VERSION")
+			.since("2.11")
 		);
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("mean", new Parameter[]{
@@ -744,7 +748,7 @@ public class DefaultFunctions {
 				"mean(0, 5, 10) = 5",
 				"mean(13, 97, 376, 709) = 298.75"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("median", new Parameter[]{
 			new Parameter<>("numbers", DefaultClasses.NUMBER, false, null)
@@ -794,7 +798,7 @@ public class DefaultFunctions {
 				"median(1, 2, 3, 4, 5, 6) = 3.5",
 				"median(0, 123, 456, 789) = 289.5"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<>("factorial", new Parameter[]{
 			new Parameter<>("number", DefaultClasses.NUMBER, true, null)
@@ -830,7 +834,7 @@ public class DefaultFunctions {
 				"factorial(5) = 5*4*3*2*1 = 120",
 				"factorial(171) = Infinity"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("root", new Parameter[]{
 			new Parameter<>("n", DefaultClasses.NUMBER, true, null),
@@ -856,7 +860,7 @@ public class DefaultFunctions {
 				"root(4, 16) = 2",
 				"root(-4, 16) = 0.5 # same as 16^(-1/4)"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("permutations", new Parameter[]{
 			new Parameter<>("options", DefaultClasses.NUMBER, true, null),
@@ -901,7 +905,7 @@ public class DefaultFunctions {
 				"permutations(10, 4) = 5040",
 				"permutations(size of {some list::*}, 2)"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("combinations", new Parameter[]{
 				new Parameter<>("options", DefaultClasses.NUMBER, true, null),
@@ -954,7 +958,7 @@ public class DefaultFunctions {
 				"combinations(5, 3) = 10",
 				"combinations(size of {some list::*}, 2)"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 	}
 

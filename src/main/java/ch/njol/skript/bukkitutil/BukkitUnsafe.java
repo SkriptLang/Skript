@@ -52,7 +52,7 @@ public class BukkitUnsafe {
 	 * @return The Material which the id represents, or null if no material can be matched.
 	 * @deprecated Prefer {@link BukkitUnsafe#getMaterialFromNamespacedId(String)} for including modded item support
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static @Nullable Material getMaterialFromMinecraftId(String id) {
 		return getMaterialFromNamespacedId(id);
 	}

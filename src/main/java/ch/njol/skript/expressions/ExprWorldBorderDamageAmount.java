@@ -10,7 +10,6 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Damage Amount of World Border")
 @Description({
@@ -18,8 +17,8 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	"Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.",
 })
 @Examples("set world border damage amount of {_worldborder} to 1")
-@Since("INSERT VERSION")
-public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double> implements SyntaxRuntimeErrorProducer {
+@Since("2.11")
+public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double>  {
 
 	static {
 		registerDefault(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders");

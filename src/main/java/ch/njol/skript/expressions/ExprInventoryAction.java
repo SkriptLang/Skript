@@ -9,7 +9,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("Inventory Action")
-@Description("The <a href='./classes.html#inventoryaction'>inventory action</a> of an inventory event. Please click on the link for more information.")
+@Description("The <a href='#inventoryaction'>inventory action</a> of an inventory event. Please click on the link for more information.")
 @Examples("inventory action is pickup all")
 @Since("2.2-dev16")
 public class ExprInventoryAction extends EventValueExpression<InventoryAction> {

@@ -10,7 +10,7 @@ import ch.njol.skript.doc.Since;
 @Name("Is Flammable")
 @Description("Checks whether an item is flammable.")
 @Examples({
-	"wood is flammable",
+	"send whether the tag contents of minecraft tag \"planks\" are flammable",
 	"player's tool is flammable"
 })
 @Since("2.2-dev36")

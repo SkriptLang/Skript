@@ -1,0 +1,40 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.effects.EffGoatHornsTest"
+
+test "EffGoatHornsJUnit" when running JUnit:
+	add "remove left horn" to {_test::*}
+	add "remove right horn" to {_test::*}
+	add "replace left horn" to {_test::*}
+	add "regrow both horns" to {_test::*}
+	# ensure junit test {@test} completes {_test::*}
+	# TODO: Uncomment when JUnit environment is able to support tests with multiple ticks
+
+on spawn of goat:
+	junit test is {@test}
+
+	remove the left horn of event-entity
+	wait a tick
+	if:
+		event-entity does not have a left horn
+		event-entity has a right horn
+	then:
+		complete objective "remove left horn" for {@test}
+
+	remove the right horn of event-entity
+	wait a tick
+	if event-entity does not have both horns:
+		complete objective "remove right horn" for {@test}
+
+	replace the left horn of event-entity
+	wait a tick
+	if:
+		event-entity has a left horn
+		event-entity does not have a right horn
+		event-entity has any horn
+	then:
+		complete objective "replace left horn" for {@test}
+
+	regrow both horns of event-entity
+	wait a tick
+	if event-entity has both horns:
+		complete objective "regrow both horns" for {@test}

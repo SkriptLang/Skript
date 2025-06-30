@@ -73,7 +73,7 @@ public abstract class Functions {
 		return function;
 	}
 
-	public final static String functionNamePattern = "[\\p{IsAlphabetic}][\\p{IsAlphabetic}\\p{IsDigit}_]*";
+	public final static String functionNamePattern = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\p{IsDigit}_]*";
 
 	/**
 	 * Loads a script function from given node.
@@ -206,7 +206,7 @@ public abstract class Functions {
 	 * @param name Name of function.
 	 * @return Function, or null if it does not exist.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static @Nullable Function<?> getFunction(String name) {
 		return getGlobalFunction(name);
 	}
@@ -270,7 +270,7 @@ public abstract class Functions {
 	 * @param name Name of function.
 	 * @return Signature, or null if function does not exist.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static @Nullable Signature<?> getSignature(String name) {
 		return getGlobalSignature(name);
 	}
@@ -327,12 +327,7 @@ public abstract class Functions {
 
 	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
 
-	/**
-	 * Remember to call {@link #validateFunctions()} after calling this
-	 *
-	 * @return How many functions were removed
-	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static int clearFunctions(String script) {
 		// Get and remove function namespace of script
 		Namespace namespace = namespaces.remove(new Namespace.Key(Namespace.Origin.SCRIPT, script));
@@ -386,7 +381,7 @@ public abstract class Functions {
 	/**
 	 * Clears all function calls and removes script functions.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static void clearFunctions() {
 		// Keep Java functions, remove everything else
 		globalFunctions.values().removeIf(namespace -> namespace != javaNamespace);

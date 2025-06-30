@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 	"make player start sprinting",
 	"force player to start sprinting"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffSprinting extends Effect {
 
 	static {

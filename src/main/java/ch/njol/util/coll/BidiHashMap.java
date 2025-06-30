@@ -1,16 +1,16 @@
 package ch.njol.util.coll;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
- * @deprecated Use {@link com.google.common.collect.BiMap}
+ * @deprecated Use {@link com.google.common.collect.BiMap} instead.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 @SuppressWarnings("removal")
 public class BidiHashMap<T1, T2> extends HashMap<T1, T2> implements BidiMap<T1, T2> {
 

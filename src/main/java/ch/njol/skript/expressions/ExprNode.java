@@ -12,11 +12,11 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -40,7 +40,7 @@ import java.util.Set;
 			broadcast name of loop-value"""
 })
 @Since("2.10")
-public class ExprNode extends PropertyExpression<Node, Node> {
+public class ExprNode extends PropertyExpression<Node, Node> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprNode.class, Node.class, ExpressionType.PROPERTY,
@@ -57,8 +57,6 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
 		this.isPath = pattern < 2;
 		switch (pattern) {
 			case 0:

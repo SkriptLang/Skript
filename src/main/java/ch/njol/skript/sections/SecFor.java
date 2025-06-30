@@ -20,6 +20,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,9 @@ import java.util.Map;
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("2.10")
-public class SecFor extends SecLoop {
+public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.FOR_EACH_LOOPS);
 
 	static {
 		Skript.registerSection(SecFor.class,
@@ -69,8 +73,6 @@ public class SecFor extends SecLoop {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
-		if (!this.getParser().hasExperiment(Feature.FOR_EACH_LOOPS))
-			return false;
 		//<editor-fold desc="Set the key/value expressions based on the pattern" defaultstate="collapsed">
 		switch (matchedPattern) {
 			case 0:
@@ -109,7 +111,7 @@ public class SecFor extends SecLoop {
 		}
 		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
 			&& expression.isSingle()
-			&& (expression instanceof Variable<?> || Iterable.class.isAssignableFrom(expression.getReturnType()))) {
+			&& (expression instanceof Variable<?> || expression.canReturn(Iterable.class))) {
 			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
 			super.iterableSingle = true;
 		} else if (expression.isSingle()) {
@@ -120,6 +122,11 @@ public class SecFor extends SecLoop {
 		this.loadOptionalCode(sectionNode);
 		this.setInternalNext(this);
 		return true;
+	}
+
+	@Override
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

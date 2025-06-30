@@ -33,6 +33,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -92,17 +93,10 @@ public class DefaultComparators {
 		Comparators.registerComparator(Slot.class, Slot.class, new Comparator<Slot, Slot>() {
 
 			@Override
-			public Relation compare(Slot o1, Slot o2) {
-				if (o1 instanceof EquipmentSlot != o2 instanceof EquipmentSlot)
+			public Relation compare(Slot slot1, Slot slot2) {
+				if (slot1 instanceof EquipmentSlot != slot2 instanceof EquipmentSlot)
 					return Relation.NOT_EQUAL;
-				if (o1.isSameSlot(o2))
-					return Relation.EQUAL;
-				return Relation.NOT_EQUAL;
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
+				return Relation.get(slot1.isSameSlot(slot2));
 			}
 
 		});
@@ -594,6 +588,10 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		//EnchantmentType - Enchantment
+		Comparators.registerComparator(EnchantmentType.class, Enchantment.class, ((enchantmentType, enchantment) ->
+			Relation.get(enchantmentType.getType().equals(enchantment))));
 
 		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
 			@Override
