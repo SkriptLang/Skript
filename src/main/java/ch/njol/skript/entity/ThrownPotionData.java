@@ -9,6 +9,7 @@ import org.bukkit.entity.LingeringPotion;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -127,7 +128,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new ThrownPotionData();
 	}
 	

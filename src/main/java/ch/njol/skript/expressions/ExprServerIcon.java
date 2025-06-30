@@ -22,8 +22,8 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Server Icon")
 @Description({"Icon of the server in the server list. Can be set to an icon that loaded using the",
-		"<a href='effects.html#EffLoadServerIcon'>load server icon</a> effect,",
-		"or can be reset to the default icon in a <a href='events.html#server_list_ping'>server list ping</a>.",
+		"<a href='#EffLoadServerIcon'>load server icon</a> effect,",
+		"or can be reset to the default icon in a <a href='#server_list_ping'>server list ping</a>.",
 		"'default server icon' returns the default server icon (server-icon.png) always and cannot be changed.",})
 @Examples({"on script load:",
 		"	set {server-icons::default} to the default server icon"})
