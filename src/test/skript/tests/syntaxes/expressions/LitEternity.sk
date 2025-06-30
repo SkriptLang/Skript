@@ -1,0 +1,27 @@
+test "eternity":
+	set {_a} to forever
+	assert {_a} is forever with "comparison failed"
+	assert {_a} is an eternity with "comparison failed"
+	assert {_a} is an infinite duration with "comparison failed"
+
+	add 10 seconds to {_a}
+	assert {_a} is an eternity with "adding changed infinity"
+
+	remove 10 seconds from {_a}
+	assert {_a} is an eternity with "subtraction changed infinity"
+
+	assert {_a} / 10 seconds is infinity value with "division by timespan didn't return infinity"
+	assert isNaN({_a} / {_a}) is true with "division by eternity didn't return NaN"
+
+	assert {_a} / 10 is an eternity with "division by number didn't return eternity"
+	assert {_a} * 10 is an eternity with "multiplication by number didn't return eternity"
+
+	assert 1 second * infinity value is an eternity with "timespan * infinity wasn't an eternity"
+	assert infinity value * 1 second is an eternity with "timespan * infinity wasn't an eternity"
+
+	assert -infinity value * 1 second is not set with "timespan * -infinity was set"
+
+	assert 1 year * 10000000000 is an eternity with "overflow did not create an eternity"
+
+	set {_a} to a potion effect of speed for an eternity
+	assert {_a} is infinite with "potion effect was not infinite"
