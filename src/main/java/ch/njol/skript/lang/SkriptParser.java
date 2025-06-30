@@ -39,6 +39,7 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
@@ -302,15 +303,15 @@ public class SkriptParser {
 	}
 
 	/**
-	 * Checks whether the given element is experimental and if so, whether the current experiment set satisfies it.
-	 * Prints errors.
-	 * @param element The syntax element to check.
-	 * @return True if the element is allowed in the current experiment set, false otherwise.
+	 * Checks that {@code element} is an {@link ExperimentalSyntax} and, if so, ensures that its requirements are satisfied by the current {@link ExperimentSet}.
+	 * @param element The {@link SyntaxElement} to check.
+	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
 	 */
-	private static boolean checkExperimentalSyntax(SyntaxElement element) {
-		if (element instanceof ExperimentalSyntax experimentalSyntax)
-			return experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet());
-		return true;
+	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
+		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
+			return true;
+		ExperimentSet experiments = getParser().getExperimentSet();
+		return experimentalSyntax.isSatisfiedBy(experiments);
 	}
 
 	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
