@@ -1,12 +1,8 @@
 package ch.njol.skript.test.platform;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import ch.njol.skript.test.utils.TestResults;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -103,40 +99,14 @@ public class Environment {
 				return;
 
 			HttpClient client = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version))
-				.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
-				.GET()
-				.build();
-
-			HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
-			JsonObject jsonObject;
-			try {
-				InputStreamReader reader =  new InputStreamReader(response.body(), StandardCharsets.UTF_8);
-				jsonObject = gson.fromJson(reader, JsonObject.class);
-			} finally {}
-
-			JsonArray jsonArray = jsonObject.get("builds").getAsJsonArray();
-
-			int latestBuild = -1;
-			for (JsonElement jsonElement : jsonArray) {
-				int build = jsonElement.getAsInt();
-				if (build > latestBuild) {
-					latestBuild = build;
-				}
-			}
-
-			if (latestBuild == -1)
-				throw new IllegalStateException("No builds for this version");
-
 			HttpRequest buildRequest = HttpRequest.newBuilder()
-				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/" + latestBuild))
+				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/latest"))
 				.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
 				.GET()
 				.build();
 			HttpResponse<InputStream> buildResponse = client.send(buildRequest, BodyHandlers.ofInputStream());
 			JsonObject buildObject;
-			try  {
+			try {
 				InputStreamReader reader = new InputStreamReader(buildResponse.body(), StandardCharsets.UTF_8);
 				buildObject = gson.fromJson(reader, JsonObject.class);
 			} finally {}
