@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Llama.Color;
 import org.bukkit.entity.TraderLlama;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -83,7 +84,7 @@ public class LlamaData extends EntityData<Llama> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new LlamaData(color, isTrader);
 	}
 	

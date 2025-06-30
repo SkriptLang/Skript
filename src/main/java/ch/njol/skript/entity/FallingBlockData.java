@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -133,7 +134,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new FallingBlockData(types);
 	}
 	

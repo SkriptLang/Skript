@@ -8,6 +8,7 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.entity.boat.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
@@ -421,7 +422,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new SimpleEntityData(info);
 	}
 	

@@ -703,7 +703,7 @@ entities:
 		pattern: painting[plural:s]
 	pig:
 		name: pig¦s
-		pattern: <age> [%-pigvariant%] pig[plural:s]|baby:piglet[plural:s]
+		pattern: <age> [%-pigvariant%] pig[plural:s]|baby:[%-pigvariant%] piglet[plural:s]
 	saddled pig:
 		name: saddled pig¦s
 		pattern: saddled [%-pigvariant%] pig[plural:s]
