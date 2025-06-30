@@ -97,7 +97,7 @@ public class Environment {
 			if (source != null)
 				return;
 
-			String stringUrl = "https://api.papermc.io/v2/projects/paper/versions/" + version;
+			String stringUrl = "https://fill.papermc.io/v3/projects/paper/versions/" + version;
 			URL url = new URL(stringUrl);
 			JsonObject jsonObject;
 			try (InputStream is = url.openStream()) {
@@ -118,8 +118,16 @@ public class Environment {
 			if (latestBuild == -1)
 				throw new IllegalStateException("No builds for this version");
 
-			source = "https://api.papermc.io/v2/projects/paper/versions/" + version + "/builds/" + latestBuild
-				+ "/downloads/paper-" + version + "-" + latestBuild + ".jar";
+			String buildString = "https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/" + latestBuild;
+			URL buildURL = new URL(buildString);
+			JsonObject buildObject;
+			try (InputStream inputStream = buildURL.openStream()) {
+				InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+				buildObject = gson.fromJson(reader, JsonObject.class);
+			}
+			String downloadURL = buildObject.get("downloads").getAsJsonObject().get("server:default").getAsJsonObject().get("url").getAsString();
+			assert downloadURL != null && !downloadURL.isEmpty();
+			source = downloadURL;
 		}
 	}
 
