@@ -6,6 +6,7 @@ import ch.njol.skript.util.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.TropicalFish;
 import org.bukkit.entity.TropicalFish.Pattern;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -125,7 +126,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	}
 
 	@Override
-	public EntityData<TropicalFish> getSuperType() {
+	public @NotNull EntityData<TropicalFish> getSuperType() {
 		return new TropicalFishData(matchedPattern);
 	}
 

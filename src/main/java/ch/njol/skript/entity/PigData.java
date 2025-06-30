@@ -7,6 +7,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Pig;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -121,7 +122,7 @@ public class PigData extends EntityData<Pig> {
 	}
 	
 	@Override
-	public EntityData<Pig> getSuperType() {
+	public @NotNull EntityData<Pig> getSuperType() {
 		return new PigData();
 	}
 

@@ -307,13 +307,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 *     and entity age (e.g. "baby zombie") based on the {@link ParseResult}'s marker value.
 	 * </p>
 	 *
-	 * @param exprs All {@link Expression}s from the matched pattern, in the order they appear.
-	 *              If an optional value is omitted by the user, it will still be present in the array
-	 *              with a value of {@code null}.
-	 * @param matchedPattern The index of the pattern which matched.
-	 * @param isDelayed Whether this expression is used after a delay or not (i.e. if the event has already passed when this expression will be called)
-	 * @param parseResult Additional information about the match.
-	 * @return {@code true} if initialization was successful, otherwise {@code false}.
+	 * {@inheritDoc}
 	 */
 	@Override
 	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -400,9 +394,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 *     This is typically used to obtain the base entity type without any modifiers or traits.
 	 * </p>
 	 *
-	 * @return A generalized {@link EntityData} representing the base entity type. Should never return {@code null}.
+	 * @return A generalized {@link EntityData} representing the base entity type.
 	 */
-	public abstract EntityData getSuperType();
+	public abstract @NotNull EntityData getSuperType();
 
 	@Override
 	public final String toString() {
