@@ -24,13 +24,13 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	
 	public MooshroomData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.matchedPattern = variant == Variant.BROWN ? 2 : 1;
+		super.matchedCodeName = variant == Variant.BROWN ? 2 : 1;
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern > 0)
-			variant = Variant.values()[matchedPattern - 1];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName > 0)
+			variant = Variant.values()[matchedCodeName - 1];
 		return true;
 	}
 	

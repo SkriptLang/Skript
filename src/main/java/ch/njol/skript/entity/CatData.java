@@ -21,14 +21,13 @@ public class CatData extends EntityData<Cat> {
 		}
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private static Cat.Type[] types;
 	
 	private Cat.@Nullable Type race = null;
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null)
 			race = ((Literal<Cat.Type>) exprs[0]).getSingle();
 		return true;

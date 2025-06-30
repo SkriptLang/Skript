@@ -24,8 +24,8 @@ public class StriderData extends EntityData<Strider> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		shivering = Kleenean.get(matchedPattern - 1);
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		shivering = Kleenean.get(matchedCodeName - 1);
 		return true;
 	}
 

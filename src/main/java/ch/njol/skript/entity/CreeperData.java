@@ -17,8 +17,8 @@ public class CreeperData extends EntityData<Creeper> {
 	private int powered = 0;
 	
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		powered = matchedPattern - 1;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		powered = matchedCodeName - 1;
 		return true;
 	}
 	

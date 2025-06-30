@@ -1,10 +1,5 @@
 package ch.njol.skript.entity;
 
-import java.util.Arrays;
-
-import org.bukkit.entity.Sheep;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -14,6 +9,10 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Sheep;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 /**
  * @author Peter Güttinger
@@ -29,8 +28,8 @@ public class SheepData extends EntityData<Sheep> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		sheared = matchedPattern - 1;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		sheared = matchedCodeName - 1;
 		if (exprs[0] != null)
 			colors = ((Literal<Color>) exprs[0]).getAll();
 		return true;

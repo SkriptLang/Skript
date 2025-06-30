@@ -1,17 +1,15 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.bukkitutil.BukkitUtils;
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Color;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Wolf;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Color;
 
 import java.util.Objects;
 
@@ -40,11 +38,12 @@ public class WolfData extends EntityData<Wolf> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern <= 2)
-			angry = matchedPattern - 1;
-		else
-			tamed = matchedPattern == 3 ? -1 : 1;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName <= 2) {
+			angry = matchedCodeName - 1;
+		} else {
+			tamed = matchedCodeName == 3 ? -1 : 1;
+		}
 		if (exprs[0] != null && variantsEnabled)
 			variant = ((Literal<Wolf.Variant>) exprs[0]).getSingle();
 		if (exprs[1] != null)

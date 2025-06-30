@@ -34,9 +34,9 @@ public class SalmonData extends EntityData<Salmon> {
 	private @Nullable Object variant;
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern > 1)
-			variant = variants[matchedPattern - 2];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName > 1)
+			variant = variants[matchedCodeName - 2];
 		return true;
 	}
 
@@ -57,7 +57,7 @@ public class SalmonData extends EntityData<Salmon> {
 
 	@Override
 	protected boolean match(Salmon entity) {
-		return matchedPattern <= 1 || variant == entity.getVariant();
+		return matchedCodeName <= 1 || variant == entity.getVariant();
 	}
 
 	@Override
@@ -72,14 +72,14 @@ public class SalmonData extends EntityData<Salmon> {
 
 	@Override
 	protected int hashCode_i() {
-		return matchedPattern <= 1 ? 0 : matchedPattern;
+		return matchedCodeName <= 1 ? 0 : matchedCodeName;
 	}
 
 	@Override
 	protected boolean equals_i(EntityData<?> obj) {
 		if (!(obj instanceof SalmonData salmonData))
 			return false;
-		if (matchedPattern > 1 && variant != salmonData.variant)
+		if (matchedCodeName > 1 && variant != salmonData.variant)
 			return false;
 		return true;
 	}
@@ -87,7 +87,7 @@ public class SalmonData extends EntityData<Salmon> {
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entity) {
 		if (entity instanceof SalmonData salmonData)
-			return matchedPattern <= 1 || variant == salmonData.variant;
+			return matchedCodeName <= 1 || variant == salmonData.variant;
 		return false;
 	}
 

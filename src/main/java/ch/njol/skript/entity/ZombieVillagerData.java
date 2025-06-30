@@ -33,13 +33,13 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	
 	public ZombieVillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		super.matchedPattern = profession != null ? professions.indexOf(profession) + 1 : 0;
+		super.matchedCodeName = profession != null ? professions.indexOf(profession) + 1 : 0;
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern > 0)
-			profession = professions.get(matchedPattern - 1);
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName > 0)
+			profession = professions.get(matchedCodeName - 1);
 		return true;
 	}
 	

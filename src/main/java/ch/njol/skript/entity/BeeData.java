@@ -1,13 +1,12 @@
 package ch.njol.skript.entity;
 
-import java.util.Random;
-
-import org.bukkit.entity.Bee;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import org.bukkit.entity.Bee;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
 
 public class BeeData extends EntityData<Bee> {
 	
@@ -22,15 +21,17 @@ public class BeeData extends EntityData<Bee> {
 	private int angry = 0;
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern > 3)
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName > 3) {
 			angry = 1;
-		else if (matchedPattern < 2)
+		} else if (matchedCodeName < 2) {
 			angry = -1;
-		if (matchedPattern == 3 || matchedPattern == 5)
+		}
+		if (matchedCodeName == 3 || matchedCodeName == 5) {
 			nectar = 1;
-		else if (matchedPattern < 2)
+		} else if (matchedCodeName < 2) {
 			nectar = -1;
+		}
 		return true;
 	}
 	

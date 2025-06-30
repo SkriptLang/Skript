@@ -22,12 +22,12 @@ public class RabbitData extends EntityData<Rabbit> {
     
     public RabbitData(int type) {
     	this.type = type;
-    	super.matchedPattern = type;
+    	super.matchedCodeName = type;
 	}
 
     @Override
-    protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-        type = matchedPattern;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+        type = matchedCodeName;
         return true;
     }
 

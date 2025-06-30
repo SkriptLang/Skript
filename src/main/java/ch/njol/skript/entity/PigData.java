@@ -41,8 +41,8 @@ public class PigData extends EntityData<Pig> {
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		saddled = SADDLE_STATES[matchedPattern];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		saddled = SADDLE_STATES[matchedCodeName];
 		if (exprs[0] != null && variantsEnabled)
 			//noinspection unchecked
 			variant = ((Literal<Pig.Variant>) exprs[0]).getSingle();

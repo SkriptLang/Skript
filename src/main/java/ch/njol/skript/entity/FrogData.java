@@ -2,7 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
 import org.jetbrains.annotations.Nullable;
@@ -26,18 +26,18 @@ public class FrogData extends EntityData<Frog> {
 
 	public FrogData(@Nullable Variant variant) {
 		this.variant = variant;
-		matchedPattern = 0;
+		matchedCodeName = 0;
 		if (variant == Variant.TEMPERATE)
-			matchedPattern = 1;
+			matchedCodeName = 1;
 		if (variant == Variant.WARM)
-			matchedPattern = 2;
+			matchedCodeName = 2;
 		if (variant == Variant.COLD)
-			matchedPattern = 3;
+			matchedCodeName = 3;
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		switch (matchedPattern) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		switch (matchedCodeName) {
 			case 1:
 				variant = Variant.TEMPERATE;
 				break;

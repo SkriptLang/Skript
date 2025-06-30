@@ -35,7 +35,7 @@ public class EndermanData extends EntityData<Enderman> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		if (exprs[0] != null)
 			hand = ((Literal<ItemType>) exprs[0]).getAll();
 		return true;

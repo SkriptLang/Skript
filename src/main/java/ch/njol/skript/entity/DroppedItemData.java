@@ -1,16 +1,6 @@
 package ch.njol.skript.entity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.function.Consumer;
-
 import ch.njol.skript.Skript;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Item;
-import org.bukkit.inventory.ItemStack;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -19,7 +9,16 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class DroppedItemData extends EntityData<Item> {
 
@@ -45,9 +44,9 @@ public class DroppedItemData extends EntityData<Item> {
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-		if (expressions.length > 0 && expressions[0] != null) {
-			types = (ItemType[]) expressions[0].getAll();
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (exprs.length > 0 && exprs[0] != null) {
+			types = (ItemType[]) exprs[0].getAll();
 			for (ItemType type : types) {
 				if (!type.getMaterial().isItem()) {
 					Skript.error("'" + type + "' cannot represent a dropped item");

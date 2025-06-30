@@ -2,8 +2,6 @@ package ch.njol.skript.localization;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
-import ch.njol.skript.config.EntryNode;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Version;
@@ -43,9 +41,10 @@ public class Language {
 	 */
 	private static String name = "english";
 
-	private static final Map<String, Node> defaultLanguage = new HashMap<>();
+	private static final HashMap<String, String> defaultLanguage = new HashMap<>();
 
-	private static @Nullable Map<String, Node> localizedLanguage = null;
+	@Nullable
+	private static HashMap<String, String> localizedLanguage = null;
 	
 	private static final HashMap<String, Version> langVersion = new HashMap<>();
 	
@@ -53,36 +52,19 @@ public class Language {
 		return name;
 	}
 
-	private static @Nullable String getEntryNodeValue(Map<String, Node> map, String key) {
-		if (!map.containsKey(key))
-			return null;
-		Node node = map.get(key);
-		if (node instanceof EntryNode entryNode)
-			return entryNode.getValue();
-		return null;
-	}
-
-	private static @Nullable String get_i(String key) {
+	@Nullable
+	private static String get_i(String key) {
 		String value;
-		if ((value = getEntryNodeValue(defaultLanguage, key)) != null) {
+		if ((value = defaultLanguage.get(key)) != null) {
 			return value;
 		}
 
-		if (localizedLanguage != null && (value = getEntryNodeValue(localizedLanguage, key)) != null) {
+		if (localizedLanguage != null && (value = localizedLanguage.get(key)) != null) {
 			return value;
 		}
 
 		if (Skript.testing())
 			missingEntryError(key);
-		return null;
-	}
-
-	private static @Nullable Node getNode_i(String key) {
-		if (defaultLanguage.containsKey(key)) {
-			return defaultLanguage.get(key);
-		} else if (localizedLanguage != null && localizedLanguage.containsKey(key))  {
-			return localizedLanguage.get(key);
-		}
 		return null;
 	}
 
@@ -104,12 +86,9 @@ public class Language {
 	 * @param key The message's key (case-insensitive)
 	 * @return The requested message or null if it doesn't exist
 	 */
-	public static @Nullable String get_(String key) {
+	@Nullable
+	public static String get_(String key) {
 		return get_i("" + key.toLowerCase(Locale.ENGLISH));
-	}
-
-	public static @Nullable Node getNode(String key) {
-		return getNode_i(key);
 	}
 
 	public static void missingEntryError(String key) {
@@ -231,10 +210,10 @@ public class Language {
 				}
 			}
 
-			Map<String, Node> def = load(defaultLangIs, "default", false);
-			Map<String, Node> en = load(englishLangIs, "english", addon instanceof org.skriptlang.skript.Skript);
+			Map<String, String> def = load(defaultLangIs, "default", false);
+			Map<String, String> en = load(englishLangIs, "english", addon instanceof org.skriptlang.skript.Skript);
 
-			String v = ((EntryNode) def.get("version")).getValue();
+			String v = def.get("version");
 			if (v == null)
 				Skript.warning("Missing version in default.lang");
 
@@ -298,7 +277,7 @@ public class Language {
 			}
 		}
 
-		Map<String, Node> l;
+		Map<String, String> l;
 		try (InputStream is = source.getResourceAsStream("/" + languageFileDirectory + "/" + name + ".lang")) {
 			l = load(is, name, tryUpdate);
 		} catch (IOException e) {
@@ -322,7 +301,7 @@ public class Language {
 			Skript.error(addon + "'s language file " + name + ".lang does not provide a version number!");
 		} else {
 			try {
-				Version v = new Version("" + getEntryNodeValue(l, "version"));
+				Version v = new Version("" + l.get("version"));
 				Version lv = langVersion.get(addon.name());
 				assert lv != null; // set in loadDefault()
 				if (v.isSmallerThan(lv))
@@ -333,14 +312,14 @@ public class Language {
 		}
 		l.remove("version");
 		if (localizedLanguage != null) {
-			for (Map.Entry<String, Node> entry : l.entrySet()) {
+			for (Map.Entry<String, String> entry : l.entrySet()) {
 				String key = entry.getKey();
-				Node node = entry.getValue();
+				String value = entry.getValue();
 				if (defaultLanguage.containsKey(key)) {
 					Skript.warning("'" + key + "' is part of the default language file, " +
 						"and can therefore not be modified in a localized language file.");
 				} else {
-					localizedLanguage.put(key, node);
+					localizedLanguage.put(key, value);
 				}
 			}
 		} else {
@@ -349,7 +328,7 @@ public class Language {
 		return true;
 	}
 	
-	private static Map<String, Node> load(@Nullable InputStream in, String name, boolean tryUpdate) {
+	private static Map<String, String> load(@Nullable InputStream in, String name, boolean tryUpdate) {
 		if (in == null)
 			return new HashMap<>();
 
@@ -381,7 +360,7 @@ public class Language {
 				}
 			}
 
-			return langConfig.toKeyNodeMap(".");
+			return langConfig.toMap(".");
 		} catch (IOException e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Could not load the language file '" + name + ".lang': " + ExceptionUtils.toString(e));

@@ -80,13 +80,13 @@ public class DisplayData extends EntityData<Display> {
 
 	public DisplayData(DisplayType type) {
 		this.type = type;
-		this.matchedPattern = type.ordinal();
+		this.matchedCodeName = type.ordinal();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		type = DisplayType.values()[matchedPattern];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		type = DisplayType.values()[matchedCodeName];
 		// default to 0, use 1 for alternate pattern: %x% display instead of display of %x%
 		if (exprs.length == 0 || exprs[0] == null)
 			return true;

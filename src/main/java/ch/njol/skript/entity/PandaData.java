@@ -29,7 +29,7 @@ public class PandaData extends EntityData<Panda> {
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		if (exprs[0] != null)
 			mainGene = (Gene) exprs[0].getSingle();
 		if (exprs[1] != null)

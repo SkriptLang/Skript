@@ -33,16 +33,16 @@ public class LlamaData extends EntityData<Llama> {
 	public LlamaData(@Nullable Color color, boolean isTrader) {
 		this.color = color;
 		this.isTrader = isTrader;
-		super.matchedPattern = (color != null ? (color.ordinal() + 1) : 0) + (isTrader ? 5 : 0);
+		super.matchedCodeName = (color != null ? (color.ordinal() + 1) : 0) + (isTrader ? 5 : 0);
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		isTrader = TRADER_SUPPORT && matchedPattern > 4;
-		if (TRADER_SUPPORT && matchedPattern > 5) {
-			color = Color.values()[matchedPattern - 6];
-		} else if (matchedPattern > 0 && matchedPattern < 5) {
-			color = Color.values()[matchedPattern - 1];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		isTrader = TRADER_SUPPORT && matchedCodeName > 4;
+		if (TRADER_SUPPORT && matchedCodeName > 5) {
+			color = Color.values()[matchedCodeName - 6];
+		} else if (matchedCodeName > 0 && matchedCodeName < 5) {
+			color = Color.values()[matchedCodeName - 1];
 		}
 		
 		return true;

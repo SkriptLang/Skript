@@ -8,14 +8,16 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.MultiPatternedSyntaxInfo;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Adjective;
+import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
+import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
@@ -42,8 +44,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -185,7 +189,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
-	private final static class EntityDataInfo<T extends EntityData<?>> extends MultiPatternedSyntaxInfo<T> {
+	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
 
 		final String codeName;
 		final String[] codeNames;
@@ -193,6 +197,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final @Nullable EntityType entityType;
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
+		private String[] patterns;
+		private final Map<String, Integer> codeNamePlacements = new HashMap<>();
+		private final Map<Integer, String> matchedPatternToCodeName = new HashMap<>();
+		private final Map<Integer, Integer> matchedPatternToActualPattern = new HashMap<>();
 
 		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
 			this(dataClass, codeName, codeNames, defaultName, EntityUtils.toBukkitEntityType(entityClass), entityClass);
@@ -206,7 +214,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			@Nullable EntityType entityType,
 			Class<? extends Entity> entityClass
 		) {
-			super(dataClass, codeNames, LANGUAGE_NODE, LanguageListenerPriority.LATEST);
+			super(new String[codeNames.length], dataClass, dataClass.getName());
 			assert codeName != null && entityClass != null && codeNames.length > 0;
 			this.codeName = codeName;
 			this.codeNames = codeNames;
@@ -217,12 +225,72 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			for (int i = 0; i < codeNames.length; i++) {
 				assert codeNames[i] != null;
 				names[i] = new Noun(LANGUAGE_NODE + "." + codeNames[i] + ".name");
+				codeNamePlacements.put(codeNames[i], i);
 			}
+
+			Language.addListener(this, LanguageListenerPriority.LATEST);
 		}
 
 		@Override
-		public String patternChanger(String pattern) {
-			return pattern.replace("<age>", m_age_pattern.toString());
+		public void onLanguageChange() {
+			List<String> allPatterns = new ArrayList<>();
+			matchedPatternToCodeName.clear();
+			matchedPatternToActualPattern.clear();
+			for (String codeName : codeNames) {
+				if (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".pattern")) {
+					String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".pattern")
+						.replace("<age>", m_age_pattern.toString());
+					matchedPatternToCodeName.put(allPatterns.size(), codeName);
+					matchedPatternToActualPattern.put(allPatterns.size(), 0);
+					allPatterns.add(pattern);
+				}
+				if (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns.0")) {
+					int multiCount = 0;
+					while (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)) {
+						String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)
+							.replace("<age>", m_age_pattern.toString());
+						// correlates '#init.matchedPattern' to 'codeName'
+						matchedPatternToCodeName.put(allPatterns.size(), codeName);
+						// correlates '#init.matchedPattern' to actual pattern
+						matchedPatternToActualPattern.put(allPatterns.size(), multiCount);
+						allPatterns.add(pattern);
+						multiCount++;
+					}
+				}
+			}
+			patterns = allPatterns.toArray(String[]::new);
+		}
+
+		@Override
+		public String[] getPatterns() {
+			return Arrays.copyOf(patterns, patterns.length);
+		}
+
+		/**
+		 * Gets the {@code codeName} corresponding to the {@code matchedPattern} in {@link #init(Expression[], int, Kleenean, ParseResult)}.
+		 * @param matchedPattern The placement of the pattern used.
+		 * @return The corresponding {@code codeName}.
+		 */
+		public String getCodeNameFromPattern(int matchedPattern) {
+			return matchedPatternToCodeName.get(matchedPattern);
+		}
+
+		/**
+		 * Gets the corresponding placement of {@code codeName}.
+		 * @param codeName The code name.
+		 * @return The placement.
+		 */
+		public int getCodeNamePlacement(String codeName) {
+			return codeNamePlacements.get(codeName);
+		}
+
+		/**
+		 * Gets the actual matched pattern from {@code matchedPattern} in {@link #init(Expression[], int, Kleenean, ParseResult)}.
+		 * @param matchedPattern The placement of the pattern used
+		 * @return The actual placement.
+		 */
+		public int getActualMatchedPattern(int matchedPattern) {
+			return matchedPatternToActualPattern.get(matchedPattern);
 		}
 
 		@Override
@@ -269,7 +337,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	transient EntityDataInfo<?> info;
-	protected int matchedPattern = 0;
+	protected int matchedCodeName = 0;
 	private Kleenean plural = Kleenean.UNKNOWN;
 	private Kleenean baby = Kleenean.UNKNOWN;
 
@@ -277,7 +345,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		for (EntityDataInfo<?> info : infos) {
 			if (getClass() == info.getElementClass()) {
 				this.info = info;
-				matchedPattern = info.defaultName;
+				matchedCodeName = info.defaultName;
 				return;
 			}
 		}
@@ -286,13 +354,38 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@Override
 	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.matchedPattern = matchedPattern;
 		this.plural = parseResult.hasTag("unknown_plural") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("plural"));
 		this.baby = parseResult.hasTag("unknown_age") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("baby"));
-		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedPattern, parseResult);
+		String codeName = info.getCodeNameFromPattern(matchedPattern);
+		int matchedCodeName = info.getCodeNamePlacement(codeName);
+		int actualPattern = info.getActualMatchedPattern(matchedPattern);
+		this.matchedCodeName = matchedCodeName;
+		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedCodeName, actualPattern, parseResult);
 	}
 
-	protected abstract boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult);
+	/**
+	 * Initializes this {@link EntityData}.
+	 * <p>
+	 *     As of Skript INSERT VERSION, code names can have multiple patterns registered in the default.lang file.
+	 *     {@code matchedCodeName} will be the index of the code name the matched pattern is linked to.
+	 *     		(e.g. {@link PigData} "unsaddled pig' = 0, "pig" = 1, "saddled pig" = 2)
+	 *     {@code matchedPattern} will be the index of the pattern used from the patterns of the code name in the lang file.
+	 * </p>
+	 *
+	 * @param exprs An arraay of {@link Literal} expressions from the matched pattern, in the order they appear.
+	 *              If an optional value was omitted by the user, it will still be present in the array
+	 *              with a value of {@code null}.
+	 * @param matchedCodeName The index of the code name which matched.
+	 * @param matchedPattern The index of the pattern of the code name which matched.
+	 * @param parseResult Additional information from the parser.
+	 * @return {@code true} if initialization was successful, otherwise {@code false}.
+	 */
+	protected abstract boolean init(
+		Literal<?>[] exprs,
+		int matchedCodeName,
+		int matchedPattern,
+		ParseResult parseResult
+	);
 
 	/**
 	 * @param entityClass An entity's class, e.g. Player
@@ -321,7 +414,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@SuppressWarnings("null")
 	protected Noun getName() {
-		return info.names[matchedPattern];
+		return info.names[matchedCodeName];
 	}
 
 	protected @Nullable Adjective getAgeAdjective() {
@@ -330,7 +423,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@SuppressWarnings("null")
 	public String toString(int flags) {
-		Noun name = info.names[matchedPattern];
+		Noun name = info.names[matchedCodeName];
 		return baby.isTrue() ? m_baby.toString(name, flags) : baby.isFalse() ? m_adult.toString(name, flags) : name.toString(flags);
 	}
 
@@ -350,7 +443,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		int result = 1;
 		result = prime * result + baby.hashCode();
 		result = prime * result + plural.hashCode();
-		result = prime * result + matchedPattern;
+		result = prime * result + matchedCodeName;
 		result = prime * result + info.hashCode();
 		result = prime * result + hashCode_i();
 		return result;
@@ -370,7 +463,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			return false;
 		if (plural != other.plural)
 			return false;
-		if (matchedPattern != other.matchedPattern)
+		if (matchedCodeName != other.matchedCodeName)
 			return false;
 		if (!info.equals(other.info))
 			return false;

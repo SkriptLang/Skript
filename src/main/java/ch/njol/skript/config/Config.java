@@ -379,10 +379,6 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 		return main.toMap("", separator);
 	}
 
-	public Map<String, Node> toKeyNodeMap(String separator) {
-		return main.toKeyNodeMap("", separator);
-	}
-
 	public boolean validate(SectionValidator validator) {
 		return validator.validate(getMainNode());
 	}

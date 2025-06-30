@@ -1,7 +1,9 @@
 package ch.njol.skript.entity;
 
-import java.util.ArrayList;
-
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.variables.Variables;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
@@ -12,10 +14,7 @@ import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.entity.minecart.StorageMinecart;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.Variables;
+import java.util.ArrayList;
 
 /**
  * @author Peter Güttinger
@@ -70,13 +69,12 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	public MinecartData(final MinecartType type) {
 		this.type = type;
-		this.matchedPattern = type.ordinal();
+		this.matchedCodeName = type.ordinal();
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		type = MinecartType.values()[matchedPattern];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		type = MinecartType.values()[matchedCodeName];
 		return true;
 	}
 	

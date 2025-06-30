@@ -1,18 +1,6 @@
 package ch.njol.skript.entity;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
-
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.LingeringPotion;
-import org.bukkit.entity.ThrownPotion;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,8 +8,18 @@ import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.LingeringPotion;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class ThrownPotionData extends EntityData<ThrownPotion> {
 	static {
@@ -42,7 +40,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	private ItemType[] types;
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null) {
 			return (types = Converters.convert((ItemType[]) exprs[0].getAll(), ItemType.class, t -> {
 				// If the itemtype is a potion, lets make it a splash potion (required by Bukkit)

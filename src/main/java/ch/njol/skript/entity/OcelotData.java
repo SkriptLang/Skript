@@ -26,8 +26,8 @@ public class OcelotData extends EntityData<Ocelot> {
 	int tamed = 0;
 	
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		tamed = TAMEABLE ? matchedPattern - 1 : 0;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		tamed = TAMEABLE ? matchedCodeName - 1 : 0;
 		return true;
 	}
 	

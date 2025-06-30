@@ -23,13 +23,13 @@ public class FoxData extends EntityData<Fox> {
 	
 	public FoxData(@Nullable Type type) {
 		this.type = type;
-		super.matchedPattern = type == Type.SNOW ? 2 : 1;
+		super.matchedCodeName = type == Type.SNOW ? 2 : 1;
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern > 0)
-			type = Type.values()[matchedPattern - 1];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName > 0)
+			type = Type.values()[matchedCodeName - 1];
 		return true;
 	}
 	

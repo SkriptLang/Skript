@@ -243,10 +243,7 @@ public class SkriptParser {
 							if (!checkExperimentalSyntax(element))
 								continue;
 
-							int actualPatternIndex = patternIndex;
-							if (info instanceof MultiPatternedSyntaxInfo<?> multiInfo)
-								actualPatternIndex = multiInfo.getPatternIndex(pattern);
-							boolean success = element.preInit() && element.init(parseResult.exprs, actualPatternIndex, getParser().getHasDelayBefore(), parseResult);
+							boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
 								log.printLog();
 								return element;

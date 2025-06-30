@@ -23,13 +23,13 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	public AxolotlData(@Nullable Variant variant) {
 		this.variant = variant;
-		matchedPattern = variant != null ? variant.ordinal() + 1 : 0;
+		matchedCodeName = variant != null ? variant.ordinal() + 1 : 0;
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern > 0)
-			variant = Variant.values()[matchedPattern - 1];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName > 0)
+			variant = Variant.values()[matchedCodeName - 1];
 		return true;
 	}
 

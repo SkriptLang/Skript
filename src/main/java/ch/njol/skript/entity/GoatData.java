@@ -23,27 +23,27 @@ public class GoatData extends EntityData<Goat> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		screaming = matchedPattern;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		screaming = matchedCodeName;
 		return true;
 	}
 
 	@Override
 	protected boolean init(@Nullable Class<? extends Goat> c, @Nullable Goat goat) {
-		if (goat != null && matchedPattern > 0)
-			goat.setScreaming(matchedPattern == 1);
+		if (goat != null && matchedCodeName > 0)
+			goat.setScreaming(matchedCodeName == 1);
 		return true;
 	}
 
 	@Override
 	public void set(Goat entity) {
-		if (matchedPattern > 0)
+		if (matchedCodeName > 0)
 			entity.setScreaming(screaming == 1);
 	}
 
 	@Override
 	protected boolean match(Goat entity) {
-		if (matchedPattern > 0)
+		if (matchedCodeName > 0)
 			return entity.isScreaming() ? screaming == 1 : screaming == 2;
 		return true;
 	}

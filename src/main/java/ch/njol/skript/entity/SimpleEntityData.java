@@ -274,7 +274,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	private SimpleEntityData(SimpleEntityDataInfo info) {
 		assert info != null;
 		this.info = info;
-		matchedPattern = types.indexOf(info);
+		matchedCodeName = types.indexOf(info);
 	}
 	
 	public SimpleEntityData(Class<? extends Entity> entityClass) {
@@ -293,7 +293,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.info = closestInfo;
-			this.matchedPattern = closestPattern;
+			this.matchedCodeName = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();
@@ -314,16 +314,16 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.info = closestInfo;
-			this.matchedPattern = closestPattern;
+			this.matchedCodeName = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		info = types.get(matchedPattern);
-		assert info != null : matchedPattern;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		info = types.get(matchedCodeName);
+		assert info != null : matchedCodeName;
 		return true;
 	}
 	

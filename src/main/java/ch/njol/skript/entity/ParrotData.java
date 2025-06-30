@@ -1,14 +1,13 @@
 package ch.njol.skript.entity;
 
-import java.util.concurrent.ThreadLocalRandom;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Parrot.Variant;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ParrotData extends EntityData<Parrot> {
 	
@@ -34,15 +33,15 @@ public class ParrotData extends EntityData<Parrot> {
 	
 	public ParrotData(int variant) {
 		this.variant = variant;
-		super.matchedPattern = variant + 1;
+		super.matchedCodeName = variant + 1;
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern == 0) { // Just a parrot, variant -1 to request random variant on spawn
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName == 0) { // Just a parrot, variant -1 to request random variant on spawn
 			variant = -1;
 		} else { // Specific variant was given
-			variant = matchedPattern - 1; // Patterns begin from 1, enum elements from 0
+			variant = matchedCodeName - 1; // Patterns begin from 1, enum elements from 0
 		}
 		return true;
 	}

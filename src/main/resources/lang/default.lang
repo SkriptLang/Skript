@@ -605,43 +605,69 @@ entities:
 		pattern: fish[plural:es]
 	tropical fish:
 		name: tropical fish¦es
-		pattern: [(%-color%[-%-color%]|fully %-color%)] tropical fish[plural:es]
+		patterns:
+			0: [%-color%[-%-color%]] tropical fish[plural:es]
+			1: fully %-color% tropical fish[plural:es]
 	kob:
 		name: kob¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] kob[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] kob[plural:s]
+			1: fully %-color% kob[plural:s]
 	sunstreak:
 		name: sunstreak¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] sunstreak[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] sunstreak[plural:s]
+			1: fully %-color% sunstreak[plural:s]
 	snooper:
 		name: snooper¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] snooper[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] snooper[plural:s]
+			1: fully %-color% snooper[plural:s]
 	dasher:
 		name: dasher¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] dasher[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] dasher[plural:s]
+			1: fully %-color% dasher[plural:s]
 	brinely:
 		name: brinely¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] brinely[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] brinely[plural:s]
+			1: fully %-color% brinely[plural:s]
 	spotty:
 		name: spotty¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] spotty[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] spotty[plural:s]
+			1: fully %-color% spotty[plural:s]
 	flopper:
 		name: flopper¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] flopper[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] flopper[plural:s]
+			1: fully %-color% flopper[plural:s]
 	stripey:
 		name: stripey¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] stripey[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] stripey[plural:s]
+			1: fully %-color% stripey[plural:s]
 	glitter:
 		name: glitter¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] glitter[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] glitter[plural:s]
+			1: fully %-color% glitter[plural:s]
 	blockfish:
 		name: blockfish¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] blockfish[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] blockfish[plural:[e]s]
+			1: fully %-color% blockfish[plural:[e]s]
 	betty:
 		name: betty¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] betty[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] betty[plural:s]
+			1: fully %-color% betty[plural:s]
 	clayfish:
 		name: clayfish¦s
-		pattern: [(%-color%[-%-color%]|fully %-color%)] clayfish[plural:s]
+		patterns:
+			0: [%-color%[-%-color%]] clayfish[plural:[e]s]
+			1: fully %-color% clayfish[plural:[e]s]
 	ghast:
 		name: ghast¦s
 		pattern: ghast[plural:s]

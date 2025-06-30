@@ -39,13 +39,13 @@ public class VillagerData extends EntityData<Villager> {
 	
 	public VillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		this.matchedPattern = profession != null ? professions.indexOf(profession) + 1 : 0;
+		this.matchedCodeName = profession != null ? professions.indexOf(profession) + 1 : 0;
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (matchedPattern > 0)
-			profession = professions.get(matchedPattern - 1);
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedCodeName > 0)
+			profession = professions.get(matchedCodeName - 1);
 		return true;
 	}
 	
