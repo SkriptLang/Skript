@@ -14,8 +14,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -93,17 +98,23 @@ public class Environment {
 			return source;
 		}
 
-		private void generateSource() throws IOException {
+		private void generateSource() throws IOException, InterruptedException {
 			if (source != null)
 				return;
 
-			String stringUrl = "https://fill.papermc.io/v3/projects/paper/versions/" + version;
-			URL url = new URL(stringUrl);
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version))
+				.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
+				.GET()
+				.build();
+
+			HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
 			JsonObject jsonObject;
-			try (InputStream is = url.openStream()) {
-				InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+			try {
+				InputStreamReader reader =  new InputStreamReader(response.body(), StandardCharsets.UTF_8);
 				jsonObject = gson.fromJson(reader, JsonObject.class);
-			}
+			} finally {}
 
 			JsonArray jsonArray = jsonObject.get("builds").getAsJsonArray();
 
@@ -118,14 +129,20 @@ public class Environment {
 			if (latestBuild == -1)
 				throw new IllegalStateException("No builds for this version");
 
-			String buildString = "https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/" + latestBuild;
-			URL buildURL = new URL(buildString);
+			HttpRequest buildRequest = HttpRequest.newBuilder()
+				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/" + latestBuild))
+				.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
+				.GET()
+				.build();
+			HttpResponse<InputStream> buildResponse = client.send(buildRequest, BodyHandlers.ofInputStream());
 			JsonObject buildObject;
-			try (InputStream inputStream = buildURL.openStream()) {
-				InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+			try  {
+				InputStreamReader reader = new InputStreamReader(buildResponse.body(), StandardCharsets.UTF_8);
 				buildObject = gson.fromJson(reader, JsonObject.class);
-			}
-			String downloadURL = buildObject.get("downloads").getAsJsonObject().get("server:default").getAsJsonObject().get("url").getAsString();
+			} finally {}
+			String downloadURL = buildObject.getAsJsonObject("downloads")
+				.getAsJsonObject("server:default")
+				.get("url").getAsString();
 			assert downloadURL != null && !downloadURL.isEmpty();
 			source = downloadURL;
 		}
