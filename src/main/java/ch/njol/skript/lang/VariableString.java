@@ -590,6 +590,9 @@ public class VariableString implements Expression<String> {
 				typeHints.forEach(builder -> builder.append(object));
 				continue;
 			}
+			if (hintIndex >= savedHints.length) {
+				break;
+			}
 			StringBuilder[] current = typeHints.toArray(new StringBuilder[0]);
 			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(savedHints[hintIndex])) {
 				for (StringBuilder builder : current) {

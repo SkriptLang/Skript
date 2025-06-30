@@ -1,13 +1,8 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -15,30 +10,30 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Push")
 @Description("Push entities around.")
-@Examples({"push the player upwards",
-		"push the victim downwards at speed 0.5"})
+@Example("push the player upwards")
+@Example("push the victim downwards at speed 0.5")
+@Example("push player along vector from player to player's target at speed 2")
 @Since("1.4.6")
 public class EffPush extends Effect {
+
 	static {
-		Skript.registerEffect(EffPush.class, "(push|thrust) %entities% %direction% [(at|with) (speed|velocity|force) %-number%]");
+		Skript.registerEffect(EffPush.class, "(push|thrust) %entities% [along] %direction% [(at|with) (speed|velocity|force) %-number%]");
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<Entity> entities;
-	@SuppressWarnings("null")
 	private Expression<Direction> direction;
-	@Nullable
-	private Expression<Number> speed = null;
+	private @Nullable Expression<Number> speed = null;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<Entity>) exprs[0];
 		direction = (Expression<Direction>) exprs[1];
 		speed = (Expression<Number>) exprs[2];
@@ -46,30 +41,30 @@ public class EffPush extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final Direction d = direction.getSingle(e);
-		if (d == null)
+	protected void execute(Event event) {
+		Direction direction = this.direction.getSingle(event);
+		if (direction == null)
 			return;
-		final Number v = speed != null ? speed.getSingle(e) : null;
-		if (speed != null && v == null)
+		Number speed = this.speed != null ? this.speed.getSingle(event) : null;
+		if (this.speed != null && speed == null)
 			return;
-		final Entity[] ents = entities.getArray(e);
-		for (final Entity en : ents) {
-			assert en != null;
-			final Vector mod = d.getDirection(en);
-			if (v != null)
-				mod.normalize().multiply(v.doubleValue());
-			if (!(Double.isFinite(mod.getX()) && Double.isFinite(mod.getY()) && Double.isFinite(mod.getZ()))) {
+		Entity[] entities = this.entities.getArray(event);
+		for (Entity entity : entities) {
+			Vector pushDirection = direction.getDirection(entity);
+			if (speed != null)
+				pushDirection.normalize().multiply(speed.doubleValue());
+			if (!(Double.isFinite(pushDirection.getX()) && Double.isFinite(pushDirection.getY()) && Double.isFinite(pushDirection.getZ()))) {
 				// Some component of the mod vector is not finite, so just stop
 				return;
 			}
-			en.setVelocity(en.getVelocity().add(mod)); // REMIND add NoCheatPlus exception to players
+			entity.setVelocity(entity.getVelocity().add(pushDirection));
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "push " + entities.toString(e, debug) + " " + direction.toString(e, debug) + (speed != null ? " at speed " + speed.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "push " + entities.toString(event, debug) + " " + direction.toString(event, debug) +
+				(speed != null ? " at speed " + speed.toString(event, debug) : "");
 	}
 	
 }

@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 @Name("Replace")
 @Description(
 	"Replaces all occurrences of a given text or regex with another text. Please note that you can only change " +
-		"variables and a few expressions, e.g. a <a href='/expressions.html#ExprMessage'>message</a> or a line of a sign."
+		"variables and a few expressions, e.g. a <a href='/#ExprMessage'>message</a> or a line of a sign."
 )
 @Examples({
 	"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
