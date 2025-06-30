@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Cat;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -57,7 +58,7 @@ public class CatData extends EntityData<Cat> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new CatData();
 	}
 	

@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Tameable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -87,7 +88,7 @@ public class OcelotData extends EntityData<Ocelot> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new OcelotData();
 	}
 	

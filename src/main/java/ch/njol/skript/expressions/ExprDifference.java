@@ -23,7 +23,7 @@ import java.lang.reflect.Array;
 @Name("Difference")
 @Description({
 	"The difference between two values",
-	"Supported types include <a href='./classes.html#number'>numbers</a>, <a href='./classes/#date'>dates</a> and <a href='./classes/#time'>times</a>."
+	"Supported types include <a href='#number'>numbers</a>, <a href='./classes/#date'>dates</a> and <a href='./classes/#time'>times</a>."
 })
 @Examples({
 	"if difference between {command::%player%::lastuse} and now is smaller than a minute:",

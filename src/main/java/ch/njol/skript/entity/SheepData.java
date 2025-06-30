@@ -1,5 +1,11 @@
 package ch.njol.skript.entity;
 
+import java.util.Arrays;
+
+import org.bukkit.entity.Sheep;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -159,7 +165,7 @@ public class SheepData extends EntityData<Sheep> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new SheepData();
 	}
 	

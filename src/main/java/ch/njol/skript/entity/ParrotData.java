@@ -1,5 +1,12 @@
 package ch.njol.skript.entity;
 
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.bukkit.entity.Parrot;
+import org.bukkit.entity.Parrot.Variant;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -83,7 +90,7 @@ public class ParrotData extends EntityData<Parrot> {
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new ParrotData(variant);
 	}
 

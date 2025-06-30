@@ -82,7 +82,7 @@ public class BeeData extends EntityData<Bee> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new BeeData();
 	}
 }

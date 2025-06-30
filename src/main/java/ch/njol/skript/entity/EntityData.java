@@ -44,6 +44,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -352,6 +357,15 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		throw new IllegalStateException();
 	}
 
+	/**
+	 * Performs initial setup for this {@link EntityData} before passing control to the more specific {@link #init(Expression[], int, Kleenean, ParseResult)}.
+	 * <p>
+	 *     This method handles common behaviors such as tracking plurality (e.g. "a pig" vs "all pigs")
+	 *     and entity age (e.g. "baby zombie") based on the {@link ParseResult}'s marker value.
+	 * </p>
+	 *
+	 * {@inheritDoc}
+	 */
 	@Override
 	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.plural = parseResult.hasTag("unknown_plural") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("plural"));
@@ -388,24 +402,67 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	);
 
 	/**
+	 * Initializes this {@link EntityData} from either an entity class or a specific {@link Entity}.
+	 * <p>
+	 *     Example usage:
+	 *     	<pre>
+	 *     	    <code>
+	 *     	        spawn a pig at location(0, 0, 0):
+	 *     	        	set {_entity} to event-entity
+	 *     	        spawn {_entity} at location(0, 0, 0)
+	 *     	    </code>
+	 *     	</pre>
+	 * </p>
 	 * @param entityClass An entity's class, e.g. Player
 	 * @param entity An actual entity, or null to get an entity data for an entity class
-	 * @return Whether initialisation was successful
+	 * @return {@code true} if initialization was successful, otherwise {@code false}.
 	 */
 	protected abstract boolean init(@Nullable Class<? extends E> entityClass, @Nullable E entity);
 
+	/**
+	 * Applies this {@link EntityData} to a newly spawned {@link Entity}.
+	 * <p>
+	 *     This is used during entity spawning to set additional data, such as a saddled pig.
+	 * </p>
+	 * @param entity The spawned entity.
+	 */
 	public abstract void set(E entity);
 
+	/**
+	 * Determines whether the given {@link Entity} matches this {@link EntityData} data.
+	 * <p>
+	 *     For example:
+	 *     <pre>
+	 *         <code>
+	 *             spawn a pig at location(0, 0, 0):
+	 *             		set {_entity} to event-entity
+	 *             	if {_entity} is a pig:          # will pass
+	 *             	if {_entity} is a saddled pig:  # will not pass
+	 *         </code>
+	 *     </pre>
+	 * </p>
+	 * @param entity The {@link Entity} to match.
+	 * @return {@code true} if the entity matches, otherwise {@code false}.
+	 */
 	protected abstract boolean match(E entity);
 
+	/**
+	 * Returns the {@link Class} of the {@link Entity} that this {@link EntityData} represents or handles.
+	 *
+	 * @return The entity's {@link Class}, such as {@code Pig.class}.
+	 */
 	public abstract Class<? extends E> getType();
 
 	/**
-	 * Returns the super type of this entity data, e.g. 'wolf' for 'angry wolf'.
+	 * Returns a more general version of this {@link EntityData} with specific data removed.
+	 * <p>
+	 *     For example, calling this on {@code "a saddled pig"} would return {@code "a pig"}.
+	 *     This is typically used to obtain the base entity type without any modifiers or traits.
+	 * </p>
 	 *
-	 * @return The supertype of this entity data. Must not be null.
+	 * @return A generalized {@link EntityData} representing the base entity type.
 	 */
-	public abstract EntityData getSuperType();
+	public abstract @NotNull EntityData getSuperType();
 
 	@Override
 	public final String toString() {
@@ -427,14 +484,26 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return baby.isTrue() ? m_baby.toString(name, flags) : baby.isFalse() ? m_adult.toString(name, flags) : name.toString(flags);
 	}
 
+	/**
+	 * @return {@link Kleenean} determining whether this {@link EntityData} is representing plurality.
+	 */
 	public Kleenean isPlural() {
 		return plural;
 	}
 
+	/**
+	 * @return {@link Kleenean} determining whether this {@link EntityData} is representing baby type.
+	 */
 	public Kleenean isBaby() {
 		return baby;
 	}
 
+	/**
+	 * Internal method used by {@link #hashCode()} to include subclass-specific fields in the hash calculation
+	 * for this {@link EntityData}.
+	 *
+	 * @return A hash code representing subclass-specific data.
+	 */
 	protected abstract int hashCode_i();
 
 	@Override
@@ -449,6 +518,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return result;
 	}
 
+	/**
+	 * Internal helper for {@link #equals(Object)} to compare the specific data
+	 * of this {@link EntityData} with another.
+	 *
+	 * @param obj The {@link EntityData} to compare with.
+	 * @return {@code true} if the data is considered equal, otherwise {@code false}.
+	 */
 	protected abstract boolean equals_i(EntityData<?> obj);
 
 	@Override
@@ -470,6 +546,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return equals_i(other);
 	}
 
+	/**
+	 * Retrieves the {@link EntityDataInfo} registered for the given {@code entityDataClass}.
+	 *
+	 * @param entityDataClass The {@link EntityData} class to look up.
+	 * @return The corresponding {@link EntityDataInfo} instance.
+	 * @throws SkriptAPIException if the class has not been registered.
+	 */
 	public static EntityDataInfo<?> getInfo(Class<? extends EntityData<?>> entityDataClass) {
 		for (EntityDataInfo<?> info : infos) {
 			if (info.getElementClass() == entityDataClass)
@@ -478,6 +561,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		throw new SkriptAPIException("Unregistered EntityData class " + entityDataClass.getName());
 	}
 
+	/**
+	 * Retrieves the {@link EntityDataInfo} associated with the given {@code codeName}.
+	 *
+	 * @param codeName The code name used to register the entity data.
+	 * @return The corresponding {@link EntityDataInfo}, or {@code null} if not found.
+	 */
 	public static @Nullable EntityDataInfo<?> getInfo(String codeName) {
 		for (EntityDataInfo<?> info : infos) {
 			if (info.codeName.equals(codeName))
@@ -520,11 +609,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	/**
-	 * Check if this entity type can spawn.
-	 * <p>Some entity types may be restricted by experimental datapacks.</p>
+	 * Checks whether this entity type is allowed to spawn in the given {@link World}.
+	 * <p>
+	 *     Some entity types may be restricted from spawning due to experimental datapacks.
+	 * </p>
 	 *
-	 * @param world World to check if entity can spawn in
-	 * @return True if entity can spawn else false
+	 * @param world The world to check spawning permissions in.
+	 * @return {@code true} if the entity can be spawned in the given world, or in general if world is {@code null}; otherwise {@code false}.
 	 */
 	@SuppressWarnings({"removal"})
 	public boolean canSpawn(@Nullable World world) {
@@ -653,6 +744,20 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return list.toArray((E[]) Array.newInstance(type, list.size()));
 	}
 
+	/**
+	 * Internally resolves and returns an {@link EntityData} instance that best represents either
+	 * a given {@link Entity} instance or its {@link Class}.
+	 * <p>
+	 *     Only one of {@code entityClass} or {@code entity} must be non-null.
+	 *     This method looks through all registered {@link EntityDataInfo}s and selects the closest matching one
+	 *     that successfully initializes from the provided input.
+	 * </p>
+	 *
+	 * @param entityClass The class of the entity to represent, or {@code null} if using an instance.
+	 * @param entity      The entity instance to represent, of {@code null} is using a class.
+	 * @return An appropriate {@link EntityData} representing the input class or entity.
+	 * 			If no registered data matches, a {@link SimpleEntityData} is returned as fallback.
+	 */
 	private static <E extends Entity> EntityData<? super E> getData(@Nullable Class<E> entityClass, @Nullable E entity) {
 		assert entityClass == null ^ entity == null;
 		assert entityClass == null || entityClass.isInterface();
@@ -683,10 +788,22 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return closestData;
 	};
 
+	/**
+	 * Creates an {@link EntityData} that represents the given entity class.
+	 *
+	 * @param entityClass The class of the entity (e.g. {@code Pig.class}).
+	 * @return An {@link EntityData} representing the provided class.
+	 */
 	public static <E extends Entity> EntityData<? super E> fromClass(Class<E> entityClass) {
 		return getData(entityClass, null);
 	}
 
+	/**
+	 * Creates an {@link EntityData} that represents the given entity instance.
+	 *
+	 * @param entity The entity to represent.
+	 * @return An {@link EntityData} representing the provided entity.
+	 */
 	public static <E extends Entity> EntityData<? super E> fromEntity(E entity) {
 		return getData(null, entity);
 	}
@@ -716,6 +833,22 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return getType().isInstance(entity) && match((E) entity);
 	}
 
+	/**
+	 * Determines whether this {@link EntityData} is a supertype of the given {@code entityData}.
+	 * <p>
+	 *     This is used to check whether the current entity data represents a broader category than another.
+	 *     For example:
+	 *     <pre>
+	 *         <code>
+	 *             if a zombie is a monster:    # passes: "monster" is a supertype of "zombie"
+	 *             if a monster is a zombie:    # fails: "zombie" is not a supertype of "monster"
+	 *         </code>
+	 *     </pre>
+	 * </p>
+	 *
+	 * @param entityData The {@link EntityData} to compare against.
+	 * @return {@code true} if this is a supertype of the given entity data, otherwise {@code false}.
+	 */
 	public abstract boolean isSupertypeOf(EntityData<?> entityData);
 
 	@Override

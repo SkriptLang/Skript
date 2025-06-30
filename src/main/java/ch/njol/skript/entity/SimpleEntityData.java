@@ -8,6 +8,7 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.entity.boat.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
@@ -191,7 +192,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		if (Skript.isRunningMinecraft(1,21,2)) {
 			addSimpleEntity("creaking", Creaking.class);
-			addSimpleEntity("creaking", Creaking.class);
 			// boats
 			addSimpleEntity("oak boat", OakBoat.class);
 			addSimpleEntity("dark oak boat", DarkOakBoat.class);
@@ -221,6 +221,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSuperEntity("any chest boat", ChestBoat.class);
 		}
 
+		if (Skript.isRunningMinecraft(1, 21, 6))
+			addSimpleEntity("happy ghast", HappyGhast.class);
+
 		// Register zombie after Husk and Drowned to make sure both work
 		addSimpleEntity("zombie", Zombie.class);
 		// Register squid after glow squid to make sure both work
@@ -246,8 +249,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("any fireball", Fireball.class);
 		addSuperEntity("illager", Illager.class);
 		addSuperEntity("spellcaster", Spellcaster.class);
-		if (Skript.classExists("org.bukkit.entity.Raider")) // 1.14
-			addSuperEntity("raider", Raider.class);
+		addSuperEntity("raider", Raider.class);
+		// TODO - remove this when 1.19 support is dropped
 		if (Skript.classExists("org.bukkit.entity.Enemy")) // 1.19.3
 			addSuperEntity("enemy", Enemy.class);
 		if (Skript.classExists("org.bukkit.entity.Display")) // 1.19.4
@@ -421,7 +424,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new SimpleEntityData(info);
 	}
 	

@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import org.bukkit.entity.Fox;
 import org.bukkit.entity.Fox.Type;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -57,7 +58,7 @@ public class FoxData extends EntityData<Fox> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new FoxData(type);
 	}
 	

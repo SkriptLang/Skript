@@ -6,6 +6,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.entity.ZombieVillager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -99,7 +100,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new ZombieVillagerData(profession);
 	}
 

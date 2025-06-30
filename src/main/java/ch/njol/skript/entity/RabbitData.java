@@ -5,6 +5,7 @@ import org.bukkit.entity.Rabbit;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import org.jetbrains.annotations.NotNull;
 
 
 public class RabbitData extends EntityData<Rabbit> {
@@ -55,7 +56,7 @@ public class RabbitData extends EntityData<Rabbit> {
     }
 
     @Override
-    public EntityData getSuperType() {
+    public @NotNull EntityData getSuperType() {
         return new RabbitData(type);
     }
 

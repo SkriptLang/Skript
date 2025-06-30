@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.entity.Panda;
 import org.bukkit.entity.Panda.Gene;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -77,7 +78,7 @@ public class PandaData extends EntityData<Panda> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new PandaData(mainGene, hiddenGene);
 	}
 	

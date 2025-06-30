@@ -5,6 +5,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Axolotl.Variant;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AxolotlData extends EntityData<Axolotl> {
@@ -57,7 +58,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new AxolotlData(variant);
 	}
 
