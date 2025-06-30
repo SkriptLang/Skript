@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class EvtMove extends SkriptEvent {
 
+	// TODO - remove this when Spigot support is dropped
 	private static final boolean HAS_ENTITY_MOVE = Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent");
 
 	static {

@@ -19,7 +19,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 public final class EvtGameMode extends SkriptEvent {
 	static {
 		Skript.registerEvent("Gamemode Change", EvtGameMode.class, PlayerGameModeChangeEvent.class, "game[ ]mode change [to %gamemode%]")
-				.description("Called when a player's <a href='./classes.html#gamemode'>gamemode</a> changes.")
+				.description("Called when a player's <a href='#gamemode'>gamemode</a> changes.")
 				.examples("on gamemode change:", "on gamemode change to adventure:")
 				.since("1.0");
 	}
