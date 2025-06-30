@@ -37,7 +37,7 @@ final class BukkitSyntaxInfosImpl {
 
 		EventImpl(
 			SyntaxInfo<E> defaultInfo, ListeningBehavior listeningBehavior, String name,
-			Collection<String> since, @Nullable String documentationId, Collection<String> description, Collection<String> examples,
+			@Nullable String documentationId, Collection<String> since, Collection<String> description, Collection<String> examples,
 			Collection<String> keywords, Collection<String> requiredPlugins, Collection<Class<? extends org.bukkit.event.Event>> events
 		) {
 			this.defaultInfo = defaultInfo;
@@ -403,7 +403,7 @@ final class BukkitSyntaxInfosImpl {
 			public Event<E> build() {
 				return new EventImpl<>(
 					defaultBuilder.build(), listeningBehavior, name,
-					since, documentationId, description, examples, keywords, requiredPlugins, events
+					documentationId, since, description, examples, keywords, requiredPlugins, events
 				);
 			}
 
