@@ -1331,6 +1331,10 @@ entities:
 	creaking:
 		name: creaking¦s
 		pattern: creaking[plural:s]
+	# 1.21.6 Entities
+	happy ghast:
+		name: happy ghast¦s
+		pattern: <age> happy ghast[plural:s]|baby:[happy] ghastling[plural:s]
 
 # -- Heal Reasons --
 heal reasons:
