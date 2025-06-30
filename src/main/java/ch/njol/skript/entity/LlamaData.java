@@ -37,6 +37,7 @@ public class LlamaData extends EntityData<Llama> {
 		} else if (matchedPattern > 0 && matchedPattern < 5) {
 			color = LLAMA_COLORS[matchedPattern - 1];
 		}
+		// Sets 'matchedPattern' of 'EntityData' for proper 'toString'
 		super.matchedPattern = (color != null ? (color.ordinal() + 1) : 0) + (isTrader ? 5 : 0);
 		return true;
 	}
