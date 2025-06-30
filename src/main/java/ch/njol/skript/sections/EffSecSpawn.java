@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
@@ -22,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 @Name("Spawn")
@@ -104,14 +104,11 @@ public class EffSecSpawn extends EffectSection {
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1 + matchedPattern], (Expression<? extends Location>) exprs[2 + matchedPattern]);
 
 		if (sectionNode != null) {
-			AtomicBoolean delayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(sectionNode, "spawn", afterLoading, SpawnEvent.class);
-			if (delayed.get()) {
-				Skript.error("Delays can't be used within a Spawn Effect Section");
-				return false;
-			}
+			trigger = SectionUtils.loadLinkedCode("spawn", (beforeLoading, afterLoading)
+					-> loadCode(sectionNode, "spawn", beforeLoading, afterLoading, SpawnEvent.class));
+			return trigger != null;
 		}
+
 		return true;
 	}
 

@@ -8,15 +8,9 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This is used to manage local variable type hints.
- * 
- * <ul>
- * <li>EffChange adds then when local variables are set
- * <li>Variable checks them when parser tries to create it
- * <li>ScriptLoader clears hints after each section has been parsed
- * <li>ScriptLoader enters and exists scopes as needed
- * </ul>
+ * @deprecated Use {@link HintManager}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class TypeHints {
 	
 	private static final Deque<Map<String, Class<?>>> typeHints = new ArrayDeque<>();

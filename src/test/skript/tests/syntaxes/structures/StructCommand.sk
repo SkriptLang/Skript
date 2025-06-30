@@ -1,7 +1,3 @@
-test "commands":
-	execute command "skriptcommand taco"
-	execute command "//somecommand burrito is tasty"
-
 options:
 	command: skriptcommand
 
@@ -24,3 +20,28 @@ command //somecommand [<text>]:
 command /commandtest <string="player">:
 	trigger:
 		stop
+
+test "commands":
+	execute command "skriptcommand taco"
+	execute command "//somecommand burrito is tasty"
+
+using local variable type hints
+
+parse:
+	results: {StructCommand::hints::1::*}
+	code:
+		command /hint_test_1 <x:number>:
+			trigger:
+				set {_a} to {_x} in lowercase
+
+parse:
+	results: {StructCommand::hints::2::*}
+	code:
+		command /hint_test_2 <x:numbers>:
+			trigger:
+				set {_a::*} to {_x::*} in lowercase
+
+test "command structure type hints":
+	assert {StructCommand::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::1::*}%)"
+	assert {StructCommand::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructCommand::hints::2::*}%)"
+

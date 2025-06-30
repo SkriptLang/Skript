@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
@@ -120,6 +121,12 @@ public class ExprNode extends PropertyExpression<Node, Node> implements Reflecti
 	@Override
 	public Class<? extends Node> getReturnType() {
 		return Node.class;
+	}
+
+	@Override
+	public Class<? extends Node>[] possibleReturnTypes() {
+		//noinspection unchecked
+		return new Class[]{Node.class, EntryNode.class};
 	}
 
 	@Override

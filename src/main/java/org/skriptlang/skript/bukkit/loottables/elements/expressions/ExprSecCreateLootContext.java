@@ -9,8 +9,11 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
+import ch.njol.skript.variables.HintManager;
+import ch.njol.skript.variables.HintManager.Backup;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -22,6 +25,7 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Name("Create Loot Context")
 @Description("Create a loot context.")
@@ -47,18 +51,16 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean isDelayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
-		if (node != null) {
-			AtomicBoolean delayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());
-			//noinspection unchecked
-			trigger = loadCode(node, "create loot context", afterLoading, LootContextCreateEvent.class);
-			if (delayed.get()) {
-				Skript.error("Delays cannot be used within a 'create loot context' section.");
-				return false;
-			}
-		}
 		//noinspection unchecked
 		location = Direction.combine((Expression<Direction>) exprs[0], (Expression<Location>) exprs[1]);
+
+		if (node != null) {
+			//noinspection unchecked
+			trigger = SectionUtils.loadLinkedCode("create loot context", (beforeLoading, afterLoading)
+					-> loadCode(node, "create loot context", beforeLoading, afterLoading, LootContextCreateEvent.class));
+			return trigger != null;
+		}
+
 		return true;
 	}
 

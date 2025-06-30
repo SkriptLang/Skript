@@ -12,6 +12,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
@@ -30,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 @Name("Shoot")
@@ -190,14 +190,11 @@ public class EffSecShoot extends EffectSection {
 		direction = (Expression<Direction>) exprs[3];
 
 		if (sectionNode != null) {
-			AtomicBoolean delayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(sectionNode, "shoot", afterLoading, ShootEvent.class);
-			if (delayed.get()) {
-				Skript.error("Delays cannot be used within a 'shoot' effect section");
-				return false;
-			}
+			trigger = SectionUtils.loadLinkedCode("shoot", (beforeLoading, afterLoading)
+					-> loadCode(sectionNode, "shoot", beforeLoading, afterLoading, ShootEvent.class));
+			return trigger != null;
 		}
+
 		return true;
 	}
 

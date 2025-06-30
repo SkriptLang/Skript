@@ -217,7 +217,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						} else {
 							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is not of the required type " + p.type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
-								+ " Please note that storing the value in a variable and then using that variable as parameter will suppress this error, but it still won't work.");
+								+ " Please note that storing the value in a variable and then using that variable as parameter may suppress this error, but it still won't work.");
 						}
 					} else {
 						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
