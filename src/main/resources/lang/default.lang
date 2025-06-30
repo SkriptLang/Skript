@@ -546,10 +546,10 @@ entities:
 		pattern: blaze[plural:s]
 	chicken:
 		name: chicken¦s
-		pattern: <age> chicken[plural:s]|baby:chick[plural:s]
+		pattern: <age> [%-chickenvariant%] chicken[plural:s]|baby:[%-chickenvariant%] chick[plural:s]
 	cow:
 		name: cow¦s
-		pattern: <age> cow[plural:s]|baby:cal(f|plural:ves)
+		pattern: <age> [%-cowvariant%] cow[plural:s]|baby:[%-cowvariant%] cal(f|plural:ves)
 	cave spider:
 		name: cave spider¦s
 		pattern: cave[ ]spider[plural:s]
@@ -2600,6 +2600,18 @@ pig variants:
 	temperate: temperate
 	warm: warm
 
+# -- Chicken Variants --
+chicken variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
+# -- Cow Variants --
+cow variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
 # -- Villager Career Change Reasons
 villager career change reasons:
 	employed: employment
@@ -2709,6 +2721,8 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	chickenvariant: chicken variant¦s @a
+	cowvariant: cow variant¦s @a
 	villagercareerchangereason: villager career change reason¦s @a
 
 	# Skript
