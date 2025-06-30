@@ -64,7 +64,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		@Nullable ch.njol.skript.util.Contract contract, Function<FunctionArguments, T> execute,
 		String[] description, String[] since, String[] examples, String[] keywords
 	) {
-		super(new Signature<>("none", name, parameters, false,
+		super(new Signature<>(null, name, parameters, false,
 			returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 
 		Preconditions.checkNotNull(name, "name cannot be null");
@@ -138,7 +138,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The description.
 	 */
-	public @NotNull String[] description() {
+	public @NotNull String @NotNull [] description() {
 		return description;
 	}
 
@@ -147,7 +147,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The version history.
 	 */
-	public @NotNull String[] since() {
+	public @NotNull String @NotNull [] since() {
 		return since;
 	}
 
@@ -156,7 +156,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The examples.
 	 */
-	public @NotNull String[] examples() {
+	public @NotNull String @NotNull [] examples() {
 		return examples;
 	}
 
@@ -165,7 +165,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The keywords.
 	 */
-	public @NotNull String[] keywords() {
+	public @NotNull String @NotNull [] keywords() {
 		return keywords;
 	}
 
@@ -221,8 +221,9 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		public Builder<T> description(@NotNull String... description) {
+		public Builder<T> description(@NotNull String @NotNull ... description) {
 			Preconditions.checkNotNull(description, "description cannot be null");
+			checkNotNull(description, "description contents cannot be null");
 
 			this.description = description;
 			return this;
@@ -235,8 +236,9 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		public Builder<T> since(@NotNull String... since) {
+		public Builder<T> since(@NotNull String @NotNull ... since) {
 			Preconditions.checkNotNull(since, "since cannot be null");
+			checkNotNull(since, "since contents cannot be null");
 
 			this.since = since;
 			return this;
@@ -249,8 +251,9 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		public Builder<T> examples(@NotNull String... examples) {
+		public Builder<T> examples(@NotNull String @NotNull ... examples) {
 			Preconditions.checkNotNull(examples, "examples cannot be null");
+			checkNotNull(examples, "examples contents cannot be null");
 
 			this.examples = examples;
 			return this;
@@ -263,11 +266,22 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		public Builder<T> keywords(@NotNull String... keywords) {
+		public Builder<T> keywords(@NotNull String @NotNull ... keywords) {
 			Preconditions.checkNotNull(keywords, "keywords cannot be null");
+			checkNotNull(keywords, "keywords contents cannot be null");
 
 			this.keywords = keywords;
 			return this;
+		}
+
+		/**
+		 * Checks whether the elements in a {@link String} array are null.
+		 * @param strings The strings.
+		 */
+		private static void checkNotNull(@NotNull String[] strings, @NotNull String message) {
+			for (String string : strings) {
+				Preconditions.checkNotNull(string, message);
+			}
 		}
 
 		/**
@@ -321,14 +335,14 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
 	 *
 	 * @param cls The class.
-	 * @param <X> The type of class.
+	 * @param <T> The type of class.
 	 * @return The non-array {@link ClassInfo} of {@code cls}.
 	 */
-	static <X> ClassInfo<X> getClassInfo(Class<X> cls) {
-		ClassInfo<X> classInfo;
+	static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
+		ClassInfo<T> classInfo;
 		if (cls.isArray()) {
 			//noinspection unchecked
-			classInfo = (ClassInfo<X>) Classes.getExactClassInfo(cls.componentType());
+			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
 		} else {
 			classInfo = Classes.getExactClassInfo(cls);
 		}
