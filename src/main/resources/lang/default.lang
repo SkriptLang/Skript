@@ -547,13 +547,13 @@ entities:
 	chicken:
 		name: chicken¦s
 		patterns:
-			0: <age> chicken[plural:s]
-			1: baby:chick[plural:s]
+			0: <age> [%-chickenvariant%] chicken[plural:s]
+			1: baby:[%-chickenvariant%] chick[plural:s]
 	cow:
 		name: cow¦s
 		patterns:
-			0: <age> cow[plural:s]
-			1: baby:cal(f|plural:ves)
+			0: <age> [%-cowvariant%] cow[plural:s]
+			1: baby:[%-cowvariant%] cal(f|plural:ves)
 	cave spider:
 		name: cave spider¦s
 		pattern: cave[ ]spider[plural:s]
@@ -2814,6 +2814,18 @@ pig variants:
 	temperate: temperate
 	warm: warm
 
+# -- Chicken Variants --
+chicken variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
+# -- Cow Variants --
+cow variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
 # -- Villager Career Change Reasons
 villager career change reasons:
 	employed: employment
@@ -2923,6 +2935,8 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	chickenvariant: chicken variant¦s @a
+	cowvariant: cow variant¦s @a
 	villagercareerchangereason: villager career change reason¦s @a
 
 	# Skript
