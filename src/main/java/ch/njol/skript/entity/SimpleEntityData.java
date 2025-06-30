@@ -222,6 +222,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSuperEntity("any chest boat", ChestBoat.class);
 		}
 
+		if (Skript.isRunningMinecraft(1, 21, 6))
+			addSimpleEntity("happy ghast", HappyGhast.class);
+
 		// Register zombie after Husk and Drowned to make sure both work
 		addSimpleEntity("zombie", Zombie.class);
 		// Register squid after glow squid to make sure both work
