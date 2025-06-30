@@ -24,7 +24,7 @@ import ch.njol.util.StringUtils;
 		"The hash must be SHA-1, you can get SHA-1 hash of your resource pack using ",
 		"<a href=\"https://emn178.github.io/online-tools/sha1_checksum.html\">this online tool</a>.",
 		"",
-		"The <a href='events.html#resource_pack_request_action'>resource pack request action</a> can be used to check ",
+		"The <a href='#resource_pack_request_action'>resource pack request action</a> can be used to check ",
 		"status of the sent resource pack request."})
 @Examples({"on join:",
 		"	send the resource pack from \"URL\" with hash \"hash\" to the player"})

@@ -13,7 +13,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ExpressionType;
 
 @Name("Transform Reason")
-@Description("The <a href='classes.html#transformreason'>transform reason</a> within an entity <a href='events.html#entity transform'>entity transform</a> event.")
+@Description("The <a href='#transformreason'>transform reason</a> within an entity <a href='#entity transform'>entity transform</a> event.")
 @Examples({
 	"on entity transform:",
 		"\ttransform reason is infection, drowned or frozen"

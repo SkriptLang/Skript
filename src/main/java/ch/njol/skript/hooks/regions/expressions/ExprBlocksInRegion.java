@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
  */
 @Name("Blocks in Region")
 @Description({
-	"All blocks in a <a href='./classes.html#region'>region</a>.",
+	"All blocks in a <a href='#region'>region</a>.",
 	"This expression requires a supported regions plugin to be installed."
 })
 @Examples({
