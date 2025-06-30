@@ -128,7 +128,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 	 * @param since The version this event was added in
 	 * @return This SkriptEventInfo object
 	 */
-	public SkriptEventInfo<E> since(String ...since) {
+	public SkriptEventInfo<E> since(String... since) {
 		assert this.since == null;
 		this.since = since;
 		return this;

@@ -27,8 +27,8 @@ final class BukkitSyntaxInfosImpl {
 		private final ListeningBehavior listeningBehavior;
 		private final String name;
 		private final String id;
-		private final Collection<String> since;
 		private final @Nullable String documentationId;
+		private final Collection<String> since;
 		private final Collection<String> description;
 		private final Collection<String> examples;
 		private final Collection<String> keywords;

@@ -65,7 +65,7 @@ public final class BukkitSyntaxInfos {
 		@Nullable String documentationId();
 
 		/**
-		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added.
+		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added or modified.
 		 * @see ch.njol.skript.doc.Since
 		 */
 		Collection<String> since();
