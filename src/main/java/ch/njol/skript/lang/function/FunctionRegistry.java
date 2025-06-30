@@ -299,7 +299,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 		Retrieval<Function<?>> attempt = getFunction(new NamespaceIdentifier(namespace),
 			FunctionIdentifier.of(name, true, args));
-		if (attempt.result != RetrievalResult.EXACT) {
+		if (attempt.result == RetrievalResult.NOT_REGISTERED) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;
@@ -374,7 +374,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 		Retrieval<Signature<?>> attempt = getSignature(new NamespaceIdentifier(namespace),
 			FunctionIdentifier.of(name, true, args));
-		if (attempt.result != RetrievalResult.EXACT) {
+		if (attempt.result == RetrievalResult.NOT_REGISTERED) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;

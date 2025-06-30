@@ -295,7 +295,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		Retrieval<Signature<?>> attempt = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
-
 		if (attempt.result() == RetrievalResult.EXACT) {
 			return attempt.retrieved();
 		}
@@ -485,7 +484,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			joiner.add("- %s(%s)".formatted(functionName, argNames));
 		}
 
-		Skript.error(AMBIGUOUS_ERROR.formatted(functionName, joiner.toString()));
+		for (String line : AMBIGUOUS_ERROR.split("\\n")) {
+			Skript.error(line.formatted(functionName, joiner.toString()));
+		}
 	}
 
 }
