@@ -19,10 +19,10 @@ import ch.njol.util.Kleenean;
 @Name("Player Info Visibility")
 @Description({"Sets whether all player related information is hidden in the server list.",
 		"The Vanilla Minecraft client will display ??? (dark gray) instead of player counts and will not show the",
-		"<a href='expressions.html#ExprHoverList'>hover hist</a> when hiding player info.",
-		"<a href='expressions.html#ExprVersionString'>The version string</a> can override the ???.",
-		"Also the <a href='expressions.html#ExprOnlinePlayersCount'>Online Players Count</a> and",
-		"<a href='expressions.html#ExprMaxPlayers'>Max Players</a> expressions will return -1 when hiding player info."})
+		"<a href='#ExprHoverList'>hover hist</a> when hiding player info.",
+		"<a href='#ExprVersionString'>The version string</a> can override the ???.",
+		"Also the <a href='#ExprOnlinePlayersCount'>Online Players Count</a> and",
+		"<a href='#ExprMaxPlayers'>Max Players</a> expressions will return -1 when hiding player info."})
 @Examples({"hide player info",
 		"hide player related information in the server list",
 		"reveal all player related info"})
