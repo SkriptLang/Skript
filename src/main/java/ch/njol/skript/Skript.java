@@ -1754,6 +1754,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see String#formatted(Object...)
 	 */
 	public static void debug(String message, Object... objects) {
+		if (!debug())
+			return;
 		debug(message.formatted(objects));
 	}
 
