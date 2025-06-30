@@ -18,13 +18,12 @@ import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
 @Example("set {_component} to the item component copy of (the equippable component of {_item})")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.2+")
-
 @SuppressWarnings("rawtypes")
 public class ExprItemCompCopy extends SimplePropertyExpression<ComponentWrapper, ComponentWrapper> {
 
 	static {
 		Skript.registerExpression(ExprItemCompCopy.class, ComponentWrapper.class, ExpressionType.PROPERTY,
-			"[the|a] [item] component copy of %itemcomponents%",
+			"[the|a[n]] [item] component copy of %itemcomponents%",
 			"[the] [item] component copies of %itemcomponents%");
 	}
 
