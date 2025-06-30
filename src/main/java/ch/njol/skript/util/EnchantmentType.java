@@ -55,7 +55,6 @@ public class EnchantmentType implements YggdrasilSerializable {
 		return level;
 	}
 
-	@Nullable
 	public Enchantment getType() {
 		return type;
 	}

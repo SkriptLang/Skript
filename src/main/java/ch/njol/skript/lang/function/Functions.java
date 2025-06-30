@@ -73,7 +73,7 @@ public abstract class Functions {
 		return function;
 	}
 
-	public final static String functionNamePattern = "[\\p{IsAlphabetic}][\\p{IsAlphabetic}\\p{IsDigit}_]*";
+	public final static String functionNamePattern = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\p{IsDigit}_]*";
 
 	/**
 	 * Loads a script function from given node.

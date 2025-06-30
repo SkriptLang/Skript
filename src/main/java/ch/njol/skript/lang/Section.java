@@ -2,6 +2,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -10,6 +11,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,7 +42,15 @@ import java.util.function.Supplier;
  *
  * @see Skript#registerSection(Class, String...)
  */
-public abstract class Section extends TriggerSection implements SyntaxElement {
+public abstract class Section extends TriggerSection implements SyntaxElement, SyntaxRuntimeErrorProducer {
+
+	private Node node;
+
+	@Override
+	public boolean preInit() {
+		node = getParser().getNode();
+		return SyntaxElement.super.preInit();
+	}
 
 	/**
 	 * This method should not be overridden unless you know what you are doing!
@@ -244,6 +254,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			return owner != null;
 		}
 
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override
