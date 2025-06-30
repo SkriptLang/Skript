@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -170,6 +171,8 @@ public final class BukkitEventValues {
 			"Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, World.class, event -> event.getEntity().getWorld());
 		EventValues.registerEventValue(EntityEvent.class, Location.class, event -> event.getEntity().getLocation());
+		EventValues.registerEventValue(EntityEvent.class, EntityData.class, event -> EntityData.fromEntity(event.getEntity()),
+			TIME_NOW, "Use 'type of attacker/victim' in damage/death events.", EntityDamageEvent.class, EntityDeathEvent.class);
 		// EntityDamageEvent
 		EventValues.registerEventValue(EntityDamageEvent.class, DamageCause.class, EntityDamageEvent::getCause);
 		EventValues.registerEventValue(EntityDamageByEntityEvent.class, Projectile.class, event -> {

@@ -143,7 +143,7 @@ potion effect types:
 
 	# 1.21 potion effect types (added in 1.20.5 experimental)
 	wind_charged: wind charged
-	raid_omen: bad omen, raid omen
+	raid_omen: raid omen
 	infested: infested
 	weaving: weaving
 	trial_omen: trial omen
@@ -544,7 +544,7 @@ entities:
 		pattern: blaze(|1¦s)
 	chicken:
 		name: chicken¦s
-		pattern: <age> chicken(|1¦s)|(4¦)chick(|1¦s)
+		pattern: <age> [%-chickenvariant%] chicken[1:s]|(4:)[%-chickenvariant%] chick[1:s]
 	cow:
 		name: cow¦s
 		pattern: <age> [%-cowvariant%] cow[1:s]|(4:)[%-cowvariant%] cal(f|1:ves)
@@ -1167,6 +1167,12 @@ entities:
 	strider:
 		name: strider¦s
 		pattern: <age> strider(|1¦s)|(4¦)strider (kid(|1¦s)|child(|1¦ren))
+	warm strider:
+		name: warm strider¦s
+		pattern: <age> warm strider(|1¦s)|(4¦)warm strider (kid(|1¦s)|child(|1¦ren))
+	shivering strider:
+		name: shivering strider¦s, cold strider¦s
+		pattern: <age> (cold|shivering) strider(|1¦s)|(4¦)(cold|shivering) strider (kid(|1¦s)|child(|1¦ren))
 	#1.16.2 entity
 	piglin brute:
 		name: piglin brute¦s
@@ -2592,6 +2598,12 @@ pig variants:
 	temperate: temperate
 	warm: warm
 
+# -- Chicken Variants --
+chicken variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
 # -- Cow Variants --
 cow variants:
 	cold: cold
@@ -2707,6 +2719,7 @@ types:
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
 	pigvariant: pig variant¦s @a
+	chickenvariant: chicken variant¦s @a
 	cowvariant: cow variant¦s @a
 	villagercareerchangereason: villager career change reason¦s @a
 

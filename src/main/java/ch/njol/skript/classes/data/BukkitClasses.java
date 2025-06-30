@@ -10,6 +10,7 @@ import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.entity.ChickenData.ChickenVariantDummy;
 import ch.njol.skript.entity.CowData.CowVariantDummy;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.PigData.PigVariantDummy;
@@ -1578,6 +1579,26 @@ public class BukkitClasses {
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
 
+		ClassInfo<?> chickenVariantClassInfo = getRegistryClassInfo(
+			"org.bukkit.entity.Chicken$Variant",
+			"CHICKEN_VARIANT",
+			"chickenvariant",
+			"chicken variants"
+		);
+		if (chickenVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Chicken.Variant' (1.21.4-)
+			chickenVariantClassInfo = new ClassInfo<>(ChickenVariantDummy.class,  "chickenvariant");
+		}
+		Classes.registerClass(chickenVariantClassInfo
+			.user("chicken ?variants?")
+			.name("Chicken Variant")
+			.description("Represents the variant of a chicken entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("INSERT VERSION")
+			.requiredPlugins("Minecraft 1.21.5+")
+			.documentationId("ChickenVariant")
+		);
+
 		ClassInfo<?> cowVariantClassInfo = getRegistryClassInfo(
 			"org.bukkit.entity.Cow$Variant",
 			"COW_VARIANT",
@@ -1597,7 +1618,7 @@ public class BukkitClasses {
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("CowVariant")
 		);
-    
+
 		Classes.registerClass(new EnumClassInfo<>(VillagerCareerChangeEvent.ChangeReason.class, "villagercareerchangereason", "villager career change reasons")
 			.user("(villager )?career ?change ?reasons?")
 			.name("Villager Career Change Reason")
