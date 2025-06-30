@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Online Player Count")
 @Description({
 		"The amount of online players. This can be changed in a " +
-		"<a href='events.html#server_list_ping'>server list ping</a> event only to show fake online player amount.",
+		"<a href='#server_list_ping'>server list ping</a> event only to show fake online player amount.",
 		"<code>real online player count</code> always return the real count of online players and can't be changed."
 })
 @Examples({

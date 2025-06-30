@@ -30,7 +30,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"Also if the protocol version of the player is higher than protocol version of the server, it will say",
 		"\"Server out of date!\", and if vice-versa \"Client out of date!\" when you hover on the ping bars.",
 		"",
-		"This can be set in a <a href='events.html#server_list_ping'>server list ping</a> event only",
+		"This can be set in a <a href='#server_list_ping'>server list ping</a> event only",
 		"(increase and decrease effects cannot be used because that wouldn't make sense).",})
 @Examples({"on server list ping:",
 		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\"",
