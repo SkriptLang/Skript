@@ -46,7 +46,7 @@ final class BukkitSyntaxInfosImpl {
 			this.id = name.toLowerCase(Locale.ENGLISH)
 					.replaceAll("[#'\"<>/&]", "")
 					.replaceAll("\\s+", "_");
-			this.since = since;
+			this.since = ImmutableList.copyOf(since);
 			this.documentationId = documentationId;
 			this.description = ImmutableList.copyOf(description);
 			this.examples = ImmutableList.copyOf(examples);
