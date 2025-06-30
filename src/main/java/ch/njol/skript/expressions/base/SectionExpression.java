@@ -109,7 +109,7 @@ public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	protected Trigger loadCode(SectionNode sectionNode, String name,
-							   @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+			@Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		return loadCode(sectionNode, name, afterLoading, events);
 	}
 
@@ -133,9 +133,9 @@ public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 	 * @return A trigger containing the loaded section. This should be stored and used
 	 * to run the section one or more times.
 	 */
-	protected Trigger loadCode(SectionNode sectionNode, String name,
-							   @Nullable Runnable beforeLoading, @Nullable Runnable afterLoading,
-							   Class<? extends Event>... events) {
+	@SafeVarargs
+	protected final Trigger loadCode(SectionNode sectionNode, String name,
+			@Nullable Runnable beforeLoading, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		return section.loadCodeTask(sectionNode, name, beforeLoading, afterLoading, events);
 	}
 

@@ -28,7 +28,7 @@ import java.util.Set;
  * </p>
  * <p>
  * When entering a scope ({@link #enterScope(boolean)}), it is initialized with the hints of the previous top-level scope.
- * When exiting a scope ({@link #enterScope(boolean)}), remaining hints from that scope are added to the existing hints of the new top-level scope.
+ * When exiting a scope ({@link #exitScope()}), remaining hints from that scope are added to the existing hints of the new top-level scope.
  * This merging of scopes is provided and described by {@link #mergeScope(int, int, boolean)}.
  * Thus, it is only necessary to obtain hints for the current scope.
  * {@link #get(Variable)} is provided for obtaining the hints of a variable in the current scope.
@@ -159,15 +159,22 @@ public class HintManager {
 
 	/**
 	 * Resets (clears) all type hints for the current (top-level) scope.
-	 * Scopes are represented as integers, where {@code 0} represents the most recently entered scope
-	 * (i.e. the scope pushed by the most recent {@link #enterScope(boolean)} call).
+	 * Scopes are represented as integers, where {@code 0} represents the most recently entered scope.
+	 * For example, after calling {@link #enterScope(boolean)}, {@code 0} would represent the scope just entered
+	 *  by calling the method, and {@code 1} would represent the most recently entered scope <i>before</i> calling the method.
 	 * @param sectionOnly Whether only scopes representing sections should be considered.
 	 */
 	public void clearScope(int level, boolean sectionOnly) {
+		if (level < 0 || level > typeHints.size() - 1) {
+			throw new IndexOutOfBoundsException(
+					"Scope level " + level + " is out of bounds (expected 0-" + (typeHints.size() - 1) + ")");
+		}
+
 		if (!sectionOnly) {
 			typeHints.get(level).hintMap().clear();
 			return;
 		}
+
 		int currentLevel = 0;
 		var iterator = typeHints.iterator();
 		while (iterator.hasNext()) {
@@ -177,16 +184,21 @@ public class HintManager {
 			}
 			if (currentLevel == level) {
 				iterator.remove();
-				break;
+				return;
 			}
 			currentLevel++;
 		}
+
+		// Did not find a section scope to remove
+		throw new IndexOutOfBoundsException(
+				"Section scope level " + level + " is out of bounds (expected 0-" + currentLevel + ")");
 	}
 
 	/**
 	 * Copies hints from one scope to another.
-	 * Scopes are represented as integers, where {@code 0} represents the most recently entered scope
-	 * (i.e. the scope pushed by the most recent {@link #enterScope(boolean)} call).
+	 * Scopes are represented as integers, where {@code 0} represents the most recently entered scope.
+	 * For example, after calling {@link #enterScope(boolean)}, {@code 0} would represent the scope just entered
+	 *  by calling the method, and {@code 1} would represent the most recently entered scope <i>before</i> calling the method.
 	 * <p>
 	 * <b>Note: This does not overwrite the existing hints of {@code to}. Instead, the hints are merged together.</b>
 	 * @param from The scope to copy hints from.
@@ -194,6 +206,16 @@ public class HintManager {
 	 * @param sectionOnly Whether only scopes representing sections should be considered.
 	 */
 	public void mergeScope(int from, int to, boolean sectionOnly) {
+		int expectedSize = typeHints.size() - 1;
+		if (from < 0 || from > expectedSize) {
+			throw new IndexOutOfBoundsException(
+					"'from' scope level " + from + " is out of bounds (expected 0-" + expectedSize + ")");
+		}
+		if (to < 0 || to > expectedSize) {
+			throw new IndexOutOfBoundsException(
+					"'to' scope level " + to + " is out of bounds (expected 0-" + expectedSize + ")");
+		}
+
 		Scope fromScope = null;
 		Scope toScope = null;
 		if (sectionOnly) {
@@ -213,11 +235,18 @@ public class HintManager {
 				}
 				currentLevel++;
 			}
+			if (fromScope == null) {
+				throw new IndexOutOfBoundsException(
+						"'from' section scope level " + from + " is out of bounds (expected 0-" + currentLevel + ")");
+			}
+			if (toScope == null) {
+				throw new IndexOutOfBoundsException(
+						"'to' section scope level " + to + " is out of bounds (expected 0-" + currentLevel + ")");
+			}
 		} else {
 			fromScope = typeHints.get(from);
 			toScope = typeHints.get(to);
 		}
-		assert fromScope != null && toScope != null;
 		mergeHints(fromScope.hintMap(), toScope.hintMap());
 	}
 

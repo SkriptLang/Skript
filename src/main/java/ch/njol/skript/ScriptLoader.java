@@ -997,7 +997,7 @@ public class ScriptLoader {
 				find_section:
 				try {
 					// enter capturing scope
-					// it is possible that the line may successful parse and initialize (via init), but some other issue
+					// it is possible that the line may successfully parse and initialize (via init), but some other issue
 					// prevents it from being able to load. for example:
 					// - a statement with a section that has no expression to claim the section
 					// - a statement with a section that has multiple expressions attempting to claim the section

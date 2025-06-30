@@ -543,6 +543,9 @@ public final class ParserInstance implements Experimented {
 
 	private HintManager hintManager = new HintManager(true);
 
+	/**
+	 * @return The local variable type hint manager for the active parsing process.
+	 */
 	@ApiStatus.Experimental
 	public HintManager getHintManager() {
 		return hintManager;

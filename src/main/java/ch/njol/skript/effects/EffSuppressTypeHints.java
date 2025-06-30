@@ -18,7 +18,8 @@ import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 @Name("Suppress Type Hints (Experimental)")
 @Description({
 	"An effect to suppress local variable type hint errors for the syntax lines that follow this effect.",
-	"NOTE: Suppressing type hints also prevents them from being collected."
+	"NOTE: Suppressing type hints also prevents syntax from providing new type hints." +
+		" For example, with type hints suppressed, 'set {_x} to true' would not provide 'boolean' as a type hint for '{_x}'"
 })
 @Example("""
 	start suppressing local variable type hints
