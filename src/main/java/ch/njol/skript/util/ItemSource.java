@@ -9,7 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 /**
  * Container class for containing the origin of a {@link Slot}, {@link ItemStack}, and {@link ItemType}.
  */
-public class ItemSource<T> implements Cloneable {
+public class ItemSource<T> {
 
 	private final T source;
 
@@ -47,15 +47,6 @@ public class ItemSource<T> implements Cloneable {
 	 */
 	public void setItemMeta(ItemMeta itemMeta) {
 		ItemUtils.setItemMeta(source, itemMeta);
-	}
-
-	@Override
-	public Object clone() {
-		try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 }

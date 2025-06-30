@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * or a stand-alone component.
  * @param <T> The type of component
  */
-public abstract class ComponentWrapper<T> {
+public abstract class ComponentWrapper<T> implements Cloneable {
 
 	private final @Nullable ItemSource itemSource;
 	private final T component;
