@@ -35,12 +35,10 @@ import java.util.ArrayList;
 public class ExprBreakSpeed extends SimpleExpression<Float> {
 
 	static {
-		if (Skript.methodExists(Block.class, "getBreakSpeed", Player.class)) {
-			Skript.registerExpression(ExprBreakSpeed.class, Float.class, ExpressionType.COMBINED,
-				"[the] break speed[s] [of %blocks%] [for %players%]",
-				"%block%'[s] break speed[s] [for %players%]"
-			);
-		}
+		Skript.registerExpression(ExprBreakSpeed.class, Float.class, ExpressionType.COMBINED,
+			"[the] break speed[s] [of %blocks%] [for %players%]",
+			"%block%'[s] break speed[s] [for %players%]"
+		);
 	}
 
 	private Expression<Block> blocks;
