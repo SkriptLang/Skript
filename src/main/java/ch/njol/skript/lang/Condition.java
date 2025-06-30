@@ -128,8 +128,9 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 		input = input.trim();
 		while (input.startsWith("(") && SkriptParser.next(input, 0, ParseContext.DEFAULT) == input.length())
 			input = input.substring(1, input.length() - 1);
+		var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.CONDITION).iterator();
 		//noinspection unchecked,rawtypes
-		return (Condition) SkriptParser.parse(input, (Iterator) Skript.getConditions().iterator(), defaultError);
+		return (Condition) SkriptParser.parse(input, (Iterator) iterator, defaultError);
 	}
 
 }
