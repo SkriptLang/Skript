@@ -104,7 +104,7 @@ public class PigData extends EntityData<Pig> {
 			return false;
 		if (saddled != other.saddled)
 			return false;
-		return variant == null || variant == other.variant;
+		return variant == other.variant;
 	}
 	
 	@Override
