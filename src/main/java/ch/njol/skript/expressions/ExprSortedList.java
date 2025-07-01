@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 
@@ -104,6 +106,13 @@ public class ExprSortedList extends SimpleExpression<Object> {
 	public boolean canReturn(Class<?> returnType) {
 		return list.canReturn(returnType);
 	}
+  
+  @Override
+	public Expression<?> simplify() {
+		if (list instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+  }
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
