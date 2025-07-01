@@ -96,6 +96,15 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T>, S
 	}
 
 	/**
+	 * Gets a non-null stream for all values of this expression via {@link #getAll(Event)}.
+	 * @param event The event.
+	 */
+	default Stream<? extends @NotNull T> streamAll(Event event) {
+		Iterator<? extends T> iterator = Arrays.stream(getAll(event)).iterator();
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
+	}
+
+	/**
 	 * @return true if this expression will ever only return one value at most, false if it can return multiple values.
 	 */
 	boolean isSingle();
