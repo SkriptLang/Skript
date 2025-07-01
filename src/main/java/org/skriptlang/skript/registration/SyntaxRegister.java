@@ -19,8 +19,8 @@ final class SyntaxRegister<I extends SyntaxInfo<?>> {
 			return 0;
 		}
 		int result = a.priority().compareTo(b.priority());
-		// when elements have the same priority, the oldest element comes first
-		return result != 0 ? result : 1;
+		// when elements have the same priority, order by hashcode
+		return result != 0 ? result : Integer.compare(a.hashCode(), b.hashCode());
 	};
 
 	final Set<I> syntaxes = new ConcurrentSkipListSet<>(SET_COMPARATOR);

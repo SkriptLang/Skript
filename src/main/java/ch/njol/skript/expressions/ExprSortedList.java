@@ -29,7 +29,7 @@ import java.lang.reflect.Array;
 public class ExprSortedList extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprSortedList.class, Object.class, ExpressionType.COMBINED, "sorted %objects%");
+		Skript.registerExpression(ExprSortedList.class, Object.class, ExpressionType.PROPERTY, "sorted %objects%");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
