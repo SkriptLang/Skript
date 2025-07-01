@@ -3,19 +3,12 @@ package org.skriptlang.skript.bukkit.tags.elements;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
@@ -130,15 +123,6 @@ public class ExprTagContents extends SimpleExpression<Object> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the tag contents of " + tag.toString(event, debug);
-	}
-
-	@Override
-	public Expression<?> simplify() {
-		if (tag instanceof Literal<Tag<?>>) {
-			Object[] values = getArray(ContextlessEvent.get());
-			return new SimpleLiteral(values, values.getClass().getComponentType(), true);
-		}
-		return super.simplify();
 	}
 
 }
