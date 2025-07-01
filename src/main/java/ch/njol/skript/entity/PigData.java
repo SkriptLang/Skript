@@ -18,18 +18,22 @@ public class PigData extends EntityData<Pig> {
 		NOT_SADDLED, UNKNOWN, SADDLED
 	}
 
-	private static final SaddleState[] SADDLE_STATES = SaddleState.values();
 	private static final boolean VARIANTS_ENABLED;
-	private static final Object[] variants;
+	private static final Object[] VARIANTS;
+	private static final EntityPatterns<SaddleState> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"pig", SaddleState.UNKNOWN},
+		{"saddled pig", SaddleState.SADDLED},
+		{"unsaddled pig", SaddleState.NOT_SADDLED}
+	});
 
 	static {
-		EntityData.register(PigData.class, "pig", Pig.class, 1, "unsaddled pig", "pig", "saddled pig");
+		EntityData.register(PigData.class, "pig", Pig.class, 0, PATTERNS.getPatterns());
 		if (Skript.classExists("org.bukkit.entity.Pig$Variant")) {
 			VARIANTS_ENABLED = true;
-			variants = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);
+			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);
 		} else {
 			VARIANTS_ENABLED = false;
-			variants = null;
+			VARIANTS = null;
 		}
 	}
 	
@@ -42,22 +46,15 @@ public class PigData extends EntityData<Pig> {
 	public PigData(SaddleState saddled, @Nullable Object variant) {
 		this.saddled = saddled;
 		this.variant = variant;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(saddled)[0];
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		saddled = SADDLE_STATES[matchedCodeName];
-		if (VARIANTS_ENABLED) {
-			Literal<?> expr = null;
-			if (exprs[0] != null) { // pig
-				expr = exprs[0];
-			} else if (exprs[1] != null) { // piglet
-				expr = exprs[1];
-			}
-			if (expr != null) {
-				//noinspection unchecked
-				variant = ((Literal<Pig.Variant>) expr).getSingle();
-			}
+		saddled = PATTERNS.getInfo(matchedCodeName);
+		if (VARIANTS_ENABLED && exprs[0] != null) {
+			//noinspection unchecked
+			variant = ((Literal<Pig.Variant>) exprs[0]).getSingle();
 		}
 		return true;
 	}
@@ -67,14 +64,10 @@ public class PigData extends EntityData<Pig> {
 		saddled = SaddleState.UNKNOWN;
 		if (pig != null) {
 			saddled = pig.hasSaddle() ? SaddleState.SADDLED : SaddleState.NOT_SADDLED;
+			super.dataCodeName = PATTERNS.getMatchedPatterns(saddled)[0];
 			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
 		}
-		return true;
-	}
-
-	@Override
-	protected boolean deserialize(String string) {
 		return true;
 	}
 	
@@ -82,15 +75,17 @@ public class PigData extends EntityData<Pig> {
 	public void set(Pig pig) {
 		pig.setSaddle(saddled == SaddleState.SADDLED);
 		if (VARIANTS_ENABLED) {
-			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
+			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
+			assert finalVariant != null;
 			pig.setVariant((Pig.Variant) finalVariant);
 		}
 	}
 	
 	@Override
 	protected boolean match(Pig pig) {
-		return (saddled == SaddleState.UNKNOWN || (pig.hasSaddle() ? SaddleState.SADDLED : SaddleState.NOT_SADDLED) == saddled)
-			&& (variant == null || variant == pig.getVariant());
+		if (saddled != SaddleState.UNKNOWN && pig.hasSaddle() != (saddled == SaddleState.SADDLED))
+			return false;
+		return variant == null || variant == pig.getVariant();
 	}
 	
 	@Override
@@ -99,8 +94,8 @@ public class PigData extends EntityData<Pig> {
 	}
 	
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof PigData other))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof PigData other))
 			return false;
 		if (saddled != other.saddled)
 			return false;
@@ -122,7 +117,7 @@ public class PigData extends EntityData<Pig> {
 	}
 	
 	@Override
-	public @NotNull EntityData<Pig> getSuperType() {
+	public @NotNull EntityData<?> getSuperType() {
 		return new PigData();
 	}
 

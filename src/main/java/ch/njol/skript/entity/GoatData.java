@@ -1,52 +1,61 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.entity.Goat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class GoatData extends EntityData<Goat> {
 
-	static {
-		if (Skript.classExists("org.bukkit.entity.Goat"))
-			EntityData.register(GoatData.class, "goat", Goat.class, 0,
-				"goat", "screaming goat", "quiet goat");
+	public enum ScreamingState {
+		UNKNOWN, SCREAMING, QUIET
 	}
 
-	private int screaming = 0; // 0 = random, 1 = screaming, 2 = quiet
+	private static final EntityPatterns<ScreamingState> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"goat", ScreamingState.UNKNOWN},
+		{"screaming goat", ScreamingState.SCREAMING},
+		{"quiet goat", ScreamingState.QUIET}
+	});
+
+	static {
+		EntityData.register(GoatData.class, "goat", Goat.class, 0, PATTERNS.getPatterns());
+	}
+
+	private ScreamingState state = ScreamingState.UNKNOWN;
 
 	public GoatData() {}
 
-	public GoatData(int screaming) {
-		this.screaming = screaming;
+	public GoatData(@Nullable GoatData.ScreamingState state) {
+		this.state = state != null ? state : ScreamingState.UNKNOWN;
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		screaming = matchedCodeName;
+		state = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Goat> c, @Nullable Goat goat) {
-		if (goat != null && matchedCodeName > 0)
-			goat.setScreaming(matchedCodeName == 1);
+	protected boolean init(@Nullable Class<? extends Goat> entityClass, @Nullable Goat goat) {
+		state = ScreamingState.UNKNOWN;
+		if (goat != null) {
+			state = goat.isScreaming() ? ScreamingState.SCREAMING : ScreamingState.QUIET;
+			super.dataCodeName = PATTERNS.getMatchedPatterns(state)[0];
+		}
 		return true;
 	}
 
 	@Override
-	public void set(Goat entity) {
-		if (matchedCodeName > 0)
-			entity.setScreaming(screaming == 1);
+	public void set(Goat goat) {
+		goat.setScreaming(state == ScreamingState.SCREAMING);
 	}
 
 	@Override
-	protected boolean match(Goat entity) {
-		if (matchedCodeName > 0)
-			return entity.isScreaming() ? screaming == 1 : screaming == 2;
-		return true;
+	protected boolean match(Goat goat) {
+		return state == ScreamingState.UNKNOWN || goat.isScreaming() == (state == ScreamingState.SCREAMING);
 	}
 
 	@Override
@@ -55,27 +64,27 @@ public class GoatData extends EntityData<Goat> {
 	}
 
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new GoatData(screaming);
+	public @NotNull EntityData<?> getSuperType() {
+		return new GoatData();
 	}
 
 	@Override
 	protected int hashCode_i() {
-		return screaming;
+		return Objects.hashCode(state);
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> data) {
-		if (!(data instanceof GoatData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof GoatData other))
 			return false;
-		return screaming == ((GoatData) data).screaming;
+		return state == other.state;
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> data) {
-		if (!(data instanceof GoatData))
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof GoatData other))
 			return false;
-		return screaming == ((GoatData) data).screaming;
+		return state == ScreamingState.UNKNOWN || state == other.state;
 	}
 
 }

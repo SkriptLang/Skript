@@ -81,7 +81,7 @@ public class DisplayData extends EntityData<Display> {
 
 	public DisplayData(DisplayType type) {
 		this.type = type;
-		this.matchedCodeName = type.ordinal();
+		this.dataCodeName = type.ordinal();
 	}
 
 	@Override
@@ -196,8 +196,8 @@ public class DisplayData extends EntityData<Display> {
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (obj instanceof DisplayData other)
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (entityData instanceof DisplayData other)
 			return type == other.type;
 		return false;
 	}

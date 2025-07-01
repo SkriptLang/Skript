@@ -16,20 +16,23 @@ import java.util.Objects;
 
 public class WolfData extends EntityData<Wolf> {
 
-	private static boolean variantsEnabled = false;
+	private static final boolean VARIANTS_ENABLED;
+	private static final Object[] VARIANTS;
+
 
 	static {
 		EntityData.register(WolfData.class, "wolf", Wolf.class, 1,
 				"peaceful wolf", "wolf", "angry wolf",
 				"wild wolf", "tamed wolf");
 		if (Skript.classExists("org.bukkit.entity.Wolf$Variant")) {
-			variantsEnabled = true;
-			variants = Iterators.toArray(Classes.getExactClassInfo(Wolf.Variant.class).getSupplier().get(), Wolf.Variant.class);
+			VARIANTS_ENABLED = true;
+			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Wolf.Variant.class).getSupplier().get(), Wolf.Variant.class);
+		} else {
+			VARIANTS_ENABLED = false;
+			VARIANTS = null;
 		}
 	}
 
-
-	private static Object[] variants;
 
 	private @Nullable Object variant;
 	private @Nullable DyeColor collarColor;
@@ -45,7 +48,7 @@ public class WolfData extends EntityData<Wolf> {
 		} else {
 			tamed = matchedCodeName == 3 ? -1 : 1;
 		}
-		if (exprs[0] != null && variantsEnabled)
+		if (exprs[0] != null && VARIANTS_ENABLED)
 			variant = ((Literal<Wolf.Variant>) exprs[0]).getSingle();
 		if (exprs[1] != null)
 			collarColor = ((Literal<Color>) exprs[1]).getSingle().asDyeColor();
@@ -53,12 +56,12 @@ public class WolfData extends EntityData<Wolf> {
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Wolf> c, @Nullable Wolf wolf) {
+	protected boolean init(@Nullable Class<? extends Wolf> entityClass, @Nullable Wolf wolf) {
 		if (wolf != null) {
 			angry = wolf.isAngry() ? 1 : -1;
 			tamed = wolf.isTamed() ? 1 : -1;
 			collarColor = wolf.getCollarColor();
-			if (variantsEnabled)
+			if (VARIANTS_ENABLED)
 				variant = wolf.getVariant();
 		}
 		return true;
@@ -73,8 +76,8 @@ public class WolfData extends EntityData<Wolf> {
 		if (collarColor != null)
 			entity.setCollarColor(collarColor);
 		Object variantSet = null;
-		if (variantsEnabled) {
-			variantSet = variant != null ? variant : CollectionUtils.getRandom(variants);
+		if (VARIANTS_ENABLED) {
+			variantSet = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
 			entity.setVariant((Wolf.Variant) variantSet);
 		}
 	}
@@ -91,62 +94,44 @@ public class WolfData extends EntityData<Wolf> {
 	}
 
 	@Override
+	public @NotNull EntityData<Wolf> getSuperType() {
+		return new WolfData();
+	}
+
+	@Override
 	protected int hashCode_i() {
 		int prime = 31, result = 1;
 		result = prime * result + angry;
 		result = prime * result + tamed;
 		result = prime * result + (collarColor == null ? 0 : collarColor.hashCode());
-		if (variantsEnabled)
+		if (VARIANTS_ENABLED)
 			result = prime * result + (variant == null ? 0 : Objects.hashCode(variant));
 		return result;
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof WolfData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof WolfData))
 			return false;
-		WolfData other = (WolfData) obj;
+		WolfData other = (WolfData) entityData;
 		if (angry != other.angry)
 			return false;
 		if (tamed != other.tamed)
 			return false;
 		if (collarColor != other.collarColor)
 			return false;
-		if (variantsEnabled && variant != other.variant)
+		if (VARIANTS_ENABLED && variant != other.variant)
 			return false;
 		return true;
-	}
-
-	/**
-	 * Note that this method is only used when changing Skript versions 2.1 to anything above.
-	 */
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	@Override
-	protected boolean deserialize(String s) {
-		String[] split = s.split("\\|");
-		if (split.length != 2)
-			return false;
-		try {
-			angry = Integer.parseInt(split[0]);
-			tamed = Integer.parseInt(split[1]);
-			return true;
-		} catch (NumberFormatException e) {
-			return false;
-		}
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (entityData instanceof WolfData) {
 			WolfData wolfData = (WolfData) entityData;
-			return (angry == 0 || wolfData.angry == angry) && (tamed == 0 || wolfData.tamed == tamed) && (wolfData.collarColor == collarColor) && (!variantsEnabled || wolfData.variant == variant);
+			return (angry == 0 || wolfData.angry == angry) && (tamed == 0 || wolfData.tamed == tamed) && (wolfData.collarColor == collarColor) && (!VARIANTS_ENABLED || wolfData.variant == variant);
 		}
 		return false;
-	}
-
-	@Override
-	public @NotNull EntityData<Wolf> getSuperType() {
-		return new WolfData();
 	}
 
 	/**

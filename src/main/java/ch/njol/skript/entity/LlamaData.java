@@ -9,14 +9,26 @@ import org.bukkit.entity.TraderLlama;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class LlamaData extends EntityData<Llama> {
 
+	private static final EntityPatterns<Color> PATTERNS =  new EntityPatterns<>(new Object[][]{
+		{"llama", null},
+		{"creamy llama", Color.CREAMY},
+		{"white llama", Color.WHITE},
+		{"brown llama", Color.BROWN},
+		{"gray llama", Color.GRAY},
+		{"trader llama", null},
+		{"creamy trader llama", Color.CREAMY},
+		{"white trader llama", Color.WHITE},
+		{"brown trader llama", Color.BROWN},
+		{"gray trader llama", Color.GRAY}
+	});
 	private static final Color[] LLAMA_COLORS = Color.values();
 
 	static {
-		EntityData.register(LlamaData.class, "llama", Llama.class, 0,
-			"llama", "creamy llama", "white llama", "brown llama", "gray llama",
-			"trader llama", "creamy trader llama", "white trader llama", "brown trader llama", "gray trader llama");
+		EntityData.register(LlamaData.class, "llama", Llama.class, 0, PATTERNS.getPatterns());
 	}
 
 	private @Nullable Color color = null;
@@ -27,19 +39,13 @@ public class LlamaData extends EntityData<Llama> {
 	public LlamaData(@Nullable Color color, boolean isTrader) {
 		this.color = color;
 		this.isTrader = isTrader;
-		super.matchedCodeName = (color != null ? (color.ordinal() + 1) : 0) + (isTrader ? 5 : 0);
+		super.dataCodeName = PATTERNS.getMatchedPatterns(color)[!isTrader ? 0 : 1];
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		isTrader = matchedCodeName > 4;
-		if (matchedCodeName > 5) {
-			color = LLAMA_COLORS[matchedCodeName - 6];
-		} else if (matchedCodeName > 0 && matchedCodeName < 5) {
-			color = LLAMA_COLORS[matchedCodeName - 1];
-		}
-		// Sets 'matchedCodeName' of 'EntityData' for proper 'toString'
-		super.matchedCodeName = (color != null ? (color.ordinal() + 1) : 0) + (isTrader ? 5 : 0);
+		color = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 	
@@ -50,22 +56,25 @@ public class LlamaData extends EntityData<Llama> {
 		if (llama != null) {
 			color = llama.getColor();
 			isTrader = llama instanceof TraderLlama;
+			super.dataCodeName = PATTERNS.getMatchedPatterns(color)[!isTrader ? 0 : 1];
 		}
 		return true;
 	}
 	
 	@Override
-	public void set(Llama entity) {
-		Color randomColor = color == null ? CollectionUtils.getRandom(LLAMA_COLORS) : color;
-		assert randomColor != null;
-		entity.setColor(randomColor);
+	public void set(Llama llama) {
+		Color color = this.color;
+		if (color == null)
+			color = CollectionUtils.getRandom(LLAMA_COLORS);
+		assert color != null;
+		llama.setColor(color);
 	}
 	
 	@Override
-	protected boolean match(Llama entity) {
-		if (isTrader && !(entity instanceof TraderLlama))
+	protected boolean match(Llama llama) {
+		if (isTrader && !(llama instanceof TraderLlama))
 			return false;
-		return color == null || color == entity.getColor();
+		return color == null || color == llama.getColor();
 	}
 	
 	@Override
@@ -74,29 +83,29 @@ public class LlamaData extends EntityData<Llama> {
 	}
 	
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new LlamaData(color, isTrader);
+	public @NotNull EntityData<?> getSuperType() {
+		return new LlamaData();
 	}
 	
 	@Override
 	protected int hashCode_i() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
-		result = prime * result + (color != null ? color.hashCode() : 0);
+		result = prime * result + (color != null ? Objects.hashCode(color) : 0);
 		result = prime * result + (isTrader ? 1 : 0);
 		return result;
 	}
 	
 	@Override
-	protected boolean equals_i(EntityData<?> data) {
-		if (!(data instanceof LlamaData other))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof LlamaData other))
 			return false;
 		return isTrader == other.isTrader && other.color == color;
 	}
 	
 	@Override
-	public boolean isSupertypeOf(EntityData<?> data) {
-		if (!(data instanceof LlamaData other))
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof LlamaData other))
 			return false;
 
 		if (isTrader && !other.isTrader)

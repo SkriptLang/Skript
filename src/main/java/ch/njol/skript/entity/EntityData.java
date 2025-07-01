@@ -44,11 +44,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -342,7 +337,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	transient EntityDataInfo<?> info;
-	protected int matchedCodeName = 0;
+	protected int dataCodeName = 0;
 	private Kleenean plural = Kleenean.UNKNOWN;
 	private Kleenean baby = Kleenean.UNKNOWN;
 
@@ -350,7 +345,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		for (EntityDataInfo<?> info : infos) {
 			if (getClass() == info.getElementClass()) {
 				this.info = info;
-				matchedCodeName = info.defaultName;
+				dataCodeName = info.defaultName;
 				return;
 			}
 		}
@@ -373,7 +368,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		String codeName = info.getCodeNameFromPattern(matchedPattern);
 		int matchedCodeName = info.getCodeNamePlacement(codeName);
 		int actualPattern = info.getActualMatchedPattern(matchedPattern);
-		this.matchedCodeName = matchedCodeName;
+		this.dataCodeName = matchedCodeName;
 		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedCodeName, actualPattern, parseResult);
 	}
 
@@ -462,7 +457,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 *
 	 * @return A generalized {@link EntityData} representing the base entity type.
 	 */
-	public abstract @NotNull EntityData getSuperType();
+	public abstract @NotNull EntityData<?> getSuperType();
 
 	@Override
 	public final String toString() {
@@ -471,7 +466,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@SuppressWarnings("null")
 	protected Noun getName() {
-		return info.names[matchedCodeName];
+		return info.names[dataCodeName];
 	}
 
 	protected @Nullable Adjective getAgeAdjective() {
@@ -480,7 +475,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@SuppressWarnings("null")
 	public String toString(int flags) {
-		Noun name = info.names[matchedCodeName];
+		Noun name = info.names[dataCodeName];
 		return baby.isTrue() ? m_baby.toString(name, flags) : baby.isFalse() ? m_adult.toString(name, flags) : name.toString(flags);
 	}
 
@@ -512,7 +507,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		int result = 1;
 		result = prime * result + baby.hashCode();
 		result = prime * result + plural.hashCode();
-		result = prime * result + matchedCodeName;
+		result = prime * result + dataCodeName;
 		result = prime * result + info.hashCode();
 		result = prime * result + hashCode_i();
 		return result;
@@ -522,10 +517,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * Internal helper for {@link #equals(Object)} to compare the specific data
 	 * of this {@link EntityData} with another.
 	 *
-	 * @param obj The {@link EntityData} to compare with.
+	 * @param entityData The {@link EntityData} to compare with.
 	 * @return {@code true} if the data is considered equal, otherwise {@code false}.
 	 */
-	protected abstract boolean equals_i(EntityData<?> obj);
+	protected abstract boolean equals_i(EntityData<?> entityData);
 
 	@Override
 	public final boolean equals(@Nullable Object obj) {
@@ -539,7 +534,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			return false;
 		if (plural != other.plural)
 			return false;
-		if (matchedCodeName != other.matchedCodeName)
+		if (dataCodeName != other.dataCodeName)
 			return false;
 		if (!info.equals(other.info))
 			return false;

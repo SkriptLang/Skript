@@ -7,6 +7,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Chicken.Variant;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -14,16 +16,16 @@ import java.util.Objects;
 public class ChickenData extends EntityData<Chicken> {
 
 	private static final boolean VARIANTS_ENABLED;
-	private static final Object[] variants;
+	private static final Object[] VARIANTS;
 
 	static {
 		register(ChickenData.class, "chicken", Chicken.class, "chicken");
 		if (Skript.classExists("org.bukkit.entity.Chicken$Variant")) {
 			VARIANTS_ENABLED = true;
-			variants = Iterators.toArray(Classes.getExactClassInfo(Chicken.Variant.class).getSupplier().get(), Chicken.Variant.class);
+			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Chicken.Variant.class).getSupplier().get(), Chicken.Variant.class);
 		} else {
 			VARIANTS_ENABLED = false;
-			variants = null;
+			VARIANTS = null;
 		}
 	}
 
@@ -37,17 +39,10 @@ public class ChickenData extends EntityData<Chicken> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (VARIANTS_ENABLED) {
-			Literal<?> expr = null;
-			if (exprs[0] != null) { // chicken
-				expr = exprs[0];
-			} else if (exprs[1] != null) { // chicks
-				expr = exprs[1];
-			}
-			if (expr != null)
-				//noinspection unchecked
-				variant = ((Literal<Chicken.Variant>) expr).getSingle();
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (VARIANTS_ENABLED && exprs[0] != null) {
+			//noinspection unchecked
+			variant = ((Literal<Chicken.Variant>) exprs[0]).getSingle();
 		}
 		return true;
 	}
@@ -63,9 +58,11 @@ public class ChickenData extends EntityData<Chicken> {
 	@Override
 	public void set(Chicken chicken) {
 		if (VARIANTS_ENABLED) {
-			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
-			assert finalVariant != null;
-			chicken.setVariant((Chicken.Variant) finalVariant);
+			Variant variant = (Variant) this.variant;
+			if (variant == null)
+				variant = (Variant) CollectionUtils.getRandom(VARIANTS);
+			assert variant != null;
+			chicken.setVariant(variant);
 		}
 	}
 
@@ -80,7 +77,7 @@ public class ChickenData extends EntityData<Chicken> {
 	}
 
 	@Override
-	public EntityData<Chicken> getSuperType() {
+	public @NotNull EntityData<?> getSuperType() {
 		return new ChickenData();
 	}
 
@@ -90,8 +87,8 @@ public class ChickenData extends EntityData<Chicken> {
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof ChickenData other))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof ChickenData other))
 			return false;
 		return variant == other.variant;
 	}

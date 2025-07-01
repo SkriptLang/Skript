@@ -9,9 +9,7 @@ import org.bukkit.entity.Villager.Profession;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 public class VillagerData extends EntityData<Villager> {
@@ -20,18 +18,30 @@ public class VillagerData extends EntityData<Villager> {
 	 * Professions can be for zombies also. These are the ones which are only
 	 * for villagers.
 	 */
-	private static final List<Profession> professions;
+	private static final Profession[] PROFESSIONS = Profession.values();
+	private static final EntityPatterns<Profession> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"villager", null},
+		{"normal", Profession.NONE},
+		{"armorer", Profession.ARMORER},
+		{"butcher", Profession.BUTCHER},
+		{"cartographer", Profession.CARTOGRAPHER},
+		{"cleric", Profession.CLERIC},
+		{"farmer", Profession.FARMER},
+		{"fisherman", Profession.FISHERMAN},
+		{"fletcher", Profession.FLETCHER},
+		{"leatherworker", Profession.LEATHERWORKER},
+		{"librarian", Profession.LIBRARIAN},
+		{"mason", Profession.MASON},
+		{"nitwit", Profession.NITWIT},
+		{"shepherd", Profession.SHEPHERD},
+		{"toolsmith", Profession.TOOLSMITH},
+		{"weaponsmith", Profession.WEAPONSMITH}
+	});
 
 	static {
 		Variables.yggdrasil.registerSingleClass(Profession.class, "Villager.Profession");
 
-		EntityData.register(VillagerData.class, "villager", Villager.class, 0,
-			"villager", "normal", "armorer", "butcher", "cartographer", "cleric", "farmer", "fisherman",
-			"fletcher", "leatherworker", "librarian", "mason", "nitwit", "shepherd", "toolsmith", "weaponsmith");
-		professions = Arrays.asList(Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
-			Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
-			Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
-			Profession.WEAPONSMITH);
+		EntityData.register(VillagerData.class, "villager", Villager.class, 0, PATTERNS.getPatterns());
 	}
 
 	private @Nullable Profession profession = null;
@@ -40,27 +50,31 @@ public class VillagerData extends EntityData<Villager> {
 	
 	public VillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		this.matchedCodeName = profession != null ? professions.indexOf(profession) + 1 : 0;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(profession)[0];
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		if (matchedCodeName > 0)
-			profession = professions.get(matchedCodeName - 1);
+		profession = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 	
 	@Override
 	protected boolean init(@Nullable Class<? extends Villager> villagerClass, @Nullable Villager villager) {
-		profession = villager == null ? null : villager.getProfession();
+		if (villager != null) {
+			profession = villager.getProfession();
+			super.dataCodeName = PATTERNS.getMatchedPatterns(profession)[0];
+		}
 		return true;
 	}
 	
 	@Override
 	public void set(Villager villager) {
-		Profession prof = profession == null ? CollectionUtils.getRandom(professions) : profession;
-		assert prof != null;
-		villager.setProfession(prof);
+		Profession profession = this.profession;
+		if (profession == null)
+			profession = CollectionUtils.getRandom(PROFESSIONS);
+		assert profession != null;
+		villager.setProfession(profession);
 		if (profession == Profession.NITWIT)
 			villager.setRecipes(Collections.emptyList());
 	}
@@ -69,48 +83,34 @@ public class VillagerData extends EntityData<Villager> {
 	protected boolean match(Villager villager) {
 		return profession == null || villager.getProfession() == profession;
 	}
-	
+
 	@Override
 	public Class<? extends Villager> getType() {
 		return Villager.class;
 	}
-	
+
+	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new VillagerData();
+	}
+
 	@Override
 	protected int hashCode_i() {
 		return Objects.hashCode(profession);
 	}
-	
+
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof VillagerData villagerData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof VillagerData other))
 			return false;
-		return profession == villagerData.profession;
+		return profession == other.profession;
 	}
-	
-//		return profession == null ? "" : profession.name();
-	@Override
-	protected boolean deserialize(final String s) {
-		if (s.isEmpty())
-			return true;
-		try {
-			//noinspection unchecked, rawtypes - prevent IncompatibleClassChangeError due to Enum->Interface change
-			profession = (Profession) Enum.valueOf((Class) Profession.class, s);
-			return true;
-		} catch (final IllegalArgumentException e) {
-			return false;
-		}
-	}
-	
+
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
-		if (entityData instanceof VillagerData villagerData)
-			return profession == null || profession.equals(villagerData.profession);
-		return false;
+		if (!(entityData instanceof VillagerData other))
+			return false;
+		return profession == null || profession.equals(other.profession);
 	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
-		return new VillagerData(profession);
-	}
-	
+
 }

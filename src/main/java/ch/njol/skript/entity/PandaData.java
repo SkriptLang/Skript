@@ -1,26 +1,26 @@
 package ch.njol.skript.entity;
 
-import java.util.concurrent.ThreadLocalRandom;
-
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.localization.Language;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Panda;
 import org.bukkit.entity.Panda.Gene;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.Language;
+import java.util.Objects;
 
 public class PandaData extends EntityData<Panda> {
 	
+	private static final Gene[] GENES = Gene.values();
+
 	static {
-		if (Skript.isRunningMinecraft(1, 14))
-			EntityData.register(PandaData.class, "panda", Panda.class, "panda");
+		EntityData.register(PandaData.class, "panda", Panda.class, "panda");
 	}
-	
-	@Nullable
-	private Gene mainGene = null, hiddenGene = null;
+
+	private @Nullable Gene mainGene = null;
+	private @Nullable Gene hiddenGene = null;
 	
 	public PandaData() {}
 	
@@ -39,7 +39,7 @@ public class PandaData extends EntityData<Panda> {
 	}
 	
 	@Override
-	protected boolean init(@Nullable Class<? extends Panda> c, @Nullable Panda panda) {
+	protected boolean init(@Nullable Class<? extends Panda> entityClass, @Nullable Panda panda) {
 		if (panda != null) {
 			mainGene = panda.getMainGene();
 			hiddenGene = panda.getHiddenGene();
@@ -48,28 +48,23 @@ public class PandaData extends EntityData<Panda> {
 	}
 	
 	@Override
-	public void set(Panda entity) {
-		Gene gen = mainGene;
-		if (gen == null)
-			gen = Gene.values()[ThreadLocalRandom.current().nextInt(0, 7)];
-		assert gen != null;
-		entity.setMainGene(gen);
-		entity.setHiddenGene(hiddenGene != null ? hiddenGene : gen);
+	public void set(Panda panda) {
+		Gene gene = mainGene;
+		if (gene == null)
+			gene = CollectionUtils.getRandom(GENES);
+		assert gene != null;
+		panda.setMainGene(gene);
+		panda.setHiddenGene(hiddenGene != null ? hiddenGene : gene);
 	}
 	
 	@Override
-	protected boolean match(Panda entity) {
-		if (hiddenGene != null) {
-			if(mainGene != null)
-				return mainGene == entity.getMainGene() && hiddenGene == entity.getHiddenGene();
-			else
-				return hiddenGene == entity.getHiddenGene();
-		} else {
-			if(mainGene != null)
-				return mainGene == entity.getMainGene();
-			else
-				return true;
-		}
+	protected boolean match(Panda panda) {
+		boolean matched = true;
+		if (mainGene != null)
+			matched &= (mainGene == panda.getMainGene());
+		if (hiddenGene != null)
+			matched &= (hiddenGene == panda.getHiddenGene());
+		return matched;
 	}
 	
 	@Override
@@ -78,33 +73,31 @@ public class PandaData extends EntityData<Panda> {
 	}
 	
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new PandaData(mainGene, hiddenGene);
+	public @NotNull EntityData<?> getSuperType() {
+		return new PandaData();
 	}
 	
 	@Override
 	protected int hashCode_i() {
 		int prime = 7;
 		int result = 0;
-		result = result * prime + (mainGene != null ? mainGene.hashCode() : 0);
-		result = result * prime + (hiddenGene != null ? hiddenGene.hashCode() : 0);
+		result = result * prime + (mainGene != null ? Objects.hashCode(mainGene) : 0);
+		result = result * prime + (hiddenGene != null ? Objects.hashCode(hiddenGene) : 0);
 		return result;
 	}
 	
 	@Override
-	protected boolean equals_i(EntityData<?> data) {
-		if (!(data instanceof PandaData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof PandaData other))
 			return false;
-		PandaData d = (PandaData) data;
-		return d.mainGene == mainGene && d.hiddenGene == hiddenGene;
+		return other.mainGene == mainGene && other.hiddenGene == hiddenGene;
 	}
 	
 	@Override
-	public boolean isSupertypeOf(EntityData<?> data) {
-		if (!(data instanceof PandaData))
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof PandaData other))
 			return false;
-		PandaData d = (PandaData) data;
-		return (mainGene == null || mainGene == d.mainGene) && (hiddenGene == null || hiddenGene == d.hiddenGene);
+		return (mainGene == null || mainGene == other.mainGene) && (hiddenGene == null || hiddenGene == other.hiddenGene);
 	}
 	
 	@Override

@@ -7,78 +7,87 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.Objects;
+
+
 public class CreeperData extends EntityData<Creeper> {
+
+	public enum PoweredState {
+		UNKNOWN, POWERED, UNPOWERED
+	}
+
+	private static final EntityPatterns<PoweredState> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"creeper", PoweredState.UNKNOWN},
+		{"powered creeper", PoweredState.POWERED},
+		{"unpowered creeper", PoweredState.UNPOWERED}
+	});
+
 	static {
-		EntityData.register(CreeperData.class, "creeper", Creeper.class, 1, "unpowered creeper", "creeper", "powered creeper");
+		EntityData.register(CreeperData.class, "creeper", Creeper.class, 0, PATTERNS.getPatterns());
 	}
 	
-	private int powered = 0;
+	private PoweredState state = PoweredState.UNKNOWN;
+
+	public CreeperData() {}
+
+	public CreeperData(@Nullable CreeperData.PoweredState state)  {
+		this.state = state != null ? state : PoweredState.UNKNOWN;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(this.state)[0];
+	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		powered = matchedCodeName - 1;
+		state = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 	
 	@Override
-	protected boolean init(final @Nullable Class<? extends Creeper> c, final @Nullable Creeper e) {
-		powered = e == null ? 0 : e.isPowered() ? 1 : -1;
+	protected boolean init(@Nullable Class<? extends Creeper> entityClass, @Nullable Creeper creeper) {
+		state = PoweredState.UNKNOWN;
+		if (creeper != null) {
+			state = creeper.isPowered() ? PoweredState.POWERED : PoweredState.UNPOWERED;
+			super.dataCodeName = PATTERNS.getMatchedPatterns(state)[0];
+		}
 		return true;
 	}
 	
 	@Override
-	public void set(final Creeper c) {
-		if (powered != 0)
-			c.setPowered(powered == 1);
+	public void set(Creeper creeper) {
+		creeper.setPowered(state == PoweredState.POWERED);
 	}
 	
 	@Override
-	public boolean match(final Creeper entity) {
-		return powered == 0 || entity.isPowered() == (powered == 1);
+	public boolean match(Creeper creeper) {
+		return state == PoweredState.UNKNOWN || creeper.isPowered() == (state == PoweredState.POWERED);
 	}
 	
 	@Override
 	public Class<Creeper> getType() {
 		return Creeper.class;
 	}
-	
+
 	@Override
-	protected int hashCode_i() {
-		return powered;
-	}
-	
-	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof CreeperData))
-			return false;
-		final CreeperData other = (CreeperData) obj;
-		return powered == other.powered;
-	}
-	
-//		return "" + powered;
-	@Override
-	protected boolean deserialize(final String s) {
-		try {
-			powered = Integer.parseInt(s);
-			return true;
-		} catch (final NumberFormatException e) {
-			return false;
-		}
-	}
-	
-	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		if (e instanceof CreeperData)
-			return powered == 0 || ((CreeperData) e).powered == powered;
-		return false;
-	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
+	public @NotNull EntityData<?> getSuperType() {
 		return new CreeperData();
 	}
-	
+
+	@Override
+	protected int hashCode_i() {
+		return Objects.hashCode(state);
+	}
+
+	@Override
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof CreeperData other))
+			return false;
+		return state == other.state;
+	}
+
+	@Override
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof CreeperData other))
+			return false;
+		return state == other.state;
+	}
+
 }

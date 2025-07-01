@@ -724,7 +724,9 @@ entities:
 			1: [mine]cart[plural:s] with command block[s]
 	mooshroom:
 		name: mooshroom¦s
-		pattern: <age> (mooshroom[ cow]|mushroom cow)[plural:s]
+		patterns:
+			0: <age> (mooshroom[ cow]|mushroom cow)[plural:s]
+			1: baby:(mooshroom|mushroom) cal(f|plural:ves)
 	red mooshroom:
 		name: red mooshroom¦s
 		patterns:
@@ -947,7 +949,7 @@ entities:
 		name: falling block¦s
 		patterns:
 			0: falling block[plural:s]
-			1: unknown_plural:falling %-itemtype%
+			1: unknown_plural:falling %-itemtype% [block[s]]
 		adjective: falling
 		not a block error: Falling blocks must be blocks, not items
 	thrown potion:
@@ -1548,7 +1550,9 @@ entities:
 	# 1.21.6 Entities
 	happy ghast:
 		name: happy ghast¦s
-		pattern: <age> happy ghast[plural:s]|baby:[happy] ghastling[plural:s]
+		patterns:
+			0: <age> happy ghast[plural:s]
+			1: baby:[happy] ghastling[plural:s]
 
 # -- Heal Reasons --
 heal reasons:

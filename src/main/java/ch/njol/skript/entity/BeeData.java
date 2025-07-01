@@ -1,9 +1,9 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.entity.Bee;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
@@ -11,10 +11,8 @@ import java.util.Random;
 public class BeeData extends EntityData<Bee> {
 	
 	static {
-		if (Skript.classExists("org.bukkit.entity.Bee")) {
-			EntityData.register(BeeData.class, "bee", Bee.class, 2,
-				"no nectar bee", "happy bee", "bee", "nectar bee", "angry bee", "angry nectar bee");
-		}
+		EntityData.register(BeeData.class, "bee", Bee.class, 2,
+			"no nectar bee", "happy bee", "bee", "nectar bee", "angry bee", "angry nectar bee");
 	}
 	
 	private int nectar = 0;
@@ -36,29 +34,38 @@ public class BeeData extends EntityData<Bee> {
 	}
 	
 	@Override
-	protected boolean init(@Nullable Class<? extends Bee> c, @Nullable Bee e) {
-		angry = e == null ? 0 : (e.getAnger() > 0) ? 1 : -1;
-		nectar = e == null ? 0 : e.hasNectar() ? 1 : -1;
+	protected boolean init(@Nullable Class<? extends Bee> entityClass, @Nullable Bee bee) {
+		angry = bee == null ? 0 : (bee.getAnger() > 0) ? 1 : -1;
+		nectar = bee == null ? 0 : bee.hasNectar() ? 1 : -1;
 		return true;
 	}
 	
 	@Override
-	public void set(Bee entity) {
+	public void set(Bee bee) {
 		int random = new Random().nextInt(400) + 400;
-		entity.setAnger(angry > 0 ? random : 0);
-		entity.setHasNectar(nectar > 0);
+		bee.setAnger(angry > 0 ? random : 0);
+		bee.setHasNectar(nectar > 0);
 	}
 	
 	@Override
-	protected boolean match(Bee entity) {
-		return (angry == 0 || (entity.getAnger() > 0) == (angry == 1)) && (nectar == 0 || entity.hasNectar() == (nectar == 1));
-	}
+	protected boolean match(Bee bee) {
+		if (angry == 0 && nectar == 0)
+			return true;
+		if ((bee.getAnger() > 0) != (angry == 1))
+			return false;
+        return bee.hasNectar() == (nectar == 1);
+    }
 	
 	@Override
 	public Class<? extends Bee> getType() {
 		return Bee.class;
 	}
-	
+
+	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new BeeData();
+	}
+
 	@Override
 	protected int hashCode_i() {
 		int prime = 31;
@@ -67,22 +74,21 @@ public class BeeData extends EntityData<Bee> {
 		result = prime * result + nectar;
 		return result;
 	}
-	
+
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof BeeData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof BeeData other))
 			return false;
-		final BeeData other = (BeeData) obj;
 		return (angry == other.angry) && (nectar == other.nectar);
 	}
-	
+
 	@Override
-	public boolean isSupertypeOf(EntityData<?> e) {
-		return (e instanceof BeeData) && (angry == 0 || ((BeeData) e).angry == angry) && (nectar == 0 || ((BeeData) e).nectar == nectar);
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof BeeData other))
+			return false;
+		if (angry != 0 && angry != other.angry)
+			return false;
+		return nectar == 0 || nectar == other.nectar;
 	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
-		return new BeeData();
-	}
+
 }

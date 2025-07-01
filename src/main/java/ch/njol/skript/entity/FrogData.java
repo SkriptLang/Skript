@@ -1,8 +1,8 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
 import org.jetbrains.annotations.NotNull;
@@ -12,62 +12,54 @@ import java.util.Objects;
 
 public class FrogData extends EntityData<Frog> {
 
+	private static final EntityPatterns<Variant> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"frog", null},
+		{"temperate frog", Variant.TEMPERATE},
+		{"warm frog", Variant.WARM},
+		{"cold frog", Variant.COLD}
+	});
+	private static final Variant[] VARIANTS = Variant.values();
+
 	static {
-		if (Skript.classExists("org.bukkit.entity.Frog")) {
-			EntityData.register(FrogData.class, "frog", Frog.class, 0,
-				"frog", "temperate frog", "warm frog", "cold frog");
-		}
+		EntityData.register(FrogData.class, "frog", Frog.class, 0, PATTERNS.getPatterns());
 	}
 
-	@Nullable
-	private Variant variant = null;
+	private @Nullable Variant variant = null;
 
-	public FrogData() {
-	}
+	public FrogData() {}
 
 	public FrogData(@Nullable Variant variant) {
 		this.variant = variant;
-		matchedCodeName = 0;
-		if (variant == Variant.TEMPERATE)
-			matchedCodeName = 1;
-		if (variant == Variant.WARM)
-			matchedCodeName = 2;
-		if (variant == Variant.COLD)
-			matchedCodeName = 3;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		switch (matchedCodeName) {
-			case 1:
-				variant = Variant.TEMPERATE;
-				break;
-			case 2:
-				variant = Variant.WARM;
-				break;
-			case 3:
-				variant = Variant.COLD;
-				break;
+		variant = PATTERNS.getInfo(matchedCodeName);
+		return true;
+	}
+
+	@Override
+	protected boolean init(@Nullable Class<? extends Frog> entityClass, @Nullable Frog frog) {
+		if (frog != null) {
+			variant = frog.getVariant();
+			super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
 		}
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Frog> c, @Nullable Frog frog) {
-		if (frog != null)
-			variant = frog.getVariant();
-		return true;
+	public void set(Frog frog) {
+		Variant variant = this.variant;
+		if (variant == null)
+			variant = CollectionUtils.getRandom(VARIANTS);
+		assert variant != null;
+		frog.setVariant(variant);
 	}
 
 	@Override
-	public void set(Frog entity) {
-		if (variant != null)
-			entity.setVariant(variant);
-	}
-
-	@Override
-	protected boolean match(Frog entity) {
-		return variant == null || variant == entity.getVariant();
+	protected boolean match(Frog frog) {
+		return variant == null || variant == frog.getVariant();
 	}
 
 	@Override
@@ -76,8 +68,8 @@ public class FrogData extends EntityData<Frog> {
 	}
 
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new FrogData(variant);
+	public @NotNull EntityData<?> getSuperType() {
+		return new FrogData();
 	}
 
 	@Override
@@ -86,17 +78,17 @@ public class FrogData extends EntityData<Frog> {
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> data) {
-		if (!(data instanceof FrogData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof FrogData other))
 			return false;
-		return variant == ((FrogData) data).variant;
+		return variant == other.variant;
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> data) {
-		if (!(data instanceof FrogData))
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof FrogData other))
 			return false;
-		return variant == null || variant == ((FrogData) data).variant;
+		return variant == null || variant == other.variant;
 	}
 
 }

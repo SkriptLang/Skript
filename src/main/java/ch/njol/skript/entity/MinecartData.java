@@ -68,9 +68,9 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	public MinecartData() {}
 	
-	public MinecartData(final MinecartType type) {
+	public MinecartData(MinecartType type) {
 		this.type = type;
-		this.matchedCodeName = type.ordinal();
+		this.dataCodeName = type.ordinal();
 	}
 
 	@Override
@@ -81,13 +81,13 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected boolean init(final @Nullable Class<? extends Minecart> c, final @Nullable Minecart e) {
+	protected boolean init(@Nullable Class<? extends Minecart> entityClass, @Nullable Minecart minecart) {
 		final MinecartType[] ts = MinecartType.values();
 		for (int i = ts.length - 1; i >= 0; i--) {
 			final Class<?> mc = ts[i].c;
 			if (mc == null)
 				continue;
-			if (e == null ? mc.isAssignableFrom(c) : mc.isInstance(e)) {
+			if (minecart == null ? mc.isAssignableFrom(entityClass) : mc.isInstance(minecart)) {
 				type = ts[i];
 				return true;
 			}
@@ -97,55 +97,43 @@ public class MinecartData extends EntityData<Minecart> {
 	}
 	
 	@Override
-	public void set(final Minecart entity) {}
+	public void set(Minecart minecart) {}
 	
 	@Override
-	public boolean match(final Minecart entity) {
+	public boolean match(Minecart minecart) {
 		if (type == MinecartType.NORMAL && type.c == Minecart.class) // pre-1.5
-			return !(entity.getClass().equals(Utils.classForName("org.bukkit.entity.StorageMinecart"))
-					|| entity.getClass().equals(Utils.classForName("org.bukkit.entity.PoweredMinecart")));
-		return type.c != null && type.c.isInstance(entity);
+			return !(minecart.getClass().equals(Utils.classForName("org.bukkit.entity.StorageMinecart"))
+					|| minecart.getClass().equals(Utils.classForName("org.bukkit.entity.PoweredMinecart")));
+		return type.c != null && type.c.isInstance(minecart);
 	}
 	
 	@Override
 	public Class<? extends Minecart> getType() {
 		return type.c != null ? type.c : Minecart.class;
 	}
-	
+
+	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new MinecartData();
+	}
+
 	@Override
 	protected int hashCode_i() {
 		return type.hashCode();
 	}
-	
+
 	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof MinecartData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof MinecartData other))
 			return false;
-		final MinecartData other = (MinecartData) obj;
 		return type == other.type;
 	}
-	
-//		return type.name();
+
 	@Override
-	protected boolean deserialize(final String s) {
-		try {
-			type = MinecartType.valueOf(s);
-			return true;
-		} catch (final IllegalArgumentException e) {
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof MinecartData other))
 			return false;
-		}
+		return type == MinecartType.ANY || type == other.type;
 	}
-	
-	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		if (e instanceof MinecartData)
-			return type == MinecartType.ANY || ((MinecartData) e).type == type;
-		return false;
-	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
-		return new MinecartData(type);
-	}
-	
+
 }

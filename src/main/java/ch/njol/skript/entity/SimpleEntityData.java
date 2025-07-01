@@ -75,79 +75,99 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 	static {
 		// Simple Entities
-		addSimpleEntity("arrow", Arrow.class);
-		addSimpleEntity("spectral arrow", SpectralArrow.class);
-		addSimpleEntity("tipped arrow", TippedArrow.class);
-		addSimpleEntity("blaze", Blaze.class);
-		addSimpleEntity("mooshroom", MushroomCow.class);
-		addSimpleEntity("cave spider", CaveSpider.class);
-		addSimpleEntity("dragon fireball", DragonFireball.class);
-		addSimpleEntity("egg", Egg.class);
-		addSimpleEntity("ender crystal", EnderCrystal.class);
-		addSimpleEntity("ender dragon", EnderDragon.class);
-		addSimpleEntity("ender pearl", EnderPearl.class);
-		addSimpleEntity("ender eye", EnderSignal.class);
+
+		// Alpha + Beta
+		addSuperEntity("skeleton", Skeleton.class);
+		addSimpleEntity("tnt", TNTPrimed.class);
+		addSimpleEntity("spider", Spider.class);
+		addSimpleEntity("player", Player.class);
+		addSimpleEntity("lightning bolt", LightningStrike.class);
+		addSimpleEntity("giant", Giant.class);
+		addSimpleEntity("ghast", Ghast.class);
+		addSimpleEntity("fish hook", FishHook.class);
+		addSuperEntity("fireball", Fireball.class, Kleenean.TRUE);
 		addSimpleEntity("small fireball", SmallFireball.class);
 		addSimpleEntity("large fireball", LargeFireball.class);
-		addSuperEntity("fireball", Fireball.class, Kleenean.TRUE);
-		addSimpleEntity("fish hook", FishHook.class);
-		addSimpleEntity("ghast", Ghast.class);
-		addSimpleEntity("giant", Giant.class);
-		addSimpleEntity("iron golem", IronGolem.class);
-		addSimpleEntity("lightning bolt", LightningStrike.class);
-		addSimpleEntity("magma cube", MagmaCube.class);
-		addSimpleEntity("slime", Slime.class);
-		addSimpleEntity("painting", Painting.class);
-		addSimpleEntity("player", Player.class);
-		addSimpleEntity("zombie pigman", PigZombie.class);
-		addSimpleEntity("silverfish", Silverfish.class);
-		addSimpleEntity("snowball", Snowball.class);
+		addSimpleEntity("ender pearl", EnderPearl.class);
+		addSimpleEntity("ender dragon", EnderDragon.class);
+		addSimpleEntity("ender crystal", EnderCrystal.class);
+		addSimpleEntity("dragon fireball", DragonFireball.class);
+		addSimpleEntity("egg", Egg.class);
+		addSimpleEntity("cave spider", CaveSpider.class);
+		addSimpleEntity("arrow", Arrow.class);
+
+		// 1.0
 		addSimpleEntity("snow golem", Snowman.class);
-		addSimpleEntity("spider", Spider.class);
+		addSimpleEntity("snowball", Snowball.class);
+		addSimpleEntity("slime", Slime.class);
+		addSimpleEntity("magma cube", MagmaCube.class);
+		addSimpleEntity("ender eye", EnderSignal.class);
+		addSimpleEntity("mooshroom", MushroomCow.class);
+		addSimpleEntity("blaze", Blaze.class);
+
+		// 1.2
+		addSimpleEntity("zombie pigman", PigZombie.class);
 		addSimpleEntity("bottle of enchanting", ThrownExpBottle.class);
-		addSimpleEntity("tnt", TNTPrimed.class);
-		addSimpleEntity("leash hitch", LeashHitch.class);
-		addSimpleEntity("item frame", ItemFrame.class);
-		addSimpleEntity("bat", Bat.class);
-		addSimpleEntity("witch", Witch.class);
+		addSimpleEntity("iron golem", IronGolem.class);
+		addSimpleEntity("ocelot", Ocelot.class);
+
+		// 1.4
+		addSimpleEntity("wither skeleton", WitherSkeleton.class);
+		addSimpleEntity("firework", Firework.class, Kleenean.TRUE); // bukkit marks fireworks as not spawnable,  see https://hub.spigotmc.org/jira/browse/SPIGOT-7677
 		addSimpleEntity("wither", Wither.class);
 		addSimpleEntity("wither skull", WitherSkull.class);
-		// bukkit marks fireworks as not spawnable
-		// see https://hub.spigotmc.org/jira/browse/SPIGOT-7677
-		addSimpleEntity("firework", Firework.class, Kleenean.TRUE);
-		addSimpleEntity("endermite", Endermite.class);
-		addSimpleEntity("armor stand", ArmorStand.class);
-		addSimpleEntity("shulker", Shulker.class);
-		addSimpleEntity("shulker bullet", ShulkerBullet.class);
-		addSimpleEntity("polar bear", PolarBear.class);
-		addSimpleEntity("area effect cloud", AreaEffectCloud.class);
-		addSimpleEntity("wither skeleton", WitherSkeleton.class);
-		addSimpleEntity("stray", Stray.class);
-		addSimpleEntity("husk", Husk.class);
-		addSuperEntity("skeleton", Skeleton.class);
-		addSimpleEntity("llama spit", LlamaSpit.class);
-		addSimpleEntity("evoker", Evoker.class);
-		addSimpleEntity("evoker fangs", EvokerFangs.class);
-		addSimpleEntity("vex", Vex.class);
-		addSimpleEntity("vindicator", Vindicator.class);
+		addSimpleEntity("witch", Witch.class);
+		addSimpleEntity("bat", Bat.class);
+		addSimpleEntity("item frame", ItemFrame.class);
+		addSimpleEntity("painting", Painting.class);
+
+		// 1.6
+		addSimpleEntity("horse", Horse.class);
+		addSimpleEntity("skeleton horse", SkeletonHorse.class);
+		addSimpleEntity("undead horse", ZombieHorse.class);
+		addSimpleEntity("mule", Mule.class);
+		addSimpleEntity("donkey", Donkey.class);
+		addSimpleEntity("leash hitch", LeashHitch.class);
+
+		// 1.8
 		addSimpleEntity("elder guardian", ElderGuardian.class);
 		addSimpleEntity("normal guardian", Guardian.class);
-		addSimpleEntity("donkey", Donkey.class);
-		addSimpleEntity("mule", Mule.class);
-		addSimpleEntity("llama", Llama.class);
-		addSimpleEntity("undead horse", ZombieHorse.class);
-		addSimpleEntity("skeleton horse", SkeletonHorse.class);
-		addSimpleEntity("horse", Horse.class);
-		addSimpleEntity("dolphin", Dolphin.class);
-		addSimpleEntity("phantom", Phantom.class);
-		addSimpleEntity("drowned", Drowned.class);
-		addSimpleEntity("turtle", Turtle.class);
-		addSimpleEntity("cod", Cod.class);
-		addSimpleEntity("puffer fish", PufferFish.class);
-		addSimpleEntity("tropical fish", TropicalFish.class);
-		addSimpleEntity("trident", Trident.class);
+		addSimpleEntity("armor stand", ArmorStand.class);
+		addSimpleEntity("endermite", Endermite.class);
+		addSimpleEntity("silverfish", Silverfish.class);
+		addSimpleEntity("tipped arrow", TippedArrow.class);
 
+		// 1.9
+		addSimpleEntity("area effect cloud", AreaEffectCloud.class);
+		addSimpleEntity("shulker", Shulker.class);
+		addSimpleEntity("shulker bullet", ShulkerBullet.class);
+		addSimpleEntity("spectral arrow", SpectralArrow.class);
+
+		// 1.10
+		addSimpleEntity("husk", Husk.class);
+		addSimpleEntity("stray", Stray.class);
+		addSimpleEntity("polar bear", PolarBear.class);
+
+		// 1.11
+		addSimpleEntity("llama", Llama.class);
+		addSimpleEntity("llama spit", LlamaSpit.class);
+		addSimpleEntity("vindicator", Vindicator.class);
+		addSimpleEntity("vex", Vex.class);
+		addSimpleEntity("evoker", Evoker.class);
+		addSimpleEntity("evoker fangs", EvokerFangs.class);
+
+		// 1.12
 		addSimpleEntity("illusioner", Illusioner.class);
+
+		// 1.13
+		addSimpleEntity("trident", Trident.class);
+		addSimpleEntity("tropical fish", TropicalFish.class);
+		addSimpleEntity("puffer fish", PufferFish.class);
+		addSimpleEntity("cod", Cod.class);
+		addSimpleEntity("turtle", Turtle.class);
+		addSimpleEntity("drowned", Drowned.class);
+		addSimpleEntity("phantom", Phantom.class);
+		addSimpleEntity("dolphin", Dolphin.class);
 
 		// 1.14
 		addSimpleEntity("pillager", Pillager.class);
@@ -275,7 +295,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	private SimpleEntityData(SimpleEntityDataInfo info) {
 		assert info != null;
 		this.info = info;
-		matchedCodeName = types.indexOf(info);
+		dataCodeName = types.indexOf(info);
 	}
 	
 	public SimpleEntityData(Class<? extends Entity> entityClass) {
@@ -294,7 +314,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.info = closestInfo;
-			this.matchedCodeName = closestPattern;
+			this.dataCodeName = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();
@@ -315,7 +335,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.info = closestInfo;
-			this.matchedCodeName = closestPattern;
+			this.dataCodeName = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();
@@ -358,17 +378,27 @@ public class SimpleEntityData extends EntityData<Entity> {
 	public Class<? extends Entity> getType() {
 		return info.c;
 	}
-	
+
+	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new SimpleEntityData(info);
+	}
+
 	@Override
 	protected int hashCode_i() {
 		return info.hashCode();
 	}
-	
+
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof SimpleEntityData other))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof SimpleEntityData other))
 			return false;
 		return info.equals(other.info);
+	}
+
+	@Override
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		return info.c == entityData.getType() || info.isSupertype && info.c.isAssignableFrom(entityData.getType());
 	}
 
 	@Override
@@ -386,7 +416,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		fields.putObject("info.codeName", info.codeName);
 		return fields;
 	}
-	
+
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
 		String codeName = fields.getAndRemoveObject("info.codeName", String.class);
@@ -399,33 +429,5 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		throw new StreamCorruptedException("Invalid SimpleEntityDataInfo code name " + codeName);
 	}
-	
 
-	@Override
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	protected boolean deserialize(String string) {
-		try {
-			Class<?> c = Class.forName(string);
-			for (SimpleEntityDataInfo info : types) {
-				if (info.c == c) {
-					this.info = info;
-					return true;
-				}
-			}
-			return false;
-		} catch (ClassNotFoundException e) {
-			return false;
-		}
-	}
-	
-	@Override
-	public boolean isSupertypeOf(EntityData<?> entityData) {
-		return info.c == entityData.getType() || info.isSupertype && info.c.isAssignableFrom(entityData.getType());
-	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
-		return new SimpleEntityData(info);
-	}
-	
 }
