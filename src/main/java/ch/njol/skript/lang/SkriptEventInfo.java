@@ -27,9 +27,9 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 	public final String name;
   
 	private ListeningBehavior listeningBehavior;
-	private @Nullable String since = null;
 	private @Nullable String documentationID = null;
 
+	private String @Nullable [] since = null;
 	private String @Nullable [] description = null;
 	private String @Nullable [] examples = null;
 	private String @Nullable [] keywords = null;
@@ -128,7 +128,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 	 * @param since The version this event was added in
 	 * @return This SkriptEventInfo object
 	 */
-	public SkriptEventInfo<E> since(String since) {
+	public SkriptEventInfo<E> since(String... since) {
 		assert this.since == null;
 		this.since = since;
 		return this;
@@ -186,7 +186,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		return keywords;
 	}
 
-	public @Nullable String getSince() {
+	public String @Nullable [] getSince() {
 		return since;
 	}
 
@@ -225,7 +225,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 				.addPatterns(patterns())
 				.priority(priority())
 				.listeningBehavior(listeningBehavior())
-				.since(since())
+				.addSince(since())
 				.documentationId(id())
 				.addDescription(description())
 				.addExamples(examples())
@@ -250,13 +250,14 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		}
 
 		@Override
-		public @Nullable String since() {
-			return getSince();
+		public @Nullable String documentationId() {
+			return getDocumentationID();
 		}
 
 		@Override
-		public @Nullable String documentationId() {
-			return getDocumentationID();
+		public Collection<String> since() {
+			String[] since = getSince();
+			return since != null ? List.of(since) : List.of();
 		}
 
 		@Override

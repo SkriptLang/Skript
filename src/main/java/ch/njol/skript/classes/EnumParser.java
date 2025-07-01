@@ -1,37 +1,40 @@
-package ch.njol.skript.util;
+package ch.njol.skript.classes;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
-import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
- * @deprecated Use {@link ch.njol.skript.classes.EnumParser} instead.
+ * A {@link Parser} used for parsing and handling values representing an {@link Enum}
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
-public final class EnumUtils<E extends Enum<E>> {
+public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements Converter<String, E> {
 
 	private final Class<E> enumClass;
 	private final String languageNode;
-
-	@SuppressWarnings("NotNullFieldNotInitialized") // initialized in constructor's refresh() call
 	private String[] names;
-	private final HashMap<String, E> parseMap = new HashMap<>();
-	
-	public EnumUtils(Class<E> enumClass, String languageNode) {
+	private final Map<String, E> parseMap = new HashMap<>();
+	private String[] patterns;
+
+	/**
+	 * @param enumClass The {@link Enum} {@link Class} to be accessed.
+	 * @param languageNode The {@link String} representing the languageNode for the {@link Enum}
+	 */
+	public EnumParser(Class<E> enumClass, String languageNode) {
 		assert enumClass.isEnum() : enumClass;
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
-		
+
 		this.enumClass = enumClass;
 		this.languageNode = languageNode;
 
 		refresh();
-		
 		Language.addListener(this::refresh);
 	}
 
@@ -72,45 +75,33 @@ public final class EnumUtils<E extends Enum<E>> {
 				}
 			}
 		}
+		patterns = parseMap.keySet().toArray(String[]::new);
 	}
 
-	/**
-	 * This method attempts to match the string input against one of the string representations of the enumerators.
-	 * @param input a string to attempt to match against one the enumerators.
-	 * @return The enumerator matching the input, or null if no match could be made.
-	 */
-	@Nullable
-	public E parse(String input) {
-		return parseMap.get(input.toLowerCase(Locale.ENGLISH));
+	@Override
+	public @Nullable E parse(String string, ParseContext context) {
+		return parseMap.get(string.toLowerCase(Locale.ENGLISH));
 	}
 
-	/**
-	 * This method returns the string representation of an enumerator.
-	 * @param enumerator The enumerator to represent as a string.
-	 * @param flags not currently used
-	 * @return A string representation of the enumerator.
-	 */
-	public String toString(E enumerator, int flags) {
-		String s = names[enumerator.ordinal()];
-		return s != null ? s : enumerator.name();
+	@Override
+	public @Nullable E convert(String string) {
+		return parse(string, ParseContext.DEFAULT);
 	}
 
-	/**
-	 * This method returns the string representation of an enumerator
-	 * @param enumerator The enumerator to represent as a string
-	 * @param flag not currently used
-	 * @return A string representation of the enumerator
-	 */
-	public String toString(E enumerator, StringMode flag) {
-		return toString(enumerator, flag.ordinal());
+	@Override
+	public String toVariableNameString(E object) {
+		return toString(object, 0);
 	}
 
-	/**
-	 * @return A comma-separated string containing a list of all names representing the enumerators.
-	 * Note that some entries may represent the same enumerator.
-	 */
-	public String getAllNames() {
-		return StringUtils.join(parseMap.keySet(), ", ");
+	@Override
+	public String[] getPatterns() {
+		return patterns;
+	}
+
+	@Override
+	public String toString(E object, int flags) {
+		String name = names[object.ordinal()];
+		return name != null ? name : object.name();
 	}
 
 }
