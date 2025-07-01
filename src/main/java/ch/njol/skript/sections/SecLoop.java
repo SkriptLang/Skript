@@ -228,6 +228,7 @@ public class SecLoop extends LoopSection {
 		current.remove(event);
 		iteratorMap.remove(event);
 		previous.remove(event);
+		nextValue = null;
 		super.exit(event);
 	}
 
