@@ -531,7 +531,7 @@ public class DefaultFunctions {
 			)
 			.since("2.5, 2.10 (alpha)");
 
-		Functions.register(DefaultFunction.builder("player", Player.class)
+		DefaultFunction.builder("player", Player.class)
 			.description(
 				"Returns an online player from their name or UUID, if player is offline function will return nothing.",
 				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name."
@@ -555,7 +555,8 @@ public class DefaultFunctions {
 				}
 
 				return uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name));
-			}));
+			})
+			.register();
 
 		{ // offline player function
 			// TODO - remove this when Spigot support is dropped

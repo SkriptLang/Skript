@@ -192,18 +192,16 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		/**
 		 * The modifier for parameters that are optional.
 		 */
-		Modifier OPTIONAL = () -> "optional";
+		Modifier OPTIONAL = new ModifierImpl("optional");
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
 		 */
-		Modifier KEYED = () -> "keyed";
+		Modifier KEYED = new ModifierImpl("keyed");
 
-		/**
-		 * Returns the name of this modifier.
-		 * @return The name of this modifier.
-		 */
-		String name();
+	}
+
+	private record ModifierImpl(String name) implements Modifier {
 
 	}
 
