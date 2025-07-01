@@ -1,4 +1,3 @@
-
 local function loop():
 	loop 4 times:
 		assert previous loop-value is not set with "Previous loop-value should not be set"
