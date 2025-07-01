@@ -5,6 +5,8 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
+import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
@@ -151,21 +153,23 @@ public abstract class Functions {
 	 * @see Functions#parseSignature(String, String, String, String, boolean)
 	 */
 	public static @Nullable Signature<?> registerSignature(Signature<?> signature) {
-		boolean exists;
+		Retrieval<Signature<?>> existing;
 		Parameter<?>[] parameters = signature.parameters;
 
 		if (parameters.length == 1 && !parameters[0].isSingleValue()) {
-			exists = FunctionRegistry.getRegistry().signatureExists(signature.script, signature.getName(), parameters[0].type.getC().arrayType());
+			existing = FunctionRegistry.getRegistry().getSignature(signature.script, signature.getName(), parameters[0].type.getC().arrayType());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
 				types[i] = parameters[i].type.getC();
 			}
 
-			exists = FunctionRegistry.getRegistry().signatureExists(signature.script, signature.getName(), types);
+			existing = FunctionRegistry.getRegistry().getSignature(signature.script, signature.getName(), types);
 		}
 
-		if (exists) {
+		// if this function has already been registered, only allow it if one function is local and one is global.
+		// if both are global or both are local, disallow.
+		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().isLocal() == signature.isLocal()) {
 			Skript.error("Function '%s' with the same argument types already exists.".formatted(signature.getName()));
 			return null;
 		}

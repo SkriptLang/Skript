@@ -164,30 +164,6 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
-	 * Checks if a signature with the given name and arguments exists in the given namespace.
-	 *
-	 * <ul>
-	 * <li>If {@code namespace} is null, only global signatures will be checked.</li>
-	 * <li>If {@code args} is null or empty,
-	 * the first function with the same name as the {@code name} param will be returned.</li>
-	 * </ul>
-	 *
-	 * @param namespace The namespace to check in.
-	 *                  Usually represents the path of the script a signature is registered in.
-	 * @param name      The name of the function.
-	 * @param args      The types of the arguments of the function.
-	 * @return True if a signature with the given name and argument types exists in the script, false otherwise.
-	 */
-	public boolean signatureExists(@Nullable String namespace, @NotNull String name, Class<?>... args) {
-		if (namespace == null) {
-			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
-		}
-
-		return signatureExists(new NamespaceIdentifier(namespace.toLowerCase()),
-			FunctionIdentifier.of(name, true, args));
-	}
-
-	/**
 	 * Checks if a function with the given name and arguments exists in the namespace.
 	 *
 	 * @param namespace  The namespace to check in.

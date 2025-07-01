@@ -46,3 +46,16 @@ test "function overloading with 2 parameters":
 		overloaded2({_y}, {_x})
 
 	assert first element of last parse logs contains "Skript cannot determine which function named 'overloaded2' to call."
+
+function overloaded3() :: int:
+	return 1
+
+parse:
+	results: {FunctionOverloading3::parse::*}
+	code:
+		function overloaded3() :: string:
+			return ""
+
+test "function overloading with different return types":
+	assert size of {FunctionOverloading3::parse::1} = 1
+	assert {FunctionOverloading3::parse::1} = "Function 'overloaded3' with the same argument types already exists."
