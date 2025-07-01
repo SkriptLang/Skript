@@ -3,8 +3,8 @@ package ch.njol.skript.lang.parser;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.io.PrintStream;
 import java.util.Collections;
@@ -137,14 +137,14 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 	/**
 	 * A stack element, containing details about the syntax element it is about.
 	 */
-	public record Element(SyntaxElementInfo<?> syntaxElementInfo, int patternIndex) {
+	public record Element(SyntaxInfo<?> syntaxElementInfo, int patternIndex) {
 
 		public Element {
-			assert patternIndex >= 0 && patternIndex < syntaxElementInfo.getPatterns().length;
+			assert patternIndex >= 0 && patternIndex < syntaxElementInfo.patterns().size();
 		}
 
 		/**
-		 * Gets the raw {@link SyntaxElementInfo} of this stack element.
+		 * Gets the raw {@link SyntaxInfo} of this stack element.
 		 * <p>
 		 * For ease of use, consider using other getters of this class.
 		 *
@@ -152,7 +152,14 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 		 * @see #getPattern()
 		 */
 		@Override
-		public SyntaxElementInfo<?> syntaxElementInfo() {
+		public SyntaxInfo<?> syntaxElementInfo() {
+			return syntaxInfo();
+		}
+
+		/**
+		 * @return The raw {@link SyntaxInfo} of this stack element.
+		 */
+		public SyntaxInfo<?> syntaxInfo() {
 			return syntaxElementInfo;
 		}
 
@@ -169,14 +176,14 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 		 * Gets the syntax element class of this stack element.
 		 */
 		public Class<? extends SyntaxElement> getSyntaxElementClass() {
-			return syntaxElementInfo.getElementClass();
+			return syntaxElementInfo.type();
 		}
 
 		/**
 		 * Gets the pattern that was matched for this stack element.
 		 */
 		public String getPattern() {
-			return syntaxElementInfo.getPatterns()[patternIndex];
+			return getPatterns()[patternIndex];
 		}
 
 		/**
@@ -184,7 +191,7 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 		 * of this stack element.
 		 */
 		public String[] getPatterns() {
-			return syntaxElementInfo.getPatterns();
+			return syntaxElementInfo.patterns().toArray(new String[0]);
 		}
 
 	}
