@@ -1,0 +1,34 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtHarvestBlockTest"
+
+test "EvtHarvestBlock" when running junit:
+	set {_tests::*} to "event plain - called", "event plain - player", "event plain - block", "event plain - equipment"
+	add "event plain - drops" to {_tests::*}
+	add "event typed - called", "event typed - player", "event typed - block", "event typed - equipment" to {_tests::*}
+	add "event typed - drops" to {_tests::*}
+
+	ensure {@test} completes {_tests::*}
+
+on harvest:
+	junit test is {@test}
+	complete "event plain - called" for {@test}
+	if event-player is set:
+		complete "event plain - player" for {@test}
+	if event-block is a sweet berry bush:
+		complete "event plain - block" for {@test}
+	if event-equipment slot is main hand slot:
+		complete "event plain - equipment" for {@test}
+	if event-items are sweet berries:
+		complete "event plain - drops" for {@test}
+
+on harvest of a sweet berry bush:
+	junit test is {@test}
+	complete "event typed - called" for {@test}
+	if event-player is set:
+		complete "event typed - player" for {@test}
+	if event-block is a sweet berry bush:
+		complete "event typed - block" for {@test}
+	if event-equipment slot is main hand slot:
+		complete "event typed - equipment" for {@test}
+	if event-items are sweet berries:
+		complete "event typed - drops" for {@test}

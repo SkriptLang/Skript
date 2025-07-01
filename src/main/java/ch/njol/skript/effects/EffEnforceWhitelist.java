@@ -36,13 +36,11 @@ public class EffEnforceWhitelist extends Effect {
 	private static String NOT_WHITELISTED_MESSAGE = "You are not whitelisted on this server!";
 
 	static {
-		if (Skript.methodExists(Bukkit.class, "setWhitelistEnforced", boolean.class)) {
-			try {
-				YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
-				NOT_WHITELISTED_MESSAGE = spigotYml.getString("messages.whitelist", NOT_WHITELISTED_MESSAGE);
-			} catch (Exception ignored) {}
-			Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
-		}
+		try {
+			YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
+			NOT_WHITELISTED_MESSAGE = spigotYml.getString("messages.whitelist", NOT_WHITELISTED_MESSAGE);
+		} catch (Exception ignored) {}
+		Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
 	}
 
 	private boolean enforce;

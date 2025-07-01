@@ -219,7 +219,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		}
 
 		@Override
-		public Builder<? extends Builder<?, E>, E> toBuilder() {
+		public BukkitSyntaxInfos.Event.Builder<? extends BukkitSyntaxInfos.Event.Builder<?, E>, E> toBuilder() {
 			return BukkitSyntaxInfos.Event.builder(type(), name())
 				.origin(origin)
 				.addPatterns(patterns())
@@ -232,36 +232,6 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 				.addKeywords(keywords())
 				.addRequiredPlugins(requiredPlugins())
 				.addEvents(events());
-		}
-
-		@Override
-		public SyntaxOrigin origin() {
-			return origin;
-		}
-
-		@Override
-		public Class<E> type() {
-			return getElementClass();
-		}
-
-		@Override
-		public E instance() {
-			try {
-				return type().getDeclaredConstructor().newInstance();
-			} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-					 NoSuchMethodException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		@Override
-		public @Unmodifiable Collection<String> patterns() {
-			return List.of(getPatterns());
-		}
-
-		@Override
-		public Priority priority() {
-			return SyntaxInfo.COMBINED;
 		}
 
 		@Override

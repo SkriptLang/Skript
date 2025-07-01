@@ -8,7 +8,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
@@ -21,7 +21,8 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.ExperimentData;
+import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,9 @@ import java.util.Map;
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("2.10")
-public class SecFor extends SecLoop implements ExperimentalSyntax {
+public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
+
+	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.FOR_EACH_LOOPS);
 
 	static {
 		Skript.registerSection(SecFor.class,
@@ -100,7 +103,7 @@ public class SecFor extends SecLoop implements ExperimentalSyntax {
 			Skript.error("Can't understand this loop: '" + parseResult.expr + "'");
 			return false;
 		}
-		if (Container.class.isAssignableFrom(expression.getReturnType())) {
+		if (!(expression instanceof Variable) && Container.class.isAssignableFrom(expression.getReturnType())) {
 			ContainerType type = expression.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
 				throw new SkriptAPIException(expression.getReturnType()
@@ -109,7 +112,7 @@ public class SecFor extends SecLoop implements ExperimentalSyntax {
 		}
 		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
 			&& expression.isSingle()
-			&& (expression instanceof Variable<?> || Iterable.class.isAssignableFrom(expression.getReturnType()))) {
+			&& (expression instanceof Variable<?> || expression.canReturn(Iterable.class))) {
 			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
 			super.iterableSingle = true;
 		} else if (expression.isSingle()) {
@@ -117,14 +120,32 @@ public class SecFor extends SecLoop implements ExperimentalSyntax {
 			return false;
 		}
 		//</editor-fold>
+
+		//<editor-fold desc="Handle type hints for variables" defaultstate="collapsed">
+		// we add because there is no guarantee the loop will run
+		HintManager hintManager = getParser().getHintManager();
+		if (keyStore != null && HintManager.canUseHints((Variable<?>) keyStore)) {
+			Class<?>[] hints;
+			if (expression instanceof Variable) { // variable indices (keys) are strings
+				hints = new Class[]{String.class};
+			} else { // keyStore may hold strings or longs
+				hints = new Class[]{String.class, Long.class};
+			}
+			hintManager.add((Variable<?>) keyStore, hints);
+		}
+		if (valueStore != null && HintManager.canUseHints((Variable<?>) valueStore)) {
+			hintManager.add((Variable<?>) valueStore, expression.possibleReturnTypes());
+		}
+		//</editor-fold>
+
 		this.loadOptionalCode(sectionNode);
 		this.setInternalNext(this);
 		return true;
 	}
 
 	@Override
-	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
-		return experimentSet.hasExperiment(Feature.FOR_EACH_LOOPS);
+	public ExperimentData getExperimentData() {
+		return EXPERIMENT_DATA;
 	}
 
 	@Override

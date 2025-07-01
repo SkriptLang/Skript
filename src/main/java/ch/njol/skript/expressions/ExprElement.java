@@ -20,6 +20,7 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.lang.reflect.Array;
@@ -236,6 +237,33 @@ public class ExprElement<T> extends SimpleExpression<T> {
 			return (Class<? extends T>) Object.class;
 		return expr.getReturnType();
 	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		if (!queue) {
+			return expr.possibleReturnTypes();
+		}
+		return super.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		if (!queue) {
+			return expr.canReturn(returnType);
+		}
+		return super.canReturn(returnType);
+	}
+  
+  @Override
+	public Expression<? extends T> simplify() {
+		if (!queue && expr instanceof Literal<?>
+			&& type != ElementType.RANDOM
+			&& (startIndex == null || startIndex instanceof Literal<Integer>)
+			&& (endIndex == null || endIndex instanceof Literal<Integer>)) {
+			return SimplifiedLiteral.fromExpression(this);
+		}
+		return this;
+  }
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {

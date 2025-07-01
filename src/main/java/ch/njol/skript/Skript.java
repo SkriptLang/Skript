@@ -396,7 +396,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
-		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
+		File aliasesFolder = new File(getDataFolder(), "aliases");
+		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists() || !aliasesFolder.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -413,6 +414,11 @@ public final class Skript extends JavaPlugin implements Listener {
 					populateLanguageFiles = true;
 				}
 
+				if (!aliasesFolder.isDirectory()) {
+					if (!aliasesFolder.mkdirs())
+						throw new IOException("Could not create the directory " + aliasesFolder);
+				}
+				
 				f = new ZipFile(getFile());
 				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
@@ -1258,7 +1264,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (disabled)
 			return;
 		disabled = true;
-		this.experimentRegistry = null;
 
 		if (!partDisabled) {
 			beforeDisable();
@@ -1273,6 +1278,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				Skript.exception(e, "An error occurred while shutting down.", "This might or might not cause any issues.");
 			}
 		}
+
+		this.experimentRegistry = null;
 	}
 
 	// ================ CONSTANTS, OPTIONS & OTHER ================

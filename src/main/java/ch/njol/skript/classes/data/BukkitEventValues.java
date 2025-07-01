@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -170,6 +171,8 @@ public final class BukkitEventValues {
 			"Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, World.class, event -> event.getEntity().getWorld());
 		EventValues.registerEventValue(EntityEvent.class, Location.class, event -> event.getEntity().getLocation());
+		EventValues.registerEventValue(EntityEvent.class, EntityData.class, event -> EntityData.fromEntity(event.getEntity()),
+			TIME_NOW, "Use 'type of attacker/victim' in damage/death events.", EntityDamageEvent.class, EntityDeathEvent.class);
 		// EntityDamageEvent
 		EventValues.registerEventValue(EntityDamageEvent.class, DamageCause.class, EntityDamageEvent::getCause);
 		EventValues.registerEventValue(EntityDamageByEntityEvent.class, Projectile.class, event -> {
@@ -403,11 +406,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(InventoryClickEvent.class, Player.class,
 			event -> event.getWhoClicked() instanceof Player player ? player : null);
 		EventValues.registerEventValue(InventoryClickEvent.class, World.class, event -> event.getWhoClicked().getWorld());
-		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, event -> {
-			if (event instanceof CraftItemEvent craftItemEvent)
-				return craftItemEvent.getRecipe().getResult();
-			return event.getCurrentItem();
-		});
+		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, InventoryClickEvent::getCurrentItem);
 		EventValues.registerEventValue(InventoryClickEvent.class, Slot.class, event -> {
 			Inventory invi = event.getClickedInventory(); // getInventory is WRONG and dangerous
 			if (invi == null)
@@ -497,7 +496,12 @@ public final class BukkitEventValues {
 			return null;
 		});
 		// CraftItemEvent
-		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> event.getRecipe().getResult());
+		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> {
+			Recipe recipe = event.getRecipe();
+			if (recipe instanceof ComplexRecipe)
+				return event.getCurrentItem();
+			return recipe.getResult();
+		});
 		//InventoryEvent
 		EventValues.registerEventValue(InventoryEvent.class, Inventory.class, InventoryEvent::getInventory);
 		//InventoryOpenEvent
