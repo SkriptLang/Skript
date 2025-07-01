@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class VillagerData extends EntityData<Villager> {
@@ -18,7 +19,7 @@ public class VillagerData extends EntityData<Villager> {
 	 * Professions can be for zombies also. These are the ones which are only
 	 * for villagers.
 	 */
-	private static final Profession[] PROFESSIONS = Profession.values();
+	private static final Profession[] PROFESSIONS;
 	private static final EntityPatterns<Profession> PATTERNS = new EntityPatterns<>(new Object[][]{
 		{"villager", null},
 		{"normal", Profession.NONE},
@@ -42,6 +43,10 @@ public class VillagerData extends EntityData<Villager> {
 		Variables.yggdrasil.registerSingleClass(Profession.class, "Villager.Profession");
 
 		EntityData.register(VillagerData.class, "villager", Villager.class, 0, PATTERNS.getPatterns());
+		PROFESSIONS = List.of(Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
+			Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
+			Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
+			Profession.WEAPONSMITH).toArray(Profession[]::new);
 	}
 
 	private @Nullable Profession profession = null;

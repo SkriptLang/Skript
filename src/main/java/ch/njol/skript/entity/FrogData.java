@@ -8,6 +8,7 @@ import org.bukkit.entity.Frog.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 public class FrogData extends EntityData<Frog> {
@@ -18,10 +19,12 @@ public class FrogData extends EntityData<Frog> {
 		{"warm frog", Variant.WARM},
 		{"cold frog", Variant.COLD}
 	});
-	private static final Variant[] VARIANTS = Variant.values();
+
+	private static final Variant[] VARIANTS;
 
 	static {
 		EntityData.register(FrogData.class, "frog", Frog.class, 0, PATTERNS.getPatterns());
+		VARIANTS = List.of(Variant.TEMPERATE, Variant.WARM, Variant.COLD).toArray(Variant[]::new);
 	}
 
 	private @Nullable Variant variant = null;
