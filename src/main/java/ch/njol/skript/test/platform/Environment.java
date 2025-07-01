@@ -98,23 +98,22 @@ public class Environment {
 			if (source != null)
 				return;
 
-			try (HttpClient client = HttpClient.newHttpClient()) {
-				HttpRequest buildRequest = HttpRequest.newBuilder()
-					.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/latest"))
-					.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
-					.GET()
-					.build();
-				HttpResponse<InputStream> buildResponse = client.send(buildRequest, BodyHandlers.ofInputStream());
-				JsonObject buildObject;
-				try (InputStreamReader reader = new InputStreamReader(buildResponse.body(), StandardCharsets.UTF_8)) {
-					buildObject = gson.fromJson(reader, JsonObject.class);
-				}
-				String downloadURL = buildObject.getAsJsonObject("downloads")
-					.getAsJsonObject("server:default")
-					.get("url").getAsString();
-				assert downloadURL != null && !downloadURL.isEmpty();
-				source = downloadURL;
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest buildRequest = HttpRequest.newBuilder()
+				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/latest"))
+				.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
+				.GET()
+				.build();
+			HttpResponse<InputStream> buildResponse = client.send(buildRequest, BodyHandlers.ofInputStream());
+			JsonObject buildObject;
+			try (InputStreamReader reader = new InputStreamReader(buildResponse.body(), StandardCharsets.UTF_8)) {
+				buildObject = gson.fromJson(reader, JsonObject.class);
 			}
+			String downloadURL = buildObject.getAsJsonObject("downloads")
+				.getAsJsonObject("server:default")
+				.get("url").getAsString();
+			assert downloadURL != null && !downloadURL.isEmpty();
+			source = downloadURL;
 		}
 	}
 
