@@ -1,15 +1,15 @@
 package ch.njol.skript.config;
 
-import java.util.Locale;
-
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
+import java.util.Locale;
+
 /**
- * @author Peter Güttinger
+ * @deprecated Use {@link ch.njol.skript.classes.EnumParser} instead.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class EnumParser<E extends Enum<E>> implements Converter<String, E> {
 	
 	private final Class<E> enumType;

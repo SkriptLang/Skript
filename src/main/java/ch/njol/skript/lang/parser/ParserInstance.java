@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.base.Preconditions;
@@ -59,8 +60,12 @@ public final class ParserInstance implements Experimented {
 	 */
 	@ApiStatus.Internal
 	public void setActive(Script script) {
-		this.isActive = true;
 		reset(); // just to be safe
+
+		// Needs to be explicitly marked as it will be false from the 'reset' call
+		this.hintManager.setActive(true);
+
+		this.isActive = true; // we want it to be active for script events
 		setCurrentScript(script);
 	}
 
@@ -85,6 +90,7 @@ public final class ParserInstance implements Experimented {
 		this.currentSections = new ArrayList<>();
 		this.hasDelayBefore = Kleenean.FALSE;
 		this.node = null;
+		this.hintManager = new HintManager(this.hintManager.isActive());
 		dataMap.clear();
 	}
 
@@ -533,6 +539,18 @@ public final class ParserInstance implements Experimented {
 		return set;
 	}
 
+	// Type Hints
+
+	private HintManager hintManager = new HintManager(true);
+
+	/**
+	 * @return The local variable type hint manager for the active parsing process.
+	 */
+	@ApiStatus.Experimental
+	public HintManager getHintManager() {
+		return hintManager;
+	}
+
 	// ParserInstance Data API
 
 	/**
@@ -653,6 +671,7 @@ public final class ParserInstance implements Experimented {
 		private final Class<? extends Event> @Nullable [] currentEvents;
 		private final List<TriggerSection> currentSections;
 		private final Kleenean hasDelayBefore;
+		private final HintManager hintManager;
 		private final Map<Class<? extends Data>, Data> dataMap;
 
 		private Backup(ParserInstance parser) {
@@ -665,16 +684,18 @@ public final class ParserInstance implements Experimented {
 				: null;
 			this.currentSections = new ArrayList<>(parser.currentSections);
 			this.hasDelayBefore = parser.hasDelayBefore;
+			this.hintManager = parser.hintManager;
 			this.dataMap = new HashMap<>(parser.dataMap);
 		}
 
 		private void apply(ParserInstance parser) {
-			parser.setCurrentScript(currentScript);
+			parser.setCurrentScript(this.currentScript);
 			parser.currentStructure = this.currentStructure;
 			parser.currentEventName = this.currentEventName;
 			parser.currentEvents = this.currentEvents;
 			parser.currentSections = this.currentSections;
 			parser.hasDelayBefore = this.hasDelayBefore;
+			parser.hintManager = this.hintManager;
 			parser.dataMap.clear();
 			parser.dataMap.putAll(this.dataMap);
 		}
