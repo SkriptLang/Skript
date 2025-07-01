@@ -5,6 +5,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.function.*;
+import ch.njol.skript.lang.function.DefaultFunction.Modifier;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
@@ -394,9 +395,9 @@ public class DefaultFunctions {
 			.parameter("x", Number.class)
 			.parameter("y", Number.class)
 			.parameter("z", Number.class)
-			.optionalParameter("world", World.class)
-			.optionalParameter("yaw", Float.class)
-			.optionalParameter("pitch", Float.class)
+			.parameter("world", World.class, Modifier.OPTIONAL)
+			.parameter("yaw", Float.class, Modifier.OPTIONAL)
+			.parameter("pitch", Float.class, Modifier.OPTIONAL)
 			.build(args -> {
 				World world = args.getOrDefault("world", Bukkit.getWorlds().get(0));
 
@@ -542,7 +543,7 @@ public class DefaultFunctions {
 			)
 			.since("2.8.0")
 			.parameter("nameOrUUID", String.class)
-			.optionalParameter("getExactPlayer", Boolean.class)
+			.parameter("getExactPlayer", Boolean.class, Modifier.OPTIONAL)
 			.build(args -> {
 				String name = args.get("nameOrUUID");
 				boolean isExact = args.getOrDefault("getExactPlayer", false);

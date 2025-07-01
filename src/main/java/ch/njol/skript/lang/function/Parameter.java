@@ -74,12 +74,13 @@ public final class Parameter<T> {
 		this.keyed = keyed;
 	}
 
-	Parameter(String name, ClassInfo<T> type, boolean single, boolean optional) {
+	Parameter(String name, ClassInfo<T> type, boolean single, boolean optional, boolean keyed) {
 		this.name = name;
 		this.type = type;
 		this.def = null;
 		this.single = single;
 		this.optional = optional;
+		this.keyed = keyed;
 	}
 
 	public boolean isOptional() {

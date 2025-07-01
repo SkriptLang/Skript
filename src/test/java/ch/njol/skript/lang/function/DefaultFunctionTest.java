@@ -1,5 +1,6 @@
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.lang.function.DefaultFunction.Modifier;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
@@ -14,7 +15,7 @@ public class DefaultFunctionTest {
 			.description()
 			.since()
 			.keywords()
-			.optionalParameter("x", String[].class)
+			.parameter("x", String[].class, Modifier.OPTIONAL)
 			.build(args -> {
 				String[] xes = args.getOrDefault("x", new String[]{""});
 
@@ -30,7 +31,7 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = built.getParameters();
 
-		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(String.class), false, true), parameters[0]);
+		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(String.class), false, true, false), parameters[0]);
 	}
 
 	@Test
@@ -39,7 +40,7 @@ public class DefaultFunctionTest {
 			.description("x", "y")
 			.since("1", "2")
 			.keywords("x", "y")
-			.optionalParameter("x", Object[].class)
+			.parameter("x", Object[].class, Modifier.OPTIONAL)
 			.parameter("y", Boolean.class)
 			.build(args -> new Object[]{true, 1});
 
@@ -52,8 +53,8 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = built.getParameters();
 
-		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(Object.class), false, true), parameters[0]);
-		assertEquals(new Parameter<>("y", Classes.getExactClassInfo(Boolean.class), true, false), parameters[1]);
+		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(Object.class), false, true, false), parameters[0]);
+		assertEquals(new Parameter<>("y", Classes.getExactClassInfo(Boolean.class), true, false, false), parameters[1]);
 
 		Object[] execute = built.execute(consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
 

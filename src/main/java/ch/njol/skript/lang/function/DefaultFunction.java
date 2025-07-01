@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -182,6 +183,30 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		return this;
 	}
 
+	/**
+	 * Represents a modifier that can be applied to a parameter
+	 * when constructing one using {@link Builder#parameter(String, Class, Modifier...)}.
+	 */
+	public interface Modifier {
+
+		/**
+		 * The modifier for parameters that are optional.
+		 */
+		Modifier OPTIONAL = () -> "optional";
+
+		/**
+		 * The modifier for parameters that support optional keyed expressions.
+		 */
+		Modifier KEYED = () -> "keyed";
+
+		/**
+		 * Returns the name of this modifier.
+		 * @return The name of this modifier.
+		 */
+		String name();
+
+	}
+
 	public static class Builder<T> {
 
 		private final String name;
@@ -289,30 +314,21 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		 *
 		 * @param name The parameter name.
 		 * @param type The type of the parameter.
+		 * @param modifiers The {@link Modifier}s to apply to this parameter.
 		 * @return This builder.
 		 */
-		@Contract("_, _ -> this")
-		public Builder<T> parameter(@NotNull String name, @NotNull Class<?> type) {
+		@Contract("_, _, _ -> this")
+		public Builder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers) {
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 
-			parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), null));
-			return this;
-		}
+			Set<Modifier> mods = Set.of(modifiers);
 
-		/**
-		 * Adds an optional parameter to this function builder.
-		 *
-		 * @param name The parameter name.
-		 * @param type The type of the parameter.
-		 * @return This builder.
-		 */
-		@Contract("_, _ -> this")
-		public Builder<T> optionalParameter(@NotNull String name, @NotNull Class<?> type) {
-			Preconditions.checkNotNull(name, "name cannot be null");
-			Preconditions.checkNotNull(type, "type cannot be null");
-
-			parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), true));
+			if (mods.contains(Modifier.OPTIONAL)) {
+				parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), true, mods.contains(Modifier.KEYED)));
+			} else {
+				parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), null, mods.contains(Modifier.KEYED)));
+			}
 			return this;
 		}
 
