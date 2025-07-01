@@ -31,8 +31,8 @@ public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F,
 		this.supportsKeyedChange = source instanceof KeyReceiverExpression<?>;
 	}
 
-	public ConvertedKeyProviderExpression(KeyProviderExpression<? extends F> source, Class<T> to, Collection<ConverterInfo<? super F, ? extends T>> converterInfos, boolean performFromCheck) {
-		super(source, to, converterInfos, performFromCheck);
+	public ConvertedKeyProviderExpression(KeyProviderExpression<? extends F> source, Class<T>[] toExact, Collection<ConverterInfo<? super F, ? extends T>> converterInfos, boolean performFromCheck) {
+		super(source, toExact, converterInfos, performFromCheck);
 		this.supportsKeyedChange = source instanceof KeyReceiverExpression<?>;
 	}
 
