@@ -3,7 +3,6 @@ package ch.njol.skript.lang;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -16,7 +15,8 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.variables.VariablesStorage;
+import com.google.common.collect.Iterators;
+import org.apache.commons.lang3.ArrayUtils;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
@@ -40,20 +40,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.OperationInfo;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
-
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
@@ -79,6 +70,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	private final boolean list;
 
 	private final @Nullable Variable<?> source;
+	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean list, @Nullable Variable<?> source) {
@@ -382,6 +374,22 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		return object;
 	}
 
+	@Override
+	public Iterator<KeyedValue<T>> keyedIterator(Event event) {
+		if (!list)
+			throw new SkriptAPIException("Invalid call to keyedIterator");
+		Iterator<KeyedValue<T>> transformed = Iterators.transform(variablesIterator(event), pair -> {
+			Object value = pair.getValue();
+			if (value instanceof Map<?, ?> map)
+				value = map.get(null);
+			T converted = Converters.convert(value, types);
+			if (converted == null)
+				return null;
+			return new KeyedValue<>(pair.getKey(), converted);
+		});
+		return Iterators.filter(transformed, Objects::nonNull);
+	}
+
 	public Iterator<Pair<String, Object>> variablesIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Looping a non-list variable");
@@ -448,7 +456,29 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private T[] getConvertedArray(Event event) {
 		assert list;
-		return Converters.convert((Object[]) get(event), types, superType);
+		Object[] values = (Object[]) get(event);
+		String[] keys = getKeys(event);
+		assert values != null;
+		//noinspection unchecked
+		T[] converted = (T[]) Array.newInstance(superType, values.length);
+		Converters.convert(values, converted, types);
+		for (int i = 0; i < converted.length; i++) {
+			if (converted[i] == null)
+				keys[i] = null;
+		}
+		cache.put(event, ArrayUtils.removeAllOccurrences(keys, null));
+		return ArrayUtils.removeAllOccurrences(converted, null);
+	}
+
+	private String[] getKeys(Event event) {
+		assert list;
+		String name = StringUtils.substring(this.name.toString(event), 0, -1);
+		Object value = Variables.getVariable(name + "*", event, local);
+		if (value == null)
+			return new String[0];
+		assert value instanceof Map<?,?>;
+		//noinspection unchecked
+		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
 	}
 
 	private void set(Event event, @Nullable Object value) {
@@ -672,12 +702,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			set(event, changeFunction.apply(value));
 			return;
 		}
-		variablesIterator(event).forEachRemaining(pair -> {
-			String index = pair.getKey();
-			T value = Converters.convert(pair.getValue(), types);
-			if (value == null)
-				return;
-			Object newValue = changeFunction.apply(value);
+		keyedIterator(event).forEachRemaining(keyedValue -> {
+			String index = keyedValue.key();
+			Object newValue = changeFunction.apply(keyedValue.value());
 			setIndex(event, index, newValue);
 		});
 	}
@@ -693,17 +720,19 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public @NotNull String @NotNull [] getArrayKeys(Event event) throws SkriptAPIException {
 		if (!list)
 			throw new SkriptAPIException("Invalid call to getArrayKeys on non-list");
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object value = Variables.getVariable(name + "*", event, local);
-		if (value == null)
-			return new String[0];
-		assert value instanceof Map<?,?>;
-		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
+		if (!cache.containsKey(event))
+			throw new IllegalStateException();
+		return cache.remove(event);
 	}
 
 	@Override
 	public @NotNull String @NotNull [] getAllKeys(Event event) {
 		return this.getArrayKeys(event);
+	}
+
+	@Override
+	public boolean canReturnKeys() {
+		return list;
 	}
 
 	@Override
@@ -732,11 +761,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	@Override
 	public boolean isLoopOf(String input) {
-		return input.equalsIgnoreCase("var") || input.equalsIgnoreCase("variable") || input.equalsIgnoreCase("value") || input.equalsIgnoreCase("index");
-	}
-
-	public boolean isIndexLoop(String input) {
-		return input.equalsIgnoreCase("index");
+		return KeyProviderExpression.super.isLoopOf(input)
+			|| input.equalsIgnoreCase("var")
+			|| input.equalsIgnoreCase("variable")
+			|| input.equalsIgnoreCase("value");
 	}
 
 	@Override

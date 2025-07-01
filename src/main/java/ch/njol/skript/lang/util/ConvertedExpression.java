@@ -4,6 +4,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  * <li>will never convert itself to another type, but rather request a new converted expression from the source expression.</li>
  * </ol>
  *
- * @author Peter Güttinger
+ * @see ConvertedKeyProviderExpression
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
 
@@ -124,7 +125,9 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 					.toArray(Class[]::new);
 
 			// noinspection rawtypes, unchecked
-			return new ConvertedExpression(from, converterTypes, infos, true);
+			return from instanceof KeyProviderExpression<?> keyProvider
+					? new ConvertedKeyProviderExpression(keyProvider, converterTypes, infos, true)
+					: new ConvertedExpression(from, converterTypes, infos, true);
 		}
 
 		return null;
@@ -293,7 +296,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	public Expression<?> getSource() {
+	public Expression<? extends F> getSource() {
 		return source;
 	}
 

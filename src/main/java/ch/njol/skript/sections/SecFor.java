@@ -8,11 +8,10 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ContainerExpression;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.Container;
@@ -25,7 +24,6 @@ import org.skriptlang.skript.lang.experiment.ExperimentData;
 import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
 import java.util.List;
-import java.util.Map;
 
 @Name("For Each Loop (Experimental)")
 @Description("""
@@ -119,6 +117,7 @@ public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
 			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}
+		keyed = KeyProviderExpression.canReturnKeys(expression);
 		//</editor-fold>
 
 		//<editor-fold desc="Handle type hints for variables" defaultstate="collapsed">
@@ -152,13 +151,11 @@ public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
 	protected void store(Event event, Object next) {
 		super.store(event, next);
 		//<editor-fold desc="Store the loop index/value in the variables" defaultstate="collapsed">
-		if (next instanceof Map.Entry) {
-			//noinspection unchecked
-			Map.Entry<String, Object> entry = (Map.Entry<String, Object>) next;
+		if (next instanceof KeyedValue<?> keyedValue) {
 			if (keyStore != null)
-				this.keyStore.change(event, new Object[] {entry.getKey()}, Changer.ChangeMode.SET);
+				this.keyStore.change(event, new Object[] {keyedValue.key()}, Changer.ChangeMode.SET);
 			if (valueStore != null)
-				this.valueStore.change(event, new Object[] {entry.getValue()}, Changer.ChangeMode.SET);
+				this.valueStore.change(event, new Object[] {keyedValue.value()}, Changer.ChangeMode.SET);
 		} else {
 			if (keyStore != null)
 				this.keyStore.change(event, new Object[] {this.getLoopCounter(event)}, Changer.ChangeMode.SET);
