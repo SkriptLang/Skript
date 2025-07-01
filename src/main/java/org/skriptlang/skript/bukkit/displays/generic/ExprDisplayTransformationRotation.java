@@ -18,7 +18,7 @@ import org.joml.Quaternionf;
 
 @Name("Display Transformation Rotation")
 @Description({
-        "Returns or changes the transformation rotation of <a href='classes.html#display'>displays</a>.",
+        "Returns or changes the transformation rotation of <a href='#display'>displays</a>.",
         "The left rotation is applied first, with the right rotation then being applied based on the rotated axis."
 })
 @Examples("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # reset block display")

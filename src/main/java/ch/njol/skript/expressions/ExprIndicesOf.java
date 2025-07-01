@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Pair;
 import org.bukkit.event.Event;
@@ -12,8 +12,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -219,6 +217,16 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (position)
 			return Long.class;
 		return String.class;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (this.position && this.string
+			&& value instanceof Literal<?> && objects instanceof Literal<?>
+		) {
+			return SimplifiedLiteral.fromExpression(this);
+		}
+		return this;
 	}
 
 	@Override

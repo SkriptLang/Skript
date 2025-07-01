@@ -291,9 +291,12 @@ public abstract class Classes {
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
 		checkAllowClassInfoInteraction();
-		final ClassInfo<?> i = superClassInfos.get(c);
-		if (i != null)
-			return (ClassInfo<? super T>) i;
+		ClassInfo<? super T> info = getExactClassInfo(c);
+		if (info != null)
+			return info;
+		info = (ClassInfo<? super T>) superClassInfos.get(c);
+		if (info != null)
+			return info;
 		for (final ClassInfo<?> ci : getClassInfos()) {
 			if (ci.getC().isAssignableFrom(c)) {
 				if (!Skript.isAcceptRegistrations())

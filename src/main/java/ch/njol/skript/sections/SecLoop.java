@@ -33,7 +33,7 @@ import java.util.*;
 		"You can however use <code>stop loop</code> to exit the loop completely and resume code execution after the end of the loop.",
 	"",
 	"<b>Loopable Values</b>",
-	"All <a href=\"/expressions.html\">expressions</a> that represent more than one value, e.g. ‘all players’, ‘worlds’, " +
+	"All expressions that represent more than one value, e.g. ‘all players’, ‘worlds’, " +
 		"etc., as well as list variables, can be looped. You can also use a list of expressions, e.g. <code>loop the victim " +
 		"and the attacker</code>, to execute the same code for only a few values.",
 	"",
@@ -99,7 +99,7 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
-		if (Container.class.isAssignableFrom(expression.getReturnType())) {
+		if (!(expression instanceof Variable) && Container.class.isAssignableFrom(expression.getReturnType())) {
 			ContainerType type = expression.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
 				throw new SkriptAPIException(expression.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");

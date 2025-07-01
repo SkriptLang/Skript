@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Display Height/Width")
 @Description({
-	"Returns or changes the height or width of <a href='classes.html#display'>displays</a>.",
+	"Returns or changes the height or width of <a href='#display'>displays</a>.",
 	"The rendering culling bounding box spans horizontally width/2 from entity position, " +
 	"which determines the point at which the display will be frustum culled (no longer rendered because the game " +
 	"determines you are no longer able to see it).",
