@@ -31,7 +31,7 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = built.getParameters();
 
-		assertEquals(new Parameter<>("x", String.class, Modifier.OPTIONAL), parameters[0]);
+		assertEquals(new Parameter<>("x", String[].class, Modifier.OPTIONAL), parameters[0]);
 	}
 
 	@Test
