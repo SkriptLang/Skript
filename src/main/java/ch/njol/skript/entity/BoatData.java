@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class BoatData extends EntityData<Boat> {
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new BoatData(matchedPattern);
 	}
 

@@ -180,3 +180,87 @@ test "spawn pig by variant" when running minecraft "1.21.5":
 	assert size of all pigs is 5 with "Only temperate pigs should have been deleted"
 	delete all warm pigs
 	assert size of all warm pigs is 0 with "Warm pigs were not deleted"
+
+test "spawn chicken by variant" when running minecraft "1.21.5":
+	delete all chickens
+	set {_l} to test-location
+	spawn 5 warm chickens at {_l}
+	assert size of all warm chickens is 5 with "Size of all warm chickens is not 5"
+	assert size of all chickens (entity type) is 5 with "Size of all chickens is not 5"
+	spawn 3 temperate chickens at {_l}
+	assert size of all temperate chickens is 3 with "Size of all temperate chickens is not 3"
+	assert size of all chickens (entity type) is 8 with "Size of all chickens is not 8"
+	spawn 2 cold chickens at {_l}
+	assert size of all cold chickens is 2 with "Size of all cold chickens is not 2"
+	assert size of all chickens (entity type) is 10 with "Size of all chickens is not 10"
+	delete all cold chickens
+	assert size of all cold chickens is 0 with "Cold chickens were not deleted"
+	assert size of all chickens (entity type) is 8 with "Only cold chickens should have been deleted"
+	delete all temperate chickens
+	assert size of all temperate chickens is 0 with "Temperate chickens were not deleted"
+	assert size of all chickens (entity type) is 5 with "Only temperate chickens should have been deleted"
+	delete all warm chickens
+	assert size of all warm chickens is 0 with "Warm chickens were not deleted"
+
+test "spawn baby chicken by variant" when running minecraft "1.21.5":
+	delete all chicks
+	set {_l} to test-location
+	spawn 5 warm chicks at {_l}
+	assert size of all warm chicks is 5 with "Size of all warm chicks is not 5"
+	assert size of all chicks is 5 with "Size of all chicks is not 5"
+	spawn 3 temperate chicks at {_l}
+	assert size of all temperate chicks is 3 with "Size of all temperate chicks is not 3"
+	assert size of all chicks is 8 with "Size of all chicks is not 8"
+	spawn 2 cold chicks at {_l}
+	assert size of all cold chicks is 2 with "Size of all cold chicks is not 2"
+	assert size of all chicks is 10 with "Size of all chicks is not 10"
+	delete all cold chicks
+	assert size of all cold chicks is 0 with "Cold chicks were not deleted"
+	assert size of all chicks is 8 with "Only cold chicks should have been deleted"
+	delete all temperate chicks
+	assert size of all temperate chicks is 0 with "Temperate chicks were not deleted"
+	assert size of all chicks is 5 with "Only temperate chicks should have been deleted"
+	delete all warm chicks
+	assert size of all warm chicks is 0 with "Warm chicks were not deleted"
+
+test "spawn cow by variant" when running minecraft "1.21.5":
+	delete all cows
+	set {_l} to test-location
+	spawn 5 warm cows at {_l}
+	assert size of all warm cows is 5 with "Size of all warm cows is not 5"
+	assert size of all cows is 5 with "Size of all cows is not 5"
+	spawn 3 temperate cows at {_l}
+	assert size of all temperate cows is 3 with "Size of all temperate cows is not 3"
+	assert size of all cows is 8 with "Size of all cows is not 8"
+	spawn 2 cold cows at {_l}
+	assert size of all cold cows is 2 with "Size of all cold cows is not 2"
+	assert size of all cows is 10 with "Size of all cows is not 10"
+	delete all cold cows
+	assert size of all cold cows is 0 with "Cold cows were not deleted"
+	assert size of all cows is 8 with "Only cold cows should have been deleted"
+	delete all temperate cows
+	assert size of all temperate cows is 0 with "Temperate cows were not deleted"
+	assert size of all cows is 5 with "Only temperate cows should have been deleted"
+	delete all warm cows
+	assert size of all warm cows is 0 with "Warm cows were not deleted"
+
+test "spawn baby cow by variant" when running minecraft "1.21.5":
+	delete all calves
+	set {_l} to test-location
+	spawn 5 warm calves at {_l}
+	assert size of all warm calves is 5 with "Size of all warm calves is not 5"
+	assert size of all calves is 5 with "Size of all calves is not 5"
+	spawn 3 temperate calves at {_l}
+	assert size of all temperate calves is 3 with "Size of all temperate calves is not 3"
+	assert size of all calves is 8 with "Size of all calves is not 8"
+	spawn 2 cold calves at {_l}
+	assert size of all cold calves is 2 with "Size of all cold calves is not 2"
+	assert size of all calves is 10 with "Size of all calves is not 10"
+	delete all cold calves
+	assert size of all cold calves is 0 with "Cold calves were not deleted"
+	assert size of all calves is 8 with "Only cold calves should have been deleted"
+	delete all temperate calves
+	assert size of all temperate calves is 0 with "Temperate calves were not deleted"
+	assert size of all calves is 5 with "Only temperate calves should have been deleted"
+	delete all warm calves
+	assert size of all warm calves is 0 with "Warm calves were not deleted"

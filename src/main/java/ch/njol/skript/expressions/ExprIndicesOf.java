@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -211,6 +212,16 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (position)
 			return Long.class;
 		return String.class;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (this.position && this.string
+			&& value instanceof Literal<?> && objects instanceof Literal<?>
+		) {
+			return SimplifiedLiteral.fromExpression(this);
+		}
+		return this;
 	}
 
 	@Override

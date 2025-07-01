@@ -26,7 +26,7 @@ import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 @Name("Custom Chest Inventory")
-@Description("Returns a chest inventory with the given amount of rows and the name. Use the <a href=effects.html#EffOpenInventory>open inventory</a> effect to open it.")
+@Description("Returns a chest inventory with the given amount of rows and the name. Use the <a href=#EffOpenInventory>open inventory</a> effect to open it.")
 @Examples({
 	"open chest inventory with 1 row named \"test\" to player",
 	"",

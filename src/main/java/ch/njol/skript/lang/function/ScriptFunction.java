@@ -3,7 +3,9 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleEvent;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -31,9 +33,19 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		super(sign);
 
 		Functions.currentFunction = this;
+		HintManager hintManager = ParserInstance.get().getHintManager();
 		try {
+			hintManager.enterScope(false);
+			for (Parameter<?> parameter : sign.getParameters()) {
+				String hintName = parameter.getName();
+				if (!parameter.isSingleValue()) {
+					hintName += Variable.SEPARATOR + "*";
+				}
+				hintManager.set(hintName, parameter.getType().getC());
+			}
 			trigger = loadReturnableTrigger(node, "function " + sign.getName(), new SimpleEvent());
 		} finally {
+			hintManager.exitScope();
 			Functions.currentFunction = null;
 		}
 		trigger.setLineNumber(node.getLine());

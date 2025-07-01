@@ -6,13 +6,14 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprArgument;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
+import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
@@ -23,11 +24,12 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
@@ -100,7 +102,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	// A parsed chain, like a tree
 	private ArithmeticGettable<? extends T> arithmeticGettable;
 
-	private boolean leftGrouped, rightGrouped;
+	private boolean leftGrouped, rightGrouped, isTopLevel;
 
 	@Override
 	@SuppressWarnings({"ConstantConditions", "rawtypes", "unchecked"})
@@ -112,6 +114,13 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		leftGrouped = patternInfo.leftGrouped;
 		rightGrouped = patternInfo.rightGrouped;
 		operator = patternInfo.operator;
+
+		// check if this is the top-level arithmetic expression (not part of a larger expression)
+		ParsingStack stack = getParser().getParsingStack();
+		isTopLevel = stack.isEmpty() || stack.peek().getSyntaxElementClass() != ExprArithmetic.class;
+    
+		// print warning for arg-1 confusion scenario
+		printArgWarning(first, second, operator);
 
 		/*
 		 * Step 1: UnparsedLiteral Resolving
@@ -164,22 +173,21 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			} else { // first needs converting
 				// attempt to convert <first> to types that make valid operations with <second>
 				Class<?> secondClass = second.getReturnType();
-				Class[] leftTypes = Arithmetics.getOperations(operator).stream()
-					.filter(info -> info.getRight().isAssignableFrom(secondClass))
-					.map(OperationInfo::getLeft)
-					.toArray(Class[]::new);
-				if (leftTypes.length == 0) { // no known operations with second's type
+				List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.lookupRightOperations(operator, secondClass);
+				if (operations.isEmpty()) { // no known operations with second's type
 					if (secondClass != Object.class) // there won't be any operations
 						return error(first.getReturnType(), secondClass);
 					first = (Expression<L>) first.getConvertedExpression(Object.class);
 				} else {
-					first = (Expression<L>) first.getConvertedExpression(leftTypes);
+					first = (Expression<L>) first.getConvertedExpression(operations.stream()
+							.map(OperationInfo::getLeft)
+							.toArray(Class[]::new));
 				}
 			}
 		} else if (second instanceof UnparsedLiteral) { // second needs converting
 			// attempt to convert <second> to types that make valid operations with <first>
 			Class<?> firstClass = first.getReturnType();
-			List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.getOperations(operator, firstClass);
+			List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.lookupLeftOperations(operator, firstClass);
 			if (operations.isEmpty()) { // no known operations with first's type
 				if (firstClass != Object.class) // there won't be any operations
 					return error(firstClass, second.getReturnType());
@@ -187,8 +195,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			} else {
 				second = (Expression<R>) second.getConvertedExpression(operations.stream()
 						.map(OperationInfo::getRight)
-						.toArray(Class[]::new)
-				);
+						.toArray(Class[]::new));
 			}
 		}
 
@@ -223,14 +230,13 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			Class<?>[] returnTypes = null;
 			if (!(firstClass == Object.class && secondClass == Object.class)) { // both aren't object
 				if (firstClass == Object.class) {
-					returnTypes = Arithmetics.getOperations(operator).stream()
-							.filter(info -> info.getRight().isAssignableFrom(secondClass))
+					returnTypes = Arithmetics.lookupRightOperations(operator, secondClass).stream()
 							.map(OperationInfo::getReturnType)
 							.toArray(Class[]::new);
 				} else { // secondClass is Object
-					returnTypes = Arithmetics.getOperations(operator, firstClass).stream()
-						.map(OperationInfo::getReturnType)
-						.toArray(Class[]::new);
+					returnTypes = Arithmetics.lookupLeftOperations(operator, firstClass).stream()
+							.map(OperationInfo::getReturnType)
+							.toArray(Class[]::new);
 				}
 			}
 			if (returnTypes == null) { // both are object; can't determine anything
@@ -294,6 +300,22 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		return arithmeticGettable != null || error(firstClass, secondClass);
 	}
 
+	private void printArgWarning(Expression<L> first, Expression<R> second, Operator operator) {
+		if (operator == Operator.SUBTRACTION && !rightGrouped && !leftGrouped // if the operator is '-' and the user didn't use ()
+			&& first instanceof ExprArgument argument && argument.couldCauseArithmeticConfusion() // if the first expression is 'arg'
+			&& second instanceof ExprArithmetic<?, ?, ?> secondArith && secondArith.first instanceof Literal<?> literal // this ambiguity only occurs when the code is parsed as `arg - (1 * 2)` or a similar PEMDAS priority.
+			&& literal.canReturn(Number.class)) {
+			// ensure that the second literal is a 1
+			Literal<?> secondLiteral = (Literal<?>) LiteralUtils.defendExpression(literal);
+			if (LiteralUtils.canInitSafely(secondLiteral)) {
+				double number = ((Number) secondLiteral.getSingle()).doubleValue();
+				if (number == 1)
+					Skript.warning("This subtraction is ambiguous and could be interpreted as either the 'first argument' expression ('argument-1') or as subtraction from the argument value ('(argument) - 1'). " +
+					"If you meant to use 'argument-1', omit the hyphen ('arg 1') or use parentheses to clarify your intent.");
+			}
+		}
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	protected T[] get(Event event) {
@@ -347,11 +369,54 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Expression<? extends T> simplify() {
-		if (first instanceof Literal && second instanceof Literal)
-			return new SimpleLiteral<>(getArray(null), (Class<T>) getReturnType(), false);
+	public Expression<T> simplify() {
+		// simplify this expression IFF it's the top-level arithmetic expression
+		if (isTopLevel)
+			return simplifyInternal();
 		return this;
+	}
+
+	/**
+	 * Simplifies an arithmetic expression regardless of whether it is the top-level expression.
+	 * @return the simplified expression
+	 */
+	private Expression<T> simplifyInternal() {
+		if (first instanceof ExprArithmetic<?,?,?> firstArith) {
+			//noinspection unchecked
+			first = (Expression<L>) firstArith.simplifyInternal();
+		} else {
+			//noinspection unchecked
+			first = (Expression<L>) first.simplify();
+		}
+
+		if (second instanceof ExprArithmetic<?,?,?> secondArith) {
+			//noinspection unchecked
+			second = (Expression<R>) secondArith.simplifyInternal();
+		} else {
+			//noinspection unchecked
+			second = (Expression<R>) second.simplify();
+		}
+
+		if (first instanceof Literal && second instanceof Literal)
+			return SimplifiedLiteral.fromExpression(this);
+
+		return this;
+	}
+
+	/**
+	 * For testing purposes only.
+	 * @return the first expression
+	 */
+	Expression<L> getFirst() {
+		return first;
+	}
+
+	/**
+	 * For testing purposes only.
+	 * @return the second expression
+	 */
+	Expression<R> getSecond() {
+		return second;
 	}
 
 }
