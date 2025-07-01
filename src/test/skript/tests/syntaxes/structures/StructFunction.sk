@@ -21,3 +21,28 @@ test "functions":
 	assert local() is not 1 with "global function parsed before local function"
 	assert bar() is true with "local function didn't execute correctly"
 	assert _blob() is "blub" with "function that starts with underscore didn't execute correctly"
+
+using local variable type hints
+
+parse:
+	results: {StructFunction::hints::1::*}
+	code:
+		function hint_test_1(x: number):
+			set {_a} to {_x} in lowercase
+
+parse:
+	results: {StructFunction::hints::2::*}
+	code:
+		function hint_test_2(x: numbers):
+			set {_a::*} to {_x::*} in lowercase
+
+local function type_hint_argument_test(number: number):
+	stop
+
+test "function structure type hints":
+	assert {StructFunction::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::1::*}%)"
+	assert {StructFunction::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::2::*}%)"
+	set {_number} to true
+	parse:
+		type_hint_argument_test({_number})
+	assert the first element of the last parse logs contains "The 1st argument given to the function 'type_hint_argument_test' is not of the required type number."

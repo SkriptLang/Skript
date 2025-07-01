@@ -9,7 +9,6 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -91,10 +90,10 @@ public class EffSort extends Effect implements InputSource {
 			}
 		} else {
 			List<MappedValue> mappedValues = new ArrayList<>();
-			for (Iterator<Pair<String, Object>> it = unsortedObjects.variablesIterator(event); it.hasNext(); ) {
-				Pair<String, Object> pair = it.next();
-				currentIndex = pair.getKey();
-				currentValue = pair.getValue();
+			for (Iterator<? extends KeyedValue<?>> it = unsortedObjects.keyedIterator(event); it.hasNext(); ) {
+				KeyedValue<?> keyedValue = it.next();
+				currentIndex = keyedValue.key();
+				currentValue = keyedValue.value();
 				Object mappedValue = mappingExpr.getSingle(event);
 				if (mappedValue == null)
 					return;

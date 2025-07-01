@@ -34,12 +34,12 @@ public final class Parameter<T> {
 	 * then the valid variable names may not necessarily match this string in casing.
 	 */
 	final String name;
-	
+
 	/**
 	 * Type of the parameter.
 	 */
 	final ClassInfo<T> type;
-	
+
 	/**
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
@@ -47,19 +47,31 @@ public final class Parameter<T> {
 	@Nullable Expression<? extends T> def;
 
 	final boolean optional;
-	
+
 	/**
 	 * Whether this parameter takes one or many values.
 	 */
 	final boolean single;
-	
-	@SuppressWarnings("null")
+
+	/**
+	 * Whether this parameter takes in key-value pairs.
+	 * <br>
+	 * If this is true, a {@link ch.njol.skript.lang.KeyedValue} array containing key-value pairs will be passed to
+	 * {@link Function#execute(FunctionEvent, Object[][])} rather than a value-only object array.
+	 */
+	final boolean keyed;
+
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
+		this(name, type, single, def, false);
+	}
+
+	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
 		this.name = name;
 		this.type = type;
 		this.def = def;
 		this.single = single;
 		this.optional = def != null;
+		this.keyed = keyed;
 	}
 
 	Parameter(String name, ClassInfo<T> type, boolean single, boolean optional) {
@@ -91,7 +103,7 @@ public final class Parameter<T> {
 		Expression<? extends T> d = null;
 		if (def != null) {
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
-			
+
 			// Parse the default value expression
 			try {
 				//noinspection unchecked
@@ -105,7 +117,7 @@ public final class Parameter<T> {
 				log.stop();
 			}
 		}
-		return new Parameter<>(name, type, single, d);
+		return new Parameter<>(name, type, single, d, !single);
 	}
 
 	/**
@@ -169,7 +181,7 @@ public final class Parameter<T> {
 		}
 		return params;
 	}
-	
+
 	/**
 	 * Get the name of this parameter.
 	 * <p>Will be used as name for the local variable that contains value of it inside function.</p>
@@ -178,7 +190,7 @@ public final class Parameter<T> {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Get the Expression that will be used to provide the default value of this parameter when the function is called.
 	 * @return Expression that will provide default value of this parameter
@@ -186,7 +198,7 @@ public final class Parameter<T> {
 	public @Nullable Expression<? extends T> getDefaultExpression() {
 		return def;
 	}
-	
+
 	/**
 	 * Get whether this parameter takes one or many values.
 	 * @return True if this parameter takes one value, false otherwise
@@ -216,5 +228,5 @@ public final class Parameter<T> {
 	public String toString(boolean debug) {
 		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, debug) : "");
 	}
-	
+
 }

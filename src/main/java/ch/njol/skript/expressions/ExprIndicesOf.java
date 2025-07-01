@@ -1,9 +1,8 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.LiteralUtils;
-import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,8 +11,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -29,7 +26,8 @@ import java.util.*;
 	"",
 	"Using 'indices/positions of %objects% in %objects%', you can get the indices or positions of "
 		+ "a list where the value at that index is the provided value. "
-		+ "Indices are only supported for variable lists and will return the string indices of the given value. "
+		+ "Indices are only supported for keyed expressions (e.g. variable lists) "
+		+ "and will return the string indices of the given value. "
 		+ "Positions can be used with any list and will return "
 		+ "the numerical position of the value in the list, counting up from 1. "
 		+ "As well, nothing is returned if the value is not found in the list."
@@ -89,9 +87,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			return false;
 		}
 
-		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 2) {
-			Skript.error("'" + exprs[1] + "' is not a list variable. "
-				+ "You can only get the indices of a list variable.");
+		if (!KeyProviderExpression.canReturnKeys(exprs[1]) && matchedPattern == 2) {
+			Skript.error("'" + exprs[1] + "' is not a keyed expression. "
+				+ "You can only get the indices of a keyed expression.");
 			return false;
 		}
 
@@ -125,9 +123,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			return getListPositions(objects, value, event);
 		}
 
-		assert objects instanceof Variable<?>;
+		assert objects instanceof KeyProviderExpression<?>;
 
-		return getVariableIndices((Variable<?>) objects, value, event);
+		return getIndices((KeyProviderExpression<?>) objects, value, event);
 	}
 
 	private Long[] getStringPositions(String haystack, String needle) {
@@ -177,27 +175,22 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		return positions.toArray(Long[]::new);
 	}
 
-	private String[] getVariableIndices(Variable<?> variable, Object value, Event event) {
-		Iterator<Pair<String, Object>> iterator = variable.variablesIterator(event);
+	private String[] getIndices(KeyProviderExpression<?> expression, Object value, Event event) {
+		Iterator<? extends KeyedValue<?>> iterator = expression.keyedIterator(event);
 		if (iterator == null)
 			return new String[0];
 
 		List<String> indices = new ArrayList<>();
 
 		while (iterator.hasNext()) {
-			var pair = iterator.next();
+			var keyedValue = iterator.next();
 
-			Object pairValue = pair.getValue();
-			// when {foo::1::bar} is set, the value of {foo::1} is a map with a null key that holds the value of {foo::1}
-			if (pairValue instanceof Map<?, ?> map)
-				pairValue = map.get(null);
+			if (!keyedValue.value().equals(value))
+				continue;
+			if (indexType == IndexType.FIRST)
+				return new String[]{keyedValue.key()};
 
-			if (pairValue.equals(value)) {
-				if (indexType == IndexType.FIRST)
-					return new String[]{pair.getKey()};
-
-				indices.add(pair.getKey());
-			}
+			indices.add(keyedValue.key());
 		}
 
 		if (indices.isEmpty())
@@ -219,6 +212,16 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (position)
 			return Long.class;
 		return String.class;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (this.position && this.string
+			&& value instanceof Literal<?> && objects instanceof Literal<?>
+		) {
+			return SimplifiedLiteral.fromExpression(this);
+		}
+		return this;
 	}
 
 	@Override

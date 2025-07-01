@@ -1,40 +1,82 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Arrow Attached Block")
-@Description("Returns the attached block of an arrow.")
-@Examples("set hit block of last shot arrow to diamond block")
-@Since("2.8.0")
-public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Block> {
+import java.util.HashSet;
+import java.util.Set;
 
-	private static final boolean HAS_ABSTRACT_ARROW = Skript.classExists("org.bukkit.entity.AbstractArrow");
+@Name("Arrow Attached Block")
+@Description({
+	"Returns the attached block of an arrow.",
+	"If running Paper 1.21.4+, the plural version of the expression should be used as it is more reliable compared to the single version."
+})
+@Example("set hit block of last shot arrow to diamond block")
+@Example("""
+	on projectile hit:
+		wait 1 tick
+		break attached blocks of event-projectile
+		kill event-projectile
+	""")
+@Since("2.8.0, INSERT VERSION (multiple blocks)")
+@RequiredPlugins("Paper 1.21.4+ (multiple blocks)")
+public class ExprAttachedBlock extends PropertyExpression<Projectile, Block> {
 
 	static {
-		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block", "projectiles");
+		register(ExprAttachedBlock.class, Block.class, "(attached|hit) block[multiple:s]", "projectiles");
+	}
+
+	// TODO - remove this when only Paper 1.21.4+ is supported
+	private static final boolean SUPPORTS_MULTIPLE = Skript.methodExists(AbstractArrow.class, "getAttachedBlocks");
+
+	private boolean isMultiple;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isMultiple = parseResult.hasTag("multiple");
+		// noinspection unchecked
+		setExpr((Expression<? extends Projectile>) expressions[0]);
+
+		if (!SUPPORTS_MULTIPLE && isMultiple) {
+			Skript.error("The plural version of this expression is only available when running Paper 1.21.4 or newer.");
+			return false;
+		}
+
+		if (SUPPORTS_MULTIPLE && !isMultiple) {
+			isMultiple = true;
+			String expr = toString(null, Skript.debug());
+			isMultiple = false;
+			Skript.warning("It is recommended to use the plural version of this expression instead: '" + expr + "'");
+		}
+
+		return true;
 	}
 
 	@Override
-	@Nullable
-	public Block convert(Projectile projectile) {
-		if (HAS_ABSTRACT_ARROW) {
-			if (projectile instanceof AbstractArrow) {
-				return ((AbstractArrow) projectile).getAttachedBlock();
+	protected Block[] get(Event event, Projectile[] source) {
+		Set<Object> blocks = new HashSet<>();
+
+		for (Projectile projectile : source) {
+			if (projectile instanceof AbstractArrow abstractArrow) {
+				if (isMultiple) {
+					blocks.addAll(abstractArrow.getAttachedBlocks());
+				} else {
+					blocks.add(abstractArrow.getAttachedBlock());
+				}
 			}
-		} else if (projectile instanceof Arrow) {
-			return ((Arrow) projectile).getAttachedBlock();
 		}
-		return null;
+
+		return blocks.toArray(new Block[0]);
 	}
 
 	@Override
@@ -43,8 +85,13 @@ public class ExprAttachedBlock extends SimplePropertyExpression<Projectile, Bloc
 	}
 
 	@Override
-	public String getPropertyName() {
-		return "attached block";
+	public boolean isSingle() {
+		return !isMultiple && getExpr().isSingle();
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "attached block" + (isMultiple ? "s" : "") + " of " + getExpr().toString(event, debug);
 	}
 
 }
