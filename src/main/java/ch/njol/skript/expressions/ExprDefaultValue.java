@@ -7,7 +7,9 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
@@ -75,6 +77,14 @@ public class ExprDefaultValue extends SimpleExpression<Object> {
 	@Override
 	public Class<?>[] possibleReturnTypes() {
 		return Arrays.copyOf(types, types.length);
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (values instanceof Literal<Object> literal
+			&& (defaultValues instanceof Literal<Object> || literal.getAll().length > 0))
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

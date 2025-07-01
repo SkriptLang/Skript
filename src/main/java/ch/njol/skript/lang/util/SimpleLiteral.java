@@ -34,16 +34,19 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private final boolean isDefault;
 	private final boolean and;
 
-	private @Nullable UnparsedLiteral source = null;
+	private @Nullable Expression<?> source = null;
 
+	/**
+	 * The data of the literal. May not be null or contain null, but may be empty.
+	 */
 	protected transient T[] data;
 
 	public SimpleLiteral(T[] data, Class<T> type, boolean and) {
-		assert data != null && data.length != 0;
+		assert data != null;
 		assert type != null;
 		this.data = data;
 		this.type = type;
-		this.and = data.length == 1 || and;
+		this.and = data.length <= 1 || and;
 		this.isDefault = false;
 	}
 
@@ -51,20 +54,21 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 		this(data, isDefault, null);
 	}
 
-	@SuppressWarnings("unchecked")
-	public SimpleLiteral(T data, boolean isDefault, @Nullable UnparsedLiteral source) {
+	public SimpleLiteral(T data, boolean isDefault, @Nullable Expression<?> source) {
 		assert data != null;
+		//noinspection unchecked
 		this.data = (T[]) Array.newInstance(data.getClass(), 1);
 		this.data[0] = data;
+		//noinspection unchecked
 		type = (Class<T>) data.getClass();
 		and = true;
 		this.isDefault = isDefault;
-		this.source = source;
+		this.source = source == null ? this : source;
 	}
 
-	public SimpleLiteral(T[] data, Class<T> to, boolean and, @Nullable UnparsedLiteral source) {
+	public SimpleLiteral(T[] data, Class<T> to, boolean and, @Nullable Expression<?> source) {
 		this(data, to, and);
-		this.source = source;
+		this.source = source == null ? this : source;
 	}
 
 	@Override
@@ -141,7 +145,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 
 	@Override
 	public boolean isSingle() {
-		return !getAnd() || data.length == 1;
+		return !getAnd() || data.length <= 1;
 	}
 
 	@Override
@@ -219,8 +223,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 
 	@Override
 	public Expression<?> getSource() {
-		final UnparsedLiteral source = this.source;
-		return source == null ? this : source;
+		return source;
 	}
 
 	@Override
