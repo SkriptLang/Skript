@@ -108,10 +108,7 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
 			trigger = SectionUtils.loadLinkedCode("custom damage source", (beforeLoading, afterLoading)
 					-> loadCode(node, "custom damage source", beforeLoading, afterLoading, DamageSourceSectionEvent.class));
-			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'custom damage source' section.");
-				return false;
-			}
+			return trigger != null;
 		}
 		return true;
 	}
