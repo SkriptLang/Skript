@@ -17,7 +17,7 @@ import ch.njol.util.Kleenean;
 @Name("Inverse Boolean")
 @Description("An expression to obtain the inverse value of a boolean")
 @Examples("set {_gravity} to inverse of player's flight mode")
-@Since("INSERT VERSION")
+@Since("2.12")
 public class ExprInverse extends SimpleExpression<Boolean> {
 
 	static {

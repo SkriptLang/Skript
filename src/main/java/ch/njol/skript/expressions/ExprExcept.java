@@ -30,7 +30,7 @@ import java.lang.reflect.Array;
 	set {_items::*} to a copper ingot, an iron ingot and a gold ingot
 	set {_except::*} to {_items::*} excluding copper ingot
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 public class ExprExcept extends WrapperExpression<Object> {
 
 	static {

@@ -1385,7 +1385,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @param enchantments The enchantments to be checked.
 	 * @deprecated Use {@link #hasEnchantmentsOrBetter(EnchantmentType...)}
 	 */
-	@Deprecated(since="INSERT VERSION")
+	@Deprecated(since="2.12")
 	public boolean hasEnchantments(EnchantmentType... enchantments) {
 		return hasEnchantmentsOrBetter(true, enchantments);
 	}
@@ -1397,7 +1397,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @param enchantments The enchantments to be checked.
 	 * @deprecated Use {@link #hasEnchantmentsOrBetter(boolean, EnchantmentType...)}
 	 */
-	@Deprecated(since="INSERT VERSION")
+	@Deprecated(since="2.12")
 	public boolean hasEnchantments(boolean all, EnchantmentType... enchantments) {
 		return hasEnchantmentsOrBetter(all, enchantments);
 	}

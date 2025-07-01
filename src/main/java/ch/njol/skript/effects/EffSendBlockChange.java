@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	make all players see (blocks in radius 5 of location(0, 0, 0)) as bedrock
 	make all players see (blocks in radius 5 of location(0, 0, 0)) as original
 	""")
-@Since("2.2-dev37c, 2.5.1 (block data support), INSERT VERSION (as original)")
+@Since("2.2-dev37c, 2.5.1 (block data support), 2.12 (as original)")
 public class EffSendBlockChange extends Effect {
 
 	static {

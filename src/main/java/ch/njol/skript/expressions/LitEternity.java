@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"Note that an eternity will often be treated as the longest duration something supports, rather than a true eternity."
 })
 @Example("set fire to the player for an eternity")
-@Since("INSERT VERSION")
+@Since("2.12")
 public class LitEternity extends SimpleLiteral<Timespan> {
 
 	static {

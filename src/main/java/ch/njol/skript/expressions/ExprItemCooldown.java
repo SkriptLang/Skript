@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 		"\treset item cooldown of cobblestone and dirt for all players"
 })
 @RequiredPlugins("MC 1.21.2 (cooldown group)")
-@Since({"2.8.0", "INSERT VERSION (cooldown group)"})
+@Since({"2.8.0", "2.12 (cooldown group)"})
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
 
 	// Cooldown groups were added in 1.21.2, to add cooldowns to a "group" of items

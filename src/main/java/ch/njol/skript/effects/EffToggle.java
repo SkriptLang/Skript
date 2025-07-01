@@ -33,7 +33,7 @@ import ch.njol.util.Kleenean;
 		"# With booleans",
 		"toggle gravity of player"
 })
-@Since("1.4, INSERT VERSION (booleans)")
+@Since("1.4, 2.12 (booleans)")
 public class EffToggle extends Effect {
 
 	private enum Action {

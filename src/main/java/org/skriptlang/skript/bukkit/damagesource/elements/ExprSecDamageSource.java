@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		if the damage type of event-damage source is magic:
 			set the damage to damage * 2
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
 public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperimentSyntax {

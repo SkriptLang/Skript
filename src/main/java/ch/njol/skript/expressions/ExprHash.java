@@ -32,7 +32,7 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 		"Please note that a hash cannot be reversed under normal circumstances. You will not be able to get original value from a hash with Skript."
 })
 @Example("set {_hash} to \"hello world\" hashed with SHA-256")
-@Since("2.0, 2.2-dev32 (SHA-256 algorithm), INSERT VERSION (SHA-384, SHA-512)")
+@Since("2.0, 2.2-dev32 (SHA-256 algorithm), 2.12 (SHA-384, SHA-512)")
 public class ExprHash extends PropertyExpression<String, String> {
 
 	private static final HexFormat HEX_FORMAT = HexFormat.of().withLowerCase();

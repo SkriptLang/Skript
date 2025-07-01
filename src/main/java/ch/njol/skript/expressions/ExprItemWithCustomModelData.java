@@ -22,7 +22,7 @@ import java.util.List;
 @Example("set slot 1 of inventory of player to wooden hoe with custom model data 357")
 @Example("give player a diamond hoe with custom model data 2, true, true, \"scythe\", and rgb(0,0,100)")
 @RequiredPlugins("Minecraft 1.21.4+ (boolean/string/color support)")
-@Since({"2.5", "INSERT VERSION (boolean/string/color support)"})
+@Since({"2.5", "2.12 (boolean/string/color support)"})
 public class ExprItemWithCustomModelData extends PropertyExpression<ItemType, ItemType> {
 
 	private static final boolean USE_NEW_CMD = Skript.classExists("org.bukkit.inventory.meta.components.CustomModelDataComponent");

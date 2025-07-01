@@ -113,7 +113,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 	 * @deprecated Use {@link #loadCode(SectionNode, String, Runnable, Runnable, Class[])}
 	 */
 	@SafeVarargs
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.12", forRemoval = true)
 	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		return loadCode(sectionNode, name, null, afterLoading, events);
 	}

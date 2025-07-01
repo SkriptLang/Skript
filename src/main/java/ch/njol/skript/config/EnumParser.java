@@ -9,7 +9,7 @@ import java.util.Locale;
 /**
  * @deprecated Use {@link ch.njol.skript.classes.EnumParser} instead.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.12", forRemoval = true)
 public class EnumParser<E extends Enum<E>> implements Converter<String, E> {
 	
 	private final Class<E> enumType;

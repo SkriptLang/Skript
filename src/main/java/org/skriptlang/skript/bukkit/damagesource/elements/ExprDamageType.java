@@ -32,7 +32,7 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	on death:
 		set {_type} to the damage type of event-damage source
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
 public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperimentSyntax {

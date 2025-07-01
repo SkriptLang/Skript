@@ -64,7 +64,7 @@ import java.util.*;
 	"set {_positions::*} to all positions of the value \"hi\" in {_otherlist::*}",
 	"# {_positions::*} is now 2 and 4"
 })
-@Since("2.1, INSERT VERSION (indices, positions of list)")
+@Since("2.1, 2.12 (indices, positions of list)")
 public class ExprIndicesOf extends SimpleExpression<Object> {
 
 	static {

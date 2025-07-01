@@ -107,7 +107,7 @@ public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 	/**
 	 * @deprecated Use {@link #loadCode(SectionNode, String, Runnable, Runnable, Class[])}
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.12", forRemoval = true)
 	protected Trigger loadCode(SectionNode sectionNode, String name,
 			@Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		return loadCode(sectionNode, name, null, afterLoading, events);
