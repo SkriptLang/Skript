@@ -15,6 +15,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.variables.HintManager;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -180,6 +181,12 @@ public class EffChange extends Effect {
 			flatAcceptedTypes[i] = type;
 		}
 
+		// Hint handling for deleting
+		if (changed instanceof Variable<?> variable && mode == ChangeMode.DELETE && HintManager.canUseHints(variable)) {
+			// Remove type hints in this scope only for a deleted variable
+			getParser().getHintManager().delete(variable);
+		}
+
 		if (changer == null) { // Safe to reset/delete
 			return true;
 		}
@@ -271,13 +278,24 @@ public class EffChange extends Effect {
 			}
 
 			// Print warning if attempting to save a non-serializable type in a global variable
-			if (!variable.isLocal() && (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD))) {
-				ClassInfo<?> changerInfo = Classes.getSuperClassInfo(changer.getReturnType());
-				if (changerInfo.getC() != Object.class && changerInfo.getSerializer() == null && changerInfo.getSerializeAs() == null
-					&& !SkriptConfig.disableObjectCannotBeSavedWarnings.value()
-					&& getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
-					Skript.warning(changerInfo.getName().withIndefiniteArticle() + " cannot be saved. That is, the contents of the variable "
-						+ changed.toString(null, Skript.debug()) + " will be lost when the server stops.");
+			if (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD)) {
+				if (HintManager.canUseHints(variable)) { // Hint handling
+					HintManager hintManager = getParser().getHintManager();
+					Class<?>[] hints = changer.possibleReturnTypes();
+					if (mode == ChangeMode.SET) { // Override existing hints in scope
+						hintManager.set(variable, hints);
+					} else {
+						hintManager.add(variable, hints);
+					}
+				}
+				if (!variable.isLocal()) {
+					ClassInfo<?> changerInfo = Classes.getSuperClassInfo(changer.getReturnType());
+					if (changerInfo.getC() != Object.class && changerInfo.getSerializer() == null && changerInfo.getSerializeAs() == null
+						&& !SkriptConfig.disableObjectCannotBeSavedWarnings.value()
+						&& getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
+						Skript.warning(changerInfo.getName().withIndefiniteArticle() + " cannot be saved. That is, the contents of the variable "
+							+ changed.toString(null, Skript.debug()) + " will be lost when the server stops.");
+					}
 				}
 			}
 		}

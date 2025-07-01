@@ -1,0 +1,43 @@
+test "except items":
+	set {_base::*} to a copper ingot, an iron ingot, a gold ingot, a diamond and a netherite ingot
+	set {_except::*} to {_base::*} except a copper ingot
+	assert {_except::*} is an iron ingot, a gold ingot, a diamond and a netherite ingot with "Failed to exclude a copper ingot"
+
+	set {_except::*} to {_base::*} except a copper ingot and an iron ingot
+	assert {_except::*} is a gold ingot, a diamond and a netherite ingot with "Failed to exclude a copper ingot and an iron ingot"
+
+	set {_except::*} to {_base::*} excluding a copper ingot, an iron ingot, a gold ingot and a diamond
+	assert {_except::*} is a netherite ingot with "Failed to exclude all but netherite ingot"
+
+	set {_except::*} to {_base::*} not including {_base::*}
+	assert {_except::*} is not set with "Failed to exclude all"
+
+test "except entities":
+	spawn 5 zombies at test-location
+	set {_zombie} to last spawned zombie
+	add {_zombie} to {_exclude::*}
+
+	assert size of all zombies except {_zombie} is 4 with "Failed to exclude zombie"
+	assert size of all entities except {_exclude::*} is 4 with "Failed to exclude list (zombie)"
+
+	spawn 5 skeletons at test-location
+	set {_skeleton} to last spawned skeleton
+	add {_skeleton} to {_exclude::*}
+
+	assert size of all skeletons excluding {_skeleton} is 4 with "Failed to exclude skeleton"
+	assert size of all entities excluding {_exclude::*} is 8 with "Failed to exclude list (zombie, skeleton)"
+
+	spawn 5 villagers at test-location
+	set {_villager} to last spawned villager
+	add {_villager} to {_exclude::*}
+
+	assert size of all villagers not including {_villager} is 4 with "Failed to exclude villager"
+	assert size of all entities not including {_exclude::*} is 12 with "Failed to exclude list (zombie, skeleton, villager)"
+
+	clear all entities
+
+test "except 'or' objects":
+	assert (1 or 2) except 2 is 1 with "Failed to exclude '2' from an 'or' list"
+
+	set {_item} to (a diamond or an iron ingot or an emerald) excluding a diamond
+	assert {_item} is (an iron ingot or an emerald) with "Failed to exclude 'diamond' from an 'or' item list"

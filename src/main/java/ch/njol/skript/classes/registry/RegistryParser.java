@@ -1,11 +1,10 @@
 package ch.njol.skript.classes.registry;
 
-import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.PatternedParser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
-import ch.njol.util.StringUtils;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -13,23 +12,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * A parser based on a {@link Registry} used to parse data from a string or turn data into a string.
  *
  * @param <R> Registry class
  */
-public class RegistryParser<R extends Keyed> extends Parser<R> {
+public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 
 	private final Registry<R> registry;
 	private final String languageNode;
 
 	private final Map<R, String> names = new HashMap<>();
 	private final Map<String, R> parseMap = new HashMap<>();
+	private String[] patterns;
 
 	public RegistryParser(Registry<R> registry, String languageNode) {
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
@@ -89,6 +87,10 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 				}
 			}
 		}
+		patterns = parseMap.keySet().stream()
+			.filter(pattern -> !pattern.startsWith("minecraft:"))
+			.sorted()
+			.toArray(String[]::new);
 	}
 
 	/**
@@ -126,13 +128,9 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 		return toString(object, 0);
 	}
 
-	/**
-	 * @return A comma-separated string containing a list of all names representing the registry.
-	 * Note that some entries may represent the same registry object.
-	 */
-	public String getAllNames() {
-		List<String> strings = parseMap.keySet().stream().filter(s -> !s.startsWith("minecraft:")).sorted().collect(Collectors.toList());
-		return StringUtils.join(strings, ", ");
+	@Override
+	public String[] getPatterns() {
+		return patterns;
 	}
 
 }

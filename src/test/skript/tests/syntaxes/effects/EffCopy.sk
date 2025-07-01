@@ -28,3 +28,28 @@ test "single copy":
 
 	copy {_none} into {_foo}
 	assert {_foo} is not set with "Copying nothing didn't delete variable"
+
+using local variable type hints
+
+test "copy effect type hints":
+	set {_var} to 10
+	copy {_var} into {_x}
+	parse:
+		set {_a} to {_x} in lowercase
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	delete {_var}
+	delete {_x}
+
+	set {_var::*} to 10 and 20
+	copy {_var::*} into {_x::*}
+	parse:
+		set {_a::*} to {_x::*} in lowercase
+	assert last parse logs is "Expected variable '{_x::*}' to be a text, but it is an integer" with "Hint failed (%last parse logs%)"
+	delete {_var::*}
+	delete {_x::*}
+
+	copy pi into {_x}
+	parse:
+		set {_a} to {_x} in lowercase
+	assert last parse logs is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%last parse logs%)"
+	delete {_foo}
