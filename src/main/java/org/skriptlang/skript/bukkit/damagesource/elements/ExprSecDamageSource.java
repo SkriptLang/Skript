@@ -13,6 +13,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -105,8 +106,8 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 
 		if (node != null) {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(node, "custom damage source", afterLoading, DamageSourceSectionEvent.class);
+			trigger = SectionUtils.loadLinkedCode("custom damage source", (beforeLoading, afterLoading)
+					-> loadCode(node, "custom damage source", beforeLoading, afterLoading, DamageSourceSectionEvent.class));
 			if (isDelayed.get()) {
 				Skript.error("Delays cannot be used within a 'custom damage source' section.");
 				return false;
