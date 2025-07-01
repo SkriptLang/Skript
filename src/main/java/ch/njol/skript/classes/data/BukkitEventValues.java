@@ -13,7 +13,6 @@ import ch.njol.skript.util.Color;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
-import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
@@ -403,11 +402,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(InventoryClickEvent.class, Player.class,
 			event -> event.getWhoClicked() instanceof Player player ? player : null);
 		EventValues.registerEventValue(InventoryClickEvent.class, World.class, event -> event.getWhoClicked().getWorld());
-		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, event -> {
-			if (event instanceof CraftItemEvent craftItemEvent)
-				return craftItemEvent.getRecipe().getResult();
-			return event.getCurrentItem();
-		});
+		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, InventoryClickEvent::getCurrentItem);
 		EventValues.registerEventValue(InventoryClickEvent.class, Slot.class, event -> {
 			Inventory invi = event.getClickedInventory(); // getInventory is WRONG and dangerous
 			if (invi == null)
@@ -497,7 +492,12 @@ public final class BukkitEventValues {
 			return null;
 		});
 		// CraftItemEvent
-		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> event.getRecipe().getResult());
+		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> {
+			Recipe recipe = event.getRecipe();
+			if (recipe instanceof ComplexRecipe)
+				return event.getCurrentItem();
+			return recipe.getResult();
+		});
 		//InventoryEvent
 		EventValues.registerEventValue(InventoryEvent.class, Inventory.class, InventoryEvent::getInventory);
 		//InventoryOpenEvent
@@ -547,8 +547,6 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getFrom);
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getTo, TIME_FUTURE);
 		}
-		//PlayerToggleFlightEvent
-		EventValues.registerEventValue(PlayerToggleFlightEvent.class, Player.class, PlayerEvent::getPlayer);
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
 		//FireworkExplodeEvent

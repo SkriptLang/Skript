@@ -248,8 +248,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("any fireball", Fireball.class);
 		addSuperEntity("illager", Illager.class);
 		addSuperEntity("spellcaster", Spellcaster.class);
-		if (Skript.classExists("org.bukkit.entity.Raider")) // 1.14
-			addSuperEntity("raider", Raider.class);
+		addSuperEntity("raider", Raider.class);
+		// TODO - remove this when 1.19 support is dropped
 		if (Skript.classExists("org.bukkit.entity.Enemy")) // 1.19.3
 			addSuperEntity("enemy", Enemy.class);
 		if (Skript.classExists("org.bukkit.entity.Display")) // 1.19.4
