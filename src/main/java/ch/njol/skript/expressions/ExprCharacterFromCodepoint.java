@@ -6,9 +6,12 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Character from Codepoint")
 @Description("Returns the character at the specified codepoint")
@@ -41,6 +44,13 @@ public class ExprCharacterFromCodepoint extends SimplePropertyExpression<Integer
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (getExpr() instanceof Literal<? extends Integer>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override
