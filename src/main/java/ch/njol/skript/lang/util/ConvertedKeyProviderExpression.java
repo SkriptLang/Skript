@@ -38,11 +38,17 @@ public class ConvertedKeyProviderExpression<F, T> extends ConvertedExpression<F,
 
 	@Override
 	public T[] getArray(Event event) {
+		if (!canReturnKeys()) {
+			return super.getArray(event);
+		}
 		return get(getSource().getArray(event), getSource().getArrayKeys(event), keys -> arrayKeysCache.put(event, keys));
 	}
 
 	@Override
 	public T[] getAll(Event event) {
+		if (!canReturnKeys()) {
+			return super.getAll(event);
+		}
 		return get(getSource().getAll(event), getSource().getAllKeys(event), keys -> allKeysCache.put(event, keys));
 	}
 
