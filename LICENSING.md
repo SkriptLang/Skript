@@ -42,7 +42,7 @@ When adding your name, please follow the example format below:
 > If you use more than one commit email address, please include all of them.
 
 ```text
-APickledWalrus (apickledwalrus@icloud.com)
+APickledWalrus (apickledwalrus@icloud.com, apickledwalrus@gmail.com)
 Sovde (10354869+sovdeeth@users.noreply.github.com)
 UnderscoreTud (98935832+UnderscoreTud@users.noreply.github.com)
 ```
