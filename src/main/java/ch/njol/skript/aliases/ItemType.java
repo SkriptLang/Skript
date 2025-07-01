@@ -1,5 +1,6 @@
 package ch.njol.skript.aliases;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
@@ -50,6 +51,8 @@ import java.util.stream.Collectors;
 @ContainerType(ItemStack.class)
 public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
 	AnyNamed, AnyAmount {
+
+	private static final boolean IS_RUNNING_1_21 = Skript.isRunningMinecraft(1, 21);
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -972,6 +975,37 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @return Whether everything could be added to the inventory
 	 */
 	public boolean addTo(Inventory inventory) {
+		// TODO remove this when applicable
+		// On newer versions, such as 1.21.6, this legacy method of manually rewriting inventory content arrays risks
+		//  accidental item deletion and fails to respect properties such as stack size.
+		// Thus, we switch to use the API methods. However, these API methods do not work properly on older versions
+		//  such as 1.20.6. For those versions, we continue to use this legacy method.
+		// See https://github.com/SkriptLang/Skript/pull/7986
+		if (!IS_RUNNING_1_21) {
+			// important: don't use inventory.add() - it ignores max stack sizes
+			ItemStack[] buf = inventory.getContents();
+
+			ItemStack[] tBuf = buf.clone();
+			if (inventory instanceof PlayerInventory) {
+				buf = new ItemStack[36];
+				for(int i = 0; i < 36; ++i) {
+					buf[i] = tBuf[i];
+				}
+			}
+
+			final boolean b = addTo(buf);
+
+			if (inventory instanceof PlayerInventory) {
+				buf = Arrays.copyOf(buf, tBuf.length);
+				for (int i = tBuf.length - 5; i < tBuf.length; ++i) {
+					buf[i] = tBuf[i];
+				}
+			}
+
+			assert buf != null;
+			inventory.setContents(buf);
+			return b;
+		}
 		if (!isAll()) {
 			ItemStack random = getItem().getRandom();
 			return random == null || inventory.addItem(random).isEmpty();
