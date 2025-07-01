@@ -59,16 +59,16 @@ public final class BukkitSyntaxInfos {
 		String id();
 
 		/**
-		 * @return Documentation data. Represents the version of the plugin in which a syntax was added.
-		 * @see ch.njol.skript.doc.Since
-		 */
-		@Nullable String since();
-
-		/**
 		 * @return Documentation data. Used for identifying specific syntaxes in documentation.
 		 * @see ch.njol.skript.doc.DocumentationId
 		 */
 		@Nullable String documentationId();
+
+		/**
+		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added or modified.
+		 * @see ch.njol.skript.doc.Since
+		 */
+		Collection<String> since();
 
 		/**
 		 * @return Documentation data. A description of a syntax.
@@ -119,15 +119,6 @@ public final class BukkitSyntaxInfos {
 			B listeningBehavior(ListeningBehavior listeningBehavior);
 
 			/**
-			 * Sets the "since" value the event's documentation will use.
-			 * @param since The "since" value to use.
-			 * @return This builder.
-			 * @see Event#since()
-			 */
-			@Contract("_ -> this")
-			B since(String since);
-
-			/**
 			 * Sets the documentation identifier the event's documentation will use.
 			 * @param documentationId The documentation identifier to use.
 			 * @return This builder.
@@ -135,6 +126,42 @@ public final class BukkitSyntaxInfos {
 			 */
 			@Contract("_ -> this")
 			B documentationId(String documentationId);
+
+			/**
+			 * Adds a "since" value the event's documentation will use.
+			 * @param since The "since" value to use.
+			 * @return This builder.
+			 * @see Event#since()
+			 */
+			@Contract("_ -> this")
+			B addSince(String since);
+
+			/**
+			 * Adds an array of "since" values the event's documentation will use.
+			 * @param since The "since" values to use.
+			 * @return This builder.
+			 * @see Event#since()
+			 */
+			@Contract("_ -> this")
+			B addSince(String ...since);
+
+
+			/**
+			 * Adds a collection of "since" values the event's documentation will use.
+			 * @param since The "since" values to use.
+			 * @return This builder.
+			 * @see Event#since()
+			 */
+			@Contract("_ -> this")
+			B addSince(Collection<String> since);
+
+			/**
+			 * Removes all "since" values from the event's documentation
+			 * @return This builder.
+			 * @see Event#since()
+			 */
+			@Contract("_ -> this")
+			B clearSince();
 
 			/**
 			 * Adds a description line to the event's documentation.
