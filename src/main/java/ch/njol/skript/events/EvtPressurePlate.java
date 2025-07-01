@@ -20,8 +20,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
  */
 public class EvtPressurePlate extends SkriptEvent {
 
-	private static final boolean HAS_PRESSURE_PLATE_TAG = Skript.fieldExists(Tag.class, "PRESSURE_PLATES");
-
 	static {
 		// TODO is EntityInteractEvent similar for entities?
 		Skript.registerEvent("Pressure Plate / Trip", EvtPressurePlate.class, PlayerInteractEvent.class,
@@ -42,22 +40,16 @@ public class EvtPressurePlate extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		Block clickedBlock = ((PlayerInteractEvent) event).getClickedBlock();
+		PlayerInteractEvent interactEvent = (PlayerInteractEvent) event;
+		Block clickedBlock = interactEvent.getClickedBlock();
 		Material type = clickedBlock == null ? null : clickedBlock.getType();
-		if (type == null || ((PlayerInteractEvent) event).getAction() != Action.PHYSICAL )
+		if (type == null || interactEvent.getAction() != Action.PHYSICAL)
 			return false;
 
 		if (tripwire)
 			return(type == Material.TRIPWIRE || type == Material.TRIPWIRE_HOOK);
 
-		// TODO: 1.16+, remove check in 2.10
-		if (HAS_PRESSURE_PLATE_TAG)
-			return Tag.PRESSURE_PLATES.isTagged(type);
-
-		return Tag.WOODEN_PRESSURE_PLATES.isTagged(type)
-			|| type == Material.HEAVY_WEIGHTED_PRESSURE_PLATE
-			|| type == Material.LIGHT_WEIGHTED_PRESSURE_PLATE
-			|| type == Material.STONE_PRESSURE_PLATE;
+		return Tag.PRESSURE_PLATES.isTagged(type);
 	}
 	
 	@Override

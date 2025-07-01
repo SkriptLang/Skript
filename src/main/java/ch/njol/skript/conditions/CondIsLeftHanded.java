@@ -29,6 +29,7 @@ import org.bukkit.inventory.MainHand;
 @RequiredPlugins("Paper 1.17.1+ (entities)")
 public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
+	// TODO - remove this when Spigot support is dropped
 	private static final boolean CAN_USE_ENTITIES = Skript.methodExists(Mob.class, "isLeftHanded");
 
 	static {

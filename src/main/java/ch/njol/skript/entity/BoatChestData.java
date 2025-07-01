@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.ChestBoat;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class BoatChestData extends EntityData<ChestBoat> {
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new BoatChestData(matchedPattern);
 	}
 

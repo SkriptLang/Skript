@@ -1,0 +1,4 @@
+test "CondIsWithin or lists":
+	set {_loc} to spawn of world "world"
+	loop 10 times:
+		assert {_loc} is within world "world", world "world_nether", or world "world_the_end" with "within or list failed"

@@ -11,7 +11,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("Command Sender")
 @Description({
-	"The player or the console who sent a command. Mostly useful in <a href='commands'>commands</a> and <a href='events.html#command'>command events</a>.",
+	"The player or the console who sent a command. Mostly useful in <a href='commands'>commands</a> and <a href='#command'>command events</a>.",
 	"If the command sender is a command block, its location can be retrieved by using %block's location%"
 })
 @Examples({
