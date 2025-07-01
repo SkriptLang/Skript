@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
@@ -17,6 +18,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.DifferenceInfo;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 
@@ -163,6 +165,13 @@ public class ExprDifference extends SimpleExpression<Object> {
 	@Override
 	public Class<?> getReturnType() {
 		return differenceInfo == null ? Object.class : differenceInfo.getReturnType();
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (first instanceof Literal<?> && second instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override
