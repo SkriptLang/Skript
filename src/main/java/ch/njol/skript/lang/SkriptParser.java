@@ -13,6 +13,7 @@ import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.parser.ParsingStack;
@@ -43,6 +44,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import ch.njol.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -70,6 +72,8 @@ public class SkriptParser {
 	public final static int PARSE_LITERALS = 2;
 	public final static int ALL_FLAGS = PARSE_EXPRESSIONS | PARSE_LITERALS;
 	private final int flags;
+
+	public final boolean doSimplification = SkriptConfig.simplifySyntaxesOnParse.value();
 
 	public final ParseContext context;
 
@@ -247,6 +251,9 @@ public class SkriptParser {
 							boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
 								log.printLog();
+								if (doSimplification && element instanceof Simplifiable<?> simplifiable)
+									//noinspection unchecked
+									return (T) simplifiable.simplify();
 								return element;
 							}
 						}
@@ -315,7 +322,15 @@ public class SkriptParser {
 	}
 
 	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
-		DefaultExpression<?> expr = exprInfo.classes[0].getDefaultExpression();
+		DefaultExpression<?> expr;
+		// check custom default values first.
+		DefaultValueData data = getParser().getData(DefaultValueData.class);
+		expr = data.getDefaultValue(exprInfo.classes[0].getC());
+
+		// then check classinfo
+		if (expr == null)
+			expr = exprInfo.classes[0].getDefaultExpression();
+
 		if (expr == null)
 			throw new SkriptAPIException("The class '" + exprInfo.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
 		if (!(expr instanceof Literal) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0)
@@ -1558,6 +1573,11 @@ public class SkriptParser {
 	 */
 	private static ParserInstance getParser() {
 		return ParserInstance.get();
+	}
+
+	// register default value data when the parser class is loaded.
+	static {
+		ParserInstance.registerData(DefaultValueData.class, DefaultValueData::new);
 	}
 
 	/**

@@ -12,11 +12,11 @@ import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.util.Task;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -78,7 +78,10 @@ public class StructParse extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET);
+		Task.callSync(() -> {
+			resultsExpression.change(ContextlessEvent.get(), logs, ChangeMode.SET);
+			return null;
+		});
 		return true;
 	}
 

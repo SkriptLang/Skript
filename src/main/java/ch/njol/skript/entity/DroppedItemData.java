@@ -19,6 +19,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DroppedItemData extends EntityData<Item> {
@@ -106,7 +107,7 @@ public class DroppedItemData extends EntityData<Item> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new DroppedItemData(types);
 	}
 	

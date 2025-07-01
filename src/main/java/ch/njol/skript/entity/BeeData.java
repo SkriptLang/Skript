@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import java.util.Random;
 
 import org.bukkit.entity.Bee;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -81,7 +82,7 @@ public class BeeData extends EntityData<Bee> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new BeeData();
 	}
 }
