@@ -602,7 +602,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.def != null) {
+				if (param.isOptional()) {
 					optionalArgs++;
 				}
 

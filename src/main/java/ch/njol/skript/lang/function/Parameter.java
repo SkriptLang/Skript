@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.function.DefaultFunction.Builder;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -14,12 +15,11 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,10 +61,12 @@ public final class Parameter<T> {
 	 */
 	final boolean keyed;
 
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
 		this(name, type, single, def, false);
 	}
 
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
 		this.name = name;
 		this.type = type;
@@ -74,15 +76,53 @@ public final class Parameter<T> {
 		this.keyed = keyed;
 	}
 
-	Parameter(String name, ClassInfo<T> type, boolean single, boolean optional, boolean keyed) {
+	/**
+	 * Constructs a new parameter.
+	 *
+	 * @param name The name.
+	 * @param type The type of the parameter.
+	 * @param modifiers The modifiers of this parameter.
+	 */
+	public Parameter(@NotNull String name, @NotNull Class<T> type, Modifier... modifiers) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+		Preconditions.checkNotNull(type, "type cannot be null");
+
+		Set<Modifier> mods = Set.of(modifiers);
+
 		this.name = name;
-		this.type = type;
+		this.type = DefaultFunction.getClassInfo(type);
 		this.def = null;
-		this.single = single;
-		this.optional = optional;
-		this.keyed = keyed;
+		this.single = !type.isArray();
+		this.optional = mods.contains(Modifier.OPTIONAL);
+		this.keyed = mods.contains(Modifier.KEYED);
 	}
 
+	/**
+	 * Represents a modifier that can be applied to a parameter
+	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}}.
+	 */
+	public interface Modifier {
+
+		/**
+		 * The modifier for parameters that are optional.
+		 */
+		Modifier OPTIONAL = new ModifierImpl("optional");
+
+		/**
+		 * The modifier for parameters that support optional keyed expressions.
+		 */
+		Modifier KEYED = new ModifierImpl("keyed");
+
+	}
+
+	private record ModifierImpl(String name) implements Modifier {
+
+	}
+
+	/**
+	 * Returns whether this parameter is optional or not.
+	 * @return Whether this parameter is optional or not.
+	 */
 	public boolean isOptional() {
 		return optional;
 	}

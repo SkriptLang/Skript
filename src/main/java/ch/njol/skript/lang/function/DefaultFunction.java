@@ -1,6 +1,7 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.function.Parameter.Modifier;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -183,28 +183,6 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		return this;
 	}
 
-	/**
-	 * Represents a modifier that can be applied to a parameter
-	 * when constructing one using {@link Builder#parameter(String, Class, Modifier...)}.
-	 */
-	public interface Modifier {
-
-		/**
-		 * The modifier for parameters that are optional.
-		 */
-		Modifier OPTIONAL = new ModifierImpl("optional");
-
-		/**
-		 * The modifier for parameters that support optional keyed expressions.
-		 */
-		Modifier KEYED = new ModifierImpl("keyed");
-
-	}
-
-	private record ModifierImpl(String name) implements Modifier {
-
-	}
-
 	public static class Builder<T> {
 
 		private final String name;
@@ -320,13 +298,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 
-			Set<Modifier> mods = Set.of(modifiers);
-
-			if (mods.contains(Modifier.OPTIONAL)) {
-				parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), true, mods.contains(Modifier.KEYED)));
-			} else {
-				parameters.put(name, new Parameter<>(name, getClassInfo(type), !type.isArray(), null, mods.contains(Modifier.KEYED)));
-			}
+			parameters.put(name, new Parameter<>(name, type, modifiers));
 			return this;
 		}
 

@@ -1,16 +1,17 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyedValue;
-import ch.njol.skript.lang.function.*;
-import ch.njol.skript.lang.function.DefaultFunction.Modifier;
+import ch.njol.skript.lang.function.DefaultFunction;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.Parameter;
+import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -395,9 +396,9 @@ public class DefaultFunctions {
 			.parameter("x", Number.class)
 			.parameter("y", Number.class)
 			.parameter("z", Number.class)
-			.parameter("world", World.class, Modifier.OPTIONAL)
-			.parameter("yaw", Float.class, Modifier.OPTIONAL)
-			.parameter("pitch", Float.class, Modifier.OPTIONAL)
+			.parameter("world", World.class, Parameter.Modifier.OPTIONAL)
+			.parameter("yaw", Float.class, Parameter.Modifier.OPTIONAL)
+			.parameter("pitch", Float.class, Parameter.Modifier.OPTIONAL)
 			.build(args -> {
 				World world = args.getOrDefault("world", Bukkit.getWorlds().get(0));
 
@@ -543,7 +544,7 @@ public class DefaultFunctions {
 			)
 			.since("2.8.0")
 			.parameter("nameOrUUID", String.class)
-			.parameter("getExactPlayer", Boolean.class, Modifier.OPTIONAL)
+			.parameter("getExactPlayer", Boolean.class, Parameter.Modifier.OPTIONAL)
 			.build(args -> {
 				String name = args.get("nameOrUUID");
 				boolean isExact = args.getOrDefault("getExactPlayer", false);
