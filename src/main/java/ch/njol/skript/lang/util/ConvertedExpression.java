@@ -18,7 +18,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.function.Predicate;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -34,6 +33,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 
 	protected Expression<? extends F> source;
 	protected Class<T> to;
+	protected Class<T>[] toExact;
 	final Converter<? super F, ? extends T> converter;
 
 	/**
@@ -45,6 +45,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	public ConvertedExpression(Expression<? extends F> source, Class<T> to, ConverterInfo<? super F, ? extends T> info) {
 		this.source = source;
 		this.to = to;
+		//noinspection unchecked
+		this.toExact = new Class[]{to};
 		this.converter = info.getConverter();
 		this.converterInfos = Collections.singleton(info);
 		//noinspection unchecked
@@ -59,8 +61,22 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	 *  are valid for the converter being attempted
 	 */
 	public ConvertedExpression(Expression<? extends F> source, Class<T> to, Collection<ConverterInfo<? super F, ? extends T>> infos, boolean performFromCheck) {
+		//noinspection unchecked
+		this(source, new Class[]{to}, infos, performFromCheck);
+	}
+
+	/**
+	 * @param source The expression to use for obtaining values
+	 * @param toExact The exact types we are converting to
+	 * @param infos A collection of converters to attempt
+	 * @param performFromCheck Whether a safety check should be performed to ensure that objects being converted
+	 *  are valid for the converter being attempted
+	 */
+	public ConvertedExpression(Expression<? extends F> source, Class<T>[] toExact, Collection<ConverterInfo<? super F, ? extends T>> infos, boolean performFromCheck) {
 		this.source = source;
-		this.to = to;
+		//noinspection unchecked
+		this.to = (Class<T>) Utils.getSuperType(toExact);
+		this.toExact = toExact;
 		this.converterInfos = infos;
 		//noinspection unchecked
 		this.returnTypes = converterInfos.stream().map(ConverterInfo::getTo).distinct().toArray(Class[]::new);
@@ -100,8 +116,15 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 		if (!infos.isEmpty()) { // there are converters for (at least some of) the return types
 			// a note: casting <? extends F> to <? super F> is wrong, but since the converter is used only for values
 			//         returned by the expression (which are instances of <? extends F>), this won't result in any CCEs
+
+			// get list of exact types that can be converted to
+			Class<?>[] converterTypes = infos.stream()
+					.map(ConverterInfo::getTo)
+					.distinct()
+					.toArray(Class[]::new);
+
 			// noinspection rawtypes, unchecked
-			return new ConvertedExpression(from, Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new)), infos, true);
+			return new ConvertedExpression(from, converterTypes, infos, true);
 		}
 
 		return null;
@@ -132,7 +155,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 
 	@Override
 	public Class<? extends T>[] possibleReturnTypes() {
-		return Arrays.copyOf(returnTypes, returnTypes.length);
+		return toExact;
 	}
 
 	@Override
@@ -275,9 +298,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Expression<? extends T> simplify() {
-		Expression<? extends T> convertedExpression = source.simplify().getConvertedExpression(to);
+		Expression<? extends T> convertedExpression = source.simplify().getConvertedExpression(toExact);
 		if (convertedExpression != null)
 			return convertedExpression;
 		return this;
