@@ -21,6 +21,7 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import com.google.common.collect.Iterators;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -710,20 +711,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Gets copy of storage contents, i.e. ignores armor and off hand. This is due to Spigot 1.9
-	 * added armor slots, and off hand to default inventory index.
-	 * @param invi Inventory
+	 * Gets copy of storage contents, i.e. ignores armor and off hand.
+	 * This method simply calls {@link Inventory#getStorageContents()} and clones the items contained within the array.
+	 * @param inventory The inventory to obtain contents from.
 	 * @return Copied storage contents
 	 */
-	public static ItemStack[] getStorageContents(final Inventory invi) {
-		if (invi instanceof PlayerInventory) {
-			ItemStack[] buf = invi.getContents();
-			ItemStack[] tBuf = new ItemStack[36];
-			for (int i = 0; i < 36; i++)
-				if (buf[i] != null)
-					tBuf[i] = buf[i].clone();
-			return tBuf;
-		} else return getCopiedContents(invi);
+	public static ItemStack[] getStorageContents(Inventory inventory) {
+		ItemStack[] buf = inventory.getStorageContents();
+		for (int i = 0; i < buf.length; i++) {
+			if (buf[i] != null)
+				buf[i] = buf[i].clone();
+		}
+		return buf;
 	}
 
 	/**
@@ -969,33 +968,15 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	/**
 	 * Tries to add this ItemType to the given inventory. Does not call updateInventory for players.
 	 *
-	 * @param invi
+	 * @param inventory The inventory to add this the {@link ItemStack}(s) represented by this ItemType to.
 	 * @return Whether everything could be added to the inventory
 	 */
-	public boolean addTo(final Inventory invi) {
-		// important: don't use inventory.add() - it ignores max stack sizes
-		ItemStack[] buf = invi.getContents();
-
-		ItemStack[] tBuf = buf.clone();
-		if (invi instanceof PlayerInventory) {
-			buf = new ItemStack[36];
-			for(int i = 0; i < 36; ++i) {
-				buf[i] = tBuf[i];
-			}
+	public boolean addTo(Inventory inventory) {
+		if (!isAll()) {
+			ItemStack random = getItem().getRandom();
+			return random == null || inventory.addItem(random).isEmpty();
 		}
-
-		final boolean b = addTo(buf);
-
-		if (invi instanceof PlayerInventory) {
-			buf = Arrays.copyOf(buf, tBuf.length);
-			for (int i = tBuf.length - 5; i < tBuf.length; ++i) {
-				buf[i] = tBuf[i];
-			}
-		}
-
-		assert buf != null;
-		invi.setContents(buf);
-		return b;
+		return inventory.addItem(Iterators.toArray(getItem().getAll().iterator(), ItemStack.class)).isEmpty();
 	}
 
 	private static boolean addTo(@Nullable ItemStack is, ItemStack[] buf) {
