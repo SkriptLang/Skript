@@ -192,7 +192,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		if (Skript.isRunningMinecraft(1,21,2)) {
 			addSimpleEntity("creaking", Creaking.class);
-			addSimpleEntity("creaking", Creaking.class);
 			// boats
 			addSimpleEntity("oak boat", OakBoat.class);
 			addSimpleEntity("dark oak boat", DarkOakBoat.class);
@@ -221,6 +220,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSuperEntity("chest boat", ChestBoat.class);
 			addSuperEntity("any chest boat", ChestBoat.class);
 		}
+
+		if (Skript.isRunningMinecraft(1, 21, 6))
+			addSimpleEntity("happy ghast", HappyGhast.class);
 
 		// Register zombie after Husk and Drowned to make sure both work
 		addSimpleEntity("zombie", Zombie.class);
