@@ -13,10 +13,9 @@ import ch.njol.skript.util.Getter;
 public class EvtProfileEvent extends SkriptEvent {
 	static {
 		Skript.registerEvent("Profiler Event Available", EvtProfileEvent.class, ProfileCompletedEvent.class,
-			"(profile|profiler) [event] (complete|completed|available)"
-		).description(
-			"Called after a new profiler event is available"
-		).since("2.11");
+				"(profile|profiler) [event] (complete|completed|available)")
+			.description("Called after a new profiler event is available")
+			.since("INSERT VERSION");
 
 		EventValues.registerEventValue(
 			ProfileCompletedEvent.class,
