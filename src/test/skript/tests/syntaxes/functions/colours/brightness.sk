@@ -1,0 +1,17 @@
+test "colour brightness":
+
+	set {_redBrightness-100} to colorBrightness(red, -100)
+	set {_redBrightness-10} to colorBrightness(red, -10)
+	set {_redBrightness10} to colorBrightness(red, 10)
+	set {_redBrightness100} to colorBrightness(red, 100)
+	set {_redBrightnessInfinity} to colorBrightness(red, infinity value)
+	set {_redBrightnessNan} to colorBrightness(red, nan value)
+
+	assert hex code of {_redBrightness-100} is "#000000" with "hex code of red brightened by -100 was incorrect"
+	assert hex code of {_redBrightness-10} is "#9E2922" with "hex code of red brightened by -10 was incorrect"
+	assert hex code of {_redBrightness10} is "#C2332A" with "hex code of red brightened by 10 was incorrect"
+	assert hex code of {_redBrightness100} is "#FF4337" with "hex code of red brightened by 100 was incorrect"
+	assert hex code of {_redBrightnessInfinity} is "#AE2E26" with "adjusting the brightness of a colour by infinity should clamp between -100 and 100"
+	assert hex code of {_redBrightnessNan} is "#B02E26" with "adjusting the brightness of a colour by nan should clamp between -100 and 100"
+
+	assert colorBrightness({_x}, 4) is not set with "adjusting the brightness an invalid type shouldn't return anything"

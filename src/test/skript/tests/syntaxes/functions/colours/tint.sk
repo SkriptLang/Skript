@@ -1,0 +1,19 @@
+test "colour tints":
+
+	set {_redTint} to tint(red)
+	set {_redTint10} to tint(red, 10)
+	set {_redTint100} to tint(red, 100)
+	set {_redTintHsl} to tint(red, 1, true)
+	set {_redTintNegative} to tint(red, -4)
+	set {_redTintInfinity} to tint(red, infinity value)
+	set {_redTintNan} to tint(red, nan value)
+
+	assert hex code of {_redTint} is "#B03028" with "hex code of red tinted by 1 was incorrect"
+	assert hex code of {_redTint10} is "#B7423B" with "hex code of red tinted by 10 was incorrect"
+	assert hex code of {_redTint100} is "#FFFFFF" with "hex code of red tinted by 100 was incorrect"
+	assert hex code of {_redTintHsl} is "#B22F27" with "hex code of red tinted by 1 using hsl methods was incorrect"
+	assert hex code of {_redTintNegative} is "#B03028" with "tinting a colour by a negative amount should clamp between 1 and 100"
+	assert hex code of {_redTintInfinity} is "#B03028" with "tinting a colour by infinity should clamp between 1 and 100"
+	assert hex code of {_redTintNan} is "#B03028" with "tinting a colour by nan should clamp between 1 and 100"
+
+	assert tint({_x}) is not set with "tinting an invalid type shouldn't return anything"
