@@ -5,10 +5,13 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
+import ch.njol.util.Math2;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -28,6 +31,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	private static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
 	private static final Pattern SHORT_FORM_PATTERN = Pattern.compile("^(\\d+(?:\\.\\d+)?)([a-zA-Z]+)$");
+
+	private static final Noun FOREVER_NAME = new Noun("time.forever");
 
 	private static final List<NonNullPair<Noun, Long>> SIMPLE_VALUES = Arrays.asList(
 		new NonNullPair<>(TimePeriod.YEAR.name, TimePeriod.YEAR.time),
@@ -144,8 +149,23 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 		return new Timespan(totalMillis);
 	}
 
-	public static Timespan fromDuration(Duration duration) {
+	/**
+	 * Creates a {@link Timespan} from the given {@link Duration}.
+	 * @param duration The duration to convert to a Timespan.
+	 * @return A new Timespan object representing the duration, based on its milliseconds.
+	 */
+	@Contract("_ -> new")
+	public static @NotNull Timespan fromDuration(@NotNull Duration duration) {
 		return new Timespan(duration.toMillis());
+	}
+
+	/**
+	 * Creates a {@link Timespan} that represents an infinite duration.
+	 * @return A new Timespan object representing an infinite duration.
+	 */
+	@Contract(value = " -> new", pure = true)
+	public static @NotNull Timespan infinite() {
+		return new Timespan(Long.MAX_VALUE);
 	}
 
 	public static String toString(long millis) {
@@ -153,6 +173,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	public static String toString(long millis, int flags) {
+		if (millis == Long.MAX_VALUE)
+			return FOREVER_NAME.toString(false);
 		for (int i = 0; i < SIMPLE_VALUES.size() - 1; i++) {
 			NonNullPair<Noun, Long> pair = SIMPLE_VALUES.get(i);
 			long second1 = pair.getSecond();
@@ -201,43 +223,50 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)}
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Timespan fromTicks(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead.
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getMilliSeconds() {
 		return getAs(TimePeriod.MILLISECOND);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getTicks() {
 		return getAs(TimePeriod.TICK);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getTicks_i() {
 		return getAs(TimePeriod.TICK);
+	}
+
+	/**
+	 * @return Whether this timespan represents an infinite timespan.
+	 */
+	public boolean isInfinite() {
+		return millis == Long.MAX_VALUE;
 	}
 
 	/**
@@ -252,6 +281,93 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	 */
 	public Duration getDuration() {
 		return Duration.ofMillis(millis);
+	}
+
+	/**
+	 * Safely adds the specified timespan to this timespan, handling potential overflow.
+	 * @param timespan The timespan to add to this timespan
+	 * @return a new Timespan object
+	 */
+	@Contract(value = "_ -> new", pure = true)
+	public Timespan add(Timespan timespan) {
+		if (isInfinite() || timespan.isInfinite())
+			return Timespan.infinite();
+		long millis = Math2.addClamped(this.millis, timespan.getAs(TimePeriod.MILLISECOND));
+		return new Timespan(millis);
+	}
+
+	/**
+	 * Safely subtracts the specified timespan from this timespan, handling potential underflow.
+	 * @param timespan The timespan to subtract from this timespan
+	 * @return a new Timespan object
+	 */
+	@Contract(value = "_ -> new", pure = true)
+	public Timespan subtract(Timespan timespan) {
+		if (isInfinite() || timespan.isInfinite())
+			return Timespan.infinite();
+		long millis = Math.max(0, this.millis - timespan.getAs(TimePeriod.MILLISECOND));
+		return new Timespan(millis);
+	}
+
+	/**
+	 * Safely multiplies a timespan by a non-negative scalar value.
+	 * @param scalar A non-negative (>=0) value to multiply by
+	 * @return The multiplied timespan.
+	 */
+	@Contract(value = "_ -> new", pure = true)
+	public Timespan multiply(double scalar) {
+		Preconditions.checkArgument(scalar >= 0);
+		if (Double.isInfinite(scalar))
+			return Timespan.infinite();
+		double value = this.getAs(TimePeriod.MILLISECOND) * scalar;
+		return new Timespan((long) Math.min(value, Long.MAX_VALUE));
+	}
+
+	/**
+	 * Safely divides a timespan by a non-negative scalar value.
+	 * @param scalar A non-negative (>=0) value to divide by
+	 * @return The divided timespan.
+	 */
+	@Contract(value = "_ -> new", pure = true)
+	public Timespan divide(double scalar) {
+		Preconditions.checkArgument(scalar >= 0, "Cannot divide a timespan by non-positive value");
+		if (this.isInfinite())
+			return Timespan.infinite();
+		double value = this.getAs(TimePeriod.MILLISECOND) / scalar;
+		if (Double.isNaN(value))
+			return new Timespan(0);
+		if (Double.isInfinite(value))
+			return Timespan.infinite();
+		return new Timespan((long) Math.min(value, Long.MAX_VALUE));
+	}
+
+	/**
+	 * Safely divides a timespan by another timespan.
+	 * @param other A timespan to divide by
+	 * @return The result.
+	 */
+	@Contract(pure = true)
+	public double divide(Timespan other) {
+		if (this.isInfinite()) {
+			if (other.isInfinite())
+				return Double.NaN;
+			return Double.POSITIVE_INFINITY;
+		} else if (other.isInfinite()) {
+			return 0.0;
+		}
+		return this.getAs(TimePeriod.MILLISECOND) / (double) other.getAs(TimePeriod.MILLISECOND);
+	}
+
+	/**
+	 * Calculates the difference between the specified timespan and this timespan.
+	 * @param timespan The timespan to get the difference of
+	 * @return a new Timespan object
+	 */
+	public Timespan difference(Timespan timespan) {
+		if (isInfinite() || timespan.isInfinite())
+			return Timespan.infinite();
+		long millis = Math.abs(this.millis - timespan.getAs(TimePeriod.MILLISECOND));
+		return new Timespan(millis);
 	}
 
 	@Override

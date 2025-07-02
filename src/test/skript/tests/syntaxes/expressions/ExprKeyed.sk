@@ -1,0 +1,80 @@
+local function objects(objects: objects) returns objects:
+	return {_objects::*}
+
+local function strings(strings: strings) returns strings:
+	return {_strings::*}
+
+test "set list to keyed list":
+	set {_a::1.foo} to "first"
+	set {_a::2.bar} to "second"
+	set {_a::3.baz} to "third"
+
+	set {_b::*} to keyed {_a::*}
+	assert size of {_b::*} is 3 with "{_b::*} should have 3 items"
+	assert {_b::1.foo} is "first" with "{_b::1.foo} should be 'first'"
+	assert {_b::2.bar} is "second" with "{_b::2.bar} should be 'second'"
+	assert {_b::3.baz} is "third" with "{_b::3.baz} should be 'third'"
+
+	set {_c::*} to {_a::*}
+	assert size of {_c::*} is 3 with "{_c::*} should have 3 items"
+	assert {_c::1} is "first" with "{_c::1} should be 'first'"
+	assert {_c::2} is "second" with "{_c::2} should be 'second'"
+	assert {_c::3} is "third" with "{_c::3} should be 'third'"
+
+test "set list to keyed function":
+	set {_a::1.foo} to "first"
+	set {_a::2.bar} to "second"
+	set {_a::3.baz} to "third"
+
+	set {_b::*} to keyed objects(keyed {_a::*})
+	assert size of {_b::*} is 3 with "{_b::*} should have 3 items"
+	assert {_b::1.foo} is "first" with "{_b::1.foo} should be 'first'"
+	assert {_b::2.bar} is "second" with "{_b::2.bar} should be 'second'"
+	assert {_b::3.baz} is "third" with "{_b::3.baz} should be 'third'"
+
+	set {_c::*} to keyed objects({_a::*})
+	assert size of {_c::*} is 3 with "{_c::*} should have 3 items"
+	assert {_c::1} is "first" with "{_c::1} should be 'first'"
+	assert {_c::2} is "second" with "{_c::2} should be 'second'"
+	assert {_c::3} is "third" with "{_c::3} should be 'third'"
+
+	set {_d::*} to objects({_a::*})
+	assert size of {_d::*} is 3 with "{_d::*} should have 3 items"
+	assert {_d::1} is "first" with "{_d::1} should be 'first'"
+	assert {_d::2} is "second" with "{_d::2} should be 'second'"
+	assert {_d::3} is "third" with "{_d::3} should be 'third'"
+
+	set {_e::*} to keyed objects("first", "second", "third")
+	assert size of {_e::*} is 3 with "{_e::*} should have 3 items"
+	assert {_e::1} is "first" with "{_e::1} should be 'first'"
+	assert {_e::2} is "second" with "{_e::2} should be 'second'"
+	assert {_e::3} is "third" with "{_e::3} should be 'third'"
+
+	set {_f::*} to keyed objects((keyed {_a::*}), "fourth", "fifth", "sixth")
+	assert size of {_f::*} is 6 with "{_f::*} should have 6 items"
+	assert {_f::1.foo} is "first" with "{_f::1.foo} should be 'first'"
+	assert {_f::2.bar} is "second" with "{_f::2.bar} should be 'second'"
+	assert {_f::3.baz} is "third" with "{_f::3.baz} should be 'third'"
+	assert {_f::1} is "fourth" with "{_f::1} should be 'fourth'"
+	assert {_f::2} is "fifth" with "{_f::2} should be 'fifth'"
+	assert {_f::3} is "sixth" with "{_f::3} should be 'sixth'"
+
+	set {_a::2} to "duplicate fifth"
+	set {_g::*} to keyed objects((keyed {_a::*}), "fourth", "fifth", "sixth")
+	assert size of {_g::*} is 7 with "{_g::*} should have 7 items"
+	assert {_g::1.foo} is "first" with "{_g::1.foo} should be 'first'"
+	assert {_g::2.bar} is "second" with "{_g::2.bar} should be 'second'"
+	assert {_g::3.baz} is "third" with "{_g::3.baz} should be 'third'"
+	assert {_g::1} is "fourth" with "{_g::1} should be 'fourth'"
+	assert {_g::2} is "duplicate fifth" with "{_g::2} should be 'duplicate fifth'"
+	assert {_g::3} is "fifth" with "{_g::3} should be 'fifth'"
+	assert {_g::4} is "sixth" with "{_g::4} should be 'sixth'"
+	delete {_a::2}
+
+	set {_a::number} to 100
+	set {_h::*} to keyed strings(keyed {_a::*})
+	assert size of {_h::*} is 3 with "{_h::*} should have 3 items"
+	assert {_h::1.foo} is "first" with "{_h::1.foo} should be 'first'"
+	assert {_h::2.bar} is "second" with "{_h::2.bar} should be 'second'"
+	assert {_h::3.baz} is "third" with "{_h::3.baz} should be 'third'"
+	assert {_h::number} is not set with "{_h::number} should not be set"

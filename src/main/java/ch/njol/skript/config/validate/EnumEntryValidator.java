@@ -1,15 +1,14 @@
 package ch.njol.skript.config.validate;
 
-import java.util.Locale;
-import java.util.function.Consumer;
-
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
+import org.jetbrains.annotations.Nullable;
 
-@Deprecated(forRemoval = true)
+import java.util.Locale;
+import java.util.function.Consumer;
+
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 
 	private final Class<E> enumType;

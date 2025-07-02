@@ -78,14 +78,14 @@ public class EventSyntaxInfoTest extends BaseSyntaxInfoTests<MockSkriptEvent, Bu
 	@Test
 	public void testSince() {
 		var info = builder(true)
-				.since("since")
+				.addSince("since")
 				.build();
-		assertEquals("since", info.since());
-		assertEquals("since", info.toBuilder().build().since());
+		assertEquals(List.of("since"), info.since());
+		assertEquals(List.of("since"), info.toBuilder().build().since());
 
 		var info2 = builder(true);
 		info.toBuilder().applyTo(info2);
-		assertEquals("since", info2.build().since());
+		assertEquals(List.of("since"), info2.build().since());
 	}
 
 	@Test

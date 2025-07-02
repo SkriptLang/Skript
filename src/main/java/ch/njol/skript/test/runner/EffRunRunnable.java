@@ -15,7 +15,7 @@ public class EffRunRunnable extends Effect {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerEffect(EffRunRunnable.class, "run %object%");
+			Skript.registerEffect(EffRunRunnable.class, "run runnable %object%");
 	}
 
 	private Expression<?> task;
@@ -38,7 +38,7 @@ public class EffRunRunnable extends Effect {
 
 	@Override
 	public String toString(Event event, boolean debug) {
-		return "run " + task.toString(event, debug);
+		return "run runnable " + task.toString(event, debug);
 	}
 
 }
