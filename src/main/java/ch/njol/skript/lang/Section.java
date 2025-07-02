@@ -10,6 +10,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -137,7 +138,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		// return the parser to its original state
 		parser.restoreBackup(parserBackup);
 
-		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
+		Script script = parser.getCurrentScript();
+		Trigger trigger = new Trigger(script, name, skriptEvent, triggerItems);
+		trigger.setDebugLabel(script.nameAndPath() + ".sk: line " + sectionNode.getLine() + " as part of section");
+
+		return trigger;
 	}
 
 	/**

@@ -2,10 +2,13 @@ package ch.njol.skript;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.timings.Profiler;
+import ch.njol.skript.timings.ProfilerAPI;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import org.apache.maven.model.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -162,8 +165,17 @@ public final class SkriptEventHandler {
 		Runnable execute = () -> {
 			logTriggerStart(trigger);
 			Object timing = SkriptTimings.start(trigger.getDebugLabel());
+
+			boolean skipProfiling = ProfilerAPI.isFiringProfilerEvent.get();
+			Profiler profiler = skipProfiling ? null : ProfilerAPI.start(trigger.getDebugLabel());
+
 			trigger.execute(event);
 			SkriptTimings.stop(timing);
+
+			if(!skipProfiling) {
+				ProfilerAPI.stop(profiler);
+			}
+
 			logTriggerEnd(trigger);
 		};
 

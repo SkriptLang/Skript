@@ -205,7 +205,9 @@ public class ScriptCommand implements TabExecutor {
 		this.arguments = arguments;
 
 		trigger = new Trigger(script, "command /" + name, new SimpleEvent(), ScriptLoader.loadItems(node));
-		trigger.setLineNumber(node.getLine());
+		int lineNumber = node.getLine();
+		trigger.setLineNumber(lineNumber);
+		trigger.setDebugLabel(script.nameAndPath() + ".sk: line " + lineNumber + " part of command /" + name);
 
 		bukkitCommand = setupBukkitCommand();
 	}

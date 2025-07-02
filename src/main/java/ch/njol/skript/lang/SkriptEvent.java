@@ -132,7 +132,7 @@ public abstract class SkriptEvent extends Structure {
 			trigger = new Trigger(script, expr, this, items);
 			int lineNumber = source.getLine();
 			trigger.setLineNumber(lineNumber); // Set line number for debugging
-			trigger.setDebugLabel(script + ": line " + lineNumber);
+			trigger.setDebugLabel(script.nameAndPath() + ".sk: line " + lineNumber + " (expr " + expr + ")");
 		} finally {
 			getParser().deleteCurrentEvent();
 		}

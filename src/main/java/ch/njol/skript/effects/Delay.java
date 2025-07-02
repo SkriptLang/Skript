@@ -11,6 +11,8 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.timings.Profiler;
+import ch.njol.skript.timings.ProfilerAPI;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
@@ -80,6 +82,14 @@ public class Delay extends Effect {
 					Variables.setLocalVariables(event, localVars);
 
 				Object timing = null; // Timings reference must be kept so that it can be stopped after TriggerItem execution
+				Profiler profiler = null;
+
+				if (ProfilerAPI.enabled()) {
+					Trigger trigger = getTrigger();
+					if (trigger != null)
+						profiler = ProfilerAPI.start(trigger.getDebugLabel());
+				}
+
 				if (SkriptTimings.enabled()) { // getTrigger call is not free, do it only if we must
 					Trigger trigger = getTrigger();
 					if (trigger != null)
@@ -90,6 +100,7 @@ public class Delay extends Effect {
 				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing); // Stop timing if it was even started
+				ProfilerAPI.stop(profiler);
 			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
 		}
 		return null;
