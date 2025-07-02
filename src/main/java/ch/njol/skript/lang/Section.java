@@ -140,7 +140,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		Script script = parser.getCurrentScript();
 		Trigger trigger = new Trigger(script, name, skriptEvent, triggerItems);
-		trigger.setDebugLabel(script.nameAndPath() + ".sk: line " + sectionNode.getLine() + " as part of section");
+		trigger.setDebugLabel(script.nameAndPath() + ".sk: line " + sectionNode.getLine() + " as part of section " + name);
 
 		return trigger;
 	}
