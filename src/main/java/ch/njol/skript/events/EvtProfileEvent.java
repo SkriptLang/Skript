@@ -31,7 +31,7 @@ public class EvtProfileEvent extends SkriptEvent {
 	}
 
 	@Override
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		return true;
 	}
 
