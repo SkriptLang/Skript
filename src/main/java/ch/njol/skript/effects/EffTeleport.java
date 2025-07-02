@@ -6,6 +6,8 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
+import ch.njol.skript.timings.Profiler;
+import ch.njol.skript.timings.ProfilerAPI;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
@@ -150,6 +152,7 @@ public class EffTeleport extends Effect {
 			
 			// Continue the rest of the trigger if there is one
 			Object timing = null;
+			Profiler profiler = null;
 			if (next != null) {
 				if (SkriptTimings.enabled()) {
 					Trigger trigger = getTrigger();
@@ -158,10 +161,18 @@ public class EffTeleport extends Effect {
 					}
 				}
 
+				if (ProfilerAPI.enabled()) {
+					Trigger trigger = getTrigger();
+					if (trigger != null) {
+						profiler = ProfilerAPI.start(trigger.getDebugLabel());
+					}
+				}
+
 				TriggerItem.walk(next, event);
 			}
 			Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 			SkriptTimings.stop(timing);
+			ProfilerAPI.stop(profiler);
 		});
 		return null;
 	}

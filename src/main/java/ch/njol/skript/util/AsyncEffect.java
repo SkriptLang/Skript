@@ -1,5 +1,7 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.timings.Profiler;
+import ch.njol.skript.timings.ProfilerAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -44,10 +46,18 @@ public abstract class AsyncEffect extends Effect {
 			if (getNext() != null) {
 				Bukkit.getScheduler().runTask(Skript.getInstance(), () -> { // Walk to next item synchronously
 					Object timing = null;
+					Profiler profiler = null;
 					if (SkriptTimings.enabled()) { // getTrigger call is not free, do it only if we must
 						Trigger trigger = getTrigger();
 						if (trigger != null) {
 							timing = SkriptTimings.start(trigger.getDebugLabel());
+						}
+					}
+
+					if (ProfilerAPI.enabled()) {
+						Trigger trigger = getTrigger();
+						if (trigger != null) {
+							profiler = ProfilerAPI.start(trigger.getDebugLabel());
 						}
 					}
 					
@@ -56,6 +66,7 @@ public abstract class AsyncEffect extends Effect {
 					Variables.removeLocals(e); // Clean up local vars, we may be exiting now
 					
 					SkriptTimings.stop(timing); // Stop timing if it was even started
+					ProfilerAPI.stop(profiler);
 				});
 			} else {
 				Variables.removeLocals(e);
