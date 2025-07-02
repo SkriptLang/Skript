@@ -8,7 +8,6 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import org.apache.maven.model.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
