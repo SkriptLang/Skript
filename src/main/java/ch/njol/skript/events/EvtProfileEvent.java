@@ -36,8 +36,8 @@ public class EvtProfileEvent extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "profile event complete";
+	public boolean check(Event event) {
+		return event instanceof ProfileCompletedEvent;
 	}
 
 	@Override
@@ -46,8 +46,8 @@ public class EvtProfileEvent extends SkriptEvent {
 	}
 
 	@Override
-	public boolean check(Event event) {
-		return event instanceof ProfileCompletedEvent;
+	public String toString(@Nullable Event event, boolean debug) {
+		return "profile event complete";
 	}
 
 }
