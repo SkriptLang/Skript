@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Timings alternative for post-timings removal
+ * Profiler API for timing how long a given event takes
  */
 public class ProfilerAPI {
 

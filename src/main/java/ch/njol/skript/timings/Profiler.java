@@ -4,7 +4,8 @@ import ch.njol.skript.Skript;
 
 /**
  * Profiler instance for the ProfilerAPI
- * Equivalent to a Timing
+ * Each profiler times how long it takes for a given trigger to complete,
+ * along with the invocator script information
  */
 public class Profiler {
 	private final String name;
