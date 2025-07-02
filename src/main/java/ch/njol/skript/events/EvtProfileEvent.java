@@ -31,13 +31,13 @@ public class EvtProfileEvent extends SkriptEvent {
 	}
 
 	@Override
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		return true;
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "profile event complete";
+	public boolean check(Event event) {
+		return event instanceof ProfileCompletedEvent;
 	}
 
 	@Override
@@ -46,8 +46,8 @@ public class EvtProfileEvent extends SkriptEvent {
 	}
 
 	@Override
-	public boolean check(Event event) {
-		return event instanceof ProfileCompletedEvent;
+	public String toString(@Nullable Event event, boolean debug) {
+		return "profile event complete";
 	}
 
 }
