@@ -37,7 +37,9 @@ public class EvtProfileEvent extends SkriptEvent {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) { return "profile event complete"; }
+	public String toString(@Nullable Event event, boolean debug) {
+		return "profile event complete";
+	}
 
 	@Override
 	public boolean isEventPrioritySupported() {
@@ -48,4 +50,5 @@ public class EvtProfileEvent extends SkriptEvent {
 	public boolean check(Event event) {
 		return event instanceof ProfileCompletedEvent;
 	}
+
 }

@@ -172,7 +172,7 @@ public final class SkriptEventHandler {
 			trigger.execute(event);
 			SkriptTimings.stop(timing);
 
-			if(!skipProfiling) {
+			if (!skipProfiling) {
 				ProfilerAPI.stop(profiler);
 			}
 

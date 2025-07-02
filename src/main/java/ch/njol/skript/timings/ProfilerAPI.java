@@ -44,4 +44,5 @@ public class ProfilerAPI {
 	public static void setEnabled(boolean flag) {
 		enabled = flag;
 	}
+
 }

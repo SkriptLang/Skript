@@ -54,9 +54,9 @@ public abstract class AsyncEffect extends Effect {
 						}
 					}
 
-					if(ProfilerAPI.enabled()) {
+					if (ProfilerAPI.enabled()) {
 						Trigger trigger = getTrigger();
-						if(trigger != null) {
+						if (trigger != null) {
 							profiler = ProfilerAPI.start(trigger.getDebugLabel());
 						}
 					}
