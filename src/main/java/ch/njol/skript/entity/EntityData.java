@@ -117,29 +117,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			throw new StreamCorruptedException();
 		}
 
-//		return getInfo((Class<? extends EntityData<?>>) d.getClass()).codeName + ":" + d.serialize();
-		@SuppressWarnings("null")
-		@Override
-		@Deprecated(since = "2.3.0", forRemoval = true)
-		public @Nullable EntityData deserialize(String string) {
-			String[] split = string.split(":", 2);
-			if (split.length != 2)
-				return null;
-			EntityDataInfo<?> entityDataInfo = getInfo(split[0]);
-			if (entityDataInfo == null)
-				return null;
-			EntityData<?> entityData;
-			try {
-				entityData = entityDataInfo.getElementClass().newInstance();
-			} catch (Exception e) {
-				Skript.exception(e, "Can't create an instance of " + entityDataInfo.getElementClass().getCanonicalName());
-				return null;
-			}
-			if (!entityData.deserialize(split[1]))
-				return null;
-			return entityData;
-		}
-
 		@Override
 		public boolean mustSyncDeserialization() {
 			return false;
@@ -267,7 +244,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 
 		/**
-		 * Gets the {@code codeName} corresponding to the {@code matchedPattern} in {@link #init(Expression[], int, Kleenean, ParseResult)}.
+		 * Gets the {@code codeName} corresponding to the {@code matchedPattern} in {@link #init(ch.njol.skript.lang.Expression[], int, Kleenean, ParseResult)}.
 		 * @param matchedPattern The placement of the pattern used.
 		 * @return The corresponding {@code codeName}.
 		 */
@@ -285,7 +262,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 
 		/**
-		 * Gets the actual matched pattern from {@code matchedPattern} in {@link #init(Expression[], int, Kleenean, ParseResult)}.
+		 * Gets the actual matched pattern from {@code matchedPattern} in {@link #init(ch.njol.skript.lang.Expression[], int, Kleenean, ParseResult)}.
 		 * @param matchedPattern The placement of the pattern used
 		 * @return The actual placement.
 		 */
