@@ -79,7 +79,7 @@ public class PigData extends EntityData<Pig> {
 	
 	@Override
 	protected boolean match(Pig pig) {
-		if (saddled != Kleenean.UNKNOWN && saddled != Kleenean.get(pig.hasSaddle()))
+		if (!saddled.isUnknown() && saddled != Kleenean.get(pig.hasSaddle()))
 			return false;
 		return variant == null || variant == pig.getVariant();
 	}
@@ -112,7 +112,7 @@ public class PigData extends EntityData<Pig> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof PigData other))
 			return false;
-		if (saddled != Kleenean.UNKNOWN && saddled != other.saddled)
+		if (!saddled.isUnknown() && saddled != other.saddled)
 			return false;
 		return variant == null || variant == other.variant;
 	}

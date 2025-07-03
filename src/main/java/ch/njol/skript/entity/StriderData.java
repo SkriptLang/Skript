@@ -52,7 +52,7 @@ public class StriderData extends EntityData<Strider> {
 
 	@Override
 	protected boolean match(Strider strider) {
-		return shivering == Kleenean.UNKNOWN || shivering == Kleenean.get(strider.isShivering());
+		return shivering.isUnknown() || shivering == Kleenean.get(strider.isShivering());
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class StriderData extends EntityData<Strider> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof StriderData other))
 			return false;
-		return shivering == Kleenean.UNKNOWN || shivering == other.shivering;
+		return shivering.isUnknown() || shivering == other.shivering;
 	}
 
 }

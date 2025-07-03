@@ -38,12 +38,12 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	public FallingBlockData(ItemType @Nullable [] types) {
 		this.types = types;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		if (matchedPattern == 1) {
 			assert exprs[0] != null;
+			//noinspection unchecked
 			ItemType[] itemTypes = ((Literal<ItemType>) exprs[0]).getAll();
 			types = Converters.convert(itemTypes, ItemType.class, itemType -> {
 				ItemType clone = itemType.getBlock().clone();

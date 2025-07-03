@@ -18,8 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class MinecartData extends EntityData<Minecart> {
-	
-	@SuppressWarnings("null")
+
 	private static enum MinecartType {
 		ANY(Minecart.class, "minecart"),
 		NORMAL(RideableMinecart.class, "regular minecart"),
@@ -29,13 +28,12 @@ public class MinecartData extends EntityData<Minecart> {
 		EXPLOSIVE(ExplosiveMinecart.class, "explosive minecart"),
 		SPAWNER(SpawnerMinecart.class, "spawner minecart"),
 		COMMAND(CommandMinecart.class, "command minecart");
-		
-		@Nullable
-		final Class<? extends Minecart> c;
+
+		final @Nullable Class<? extends Minecart> entityClass;
 		private final String codeName;
 		
-		MinecartType(final @Nullable Class<? extends Minecart> c, final String codeName) {
-			this.c = c;
+		MinecartType(@Nullable Class<? extends Minecart> entityClass, final String codeName) {
+			this.entityClass = entityClass;
 			this.codeName = codeName;
 		}
 		
@@ -48,12 +46,14 @@ public class MinecartData extends EntityData<Minecart> {
 		static {
 			final ArrayList<String> cn = new ArrayList<>();
 			for (final MinecartType t : values()) {
-				if (t.c != null)
+				if (t.entityClass != null)
 					cn.add(t.codeName);
 			}
 			codeNames = cn.toArray(new String[0]);
 		}
 	}
+
+	private static final MinecartType[] TYPES = MinecartType.values();
 	
 	static {
 		EntityData.register(MinecartData.class, "minecart", Minecart.class, 0, MinecartType.codeNames);
@@ -72,20 +72,18 @@ public class MinecartData extends EntityData<Minecart> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		type = MinecartType.values()[matchedCodeName];
+		type = TYPES[matchedCodeName];
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
 	protected boolean init(@Nullable Class<? extends Minecart> entityClass, @Nullable Minecart minecart) {
-		final MinecartType[] ts = MinecartType.values();
-		for (int i = ts.length - 1; i >= 0; i--) {
-			final Class<?> mc = ts[i].c;
-			if (mc == null)
+		for (int i = TYPES.length - 1; i >= 0; i--) {
+			Class<?> typeClass = TYPES[i].entityClass;
+			if (typeClass == null)
 				continue;
-			if (minecart == null ? mc.isAssignableFrom(entityClass) : mc.isInstance(minecart)) {
-				type = ts[i];
+			if (minecart == null ? typeClass.isAssignableFrom(entityClass) : typeClass.isInstance(minecart)) {
+				type = TYPES[i];
 				return true;
 			}
 		}
@@ -98,15 +96,15 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	@Override
 	public boolean match(Minecart minecart) {
-		if (type == MinecartType.NORMAL && type.c == Minecart.class) // pre-1.5
+		if (type == MinecartType.NORMAL && type.entityClass == Minecart.class) // pre-1.5
 			return !(minecart.getClass().equals(Utils.classForName("org.bukkit.entity.StorageMinecart"))
 					|| minecart.getClass().equals(Utils.classForName("org.bukkit.entity.PoweredMinecart")));
-		return type.c != null && type.c.isInstance(minecart);
+		return type.entityClass != null && type.entityClass.isInstance(minecart);
 	}
 	
 	@Override
 	public Class<? extends Minecart> getType() {
-		return type.c != null ? type.c : Minecart.class;
+		return type.entityClass != null ? type.entityClass : Minecart.class;
 	}
 
 	@Override

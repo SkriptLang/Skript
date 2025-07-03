@@ -92,7 +92,7 @@ public class BeeData extends EntityData<Bee> {
 	@Override
 	protected boolean init(@Nullable Class<? extends Bee> entityClass, @Nullable Bee bee) {
 		if (bee != null) {
-			isAngry = bee.getAnger() > 0 ? Kleenean.TRUE : Kleenean.FALSE;
+			isAngry = Kleenean.get(bee.getAnger() > 0);
 			hasNectar = Kleenean.get(bee.hasNectar());
 			super.dataCodeName = PATTERNS.getMatchedPatterns(BeeState.getBeeState(isAngry, hasNectar))[0];
 		}
@@ -108,9 +108,9 @@ public class BeeData extends EntityData<Bee> {
 	
 	@Override
 	protected boolean match(Bee bee) {
-		if (isAngry != Kleenean.UNKNOWN && isAngry != (bee.getAnger() > 0 ? Kleenean.TRUE : Kleenean.FALSE))
+		if (!isAngry.isUnknown() && isAngry != Kleenean.get(bee.getAnger() > 0))
 			return false;
-		return hasNectar == Kleenean.UNKNOWN || hasNectar == Kleenean.get(bee.hasNectar());
+		return hasNectar.isUnknown() || hasNectar == Kleenean.get(bee.hasNectar());
     }
 	
 	@Override
@@ -143,9 +143,9 @@ public class BeeData extends EntityData<Bee> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof BeeData other))
 			return false;
-		if (isAngry != Kleenean.UNKNOWN && isAngry != other.isAngry)
+		if (!isAngry.isUnknown() && isAngry != other.isAngry)
 			return false;
-		return hasNectar == Kleenean.UNKNOWN || hasNectar == other.hasNectar;
+		return hasNectar.isUnknown() || hasNectar == other.hasNectar;
 	}
 
 }

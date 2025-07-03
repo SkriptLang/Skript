@@ -72,7 +72,7 @@ public class SheepData extends EntityData<Sheep> {
 
 	@Override
 	public boolean match(Sheep sheep) {
-		if (sheared != Kleenean.UNKNOWN && sheared != Kleenean.get(sheep.isSheared()))
+		if (!sheared.isUnknown() && sheared != Kleenean.get(sheep.isSheared()))
 			return false;
 		return colors == null || SimpleExpression.check(colors, c -> sheep.getColor() == c.asDyeColor(), false, false);
 	}
@@ -109,7 +109,7 @@ public class SheepData extends EntityData<Sheep> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof SheepData other))
 			return false;
-		if (sheared != Kleenean.UNKNOWN && sheared != other.sheared)
+		if (!sheared.isUnknown() && sheared != other.sheared)
 			return false;
 		return colors == null || CollectionUtils.isSubset(colors, other.colors);
 	}

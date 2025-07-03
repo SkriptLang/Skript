@@ -32,11 +32,12 @@ public class EndermanData extends EntityData<Enderman> {
 		this.hand = hand;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		if (exprs[0] != null)
+		if (exprs[0] != null) {
+			//noinspection unchecked
 			hand = ((Literal<ItemType>) exprs[0]).getAll();
+		}
 		return true;
 	}
 

@@ -132,7 +132,6 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	}
 
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	public @Nullable ThrownPotion spawn(Location location, @Nullable Consumer<ThrownPotion> consumer) {
 		ItemType itemType = CollectionUtils.getRandom(types);
 		assert itemType != null;
@@ -140,6 +139,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 		if (itemStack == null)
 			return null;
 
+		// noinspection unchecked,rawtypes
 		Class<ThrownPotion> thrownPotionClass = (Class) (itemStack.getType() == LINGER_POTION ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
 		ThrownPotion potion;
 		if (consumer != null) {

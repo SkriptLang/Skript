@@ -51,7 +51,7 @@ public class GoatData extends EntityData<Goat> {
 
 	@Override
 	protected boolean match(Goat goat) {
-		return screaming == Kleenean.UNKNOWN || screaming == Kleenean.get(goat.isScreaming());
+		return screaming.isUnknown() || screaming == Kleenean.get(goat.isScreaming());
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class GoatData extends EntityData<Goat> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof GoatData other))
 			return false;
-		return screaming == Kleenean.UNKNOWN || screaming == other.screaming;
+		return screaming.isUnknown() || screaming == other.screaming;
 	}
 
 }

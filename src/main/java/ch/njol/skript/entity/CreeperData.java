@@ -53,7 +53,7 @@ public class CreeperData extends EntityData<Creeper> {
 	
 	@Override
 	public boolean match(Creeper creeper) {
-		return powered == Kleenean.UNKNOWN || powered == Kleenean.get(creeper.isPowered());
+		return powered.isUnknown() || powered == Kleenean.get(creeper.isPowered());
 	}
 	
 	@Override
@@ -82,7 +82,7 @@ public class CreeperData extends EntityData<Creeper> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof CreeperData other))
 			return false;
-		return powered == Kleenean.UNKNOWN || powered == other.powered;
+		return powered.isUnknown() || powered == other.powered;
 	}
 
 }

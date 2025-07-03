@@ -47,7 +47,8 @@ public class DroppedItemData extends EntityData<Item> {
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null) {
-			types = (ItemType[]) exprs[0].getAll();
+			//noinspection unchecked
+			types = ((Literal<ItemType>) exprs[0]).getAll();
 			for (ItemType type : types) {
 				if (!type.getMaterial().isItem()) {
 					Skript.error("'" + type + "' cannot represent a dropped item");
@@ -70,8 +71,8 @@ public class DroppedItemData extends EntityData<Item> {
 	@Override
 	protected boolean match(Item item) {
 		if (types != null) {
-			for (ItemType t : types) {
-				if (t.isOfType(item.getItemStack()))
+			for (ItemType itemType : types) {
+				if (itemType.isOfType(item.getItemStack()))
 					return true;
 			}
 			return false;
@@ -107,9 +108,9 @@ public class DroppedItemData extends EntityData<Item> {
 
 	@Override
 	protected boolean equals_i(EntityData<?> entityData) {
-		if (!(entityData instanceof DroppedItemData))
+		if (!(entityData instanceof DroppedItemData other))
 			return false;
-		return Arrays.equals(types, ((DroppedItemData) entityData).types);
+		return Arrays.equals(types, other.types);
 	}
 
 	@Override

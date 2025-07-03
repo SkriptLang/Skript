@@ -86,7 +86,7 @@ public class VillagerData extends EntityData<Villager> {
 	
 	@Override
 	protected boolean match(Villager villager) {
-		return profession == null || villager.getProfession() == profession;
+		return profession == null || profession == villager.getProfession();
 	}
 
 	@Override

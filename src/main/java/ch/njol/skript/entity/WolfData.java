@@ -89,17 +89,20 @@ public class WolfData extends EntityData<Wolf> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		WolfState state = PATTERNS.getInfo(matchedCodeName);
 		assert state != null;
 		isAngry = state.angry;
 		isTamed = state.tamed;
-		if (exprs[0] != null && VARIANTS_ENABLED)
+		if (exprs[0] != null && VARIANTS_ENABLED) {
+			//noinspection unchecked
 			variant = ((Literal<Wolf.Variant>) exprs[0]).getSingle();
-		if (exprs[1] != null)
+		}
+		if (exprs[1] != null) {
+			//noinspection unchecked
 			collarColor = ((Literal<Color>) exprs[1]).getSingle().asDyeColor();
+		}
 		return true;
 	}
 
@@ -131,9 +134,9 @@ public class WolfData extends EntityData<Wolf> {
 
 	@Override
 	public boolean match(Wolf wolf) {
-		if (isAngry != Kleenean.UNKNOWN && isAngry != Kleenean.get(wolf.isAngry()))
+		if (!isAngry.isUnknown() && isAngry != Kleenean.get(wolf.isAngry()))
 			return false;
-		if (isTamed != Kleenean.UNKNOWN && isTamed != Kleenean.get(wolf.isTamed()))
+		if (!isTamed.isUnknown() && isTamed != Kleenean.get(wolf.isTamed()))
 			return false;
 		if (collarColor != null && collarColor != wolf.getCollarColor())
 			return false;
@@ -178,9 +181,9 @@ public class WolfData extends EntityData<Wolf> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof WolfData other))
 			return false;
-		if (isAngry != Kleenean.UNKNOWN && isAngry != other.isAngry)
+		if (!isAngry.isUnknown() && isAngry != other.isAngry)
 			return false;
-		if (isTamed != Kleenean.UNKNOWN && isTamed != other.isTamed)
+		if (!isTamed.isUnknown() && isTamed != other.isTamed)
 			return false;
 		if (collarColor != null && collarColor != other.collarColor)
 			return false;
