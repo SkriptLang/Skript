@@ -7,6 +7,7 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.DefaultClasses;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import static org.junit.Assert.*;
 
@@ -359,7 +360,7 @@ public class FunctionRegistryTest {
 		SimpleJavaFunction<Boolean> function = new SimpleJavaFunction<>(FUNCTION_NAME,
 			new Parameter[]{
 				new Parameter<>("a", Boolean.class),
-				new Parameter<>("b", Number[].class)
+				new Parameter<>("b", Number[].class, Modifier.OPTIONAL)
 			}, DefaultClasses.BOOLEAN, true) {
 			@Override
 			public Boolean @Nullable [] executeSimple(Object[][] params) {
