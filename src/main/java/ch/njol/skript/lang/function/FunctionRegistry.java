@@ -606,7 +606,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 					optionalArgs++;
 				}
 
-				Class<?> type = param.getType().getC();
+				Class<?> type = param.type();
 				if (param.isSingleValue()) {
 					parameters[i] = type;
 				} else {

@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -396,9 +397,9 @@ public class DefaultFunctions {
 			.parameter("x", Number.class)
 			.parameter("y", Number.class)
 			.parameter("z", Number.class)
-			.parameter("world", World.class, Parameter.Modifier.OPTIONAL)
-			.parameter("yaw", Float.class, Parameter.Modifier.OPTIONAL)
-			.parameter("pitch", Float.class, Parameter.Modifier.OPTIONAL)
+			.parameter("world", World.class, Modifier.OPTIONAL)
+			.parameter("yaw", Float.class, Modifier.OPTIONAL)
+			.parameter("pitch", Float.class, Modifier.OPTIONAL)
 			.build(args -> {
 				World world = args.getOrDefault("world", Bukkit.getWorlds().get(0));
 
@@ -544,7 +545,7 @@ public class DefaultFunctions {
 			)
 			.since("2.8.0")
 			.parameter("nameOrUUID", String.class)
-			.parameter("getExactPlayer", Boolean.class, Parameter.Modifier.OPTIONAL)
+			.parameter("getExactPlayer", Boolean.class, Modifier.OPTIONAL)
 			.build(args -> {
 				String name = args.get("nameOrUUID");
 				boolean isExact = args.getOrDefault("getExactPlayer", false);

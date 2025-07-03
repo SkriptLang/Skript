@@ -7,7 +7,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
-import ch.njol.skript.lang.function.DefaultFunction.Builder;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -18,12 +17,13 @@ import ch.njol.util.StringUtils;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class Parameter<T> {
+public final class Parameter<T> implements org.skriptlang.skript.lang.function.Parameter<T> {
 
 	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
 
@@ -33,47 +33,75 @@ public final class Parameter<T> {
 	 * If {@link SkriptConfig#caseInsensitiveVariables} is {@code true},
 	 * then the valid variable names may not necessarily match this string in casing.
 	 */
-	final String name;
+	private final String name;
 
 	/**
 	 * Type of the parameter.
 	 */
-	final ClassInfo<T> type;
+	private final ClassInfo<T> type;
 
 	/**
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
-	@Nullable Expression<? extends T> def;
-
-	final boolean optional;
+	final @Nullable Expression<? extends T> def;
 
 	/**
 	 * Whether this parameter takes one or many values.
 	 */
 	final boolean single;
 
-	/**
-	 * Whether this parameter takes in key-value pairs.
-	 * <br>
-	 * If this is true, a {@link ch.njol.skript.lang.KeyedValue} array containing key-value pairs will be passed to
-	 * {@link Function#execute(FunctionEvent, Object[][])} rather than a value-only object array.
-	 */
-	final boolean keyed;
+	private final Set<Modifier> modifiers;
 
+	/**
+	 * @deprecated Use {@link #Parameter(String, Class, Modifier...)} instead.
+	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
 		this(name, type, single, def, false);
 	}
 
+	/**
+	 * @deprecated Use {@link #Parameter(String, Class, Modifier...)} instead.
+	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
 		this.name = name;
 		this.type = type;
 		this.def = def;
 		this.single = single;
-		this.optional = def != null;
-		this.keyed = keyed;
+		this.modifiers = new HashSet<>();
+
+		if (def != null) {
+			modifiers.add(Modifier.OPTIONAL);
+		}
+		if (keyed) {
+			modifiers.add(Modifier.KEYED);
+		}
+	}
+
+	/**
+	 * Constructs a new parameter for script functions.
+	 *
+	 * @param name The name.
+	 * @param type The type of the parameter.
+	 * @param single Whether the parameter is single.
+	 * @param keyed Whether the parameter supports keyed expressions.
+	 * @param def The default value.
+	 */
+	private Parameter(String name, ClassInfo<T> type, boolean single, boolean keyed, @Nullable Expression<? extends T> def) {
+		this.name = name;
+		this.type = type;
+		this.def = def;
+		this.single = single;
+		this.modifiers = new HashSet<>();
+
+		if (def != null) {
+			modifiers.add(Modifier.OPTIONAL);
+		}
+		if (keyed) {
+			modifiers.add(Modifier.KEYED);
+		}
 	}
 
 	/**
@@ -87,36 +115,11 @@ public final class Parameter<T> {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(type, "type cannot be null");
 
-		Set<Modifier> mods = Set.of(modifiers);
-
 		this.name = name;
 		this.type = DefaultFunction.getClassInfo(type);
 		this.def = null;
 		this.single = !type.isArray();
-		this.optional = mods.contains(Modifier.OPTIONAL);
-		this.keyed = mods.contains(Modifier.KEYED);
-	}
-
-	/**
-	 * Represents a modifier that can be applied to a parameter
-	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}}.
-	 */
-	public interface Modifier {
-
-		/**
-		 * The modifier for parameters that are optional.
-		 */
-		Modifier OPTIONAL = new ModifierImpl("optional");
-
-		/**
-		 * The modifier for parameters that support optional keyed expressions.
-		 */
-		Modifier KEYED = new ModifierImpl("keyed");
-
-	}
-
-	private record ModifierImpl(String name) implements Modifier {
-
+		this.modifiers = Set.of(modifiers);
 	}
 
 	/**
@@ -124,13 +127,13 @@ public final class Parameter<T> {
 	 * @return Whether this parameter is optional or not.
 	 */
 	public boolean isOptional() {
-		return optional;
+		return modifiers.contains(Modifier.OPTIONAL);
 	}
 
 	/**
-	 * Get the Type of this parameter.
-	 * @return Type of the parameter
+	 * @deprecated Use {@link #type()} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> getType() {
 		return type;
 	}
@@ -158,7 +161,7 @@ public final class Parameter<T> {
 				log.stop();
 			}
 		}
-		return new Parameter<>(name, type, single, d, !single);
+		return new Parameter<>(name, type, single, !single, d);
 	}
 
 	/**
@@ -224,10 +227,9 @@ public final class Parameter<T> {
 	}
 
 	/**
-	 * Get the name of this parameter.
-	 * <p>Will be used as name for the local variable that contains value of it inside function.</p>
-	 * @return Name of this parameter
+	 * @deprecated Use {@link #name()} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public String getName() {
 		return name;
 	}
@@ -254,7 +256,7 @@ public final class Parameter<T> {
 			return false;
 		}
 
-		return optional == parameter.optional
+		return modifiers.equals(parameter.modifiers)
 			&& single == parameter.single
 			&& name.equals(parameter.name)
 			&& type.equals(parameter.type)
@@ -268,6 +270,21 @@ public final class Parameter<T> {
 
 	public String toString(boolean debug) {
 		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, debug) : "");
+	}
+
+	@Override
+	public @NotNull String name() {
+		return name;
+	}
+
+	@Override
+	public @NotNull Class<T> type() {
+		return type.getC();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Set<Modifier> modifiers() {
+		return Collections.unmodifiableSet(modifiers);
 	}
 
 }

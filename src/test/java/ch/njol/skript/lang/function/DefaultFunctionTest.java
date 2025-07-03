@@ -1,9 +1,8 @@
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.lang.function.Parameter.Modifier;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import static org.junit.Assert.*;
 
@@ -15,7 +14,7 @@ public class DefaultFunctionTest {
 			.description()
 			.since()
 			.keywords()
-			.parameter("x", String[].class, Parameter.Modifier.OPTIONAL)
+			.parameter("x", String[].class, Modifier.OPTIONAL)
 			.build(args -> {
 				String[] xes = args.getOrDefault("x", new String[]{""});
 
@@ -40,7 +39,7 @@ public class DefaultFunctionTest {
 			.description("x", "y")
 			.since("1", "2")
 			.keywords("x", "y")
-			.parameter("x", Object[].class, Parameter.Modifier.OPTIONAL)
+			.parameter("x", Object[].class, Modifier.OPTIONAL)
 			.parameter("y", Boolean.class)
 			.build(args -> new Object[]{true, 1});
 

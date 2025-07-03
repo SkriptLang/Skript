@@ -1,7 +1,7 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
@@ -91,7 +91,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 			Parameter<?> parameter = parameters[i];
 
 			if (arg == null || arg.length == 0) {
-				if (parameter.isOptional()) {
+				if (parameter.modifiers().contains(Modifier.OPTIONAL)) {
 					continue;
 				} else {
 					return null;
@@ -99,17 +99,17 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 			}
 
 			if (arg.length == 1 || parameter.isSingleValue()) {
-				assert parameter.getType().getC().isAssignableFrom(arg[0].getClass())
+				assert parameter.type().isAssignableFrom(arg[0].getClass())
 					: "argument type %s does not match parameter type %s".formatted(parameter.getType().getC().getSimpleName(),
 					arg[0].getClass().getSimpleName());
 
-				args.put(parameter.getName(), arg[0]);
+				args.put(parameter.name(), arg[0]);
 			} else {
-				assert parameter.getType().getC().isAssignableFrom(arg.getClass())
+				assert parameter.type().isAssignableFrom(arg.getClass())
 					: "argument type %s does not match parameter type %s".formatted(parameter.getType().getC().getSimpleName(),
 					arg.getClass().getSimpleName());
 
-				args.put(parameter.getName(), arg);
+				args.put(parameter.name(), arg);
 			}
 		}
 
