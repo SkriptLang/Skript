@@ -14,7 +14,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
-import com.google.common.base.Preconditions;
+import com.google.common.base.MoreObjects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -54,7 +54,9 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	private final Set<Modifier> modifiers;
 
 	/**
-	 * @deprecated Use {@link #Parameter(String, Class, Modifier...)} instead.
+	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * or {@link ch.njol.skript.lang.function.DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
@@ -62,7 +64,9 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * @deprecated Use {@link #Parameter(String, Class, Modifier...)} instead.
+	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * or {@link ch.njol.skript.lang.function.DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
@@ -81,22 +85,19 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * Constructs a new parameter for script functions.
-	 *
-	 * @param name The name.
-	 * @param type The type of the parameter.
-	 * @param single Whether the parameter is single.
-	 * @param keyed Whether the parameter supports keyed expressions.
-	 * @param def The default value.
+	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * or {@link ch.njol.skript.lang.function.DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
-	private Parameter(String name, ClassInfo<T> type, boolean single, boolean keyed, @Nullable Expression<? extends T> def) {
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed, boolean optional) {
 		this.name = name;
 		this.type = type;
 		this.def = def;
 		this.single = single;
 		this.modifiers = new HashSet<>();
 
-		if (def != null) {
+		if (optional) {
 			modifiers.add(Modifier.OPTIONAL);
 		}
 		if (keyed) {
@@ -105,20 +106,18 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * Constructs a new parameter.
+	 * Constructs a new parameter for script functions.
 	 *
 	 * @param name The name.
 	 * @param type The type of the parameter.
-	 * @param modifiers The modifiers of this parameter.
+	 * @param single Whether the parameter is single.
+	 * @param def The default value.
 	 */
-	public Parameter(@NotNull String name, @NotNull Class<T> type, Modifier... modifiers) {
-		Preconditions.checkNotNull(name, "name cannot be null");
-		Preconditions.checkNotNull(type, "type cannot be null");
-
+	Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, Modifier... modifiers) {
 		this.name = name;
-		this.type = DefaultFunction.getClassInfo(type);
-		this.def = null;
-		this.single = !type.isArray();
+		this.type = type;
+		this.def = def;
+		this.single = single;
 		this.modifiers = Set.of(modifiers);
 	}
 
@@ -161,7 +160,16 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 				log.stop();
 			}
 		}
-		return new Parameter<>(name, type, single, !single, d);
+
+		Set<Modifier> modifiers = new HashSet<>();
+		if (d != null) {
+			modifiers.add(Modifier.OPTIONAL);
+		}
+		if (!single) {
+			modifiers.add(Modifier.KEYED);
+		}
+
+		return new Parameter<>(name, type, single, d, modifiers.toArray(new Modifier[0]));
 	}
 
 	/**
@@ -261,6 +269,16 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 			&& name.equals(parameter.name)
 			&& type.equals(parameter.type)
 			&& Objects.equals(def, parameter.def);
+	}
+
+	public String toCompareString() {
+		return MoreObjects.toStringHelper(this)
+			.add("name", name)
+			.add("type", type)
+			.add("single", single)
+			.add("mods", Arrays.toString(modifiers.toArray()))
+			.add("def", def)
+			.toString();
 	}
 
 	@Override

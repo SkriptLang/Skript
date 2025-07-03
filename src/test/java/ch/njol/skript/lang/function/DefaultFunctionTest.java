@@ -30,7 +30,7 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = built.getParameters();
 
-		assertEquals(new Parameter<>("x", String[].class, Modifier.OPTIONAL), parameters[0]);
+		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(String[].class), false, null, false, true), parameters[0]);
 	}
 
 	@Test
@@ -52,8 +52,8 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = built.getParameters();
 
-		assertEquals(new Parameter<>("x", Object[].class, Modifier.OPTIONAL), parameters[0]);
-		assertEquals(new Parameter<>("y", Boolean.class), parameters[1]);
+		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(Object[].class), false, null, false, true), parameters[0]);
+		assertEquals(new Parameter<>("y", DefaultFunction.getClassInfo(Boolean.class), true, null), parameters[1]);
 
 		Object[] execute = built.execute(consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
 

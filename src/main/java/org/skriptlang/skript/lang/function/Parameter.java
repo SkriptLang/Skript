@@ -29,6 +29,13 @@ public interface Parameter<T> {
 	@Unmodifiable @NotNull Set<Modifier> modifiers();
 
 	/**
+	 * @return Whether this parameter is for single values.
+	 */
+	default boolean single() {
+		return !type().isArray();
+	}
+
+	/**
 	 * Represents a modifier that can be applied to a parameter
 	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}}.
 	 */

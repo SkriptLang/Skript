@@ -1,12 +1,14 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.DefaultParameter;
+import org.skriptlang.skript.lang.function.Parameter;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
@@ -61,12 +63,11 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
 	private DefaultFunction(
 		String name, Parameter<?>[] parameters,
-		ClassInfo<T> returnType, boolean single,
+		Class<T> returnType, boolean single,
 		@Nullable ch.njol.skript.util.Contract contract, Function<FunctionArguments, T> execute,
 		String[] description, String[] since, String[] examples, String[] keywords
 	) {
-		super(new Signature<>(null, name, parameters, false,
-			returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
+		super(new Signature<>(null, name, parameters, returnType, single, contract));
 
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(parameters, "parameters cannot be null");
@@ -88,7 +89,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		int length = Math.min(parameters.length, params.length);
 		for (int i = 0; i < length; i++) {
 			Object[] arg = params[i];
-			Parameter<?> parameter = parameters[i];
+			org.skriptlang.skript.lang.function.Parameter<?> parameter = parameters[i];
 
 			if (arg == null || arg.length == 0) {
 				if (parameter.modifiers().contains(Modifier.OPTIONAL)) {
@@ -98,15 +99,15 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 				}
 			}
 
-			if (arg.length == 1 || parameter.isSingleValue()) {
+			if (arg.length == 1 || parameter.single()) {
 				assert parameter.type().isAssignableFrom(arg[0].getClass())
-					: "argument type %s does not match parameter type %s".formatted(parameter.getType().getC().getSimpleName(),
+					: "argument type %s does not match parameter type %s".formatted(parameter.type().getSimpleName(),
 					arg[0].getClass().getSimpleName());
 
 				args.put(parameter.name(), arg[0]);
 			} else {
 				assert parameter.type().isAssignableFrom(arg.getClass())
-					: "argument type %s does not match parameter type %s".formatted(parameter.getType().getC().getSimpleName(),
+					: "argument type %s does not match parameter type %s".formatted(parameter.type().getSimpleName(),
 					arg.getClass().getSimpleName());
 
 				args.put(parameter.name(), arg);
@@ -187,7 +188,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
 		private final String name;
 		private final Class<T> returnType;
-		private final Map<String, Parameter<?>> parameters = new LinkedHashMap<>();
+		private final Map<String, DefaultParameter<?>> parameters = new LinkedHashMap<>();
 
 		private ch.njol.skript.util.Contract contract = null;
 
@@ -298,7 +299,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 
-			parameters.put(name, new Parameter<>(name, type, modifiers));
+			parameters.put(name, new DefaultParameter<>(name, type, modifiers));
 			return this;
 		}
 
@@ -311,7 +312,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
-			return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), getClassInfo(returnType),
+			return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), returnType,
 				!returnType.isArray(), contract, execute, description, since, examples, keywords);
 		}
 

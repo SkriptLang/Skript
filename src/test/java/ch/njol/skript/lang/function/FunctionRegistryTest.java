@@ -147,7 +147,7 @@ public class FunctionRegistryTest {
 
 	private static final Function<Boolean> TEST_FUNCTION_B = new SimpleJavaFunction<>(FUNCTION_NAME,
 		new Parameter[]{
-			new Parameter<>("a", Boolean.class)
+			new Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -157,7 +157,7 @@ public class FunctionRegistryTest {
 
 	private static final Function<Boolean> TEST_FUNCTION_N = new SimpleJavaFunction<>(FUNCTION_NAME,
 		new Parameter[]{
-			new Parameter<>("a", Number.class)
+			new Parameter<>("a", DefaultClasses.NUMBER, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -257,7 +257,7 @@ public class FunctionRegistryTest {
 
 	private static final Function<Boolean> LOCAL_TEST_FUNCTION_B = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
 		new Parameter[]{
-			new Parameter<>("a", Boolean.class)
+			new Parameter<>("a", DefaultClasses.BOOLEAN, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -267,7 +267,7 @@ public class FunctionRegistryTest {
 
 	private static final Function<Boolean> LOCAL_TEST_FUNCTION_N = new SimpleJavaFunction<>(TEST_SCRIPT, FUNCTION_NAME,
 		new Parameter[]{
-			new Parameter<>("a", Number.class)
+			new Parameter<>("a", DefaultClasses.NUMBER, true, null)
 		}, DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -359,8 +359,8 @@ public class FunctionRegistryTest {
 	public void testIdentifierSignatureOf() {
 		SimpleJavaFunction<Boolean> function = new SimpleJavaFunction<>(FUNCTION_NAME,
 			new Parameter[]{
-				new Parameter<>("a", Boolean.class),
-				new Parameter<>("b", Number[].class, Modifier.OPTIONAL)
+				new Parameter<>("a", DefaultClasses.BOOLEAN, true, null),
+				new Parameter<>("b", DefaultClasses.NUMBER, false, new SimpleLiteral<Number>(1, true))
 			}, DefaultClasses.BOOLEAN, true) {
 			@Override
 			public Boolean @Nullable [] executeSimple(Object[][] params) {
@@ -377,8 +377,8 @@ public class FunctionRegistryTest {
 
 		SimpleJavaFunction<Boolean> function2 = new SimpleJavaFunction<>(FUNCTION_NAME,
 			new Parameter[]{
-				new Parameter<>("a", Boolean.class),
-				new Parameter<>("b", Number[].class)
+				new Parameter<>("a", DefaultClasses.BOOLEAN, true, null),
+				new Parameter<>("b", DefaultClasses.NUMBER, false, null)
 			}, DefaultClasses.BOOLEAN, true) {
 			@Override
 			public Boolean @Nullable [] executeSimple(Object[][] params) {
