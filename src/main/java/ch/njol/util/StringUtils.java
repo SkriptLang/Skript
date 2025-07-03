@@ -175,6 +175,61 @@ public abstract class StringUtils {
 	}
 
 	/**
+	 * Returns the index of the first occurrence of the needle in the haystack.
+	 * @param haystack the string to search in
+	 * @param needle the string to search for
+	 * @param caseSensitive whether the search should be case-sensitive
+	 * @return the index of the first occurrence of the needle in the haystack, or -1 if not found
+	 */
+	public static int indexOf(String haystack, String needle, boolean caseSensitive) {
+		int index;
+
+		if (caseSensitive)
+			index = haystack.indexOf(needle);
+		else
+			index = haystack.toLowerCase(Locale.ENGLISH).indexOf(needle.toLowerCase(Locale.ENGLISH));
+
+		return index;
+	}
+
+	/**
+	 * Returns the index of the first occurrence of the needle in the haystack, starting from the specified index.
+	 * @param haystack the string to search in
+	 * @param needle the string to search for
+	 * @param fromIndex the index to start searching from
+	 * @param caseSensitive whether the search should be case-sensitive
+	 * @return the index of the first occurrence of the needle in the haystack, or -1 if not found
+	 */
+	public static int indexOf(String haystack, String needle, int fromIndex, boolean caseSensitive) {
+		int index;
+
+		if (caseSensitive)
+			index = haystack.indexOf(needle, fromIndex);
+		else
+			index = haystack.toLowerCase(Locale.ENGLISH).indexOf(needle.toLowerCase(Locale.ENGLISH), fromIndex);
+
+		return index;
+	}
+
+	/**
+	 * Returns the index of the last occurrence of the needle in the haystack.
+	 * @param haystack the string to search in
+	 * @param needle the string to search for
+	 * @param caseSensitive whether the search should be case-sensitive
+	 * @return the index of the last occurrence of the needle in the haystack, or -1 if not found
+	 */
+	public static int lastIndexOf(String haystack, String needle, boolean caseSensitive) {
+		int index;
+
+		if (caseSensitive)
+			index = haystack.lastIndexOf(needle);
+		else
+			index = haystack.toLowerCase(Locale.ENGLISH).lastIndexOf(needle.toLowerCase(Locale.ENGLISH));
+
+		return index;
+	}
+
+	/**
 	 * Shorthand for <tt>{@link #numberAt(CharSequence, int, boolean) numberAt}(s, index, true)</tt>
 	 *
 	 * @param s
