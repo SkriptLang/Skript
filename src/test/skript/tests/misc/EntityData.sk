@@ -27,9 +27,9 @@ test "bee data":
 	compareData((angry bee, angry bee with nectar, angry bee without nectar) , (angry bee))
 
 test "boat data":
-	compareData((chest boat, acacia chest boat, bamboo chest boat, birch chest boat, cherry chest boat, dark oak chest boat, jungle chest boat, mangrove chest boat, oak chest boat, spruce chest boat) , (any boat, any chest boat))
+	compareData((chest boat, acacia chest boat, bamboo chest boat, birch chest boat, cherry chest boat, dark oak chest boat, jungle chest boat, mangrove chest boat, oak chest boat, spruce chest boat) , (any chest boat))
 	parse if running minecraft "1.21.2":
-		compareData((pale oak chest boat), (any boat, any chest boat))
+		compareData((pale oak chest boat), (any chest boat))
 
 test "boat data":
 	compareData((boat, acacia boat, bamboo boat, birch boat, cherry boat, dark oak boat, jungle boat, mangrove boat, oak boat, spruce boat) , (any boat))

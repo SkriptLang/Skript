@@ -451,7 +451,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	protected @Nullable Adjective getAgeAdjective() {
-		return baby.isTrue() ? m_baby : baby.isFalse() ? m_adult : null;
+		if (baby.isTrue()) {
+			return m_baby;
+		} else if (baby.isFalse()) {
+			return m_adult;
+		}
+		return null;
 	}
 
 	@SuppressWarnings("null")
