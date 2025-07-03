@@ -184,12 +184,12 @@ public abstract class StringUtils {
 	public static int indexOf(String haystack, String needle, boolean caseSensitive) {
 		int index;
 
-		if (caseSensitive)
-			index = haystack.indexOf(needle);
-		else
-			index = haystack.toLowerCase(Locale.ENGLISH).indexOf(needle.toLowerCase(Locale.ENGLISH));
+		if (caseSensitive) {
+			haystack = haystack.toLowerCase(Locale.ENGLISH);
+			needle = needle.toLowerCase(Locale.ENGLISH);
+		}
 
-		return index;
+		return haystack.indexOf(needle);
 	}
 
 	/**
@@ -203,12 +203,12 @@ public abstract class StringUtils {
 	public static int indexOf(String haystack, String needle, int fromIndex, boolean caseSensitive) {
 		int index;
 
-		if (caseSensitive)
-			index = haystack.indexOf(needle, fromIndex);
-		else
-			index = haystack.toLowerCase(Locale.ENGLISH).indexOf(needle.toLowerCase(Locale.ENGLISH), fromIndex);
+		if (caseSensitive) {
+			haystack = haystack.toLowerCase(Locale.ENGLISH);
+			needle = needle.toLowerCase(Locale.ENGLISH);
+		}
 
-		return index;
+		return haystack.indexOf(needle, fromIndex);
 	}
 
 	/**
@@ -221,12 +221,12 @@ public abstract class StringUtils {
 	public static int lastIndexOf(String haystack, String needle, boolean caseSensitive) {
 		int index;
 
-		if (caseSensitive)
-			index = haystack.lastIndexOf(needle);
-		else
-			index = haystack.toLowerCase(Locale.ENGLISH).lastIndexOf(needle.toLowerCase(Locale.ENGLISH));
+		if (caseSensitive) {
+			haystack = haystack.toLowerCase(Locale.ENGLISH);
+			needle = needle.toLowerCase(Locale.ENGLISH);
+		}
 
-		return index;
+		return haystack.lastIndexOf(needle);
 	}
 
 	/**
