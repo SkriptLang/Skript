@@ -32,9 +32,9 @@ import java.util.*;
 		+ "and will return the string indices of the given value. "
 		+ "Positions can be used with any list and will return "
 		+ "the numerical position of the value in the list, counting up from 1. "
-		+ "As well, nothing is returned if the value is not found in the list.",
+		+ "Additionally, nothing is returned if the value is not found in the list.",
 	"",
-	"Whether strings are compared case-sensitively or not can be configured in the Skript configuration.",
+	"Whether string comparison is case-sensitive or not can be configured in Skript's config file.",
 })
 @Example("""
 	set {_first} to the first position of "@" in the text argument

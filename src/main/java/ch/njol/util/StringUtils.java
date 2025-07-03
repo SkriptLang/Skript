@@ -199,6 +199,9 @@ public abstract class StringUtils {
 	 * @return the index of the first occurrence of the needle in the haystack, or -1 if not found
 	 */
 	public static int indexOf(String haystack, String needle, int fromIndex, boolean caseSensitive) {
+		if (fromIndex < 0 || fromIndex >= haystack.length())
+			return -1;
+
 		if (caseSensitive) {
 			haystack = haystack.toLowerCase(Locale.ENGLISH);
 			needle = needle.toLowerCase(Locale.ENGLISH);
