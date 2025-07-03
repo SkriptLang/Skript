@@ -1,0 +1,9 @@
+
+parse:
+	results: {5829::parse results}
+	code:
+		on chunk load:
+			broadcast all armor stands in event-chunk
+
+test "entities in chunk parsing":
+	assert {5829::parse results} is not set with "Failed to parse all armor stands in event-chunk"

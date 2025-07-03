@@ -20,18 +20,13 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Name("Entities")
 @Description("All entities in all worlds, in a specific world, in a chunk, in a radius around a certain location or within two locations. " +
@@ -47,8 +42,8 @@ public class ExprEntities extends SimpleExpression<Entity> {
 
 	static {
 		Skript.registerExpression(ExprEntities.class, Entity.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-				"[(all [[of] the]|the)] %*entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
-				"[(all [[of] the]|the)] entities of type[s] %entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
+				"[(all [[of] the]|the)] %*entitydatas% [(in|of) (world[s] %-worlds%|1:%-worlds/chunks%)]",
+				"[(all [[of] the]|the)] entities of type[s] %entitydatas% [(in|of) (world[s] %-worlds%|1:%-worlds/chunks%)]",
 				"[(all [[of] the]|the)] %*entitydatas% (within|[with]in radius) %number% [(block[s]|met(er|re)[s])] (of|around) %location%",
 				"[(all [[of] the]|the)] entities of type[s] %entitydatas% in radius %number% (of|around) %location%",
 				"[(all [[of] the]|the)] %*entitydatas% within %location% and %location%",
@@ -59,9 +54,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	Expression<? extends EntityData<?>> types;
 
 	@UnknownNullability
-	private Expression<World> worlds;
-	@UnknownNullability
-	private Expression<Chunk> chunks;
+	private Expression<?> worldsOrChunks;
 	@UnknownNullability
 	private Expression<Number> radius;
 	@UnknownNullability
@@ -95,9 +88,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 			to = (Expression<Location>) exprs[2];
 		} else {
 			if (parseResult.mark == 1) {
-				chunks = (Expression<Chunk>) exprs[2];
+				worldsOrChunks = exprs[2];
 			} else {
-				worlds = (Expression<World>) exprs[1];
+				worldsOrChunks = exprs[1];
 			}
 		}
 		if (types instanceof Literal && ((Literal<EntityData<?>>) types).getAll().length == 1)
@@ -137,11 +130,27 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				list.add(iter.next());
 			return list.toArray((Entity[]) Array.newInstance(returnType, list.size()));
 		} else {
-			if (chunks != null) {
-				return EntityData.getAll(types.getArray(event), returnType, chunks.getArray(event));
-			} else {
-				return EntityData.getAll(types.getAll(event), returnType, worlds != null ? worlds.getArray(event) : null);
+			EntityData<?>[] types = this.types.getAll(event);
+			if (worldsOrChunks == null) {
+				return EntityData.getAll(types, returnType, (World[]) null);
 			}
+			List<Chunk> chunks = new ArrayList<>();
+			List<World> worlds = new ArrayList<>();
+			for (Object obj : worldsOrChunks.getArray(event)) {
+				if (obj instanceof Chunk chunk) {
+					chunks.add(chunk);
+				} else if (obj instanceof World world) {
+					worlds.add(world);
+				}
+			}
+			Set<Entity> entities = new HashSet<>();
+			if (!chunks.isEmpty()) {
+				entities.addAll(Arrays.asList(EntityData.getAll(types, returnType, chunks.toArray(new Chunk[0]))));
+			}
+			if (!worlds.isEmpty()) {
+				entities.addAll(Arrays.asList(EntityData.getAll(types, returnType, worlds.toArray(new World[0]))));
+			}
+			return entities.toArray((Entity[]) Array.newInstance(returnType, entities.size()));
 		}
 	}
 
@@ -197,10 +206,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				return false;
 			});
 		} else {
-			if (chunks == null || returnType == Player.class)
-				return super.iterator(event);
-
-			return Arrays.stream(EntityData.getAll(types.getArray(event), returnType, chunks.getArray(event))).iterator();
+			return super.iterator(event);
 		}
 	}
 
@@ -216,14 +222,14 @@ public class ExprEntities extends SimpleExpression<Entity> {
 
 	@Override
 	@SuppressWarnings("null")
-	public String toString(@Nullable Event e, boolean debug) {
-		String message = "all entities of type " + types.toString(e, debug);
-		if (worlds != null)
-			message += " in " + worlds.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		String message = "all entities of type " + types.toString(event, debug);
+		if (worldsOrChunks != null)
+			message += " in " + worldsOrChunks.toString(event, debug);
 		else if (radius != null && center != null)
-			message += " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug);
+			message += " in radius " + radius.toString(event, debug) + " around " + center.toString(event, debug);
 		else if (from != null && to != null)
-			message += " within " + from.toString(e, debug) + " and " + to.toString(e, debug);
+			message += " within " + from.toString(event, debug) + " and " + to.toString(event, debug);
 		return message;
 	}
 
