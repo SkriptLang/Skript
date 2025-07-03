@@ -182,8 +182,6 @@ public abstract class StringUtils {
 	 * @return the index of the first occurrence of the needle in the haystack, or -1 if not found
 	 */
 	public static int indexOf(String haystack, String needle, boolean caseSensitive) {
-		int index;
-
 		if (caseSensitive) {
 			haystack = haystack.toLowerCase(Locale.ENGLISH);
 			needle = needle.toLowerCase(Locale.ENGLISH);
@@ -201,8 +199,6 @@ public abstract class StringUtils {
 	 * @return the index of the first occurrence of the needle in the haystack, or -1 if not found
 	 */
 	public static int indexOf(String haystack, String needle, int fromIndex, boolean caseSensitive) {
-		int index;
-
 		if (caseSensitive) {
 			haystack = haystack.toLowerCase(Locale.ENGLISH);
 			needle = needle.toLowerCase(Locale.ENGLISH);
@@ -219,8 +215,6 @@ public abstract class StringUtils {
 	 * @return the index of the last occurrence of the needle in the haystack, or -1 if not found
 	 */
 	public static int lastIndexOf(String haystack, String needle, boolean caseSensitive) {
-		int index;
-
 		if (caseSensitive) {
 			haystack = haystack.toLowerCase(Locale.ENGLISH);
 			needle = needle.toLowerCase(Locale.ENGLISH);
