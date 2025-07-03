@@ -160,6 +160,8 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	}
 
 	private Long[] getListPositions(Expression<?> list, Object value, Event event) {
+		boolean caseSensitive = SkriptConfig.caseSensitive.value();
+
 		Iterator<?> iterator = list.iterator(event);
 		if (iterator == null)
 			return new Long[0];
@@ -170,7 +172,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		while (iterator.hasNext()) {
 			position++;
 
-			if (!equals(iterator.next(), value))
+			if (!equals(iterator.next(), value, caseSensitive))
 				continue;
 
 			if (indexType == IndexType.FIRST)
@@ -186,6 +188,8 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	}
 
 	private String[] getIndices(KeyProviderExpression<?> expression, Object value, Event event) {
+		boolean caseSensitive = SkriptConfig.caseSensitive.value();
+
 		Iterator<? extends KeyedValue<?>> iterator = expression.keyedIterator(event);
 		if (iterator == null)
 			return new String[0];
@@ -195,7 +199,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		while (iterator.hasNext()) {
 			var keyedValue = iterator.next();
 
-			if (!equals(keyedValue.value(), value))
+			if (!equals(keyedValue.value(), value, caseSensitive))
 				continue;
 			if (indexType == IndexType.FIRST)
 				return new String[]{keyedValue.key()};
@@ -212,9 +216,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		return indices.toArray(String[]::new);
 	}
 
-	private boolean equals(Object key, Object value) {
+	private boolean equals(Object key, Object value, boolean caseSensitive) {
 		if (key instanceof String keyString && value instanceof String valueString)
-			return StringUtils.equals(keyString, valueString, SkriptConfig.caseSensitive.value());
+			return StringUtils.equals(keyString, valueString, caseSensitive);
 		return key.equals(value);
 	}
 
