@@ -14,7 +14,6 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
-import com.google.common.base.MoreObjects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -269,16 +268,6 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 			&& name.equals(parameter.name)
 			&& type.equals(parameter.type)
 			&& Objects.equals(def, parameter.def);
-	}
-
-	public String toCompareString() {
-		return MoreObjects.toStringHelper(this)
-			.add("name", name)
-			.add("type", type)
-			.add("single", single)
-			.add("mods", Arrays.toString(modifiers.toArray()))
-			.add("def", def)
-			.toString();
 	}
 
 	@Override
