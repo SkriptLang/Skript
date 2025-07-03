@@ -195,7 +195,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		while (iterator.hasNext()) {
 			var keyedValue = iterator.next();
 
-			if (!equals(keyedValue.getValue(), value))
+			if (!equals(keyedValue.value(), value))
 				continue;
 			if (indexType == IndexType.FIRST)
 				return new String[]{keyedValue.key()};
