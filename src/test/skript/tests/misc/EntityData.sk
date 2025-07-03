@@ -1,0 +1,221 @@
+
+local function compareData(data1: entity types, data2: entity types):
+	loop {_data1::*}:
+		if loop-value is spawnable:
+			spawn (loop-value) at test-location:
+				set {_entity} to event-entity
+			assert {_entity} is loop-value with "Spawned '%{_entity}%' should match against own EntityData '%loop-value%'"
+		loop {_data2::*}:
+			assert loop-value-1 is loop-value-2 with "EntityData '%loop-value-1%' should match against EntityData '%loop-value-2%'"
+			if {_entity} is set:
+				assert {_entity} is loop-value-2 with "Spawned '%{_entity}%' should match against EntityData '%loop-value-2%'"
+		clear entity within {_entity}
+
+test "axolotl data":
+	compareData((axolotl, lucy axolotl, wild axolotl, gold axolotl, cyan axolotl, blue axolotl) , (axolotl))
+	compareData((baby axolotl, baby lucy axolotl, baby wild axolotl, baby gold axolotl, baby cyan axolotl, baby blue axolotl) , (axolotl, baby axolotl))
+	compareData((adult axolotl, adult lucy axolotl, adult wild axolotl, adult gold axolotl, adult cyan axolotl, adult blue axolotl) , (axolotl, adult axolotl))
+	compareData((axolotl kid, lucy axolotl kid, wild axolotl kid, gold axolotl kid, cyan axolotl kid, blue axolotl kid) , (axolotl, axolotl kid, baby axolotl))
+
+test "bee data":
+	compareData((bee, bee without nectar, bee with nectar, happy bee, happy bee with nectar, happy bee without nectar, angry bee, angry bee without nectar, angry bee with nectar) , (bee))
+	compareData((baby bee, baby bee without nectar, baby bee with nectar, baby happy bee, baby happy bee with nectar, baby happy bee without nectar, baby angry bee, baby angry bee without nectar, baby angry bee with nectar) , (bee, baby bee))
+	compareData((adult bee, adult bee without nectar, adult bee with nectar, adult happy bee, adult happy bee with nectar, adult happy bee without nectar, adult angry bee, adult angry bee without nectar, adult angry bee with nectar) , (bee, adult bee))
+	compareData((bee with nectar, angry bee with nectar, happy bee with nectar), (bee with nectar))
+	compareData((bee without nectar, angry bee without nectar, happy bee without nectar), (bee without nectar))
+	compareData((happy bee, happy bee with nectar, happy bee without nectar), (happy bee))
+	compareData((angry bee, angry bee with nectar, angry bee without nectar) , (angry bee))
+
+test "boat chest data":
+	compareData((chest boat, oak chest boat, spruce chest boat, birch chest boat, jungle chest boat, acacia chest boat, dark oak chest boat, cherry chest boat, mangrove chest boat, bamboo chest boat, pale oak chest boat), (any chest boat))
+
+test "boat data":
+	compareData((boat, oak boat, spruce boat, birch boat, jungle boat, acacia boat, dark oak boat, cherry boat, mangrove boat, bamboo boat, pale oak boat), (any boat))
+
+test "cat data":
+	compareData((cat, tabby cat, black cat, red cat, siamese cat, british shorthair cat, calico cat, persian cat, ragdoll cat, white cat, jellie cat, all black cat) , (cat))
+	compareData((baby cat, baby tabby cat, baby black cat, baby red cat, baby siamese cat, baby british shorthair cat, baby calico cat, baby persian cat, baby ragdoll cat, baby white cat, baby jellie cat, baby all black cat) , (cat, baby cat))
+	compareData((adult cat, adult tabby cat, adult black cat, adult red cat, adult siamese cat, adult british shorthair cat, adult calico cat, adult persian cat, adult ragdoll cat, adult white cat, adult jellie cat, adult all black cat) , (cat, adult cat))
+	compareData((tamed ocelot, tamed baby ocelot, tamed adult ocelot) , (cat))
+	compareData((tamed baby ocelot) , (cat, baby cat))
+	compareData((tamed adult ocelot) , (cat, adult cat))
+	compareData((kitten, tabby kitten, black kitten, red kitten, siamese kitten, british shorthair kitten, calico kitten, persian kitten, ragdoll kitten, white kitten, jellie kitten, all black kitten) , (cat, kitten, baby cat))
+
+test "chicken data":
+	compareData((chicken, baby chicken, adult chicken, chick) , (chicken))
+	parse if running minecraft "1.21.6":
+		compareData((chicken, warm chicken, temperate chicken, cold chicken) , (chicken))
+		compareData((baby chicken, baby warm chicken, baby temperate chicken, baby cold chicken) , (chicken, baby chicken))
+		compareData((adult chicken, adult warm chicken, adult temperate chicken, adult cold chicken) , (chicken, adult chicken))
+		compareData((chick, warm chick, temperate chick, cold chick) , (chicken, chick, baby chicken))
+
+test "cow data":
+	compareData((cow, baby cow, adult cow, calf) , (cow))
+	parse if running minecraft "1.21.6":
+		compareData((cow, warm cow, temperate cow, cold cow) , (cow))
+		compareData((baby cow, baby warm cow, baby temperate cow, baby cold cow) , (cow, baby cow))
+		compareData((adult cow, adult warm cow, adult temperate cow, adult cold cow) , (cow, adult cow))
+		compareData((calf, warm calf, temperate calf, cold calf) , (cow, calf, baby cow))
+
+test "creeper data":
+	compareData((creeper, powered creeper, unpowered creeper) , (creeper))
+
+test "dropped item data":
+	compareData((dropped item, dropped item entity, dropped stone) , (dropped item, dropped item entity))
+
+test "enderman data":
+	compareData((enderman, enderman holding stone) , (enderman))
+
+test "falling block data":
+	compareData((falling block, falling sand) , (falling block))
+
+test "fox data":
+	compareData((fox, red fox, snow fox) , (fox))
+	compareData((baby fox, baby red fox, baby snow fox) , (fox, baby fox))
+	compareData((adult fox, adult red fox, adult snow fox) , (fox, adult fox))
+	compareData((fox kid, red fox kid, snow fox kid) , (fox, fox kid, baby fox))
+
+test "frog data":
+	compareData((frog, warm frog, temperate frog, cold frog) , (frog))
+	compareData((baby frog, baby warm frog, baby temperate frog, baby cold frog) , (frog, baby frog))
+	compareData((adult frog, adult warm frog, adult temperate frog, adult cold frog) , (frog, adult frog))
+	compareData((frog kid, warm frog kid, temperate frog kid, cold frog kid) , (frog, frog kid, baby frog))
+
+test "goat data":
+	compareData((goat, screaming goat, quiet goat) , (goat))
+	compareData((baby goat, baby screaming goat, baby quiet goat) , (goat, baby goat))
+	compareData((adult goat, adult screaming goat, adult quiet goat) , (goat, adult goat))
+	compareData((goat kid, screaming goat kid, quiet goat kid) , (goat, goat kid, baby goat))
+
+test "llama data":
+	compareData((llama, creamy llama, white llama, brown llama, gray llama, trader llama, creamy trader llama, white trader llama, brown trader llama, gray trader llama) , (llama))
+	compareData((baby llama, baby creamy llama, baby white llama, baby brown llama, baby gray llama, baby trader llama, baby creamy trader llama, baby white trader llama, baby brown trader llama, baby gray trader llama) , (llama, baby llama))
+	compareData((adult llama, adult creamy llama, adult white llama, adult brown llama, adult gray llama, adult trader llama, adult creamy trader llama, adult white trader llama, adult brown trader llama, adult gray trader llama) , (llama, adult llama))
+	compareData((llama cria, creamy llama cria, white llama cria, brown llama cria, gray llama cria, trader llama cria, creamy trader llama cria, white trader llama cria, brown trader llama cria, gray trader llama cria) , (llama, llama cria, baby llama))
+
+	compareData((trader llama, creamy trader llama, white trader llama, brown trader llama, gray trader llama) , (trader llama))
+	compareData((baby trader llama, baby creamy trader llama, baby white trader llama, baby brown trader llama, baby gray trader llama) , (trader llama, baby trader llama))
+	compareData((adult trader llama, adult creamy trader llama, adult white trader llama, adult brown trader llama, adult gray trader llama) , (trader llama, adult trader llama))
+	compareData((trader llama cria, creamy trader llama cria, white trader llama cria, brown trader llama cria, gray trader llama cria) , (trader llama, trader llama cria, baby trader llama))
+
+	compareData((creamy llama, baby creamy llama, creamy llama cria, creamy trader llama, baby creamy trader llama, creamy trader llama cria) , (creamy llama))
+	compareData((white llama, baby white llama, white llama cria, white trader llama, baby white trader llama, white trader llama cria) , (white llama))
+	compareData((brown llama, baby brown llama, brown llama cria, brown trader llama, baby brown trader llama, brown trader llama cria) , (brown llama))
+	compareData((gray llama, baby gray llama, gray llama cria, gray trader llama, baby gray trader llama, gray trader llama cria) , (gray llama))
+
+test "minecart data":
+	compareData((minecart, regular minecart, minecart with chest, minecart with furnace, minecart with hopper, minecart with tnt, minecart with spawner, minecart with command block) , (minecart))
+
+test "mooshroom data":
+	compareData((mooshroom, red mooshroom, brown mooshroom) , (mooshroom))
+	compareData((baby mooshroom, baby red mooshroom, baby brown mooshroom) , (mooshroom, baby mooshroom))
+	compareData((adult mooshroom, adult red mooshroom, adult brown mooshroom) , (mooshroom, adult mooshroom))
+	compareData((mooshroom calf, red mooshroom calf, brown mooshroom calf) , (mooshroom, mooshroom calf, baby mooshroom))
+	compareData((mooshroom kid, red mooshroom kid, brown mooshroom kid) , (mooshroom, mooshroom calf, baby mooshroom, mooshroom kid))
+
+test "panda data":
+	compareData((panda, normal panda, lazy panda, worried panda, playful panda, brown panda, weak panda, aggressive panda) , (panda))
+	compareData((normal-normal panda, normal-lazy panda, normal-worried panda, normal-playful panda, normal-brown panda, normal-weak panda, normal-aggressive panda) , (panda, normal panda))
+	compareData((lazy-normal panda, lazy-lazy panda, lazy-worried panda, lazy-playful panda, lazy-brown panda, lazy-weak panda, lazy-aggressive panda) , (panda, lazy panda))
+	compareData((worried-normal panda, worried-lazy panda, worried-worried panda, worried-playful panda, worried-brown panda, worried-weak panda, worried-aggressive panda) , (panda, worried panda))
+	compareData((playful-normal panda, playful-lazy panda, playful-worried panda, playful-playful panda, playful-brown panda, playful-weak panda, playful-aggressive panda) , (panda, playful panda))
+	compareData((brown-normal panda, brown-lazy panda, brown-worried panda, brown-playful panda, brown-brown panda, brown-weak panda, brown-aggressive panda) , (panda, brown panda))
+	compareData((weak-normal panda, weak-lazy panda, weak-worried panda, weak-playful panda, weak-brown panda, weak-weak panda, weak-aggressive panda) , (panda, weak panda))
+	compareData((aggressive-normal panda, aggressive-lazy panda, aggressive-worried panda, aggressive-playful panda, aggressive-brown panda, aggressive-weak panda, aggressive-aggressive panda) , (panda, aggressive panda))
+
+	compareData((baby panda, baby normal panda, baby lazy panda, baby worried panda, baby playful panda, baby brown panda, baby weak panda, baby aggressive panda) , (panda, baby panda))
+	compareData((baby normal-normal panda, baby normal-lazy panda, baby normal-worried panda, baby normal-playful panda, baby normal-brown panda, baby normal-weak panda, baby normal-aggressive panda) , (panda, normal panda, baby panda, baby normal panda))
+	compareData((baby lazy-normal panda, baby lazy-lazy panda, baby lazy-worried panda, baby lazy-playful panda, baby lazy-brown panda, baby lazy-weak panda, baby lazy-aggressive panda) , (panda, lazy panda, baby panda, baby lazy panda))
+	compareData((baby worried-normal panda, baby worried-lazy panda, baby worried-worried panda, baby worried-playful panda, baby worried-brown panda, baby worried-weak panda, baby worried-aggressive panda) , (panda, worried panda, baby panda, baby worried panda))
+	compareData((baby playful-normal panda, baby playful-lazy panda, baby playful-worried panda, baby playful-playful panda, baby playful-brown panda, baby playful-weak panda, baby playful-aggressive panda) , (panda, playful panda, baby panda, baby playful panda))
+	compareData((baby brown-normal panda, baby brown-lazy panda, baby brown-worried panda, baby brown-playful panda, baby brown-brown panda, baby brown-weak panda, baby brown-aggressive panda) , (panda, brown panda, baby panda, baby brown panda))
+	compareData((baby weak-normal panda, baby weak-lazy panda, baby weak-worried panda, baby weak-playful panda, baby weak-brown panda, baby weak-weak panda, baby weak-aggressive panda) , (panda, weak panda, baby panda, baby weak panda))
+	compareData((baby aggressive-normal panda, baby aggressive-lazy panda, baby aggressive-worried panda, baby aggressive-playful panda, baby aggressive-brown panda, baby aggressive-weak panda, baby aggressive-aggressive panda) , (panda, aggressive panda, baby panda, baby aggressive panda))
+
+	compareData((adult panda, adult normal panda, adult lazy panda, adult worried panda, adult playful panda, adult brown panda, adult weak panda, adult aggressive panda) , (panda, adult panda))
+	compareData((adult normal-normal panda, adult normal-lazy panda, adult normal-worried panda, adult normal-playful panda, adult normal-brown panda, adult normal-weak panda, adult normal-aggressive panda) , (panda, normal panda, adult panda, adult normal panda))
+	compareData((adult lazy-normal panda, adult lazy-lazy panda, adult lazy-worried panda, adult lazy-playful panda, adult lazy-brown panda, adult lazy-weak panda, adult lazy-aggressive panda) , (panda, lazy panda, adult panda, adult lazy panda))
+	compareData((adult worried-normal panda, adult worried-lazy panda, adult worried-worried panda, adult worried-playful panda, adult worried-brown panda, adult worried-weak panda, adult worried-aggressive panda) , (panda, worried panda, adult panda, adult worried panda))
+	compareData((adult playful-normal panda, adult playful-lazy panda, adult playful-worried panda, adult playful-playful panda, adult playful-brown panda, adult playful-weak panda, adult playful-aggressive panda) , (panda, playful panda, adult panda, adult playful panda))
+	compareData((adult brown-normal panda, adult brown-lazy panda, adult brown-worried panda, adult brown-playful panda, adult brown-brown panda, adult brown-weak panda, adult brown-aggressive panda) , (panda, brown panda, adult panda, adult brown panda))
+	compareData((adult weak-normal panda, adult weak-lazy panda, adult weak-worried panda, adult weak-playful panda, adult weak-brown panda, adult weak-weak panda, adult weak-aggressive panda) , (panda, weak panda, adult panda, adult weak panda))
+	compareData((adult aggressive-normal panda, adult aggressive-lazy panda, adult aggressive-worried panda, adult aggressive-playful panda, adult aggressive-brown panda, adult aggressive-weak panda, adult aggressive-aggressive panda) , (panda, aggressive panda, adult panda, adult aggressive panda))
+
+test "parrot data":
+	compareData((parrot, red parrot, blue parrot, green parrot, cyan parrot, gray parrot) , (parrot))
+
+test "pig data":
+	compareData((pig, saddled pig, unsaddled pig) , (pig))
+	compareData((baby pig, adult pig), (pig))
+	compareData((piglet), (pig, baby pig))
+	parse if running minecraft "1.21.5":
+		compareData((warm pig, warm saddled pig, warm unsaddled pig) , (pig, warm pig))
+		compareData((temperate pig, temperate saddled pig, temperate unsaddled pig) , (pig, temperate pig))
+		compareData((cold pig, cold saddled pig, cold unsaddled pig) , (pig, cold pig))
+		compareData((warm baby pig, temperate baby pig, cold baby pig) , (pig, baby pig))
+		compareData((warm adult pig, temperate adult pig, cold adult pig) , (pig, adult pig))
+		compareData((warm piglet, temperate piglet, cold piglet) , (pig, piglet, baby pig))
+
+		compareData((saddled warm pig, saddled temperate pig, saddled cold pig) , (pig, saddled pig))
+		compareData((unsaddled warm pig, unsaddled temperate pig, unsaddled cold pig) , (pig, unsaddled pig))
+
+test "rabbit data":
+	compareData((rabbit, white rabbit, black rabbit, black white rabbit, brown rabbit, gold rabbit, salt pepper rabbit, killer rabbit) , (rabbit))
+	compareData((baby rabbit, baby white rabbit, baby black rabbit, baby black white rabbit, baby brown rabbit, baby gold rabbit, baby salt pepper rabbit, baby killer rabbit) , (rabbit, baby rabbit))
+	compareData((adult rabbit, adult white rabbit, adult black rabbit, adult black white rabbit, adult brown rabbit, adult gold rabbit, adult salt pepper rabbit, adult killer rabbit) , (rabbit, adult rabbit))
+
+test "salmon data" when running minecraft "1.21.2":
+	compareData((salmon, small salmon, medium salmon, large salmon) , (any salmon))
+
+test "sheep data":
+	compareData((sheep, unsheared sheep, sheared sheep) , (sheep))
+	compareData((red sheep, red unsheared sheep, red sheared sheep) , (red sheep))
+
+test "strider data":
+	compareData((strider, warm strider, cold strider) , (strider))
+	compareData((baby strider, baby warm strider, baby cold strider) , (strider, baby strider))
+
+test "thrown potion data":
+	compareData((thrown potion, thrown speed potion) , (thrown potion))
+
+test "tropical fish data":
+	compareData((tropical fish, kob, sunstreak, snooper, dasher, brinely, spotty, flopper, stripey, glitter, blockfish, betty, clayfish) , (tropical fish))
+	compareData((red tropical fish, red kob, red sunstreak, red snooper, red dasher, red brinely, red spotty, red flopper, red stripey, red glitter, red blockfish, red betty, red clayfish) , (tropical fish, red tropical fish))
+	compareData((red-blue tropical fish, red-blue kob, red-blue sunstreak, red-blue snooper, red-blue dasher, red-blue brinely, red-blue spotty, red-blue flopper, red-blue stripey, red-blue glitter, red-blue blockfish, red-blue betty, red-blue clayfish) , (tropical fish, red tropical fish, red-blue tropical fish))
+
+test "villager data":
+	compareData((villager, jobless villager, armorer, cartographer, cleric, fisherman, fletcher, leatherworker, mason, shepherd, toolsmith, weaponsmith, farmer, librarian, butcher, nitwit) , (villager))
+	compareData((baby villager, baby jobless villager, baby armorer, baby cartographer, baby cleric, baby fisherman, baby fletcher, baby leatherworker, baby mason, baby shepherd, baby toolsmith, baby weaponsmith, baby farmer, baby librarian, baby butcher, baby nitwit) , (villager, baby villager))
+	compareData((adult villager, adult jobless villager, adult armorer, adult cartographer, adult cleric, adult fisherman, adult fletcher, adult leatherworker, adult mason, adult shepherd, adult toolsmith, adult weaponsmith, adult farmer, adult librarian, adult butcher, adult nitwit) , (villager, adult villager))
+
+test "wolf data":
+	compareData((wolf, dog, tamed wolf, wild wolf, angry wolf, peaceful wolf) , (wolf))
+	compareData((baby wolf, baby dog, tamed baby wolf, pup, wild baby wolf, angry baby wolf, peaceful baby wolf) , (wolf, baby wolf))
+	compareData((adult wolf, adult dog, tamed adult wolf, wild adult wolf, angry adult wolf, peaceful adult wolf) , (wolf, adult wolf))
+
+	compareData((wolf color red, dog color red, tamed wolf color red, wild wolf color red, angry wolf color red, peaceful wolf color red) , (wolf, wolf color red))
+	compareData((baby wolf color red, baby dog color red, tamed baby wolf color red, pup color red, wild baby wolf color red, angry baby wolf color red, peaceful baby wolf color red) , (wolf color red, baby wolf color red))
+	compareData((adult wolf color red, adult dog color red, tamed adult wolf color red, wild adult wolf color red, angry adult wolf color red, peaceful adult wolf color red) , (wolf color red, adult wolf color red))
+
+	parse if running minecraft "1.20.6":
+		compareData((ashen wolf, black wolf, chestnut wolf, pale wolf, rusty wolf, snowy wolf, spotted wolf, striped wolf, woods wolf) , (wolf))
+		compareData((baby ashen wolf, baby black wolf, baby chestnut wolf, baby pale wolf, baby rusty wolf, baby snowy wolf, baby spotted wolf, baby striped wolf, baby woods wolf) , (wolf, baby wolf))
+		compareData((adult ashen wolf, adult black wolf, adult chestnut wolf, adult pale wolf, adult rusty wolf, adult snowy wolf, adult spotted wolf, adult striped wolf, adult woods wolf) , (wolf, adult wolf))
+
+		compareData((ashen wolf, ashen dog, tamed ashen wolf, wild ashen wolf, angry ashen wolf, peaceful ashen wolf) , (wolf, ashen wolf))
+		compareData((baby ashen wolf, baby ashen dog, tamed baby ashen wolf, ashen pup, wild baby ashen wolf, angry baby ashen wolf, peaceful baby ashen wolf) , (wolf, ashen wolf, baby wolf, baby ashen wolf))
+
+		compareData((ashen wolf color red, ashen dog color red, tamed ashen wolf color red, wild ashen wolf color red, angry ashen wolf color red, peaceful ashen wolf color red) , (wolf, ashen wolf, wolf color red, ashen wolf color red))
+		compareData((baby ashen wolf color red, baby ashen dog color red, tamed baby ashen wolf color red, ashen pup color red, wild baby ashen wolf color red, angry baby ashen wolf color red, peaceful baby ashen wolf color red) , (wolf, ashen wolf, baby wolf, baby ashen wolf, wolf color red, ashen wolf color red, baby wolf color red, baby ashen wolf color red))
+
+test "zombie villager data":
+	compareData((zombie villager, normal zombie villager, zombie farmer, zombie librarian, zombie butcher, zombie nitwit, zombie armorer, zombie cartographer, zombie cleric, zombie fisherman, zombie fletcher, zombie leatherworker, zombie mason, zombie shepherd, zombie toolsmith, zombie weaponsmith) , (zombie villager))
+	compareData((baby zombie villager, baby normal zombie villager, baby zombie farmer, baby zombie librarian, baby zombie butcher, baby zombie nitwit, baby zombie armorer, baby zombie cartographer, baby zombie cleric, baby zombie fisherman, baby zombie fletcher, baby zombie leatherworker, baby zombie mason, baby zombie shepherd, baby zombie toolsmith, baby zombie weaponsmith) , (zombie villager, baby zombie villager))
+	compareData((adult zombie villager, adult normal zombie villager, adult zombie farmer, adult zombie librarian, adult zombie butcher, adult zombie nitwit, adult zombie armorer, adult zombie cartographer, adult zombie cleric, adult zombie fisherman, adult zombie fletcher, adult zombie leatherworker, adult zombie mason, adult zombie shepherd, adult zombie toolsmith, adult zombie weaponsmith) , (zombie villager, adult zombie villager))
+
+test "display data":
+	compareData((display, text display, block display, block display entity, block display of stone, stone block display, item display, item display entity, item display of stone, stone item display) , (display, display entity))
+	compareData((block display, block display of sand, block display entity of sand, sand block display, sand block display entity) , (block display, block display entity))
+	compareData((item display, item display of bedrock, item display entity of bedrock, bedrock item display, bedrock item display entity) , (item display, item display entity))
+
+# TODO: simple entity data

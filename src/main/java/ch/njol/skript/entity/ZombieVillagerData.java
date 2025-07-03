@@ -98,14 +98,14 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (!(entityData instanceof ZombieVillagerData other))
 			return false;
-		return profession == null || profession.equals(other.profession);
+		return profession == other.profession;
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof ZombieVillagerData other))
 			return false;
-		return profession == null || profession.equals(other.profession);
+		return profession == null || profession == other.profession;
 	}
 
 }

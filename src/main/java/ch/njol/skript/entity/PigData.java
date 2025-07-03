@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Pig;
@@ -14,16 +15,12 @@ import java.util.Objects;
 
 public class PigData extends EntityData<Pig> {
 
-	public enum SaddleState {
-		NOT_SADDLED, UNKNOWN, SADDLED
-	}
-
 	private static final boolean VARIANTS_ENABLED;
 	private static final Object[] VARIANTS;
-	private static final EntityPatterns<SaddleState> PATTERNS = new EntityPatterns<>(new Object[][]{
-		{"pig", SaddleState.UNKNOWN},
-		{"saddled pig", SaddleState.SADDLED},
-		{"unsaddled pig", SaddleState.NOT_SADDLED}
+	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"pig", Kleenean.UNKNOWN},
+		{"saddled pig", Kleenean.TRUE},
+		{"unsaddled pig", Kleenean.FALSE}
 	});
 
 	static {
@@ -37,14 +34,14 @@ public class PigData extends EntityData<Pig> {
 		}
 	}
 	
-	private SaddleState saddled = SaddleState.UNKNOWN;
+	private Kleenean saddled = Kleenean.UNKNOWN;
 	private @Nullable Object variant = null;
 
 	public PigData() {}
 
 	// TODO: When safe, 'variant' should have the type changed to 'Pig.Variant'
-	public PigData(SaddleState saddled, @Nullable Object variant) {
-		this.saddled = saddled;
+	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
+		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;
 		super.dataCodeName = PATTERNS.getMatchedPatterns(saddled)[0];
 	}
@@ -61,9 +58,8 @@ public class PigData extends EntityData<Pig> {
 	
 	@Override
 	protected boolean init(@Nullable Class<? extends Pig> entityClass, @Nullable Pig pig) {
-		saddled = SaddleState.UNKNOWN;
 		if (pig != null) {
-			saddled = pig.hasSaddle() ? SaddleState.SADDLED : SaddleState.NOT_SADDLED;
+			saddled = Kleenean.get(pig.hasSaddle());
 			super.dataCodeName = PATTERNS.getMatchedPatterns(saddled)[0];
 			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
@@ -73,7 +69,7 @@ public class PigData extends EntityData<Pig> {
 	
 	@Override
 	public void set(Pig pig) {
-		pig.setSaddle(saddled == SaddleState.SADDLED);
+		pig.setSaddle(saddled.isTrue());
 		if (VARIANTS_ENABLED) {
 			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
 			assert finalVariant != null;
@@ -83,7 +79,7 @@ public class PigData extends EntityData<Pig> {
 	
 	@Override
 	protected boolean match(Pig pig) {
-		if (saddled != SaddleState.UNKNOWN && pig.hasSaddle() != (saddled == SaddleState.SADDLED))
+		if (saddled != Kleenean.UNKNOWN && saddled != Kleenean.get(pig.hasSaddle()))
 			return false;
 		return variant == null || variant == pig.getVariant();
 	}
@@ -92,7 +88,17 @@ public class PigData extends EntityData<Pig> {
 	public Class<? extends Pig> getType() {
 		return Pig.class;
 	}
-	
+
+	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new PigData();
+	}
+
+	@Override
+	protected int hashCode_i() {
+		return saddled.ordinal() + Objects.hashCode(variant);
+	}
+
 	@Override
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (!(entityData instanceof PigData other))
@@ -101,24 +107,14 @@ public class PigData extends EntityData<Pig> {
 			return false;
 		return variant == other.variant;
 	}
-	
-	@Override
-	protected int hashCode_i() {
-		return saddled.ordinal() + Objects.hashCode(variant);
-	}
-	
+
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof PigData other))
 			return false;
-		if (saddled != SaddleState.UNKNOWN && saddled != other.saddled)
+		if (saddled != Kleenean.UNKNOWN && saddled != other.saddled)
 			return false;
 		return variant == null || variant == other.variant;
-	}
-	
-	@Override
-	public @NotNull EntityData<?> getSuperType() {
-		return new PigData();
 	}
 
 	/**

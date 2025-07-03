@@ -35,14 +35,16 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0, PATTERNS.getPatterns());
 	}
 
-	private @Nullable DyeColor patternColor;
-	private @Nullable DyeColor bodyColor;
+	private @Nullable DyeColor bodyColor = null;
+	private @Nullable DyeColor patternColor = null;
 	private @Nullable Pattern fishPattern = null;
 
 	public TropicalFishData() {}
 
-	public TropicalFishData(@Nullable Pattern fishPattern) {
+	public TropicalFishData(@Nullable Pattern fishPattern, @Nullable DyeColor bodyColor, @Nullable DyeColor patternColor) {
 		this.fishPattern = fishPattern;
+		this.bodyColor = bodyColor;
+		this.patternColor = patternColor;
 		super.dataCodeName = PATTERNS.getMatchedPatterns(fishPattern)[0];
 	}
 

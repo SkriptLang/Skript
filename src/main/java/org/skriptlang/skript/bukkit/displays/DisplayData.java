@@ -10,6 +10,7 @@ import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
@@ -38,8 +39,7 @@ public class DisplayData extends EntityData<Display> {
 		ITEM("org.bukkit.entity.ItemDisplay", "item display"),
 		TEXT("org.bukkit.entity.TextDisplay", "text display");
 
-		@Nullable
-		private Class<? extends Display> displaySubClass;
+		private @Nullable Class<? extends Display> displaySubClass;
 		private final String codeName;
 		
 		@SuppressWarnings("unchecked")
@@ -68,14 +68,11 @@ public class DisplayData extends EntityData<Display> {
 
 	private DisplayType type = DisplayType.ANY;
 
-	@Nullable
-	private BlockData blockData;
+	private @Nullable BlockData blockData;
 
-	@Nullable
-	private ItemStack item;
+	private @Nullable ItemStack item;
 
-	@Nullable
-	private String text;
+	private @Nullable String text;
 
 	public DisplayData() {}
 
@@ -191,6 +188,11 @@ public class DisplayData extends EntityData<Display> {
 	}
 
 	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new DisplayData(DisplayType.ANY);
+	}
+
+	@Override
 	protected int hashCode_i() {
 		return type.hashCode();
 	}
@@ -210,8 +212,8 @@ public class DisplayData extends EntityData<Display> {
 	}
 
 	@Override
-	public @NotNull EntityData<?> getSuperType() {
-		return new DisplayData(DisplayType.ANY);
+	public boolean canSpawn(@Nullable World world) {
+		return type != DisplayType.ANY;
 	}
 
 }

@@ -8,7 +8,6 @@ import org.bukkit.entity.Rabbit.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
 public class RabbitData extends EntityData<Rabbit> {
 
 	private static final Type[] TYPES = Type.values();

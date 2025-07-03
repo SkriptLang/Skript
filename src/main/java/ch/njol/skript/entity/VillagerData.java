@@ -22,7 +22,7 @@ public class VillagerData extends EntityData<Villager> {
 	private static final Profession[] PROFESSIONS;
 	private static final EntityPatterns<Profession> PATTERNS = new EntityPatterns<>(new Object[][]{
 		{"villager", null},
-		{"normal", Profession.NONE},
+		{"unemployed", Profession.NONE},
 		{"armorer", Profession.ARMORER},
 		{"butcher", Profession.BUTCHER},
 		{"cartographer", Profession.CARTOGRAPHER},

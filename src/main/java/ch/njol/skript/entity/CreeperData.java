@@ -1,5 +1,6 @@
 package ch.njol.skript.entity;
 
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.Creeper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,56 +10,50 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 
 import java.util.Objects;
 
-
 public class CreeperData extends EntityData<Creeper> {
 
-	public enum PoweredState {
-		UNKNOWN, POWERED, UNPOWERED
-	}
-
-	private static final EntityPatterns<PoweredState> PATTERNS = new EntityPatterns<>(new Object[][]{
-		{"creeper", PoweredState.UNKNOWN},
-		{"powered creeper", PoweredState.POWERED},
-		{"unpowered creeper", PoweredState.UNPOWERED}
+	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"creeper", Kleenean.UNKNOWN},
+		{"powered creeper", Kleenean.TRUE},
+		{"unpowered creeper", Kleenean.FALSE}
 	});
 
 	static {
 		EntityData.register(CreeperData.class, "creeper", Creeper.class, 0, PATTERNS.getPatterns());
 	}
 	
-	private PoweredState state = PoweredState.UNKNOWN;
+	private Kleenean powered = Kleenean.UNKNOWN;
 
 	public CreeperData() {}
 
-	public CreeperData(@Nullable CreeperData.PoweredState state)  {
-		this.state = state != null ? state : PoweredState.UNKNOWN;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(this.state)[0];
+	public CreeperData(@Nullable Kleenean powered)  {
+		this.powered = powered != null ? powered : Kleenean.UNKNOWN;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(this.powered)[0];
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		state = PATTERNS.getInfo(matchedCodeName);
+		powered = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 	
 	@Override
 	protected boolean init(@Nullable Class<? extends Creeper> entityClass, @Nullable Creeper creeper) {
-		state = PoweredState.UNKNOWN;
 		if (creeper != null) {
-			state = creeper.isPowered() ? PoweredState.POWERED : PoweredState.UNPOWERED;
-			super.dataCodeName = PATTERNS.getMatchedPatterns(state)[0];
+			powered = Kleenean.get(creeper.isPowered());
+			super.dataCodeName = PATTERNS.getMatchedPatterns(powered)[0];
 		}
 		return true;
 	}
 	
 	@Override
 	public void set(Creeper creeper) {
-		creeper.setPowered(state == PoweredState.POWERED);
+		creeper.setPowered(powered.isTrue());
 	}
 	
 	@Override
 	public boolean match(Creeper creeper) {
-		return state == PoweredState.UNKNOWN || creeper.isPowered() == (state == PoweredState.POWERED);
+		return powered == Kleenean.UNKNOWN || powered == Kleenean.get(creeper.isPowered());
 	}
 	
 	@Override
@@ -73,21 +68,21 @@ public class CreeperData extends EntityData<Creeper> {
 
 	@Override
 	protected int hashCode_i() {
-		return Objects.hashCode(state);
+		return Objects.hashCode(powered);
 	}
 
 	@Override
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (!(entityData instanceof CreeperData other))
 			return false;
-		return state == other.state;
+		return powered == other.powered;
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof CreeperData other))
 			return false;
-		return state == other.state;
+		return powered == Kleenean.UNKNOWN || powered == other.powered;
 	}
 
 }

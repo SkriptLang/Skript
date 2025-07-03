@@ -17,9 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-/**
- * @author Peter Güttinger
- */
 public class MinecartData extends EntityData<Minecart> {
 	
 	@SuppressWarnings("null")

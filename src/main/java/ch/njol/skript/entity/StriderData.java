@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.Strider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,53 +11,48 @@ import java.util.Objects;
 
 public class StriderData extends EntityData<Strider> {
 
-	public enum ShiveringState {
-		UNKNOWN, WARM, COLD
-	}
-
-	private static final EntityPatterns<ShiveringState> PATTERNS = new EntityPatterns<>(new Object[][]{
-		{"strider", ShiveringState.UNKNOWN},
-		{"warm strider", ShiveringState.WARM},
-		{"shivering strider", ShiveringState.COLD}
+	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"strider", Kleenean.UNKNOWN},
+		{"warm strider", Kleenean.FALSE},
+		{"shivering strider", Kleenean.TRUE}
 	});
 
 	static {
 		register(StriderData.class, "strider", Strider.class, 0, PATTERNS.getPatterns());
 	}
 
-	private ShiveringState state = ShiveringState.UNKNOWN;
+	private Kleenean shivering = Kleenean.UNKNOWN;
 
 	public StriderData() {}
 
-	public StriderData(@Nullable ShiveringState state) {
-		this.state = state != null ? state : ShiveringState.UNKNOWN;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(state)[0];
+	public StriderData(@Nullable Kleenean shivering) {
+		this.shivering = shivering != null ? shivering : Kleenean.UNKNOWN;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(shivering)[0];
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		state = PATTERNS.getInfo(matchedCodeName);
+		shivering = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Strider> entityClass, @Nullable Strider entity) {
-		state = ShiveringState.UNKNOWN;
-		if (entity != null) {
-			state = entity.isShivering() ? ShiveringState.COLD : ShiveringState.WARM;
-			super.dataCodeName = PATTERNS.getMatchedPatterns(state)[0];
+	protected boolean init(@Nullable Class<? extends Strider> entityClass, @Nullable Strider strider) {
+		if (strider != null) {
+			shivering = Kleenean.get(strider.isShivering());
+			super.dataCodeName = PATTERNS.getMatchedPatterns(shivering)[0];
 		}
 		return true;
 	}
 
 	@Override
 	public void set(Strider entity) {
-		entity.setShivering(state == ShiveringState.COLD);
+		entity.setShivering(shivering.isTrue());
 	}
 
 	@Override
-	protected boolean match(Strider entity) {
-		return state == ShiveringState.UNKNOWN || state == (entity.isShivering() ? ShiveringState.COLD : ShiveringState.WARM);
+	protected boolean match(Strider strider) {
+		return shivering == Kleenean.UNKNOWN || shivering == Kleenean.get(strider.isShivering());
 	}
 
 	@Override
@@ -71,21 +67,21 @@ public class StriderData extends EntityData<Strider> {
 
 	@Override
 	protected int hashCode_i() {
-		return Objects.hash(state);
+		return Objects.hash(shivering);
 	}
 
 	@Override
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (!(entityData instanceof StriderData other))
 			return false;
-		return state == other.state;
+		return shivering == other.shivering;
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof StriderData other))
 			return false;
-		return state == ShiveringState.UNKNOWN || state == other.state;
+		return shivering == Kleenean.UNKNOWN || shivering == other.shivering;
 	}
 
 }

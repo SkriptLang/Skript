@@ -77,6 +77,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		// Simple Entities
 
 		// Alpha + Beta
+		addSimpleEntity("zombie", Zombie.class);
 		addSuperEntity("skeleton", Skeleton.class);
 		addSimpleEntity("tnt", TNTPrimed.class);
 		addSimpleEntity("spider", Spider.class);
@@ -95,6 +96,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("egg", Egg.class);
 		addSimpleEntity("cave spider", CaveSpider.class);
 		addSimpleEntity("arrow", Arrow.class);
+		addSimpleEntity("squid", Squid.class);
 
 		// 1.0
 		addSimpleEntity("snow golem", Snowman.class);
@@ -102,7 +104,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("slime", Slime.class);
 		addSimpleEntity("magma cube", MagmaCube.class);
 		addSimpleEntity("ender eye", EnderSignal.class);
-		addSimpleEntity("mooshroom", MushroomCow.class);
 		addSimpleEntity("blaze", Blaze.class);
 
 		// 1.2
@@ -149,7 +150,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("polar bear", PolarBear.class);
 
 		// 1.11
-		addSimpleEntity("llama", Llama.class);
 		addSimpleEntity("llama spit", LlamaSpit.class);
 		addSimpleEntity("vindicator", Vindicator.class);
 		addSimpleEntity("vex", Vex.class);
@@ -161,7 +161,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		// 1.13
 		addSimpleEntity("trident", Trident.class);
-		addSimpleEntity("tropical fish", TropicalFish.class);
 		addSimpleEntity("puffer fish", PufferFish.class);
 		addSimpleEntity("cod", Cod.class);
 		addSimpleEntity("turtle", Turtle.class);
@@ -178,9 +177,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("piglin", Piglin.class);
 		addSimpleEntity("hoglin", Hoglin.class);
 		addSimpleEntity("zoglin", Zoglin.class);
-		addSimpleEntity("strider", Strider.class);
-
-		// 1.16.2
 		addSimpleEntity("piglin brute", PiglinBrute.class);
 
 		// 1.17
@@ -244,11 +240,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		if (Skript.isRunningMinecraft(1, 21, 6))
 			addSimpleEntity("happy ghast", HappyGhast.class);
 
-		// Register zombie after Husk and Drowned to make sure both work
-		addSimpleEntity("zombie", Zombie.class);
-		// Register squid after glow squid to make sure both work
-		addSimpleEntity("squid", Squid.class);
-
 		// SuperTypes
 		addSuperEntity("human", HumanEntity.class);
 		addSuperEntity("damageable", Damageable.class);
@@ -265,7 +256,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("any horse", AbstractHorse.class);
 		addSuperEntity("guardian", Guardian.class);
 		addSuperEntity("water mob" , WaterMob.class);
-		addSuperEntity("fish" , Fish.class);
 		addSuperEntity("any fireball", Fireball.class);
 		addSuperEntity("illager", Illager.class);
 		addSuperEntity("spellcaster", Spellcaster.class);
@@ -273,8 +263,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		// TODO - remove this when 1.19 support is dropped
 		if (Skript.classExists("org.bukkit.entity.Enemy")) // 1.19.3
 			addSuperEntity("enemy", Enemy.class);
-		if (Skript.classExists("org.bukkit.entity.Display")) // 1.19.4
-			addSuperEntity("display", Display.class);
 	}
 
 	static {
@@ -286,16 +274,16 @@ public class SimpleEntityData extends EntityData<Entity> {
 		EntityData.register(SimpleEntityData.class, "simple", Entity.class, 0, codeNames);
 	}
 	
-	private transient SimpleEntityDataInfo info;
+	private transient SimpleEntityDataInfo simpleInfo;
 	
 	public SimpleEntityData() {
 		this(Entity.class);
 	}
 	
-	private SimpleEntityData(SimpleEntityDataInfo info) {
-		assert info != null;
-		this.info = info;
-		dataCodeName = types.indexOf(info);
+	private SimpleEntityData(SimpleEntityDataInfo simpleInfo) {
+		assert simpleInfo != null;
+		this.simpleInfo = simpleInfo;
+		dataCodeName = types.indexOf(simpleInfo);
 	}
 	
 	public SimpleEntityData(Class<? extends Entity> entityClass) {
@@ -313,7 +301,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 			i++;
 		}
 		if (closestInfo != null) {
-			this.info = closestInfo;
+			this.simpleInfo = closestInfo;
 			this.dataCodeName = closestPattern;
 			return;
 		}
@@ -334,7 +322,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 			i++;
 		}
 		if (closestInfo != null) {
-			this.info = closestInfo;
+			this.simpleInfo = closestInfo;
 			this.dataCodeName = closestPattern;
 			return;
 		}
@@ -343,8 +331,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		info = types.get(matchedCodeName);
-		assert info != null : matchedCodeName;
+		simpleInfo = types.get(matchedCodeName);
+		assert simpleInfo != null : matchedCodeName;
 		return true;
 	}
 	
@@ -359,8 +347,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 	
 	@Override
 	public boolean match(Entity entity) {
-		if (info.isSupertype)
-			return info.c.isInstance(entity);
+		if (simpleInfo.isSupertype)
+			return simpleInfo.c.isInstance(entity);
 		SimpleEntityDataInfo closest = null;
 		for (SimpleEntityDataInfo info : types) {
 			if (info.c.isInstance(entity)) {
@@ -369,51 +357,51 @@ public class SimpleEntityData extends EntityData<Entity> {
 			}
 		}
 		if (closest != null)
-			return this.info.c == closest.c;
+			return this.simpleInfo.c == closest.c;
 		assert false;
 		return false;
 	}
 	
 	@Override
 	public Class<? extends Entity> getType() {
-		return info.c;
+		return simpleInfo.c;
 	}
 
 	@Override
 	public @NotNull EntityData<?> getSuperType() {
-		return new SimpleEntityData(info);
+		return new SimpleEntityData(simpleInfo);
 	}
 
 	@Override
 	protected int hashCode_i() {
-		return info.hashCode();
+		return simpleInfo.hashCode();
 	}
 
 	@Override
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (!(entityData instanceof SimpleEntityData other))
 			return false;
-		return info.equals(other.info);
+		return simpleInfo.equals(other.simpleInfo);
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
-		return info.c == entityData.getType() || info.isSupertype && info.c.isAssignableFrom(entityData.getType());
+		return simpleInfo.c == entityData.getType() || simpleInfo.isSupertype && simpleInfo.c.isAssignableFrom(entityData.getType());
 	}
 
 	@Override
 	public boolean canSpawn(@Nullable World world) {
-		if (info.allowSpawning.isUnknown()) // unspecified, refer to default behavior
+		if (simpleInfo.allowSpawning.isUnknown()) // unspecified, refer to default behavior
 			return super.canSpawn(world);
 		if (world == null)
 			return false;
-		return info.allowSpawning.isTrue();
+		return simpleInfo.allowSpawning.isTrue();
 	}
 
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		Fields fields = super.serialize();
-		fields.putObject("info.codeName", info.codeName);
+		fields.putObject("info.codeName", simpleInfo.codeName);
 		return fields;
 	}
 
@@ -422,7 +410,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		String codeName = fields.getAndRemoveObject("info.codeName", String.class);
 		for (SimpleEntityDataInfo info : types) {
 			if (info.codeName.equals(codeName)) {
-				this.info = info;
+				this.simpleInfo = info;
 				super.deserialize(fields);
 				return;
 			}

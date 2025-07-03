@@ -63,3 +63,6 @@
 
 # Documentation
 /src/main/java/ch/njol/skript/doc/ @Pikachu920 @AyhamAl-Ali @Efnilite @skriptlang/core-developers
+
+# EntityData
+/src/main/java/ch/njol/skript/entity @Absolutionism @skriptlang/core-developers
