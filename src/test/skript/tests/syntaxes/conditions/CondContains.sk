@@ -65,7 +65,7 @@ test "contains condition":
 
 	# Object (item)
 	set {_item} to diamond block of sharpness 3
-	add {_item} to {_list1::*} and {_list2::*}
+	add {_item} and {_item2} to {_list1::*} and {_list2::*}
 	assert {_list1::*} and {_list2::*} contain {_item} with "19"
 	assert {_list1::*} and {_list2::*} contain {_item} and {_item2} with "20"
 	assert {_list1::*} and {_list2::*} contain {_item} or {_item2} with "21"
