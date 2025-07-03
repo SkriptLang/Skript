@@ -26,11 +26,15 @@ test "bee data":
 	compareData((happy bee, happy bee with nectar, happy bee without nectar), (happy bee))
 	compareData((angry bee, angry bee with nectar, angry bee without nectar) , (angry bee))
 
-test "boat chest data":
-	compareData((chest boat, oak chest boat, spruce chest boat, birch chest boat, jungle chest boat, acacia chest boat, dark oak chest boat, cherry chest boat, mangrove chest boat, bamboo chest boat, pale oak chest boat), (any chest boat))
+test "boat data":
+	compareData((chest boat, acacia chest boat, bamboo chest boat, birch chest boat, cherry chest boat, dark oak chest boat, jungle chest boat, mangrove chest boat, oak chest boat, spruce chest boat) , (any boat, any chest boat))
+	parse if running minecraft "1.21.2":
+		compareData((pale oak chest boat), (any boat, any chest boat))
 
 test "boat data":
-	compareData((boat, oak boat, spruce boat, birch boat, jungle boat, acacia boat, dark oak boat, cherry boat, mangrove boat, bamboo boat, pale oak boat), (any boat))
+	compareData((boat, acacia boat, bamboo boat, birch boat, cherry boat, dark oak boat, jungle boat, mangrove boat, oak boat, spruce boat) , (any boat))
+	parse if running minecraft "1.21.2":
+		compareData((pale oak boat), (any boat))
 
 test "cat data":
 	compareData((cat, tabby cat, black cat, red cat, siamese cat, british shorthair cat, calico cat, persian cat, ragdoll cat, white cat, jellie cat, all black cat) , (cat))
