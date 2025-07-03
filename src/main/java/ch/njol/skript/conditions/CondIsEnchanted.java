@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("tool of the player is enchanted with efficiency 2")
 @Example("if player's helmet or player's boots are enchanted with protection 3 or better:")
 @Example("if player's chestplate is enchanted with protection")
-@Since("1.4.6, INSERT VERSION ('or better')")
+@Since("1.4.6, 2.12 ('or better')")
 public class CondIsEnchanted extends Condition {
 
 	private enum Comparison {

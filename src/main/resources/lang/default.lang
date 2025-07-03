@@ -374,6 +374,7 @@ time:
 		short: y
 	real: real, rl, irl
 	minecraft: mc, minecraft
+	forever: forever
 
 # -- Chat and Wool Colours --
 colors:
@@ -2909,13 +2910,14 @@ fishing states:
 
 # -- Equipment Slots --
 equipment slots:
-	head: helmet slot, head slot, helmet
-	chest: chestplate slot, chest slot, chestplate
-	legs: leggings slot, legs slot, leggings
-	feet: feet slot, boots slot, boots
-	hand: tool slot, hand slot, main hand slot, main hand
-	off_hand: off hand slot, off hand
-	body: body slot, body armor slot, body armour slot
+	head: helmet slot, helmet slots, head slot, head slots, helmet, helmets
+	chest: chestplate slot, chestplate slots, chest slot, chest slots, chestplate, chestplates
+	legs: leggings slot, leggings slots, leggings, legs slot, legs slots, legs
+	feet: feet slot, feet slots, feet, boots slot, boots slots, boots, shoes slot, shoes
+	hand: tool slot, tool slots, hand slot, hand slots, main hand slot, main hand slots, main hand, main hands
+	off_hand: off hand slot, off hand slots, off hand, off haands
+	body: body slot, body slots, body armor slot, body armor slots, body armour slot, body armour slots, body armor, body armors, body armour, body armours
+	saddle: saddle slot, saddle slots
 
 # -- Pig Variants --
 pig variants:
@@ -2940,6 +2942,58 @@ villager career change reasons:
 	employed: employment
 	losing_job: losing job
 
+# -- Damage Types --
+damage types:
+	arrow: arrow
+	bad_respawn_point: bad respawn point
+	cactus: cactus
+	campfire: campfire
+	cramming: cramming, entity cramming
+	dragon_breath: dragon breath
+	drown: drown, drowning
+	dry_out: dry out
+	ender_pearl: ender pearl
+	explosion: explosion
+	fall: fall
+	falling_anvil: falling anvil
+	falling_block: falling block
+	falling_stalactite: falling stalactite
+	fireball: fireball
+	fireworks: fireworks
+	fly_into_wall: fly into wall
+	freeze: freeze
+	generic: generic
+	generic_kill: generic kill
+	hot_floor: hot floor
+	in_fire: in fire
+	in_wall: in wall, suffocation
+	indirect_magic: indirect magic
+	lava: lava
+	lightning_bolt: lightning, lightning bolt
+	mace_smash: mace smash
+	magic: magic
+	mob_attack: mob attack
+	mob_attack_no_aggro: mob attack no aggro
+	mob_projectile: mob projectile
+	on_fire: on fire
+	out_of_world: out of world, void
+	outside_border: outside border
+	player_attack: player attack
+	player_explosion: player explosion
+	sonic_boom: sonic boom
+	spit: spit, llama spit
+	stalagmite: stalagmite
+	starve: starve
+	sting: sting
+	sweet_berry_bush: sweet berry bush
+	thorns: thorns
+	thrown: thrown
+	trident: trident
+	unattributed_fireball: unattributed fireball
+	wind_charge: wind charge
+	wither: wither
+	wither_skull: wither skull
+
 # -- Boolean --
 boolean:
 	true:
@@ -2956,6 +3010,14 @@ operators:
 	multiply: multiplication
 	divide: division
 	exponentiate: exponentiation
+
+# -- Verbosity --
+verbosity:
+	low: low
+	normal: normal
+	high: high
+	very_high: very high
+	debug: debug
 
 # -- Types --
 types:
@@ -3047,6 +3109,8 @@ types:
 	chickenvariant: chicken variant¦s @a
 	cowvariant: cow variant¦s @a
 	villagercareerchangereason: villager career change reason¦s @a
+	damagesource: damage source¦s @a
+	damagetype: damage type¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

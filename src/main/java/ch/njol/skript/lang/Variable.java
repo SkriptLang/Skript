@@ -3,7 +3,6 @@ package ch.njol.skript.lang;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -16,7 +15,8 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.variables.VariablesStorage;
+import com.google.common.collect.Iterators;
+import org.apache.commons.lang3.ArrayUtils;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
@@ -27,7 +27,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.TypeHints;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -41,20 +40,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.OperationInfo;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
-
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
@@ -80,6 +70,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	private final boolean list;
 
 	private final @Nullable Variable<?> source;
+	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean list, @Nullable Variable<?> source) {
@@ -97,7 +88,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		this.name = name;
 
 		this.types = types;
-		this.superType = (Class<T>) Utils.getSuperType(types);
+		this.superType = (Class<T>) Classes.getSuperClassInfo(types).getC();
 
 		this.source = source;
 	}
@@ -196,42 +187,39 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 		// Check for local variable type hints
 		if (isLocal && variableString.isSimple()) { // Only variable names we fully know already
-			Class<?> hint = TypeHints.get(variableString.toString());
-			if (hint != null && !hint.equals(Object.class)) { // Type hint available
-				// See if we can get correct type without conversion
-				for (Class<? extends T> type : types) {
-					assert type != null;
-					if (type.isAssignableFrom(hint)) {
-						// Hint matches, use variable with exactly correct type
-						return new Variable<>(variableString, CollectionUtils.array(type), true, isPlural, null);
-					}
+			Set<Class<?>> hints = parser.getHintManager().get(variableString.toString(null));
+			if (!hints.isEmpty()) { // Type hint(s) available
+				if (types[0] == Object.class) { // Object is generic, so we initialize with the hints instead
+					//noinspection unchecked
+					return new Variable<>(variableString, hints.toArray(new Class[0]), true, isPlural, null);
 				}
 
-				// Or with conversion?
-				for (Class<? extends T> type : types) {
-					if (Converters.converterExists(hint, type)) {
-						// Hint matches, even though converter is needed
-						return new Variable<>(variableString, CollectionUtils.array(type), true, isPlural, null);
-					}
+				List<Class<? extends T>> potentialTypes = new ArrayList<>();
 
-					// Special cases
-					if (type.isAssignableFrom(World.class) && hint.isAssignableFrom(String.class)) {
-						// String->World conversion is weird spaghetti code
-						return new Variable<>(variableString, types, true, isPlural, null);
-					} else if (type.isAssignableFrom(Player.class) && hint.isAssignableFrom(String.class)) {
-						// String->Player conversion is not available at this point
-						return new Variable<>(variableString, types, true, isPlural, null);
+				// Determine what types are applicable based on our known hints
+				for (Class<? extends T> type : types) {
+					// Check whether we could resolve to 'type' at runtime
+					if (hints.stream().anyMatch(hint -> type.isAssignableFrom(hint) || Converters.converterExists(hint, type))) {
+						potentialTypes.add(type);
 					}
+				}
+				if (!potentialTypes.isEmpty()) { // Hint matches, use variable with exactly correct type
+					//noinspection unchecked
+					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isPlural, null);
 				}
 
 				// Hint exists and does NOT match any types requested
 				ClassInfo<?>[] infos = new ClassInfo[types.length];
 				for (int i = 0; i < types.length; i++) {
-					infos[i] = Classes.getExactClassInfo(types[i]);
+					infos[i] = Classes.getSuperClassInfo(types[i]);
 				}
-				Skript.warning("Variable '{_" + name + "}' is " + Classes.toString(Classes.getExactClassInfo(hint))
-					+ ", not " + Classes.toString(infos, false));
-				// Fall back to not having any type hints
+				ClassInfo<?>[] hintInfos = hints.stream()
+						.map(Classes::getSuperClassInfo)
+						.toArray(ClassInfo[]::new);
+				String isTypes = Utils.a(Classes.toString(hintInfos, false));
+				String notTypes = Utils.a(Classes.toString(infos, false));
+				Skript.error("Expected variable '{_" + variableString.toString(null) + "}' to be " + notTypes + ", but it is " + isTypes);
+				return null;
 			}
 		}
 
@@ -296,6 +284,18 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R> Variable<R> getConvertedExpression(Class<R>... to) {
+		boolean converterExists = superType == Object.class;
+		if (!converterExists) {
+			for (Class<?> type : types) {
+				if (Converters.converterExists(type, to)) {
+					converterExists = true;
+					break;
+				}
+			}
+		}
+		if (!converterExists) {
+			return null;
+		}
 		return new Variable<>(name, to, local, list, this);
 	}
 
@@ -374,6 +374,22 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		return object;
 	}
 
+	@Override
+	public Iterator<KeyedValue<T>> keyedIterator(Event event) {
+		if (!list)
+			throw new SkriptAPIException("Invalid call to keyedIterator");
+		Iterator<KeyedValue<T>> transformed = Iterators.transform(variablesIterator(event), pair -> {
+			Object value = pair.getValue();
+			if (value instanceof Map<?, ?> map)
+				value = map.get(null);
+			T converted = Converters.convert(value, types);
+			if (converted == null)
+				return null;
+			return new KeyedValue<>(pair.getKey(), converted);
+		});
+		return Iterators.filter(transformed, Objects::nonNull);
+	}
+
 	public Iterator<Pair<String, Object>> variablesIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Looping a non-list variable");
@@ -440,7 +456,29 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private T[] getConvertedArray(Event event) {
 		assert list;
-		return Converters.convert((Object[]) get(event), types, superType);
+		Object[] values = (Object[]) get(event);
+		String[] keys = getKeys(event);
+		assert values != null;
+		//noinspection unchecked
+		T[] converted = (T[]) Array.newInstance(superType, values.length);
+		Converters.convert(values, converted, types);
+		for (int i = 0; i < converted.length; i++) {
+			if (converted[i] == null)
+				keys[i] = null;
+		}
+		cache.put(event, ArrayUtils.removeAllOccurrences(keys, null));
+		return ArrayUtils.removeAllOccurrences(converted, null);
+	}
+
+	private String[] getKeys(Event event) {
+		assert list;
+		String name = StringUtils.substring(this.name.toString(event), 0, -1);
+		Object value = Variables.getVariable(name + "*", event, local);
+		if (value == null)
+			return new String[0];
+		assert value instanceof Map<?,?>;
+		//noinspection unchecked
+		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
 	}
 
 	private void set(Event event, @Nullable Object value) {
@@ -664,12 +702,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			set(event, changeFunction.apply(value));
 			return;
 		}
-		variablesIterator(event).forEachRemaining(pair -> {
-			String index = pair.getKey();
-			T value = Converters.convert(pair.getValue(), types);
-			if (value == null)
-				return;
-			Object newValue = changeFunction.apply(value);
+		keyedIterator(event).forEachRemaining(keyedValue -> {
+			String index = keyedValue.key();
+			Object newValue = changeFunction.apply(keyedValue.value());
 			setIndex(event, index, newValue);
 		});
 	}
@@ -685,17 +720,19 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public @NotNull String @NotNull [] getArrayKeys(Event event) throws SkriptAPIException {
 		if (!list)
 			throw new SkriptAPIException("Invalid call to getArrayKeys on non-list");
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object value = Variables.getVariable(name + "*", event, local);
-		if (value == null)
-			return new String[0];
-		assert value instanceof Map<?,?>;
-		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
+		if (!cache.containsKey(event))
+			throw new IllegalStateException();
+		return cache.remove(event);
 	}
 
 	@Override
 	public @NotNull String @NotNull [] getAllKeys(Event event) {
 		return this.getArrayKeys(event);
+	}
+
+	@Override
+	public boolean canReturnKeys() {
+		return list;
 	}
 
 	@Override
@@ -724,11 +761,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	@Override
 	public boolean isLoopOf(String input) {
-		return input.equalsIgnoreCase("var") || input.equalsIgnoreCase("variable") || input.equalsIgnoreCase("value") || input.equalsIgnoreCase("index");
-	}
-
-	public boolean isIndexLoop(String input) {
-		return input.equalsIgnoreCase("index");
+		return KeyProviderExpression.super.isLoopOf(input)
+			|| input.equalsIgnoreCase("var")
+			|| input.equalsIgnoreCase("variable")
+			|| input.equalsIgnoreCase("value");
 	}
 
 	@Override

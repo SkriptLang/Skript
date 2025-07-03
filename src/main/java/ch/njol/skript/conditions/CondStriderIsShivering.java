@@ -14,7 +14,7 @@ import org.bukkit.entity.Strider;
 	if last spawned strider is shivering:
 		make last spawned strider stop shivering
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 public class CondStriderIsShivering extends PropertyCondition<LivingEntity> {
 
 	static {

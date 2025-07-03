@@ -67,7 +67,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class BukkitClasses {
 
@@ -1297,31 +1296,39 @@ public class BukkitClasses {
 			.documentationId("CatType"));
 
 
+		PatternedParser<GameRule> gameRuleParser = new PatternedParser<>() {
+			
+			private String[] patterns = Arrays.stream(GameRule.values()).map(GameRule::getName).toArray(String[]::new);
+			
+			@Override
+			public @Nullable GameRule parse(String string, ParseContext context) {
+				return GameRule.getByName(string);
+			}
+
+			@Override
+			public String toString(GameRule gameRule, int flags) {
+				return gameRule.getName();
+			}
+
+			@Override
+			public String toVariableNameString(GameRule gameRule) {
+				return gameRule.getName();
+			}
+
+			@Override
+			public String[] getPatterns() {
+				return patterns;
+			}
+		};
 		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
 			.user("gamerules?")
 			.name("Gamerule")
 			.description("A gamerule")
-			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
+			.usage(gameRuleParser.getCombinedPatterns())
 			.since("2.5")
 			.requiredPlugins("Minecraft 1.13 or newer")
 			.supplier(GameRule.values())
-			.parser(new Parser<GameRule>() {
-				@Override
-				@Nullable
-				public GameRule parse(final String input, final ParseContext context) {
-					return GameRule.getByName(input);
-				}
-
-				@Override
-				public String toString(GameRule o, int flags) {
-					return o.getName();
-				}
-
-				@Override
-				public String toVariableNameString(GameRule o) {
-					return o.getName();
-				}
-			})
+			.parser(gameRuleParser)
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
@@ -1574,7 +1581,7 @@ public class BukkitClasses {
 			.name("Pig Variant")
 			.description("Represents the variant of a pig entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
 
@@ -1593,7 +1600,7 @@ public class BukkitClasses {
 			.name("Chicken Variant")
 			.description("Represents the variant of a chicken entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("ChickenVariant")
 		);
@@ -1613,7 +1620,7 @@ public class BukkitClasses {
 			.name("Cow Variant")
 			.description("Represents the variant of a cow entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("CowVariant")
 		);
@@ -1622,7 +1629,7 @@ public class BukkitClasses {
 			.user("(villager )?career ?change ?reasons?")
 			.name("Villager Career Change Reason")
 			.description("Represents a reason why a villager changed its career.")
-			.since("INSERT VERSION")
+			.since("2.12")
 		);
 
 	}
