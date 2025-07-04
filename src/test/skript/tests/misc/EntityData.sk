@@ -4,7 +4,7 @@ local function compareData(data1: entity types, data2: entity types):
 		if loop-value is spawnable:
 			spawn (loop-value) at test-location:
 				set {_entity} to event-entity
-			assert {_entity} is loop-value with "Spawned '%{_entity}%' should match against own EntityData '%loop-value%'"
+			assert {_entity} is loop-value with "Spawned '%loop-value%' should match against own EntityData '%loop-value%'"
 		loop {_data2::*}:
 			assert loop-value-1 is loop-value-2 with "EntityData '%loop-value-1%' should match against EntityData '%loop-value-2%'"
 			if {_entity} is set:
@@ -188,9 +188,9 @@ test "tropical fish data":
 	compareData((red-blue tropical fish, red-blue kob, red-blue sunstreak, red-blue snooper, red-blue dasher, red-blue brinely, red-blue spotty, red-blue flopper, red-blue stripey, red-blue glitter, red-blue blockfish, red-blue betty, red-blue clayfish) , (tropical fish, red tropical fish, red-blue tropical fish))
 
 test "villager data":
-	compareData((villager, jobless villager, armorer, cartographer, cleric, fisherman, fletcher, leatherworker, mason, shepherd, toolsmith, weaponsmith, farmer, librarian, butcher, nitwit) , (villager))
-	compareData((baby villager, baby jobless villager, baby armorer, baby cartographer, baby cleric, baby fisherman, baby fletcher, baby leatherworker, baby mason, baby shepherd, baby toolsmith, baby weaponsmith, baby farmer, baby librarian, baby butcher, baby nitwit) , (villager, baby villager))
-	compareData((adult villager, adult jobless villager, adult armorer, adult cartographer, adult cleric, adult fisherman, adult fletcher, adult leatherworker, adult mason, adult shepherd, adult toolsmith, adult weaponsmith, adult farmer, adult librarian, adult butcher, adult nitwit) , (villager, adult villager))
+	compareData((villager, jobless villager, armorer, cartographer, cleric, fisherman, fletcher, mason, shepherd, toolsmith, weaponsmith, farmer, librarian, butcher, nitwit) , (villager))
+	compareData((baby villager, baby jobless villager, baby armorer, baby cartographer, baby cleric, baby fisherman, baby fletcher, baby mason, baby shepherd, baby toolsmith, baby weaponsmith, baby farmer, baby librarian, baby butcher, baby nitwit) , (villager, baby villager))
+	compareData((adult villager, adult jobless villager, adult armorer, adult cartographer, adult cleric, adult fisherman, adult fletcher, adult mason, adult shepherd, adult toolsmith, adult weaponsmith, adult farmer, adult librarian, adult butcher, adult nitwit) , (villager, adult villager))
 
 test "wolf data":
 	compareData((wolf, dog, tamed wolf, wild wolf, angry wolf, peaceful wolf) , (wolf))
@@ -213,9 +213,9 @@ test "wolf data":
 		compareData((baby ashen wolf color red, baby ashen dog color red, tamed baby ashen wolf color red, ashen pup color red, wild baby ashen wolf color red, angry baby ashen wolf color red, peaceful baby ashen wolf color red) , (wolf, ashen wolf, baby wolf, baby ashen wolf, wolf color red, ashen wolf color red, baby wolf color red, baby ashen wolf color red))
 
 test "zombie villager data":
-	compareData((zombie villager, normal zombie villager, zombie farmer, zombie librarian, zombie butcher, zombie nitwit, zombie armorer, zombie cartographer, zombie cleric, zombie fisherman, zombie fletcher, zombie leatherworker, zombie mason, zombie shepherd, zombie toolsmith, zombie weaponsmith) , (zombie villager))
-	compareData((baby zombie villager, baby normal zombie villager, baby zombie farmer, baby zombie librarian, baby zombie butcher, baby zombie nitwit, baby zombie armorer, baby zombie cartographer, baby zombie cleric, baby zombie fisherman, baby zombie fletcher, baby zombie leatherworker, baby zombie mason, baby zombie shepherd, baby zombie toolsmith, baby zombie weaponsmith) , (zombie villager, baby zombie villager))
-	compareData((adult zombie villager, adult normal zombie villager, adult zombie farmer, adult zombie librarian, adult zombie butcher, adult zombie nitwit, adult zombie armorer, adult zombie cartographer, adult zombie cleric, adult zombie fisherman, adult zombie fletcher, adult zombie leatherworker, adult zombie mason, adult zombie shepherd, adult zombie toolsmith, adult zombie weaponsmith) , (zombie villager, adult zombie villager))
+	compareData((zombie villager, normal zombie villager, zombie farmer, zombie librarian, zombie butcher, zombie nitwit, zombie armorer, zombie cartographer, zombie cleric, zombie fisherman, zombie fletcher, zombie mason, zombie shepherd, zombie toolsmith, zombie weaponsmith) , (zombie villager))
+	compareData((baby zombie villager, baby normal zombie villager, baby zombie farmer, baby zombie librarian, baby zombie butcher, baby zombie nitwit, baby zombie armorer, baby zombie cartographer, baby zombie cleric, baby zombie fisherman, baby zombie fletcher, baby zombie mason, baby zombie shepherd, baby zombie toolsmith, baby zombie weaponsmith) , (zombie villager, baby zombie villager))
+	compareData((adult zombie villager, adult normal zombie villager, adult zombie farmer, adult zombie librarian, adult zombie butcher, adult zombie nitwit, adult zombie armorer, adult zombie cartographer, adult zombie cleric, adult zombie fisherman, adult zombie fletcher, adult zombie mason, adult zombie shepherd, adult zombie toolsmith, adult zombie weaponsmith) , (zombie villager, adult zombie villager))
 
 test "display data":
 	compareData((display, text display, block display, block display entity, block display of stone, stone block display, item display, item display entity, item display of stone, stone item display) , (display, display entity))
