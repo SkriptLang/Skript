@@ -6,6 +6,10 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * @deprecated Use {@link DefaultFunction} instead.
+ */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public abstract class JavaFunction<T> extends Function<T> {
 
 	private @NotNull String @Nullable [] returnedKeys;

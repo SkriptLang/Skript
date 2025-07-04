@@ -7,10 +7,9 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A {@link JavaFunction} which doesn't make use of
- * the {@link FunctionEvent} instance and that cannot
- * accept empty / {@code null} parameters.
+ * @deprecated Use {@link DefaultFunction} instead.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 	
 	public SimpleJavaFunction(Signature<T> sign) {
