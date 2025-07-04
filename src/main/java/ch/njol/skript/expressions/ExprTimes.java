@@ -104,6 +104,12 @@ public class ExprTimes extends SimpleExpression<Long> {
 	}
 
 	@Override
+	public Expression<? extends Long> simplify() {
+		// intentionally not simplified as it would be more work than using the iterator.
+		return this;
+	}
+
+	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return end.toString(e, debug) + " times";
 	}

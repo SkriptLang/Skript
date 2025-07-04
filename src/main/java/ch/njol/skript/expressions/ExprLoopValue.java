@@ -1,7 +1,8 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import org.skriptlang.skript.lang.converter.Converter;
+import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -10,7 +11,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,7 +61,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		NEXT("next"),
 		PREVIOUS("previous");
 
-		private String pattern;
+		private final String pattern;
 
 		LoopState(String pattern) {
 			this.pattern = pattern;
@@ -78,15 +77,13 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		}
 		Skript.registerExpression(ExprLoopValue.class, Object.class, ExpressionType.SIMPLE, patterns);
 	}
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
 	private String name;
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
 	private SecLoop loop;
-	
-	// whether this loops a variable
-	boolean isVariableLoop = false;
+
+	// whether this loops a keyed expression (e.g. a variable)
+	boolean isKeyedLoop = false;
 	// if this loops a variable and isIndex is true, return the index of the variable instead of the value
 	boolean isIndex = false;
 
@@ -114,7 +111,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		SecLoop loop = null;
 
 		for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-			if ((c != null && c.isAssignableFrom(l.getLoopedExpression().getReturnType())) || "value".equalsIgnoreCase(s) || l.getLoopedExpression().isLoopOf(s)) {
+			if ((c != null && l.getLoopedExpression().canReturn(c)) || "value".equalsIgnoreCase(s) || l.getLoopedExpression().isLoopOf(s)) {
 				if (j < i) {
 					j++;
 					continue;
@@ -136,9 +133,9 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			Skript.error("The expression '" + loop.getExpression().toString() + "' does not allow the usage of 'next loop-" + s + "'.");
 			return false;
 		}
-		if (loop.getLoopedExpression() instanceof Variable) {
-			isVariableLoop = true;
-			if (((Variable<?>) loop.getLoopedExpression()).isIndexLoop(s))
+		if (loop.isKeyedLoop()) {
+			isKeyedLoop = true;
+			if (((KeyProviderExpression<?>) loop.getLoopedExpression()).isIndexLoop(s))
 				isIndex = true;
 		}
 		this.loop = loop;
@@ -154,33 +151,41 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	protected <R> ConvertedExpression<Object, ? extends R> getConvertedExpr(Class<R>... to) {
-		if (isVariableLoop && !isIndex) {
+		if (isKeyedLoop && !isIndex) {
 			Class<R> superType = (Class<R>) Utils.getSuperType(to);
 			return new ConvertedExpression<>(this, superType,
-					new ConverterInfo<>(Object.class, superType, new Converter<Object, R>() {
-				@Override
-				@Nullable
-				public R convert(Object o) {
-					return Converters.convert(o, to);
-				}
-			}, 0));
+					new ConverterInfo<>(Object.class, superType, o -> Converters.convert(o, to), 0));
 		} else {
 			return super.getConvertedExpr(to);
 		}
 	}
 	
 	@Override
-	public Class<? extends Object> getReturnType() {
+	public Class<?> getReturnType() {
 		if (isIndex)
 			return String.class;
 		return loop.getLoopedExpression().getReturnType();
 	}
-	
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		if (isIndex)
+			return new Class[]{String.class};
+		return loop.getLoopedExpression().possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		if (isIndex)
+			return super.canReturn(returnType);
+		return loop.getLoopedExpression().canReturn(returnType);
+	}
+
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		if (isVariableLoop) {
+		if (isKeyedLoop) {
 			//noinspection unchecked
-			Entry<String, Object> value = (Entry<String, Object>) switch (selectedState) {
+			KeyedValue<Object> value = (KeyedValue<Object>) switch (selectedState) {
 				case CURRENT ->  loop.getCurrent(event);
 				case NEXT -> loop.getNext(event);
 				case PREVIOUS -> loop.getPrevious(event);
@@ -188,9 +193,9 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			if (value == null)
 				return null;
 			if (isIndex)
-				return new String[] {value.getKey()};
+				return new String[] {value.key()};
 			Object[] one = (Object[]) Array.newInstance(getReturnType(), 1);
-			one[0] = value.getValue();
+			one[0] = value.value();
 			return one;
 		}
 
@@ -202,21 +207,21 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		};
 		return one;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (event == null)
 			return name;
-		if (isVariableLoop) {
+		if (isKeyedLoop) {
 			//noinspection unchecked
-			Entry<String, Object> value = (Entry<String, Object>) switch (selectedState) {
+			KeyedValue<Object> value = (KeyedValue<Object>) switch (selectedState) {
 				case CURRENT ->  loop.getCurrent(event);
 				case NEXT -> loop.getNext(event);
 				case PREVIOUS -> loop.getPrevious(event);
 			};
 			if (value == null)
 				return Classes.getDebugMessage(null);
-			return isIndex ? "\"" + value.getKey() + "\"" : Classes.getDebugMessage(value.getValue());
+			return isIndex ? "\"" + value.key() + "\"" : Classes.getDebugMessage(value.value());
 		}
 		return Classes.getDebugMessage(switch (selectedState) {
 			case CURRENT -> loop.getCurrent(event);
@@ -224,5 +229,5 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 			case PREVIOUS -> loop.getPrevious(event);
 		});
 	}
-	
+
 }

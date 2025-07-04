@@ -4,6 +4,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Strider;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -57,7 +58,7 @@ public class StriderData extends EntityData<Strider> {
 	}
 
 	@Override
-	public EntityData<? super Strider> getSuperType() {
+	public @NotNull EntityData<? super Strider> getSuperType() {
 		return new StriderData(shivering);
 	}
 

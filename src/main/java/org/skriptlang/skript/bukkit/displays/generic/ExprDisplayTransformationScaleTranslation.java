@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 @Name("Display Transformation Scale/Translation")
-@Description("Returns or changes the transformation scale or translation of <a href='classes.html#display'>displays</a>.")
+@Description("Returns or changes the transformation scale or translation of <a href='#display'>displays</a>.")
 @Examples("set transformation translation of display to vector from -0.5, -0.5, -0.5 # Center the display in the same position as a block")
 @Since("2.10")
 public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExpression<Display, Vector> {
