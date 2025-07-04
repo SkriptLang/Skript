@@ -473,6 +473,8 @@ directions:
 #	the tag "unknown_plural" is to indicate the pattern is grammatically correct for both singular and plural
 #		without a suffix, such as "sheep"
 #	the tag "baby" is to indicate the pattern is referencing the baby state of an entity
+#	the tag "adult" is to indicate the pattern is referencing the adult state of an entity
+#	the tag "unknown_age" is to indicate the pattern is not referencing a specific age state of an entity
 entities:
 	age pattern: (unknown_age:|baby:(baby|young)|adult:(adult|grown(-| )up))
 	age adjectives:

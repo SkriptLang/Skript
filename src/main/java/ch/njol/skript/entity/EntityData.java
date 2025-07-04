@@ -345,7 +345,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@Override
 	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.plural = parseResult.hasTag("unknown_plural") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("plural"));
-		this.baby = parseResult.hasTag("unknown_age") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("baby"));
+		if (parseResult.hasTag("baby")) {
+			this.baby = Kleenean.TRUE;
+		} else if (parseResult.hasTag("adult")) {
+			this.baby = Kleenean.FALSE;
+		} else {
+			this.baby = Kleenean.UNKNOWN;
+		}
 		String codeName = info.getCodeNameFromPattern(matchedPattern);
 		int matchedCodeName = info.getCodeNamePlacement(codeName);
 		int patternInCodeName = info.getPatternInCodeName(matchedPattern);

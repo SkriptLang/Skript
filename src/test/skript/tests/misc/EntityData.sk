@@ -4,12 +4,14 @@ local function compareData(data1: entity types, data2: entity types):
 		if loop-value is spawnable:
 			spawn (loop-value) at test-location:
 				set {_entity} to event-entity
+			assert {_entity} is set with "Could not spawn '%loop-value%'"
 			assert {_entity} is loop-value with "Spawned '%loop-value%' should match against own EntityData '%loop-value%'"
 		loop {_data2::*}:
 			assert loop-value-1 is loop-value-2 with "EntityData '%loop-value-1%' should match against EntityData '%loop-value-2%'"
 			if {_entity} is set:
 				assert {_entity} is loop-value-2 with "Spawned '%{_entity}%' should match against EntityData '%loop-value-2%'"
 		clear entity within {_entity}
+		clear {_entity}
 
 test "axolotl data":
 	compareData((axolotl, lucy axolotl, wild axolotl, gold axolotl, cyan axolotl, blue axolotl) , (axolotl))
