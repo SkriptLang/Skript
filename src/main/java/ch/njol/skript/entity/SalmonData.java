@@ -39,7 +39,7 @@ public class SalmonData extends EntityData<Salmon> {
 
 	public SalmonData() {}
 
-	// TODO: When safe, 'variant' should have the type changed to 'Salmon.Variant'
+	// TODO: When safe, 'variant' should have the type changed to 'Salmon.Variant' when 1.21.2 is minimum supported version
 	public SalmonData(@Nullable Object variant) {
 		this.variant = variant;
 		super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];

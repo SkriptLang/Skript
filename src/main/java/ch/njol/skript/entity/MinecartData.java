@@ -2,7 +2,6 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.minecart.CommandMinecart;
@@ -15,48 +14,39 @@ import org.bukkit.entity.minecart.StorageMinecart;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-
 public class MinecartData extends EntityData<Minecart> {
 
-	private static enum MinecartType {
-		ANY(Minecart.class, "minecart"),
-		NORMAL(RideableMinecart.class, "regular minecart"),
-		STORAGE(StorageMinecart.class, "storage minecart"),
-		POWERED(PoweredMinecart.class, "powered minecart"),
-		HOPPER(HopperMinecart.class, "hopper minecart"),
-		EXPLOSIVE(ExplosiveMinecart.class, "explosive minecart"),
-		SPAWNER(SpawnerMinecart.class, "spawner minecart"),
-		COMMAND(CommandMinecart.class, "command minecart");
+	public enum MinecartType {
+		ANY(Minecart.class),
+		NORMAL(RideableMinecart.class),
+		STORAGE(StorageMinecart.class),
+		POWERED(PoweredMinecart.class),
+		HOPPER(HopperMinecart.class),
+		EXPLOSIVE(ExplosiveMinecart.class),
+		SPAWNER(SpawnerMinecart.class),
+		COMMAND(CommandMinecart.class);
 
-		final @Nullable Class<? extends Minecart> entityClass;
-		private final String codeName;
+		private final Class<? extends Minecart> entityClass;
 		
-		MinecartType(@Nullable Class<? extends Minecart> entityClass, final String codeName) {
+		MinecartType(Class<? extends Minecart> entityClass) {
 			this.entityClass = entityClass;
-			this.codeName = codeName;
-		}
-		
-		@Override
-		public String toString() {
-			return codeName;
-		}
-		
-		public static String[] codeNames;
-		static {
-			final ArrayList<String> cn = new ArrayList<>();
-			for (final MinecartType t : values()) {
-				if (t.entityClass != null)
-					cn.add(t.codeName);
-			}
-			codeNames = cn.toArray(new String[0]);
 		}
 	}
 
 	private static final MinecartType[] TYPES = MinecartType.values();
+	private static final EntityPatterns<MinecartType> PATTERNS = new EntityPatterns<>(new Object[][]{
+		{"minecart", MinecartType.ANY},
+		{"regular minecart", MinecartType.NORMAL},
+		{"storage minecart", MinecartType.STORAGE},
+		{"powered minecart", MinecartType.POWERED},
+		{"hopper minecart", MinecartType.HOPPER},
+		{"explosive minecart", MinecartType.EXPLOSIVE},
+		{"spawner minecart", MinecartType.SPAWNER},
+		{"command minecart", MinecartType.COMMAND}
+	});
 	
 	static {
-		EntityData.register(MinecartData.class, "minecart", Minecart.class, 0, MinecartType.codeNames);
+		EntityData.register(MinecartData.class, "minecart", Minecart.class, 0, PATTERNS.getPatterns());
 		
 		Variables.yggdrasil.registerSingleClass(MinecartType.class, "MinecartType");
 	}
@@ -65,30 +55,32 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	public MinecartData() {}
 	
-	public MinecartData(MinecartType type) {
-		this.type = type;
-		this.dataCodeName = type.ordinal();
+	public MinecartData(@Nullable MinecartType type) {
+		this.type = type != null ? type : MinecartType.ANY;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		type = TYPES[matchedCodeName];
+		type = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 
 	@Override
 	protected boolean init(@Nullable Class<? extends Minecart> entityClass, @Nullable Minecart minecart) {
-		for (int i = TYPES.length - 1; i >= 0; i--) {
-			Class<?> typeClass = TYPES[i].entityClass;
-			if (typeClass == null)
+		for (MinecartType type : TYPES) {
+			if (type == MinecartType.ANY)
 				continue;
+			Class<?> typeClass = type.entityClass;
 			if (minecart == null ? typeClass.isAssignableFrom(entityClass) : typeClass.isInstance(minecart)) {
-				type = TYPES[i];
-				return true;
+				this.type = type;
+				break;
 			}
 		}
-		assert false;
-		return false;
+		if (this.type == null)
+			this.type = MinecartType.ANY;
+		super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
+		return true;
 	}
 	
 	@Override
@@ -96,15 +88,14 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	@Override
 	public boolean match(Minecart minecart) {
-		if (type == MinecartType.NORMAL && type.entityClass == Minecart.class) // pre-1.5
-			return !(minecart.getClass().equals(Utils.classForName("org.bukkit.entity.StorageMinecart"))
-					|| minecart.getClass().equals(Utils.classForName("org.bukkit.entity.PoweredMinecart")));
-		return type.entityClass != null && type.entityClass.isInstance(minecart);
+		if (type == MinecartType.ANY)
+			return true;
+		return type.entityClass.isInstance(minecart);
 	}
 	
 	@Override
 	public Class<? extends Minecart> getType() {
-		return type.entityClass != null ? type.entityClass : Minecart.class;
+		return type.entityClass;
 	}
 
 	@Override

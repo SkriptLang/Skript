@@ -39,7 +39,7 @@ public class PigData extends EntityData<Pig> {
 
 	public PigData() {}
 
-	// TODO: When safe, 'variant' should have the type changed to 'Pig.Variant'
+	// TODO: When safe, 'variant' should have the type changed to 'Pig.Variant' when 1.21.5 is minimum supported version
 	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
 		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;

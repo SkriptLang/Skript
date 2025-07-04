@@ -33,7 +33,7 @@ public class ChickenData extends EntityData<Chicken> {
 
 	public ChickenData() {}
 
-	// TODO: When safe, 'variant' should have the type changed to 'Chicken.Variant'
+	// TODO: When safe, 'variant' should have the type changed to 'Chicken.Variant' when 1.21.6 is minimum supported version
 	public ChickenData(@Nullable Object variant) {
 		this.variant = variant;
 	}
