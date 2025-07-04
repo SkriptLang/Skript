@@ -1,8 +1,9 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Brewing Stand Fuel Level")
 @Description("The fuel level of a brewing stand. The fuel level is decreased by one for each potion that is being brewed.")
-@Examples({
-	"set the brewing stand fuel level of {_block} to 10",
-	"clear the brewing stand fuel level of {_block}"
-})
+@Example("""
+	set the brewing stand fuel level of {_block} to 10
+	clear the brewing stand fuel level of {_block}
+	""")
 @Since("INSERT VERSION")
 public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Integer> {
 
@@ -36,33 +37,29 @@ public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Intege
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, REMOVE, SET, DELETE, RESET -> CollectionUtils.array(Integer.class);
+			case ADD, REMOVE, SET, DELETE, RESET -> CollectionUtils.array(Number.class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int providedValue = delta != null ? (Integer) delta[0] : 0;
+		int providedValue = delta != null ? ((Number) delta[0]).intValue() : 0;
+		if (mode == ChangeMode.SET)
+			providedValue = Math2.fit(0, providedValue, Integer.MAX_VALUE);
 		for (Block block : getExpr().getArray(event)) {
 			if (!(block.getState() instanceof BrewingStand brewingStand))
 				continue;
-			switch (mode) {
-				case SET, DELETE -> {
-					int newValue = Math2.fit(0, providedValue, Integer.MAX_VALUE);
-					brewingStand.setFuelLevel(newValue);
-				}
-				case ADD -> {
-					int current = brewingStand.getFuelLevel();
-					int newValue = Math2.fit(0, current + providedValue, Integer.MAX_VALUE);
-					brewingStand.setFuelLevel(newValue);
-				}
-				case REMOVE -> {
-					int current = brewingStand.getFuelLevel();
-					int newValue = Math2.fit(0, current - providedValue, Integer.MAX_VALUE);
-					brewingStand.setFuelLevel(newValue);
-				}
+			int newValue = providedValue;
+			int current = brewingStand.getFuelLevel();
+			if (mode == ChangeMode.ADD) {
+				newValue = Math2.fit(0, current + newValue, Integer.MAX_VALUE);
+			} else if (mode == ChangeMode.REMOVE) {
+				newValue = Math2.fit(0, current - newValue, Integer.MAX_VALUE);
 			}
+			brewingStand.setFuelLevel(newValue);
+			brewingStand.update(true, false);
+			Skript.adminBroadcast("Set Fuel Level: " + newValue + " | " + brewingStand.getFuelLevel());
 		}
 	}
 

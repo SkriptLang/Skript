@@ -785,7 +785,7 @@ public class SimpleEvents {
 				""")
 			.since("2.12");
 
-		Skript.registerEvent("Brewing Start", SimpleEvent.class, BrewingStartEvent.class, "brew[ing] start")
+		Skript.registerEvent("Brewing Start", SimpleEvent.class, BrewingStartEvent.class, "brew[ing] start[ed|ing]")
 			.description("Called when a brewing stand starts brewing.")
 			.examples("""
 				on brewing start:

@@ -28,33 +28,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Name("Brewing Stand Slot")
-@Description("A slot of a brewing stand, i.e. the 1st, 2nd, 3rd bottle slot, fuel or ingredient slot.")
+@Description("A slot of a brewing stand, i.e., the first, second, or third bottle slot, the fuel slot or the ingredient slot.")
 @Examples({
-	"set the brewing 1st bottle slot of {_block} to potion of water",
-	"clear the brewing second bottle slot of {_block}"
+	"set the 1st bottle slot of {_block} to potion of water",
+	"clear the brewing stand second bottle slot of {_block}"
 })
 @Since("INSERT VERSION")
 public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
 	private enum BrewingSlot {
-		FIRST("[brewing [stand['s]]] (first|1st) bottle"),
-		SECOND("[brewing [stand['s]]] (second|2nd) bottle"),
-		THIRD("[brewing [stand['s]]] (third|3rd) bottle"),
-		INGREDIENT("brewing [stand] ingredient"),
-		FUEL("brewing [stand] fuel");
+		FIRST("[brewing stand['s]] (first|1st) bottle", "brewing stand first bottle"),
+		SECOND("[brewing stand['s]] (second|2nd) bottle", "brewing stand second bottle"),
+		THIRD("[brewing stand['s]] (third|3rd) bottle", "brewing stand third bottle"),
+		INGREDIENT("brewing [stand] ingredient", "brewing stand ingredient"),
+		FUEL("brewing [stand] fuel", "brewing stand fuel");
 
-		private String pattern;
+		private final String pattern;
+		private final String toString;
 
-		BrewingSlot(String pattern) {
+		BrewingSlot(String pattern, String toString) {
 			this.pattern = pattern;
+			this.toString = toString;
 		}
 	}
 
-	private static final BrewingSlot[] brewingSlots = BrewingSlot.values();
+	private static final BrewingSlot[] BREWING_SLOTS = BrewingSlot.values();
 
 	static {
-		String[] patterns = new String[brewingSlots.length * 2];
-		for (BrewingSlot slot : brewingSlots) {
+		String[] patterns = new String[BREWING_SLOTS.length * 2];
+		for (BrewingSlot slot : BREWING_SLOTS) {
 			patterns[2 * slot.ordinal()] = "[the] " + slot.pattern + " slot[s] [of %blocks%]";
 			patterns[(2 * slot.ordinal()) + 1] = "%blocks%'[s] " + slot.pattern + " slot[s]";
 		}
@@ -62,12 +64,11 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 	}
 
 	private BrewingSlot selectedSlot;
-	private @Nullable Expression<Block> exprBlock;
 	private boolean isEvent = false;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		selectedSlot = brewingSlots[matchedPattern / 2];
+		selectedSlot = BREWING_SLOTS[matchedPattern / 2];
 		//noinspection unchecked
 		setExpr((Expression<? extends Block>) exprs[0]);
 		isEvent = getParser().isCurrentEvent(BrewEvent.class, BrewingStartEvent.class, BrewingStandFuelEvent.class);
@@ -76,10 +77,11 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
 	@Override
 	protected Slot @Nullable [] get(Event event, Block[] source) {
-		Block[] blocks = getExpr().getArray(event);
-		Block eventBlock = null;
+		List<Block> blocks = new ArrayList<>(getExpr().stream(event).toList());
 
+		List<Slot> slots = new ArrayList<>();
 		if (isEvent) {
+			Block eventBlock = null;
 			if (event instanceof BrewingStandFuelEvent brewingStandFuelEvent) {
 				eventBlock = brewingStandFuelEvent.getBlock();
 			} else if (event instanceof BrewEvent brewEvent) {
@@ -87,18 +89,21 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 			} else if (event instanceof BrewingStartEvent brewingStartEvent) {
 				eventBlock = brewingStartEvent.getBlock();
 			}
+			if (eventBlock != null && blocks.remove(eventBlock)) {
+				BrewerInventory brewerInventory = ((BrewingStand) eventBlock.getState()).getInventory();
+				if (!Delay.isDelayed(event)) {
+					slots.add(new BrewingEventSlot(event, brewerInventory));
+				} else {
+					slots.add(new InventorySlot(brewerInventory, selectedSlot.ordinal()));
+				}
+			}
 		}
 
-		List<Slot> slots = new ArrayList<>();
 		for (Block block : blocks) {
 			if (!(block.getState() instanceof BrewingStand brewingStand))
 				continue;
 			BrewerInventory brewerInventory = brewingStand.getInventory();
-			if (isEvent && block.equals(eventBlock) && !Delay.isDelayed(event)) {
-				slots.add(new BrewingEventSlot(event, brewerInventory));
-			} else {
-				slots.add(new InventorySlot(brewerInventory, selectedSlot.ordinal()));
-			}
+			slots.add(new InventorySlot(brewerInventory, selectedSlot.ordinal()));
 		}
 		return slots.toArray(new Slot[0]);
 	}
@@ -109,13 +114,13 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 	}
 
 	@Override
-	public String toString(org.bukkit.event.@Nullable Event event, boolean debug) {
-		return selectedSlot.pattern + " slot of " + getExpr().toString(event, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return selectedSlot.toString + " slot of " + getExpr().toString(event, debug);
 	}
 
 	private final class BrewingEventSlot extends InventorySlot {
 
-		private Event event;
+		private final Event event;
 
 		public BrewingEventSlot(Event event, BrewerInventory brewerInventory) {
 			super(brewerInventory, selectedSlot.ordinal());

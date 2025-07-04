@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,15 +17,15 @@ import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Brewing Will Consume Fuel")
-@Description({
-	"Checks if the 'brewing fuel' event will consume fuel.",
-	"By making it not consume, it will keep the fuel item and still add fuel to the brewing stand."
-})
-@Examples({
-	"on brewing fuel:",
-		"\tif the brewing stand will consume the fuel:",
-			"\tmake the brewing stand not consume the fuel"
-})
+@Description("""
+	Checks if the 'brewing fuel' event will consume fuel.
+	Preventing the fuel from being consumed, will keep the fuel item and still add to the fuel level of the brewing stand.
+	""")
+@Example("""
+	on brewing fuel:
+		if the brewing stand will consume the fuel:
+			prevent the brewing stand from consuming the fuel
+	""")
 @Since("INSERT VERSION")
 @Events("Brewing Fuel")
 public class CondBrewingConsume extends Condition implements EventRestrictedSyntax {
@@ -36,10 +36,11 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 			"[the] brewing stand (will not|won't) consume [the] fuel");
 	}
 
-	private boolean checkConsume;
+	private boolean willConsume;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		willConsume = matchedPattern == 0;
 		return true;
 	}
 
@@ -52,12 +53,12 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 	public boolean check(Event event) {
 		if (!(event instanceof BrewingStandFuelEvent brewingStandFuelEvent))
 			return false;
-		return brewingStandFuelEvent.isConsuming() == checkConsume;
+		return brewingStandFuelEvent.isConsuming() == willConsume;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the brewing stand will" + (checkConsume ? "" : " not") + " consume the fuel";
+		return "the brewing stand will" + (willConsume ? "" : " not") + " consume the fuel";
 	}
 
 }

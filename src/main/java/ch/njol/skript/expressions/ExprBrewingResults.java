@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Name("Brewing Results")
 @Description("The result items of an 'on brew complete' event.")
@@ -60,11 +62,11 @@ public class ExprBrewingResults extends SimpleExpression<ItemStack> implements E
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (delayed) {
-			Skript.error("Cannot change the 'brewing results' after the event has passed.");
+			Skript.error("The 'brewing results' cannot be changed after the 'brewing complete' event has passed.");
 			return null;
 		}
 		return switch (mode) {
-			case SET, DELETE, ADD, REMOVE -> CollectionUtils.array(ItemStack[].class);
+			case SET, DELETE, ADD, REMOVE -> CollectionUtils.array(ItemType[].class);
 			default -> null;
 		};
 	}
@@ -73,25 +75,41 @@ public class ExprBrewingResults extends SimpleExpression<ItemStack> implements E
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (!(event instanceof BrewEvent brewEvent))
 			return;
-		List<ItemStack> itemStacks = new ArrayList<>();
+		List<ItemType> itemTypes = new ArrayList<>();
 		if (delta != null) {
 			for (Object object : delta) {
-				if (object instanceof ItemStack itemStack)
-					itemStacks.add(itemStack);
+				if (object instanceof ItemType itemType)
+					itemTypes.add(itemType);
 			}
 		}
-		if ((mode == ChangeMode.SET || mode == ChangeMode.ADD) && itemStacks.size() > 3)
-			warning("A brewing stand can only contain 3 items; Some items will be ignored.");
 		List<ItemStack> results = brewEvent.getResults();
 		switch (mode) {
 			case SET -> {
 				results.clear();
-				results.addAll(itemStacks);
+				results.addAll(itemTypes.stream()
+					.map(ItemType::getRandom)
+					.filter(itemStack -> !Objects.isNull(itemStack))
+					.toList());
 			}
 			case DELETE -> results.clear();
-			case ADD -> results.addAll(itemStacks);
-			case REMOVE -> results.removeAll(itemStacks);
+			case ADD -> {
+				results.addAll(itemTypes.stream()
+					.map(ItemType::getRandom)
+					.filter(itemStack -> !Objects.isNull(itemStack))
+					.toList());
+			}
+			case REMOVE -> {
+				List<ItemStack> copy = new ArrayList<>(results);
+				for (ItemStack itemStack : copy) {
+					for (ItemType itemType : itemTypes) {
+						if (itemType.isOfType(itemStack))
+							results.remove(itemStack);
+					}
+				}
+			}
 		}
+		if (results.size() > 3)
+			warning("A brewing stand can only contain 3 items; Some items will be ignored.");
 	}
 
 	@Override
