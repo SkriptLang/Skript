@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 import java.lang.reflect.Array;
 import java.util.*;
 
-@Name("Indices Of")
+@Name("Indices of Value")
 @Description({
 	"Get the first, last or all positions of a character (or text) in another text using "
 		+ "'positions of %text% in %text%'. Nothing is returned when the value does not occur in the text. "
@@ -73,10 +73,10 @@ import java.util.*;
 	# {_positions::*} is now 2 and 4
 	""")
 @Since("2.1, 2.12 (indices, positions of list)")
-public class ExprIndicesOf extends SimpleExpression<Object> {
+public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprIndicesOf.class, Object.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprIndicesOfValue.class, Object.class, ExpressionType.COMBINED,
 			"[the] [1:first|2:last|3:all] (position[mult:s]|mult:indices|index[mult:es]) of [[the] value] %string% in %string%",
 			"[the] [1:first|2:last|3:all] position[mult:s] of [[the] value] %object% in %~objects%",
 			"[the] [1:first|2:last|3:all] (mult:indices|index[mult:es]) of [[the] value] %object% in %~objects%"
