@@ -32,5 +32,5 @@ public class LitLongMinValue extends SimpleLiteral<Long> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "long min value";
 	}
-	
+
 }
