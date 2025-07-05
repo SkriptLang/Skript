@@ -294,7 +294,7 @@ public class ScriptLoader {
 	 * You may also use class {@link ch.njol.skript.util.Task} and the appropriate constructor
 	 * to run tasks on the script loader executor.
 	 * 
-	 * @return the executor used for async loading. Can be null if called before Skript loads config.sk
+	 * @return the executor used for submitting tasks. Can be null if called before Skript loads config.sk
 	 */
 	@UnknownNullability
 	public static Executor getExecutor() {
