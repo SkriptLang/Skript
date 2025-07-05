@@ -49,32 +49,32 @@ public class BoatData extends EntityData<Boat> {
 	}
 	
 	private BoatData(int type) {
-		matchedPattern = type;
+		dataCodeName = type;
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Boat> clazz, @Nullable Boat entity) {
-		if (entity != null)
-			matchedPattern = 2 + entity.getBoatType().ordinal();
+	protected boolean init(@Nullable Class<? extends Boat> entityClass, @Nullable Boat boat) {
+		if (boat != null)
+			dataCodeName = 2 + boat.getBoatType().ordinal();
 		return true;
 	}
 
 	@Override
-	public void set(Boat entity) {
-		if (matchedPattern == 1) // If the type is 'any boat'.
-			matchedPattern += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
-		if (matchedPattern > 1) // 0 and 1 are excluded
-			entity.setBoatType(types[matchedPattern - 2]); // Removes 2 to fix the index.
+	public void set(Boat boat) {
+		if (dataCodeName == 1) // If the type is 'any boat'.
+			dataCodeName += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
+		if (dataCodeName > 1) // 0 and 1 are excluded
+			boat.setBoatType(types[dataCodeName - 2]); // Removes 2 to fix the index.
 	}
 
 	@Override
-	protected boolean match(Boat entity) {
-		return matchedPattern <= 1 || entity.getBoatType().ordinal() == matchedPattern - 2;
+	protected boolean match(Boat boat) {
+		return dataCodeName <= 1 || boat.getBoatType().ordinal() == dataCodeName - 2;
 	}
 
 	@Override
@@ -83,26 +83,26 @@ public class BoatData extends EntityData<Boat> {
 	}
 
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new BoatData(matchedPattern);
+	public @NotNull EntityData<?> getSuperType() {
+		return new BoatData(dataCodeName);
 	}
 
 	@Override
 	protected int hashCode_i() {
-		return matchedPattern <= 1 ? 0 : matchedPattern;
+		return dataCodeName <= 1 ? 0 : dataCodeName;
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (obj instanceof BoatData boatData)
-			return matchedPattern == boatData.matchedPattern;
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (entityData instanceof BoatData other)
+			return dataCodeName == other.dataCodeName;
 		return false;
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> entity) {
-		if (entity instanceof BoatData boatData)
-			return matchedPattern <= 1 || matchedPattern == boatData.matchedPattern;
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (entityData instanceof BoatData other)
+			return dataCodeName <= 1 || dataCodeName == other.dataCodeName;
 		return false;
 	}
 
@@ -137,7 +137,7 @@ public class BoatData extends EntityData<Boat> {
 			// material is a boat AND (data matches any boat OR material and data are same)
 			if (type != null) {
 				ordinal = type.ordinal();
-				if (matchedPattern <= 1 || matchedPattern == ordinal + 2)
+				if (dataCodeName <= 1 || dataCodeName == ordinal + 2)
 					return true;
 			}
 		}

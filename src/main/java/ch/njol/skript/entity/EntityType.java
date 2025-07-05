@@ -13,9 +13,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 
-/**
- * @author Peter Güttinger
- */
 public class EntityType implements Cloneable, YggdrasilSerializable {
 	
 	static {

@@ -66,3 +66,6 @@
 
 # Functions
 /src/main/java/ch/njol/skript/lang/function @Efnilite @skriptlang/core-developers
+
+# EntityData
+/src/main/java/ch/njol/skript/entity @Absolutionism @skriptlang/core-developers

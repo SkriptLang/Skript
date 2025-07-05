@@ -1,59 +1,85 @@
 package ch.njol.skript.entity;
 
-import java.util.function.Consumer;
-
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.localization.ArgsMessage;
 import org.bukkit.Location;
 import org.bukkit.entity.ExperienceOrb;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.ArgsMessage;
+import java.util.function.Consumer;
 
 public class XpOrbData extends EntityData<ExperienceOrb> {
+
+	private final static ArgsMessage FORMAT = new ArgsMessage("entities.xp-orb.format");
+
 	static {
 		EntityData.register(XpOrbData.class, "xporb", ExperienceOrb.class, "xp-orb");
 	}
-	
+
 	private int xp = -1;
-	
+
 	public XpOrbData() {}
-	
-	public XpOrbData(final int xp) {
+
+	public XpOrbData(int xp) {
 		this.xp = xp;
 	}
-	
+
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		return true;
 	}
-	
+
 	@Override
-	protected boolean init(final @Nullable Class<? extends ExperienceOrb> c, final @Nullable ExperienceOrb e) {
-		xp = e == null ? -1 : e.getExperience();
+	protected boolean init(@Nullable Class<? extends ExperienceOrb> entityClass, @Nullable ExperienceOrb orb) {
+		if (orb != null)
+			xp = orb.getExperience();
 		return true;
 	}
-	
+
+	@Override
+	public void set(ExperienceOrb orb) {
+		if (xp != -1)
+			orb.setExperience(xp + orb.getExperience());
+	}
+
+	@Override
+	protected boolean match(ExperienceOrb orb) {
+		return xp == -1 || orb.getExperience() == xp;
+	}
+
 	@Override
 	public Class<? extends ExperienceOrb> getType() {
 		return ExperienceOrb.class;
 	}
-	
+
 	@Override
-	protected boolean match(final ExperienceOrb entity) {
-		return xp == -1 || entity.getExperience() == xp;
-	}
-	
-	@Override
-	public void set(final ExperienceOrb entity) {
-		if (xp != -1)
-			entity.setExperience(xp + entity.getExperience());
+	public @NotNull EntityData<?> getSuperType() {
+		return new XpOrbData();
 	}
 
 	@Override
-	@Nullable
-	public ExperienceOrb spawn(Location loc, @Nullable Consumer<ExperienceOrb> consumer) {
+	protected int hashCode_i() {
+		return xp;
+	}
+
+	@Override
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof XpOrbData other))
+			return false;
+		return xp == other.xp;
+	}
+
+	@Override
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof XpOrbData other))
+			return false;
+		return xp == -1 || other.xp == xp;
+	}
+
+	@Override
+	public @Nullable ExperienceOrb spawn(Location loc, @Nullable Consumer<ExperienceOrb> consumer) {
 		ExperienceOrb orb = super.spawn(loc, consumer);
 		if (orb == null)
 			return null;
@@ -62,55 +88,17 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 		return orb;
 	}
 
-	private final static ArgsMessage format = new ArgsMessage("entities.xp-orb.format");
-	
 	@Override
 	public String toString(final int flags) {
-		return xp == -1 ? super.toString(flags) : format.toString(super.toString(flags), xp);
+		return xp == -1 ? super.toString(flags) : FORMAT.toString(super.toString(flags), xp);
 	}
-	
+
 	public int getExperience() {
 		return xp == -1 ? 1 : xp;
 	}
-	
+
 	public int getInternalExperience() {
 		return xp;
 	}
-	
-	@Override
-	protected int hashCode_i() {
-		return xp;
-	}
-	
-	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof XpOrbData))
-			return false;
-		final XpOrbData other = (XpOrbData) obj;
-		return xp == other.xp;
-	}
-	
-//		return "" + xp;
-	@Override
-	protected boolean deserialize(final String s) {
-		try {
-			xp = Integer.parseInt(s);
-			return true;
-		} catch (final NumberFormatException e) {
-			return false;
-		}
-	}
-	
-	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		if (e instanceof XpOrbData)
-			return xp == -1 || ((XpOrbData) e).xp == xp;
-		return false;
-	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
-		return new XpOrbData();
-	}
-	
+
 }
