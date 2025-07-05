@@ -90,4 +90,25 @@ public class SyntaxRegistryTest {
 		assertArrayEquals(new SyntaxInfo[]{info2, info1, info3}, unmodifiable.syntaxes(key()).toArray());
 	}
 
+	@Test
+	public void testLargeRegistryUnregistration() {
+		final SyntaxRegistry registry = syntaxRegistry();
+		final SyntaxRegistry unmodifiable = registry.unmodifiableView();
+		final var info = info();
+
+		for (int i = 0; i < 25; i++) {
+			registry.register(key(), info.toBuilder().addPattern("pattern" + i).build());
+		}
+		registry.register(key(), info);
+		for (int i = 25; i < 50; i++) {
+			registry.register(key(), info.toBuilder().addPattern("pattern" + i).build());
+		}
+
+		// make sure info can be successfully unregistered
+		registry.unregister(info);
+		assertThrows(UnsupportedOperationException.class, () -> unmodifiable.unregister(info));
+		assertFalse(registry.elements().contains(info));
+		assertFalse(unmodifiable.elements().contains(info));
+	}
+
 }

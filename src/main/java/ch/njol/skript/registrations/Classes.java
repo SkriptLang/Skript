@@ -1,46 +1,21 @@
 package ch.njol.skript.registrations;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.NotSerializableException;
-import java.io.SequenceInputStream;
-import java.lang.reflect.Array;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.Utils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.PatternedParser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.command.Commands;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.SQLStorage;
 import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.Variables;
@@ -51,9 +26,21 @@ import ch.njol.yggdrasil.Yggdrasil;
 import ch.njol.yggdrasil.YggdrasilInputStream;
 import ch.njol.yggdrasil.YggdrasilOutputStream;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
+
+import java.io.*;
+import java.lang.reflect.Array;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Peter Güttinger
@@ -68,6 +55,7 @@ public abstract class Classes {
 	private final static HashMap<Class<?>, ClassInfo<?>> exactClassInfos = new HashMap<>();
 	private final static HashMap<Class<?>, ClassInfo<?>> superClassInfos = new HashMap<>();
 	private final static HashMap<String, ClassInfo<?>> classInfosByCodeName = new HashMap<>();
+	private final static Map<String, List<ClassInfo<?>>> registeredLiteralPatterns = new HashMap<>();
 
 	/**
 	 * @param info info about the class to register
@@ -84,6 +72,12 @@ public abstract class Classes {
 			exactClassInfos.put(info.getC(), info);
 			classInfosByCodeName.put(info.getCodeName(), info);
 			tempClassInfos.add(info);
+			if (info.getParser() instanceof PatternedParser<?> patternedParser) {
+				String[] patterns = patternedParser.getPatterns();
+				for (String pattern : patterns) {
+					registeredLiteralPatterns.computeIfAbsent(pattern, list -> new ArrayList<>()).add(info);
+				}
+			}
 		} catch (RuntimeException e) {
 			if (SkriptConfig.apiSoftExceptions.value())
 				Skript.warning("Ignored an exception due to user configuration: " + e.getMessage());
@@ -232,6 +226,18 @@ public abstract class Classes {
 			throw new IllegalStateException("Cannot use classinfos until registration is over");
 	}
 
+	/**
+	 * Get a {@link List} of the {@link ClassInfo}s the {@code pattern} can be referenced to.
+	 * @param pattern The {@link String} pattern.
+	 */
+	public static @Unmodifiable @Nullable List<ClassInfo<?>> getPatternInfos(String pattern) {
+		pattern = pattern.toLowerCase(Locale.ENGLISH);
+		List<ClassInfo<?>> infos = registeredLiteralPatterns.get(pattern);
+		if (infos != null)
+			return Collections.unmodifiableList(infos);
+		return null;
+	}
+
 	@SuppressWarnings("null")
 	public static List<ClassInfo<?>> getClassInfos() {
 		checkAllowClassInfoInteraction();
@@ -291,9 +297,12 @@ public abstract class Classes {
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
 		checkAllowClassInfoInteraction();
-		final ClassInfo<?> i = superClassInfos.get(c);
-		if (i != null)
-			return (ClassInfo<? super T>) i;
+		ClassInfo<? super T> info = getExactClassInfo(c);
+		if (info != null)
+			return info;
+		info = (ClassInfo<? super T>) superClassInfos.get(c);
+		if (info != null)
+			return info;
 		for (final ClassInfo<?> ci : getClassInfos()) {
 			if (ci.getC().isAssignableFrom(c)) {
 				if (!Skript.isAcceptRegistrations())

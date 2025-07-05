@@ -7,6 +7,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Pig;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -18,14 +19,17 @@ public class PigData extends EntityData<Pig> {
 	}
 
 	private static final SaddleState[] SADDLE_STATES = SaddleState.values();
-	private static boolean variantsEnabled = false;
-	private static Object[] variants;
+	private static final boolean VARIANTS_ENABLED;
+	private static final Object[] variants;
 
 	static {
 		EntityData.register(PigData.class, "pig", Pig.class, 1, "unsaddled pig", "pig", "saddled pig");
 		if (Skript.classExists("org.bukkit.entity.Pig$Variant")) {
-			variantsEnabled = true;
+			VARIANTS_ENABLED = true;
 			variants = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);
+		} else {
+			VARIANTS_ENABLED = false;
+			variants = null;
 		}
 	}
 	
@@ -43,9 +47,18 @@ public class PigData extends EntityData<Pig> {
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		saddled = SADDLE_STATES[matchedPattern];
-		if (exprs[0] != null && variantsEnabled)
-			//noinspection unchecked
-			variant = ((Literal<Pig.Variant>) exprs[0]).getSingle();
+		if (VARIANTS_ENABLED) {
+			Literal<?> expr = null;
+			if (exprs[0] != null) { // pig
+				expr = exprs[0];
+			} else if (exprs[1] != null) { // piglet
+				expr = exprs[1];
+			}
+			if (expr != null) {
+				//noinspection unchecked
+				variant = ((Literal<Pig.Variant>) expr).getSingle();
+			}
+		}
 		return true;
 	}
 	
@@ -54,7 +67,7 @@ public class PigData extends EntityData<Pig> {
 		saddled = SaddleState.UNKNOWN;
 		if (pig != null) {
 			saddled = pig.hasSaddle() ? SaddleState.SADDLED : SaddleState.NOT_SADDLED;
-			if (variantsEnabled)
+			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
 		}
 		return true;
@@ -68,7 +81,7 @@ public class PigData extends EntityData<Pig> {
 	@Override
 	public void set(Pig pig) {
 		pig.setSaddle(saddled == SaddleState.SADDLED);
-		if (variantsEnabled) {
+		if (VARIANTS_ENABLED) {
 			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
 			pig.setVariant((Pig.Variant) finalVariant);
 		}
@@ -91,7 +104,7 @@ public class PigData extends EntityData<Pig> {
 			return false;
 		if (saddled != other.saddled)
 			return false;
-		return variant == null || variant == other.variant;
+		return variant == other.variant;
 	}
 	
 	@Override
@@ -109,7 +122,7 @@ public class PigData extends EntityData<Pig> {
 	}
 	
 	@Override
-	public EntityData<Pig> getSuperType() {
+	public @NotNull EntityData<Pig> getSuperType() {
 		return new PigData();
 	}
 
