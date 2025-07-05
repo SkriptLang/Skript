@@ -1,7 +1,10 @@
-package ch.njol.skript.test.runner;
+package ch.njol.skript.literals;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,13 +13,14 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@NoDoc
+@Name("Minimum Long Value")
+@Description("A number representing the minimum value of a long number type.")
+@Example("if {_number} <= minimum long value:")
+@Since("INSERT VERSION")
 public class LitLongMinValue extends SimpleLiteral<Long> {
 
 	static {
-		if (TestMode.ENABLED) {
-			Skript.registerExpression(LitLongMinValue.class, Long.class, ExpressionType.SIMPLE, "long min[imum] value");
-		}
+		Skript.registerExpression(LitLongMinValue.class, Long.class, ExpressionType.SIMPLE, "min[imum] long value");
 	}
 
 	public LitLongMinValue() {
@@ -30,7 +34,7 @@ public class LitLongMinValue extends SimpleLiteral<Long> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "long min value";
+		return "min long value";
 	}
 
 }

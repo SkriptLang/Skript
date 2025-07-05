@@ -1,7 +1,10 @@
-package ch.njol.skript.test.runner;
+package ch.njol.skript.literals;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,13 +13,14 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@NoDoc
+@Name("Minimum Integer Value")
+@Description("A number representing the minimum value of an integer number type.")
+@Example("if {_number} <= minimum integer value:")
+@Since("INSERT VERSION")
 public class LitIntMinValue extends SimpleLiteral<Integer> {
 
 	static {
-		if (TestMode.ENABLED) {
-			Skript.registerExpression(LitIntMinValue.class, Integer.class, ExpressionType.SIMPLE, "integer min[imum] value");
-		}
+		Skript.registerExpression(LitIntMinValue.class, Integer.class, ExpressionType.SIMPLE, "min[imum] integer value");
 	}
 
 	public LitIntMinValue() {
@@ -30,7 +34,7 @@ public class LitIntMinValue extends SimpleLiteral<Integer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "integer min value";
+		return "min integer value";
 	}
 
 }

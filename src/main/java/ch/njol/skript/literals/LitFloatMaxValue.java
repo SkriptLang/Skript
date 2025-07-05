@@ -1,7 +1,10 @@
-package ch.njol.skript.test.runner;
+package ch.njol.skript.literals;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,13 +13,14 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@NoDoc
+@Name("Maximum Float Value")
+@Description("A number representing the maximum value of a float number type.")
+@Example("if {_number} >= maximum float value:")
+@Since("INSERT VERSION")
 public class LitFloatMaxValue extends SimpleLiteral<Float> {
 
 	static {
-		if (TestMode.ENABLED) {
-			Skript.registerExpression(LitFloatMaxValue.class, Float.class, ExpressionType.SIMPLE, "float max[imum] value");
-		}
+		Skript.registerExpression(LitFloatMaxValue.class, Float.class, ExpressionType.SIMPLE, "max[imum] float value");
 	}
 
 	public LitFloatMaxValue() {
@@ -30,7 +34,7 @@ public class LitFloatMaxValue extends SimpleLiteral<Float> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "float max value";
+		return "max float value";
 	}
 
 }
