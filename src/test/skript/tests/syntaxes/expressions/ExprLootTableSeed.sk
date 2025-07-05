@@ -17,7 +17,7 @@ test "loot table seed":
 	set loot seed of {_pig} to NaN value
 	assert the loot seed of {_pig} is 0 with "NaN value entity loot seed set failed"
 	set loot seed of {_pig} to infinity value
-	assert the loot seed of {_pig} is 9223372036854775807 with "infinity value entity loot seed set failed"
+	assert the loot seed of {_pig} is max long value with "infinity value entity loot seed set failed"
 
 	delete entity within {_pig}
 
@@ -43,6 +43,6 @@ test "loot table seed":
 	set loot seed of test-block to NaN value
 	assert the loot seed of test-block is 0 with "NaN value block loot seed set failed"
 	set loot seed of test-block to infinity value
-	assert the loot seed of test-block is 9223372036854775807 with "infinity value block loot seed set failed"
+	assert the loot seed of test-block is max long value with "infinity value block loot seed set failed"
 
 	set test-block to {_pastBlock}
