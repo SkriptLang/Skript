@@ -9,11 +9,11 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Result (Experimental)")
@@ -29,7 +29,7 @@ import org.skriptlang.skript.util.Executable;
 })
 @Since("2.10")
 @Keywords({"run", "result", "execute", "function", "reflection"})
-public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> {
+public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerExpression(ExprResult.class, Object.class, ExpressionType.COMBINED,
@@ -41,10 +41,7 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 	private DynamicFunctionReference.Input input;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
-						ParseResult result) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		//noinspection unchecked
 		this.setExpr((Expression<? extends Executable<Event, Object>>) expressions[0]);
 		this.hasArguments = result.hasTag("arguments");

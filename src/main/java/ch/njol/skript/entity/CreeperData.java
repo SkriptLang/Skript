@@ -1,6 +1,7 @@
 package ch.njol.skript.entity;
 
 import org.bukkit.entity.Creeper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.lang.Literal;
@@ -76,7 +77,7 @@ public class CreeperData extends EntityData<Creeper> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new CreeperData();
 	}
 	

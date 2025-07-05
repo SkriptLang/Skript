@@ -19,7 +19,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Damage Cause")
-@Description("Tests what kind of damage caused a <a href='events.html#damage'>damage event</a>. Refer to the <a href='classes.html#damagecause'>Damage Cause</a> type for a list of all possible causes.")
+@Description("Tests what kind of damage caused a <a href='#damage'>damage event</a>. Refer to the <a href='#damagecause'>Damage Cause</a> type for a list of all possible causes.")
 @Examples({"# make players use their potions of fire resistance whenever they take any kind of fire damage",
 		"on damage:",
 		"\tdamage was caused by lava, fire or burning",

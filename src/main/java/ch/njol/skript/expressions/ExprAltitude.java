@@ -1,21 +1,22 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import org.bukkit.Location;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Altitude")
-@Description("Effectively an alias of 'y-<a href='#ExprCoordinate'>coordinate</a> of …', it represents the height of some object above bedrock.")
-@Examples({"on damage:",
-		"	altitude of the attacker is higher than the altitude of the victim",
-		"	set damage to damage * 1.2"})
+@Description("Effectively an alias of 'y-<a href='#ExprCoordinate'>coordinate</a> of …', it represents the height of some location within the world.")
+@Example("""
+	on damage:
+		altitude of the attacker is higher than the altitude of the victim
+		set damage to damage * 1.2
+	""")
 @Since("1.4.3")
 public class ExprAltitude extends SimplePropertyExpression<Location, Number> {
 	
@@ -37,5 +38,12 @@ public class ExprAltitude extends SimplePropertyExpression<Location, Number> {
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
 	}
-	
+
+	@Override
+	public Expression<? extends Number> simplify() {
+		if (getExpr() instanceof Literal<? extends Location>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
 }

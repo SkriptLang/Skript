@@ -456,6 +456,10 @@ public class FlatFileStorage extends VariablesStorage {
 	 */
 	@SuppressWarnings("unchecked")
 	private void save(PrintWriter pw, String parent, TreeMap<String, Object> map) {
+		if (parent.startsWith(Variables.EPHEMERAL_VARIABLE_PREFIX))
+			// Skip ephemeral variables
+			return;
+
 		// Iterate over all children
 		for (Entry<String, Object> childEntry : map.entrySet()) {
 			Object childNode = childEntry.getValue();
@@ -470,6 +474,10 @@ public class FlatFileStorage extends VariablesStorage {
 			} else {
 				// Remove variable separator if needed
 				String name = childKey == null ? parent.substring(0, parent.length() - Variable.SEPARATOR.length()) : parent + childKey;
+
+				if (name.startsWith(Variables.EPHEMERAL_VARIABLE_PREFIX))
+					// Skip ephemeral variables
+					continue;
 
 				try {
 					// Loop over storages to make sure this variable is ours to store

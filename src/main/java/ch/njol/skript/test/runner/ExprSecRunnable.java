@@ -9,7 +9,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -46,10 +45,6 @@ public class ExprSecRunnable extends SectionExpression<Object> {
 						ParseResult result,
 						@Nullable SectionNode node,
 						@Nullable List<TriggerItem> triggerItems) {
-		if (node == null) {
-			Skript.error("Runnable expression needs a section!");
-			return false;
-		}
 		loadCode(node);
 		return true;
 	}
@@ -63,6 +58,11 @@ public class ExprSecRunnable extends SectionExpression<Object> {
 
 	@Override
 	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
+	public boolean isSectionOnly() {
 		return true;
 	}
 
