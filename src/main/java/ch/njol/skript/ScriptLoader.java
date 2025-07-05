@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -337,28 +338,16 @@ public class ScriptLoader {
 		if (asyncLoaderSize <= 0) {
 			executor = Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance());
 		} else {
-			executor = new ForkJoinPool(
-				asyncLoaderSize > 0 ? asyncLoaderSize : Runtime.getRuntime().availableProcessors(),
-				ForkJoinPool.defaultForkJoinWorkerThreadFactory,
-				null,
-				isAsync()
-			) {
+			executor = Executors.newFixedThreadPool(asyncLoaderSize, new ThreadFactory() {
+				private final AtomicInteger threadId = new AtomicInteger(0);
+
 				@Override
-				public ForkJoinWorkerThreadFactory getFactory() {
-					return pool -> {
-						ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-						// Set the thread group to asyncLoaderThreadGroup if possible
-						try {
-							java.lang.reflect.Field groupField = Thread.class.getDeclaredField("group");
-							groupField.setAccessible(true);
-							groupField.set(worker, asyncLoaderThreadGroup);
-						} catch (Exception e) {
-							// If we can't set the thread group, just ignore and use the default
-						}
-						return worker;
-					};
+				public Thread newThread(Runnable runnable) {
+					Thread thread = new Thread(asyncLoaderThreadGroup, runnable, "Skript async loaders thread " + threadId.incrementAndGet());
+					thread.setDaemon(true);
+					return thread;
 				}
-			};
+			});
 		}
 	}
 
