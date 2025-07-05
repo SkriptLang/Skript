@@ -175,6 +175,58 @@ public abstract class StringUtils {
 	}
 
 	/**
+	 * Returns the index of the first occurrence of the needle in the haystack.
+	 * @param haystack the string to search in
+	 * @param needle the string to search for
+	 * @param caseSensitive whether the search should be case-sensitive
+	 * @return the index of the first occurrence of the needle in the haystack, or -1 if not found
+	 */
+	public static int indexOf(String haystack, String needle, boolean caseSensitive) {
+		if (caseSensitive) {
+			haystack = haystack.toLowerCase(Locale.ENGLISH);
+			needle = needle.toLowerCase(Locale.ENGLISH);
+		}
+
+		return haystack.indexOf(needle);
+	}
+
+	/**
+	 * Returns the index of the first occurrence of the needle in the haystack, starting from the specified index.
+	 * @param haystack the string to search in
+	 * @param needle the string to search for
+	 * @param fromIndex the index to start searching from
+	 * @param caseSensitive whether the search should be case-sensitive
+	 * @return the index of the first occurrence of the needle in the haystack, or -1 if not found
+	 */
+	public static int indexOf(String haystack, String needle, int fromIndex, boolean caseSensitive) {
+		if (fromIndex < 0 || fromIndex >= haystack.length())
+			return -1;
+
+		if (caseSensitive) {
+			haystack = haystack.toLowerCase(Locale.ENGLISH);
+			needle = needle.toLowerCase(Locale.ENGLISH);
+		}
+
+		return haystack.indexOf(needle, fromIndex);
+	}
+
+	/**
+	 * Returns the index of the last occurrence of the needle in the haystack.
+	 * @param haystack the string to search in
+	 * @param needle the string to search for
+	 * @param caseSensitive whether the search should be case-sensitive
+	 * @return the index of the last occurrence of the needle in the haystack, or -1 if not found
+	 */
+	public static int lastIndexOf(String haystack, String needle, boolean caseSensitive) {
+		if (caseSensitive) {
+			haystack = haystack.toLowerCase(Locale.ENGLISH);
+			needle = needle.toLowerCase(Locale.ENGLISH);
+		}
+
+		return haystack.lastIndexOf(needle);
+	}
+
+	/**
 	 * Shorthand for <tt>{@link #numberAt(CharSequence, int, boolean) numberAt}(s, index, true)</tt>
 	 *
 	 * @param s
