@@ -11,6 +11,8 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+
+import org.bukkit.Registry;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
@@ -54,7 +56,7 @@ public class CondHasPotion extends Condition {
 	@Override
 	public boolean check(Event event) {
 		if (potionEffects == null) {
-			return livingEntities.check(event, entity -> !isNegated(), isNegated());
+			return livingEntities.check(event, entity -> !entity.getActivePotionEffects().isEmpty(), isNegated());
 		}
 		return livingEntities.check(event,
 				entity -> potionEffects.check(event, entity::hasPotionEffect),
