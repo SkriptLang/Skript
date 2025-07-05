@@ -287,7 +287,7 @@ public class ScriptLoader {
 	}
 
 	/**
-	 * Returns the executor used for async loading.
+	 * Returns the executor used for submitting tasks based on the user config.sk settings.
 	 * 
 	 * The thread count will be based on the value of {@link #asyncLoaderSize}.
 	 * <p>
