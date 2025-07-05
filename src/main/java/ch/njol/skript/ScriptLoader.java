@@ -28,6 +28,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -254,6 +255,12 @@ public class ScriptLoader {
 	private static int asyncLoaderSize;
 
 	/**
+	 * The executor used for async loading.
+	 * Gets applied in the {@link #setAsyncLoaderSize(int)} method.
+	 */
+	private static Executor executor;
+
+	/**
 	 * Checks if scripts are loaded in separate thread. If true,
 	 * following behavior should be expected:
 	 * <ul>
@@ -277,6 +284,21 @@ public class ScriptLoader {
 	 */
 	public static boolean isParallel() {
 		return asyncLoaderSize > 1;
+	}
+
+	/**
+	 * Returns the executor used for async loading.
+	 * 
+	 * The thread count will be based on the value of {@link #asyncLoaderSize}.
+	 * <p>
+	 * You may also use class {@link ch.njol.skript.util.Task} and the appropriate constructor
+	 * to run tasks on the script loader executor.
+	 * 
+	 * @return the executor used for async loading. Can be null if called before Skript loads config.sk
+	 */
+	@UnknownNullability
+	public static Executor getExecutor() {
+		return executor;
 	}
 
 	/**
@@ -311,6 +333,33 @@ public class ScriptLoader {
 
 		if (loaderThreads.size() != size)
 			throw new IllegalStateException();
+		
+		if (asyncLoaderSize <= 0) {
+			executor = Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance());
+		} else {
+			executor = new ForkJoinPool(
+				asyncLoaderSize > 0 ? asyncLoaderSize : Runtime.getRuntime().availableProcessors(),
+				ForkJoinPool.defaultForkJoinWorkerThreadFactory,
+				null,
+				false
+			) {
+				@Override
+				public ForkJoinWorkerThreadFactory getFactory() {
+					return pool -> {
+						ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+						// Set the thread group to asyncLoaderThreadGroup if possible
+						try {
+							java.lang.reflect.Field groupField = Thread.class.getDeclaredField("group");
+							groupField.setAccessible(true);
+							groupField.set(worker, asyncLoaderThreadGroup);
+						} catch (Exception e) {
+							// If we can't set the thread group, just ignore and use the default
+						}
+						return worker;
+					};
+				}
+			};
+		}
 	}
 
 	/**
