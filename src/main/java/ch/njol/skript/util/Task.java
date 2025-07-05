@@ -3,12 +3,16 @@ package ch.njol.skript.util;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.util.Closeable;
 
@@ -18,28 +22,76 @@ import ch.njol.util.Closeable;
 @SuppressWarnings("removal")
 public abstract class Task implements Runnable, Closeable {
 
-	private final Plugin plugin;
 	private final boolean async;
+	private final Plugin plugin;
+	
+	private boolean useScriptLoaderExecutor;
 	private long period = -1;
-
 	private int taskID = -1;
 
-	public Task(final Plugin plugin, final long delay, final long period) {
+	/**
+	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * <p>
+	 * @param plugin The plugin that owns this task.
+	 * @param delay Delay in ticks before the task is run for the first time.
+	 * @param period Period in ticks between subsequent executions of the task.
+	 */
+	public Task(Plugin plugin, long delay, long period) {
 		this(plugin, delay, period, false);
 	}
 
-	public Task(final Plugin plugin, final long delay, final long period, final boolean async) {
+	/**
+	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * <p>
+	 * @param plugin The plugin that owns this task.
+	 * @param delay Delay in ticks before the task is run for the first time.
+	 * @param period Period in ticks between subsequent executions of the task.
+	 * @param async Whether to run the task asynchronously
+	 */
+	public Task(Plugin plugin, long delay, long period, boolean async) {
 		this.plugin = plugin;
 		this.period = period;
 		this.async = async;
 		schedule(delay);
 	}
 
-	public Task(final Plugin plugin, final long delay) {
-		this(plugin, delay, false);
+	/**
+	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * <p>
+	 * @param plugin The plugin that owns this task.
+	 * @param useScriptLoaderExecutor Whether to use the script loader executor. Setting is based on the config.sk user setting.
+	 * @param delay Delay in ticks before the task is run for the first time.
+	 * @param period Period in ticks between subsequent executions of the task.
+	 */
+	public Task(Plugin plugin, long delay) {
+		this(plugin, false, delay, false);
 	}
 
-	public Task(final Plugin plugin, final long delay, final boolean async) {
+	/**
+	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * <p>
+	 * @param plugin The plugin that owns this task.
+	 * @param useScriptLoaderExecutor Whether to use the script loader executor. Setting is based on the config.sk user setting.
+	 * @param delay Delay in ticks before the task is run for the first time.
+	 * @param async Whether to run the task asynchronously
+	 */
+	public Task(Plugin plugin, long delay, boolean async) {
+		this(plugin, delay, -1, async);
+	}
+
+	/**
+	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * <p>
+	 * @param plugin The plugin that owns this task.
+	 * @param useScriptLoaderExecutor Whether to use the script loader executor. Setting is based on the config.sk user setting.
+	 * @param delay Delay in ticks before the task is run for the first time.
+	 */
+	public Task(Plugin plugin, boolean useScriptLoaderExecutor, long delay) {
+		this(plugin, useScriptLoaderExecutor, delay, false);
+	}
+
+	private Task(Plugin plugin, boolean useScriptLoaderExecutor, long delay, boolean async) {
+		this.useScriptLoaderExecutor = useScriptLoaderExecutor;
 		this.plugin = plugin;
 		this.async = async;
 		schedule(delay);
@@ -54,7 +106,14 @@ public abstract class Task implements Runnable, Closeable {
 		assert !isAlive();
 		if (!Skript.getInstance().isEnabled())
 			return;
-
+		if (useScriptLoaderExecutor) {
+			Executor executor = ScriptLoader.getExecutor();
+			if (delay > 0) {
+				taskID = Bukkit.getScheduler().runTaskLater(plugin, () -> executor.execute(this), delay);
+			} else {
+				executor.execute(this);
+			}
+		} else {
 		if (period == -1) {
 			if (async) {
 				taskID = Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, delay).getTaskId();
