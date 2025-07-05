@@ -33,8 +33,8 @@ public class CondHasPotion extends Condition {
 			CondHasPotion.class,
 			PropertyCondition.getPatterns(
 				PropertyType.HAVE,
-				"livingentities",
-				"[any] potion[s] [effect[s]] [%-potioneffecttypes%]"
+				"([any] potion effect[s]|potion[s] [effect[s]] %-potioneffecttypes%)",
+				"livingentities"
 			)
 		);
 	}
