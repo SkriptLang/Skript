@@ -341,7 +341,7 @@ public class ScriptLoader {
 				asyncLoaderSize > 0 ? asyncLoaderSize : Runtime.getRuntime().availableProcessors(),
 				ForkJoinPool.defaultForkJoinWorkerThreadFactory,
 				null,
-				false
+				isAsync()
 			) {
 				@Override
 				public ForkJoinWorkerThreadFactory getFactory() {
