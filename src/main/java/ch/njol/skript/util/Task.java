@@ -94,6 +94,7 @@ public abstract class Task implements Runnable, Closeable {
 		this(plugin, useScriptLoaderExecutor, delay, false);
 	}
 
+	// Private because async and useScriptLoaderExecutor contradict each other, as the script loader executor may be asynchronous.
 	private Task(Plugin plugin, boolean useScriptLoaderExecutor, long delay, boolean async) {
 		this.useScriptLoaderExecutor = useScriptLoaderExecutor;
 		this.plugin = plugin;
