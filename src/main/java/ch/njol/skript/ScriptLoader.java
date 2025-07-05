@@ -335,20 +335,16 @@ public class ScriptLoader {
 		if (loaderThreads.size() != size)
 			throw new IllegalStateException();
 		
-		if (asyncLoaderSize <= 0) {
-			executor = Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance());
-		} else {
-			executor = Executors.newFixedThreadPool(asyncLoaderSize, new ThreadFactory() {
-				private final AtomicInteger threadId = new AtomicInteger(0);
+		executor = Executors.newFixedThreadPool(asyncLoaderSize, new ThreadFactory() {
+			private final AtomicInteger threadId = new AtomicInteger(0);
 
-				@Override
-				public Thread newThread(Runnable runnable) {
-					Thread thread = new Thread(asyncLoaderThreadGroup, runnable, "Skript async loaders thread " + threadId.incrementAndGet());
-					thread.setDaemon(true);
-					return thread;
-				}
-			});
-		}
+			@Override
+			public Thread newThread(Runnable runnable) {
+				Thread thread = new Thread(asyncLoaderThreadGroup, runnable, "Skript async loaders thread " + threadId.incrementAndGet());
+				thread.setDaemon(true);
+				return thread;
+			}
+		});
 	}
 
 	/**
