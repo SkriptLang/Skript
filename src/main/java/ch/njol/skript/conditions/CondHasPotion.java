@@ -63,7 +63,7 @@ public class CondHasPotion extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String effects = (potionEffects == null) ? "any potion" : "potion " + potionEffects.toString(event, debug);
+		String effects = (potionEffects == null) ? "any potion effect" : "potion " + potionEffects.toString(event, debug);
 		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, livingEntities, effects);
 	}
 
