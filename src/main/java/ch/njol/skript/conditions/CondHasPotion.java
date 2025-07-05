@@ -17,26 +17,33 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Has Potion")
-@Description("Checks whether the given living entities have specific potion effects.")
-@Examples({"if player has potion speed:",
+@Description("Checks whether the given living entities have potion effects.")
+@Examples({
+	"if player has potion speed:",
 		"\tsend \"You are sonic!\"",
 		"",
 		"if all players have potion effects speed and haste:",
-		"\tbroadcast \"You are ready to MINE!\""})
+		"\tbroadcast \"You are ready to MINE!\""
+})
 @Since("2.6.1")
 public class CondHasPotion extends Condition {
 
 	static {
-		Skript.registerCondition(CondHasPotion.class,
-				"%livingentities% (has|have) potion[s] [effect[s]] %potioneffecttypes%",
-				"%livingentities% (doesn't|does not|do not|don't) have potion[s] [effect[s]] %potioneffecttypes%");
+		Skript.registerCondition(
+			CondHasPotion.class,
+			PropertyCondition.getPatterns(
+				PropertyType.HAVE,
+				"livingentities",
+				"[any] potion[s] [effect[s]] [%-potioneffecttypes%]"
+			)
+		);
 	}
-	
-	private Expression<LivingEntity> livingEntities;
+
 	private Expression<PotionEffectType> potionEffects;
+	private Expression<LivingEntity> livingEntities;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		livingEntities = (Expression<LivingEntity>) exprs[0];
 		potionEffects = (Expression<PotionEffectType>) exprs[1];
@@ -45,17 +52,19 @@ public class CondHasPotion extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
-		return livingEntities.check(e,
-				livingEntity -> potionEffects.check(e,
-					livingEntity::hasPotionEffect
-				), isNegated());
+	public boolean check(Event event) {
+		if (potionEffects == null) {
+			return livingEntities.check(event, entity -> !isNegated(), isNegated());
+		}
+		return livingEntities.check(event,
+				entity -> potionEffects.check(event, entity::hasPotionEffect),
+				isNegated());
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, livingEntities,
-				"potion " + potionEffects.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		String effects = (potionEffects == null) ? "any potion" : "potion " + potionEffects.toString(event, debug);
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, livingEntities, effects);
 	}
 
 }
