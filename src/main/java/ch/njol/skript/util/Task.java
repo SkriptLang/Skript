@@ -4,10 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +38,7 @@ public abstract class Task implements Runnable, Closeable {
 	}
 
 	/**
-	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * Creates a new task that will run after the given delay and then repeat every period ticks optionally asyncronously.
 	 * <p>
 	 * @param plugin The plugin that owns this task.
 	 * @param delay Delay in ticks before the task is run for the first time.
@@ -56,22 +53,29 @@ public abstract class Task implements Runnable, Closeable {
 	}
 
 	/**
-	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * Creates a new task that will run after the given delay.
 	 * <p>
 	 * @param plugin The plugin that owns this task.
-	 * @param useScriptLoaderExecutor Whether to use the script loader executor. Setting is based on the config.sk user setting.
 	 * @param delay Delay in ticks before the task is run for the first time.
-	 * @param period Period in ticks between subsequent executions of the task.
 	 */
 	public Task(Plugin plugin, long delay) {
 		this(plugin, false, delay, false);
 	}
 
 	/**
-	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * Creates a new task that will run optionally on the script loader executor.
 	 * <p>
 	 * @param plugin The plugin that owns this task.
 	 * @param useScriptLoaderExecutor Whether to use the script loader executor. Setting is based on the config.sk user setting.
+	 */
+	public Task(Plugin plugin, boolean useScriptLoaderExecutor) {
+		this(plugin, useScriptLoaderExecutor, 0, false);
+	}
+
+	/**
+	 * Creates a new task that will run after the given delay and optionally asynchronously.
+	 * <p>
+	 * @param plugin The plugin that owns this task.
 	 * @param delay Delay in ticks before the task is run for the first time.
 	 * @param async Whether to run the task asynchronously
 	 */
@@ -80,7 +84,7 @@ public abstract class Task implements Runnable, Closeable {
 	}
 
 	/**
-	 * Creates a new task that will run after the given delay and then repeat every period ticks.
+	 * Creates a new task that will run optionally on the script loader executor and after a delay.
 	 * <p>
 	 * @param plugin The plugin that owns this task.
 	 * @param useScriptLoaderExecutor Whether to use the script loader executor. Setting is based on the config.sk user setting.
@@ -109,25 +113,26 @@ public abstract class Task implements Runnable, Closeable {
 		if (useScriptLoaderExecutor) {
 			Executor executor = ScriptLoader.getExecutor();
 			if (delay > 0) {
-				taskID = Bukkit.getScheduler().runTaskLater(plugin, () -> executor.execute(this), delay);
+				taskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> executor.execute(this), delay);
 			} else {
 				executor.execute(this);
 			}
 		} else {
-		if (period == -1) {
-			if (async) {
-				taskID = Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, delay).getTaskId();
+			if (period == -1) {
+				if (async) {
+					taskID = Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, delay).getTaskId();
+				} else {
+					taskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this, delay);
+				}
 			} else {
-				taskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this, delay);
+				if (async) {
+					taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this, delay, period).getTaskId();
+				} else {
+					taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, delay, period);
+				}
 			}
-		} else {
-			if (async) {
-				taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this, delay, period).getTaskId();
-			} else {
-				taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, delay, period);
-			}
+			assert taskID != -1;
 		}
-		assert taskID != -1;
 	}
 
 	/**
