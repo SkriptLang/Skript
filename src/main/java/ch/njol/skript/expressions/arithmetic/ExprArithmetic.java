@@ -326,10 +326,27 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	}
 
 	private boolean error(Class<?> firstClass, Class<?> secondClass) {
-		ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
-		if (first.getC() != Object.class && second.getC() != Object.class) // errors with "object" are not very useful and often misleading
-			Skript.error(operator.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
+		String error = getArithmeticErrorMessage(operator, firstClass, secondClass);
+		if (error != null)
+			Skript.error(error);
 		return false;
+	}
+
+	/**
+	 * Get an error message in format of "'operator' cant be performed on 'left' and 'right'".
+	 * @param operator The {@link Operator} that was attempted operate
+	 * @param left The left {@link Class} attempted to be operated on
+	 * @param right The right {@link Class} attempted to be operated with
+	 * @return The {@link String} error message
+	 */
+	public static @Nullable String getArithmeticErrorMessage(Operator operator, Class<?> left, Class<?> right) {
+		ClassInfo<?> first = Classes.getSuperClassInfo(left);
+		ClassInfo<?> second = Classes.getSuperClassInfo(right);
+		if (!first.getC().equals(Object.class) && !second.getC().equals(Object.class)) {
+			return operator.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and "
+				+ second.getName().withIndefiniteArticle();
+		}
+		return null;
 	}
 
 	@Override
