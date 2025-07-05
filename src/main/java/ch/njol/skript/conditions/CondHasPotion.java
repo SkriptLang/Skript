@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -12,7 +12,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-import org.bukkit.Registry;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
@@ -20,13 +19,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Has Potion")
 @Description("Checks whether the given living entities have potion effects.")
-@Examples({
-	"if player has potion speed:",
-		"\tsend \"You are sonic!\"",
-		"",
-		"if all players have potion effects speed and haste:",
-		"\tbroadcast \"You are ready to MINE!\""
-})
+@Example("""
+	if player has potion speed:
+		send "You are sonic!"
+		if all players have potion effects speed and haste:
+			broadcast "You are ready to MINE!"
+""")
 @Since("2.6.1")
 public class CondHasPotion extends Condition {
 
