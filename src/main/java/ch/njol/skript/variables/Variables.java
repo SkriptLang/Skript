@@ -82,7 +82,7 @@ public class Variables {
 	 */
 	private static final String CONFIGURATION_SERIALIZABLE_PREFIX = "ConfigurationSerializable_";
 
-	private static final String EPHEMERAL_VARIABLE_PREFIX = "-";
+	public static final String EPHEMERAL_VARIABLE_PREFIX = "-";
 
 	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
 
