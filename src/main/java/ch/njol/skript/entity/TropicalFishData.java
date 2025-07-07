@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.TropicalFish;
@@ -14,7 +15,7 @@ import java.util.Objects;
 
 public class TropicalFishData extends EntityData<TropicalFish> {
 
-	private static final EntityPatterns<Pattern> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Pattern> PATTERNS = new Patterns<>(new Object[][]{
 		{"tropical fish", null},
 		{"kob", Pattern.KOB},
 		{"sunstreak", Pattern.SUNSTREAK},
@@ -45,7 +46,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		this.fishPattern = fishPattern;
 		this.bodyColor = bodyColor;
 		this.patternColor = patternColor;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(fishPattern)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0);
 	}
 
 	@Override
@@ -78,7 +79,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 			bodyColor = tropicalFish.getBodyColor();
 			patternColor = tropicalFish.getPatternColor();
 			fishPattern = tropicalFish.getPattern();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(fishPattern)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0);
 		}
 		return true;
 	}
@@ -99,11 +100,11 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 
 	@Override
 	protected boolean match(TropicalFish tropicalFish) {
-		if (bodyColor != null && bodyColor != tropicalFish.getBodyColor())
+		if (!dataMatch(bodyColor, tropicalFish.getBodyColor()))
 			return false;
-		if (patternColor != null && patternColor != tropicalFish.getPatternColor())
+		if (!dataMatch(patternColor, tropicalFish.getPatternColor()))
 			return false;
-		return fishPattern == null || fishPattern == tropicalFish.getPattern();
+		return dataMatch(fishPattern, tropicalFish.getPattern());
 	}
 
 	@Override
@@ -136,11 +137,11 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		if (!(entityData instanceof TropicalFishData other))
 			return false;
 
-		if (bodyColor != null && bodyColor != other.bodyColor)
+		if (!dataMatch(bodyColor, other.bodyColor))
 			return false;
-		if (patternColor != null && patternColor != other.patternColor)
+		if (!dataMatch(patternColor, other.patternColor))
 			return false;
-		return fishPattern == null || fishPattern == other.fishPattern;
+		return dataMatch(fishPattern, other.fishPattern);
 	}
 
 }

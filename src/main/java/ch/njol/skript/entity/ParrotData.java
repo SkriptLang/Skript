@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Parrot.Variant;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public class ParrotData extends EntityData<Parrot> {
 
 	private static final Variant[] VARIANTS = Variant.values();
-	private static final EntityPatterns<Variant> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Variant> PATTERNS = new Patterns<>(new Object[][]{
 		{"parrot", null},
 		{"red parrot", Variant.RED},
 		{"blue parrot", Variant.BLUE},
@@ -31,7 +32,7 @@ public class ParrotData extends EntityData<Parrot> {
 	
 	public ParrotData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class ParrotData extends EntityData<Parrot> {
 	protected boolean init(@Nullable Class<? extends Parrot> entityClass, @Nullable Parrot parrot) {
 		if (parrot != null) {
 			variant = parrot.getVariant();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
 		}
 		return true;
 	}
@@ -60,7 +61,7 @@ public class ParrotData extends EntityData<Parrot> {
 
 	@Override
 	protected boolean match(Parrot parrot) {
-		return variant == null || variant == parrot.getVariant();
+		return dataMatch(variant, parrot.getVariant());
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class ParrotData extends EntityData<Parrot> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof ParrotData other))
 			return false;
-		return variant == null || variant == other.variant;
+		return dataMatch(variant, other.variant);
 	}
 	
 }

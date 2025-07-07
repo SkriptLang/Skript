@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Salmon;
 import org.bukkit.entity.Salmon.Variant;
@@ -13,12 +14,12 @@ public class SalmonData extends EntityData<Salmon> {
 
 	private static final boolean SUPPORT_SALMON_VARIANTS = Skript.classExists("org.bukkit.entity.Salmon$Variant");
 	private static final Object[] VARIANTS;
-	private static final EntityPatterns<Object> PATTERNS;
+	private static final Patterns<Object> PATTERNS;
 
 	static {
 		if (SUPPORT_SALMON_VARIANTS) {
 			VARIANTS = Salmon.Variant.values();
-			PATTERNS = new EntityPatterns<>(new Object[][]{
+			PATTERNS = new Patterns<>(new Object[][]{
 				{"salmon", null},
 				{"any salmon", null},
 				{"small salmon", Variant.SMALL},
@@ -27,7 +28,7 @@ public class SalmonData extends EntityData<Salmon> {
 			});
 		} else {
 			VARIANTS = null;
-			PATTERNS = new EntityPatterns<>(new Object[][]{
+			PATTERNS = new Patterns<>(new Object[][]{
 				{"salmon", null}
 			});
 		}
@@ -42,7 +43,7 @@ public class SalmonData extends EntityData<Salmon> {
 	// TODO: When safe, 'variant' should have the type changed to 'Salmon.Variant' when 1.21.2 is minimum supported version
 	public SalmonData(@Nullable Object variant) {
 		this.variant = variant;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
 	}
 
 	@Override
@@ -55,7 +56,7 @@ public class SalmonData extends EntityData<Salmon> {
 	protected boolean init(@Nullable Class<? extends Salmon> entityClass, @Nullable Salmon salmon) {
 		if (salmon != null && SUPPORT_SALMON_VARIANTS) {
 			variant = salmon.getVariant();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
 		}
 		return true;
 	}
@@ -95,14 +96,14 @@ public class SalmonData extends EntityData<Salmon> {
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (!(entityData instanceof SalmonData other))
 			return false;
-        return variant == null || variant == other.variant;
+        return variant == other.variant;
     }
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof SalmonData other))
 			return false;
-		return variant == null || variant == other.variant;
+		return dataMatch(variant, other.variant);
 	}
 
 }

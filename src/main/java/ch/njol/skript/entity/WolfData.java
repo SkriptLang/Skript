@@ -5,6 +5,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Color;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
@@ -17,41 +18,18 @@ import java.util.Objects;
 
 public class WolfData extends EntityData<Wolf> {
 
-	public enum WolfState {
-		WOLF(Kleenean.UNKNOWN, Kleenean.UNKNOWN),
-		WILD(Kleenean.UNKNOWN, Kleenean.FALSE),
-		TAMED(Kleenean.UNKNOWN, Kleenean.TRUE),
-		ANGRY(Kleenean.TRUE, Kleenean.UNKNOWN),
-		PEACEFUL(Kleenean.FALSE, Kleenean.UNKNOWN);
+	public record WolfStates(Kleenean angry, Kleenean tamed) {}
 
-		private final Kleenean angry;
-		private final Kleenean tamed;
-
-		WolfState(Kleenean angry, Kleenean tamed) {
-			this.angry = angry;
-			this.tamed = tamed;
-		}
-
-		public static WolfState getWolfState(Kleenean angry, Kleenean tamed) {
-			for (WolfState wolfState : values()) {
-				if (wolfState.angry == angry && wolfState.tamed == tamed)
-					return wolfState;
-			}
-			return null;
-		}
-	}
-
-	private static final EntityPatterns<WolfState> PATTERNS = new EntityPatterns<>(new Object[][]{
-		{"wolf", WolfState.WOLF},
-		{"wild wolf", WolfState.WILD},
-		{"tamed wolf", WolfState.TAMED},
-		{"angry wolf", WolfState.ANGRY},
-		{"peaceful wolf", WolfState.PEACEFUL}
+	private static final Patterns<WolfStates> PATTERNS = new Patterns<>(new Object[][]{
+		{"wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN)},
+		{"wild wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.FALSE)},
+		{"tamed wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.TRUE)},
+		{"angry wolf", new WolfStates(Kleenean.TRUE, Kleenean.UNKNOWN)},
+		{"peaceful wolf", new WolfStates(Kleenean.FALSE, Kleenean.UNKNOWN)}
 	});
 
 	private static final boolean VARIANTS_ENABLED;
 	private static final Object[] VARIANTS;
-
 
 	static {
 		EntityData.register(WolfData.class, "wolf", Wolf.class, 0, PATTERNS.getPatterns());
@@ -74,24 +52,24 @@ public class WolfData extends EntityData<Wolf> {
 	public WolfData(@Nullable Kleenean isAngry, @Nullable Kleenean isTamed) {
 		this.isAngry = isAngry != null ? isAngry : Kleenean.UNKNOWN;
 		this.isTamed = isTamed != null ? isTamed : Kleenean.UNKNOWN;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(WolfState.getWolfState(this.isAngry, this.isTamed))[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(this.isAngry, this.isTamed), 0);
 	}
 
-	public WolfData(@Nullable WolfState wolfState) {
+	public WolfData(@Nullable WolfStates wolfState) {
 		if (wolfState != null) {
 			this.isAngry = wolfState.angry;
 			this.isTamed = wolfState.tamed;
-			super.dataCodeName = PATTERNS.getMatchedPatterns(wolfState)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(wolfState, 0);
 		} else {
 			this.isAngry = Kleenean.UNKNOWN;
 			this.isTamed = Kleenean.UNKNOWN;
-			super.dataCodeName = PATTERNS.getMatchedPatterns(WolfState.WOLF)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0);
 		}
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		WolfState state = PATTERNS.getInfo(matchedCodeName);
+		WolfStates state = PATTERNS.getInfo(matchedCodeName);
 		assert state != null;
 		isAngry = state.angry;
 		isTamed = state.tamed;
@@ -114,7 +92,7 @@ public class WolfData extends EntityData<Wolf> {
 			collarColor = wolf.getCollarColor();
 			if (VARIANTS_ENABLED)
 				variant = wolf.getVariant();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(WolfState.getWolfState(isAngry, isTamed))[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(isAngry, isTamed), 0);
 		}
 		return true;
 	}
@@ -134,11 +112,11 @@ public class WolfData extends EntityData<Wolf> {
 
 	@Override
 	public boolean match(Wolf wolf) {
-		if (!isAngry.isUnknown() && isAngry != Kleenean.get(wolf.isAngry()))
+		if (!kleeneanMatch(isAngry, wolf.isAngry()))
 			return false;
-		if (!isTamed.isUnknown() && isTamed != Kleenean.get(wolf.isTamed()))
+		if (!kleeneanMatch(isTamed, wolf.isTamed()))
 			return false;
-		if (collarColor != null && collarColor != wolf.getCollarColor())
+		if (!dataMatch(collarColor, wolf.getCollarColor()))
 			return false;
 		return variant == null || variant == wolf.getVariant();
 	}
@@ -181,13 +159,13 @@ public class WolfData extends EntityData<Wolf> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof WolfData other))
 			return false;
-		if (!isAngry.isUnknown() && isAngry != other.isAngry)
+		if (!kleeneanMatch(isAngry, other.isAngry))
 			return false;
-		if (!isTamed.isUnknown() && isTamed != other.isTamed)
+		if (!kleeneanMatch(isTamed, other.isTamed))
 			return false;
-		if (collarColor != null && collarColor != other.collarColor)
+		if (!dataMatch(collarColor, other.collarColor))
 			return false;
-		return variant == null || variant == other.variant;
+		return dataMatch(variant, other.variant);
 	}
 
 	/**

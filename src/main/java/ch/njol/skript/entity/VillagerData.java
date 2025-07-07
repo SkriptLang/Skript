@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Villager;
@@ -20,7 +21,7 @@ public class VillagerData extends EntityData<Villager> {
 	 * for villagers.
 	 */
 	private static final Profession[] PROFESSIONS;
-	private static final EntityPatterns<Profession> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Profession> PATTERNS = new Patterns<>(new Object[][]{
 		{"villager", null},
 		{"unemployed", Profession.NONE},
 		{"armorer", Profession.ARMORER},
@@ -55,7 +56,7 @@ public class VillagerData extends EntityData<Villager> {
 	
 	public VillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(profession)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
 	}
 	
 	@Override
@@ -68,7 +69,7 @@ public class VillagerData extends EntityData<Villager> {
 	protected boolean init(@Nullable Class<? extends Villager> villagerClass, @Nullable Villager villager) {
 		if (villager != null) {
 			profession = villager.getProfession();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(profession)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
 		}
 		return true;
 	}
@@ -86,7 +87,7 @@ public class VillagerData extends EntityData<Villager> {
 	
 	@Override
 	protected boolean match(Villager villager) {
-		return profession == null || profession == villager.getProfession();
+		return dataMatch(profession, villager.getProfession());
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class VillagerData extends EntityData<Villager> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof VillagerData other))
 			return false;
-		return profession == null || profession.equals(other.profession);
+		return dataMatch(profession, other.profession);
 	}
 
 }

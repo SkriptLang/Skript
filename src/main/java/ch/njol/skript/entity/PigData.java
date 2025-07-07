@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
@@ -17,7 +18,7 @@ public class PigData extends EntityData<Pig> {
 
 	private static final boolean VARIANTS_ENABLED;
 	private static final Object[] VARIANTS;
-	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
 		{"pig", Kleenean.UNKNOWN},
 		{"saddled pig", Kleenean.TRUE},
 		{"unsaddled pig", Kleenean.FALSE}
@@ -43,7 +44,7 @@ public class PigData extends EntityData<Pig> {
 	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
 		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(saddled)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.saddled, 0);
 	}
 	
 	@Override
@@ -60,7 +61,7 @@ public class PigData extends EntityData<Pig> {
 	protected boolean init(@Nullable Class<? extends Pig> entityClass, @Nullable Pig pig) {
 		if (pig != null) {
 			saddled = Kleenean.get(pig.hasSaddle());
-			super.dataCodeName = PATTERNS.getMatchedPatterns(saddled)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(saddled, 0);
 			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
 		}
@@ -79,7 +80,7 @@ public class PigData extends EntityData<Pig> {
 	
 	@Override
 	protected boolean match(Pig pig) {
-		if (!saddled.isUnknown() && saddled != Kleenean.get(pig.hasSaddle()))
+		if (!kleeneanMatch(saddled, pig.hasSaddle()))
 			return false;
 		return variant == null || variant == pig.getVariant();
 	}
@@ -112,7 +113,7 @@ public class PigData extends EntityData<Pig> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof PigData other))
 			return false;
-		if (!saddled.isUnknown() && saddled != other.saddled)
+		if (!kleeneanMatch(saddled, other.saddled))
 			return false;
 		return variant == null || variant == other.variant;
 	}

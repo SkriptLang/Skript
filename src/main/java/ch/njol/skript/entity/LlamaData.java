@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Llama.Color;
@@ -13,17 +14,19 @@ import java.util.Objects;
 
 public class LlamaData extends EntityData<Llama> {
 
-	private static final EntityPatterns<Color> PATTERNS =  new EntityPatterns<>(new Object[][]{
-		{"llama", null},
-		{"creamy llama", Color.CREAMY},
-		{"white llama", Color.WHITE},
-		{"brown llama", Color.BROWN},
-		{"gray llama", Color.GRAY},
-		{"trader llama", null},
-		{"creamy trader llama", Color.CREAMY},
-		{"white trader llama", Color.WHITE},
-		{"brown trader llama", Color.BROWN},
-		{"gray trader llama", Color.GRAY}
+	public record LlamaState(Color color, boolean trader) {}
+
+	private static final Patterns<LlamaState> PATTERNS =  new Patterns<>(new Object[][]{
+		{"llama", new LlamaState(null, false)},
+		{"creamy llama", new LlamaState(Color.CREAMY, false)},
+		{"white llama", new LlamaState(Color.WHITE, false)},
+		{"brown llama", new LlamaState(Color.BROWN, false)},
+		{"gray llama", new LlamaState(Color.GRAY, false)},
+		{"trader llama", new LlamaState(null, true)},
+		{"creamy trader llama", new LlamaState(Color.CREAMY, true)},
+		{"white trader llama", new LlamaState(Color.WHITE, true)},
+		{"brown trader llama", new LlamaState(Color.BROWN, true)},
+		{"gray trader llama", new LlamaState(Color.GRAY, true)}
 	});
 	private static final Color[] LLAMA_COLORS = Color.values();
 
@@ -39,13 +42,27 @@ public class LlamaData extends EntityData<Llama> {
 	public LlamaData(@Nullable Color color, boolean isTrader) {
 		this.color = color;
 		this.isTrader = isTrader;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(color)[!isTrader ? 0 : 1];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0);
+	}
+
+	public LlamaData(@Nullable LlamaState llamaState) {
+		if (llamaState != null) {
+			this.color = llamaState.color;
+			this.isTrader = llamaState.trader;
+			super.codeNameIndex = PATTERNS.getMatchedPattern(llamaState, 0);
+		} else {
+			this.color = null;
+			this.isTrader = false;
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(null, false), 0);
+		}
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		isTrader = matchedCodeName > 4;
-		color = PATTERNS.getInfo(matchedCodeName);
+		LlamaState llamaState = PATTERNS.getInfo(matchedCodeName);
+		assert llamaState != null;
+		color = llamaState.color;
+		isTrader = llamaState.trader;
 		return true;
 	}
 	
@@ -56,7 +73,7 @@ public class LlamaData extends EntityData<Llama> {
 		if (llama != null) {
 			color = llama.getColor();
 			isTrader = llama instanceof TraderLlama;
-			super.dataCodeName = PATTERNS.getMatchedPatterns(color)[!isTrader ? 0 : 1];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0);
 		}
 		return true;
 	}
@@ -74,7 +91,7 @@ public class LlamaData extends EntityData<Llama> {
 	protected boolean match(Llama llama) {
 		if (isTrader && !(llama instanceof TraderLlama))
 			return false;
-		return color == null || color == llama.getColor();
+		return dataMatch(color, llama.getColor());
 	}
 	
 	@Override
@@ -110,7 +127,7 @@ public class LlamaData extends EntityData<Llama> {
 
 		if (isTrader && !other.isTrader)
 			return false;
-		return color == null || color == other.color;
+		return dataMatch(color, other.color);
 	}
 	
 }

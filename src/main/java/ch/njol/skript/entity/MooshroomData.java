@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 public class MooshroomData extends EntityData<MushroomCow> {
 
-	private static final EntityPatterns<Variant> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Variant> PATTERNS = new Patterns<>(new Object[][]{
 		{"mooshroom", null},
 		{"red mooshroom", Variant.RED},
 		{"brown mooshroom", Variant.BROWN}
@@ -29,7 +30,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	
 	public MooshroomData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant,0);
 	}
 	
 	@Override
@@ -42,7 +43,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	protected boolean init(@Nullable Class<? extends MushroomCow> entityClass, @Nullable MushroomCow mushroomCow) {
 		if (mushroomCow != null) {
 			variant = mushroomCow.getVariant();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant,0);
 		}
 		return true;
 	}
@@ -58,7 +59,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	
 	@Override
 	protected boolean match(MushroomCow mushroomCow) {
-		return variant == null || variant == mushroomCow.getVariant();
+		return dataMatch(variant, mushroomCow.getVariant());
 	}
 	
 	@Override
@@ -87,7 +88,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof MooshroomData other))
 			return false;
-		return variant == null || variant == other.variant;
+		return dataMatch(variant, other.variant);
 	}
 
 }

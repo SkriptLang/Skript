@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.entity.ZombieVillager;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class ZombieVillagerData extends EntityData<ZombieVillager> {
 
 	private static final Profession[] PROFESSIONS;
-	private static final EntityPatterns<Profession> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Profession> PATTERNS = new Patterns<>(new Object[][]{
 		{"zombie villager", null},
 		{"zombie normal", Profession.NONE},
 		{"zombie armorer", Profession.ARMORER},
@@ -47,7 +48,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	
 	public ZombieVillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(profession)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
 	}
 
 	@Override
@@ -60,7 +61,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	protected boolean init(@Nullable Class<? extends ZombieVillager> entityClass, @Nullable ZombieVillager zombieVillager) {
 		if (zombieVillager != null) {
 			profession = zombieVillager.getVillagerProfession();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(profession)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
 		}
 		return true;
 	}
@@ -76,7 +77,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	
 	@Override
 	protected boolean match(ZombieVillager zombieVillager) {
-		return profession == null || profession == zombieVillager.getVillagerProfession();
+		return dataMatch(profession, zombieVillager.getVillagerProfession());
 	}
 	
 	@Override
@@ -105,7 +106,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof ZombieVillagerData other))
 			return false;
-		return profession == null || profession == other.profession;
+		return dataMatch(profession, other.profession);
 	}
 
 }

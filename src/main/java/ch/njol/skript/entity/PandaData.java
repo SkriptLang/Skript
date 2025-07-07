@@ -60,12 +60,9 @@ public class PandaData extends EntityData<Panda> {
 	
 	@Override
 	protected boolean match(Panda panda) {
-		boolean matched = true;
-		if (mainGene != null)
-			matched &= (mainGene == panda.getMainGene());
-		if (hiddenGene != null)
-			matched &= (hiddenGene == panda.getHiddenGene());
-		return matched;
+		if (!dataMatch(mainGene, panda.getMainGene()))
+			return false;
+		return dataMatch(hiddenGene, panda.getHiddenGene());
 	}
 	
 	@Override
@@ -98,7 +95,9 @@ public class PandaData extends EntityData<Panda> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof PandaData other))
 			return false;
-		return (mainGene == null || mainGene == other.mainGene) && (hiddenGene == null || hiddenGene == other.hiddenGene);
+		if (!dataMatch(mainGene, other.mainGene))
+			return false;
+		return dataMatch(hiddenGene, other.hiddenGene);
 	}
 	
 	@Override

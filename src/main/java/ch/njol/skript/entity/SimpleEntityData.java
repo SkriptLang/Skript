@@ -283,7 +283,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	private SimpleEntityData(SimpleEntityDataInfo simpleInfo) {
 		assert simpleInfo != null;
 		this.simpleInfo = simpleInfo;
-		dataCodeName = types.indexOf(simpleInfo);
+		codeNameIndex = types.indexOf(simpleInfo);
 	}
 	
 	public SimpleEntityData(Class<? extends Entity> entityClass) {
@@ -302,7 +302,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.simpleInfo = closestInfo;
-			this.dataCodeName = closestPattern;
+			this.codeNameIndex = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();
@@ -323,7 +323,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.simpleInfo = closestInfo;
-			this.dataCodeName = closestPattern;
+			this.codeNameIndex = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();

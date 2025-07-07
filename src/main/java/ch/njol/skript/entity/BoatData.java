@@ -49,7 +49,7 @@ public class BoatData extends EntityData<Boat> {
 	}
 	
 	private BoatData(int type) {
-		dataCodeName = type;
+		codeNameIndex = type;
 	}
 
 	@Override
@@ -60,21 +60,21 @@ public class BoatData extends EntityData<Boat> {
 	@Override
 	protected boolean init(@Nullable Class<? extends Boat> entityClass, @Nullable Boat boat) {
 		if (boat != null)
-			dataCodeName = 2 + boat.getBoatType().ordinal();
+			codeNameIndex = 2 + boat.getBoatType().ordinal();
 		return true;
 	}
 
 	@Override
 	public void set(Boat boat) {
-		if (dataCodeName == 1) // If the type is 'any boat'.
-			dataCodeName += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
-		if (dataCodeName > 1) // 0 and 1 are excluded
-			boat.setBoatType(types[dataCodeName - 2]); // Removes 2 to fix the index.
+		if (codeNameIndex == 1) // If the type is 'any boat'.
+			codeNameIndex += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
+		if (codeNameIndex > 1) // 0 and 1 are excluded
+			boat.setBoatType(types[codeNameIndex - 2]); // Removes 2 to fix the index.
 	}
 
 	@Override
 	protected boolean match(Boat boat) {
-		return dataCodeName <= 1 || boat.getBoatType().ordinal() == dataCodeName - 2;
+		return codeNameIndex <= 1 || boat.getBoatType().ordinal() == codeNameIndex - 2;
 	}
 
 	@Override
@@ -84,25 +84,25 @@ public class BoatData extends EntityData<Boat> {
 
 	@Override
 	public @NotNull EntityData<?> getSuperType() {
-		return new BoatData(dataCodeName);
+		return new BoatData(codeNameIndex);
 	}
 
 	@Override
 	protected int hashCode_i() {
-		return dataCodeName <= 1 ? 0 : dataCodeName;
+		return codeNameIndex <= 1 ? 0 : codeNameIndex;
 	}
 
 	@Override
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (entityData instanceof BoatData other)
-			return dataCodeName == other.dataCodeName;
+			return codeNameIndex == other.codeNameIndex;
 		return false;
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (entityData instanceof BoatData other)
-			return dataCodeName <= 1 || dataCodeName == other.dataCodeName;
+			return codeNameIndex <= 1 || codeNameIndex == other.codeNameIndex;
 		return false;
 	}
 
@@ -137,7 +137,7 @@ public class BoatData extends EntityData<Boat> {
 			// material is a boat AND (data matches any boat OR material and data are same)
 			if (type != null) {
 				ordinal = type.ordinal();
-				if (dataCodeName <= 1 || dataCodeName == ordinal + 2)
+				if (codeNameIndex <= 1 || codeNameIndex == ordinal + 2)
 					return true;
 			}
 		}

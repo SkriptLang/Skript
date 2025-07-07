@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.minecart.CommandMinecart;
@@ -34,7 +35,7 @@ public class MinecartData extends EntityData<Minecart> {
 	}
 
 	private static final MinecartType[] TYPES = MinecartType.values();
-	private static final EntityPatterns<MinecartType> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<MinecartType> PATTERNS = new Patterns<>(new Object[][]{
 		{"minecart", MinecartType.ANY},
 		{"regular minecart", MinecartType.NORMAL},
 		{"storage minecart", MinecartType.STORAGE},
@@ -57,7 +58,7 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	public MinecartData(@Nullable MinecartType type) {
 		this.type = type != null ? type : MinecartType.ANY;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.type, 0);
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public class MinecartData extends EntityData<Minecart> {
 		}
 		if (this.type == null)
 			this.type = MinecartType.ANY;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
 		return true;
 	}
 	

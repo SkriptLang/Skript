@@ -50,7 +50,7 @@ public class CatData extends EntityData<Cat> {
 	
 	@Override
 	protected boolean match(Cat cat) {
-		return type == null || cat.getCatType() == type;
+		return dataMatch(type, cat.getCatType());
 	}
 	
 	@Override
@@ -79,7 +79,7 @@ public class CatData extends EntityData<Cat> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof CatData other))
 			return false;
-		return type == null || type == other.type;
+		return dataMatch(type, other.type);
 	}
 
 }

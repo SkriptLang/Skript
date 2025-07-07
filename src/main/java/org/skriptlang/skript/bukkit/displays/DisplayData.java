@@ -78,7 +78,7 @@ public class DisplayData extends EntityData<Display> {
 
 	public DisplayData(DisplayType type) {
 		this.type = type;
-		this.dataCodeName = type.ordinal();
+		this.codeNameIndex = type.ordinal();
 	}
 
 	@Override

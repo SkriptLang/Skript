@@ -1,18 +1,18 @@
 package ch.njol.skript.entity;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Creeper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-
 import java.util.Objects;
 
 public class CreeperData extends EntityData<Creeper> {
 
-	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
 		{"creeper", Kleenean.UNKNOWN},
 		{"powered creeper", Kleenean.TRUE},
 		{"unpowered creeper", Kleenean.FALSE}
@@ -28,7 +28,7 @@ public class CreeperData extends EntityData<Creeper> {
 
 	public CreeperData(@Nullable Kleenean powered)  {
 		this.powered = powered != null ? powered : Kleenean.UNKNOWN;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(this.powered)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.powered, 0);
 	}
 	
 	@Override
@@ -41,7 +41,7 @@ public class CreeperData extends EntityData<Creeper> {
 	protected boolean init(@Nullable Class<? extends Creeper> entityClass, @Nullable Creeper creeper) {
 		if (creeper != null) {
 			powered = Kleenean.get(creeper.isPowered());
-			super.dataCodeName = PATTERNS.getMatchedPatterns(powered)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(powered, 0);
 		}
 		return true;
 	}
@@ -53,7 +53,7 @@ public class CreeperData extends EntityData<Creeper> {
 	
 	@Override
 	public boolean match(Creeper creeper) {
-		return powered.isUnknown() || powered == Kleenean.get(creeper.isPowered());
+		return kleeneanMatch(powered, creeper.isPowered());
 	}
 	
 	@Override
@@ -82,7 +82,7 @@ public class CreeperData extends EntityData<Creeper> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof CreeperData other))
 			return false;
-		return powered.isUnknown() || powered == other.powered;
+		return kleeneanMatch(powered, other.powered);
 	}
 
 }

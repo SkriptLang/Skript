@@ -119,7 +119,7 @@ public class CowData extends EntityData<Cow> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof CowData other))
 			return false;
-		return variant == null || variant == other.variant;
+		return dataMatch(variant, other.variant);
 	}
 
 	/**

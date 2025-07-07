@@ -6,12 +6,10 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -32,18 +30,19 @@ public class CondIsSpawnable extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsSpawnable.class, ConditionType.COMBINED,
-			"%entitytypes% is spawnable [in [the [world]] %-world%]",
-			"%entitytypes% can be spawned [in [the [world]] %-world%]",
-			"%entitytypes% (isn't|is not) spawnable [in [the [world]] %-world%]",
-			"%entitytypes% (can't|can not) be spawned [in [the [world]] %-world%]");
+			"%entitydatas% is spawnable [in [the [world]] %-world%]",
+			"%entitydatas% can be spawned [in [the [world]] %-world%]",
+			"%entitydatas% (isn't|is not) spawnable [in [the [world]] %-world%]",
+			"%entitydatas% (can't|can not) be spawned [in [the [world]] %-world%]");
 	}
 
-	private Expression<?> types;
+	private Expression<EntityData<?>> datas;
 	private @Nullable Expression<World> world = null;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		types = exprs[0];
+		//noinspection unchecked
+		datas = (Expression<EntityData<?>>) exprs[0];
 		if (exprs[1] != null) {
 			//noinspection unchecked
 			world = (Expression<World>) exprs[1];
@@ -62,22 +61,13 @@ public class CondIsSpawnable extends Condition {
 			world = Bukkit.getWorlds().get(0);
 
 		World finalWorld = world;
-		return SimpleExpression.check(types.getArray(event), object -> {
-			if (object instanceof EntityData<?> entityData) {
-				return entityData.canSpawn(finalWorld);
-			} else if (object instanceof EntityType entityType) {
-				EntityData<?> entityData = entityType.data;
-				if (entityData != null)
-					return entityData.canSpawn(finalWorld);
-			}
-			return false;
-		}, isNegated(), types.getAnd());
+		return datas.check(event, entityData -> entityData.canSpawn(finalWorld), isNegated());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append(types, "is");
+		builder.append(datas, "is");
 		if (isNegated())
 			builder.append("not");
 		builder.append("spawnable");

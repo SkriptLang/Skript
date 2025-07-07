@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Goat;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ import java.util.Objects;
 
 public class GoatData extends EntityData<Goat> {
 
-	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
 		{"goat", Kleenean.UNKNOWN},
 		{"screaming goat", Kleenean.TRUE},
 		{"quiet goat", Kleenean.FALSE}
@@ -27,6 +28,7 @@ public class GoatData extends EntityData<Goat> {
 
 	public GoatData(@Nullable Kleenean screaming) {
 		this.screaming = screaming != null ? screaming : Kleenean.UNKNOWN;
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.screaming, 0);
 	}
 
 	@Override
@@ -39,7 +41,7 @@ public class GoatData extends EntityData<Goat> {
 	protected boolean init(@Nullable Class<? extends Goat> entityClass, @Nullable Goat goat) {
 		if (goat != null) {
 			screaming = Kleenean.get(goat.isScreaming());
-			super.dataCodeName = PATTERNS.getMatchedPatterns(screaming)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(screaming, 0);
 		}
 		return true;
 	}
@@ -51,7 +53,7 @@ public class GoatData extends EntityData<Goat> {
 
 	@Override
 	protected boolean match(Goat goat) {
-		return screaming.isUnknown() || screaming == Kleenean.get(goat.isScreaming());
+		return kleeneanMatch(screaming, goat.isScreaming());
 	}
 
 	@Override
@@ -80,7 +82,7 @@ public class GoatData extends EntityData<Goat> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof GoatData other))
 			return false;
-		return screaming.isUnknown() || screaming == other.screaming;
+		return kleeneanMatch(screaming, other.screaming);
 	}
 
 }

@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Fox;
 import org.bukkit.entity.Fox.Type;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 public class FoxData extends EntityData<Fox> {
 	
-	private static final EntityPatterns<Type> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Type> PATTERNS = new Patterns<>(new Object[][]{
 		{"fox", null},
 		{"red fox", Type.RED},
 		{"snow fox", Type.SNOW}
@@ -29,7 +30,7 @@ public class FoxData extends EntityData<Fox> {
 	
 	public FoxData(@Nullable Type type) {
 		this.type = type;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
 	}
 	
 	@Override
@@ -42,7 +43,7 @@ public class FoxData extends EntityData<Fox> {
 	protected boolean init(@Nullable Class<? extends Fox> entityClass, @Nullable Fox fox) {
 		if (fox != null) {
 			type = fox.getFoxType();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
 		}
 		return true;
 	}
@@ -58,7 +59,7 @@ public class FoxData extends EntityData<Fox> {
 	
 	@Override
 	protected boolean match(Fox fox) {
-		return type == null || type == fox.getFoxType();
+		return dataMatch(type, fox.getFoxType());
 	}
 	
 	@Override
@@ -87,7 +88,7 @@ public class FoxData extends EntityData<Fox> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof FoxData other))
 			return false;
-		return type == null || type == other.type;
+		return dataMatch(type, other.type);
 	}
 
 }

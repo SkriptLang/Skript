@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Bee;
 import org.jetbrains.annotations.NotNull;
@@ -12,45 +13,18 @@ import java.util.Random;
 
 public class BeeData extends EntityData<Bee> {
 
-	public enum BeeState {
-		BEE(Kleenean.UNKNOWN, Kleenean.UNKNOWN),
-		NO_NECTAR(Kleenean.UNKNOWN, Kleenean.FALSE),
-		NECTAR(Kleenean.UNKNOWN, Kleenean.TRUE),
-		HAPPY(Kleenean.FALSE, Kleenean.UNKNOWN),
-		HAPPY_NECTAR(Kleenean.FALSE, Kleenean.TRUE),
-		HAPPY_NO_NECTAR(Kleenean.FALSE, Kleenean.FALSE),
-		ANGRY(Kleenean.TRUE, Kleenean.UNKNOWN),
-		ANGRY_NO_NECTAR(Kleenean.TRUE, Kleenean.FALSE),
-		ANGRY_NECTAR(Kleenean.TRUE, Kleenean.TRUE);
+	public record BeeState(Kleenean angry, Kleenean nectar) {}
 
-		private final Kleenean angry;
-		private final Kleenean nectar;
-
-		BeeState(Kleenean angry, Kleenean nectar) {
-			this.angry = angry;
-			this.nectar = nectar;
-		}
-
-		public static BeeState getBeeState(Kleenean angry, Kleenean nectar) {
-			for (BeeState beeState : BeeState.values()) {
-				if (beeState.angry == angry && beeState.nectar == nectar)
-					return beeState;
-			}
-			return null;
-		}
-
-	}
-
-	private static final EntityPatterns<BeeState> PATTERNS = new EntityPatterns<>(new Object[][]{
-		{"bee", BeeState.BEE},
-		{"no nectar bee", BeeState.NO_NECTAR},
-		{"nectar bee", BeeState.NECTAR},
-		{"happy bee", BeeState.HAPPY},
-		{"happy nectar bee", BeeState.HAPPY_NECTAR},
-		{"happy no nectar bee", BeeState.HAPPY_NO_NECTAR},
-		{"angry bee", BeeState.ANGRY},
-		{"angry no nectar bee", BeeState.ANGRY_NO_NECTAR},
-		{"angry nectar bee", BeeState.ANGRY_NECTAR}
+	private static final Patterns<BeeState> PATTERNS = new Patterns<>(new Object[][]{
+		{"bee", new BeeState(Kleenean.UNKNOWN, Kleenean.UNKNOWN)},
+		{"no nectar bee", new BeeState(Kleenean.UNKNOWN, Kleenean.FALSE)},
+		{"nectar bee", new BeeState(Kleenean.UNKNOWN, Kleenean.TRUE)},
+		{"happy bee", new BeeState(Kleenean.FALSE, Kleenean.UNKNOWN)},
+		{"happy nectar bee", new BeeState(Kleenean.FALSE, Kleenean.TRUE)},
+		{"happy no nectar bee", new BeeState(Kleenean.FALSE, Kleenean.FALSE)},
+		{"angry bee", new BeeState(Kleenean.TRUE, Kleenean.UNKNOWN)},
+		{"angry no nectar bee", new BeeState(Kleenean.TRUE, Kleenean.FALSE)},
+		{"angry nectar bee", new BeeState(Kleenean.TRUE, Kleenean.TRUE)}
 	});
 
 	static {
@@ -65,18 +39,18 @@ public class BeeData extends EntityData<Bee> {
 	public BeeData(@Nullable Kleenean isAngry, @Nullable Kleenean hasNectar) {
 		this.isAngry = isAngry != null ? isAngry : Kleenean.UNKNOWN;
 		this.hasNectar = hasNectar != null ? hasNectar : Kleenean.UNKNOWN;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(BeeState.getBeeState(this.isAngry, this.hasNectar))[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(this.isAngry, this.hasNectar), 0);
 	}
 
 	public BeeData(@Nullable BeeState beeState) {
 		if (beeState != null) {
 			this.isAngry = beeState.angry;
 			this.hasNectar = beeState.nectar;
-			super.dataCodeName = PATTERNS.getMatchedPatterns(beeState)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(beeState, 0);
 		} else {
 			this.isAngry = Kleenean.UNKNOWN;
 			this.hasNectar = Kleenean.UNKNOWN;
-			super.dataCodeName = PATTERNS.getMatchedPatterns(BeeState.BEE)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0);
 		}
 	}
 	
@@ -94,7 +68,7 @@ public class BeeData extends EntityData<Bee> {
 		if (bee != null) {
 			isAngry = Kleenean.get(bee.getAnger() > 0);
 			hasNectar = Kleenean.get(bee.hasNectar());
-			super.dataCodeName = PATTERNS.getMatchedPatterns(BeeState.getBeeState(isAngry, hasNectar))[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(isAngry, hasNectar), 0);
 		}
 		return true;
 	}
@@ -108,9 +82,9 @@ public class BeeData extends EntityData<Bee> {
 	
 	@Override
 	protected boolean match(Bee bee) {
-		if (!isAngry.isUnknown() && isAngry != Kleenean.get(bee.getAnger() > 0))
+		if (!kleeneanMatch(isAngry, bee.getAnger() > 0))
 			return false;
-		return hasNectar.isUnknown() || hasNectar == Kleenean.get(bee.hasNectar());
+		return kleeneanMatch(hasNectar, bee.hasNectar());
     }
 	
 	@Override
@@ -143,9 +117,9 @@ public class BeeData extends EntityData<Bee> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof BeeData other))
 			return false;
-		if (!isAngry.isUnknown() && isAngry != other.isAngry)
+		if (!kleeneanMatch(isAngry, other.isAngry))
 			return false;
-		return hasNectar.isUnknown() || hasNectar == other.hasNectar;
+		return kleeneanMatch(hasNectar, other.hasNectar);
 	}
 
 }

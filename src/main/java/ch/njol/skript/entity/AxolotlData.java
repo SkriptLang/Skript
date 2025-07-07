@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Axolotl.Variant;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 public class AxolotlData extends EntityData<Axolotl> {
 
-	private static final EntityPatterns<Variant> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Variant> PATTERNS = new Patterns<>(new Object[][]{
 		{"axolotl", null},
 		{"lucy axolotl", Variant.LUCY},
 		{"wild axolotl", Variant.WILD},
@@ -32,7 +33,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	public AxolotlData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 	protected boolean init(@Nullable Class<? extends Axolotl> entityClass, @Nullable Axolotl axolotl) {
 		if (axolotl != null) {
 			variant = axolotl.getVariant();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(variant)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
 		}
 		return true;
 	}
@@ -61,7 +62,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	@Override
 	protected boolean match(Axolotl axolotl) {
-		return variant == null || variant == axolotl.getVariant();
+		return dataMatch(variant, axolotl.getVariant());
 	}
 
 	@Override
@@ -90,7 +91,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof AxolotlData other))
 			return false;
-		return variant == null || variant == other.variant;
+		return dataMatch(variant, other.variant);
 	}
 
 }

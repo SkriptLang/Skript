@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Strider;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ import java.util.Objects;
 
 public class StriderData extends EntityData<Strider> {
 
-	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
 		{"strider", Kleenean.UNKNOWN},
 		{"warm strider", Kleenean.FALSE},
 		{"shivering strider", Kleenean.TRUE}
@@ -27,7 +28,7 @@ public class StriderData extends EntityData<Strider> {
 
 	public StriderData(@Nullable Kleenean shivering) {
 		this.shivering = shivering != null ? shivering : Kleenean.UNKNOWN;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(shivering)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.shivering, 0);
 	}
 
 	@Override
@@ -40,7 +41,7 @@ public class StriderData extends EntityData<Strider> {
 	protected boolean init(@Nullable Class<? extends Strider> entityClass, @Nullable Strider strider) {
 		if (strider != null) {
 			shivering = Kleenean.get(strider.isShivering());
-			super.dataCodeName = PATTERNS.getMatchedPatterns(shivering)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(shivering, 0);
 		}
 		return true;
 	}
@@ -52,7 +53,7 @@ public class StriderData extends EntityData<Strider> {
 
 	@Override
 	protected boolean match(Strider strider) {
-		return shivering.isUnknown() || shivering == Kleenean.get(strider.isShivering());
+		return kleeneanMatch(shivering, strider.isShivering());
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class StriderData extends EntityData<Strider> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof StriderData other))
 			return false;
-		return shivering.isUnknown() || shivering == other.shivering;
+		return kleeneanMatch(shivering, other.shivering);
 	}
 
 }

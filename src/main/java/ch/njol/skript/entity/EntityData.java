@@ -318,7 +318,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	/**
 	 * References the corresponding code name in the order they're registered.
 	 */
-	protected int dataCodeName = 0;
+	protected int codeNameIndex = 0;
 	private Kleenean plural = Kleenean.UNKNOWN;
 	private Kleenean baby = Kleenean.UNKNOWN;
 
@@ -326,7 +326,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		for (EntityDataInfo<?> info : infos) {
 			if (getClass() == info.getElementClass()) {
 				this.info = info;
-				dataCodeName = info.defaultName;
+				codeNameIndex = info.defaultName;
 				return;
 			}
 		}
@@ -355,7 +355,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		String codeName = info.getCodeNameFromPattern(matchedPattern);
 		int matchedCodeName = info.getCodeNamePlacement(codeName);
 		int patternInCodeName = info.getPatternInCodeName(matchedPattern);
-		this.dataCodeName = matchedCodeName;
+		this.codeNameIndex = matchedCodeName;
 		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedCodeName, patternInCodeName, parseResult);
 	}
 
@@ -453,7 +453,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@SuppressWarnings("null")
 	protected Noun getName() {
-		return info.names[dataCodeName];
+		return info.names[codeNameIndex];
 	}
 
 	protected @Nullable Adjective getAgeAdjective() {
@@ -467,7 +467,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	@SuppressWarnings("null")
 	public String toString(int flags) {
-		Noun name = info.names[dataCodeName];
+		Noun name = info.names[codeNameIndex];
 		if (baby.isTrue()) {
 			return m_baby.toString(name, flags);
 		} else if (baby.isFalse()) {
@@ -504,7 +504,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		int result = 1;
 		result = prime * result + baby.hashCode();
 		result = prime * result + plural.hashCode();
-		result = prime * result + dataCodeName;
+		result = prime * result + codeNameIndex;
 		result = prime * result + info.hashCode();
 		result = prime * result + hashCode_i();
 		return result;
@@ -531,7 +531,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			return false;
 		if (plural != other.plural)
 			return false;
-		if (dataCodeName != other.dataCodeName)
+		if (codeNameIndex != other.codeNameIndex)
 			return false;
 		if (!info.equals(other.info))
 			return false;
@@ -908,6 +908,43 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		if (world == null)
 			return null;
 		return world.createEntity(location, type);
+	}
+
+	/**
+	 * Checks if {@code from} is {@link Kleenean#UNKNOWN} or is equal to {@code to}.
+	 *
+	 * @param from The {@link Kleenean} to compare to.
+	 * @param to The {@link boolean} to compare against.
+	 * @return {@code true} if {@code from} is {@link Kleenean#UNKNOWN} or is equal to {@code to}, otherwise {@code false}.
+	 */
+	protected boolean kleeneanMatch(Kleenean from, boolean to) {
+		return kleeneanMatch(from, Kleenean.get(to));
+	}
+
+	/**
+	 * Checks if {@code from} is {@link Kleenean#UNKNOWN} or is equal to {@code to}.
+	 *
+	 * @param from The {@link Kleenean} to compare to.
+	 * @param to The {@link boolean} to compare against.
+	 * @return {@code true} if {@code from} is {@link Kleenean#UNKNOWN} or is equal to {@code to}, otherwise {@code false}.
+	 */
+	protected boolean kleeneanMatch(Kleenean from, Kleenean to) {
+		if (from.isUnknown())
+			return true;
+		return from == to;
+	}
+
+	/**
+	 * Checks if {@code from} is {@code null} or is equal to {@code to}.
+	 *
+	 * @param from The object to compare to.
+	 * @param to The object to compare against.
+	 * @return {@code true} if {@code from} is {@code null} or is equal to {@code to}, otherwise {@code false}.
+	 */
+	protected <T> boolean dataMatch(@Nullable T from, T to) {
+		if (from == null)
+			return true;
+		return from == to;
 	}
 
 }

@@ -7,6 +7,7 @@ import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.util.Color;
+import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -18,7 +19,7 @@ import java.util.Arrays;
 
 public class SheepData extends EntityData<Sheep> {
 
-	private static final EntityPatterns<Kleenean> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
 		{"sheep", Kleenean.UNKNOWN},
 		{"sheared sheep", Kleenean.TRUE},
 		{"unsheared sheep", Kleenean.FALSE}
@@ -37,7 +38,7 @@ public class SheepData extends EntityData<Sheep> {
 	public SheepData(@Nullable Kleenean sheared, Color @Nullable [] colors) {
 		this.sheared = sheared != null ? sheared : Kleenean.UNKNOWN;
 		this.colors = colors;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(this.sheared)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.sheared, 0);
 	}
 
 	@Override
@@ -55,7 +56,7 @@ public class SheepData extends EntityData<Sheep> {
 		if (sheep != null) {
 			sheared = Kleenean.get(sheep.isSheared());
 			colors = CollectionUtils.array(SkriptColor.fromDyeColor(sheep.getColor()));
-			super.dataCodeName = PATTERNS.getMatchedPatterns(sheared)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(sheared, 0);
 		}
 		return true;
 	}
@@ -72,7 +73,7 @@ public class SheepData extends EntityData<Sheep> {
 
 	@Override
 	public boolean match(Sheep sheep) {
-		if (!sheared.isUnknown() && sheared != Kleenean.get(sheep.isSheared()))
+		if (!kleeneanMatch(sheared, sheep.isSheared()))
 			return false;
 		return colors == null || SimpleExpression.check(colors, c -> sheep.getColor() == c.asDyeColor(), false, false);
 	}
@@ -109,7 +110,7 @@ public class SheepData extends EntityData<Sheep> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof SheepData other))
 			return false;
-		if (!sheared.isUnknown() && sheared != other.sheared)
+		if (!kleeneanMatch(sheared, other.sheared))
 			return false;
 		return colors == null || CollectionUtils.isSubset(colors, other.colors);
 	}

@@ -2,6 +2,7 @@ package ch.njol.skript.entity;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Rabbit.Type;
@@ -12,7 +13,7 @@ public class RabbitData extends EntityData<Rabbit> {
 
 	private static final Type[] TYPES = Type.values();
 
-	private static final EntityPatterns<Type> PATTERNS = new EntityPatterns<>(new Object[][]{
+	private static final Patterns<Type> PATTERNS = new Patterns<>(new Object[][]{
 		{"rabbit", null},
 		{"white rabbit", Type.WHITE},
 		{"black rabbit", Type.BLACK},
@@ -33,7 +34,7 @@ public class RabbitData extends EntityData<Rabbit> {
     
     public RabbitData(@Nullable Type type) {
     	this.type = type;
-		super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
+		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
 	}
 
     @Override
@@ -46,7 +47,7 @@ public class RabbitData extends EntityData<Rabbit> {
     protected boolean init(@Nullable Class<? extends Rabbit> entityClass, @Nullable Rabbit rabbit) {
 		if (rabbit != null) {
 			type = rabbit.getRabbitType();
-			super.dataCodeName = PATTERNS.getMatchedPatterns(type)[0];
+			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
 		}
         return true;
     }
@@ -62,7 +63,7 @@ public class RabbitData extends EntityData<Rabbit> {
 
 	@Override
     protected boolean match(Rabbit rabbit) {
-		return type == null || type == rabbit.getRabbitType();
+		return dataMatch(type, rabbit.getRabbitType());
     }
 
     @Override
@@ -91,7 +92,7 @@ public class RabbitData extends EntityData<Rabbit> {
     public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof RabbitData other))
 			return false;
-        return type == null || type == other.type;
+        return dataMatch(type, other.type);
     }
 
 }
