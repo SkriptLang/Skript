@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitDoubleMinValue extends SimpleLiteral<Double> {
 
 	static {
-		Skript.registerExpression(LitDoubleMinValue.class, Double.class, ExpressionType.SIMPLE, "min[imum] double value");
+		Skript.registerExpression(LitDoubleMinValue.class, Double.class, ExpressionType.SIMPLE, "[the] min[imum] double value");
 	}
 
 	public LitDoubleMinValue() {

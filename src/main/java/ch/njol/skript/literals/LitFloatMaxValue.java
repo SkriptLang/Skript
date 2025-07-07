@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitFloatMaxValue extends SimpleLiteral<Float> {
 
 	static {
-		Skript.registerExpression(LitFloatMaxValue.class, Float.class, ExpressionType.SIMPLE, "max[imum] float value");
+		Skript.registerExpression(LitFloatMaxValue.class, Float.class, ExpressionType.SIMPLE, "[the] max[imum] float value");
 	}
 
 	public LitFloatMaxValue() {

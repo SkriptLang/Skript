@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitLongMinValue extends SimpleLiteral<Long> {
 
 	static {
-		Skript.registerExpression(LitLongMinValue.class, Long.class, ExpressionType.SIMPLE, "min[imum] long value");
+		Skript.registerExpression(LitLongMinValue.class, Long.class, ExpressionType.SIMPLE, "[the] min[imum] long value");
 	}
 
 	public LitLongMinValue() {

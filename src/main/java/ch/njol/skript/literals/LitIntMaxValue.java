@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitIntMaxValue extends SimpleLiteral<Integer> {
 
 	static {
-		Skript.registerExpression(LitIntMaxValue.class, Integer.class, ExpressionType.SIMPLE, "max[imum] integer value");
+		Skript.registerExpression(LitIntMaxValue.class, Integer.class, ExpressionType.SIMPLE, "[the] max[imum] integer value");
 	}
 
 	public LitIntMaxValue() {

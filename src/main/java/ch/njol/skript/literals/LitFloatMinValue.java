@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitFloatMinValue extends SimpleLiteral<Float> {
 
 	static {
-		Skript.registerExpression(LitFloatMinValue.class, Float.class, ExpressionType.SIMPLE, "min[imum] float value");
+		Skript.registerExpression(LitFloatMinValue.class, Float.class, ExpressionType.SIMPLE, "[the] min[imum] float value");
 	}
 
 	public LitFloatMinValue() {

@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitLongMaxValue extends SimpleLiteral<Long> {
 
 	static {
-		Skript.registerExpression(LitLongMaxValue.class, Long.class, ExpressionType.SIMPLE, "max[imum] long value");
+		Skript.registerExpression(LitLongMaxValue.class, Long.class, ExpressionType.SIMPLE, "[the] max[imum] long value");
 	}
 
 	public LitLongMaxValue() {

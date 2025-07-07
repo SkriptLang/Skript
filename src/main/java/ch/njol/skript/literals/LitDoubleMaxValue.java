@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class LitDoubleMaxValue extends SimpleLiteral<Double> {
 
 	static {
-		Skript.registerExpression(LitDoubleMaxValue.class, Double.class, ExpressionType.SIMPLE, "max[imum] double value");
+		Skript.registerExpression(LitDoubleMaxValue.class, Double.class, ExpressionType.SIMPLE, "[the] max[imum] double value");
 	}
 
 	public LitDoubleMaxValue() {
