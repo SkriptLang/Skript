@@ -255,6 +255,11 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T>, S
 	 */
 	Expression<?> getSource();
 
+	@Override
+	default Expression<? extends T> simplify() {
+		return this;
+	}
+
 	/**
 	 * Tests whether this expression supports the given mode, and if yes what type it expects the <code>delta</code> to be.
 	 * <p>
