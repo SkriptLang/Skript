@@ -66,10 +66,14 @@ public class Patterns<T> {
 	}
 
 	/**
-	 * Gets all pattern indices that correlate to {@code type}.
+	 * Retrieves all pattern indices that are associated with {@code type}.
+	 * <p>
+	 *     These indices represent the positions of matched patterns registered
+	 *     for the provided typed object.
+	 * </p>
 	 *
-	 * @param type The typed object.
-	 * @return An array of pattern indices.
+	 * @param type The typed object to look up.
+	 * @return An array of matched pattern indices, or {@code null} if no patterns are registered for the given type.
 	 */
 	public Integer @Nullable [] getMatchedPatterns(@Nullable T type) {
 		Optional<?> optional = Optional.ofNullable(type);
@@ -79,37 +83,24 @@ public class Patterns<T> {
 	}
 
 	/**
-	 * Gets an {@link java.lang.reflect.Array} of all patterns
-	 * 		registered to {@code type} and the index of the pattern using {@code placement}.
-	 * If there are no patterns registered to {@code type} or the array size is less than {@code placement}
-	 * 		returns {@code 0}.
+	 * Retrieves the index of a specific matched pattern for the give {@code type}, based on the provided {@code arrayIndex}.
+	 * <p>
+	 *     This method looks up all matched pattern indices for the specified type and returns the index at {@code arrayIndex},
+	 *     if it exists.
+	 * </p>
 	 *
-	 * @param type The typed object to grab all patterns registered to.
-	 * @param placement The placement of the array for the index of the pattern.
-	 * @return The index of the pattern or {@code 0} if no registered patterns for {@code type}
-	 * 			or array size is less than {@code placement}.
+	 * @param type The object whose registered patterns should be retrieved.
+	 * @param arrayIndex The position in the matched pattern array to retrieve/
+	 * @return An {@link Optional} containing the matched pattern index at the specified position, 
+	 *			or {@link Optional#empty()} if no patterns are registered for {@code type}
+	 *			or if the array does not contain enough elements.
+	 * @see #getMatchedPatterns(Object) 	
 	 */
-	public int getMatchedPattern(@Nullable T type, int placement) {
-		return getMatchedPattern(type, placement, 0);
-	}
-
-	/**
-	 * Gets an {@link java.lang.reflect.Array} of all patterns
-	 * 		registered to {@code type} and the index of the pattern using {@code placement}.
-	 * If there are no patterns registered to {@code type} or the array size is less than {@code placement}
-	 * 		returns {@code fallback}.
-	 *
-	 * @param type The typed object to grab all patterns registered to.
-	 * @param placement The placement of the array for the index of the pattern.
-	 * @param fallback The value to fall back to.
-	 * @return The index of the pattern or {@code null} if no registered patterns for {@code type}
-	 * 			or array size is less than {@code placement}.
-	 */
-	public int getMatchedPattern(@Nullable T type, int placement, int fallback) {
-		Integer[] placements = getMatchedPatterns(type);
-		if (placements == null || placements.length < placement + 1)
-			return fallback;
-		return placements[placement];
+	public Optional<Integer> getMatchedPattern(@Nullable T type, int arrayIndex) {
+		Integer[] patternIndices = getMatchedPatterns(type);
+		if (patternIndices == null || patternIndices.length < arrayIndex + 1)
+			return Optional.empty();
+		return Optional.of(patternIndices[arrayIndex]);
 	}
 	
 }

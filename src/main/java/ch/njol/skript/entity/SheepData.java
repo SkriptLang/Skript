@@ -38,7 +38,7 @@ public class SheepData extends EntityData<Sheep> {
 	public SheepData(@Nullable Kleenean sheared, Color @Nullable [] colors) {
 		this.sheared = sheared != null ? sheared : Kleenean.UNKNOWN;
 		this.colors = colors;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.sheared, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.sheared, 0).orElse(0);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class SheepData extends EntityData<Sheep> {
 		if (sheep != null) {
 			sheared = Kleenean.get(sheep.isSheared());
 			colors = CollectionUtils.array(SkriptColor.fromDyeColor(sheep.getColor()));
-			super.codeNameIndex = PATTERNS.getMatchedPattern(sheared, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(sheared, 0).orElse(0);
 		}
 		return true;
 	}

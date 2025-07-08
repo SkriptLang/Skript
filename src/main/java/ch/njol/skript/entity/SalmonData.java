@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Salmon;
 import org.bukkit.entity.Salmon.Variant;
@@ -26,6 +27,8 @@ public class SalmonData extends EntityData<Salmon> {
 				{"medium salmon", Variant.MEDIUM},
 				{"large salmon", Variant.LARGE}
 			});
+
+			Variables.yggdrasil.registerSingleClass(Variant.class, "Salmon.Variant");
 		} else {
 			VARIANTS = null;
 			PATTERNS = new Patterns<>(new Object[][]{
@@ -43,7 +46,7 @@ public class SalmonData extends EntityData<Salmon> {
 	// TODO: When safe, 'variant' should have the type changed to 'Salmon.Variant' when 1.21.2 is minimum supported version
 	public SalmonData(@Nullable Object variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
@@ -56,7 +59,7 @@ public class SalmonData extends EntityData<Salmon> {
 	protected boolean init(@Nullable Class<? extends Salmon> entityClass, @Nullable Salmon salmon) {
 		if (salmon != null && SUPPORT_SALMON_VARIANTS) {
 			variant = salmon.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

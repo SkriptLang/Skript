@@ -36,7 +36,7 @@ public class DroppedItemData extends EntityData<Item> {
 	
 	private final static Adjective m_adjective = new Adjective("entities.dropped item.adjective");
 
-	private ItemType @Nullable [] types;
+	private ItemType @Nullable [] types = null;
 	
 	public DroppedItemData() {}
 	
@@ -67,7 +67,18 @@ public class DroppedItemData extends EntityData<Item> {
 		}
 		return true;
 	}
-	
+
+	@Override
+	public void set(Item item) {
+		if (types == null)
+			return;
+		ItemType itemType = CollectionUtils.getRandom(types);
+		assert itemType != null;
+		ItemStack stack = itemType.getItem().getRandom();
+		assert stack != null; // should be true by init checks
+		item.setItemStack(stack);
+	}
+
 	@Override
 	protected boolean match(Item item) {
 		if (types != null) {
@@ -79,18 +90,7 @@ public class DroppedItemData extends EntityData<Item> {
 		}
 		return true;
 	}
-	
-	@Override
-	public void set(Item item) {
-		if (types == null)
-			return;
-		ItemType itemType = CollectionUtils.getRandom(types);
-		assert itemType != null;
-		ItemStack stack = itemType.getItem().getRandom();
-		assert stack != null; // should be true by init checks
-		item.setItemStack(stack);
-	}
-	
+
 	@Override
 	public Class<? extends Item> getType() {
 		return Item.class;

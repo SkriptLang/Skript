@@ -44,7 +44,7 @@ public class PigData extends EntityData<Pig> {
 	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
 		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.saddled, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.saddled, 0).orElse(0);
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public class PigData extends EntityData<Pig> {
 	protected boolean init(@Nullable Class<? extends Pig> entityClass, @Nullable Pig pig) {
 		if (pig != null) {
 			saddled = Kleenean.get(pig.hasSaddle());
-			super.codeNameIndex = PATTERNS.getMatchedPattern(saddled, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(saddled, 0).orElse(0);
 			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
 		}

@@ -56,7 +56,7 @@ public class VillagerData extends EntityData<Villager> {
 	
 	public VillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0).orElse(0);
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ public class VillagerData extends EntityData<Villager> {
 	protected boolean init(@Nullable Class<? extends Villager> villagerClass, @Nullable Villager villager) {
 		if (villager != null) {
 			profession = villager.getProfession();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0).orElse(0);
 		}
 		return true;
 	}

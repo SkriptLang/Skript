@@ -39,18 +39,18 @@ public class BeeData extends EntityData<Bee> {
 	public BeeData(@Nullable Kleenean isAngry, @Nullable Kleenean hasNectar) {
 		this.isAngry = isAngry != null ? isAngry : Kleenean.UNKNOWN;
 		this.hasNectar = hasNectar != null ? hasNectar : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(this.isAngry, this.hasNectar), 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(this.isAngry, this.hasNectar), 0).orElse(0);
 	}
 
 	public BeeData(@Nullable BeeState beeState) {
 		if (beeState != null) {
 			this.isAngry = beeState.angry;
 			this.hasNectar = beeState.nectar;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(beeState, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(beeState, 0).orElse(0);
 		} else {
 			this.isAngry = Kleenean.UNKNOWN;
 			this.hasNectar = Kleenean.UNKNOWN;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0).orElse(0);
 		}
 	}
 	
@@ -68,7 +68,7 @@ public class BeeData extends EntityData<Bee> {
 		if (bee != null) {
 			isAngry = Kleenean.get(bee.getAnger() > 0);
 			hasNectar = Kleenean.get(bee.hasNectar());
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(isAngry, hasNectar), 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(isAngry, hasNectar), 0).orElse(0);
 		}
 		return true;
 	}

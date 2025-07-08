@@ -28,7 +28,7 @@ public class GoatData extends EntityData<Goat> {
 
 	public GoatData(@Nullable Kleenean screaming) {
 		this.screaming = screaming != null ? screaming : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.screaming, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.screaming, 0).orElse(0);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class GoatData extends EntityData<Goat> {
 	protected boolean init(@Nullable Class<? extends Goat> entityClass, @Nullable Goat goat) {
 		if (goat != null) {
 			screaming = Kleenean.get(goat.isScreaming());
-			super.codeNameIndex = PATTERNS.getMatchedPattern(screaming, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(screaming, 0).orElse(0);
 		}
 		return true;
 	}

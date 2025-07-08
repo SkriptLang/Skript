@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Fox;
 import org.bukkit.entity.Fox.Type;
@@ -22,6 +23,8 @@ public class FoxData extends EntityData<Fox> {
 
 	static {
 		EntityData.register(FoxData.class, "fox", Fox.class, 0, PATTERNS.getPatterns());
+
+		Variables.yggdrasil.registerSingleClass(Type.class, "Fox.Type");
 	}
 
 	private @Nullable Type type = null;
@@ -30,7 +33,7 @@ public class FoxData extends EntityData<Fox> {
 	
 	public FoxData(@Nullable Type type) {
 		this.type = type;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
 	}
 	
 	@Override
@@ -43,7 +46,7 @@ public class FoxData extends EntityData<Fox> {
 	protected boolean init(@Nullable Class<? extends Fox> entityClass, @Nullable Fox fox) {
 		if (fox != null) {
 			type = fox.getFoxType();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
 		}
 		return true;
 	}

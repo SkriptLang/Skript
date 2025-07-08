@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
@@ -22,6 +23,8 @@ public class MooshroomData extends EntityData<MushroomCow> {
 
 	static {
 		EntityData.register(MooshroomData.class, "mooshroom", MushroomCow.class, 0, PATTERNS.getPatterns());
+
+		Variables.yggdrasil.registerSingleClass(Variant.class, "MushroomCow.Variant");
 	}
 
 	private @Nullable Variant variant = null;
@@ -30,7 +33,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	
 	public MooshroomData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant,0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 	}
 	
 	@Override
@@ -43,7 +46,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	protected boolean init(@Nullable Class<? extends MushroomCow> entityClass, @Nullable MushroomCow mushroomCow) {
 		if (mushroomCow != null) {
 			variant = mushroomCow.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant,0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

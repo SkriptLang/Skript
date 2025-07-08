@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Parrot.Variant;
@@ -24,6 +25,8 @@ public class ParrotData extends EntityData<Parrot> {
 	static {
 		EntityData.register(ParrotData.class, "parrot", Parrot.class, 0,
 			PATTERNS.getPatterns());
+
+		Variables.yggdrasil.registerSingleClass(Variant.class, "Parrot.Variant");
 	}
 
 	private @Nullable Variant variant = null;
@@ -32,7 +35,7 @@ public class ParrotData extends EntityData<Parrot> {
 	
 	public ParrotData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
@@ -45,7 +48,7 @@ public class ParrotData extends EntityData<Parrot> {
 	protected boolean init(@Nullable Class<? extends Parrot> entityClass, @Nullable Parrot parrot) {
 		if (parrot != null) {
 			variant = parrot.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

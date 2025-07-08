@@ -2939,6 +2939,12 @@ cow variants:
 	temperate: temperate
 	warm: warm
 
+# -- Frog Variants --
+frog variants:
+	cold: cold
+	temperate: temperate
+	warm: warm
+
 # -- Villager Career Change Reasons
 villager career change reasons:
 	employed: employment
@@ -3113,6 +3119,7 @@ types:
 	villagercareerchangereason: villager career change reason¦s @a
 	damagesource: damage source¦s @a
 	damagetype: damage type¦s @a
+	frogvariant: frog variant¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

@@ -4,6 +4,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.TropicalFish;
@@ -34,6 +35,9 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 
 	static {
 		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0, PATTERNS.getPatterns());
+
+		Variables.yggdrasil.registerSingleClass(Pattern.class, "TropicalFish.Pattern");
+		Variables.yggdrasil.registerSingleClass(DyeColor.class, "DyeColor");
 	}
 
 	private @Nullable DyeColor bodyColor = null;
@@ -46,7 +50,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		this.fishPattern = fishPattern;
 		this.bodyColor = bodyColor;
 		this.patternColor = patternColor;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0).orElse(0);
 	}
 
 	@Override
@@ -79,7 +83,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 			bodyColor = tropicalFish.getBodyColor();
 			patternColor = tropicalFish.getPatternColor();
 			fishPattern = tropicalFish.getPattern();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0).orElse(0);
 		}
 		return true;
 	}

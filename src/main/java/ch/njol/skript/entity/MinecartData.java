@@ -58,7 +58,7 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	public MinecartData(@Nullable MinecartType type) {
 		this.type = type != null ? type : MinecartType.ANY;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.type, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.type, 0).orElse(0);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class MinecartData extends EntityData<Minecart> {
 		}
 		if (this.type == null)
 			this.type = MinecartType.ANY;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
 		return true;
 	}
 	

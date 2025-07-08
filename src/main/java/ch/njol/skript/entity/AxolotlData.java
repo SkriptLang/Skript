@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Axolotl.Variant;
@@ -25,6 +26,8 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	static {
 		EntityData.register(AxolotlData.class, "axolotl", Axolotl.class, 0, PATTERNS.getPatterns());
+
+		Variables.yggdrasil.registerSingleClass(Variant.class,  "Axolotl.Variant");
 	}
 
 	private @Nullable Variant variant = null;
@@ -33,7 +36,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	public AxolotlData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
@@ -46,7 +49,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 	protected boolean init(@Nullable Class<? extends Axolotl> entityClass, @Nullable Axolotl axolotl) {
 		if (axolotl != null) {
 			variant = axolotl.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

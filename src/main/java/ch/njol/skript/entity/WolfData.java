@@ -52,18 +52,18 @@ public class WolfData extends EntityData<Wolf> {
 	public WolfData(@Nullable Kleenean isAngry, @Nullable Kleenean isTamed) {
 		this.isAngry = isAngry != null ? isAngry : Kleenean.UNKNOWN;
 		this.isTamed = isTamed != null ? isTamed : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(this.isAngry, this.isTamed), 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(this.isAngry, this.isTamed), 0).orElse(0);
 	}
 
 	public WolfData(@Nullable WolfStates wolfState) {
 		if (wolfState != null) {
 			this.isAngry = wolfState.angry;
 			this.isTamed = wolfState.tamed;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(wolfState, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(wolfState, 0).orElse(0);
 		} else {
 			this.isAngry = Kleenean.UNKNOWN;
 			this.isTamed = Kleenean.UNKNOWN;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0).orElse(0);
 		}
 	}
 
@@ -92,7 +92,7 @@ public class WolfData extends EntityData<Wolf> {
 			collarColor = wolf.getCollarColor();
 			if (VARIANTS_ENABLED)
 				variant = wolf.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(isAngry, isTamed), 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(isAngry, isTamed), 0).orElse(0);
 		}
 		return true;
 	}

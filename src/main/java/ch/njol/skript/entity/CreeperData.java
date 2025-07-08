@@ -28,7 +28,7 @@ public class CreeperData extends EntityData<Creeper> {
 
 	public CreeperData(@Nullable Kleenean powered)  {
 		this.powered = powered != null ? powered : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.powered, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.powered, 0).orElse(0);
 	}
 	
 	@Override
@@ -41,7 +41,7 @@ public class CreeperData extends EntityData<Creeper> {
 	protected boolean init(@Nullable Class<? extends Creeper> entityClass, @Nullable Creeper creeper) {
 		if (creeper != null) {
 			powered = Kleenean.get(creeper.isPowered());
-			super.codeNameIndex = PATTERNS.getMatchedPattern(powered, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(powered, 0).orElse(0);
 		}
 		return true;
 	}

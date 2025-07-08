@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Llama.Color;
@@ -32,6 +33,8 @@ public class LlamaData extends EntityData<Llama> {
 
 	static {
 		EntityData.register(LlamaData.class, "llama", Llama.class, 0, PATTERNS.getPatterns());
+
+		Variables.yggdrasil.registerSingleClass(Color.class, "Llama.Color");
 	}
 
 	private @Nullable Color color = null;
@@ -42,18 +45,18 @@ public class LlamaData extends EntityData<Llama> {
 	public LlamaData(@Nullable Color color, boolean isTrader) {
 		this.color = color;
 		this.isTrader = isTrader;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
 	}
 
 	public LlamaData(@Nullable LlamaState llamaState) {
 		if (llamaState != null) {
 			this.color = llamaState.color;
 			this.isTrader = llamaState.trader;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(llamaState, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(llamaState, 0).orElse(0);
 		} else {
 			this.color = null;
 			this.isTrader = false;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(null, false), 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(null, false), 0).orElse(0);
 		}
 	}
 	
@@ -73,7 +76,7 @@ public class LlamaData extends EntityData<Llama> {
 		if (llama != null) {
 			color = llama.getColor();
 			isTrader = llama instanceof TraderLlama;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
 		}
 		return true;
 	}

@@ -1632,6 +1632,22 @@ public class BukkitClasses {
 			.since("2.12")
 		);
 
+		ClassInfo<?> frogVariantClassInfo = getRegistryClassInfo(
+			"org.bukkit.entity.Frog$Variant",
+			"FROG_VARIANT",
+			"frogvariant",
+			"frog variants"
+		);
+		assert frogVariantClassInfo != null;
+		Classes.registerClass(frogVariantClassInfo
+			.user("frog ?variants?")
+			.name("Frog Variant")
+			.description("Represents the variant of a frog entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("INSERT VERSION")
+			.documentationId("FrogVariant")
+		);
+
 	}
 
 	/**

@@ -34,7 +34,7 @@ public class FrogData extends EntityData<Frog> {
 
 	public FrogData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class FrogData extends EntityData<Frog> {
 	protected boolean init(@Nullable Class<? extends Frog> entityClass, @Nullable Frog frog) {
 		if (frog != null) {
 			variant = frog.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

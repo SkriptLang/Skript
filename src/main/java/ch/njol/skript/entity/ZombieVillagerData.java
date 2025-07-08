@@ -48,7 +48,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	
 	public ZombieVillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0).orElse(0);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	protected boolean init(@Nullable Class<? extends ZombieVillager> entityClass, @Nullable ZombieVillager zombieVillager) {
 		if (zombieVillager != null) {
 			profession = zombieVillager.getVillagerProfession();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(profession, 0).orElse(0);
 		}
 		return true;
 	}

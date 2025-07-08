@@ -3,6 +3,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Rabbit.Type;
@@ -26,6 +27,8 @@ public class RabbitData extends EntityData<Rabbit> {
 
     static {
 		EntityData.register(RabbitData.class, "rabbit", Rabbit.class, 0, PATTERNS.getPatterns());
+
+		Variables.yggdrasil.registerSingleClass(Type.class, "Rabbit.Type");
     }
 
     private @Nullable Type type = null;
@@ -34,7 +37,7 @@ public class RabbitData extends EntityData<Rabbit> {
     
     public RabbitData(@Nullable Type type) {
     	this.type = type;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
 	}
 
     @Override
@@ -47,7 +50,7 @@ public class RabbitData extends EntityData<Rabbit> {
     protected boolean init(@Nullable Class<? extends Rabbit> entityClass, @Nullable Rabbit rabbit) {
 		if (rabbit != null) {
 			type = rabbit.getRabbitType();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
 		}
         return true;
     }
