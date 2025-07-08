@@ -1,6 +1,8 @@
 
 local function compareData(data1: entity types, data2: entity types):
 	loop {_data1::*}:
+	    set {testDataSave} to loop-value
+	    clear {testDataSave}
 		if loop-value is spawnable:
 			spawn (loop-value) at test-location:
 				set {_entity} to event-entity

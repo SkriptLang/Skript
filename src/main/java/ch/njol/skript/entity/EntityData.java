@@ -21,10 +21,13 @@ import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
+import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -40,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -52,7 +56,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
-public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {// TODO extended horse support, zombie villagers // REMIND unit
+public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {
 
 	/*
 	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer.
@@ -151,6 +155,33 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 						return "entitydata:" + entityData.toString();
 					}
 				}).serializer(serializer));
+
+		Variables.yggdrasil.registerFieldHandler(new FieldHandler() {
+			@Override
+			public boolean excessiveField(Object object, FieldContext field) throws StreamCorruptedException {
+				if (!(object instanceof EntityData<?> entityData))
+					return false;
+				if (field.getID().equals("matchedPattern")) {
+					//noinspection DataFlowIssue
+					entityData.codeNameIndex = (int) field.getObject();
+					return true;
+				}
+				// Typically do not experience any drastic changes in field names or types
+				// If this becomes a recurrent issue, should create a method that takes FieldContext
+				//		and override on any necessary classes
+				return false;
+			}
+
+			@Override
+			public boolean missingField(Object object, Field field) throws StreamCorruptedException {
+                return object instanceof EntityData<?>;
+            }
+
+			@Override
+			public boolean incompatibleField(Object object, Field field, FieldContext context) throws StreamCorruptedException {
+				return false;
+			}
+		});
 	}
 
 	public static void onRegistrationStop() {
@@ -851,11 +882,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
 		fields.setFields(this);
-	}
-
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	protected boolean deserialize(String string) {
-		return false;
 	}
 
 	@Override

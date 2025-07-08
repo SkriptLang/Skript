@@ -57,8 +57,8 @@ public class BeeData extends EntityData<Bee> {
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		BeeState state = PATTERNS.getInfo(matchedCodeName);
-        assert state != null;
-        hasNectar = state.nectar;
+		assert state != null;
+		hasNectar = state.nectar;
 		isAngry = state.angry;
 		return true;
 	}
@@ -85,7 +85,7 @@ public class BeeData extends EntityData<Bee> {
 		if (!kleeneanMatch(isAngry, bee.getAnger() > 0))
 			return false;
 		return kleeneanMatch(hasNectar, bee.hasNectar());
-    }
+	}
 	
 	@Override
 	public Class<? extends Bee> getType() {
