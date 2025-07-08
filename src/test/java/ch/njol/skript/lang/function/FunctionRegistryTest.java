@@ -388,8 +388,9 @@ public class FunctionRegistryTest {
 		assertEquals(FunctionIdentifier.of(function2.getSignature()), identifier);
 	}
 
+	// see https://github.com/SkriptLang/Skript/pull/8015
 	@Test
-	public void testRemoveGlobal() {
+	public void testRemoveGlobalScriptFunctions8015() {
 		// create empty TEST_SCRIPT namespace such that it is not null
 		registry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
 		registry.remove(LOCAL_TEST_FUNCTION.getSignature());
