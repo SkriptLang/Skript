@@ -64,6 +64,10 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 	/**
 	 * Registers a signature.
+	 * <p>
+	 * Attempting to register a local signature in the global namespace, or a global signature in
+	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * </p>
 	 *
 	 * @param namespace The namespace to register the signature in.
 	 *                  If namespace is null, will register this signature globally.
@@ -71,14 +75,23 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param signature The signature to register.
 	 * @throws SkriptAPIException if a signature with the same name and parameters is already registered
 	 *                            in this namespace.
+	 * @throws IllegalArgumentException if the signature is global and namespace is not null, or
+	 *                                  if the signature is local and namespace is null.
 	 */
 	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
+		if (signature.isLocal() && namespace == null) {
+			throw new IllegalArgumentException("Cannot register a local signature in the global namespace");
+		}
+		if (!signature.isLocal() && namespace != null) {
+			throw new IllegalArgumentException("Cannot register a global signature in a local namespace");
+		}
+
 		Skript.debug("Registering signature '%s'", signature.getName());
 
 		// namespace
 		NamespaceIdentifier namespaceId;
-		if (namespace != null && signature.isLocal()) {
+		if (namespace != null) {
 			namespaceId = new NamespaceIdentifier(namespace);
 		} else {
 			namespaceId = GLOBAL_NAMESPACE;
@@ -118,17 +131,29 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 	/**
 	 * Registers a function.
+	 * <p>
+	 * Attempting to register a local function in the global namespace, or a global function in
+	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * </p>
 	 *
 	 * @param namespace The namespace to register the function in.
-	 *                  If namespace is null, will register this function globally.
+	 *                  If namespace is null, will register this function globally, only if the function is global.
 	 *                  Usually represents the path of the script this function is registered in.
 	 * @param function  The function to register.
-	 * @throws SkriptAPIException if the function name is invalid or if
-	 *                            a function with the same name and parameters is already registered
-	 *                            in this namespace.
+	 * @throws SkriptAPIException       if the function name is invalid or if
+	 *                                  a function with the same name and parameters is already registered
+	 *                                  in this namespace.
+	 * @throws IllegalArgumentException if the function is global and namespace is not null, or
+	 *                                  if the function is local and namespace is null.
 	 */
 	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
+		if (function.getSignature().isLocal() && namespace == null) {
+			throw new IllegalArgumentException("Cannot register a local function in the global namespace");
+		}
+		if (!function.getSignature().isLocal() && namespace != null) {
+			throw new IllegalArgumentException("Cannot register a global function in a local namespace");
+		}
 		Skript.debug("Registering function '%s'", function.getName());
 
 		String name = function.getName();
@@ -138,7 +163,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 		// namespace
 		NamespaceIdentifier namespaceId;
-		if (namespace != null && function.getSignature().isLocal()) {
+		if (namespace != null) {
 			namespaceId = new NamespaceIdentifier(namespace);
 		} else {
 			namespaceId = GLOBAL_NAMESPACE;
@@ -487,8 +512,13 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		String name = signature.getName();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
-		Namespace namespace = namespaces.getOrDefault(new NamespaceIdentifier(signature.script),
-			namespaces.get(GLOBAL_NAMESPACE));
+		Namespace namespace;
+		if (signature.isLocal()) {
+			namespace = namespaces.get(new NamespaceIdentifier(signature.script));
+		} else {
+			namespace = namespaces.get(GLOBAL_NAMESPACE);
+		}
+
 		if (namespace == null) {
 			return;
 		}
@@ -532,6 +562,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 		/**
 		 * Returns whether this identifier is for local namespaces.
+		 *
 		 * @return Whether this identifier is for local namespaces.
 		 */
 		public boolean local() {

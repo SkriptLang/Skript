@@ -104,7 +104,11 @@ public abstract class Functions {
 			namespace.addFunction(function);
 		}
 
-		FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
+		if (function.getSignature().isLocal()) {
+			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
+		} else {
+			FunctionRegistry.getRegistry().register(null, function);
+		}
 
 		return function;
 	}
