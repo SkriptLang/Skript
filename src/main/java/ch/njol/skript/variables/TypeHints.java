@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @deprecated Use {@link HintManager}.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.12", forRemoval = true)
 public class TypeHints {
 	
 	private static final Deque<Map<String, Class<?>>> typeHints = new ArrayDeque<>();

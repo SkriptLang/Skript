@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("set the creature type of {_spawner} to a trader llama")
 @Example("reset {_spawner}'s entity type # Pig")
 @Example("clear the spawner type of {_spawner} # Minecraft 1.20.0+")
-@Since("2.4, 2.9.2 (trial spawner), INSERT VERSION (delete)")
+@Since("2.4, 2.9.2 (trial spawner), 2.12 (delete)")
 @RequiredPlugins("Minecraft 1.20.0+ (delete)")
 public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData> {
 

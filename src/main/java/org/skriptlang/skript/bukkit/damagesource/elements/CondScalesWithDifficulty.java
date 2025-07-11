@@ -18,7 +18,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 	on death:
 		if event-damage source scales damage with difficulty:
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
 public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {

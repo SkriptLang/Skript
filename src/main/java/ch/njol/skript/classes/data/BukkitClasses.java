@@ -1581,7 +1581,7 @@ public class BukkitClasses {
 			.name("Pig Variant")
 			.description("Represents the variant of a pig entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
 
@@ -1600,7 +1600,7 @@ public class BukkitClasses {
 			.name("Chicken Variant")
 			.description("Represents the variant of a chicken entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("ChickenVariant")
 		);
@@ -1620,7 +1620,7 @@ public class BukkitClasses {
 			.name("Cow Variant")
 			.description("Represents the variant of a cow entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("CowVariant")
 		);
@@ -1629,7 +1629,7 @@ public class BukkitClasses {
 			.user("(villager )?career ?change ?reasons?")
 			.name("Villager Career Change Reason")
 			.description("Represents a reason why a villager changed its career.")
-			.since("INSERT VERSION")
+			.since("2.12")
 		);
 
 	}

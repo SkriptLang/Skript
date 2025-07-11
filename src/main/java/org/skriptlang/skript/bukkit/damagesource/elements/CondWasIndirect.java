@@ -22,7 +22,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 	on damage:
 		if event-damage source was indirectly caused:
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
 public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {

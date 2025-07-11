@@ -42,7 +42,7 @@ import java.util.function.IntFunction;
 	set the full custom model data of {_item} to 10, "sword", and rgb(100, 200, 30)
 	""")
 @RequiredPlugins("Minecraft 1.21.4+ (floats/flags/strings/colours/full model data)")
-@Since({"2.5", "INSERT VERSION (floats/flags/strings/colours/full model data)"})
+@Since({"2.5", "2.12 (floats/flags/strings/colours/full model data)"})
 public class ExprCustomModelData extends PropertyExpression<ItemType, Object> {
 
 	private static final boolean USE_NEW_CMD = Skript.classExists("org.bukkit.inventory.meta.components.CustomModelDataComponent");

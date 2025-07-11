@@ -31,7 +31,7 @@ public class DamageSourceModule implements AddonModule {
 			.description(
 				"Represents the source from which an entity was damaged.",
 				"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.20.4+")
 			.defaultExpression(new EventValueExpression<>(DamageSource.class))
 		);
@@ -40,7 +40,7 @@ public class DamageSourceModule implements AddonModule {
 			.user("damage ?types?")
 			.name("Damage Type")
 			.description("References a damage type of a damage source.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.20.4+")
 		);
 

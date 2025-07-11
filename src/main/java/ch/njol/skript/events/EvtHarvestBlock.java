@@ -37,7 +37,7 @@ public class EvtHarvestBlock extends SkriptEvent {
 					chance 1%
 						cancel the drops
 				""")
-			.since("INSERT VERSION");
+			.since("2.12");
 
 		EventValues.registerEventValue(PlayerHarvestBlockEvent.class, Block.class,
 			PlayerHarvestBlockEvent::getHarvestedBlock);

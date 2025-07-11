@@ -768,7 +768,7 @@ public class SimpleEvents {
 						set event-item to a netherite ingot	
 					"""
 				)
-				.since("INSERT VERSION")
+				.since("2.12")
 				.requiredPlugins("Minecraft 1.21.1+");
 		}
 
@@ -783,7 +783,7 @@ public class SimpleEvents {
 					then:
 						cancel event
 				""")
-			.since("INSERT VERSION");
+			.since("2.12");
 
 	}
 

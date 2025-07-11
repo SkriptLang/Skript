@@ -13,7 +13,7 @@ import java.util.Locale;
 /**
  * @deprecated Use {@link ch.njol.skript.classes.EnumParser} instead.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.12", forRemoval = true)
 public final class EnumUtils<E extends Enum<E>> {
 
 	private final Class<E> enumClass;

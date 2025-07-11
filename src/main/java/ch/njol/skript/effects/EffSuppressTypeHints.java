@@ -26,7 +26,7 @@ import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 	# potentially unsafe code goes here
 	stop suppressing local variable type hints
 """)
-@Since("INSERT VERSION")
+@Since("2.12")
 public class EffSuppressTypeHints extends Effect implements SimpleExperimentalSyntax {
 
 	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.TYPE_HINTS);

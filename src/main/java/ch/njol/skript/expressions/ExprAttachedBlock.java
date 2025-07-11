@@ -28,7 +28,7 @@ import java.util.Set;
 		break attached blocks of event-projectile
 		kill event-projectile
 	""")
-@Since("2.8.0, INSERT VERSION (multiple blocks)")
+@Since("2.8.0, 2.12 (multiple blocks)")
 @RequiredPlugins("Paper 1.21.4+ (multiple blocks)")
 public class ExprAttachedBlock extends PropertyExpression<Projectile, Block> {
 

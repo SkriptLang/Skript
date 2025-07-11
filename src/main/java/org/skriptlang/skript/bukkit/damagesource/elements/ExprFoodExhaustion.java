@@ -12,7 +12,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 	on damage:
 		if the food exhaustion of event-damage source is 10:
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
 @SuppressWarnings("UnstableApiUsage")
 public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperimentSyntax {

@@ -21,7 +21,7 @@ import java.util.Locale;
 			send "Flag %loop-index%: %loop-value%"
 	""")
 @Example("set {_coloured} to whether player's tool has model data colours")
-@Since("2.5, INSERT VERSION (expanded data types)")
+@Since("2.5, 2.12 (expanded data types)")
 @RequiredPlugins("Minecraft 1.21.4+ (floats/flags/strings/colours)")
 public class CondHasCustomModelData extends PropertyCondition<ItemType> {
 

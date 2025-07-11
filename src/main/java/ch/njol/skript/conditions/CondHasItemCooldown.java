@@ -32,7 +32,7 @@ import java.util.List;
 		send "You can't use this item right now. Wait %item cooldown of player's tool for player%"
 	""")
 @RequiredPlugins("MC 1.21.2 (cooldown group)")
-@Since({"2.8.0", "INSERT VERSION (cooldown group)"})
+@Since({"2.8.0", "2.12 (cooldown group)"})
 public class CondHasItemCooldown extends Condition {
 
 	// Cooldown groups were added in Minecraft 1.21.2

@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
 		set {_result::*} to keyed plusOne(keyed {_numbers::*})
 		# {_result::foo} is 2, {_result::bar} is 3, {_result::baz} is 4
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 @Keywords("indexed")
 public class ExprKeyed extends WrapperExpression<Object> implements KeyProviderExpression<Object> {
 

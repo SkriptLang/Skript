@@ -124,6 +124,16 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 	/**
 	 * Only used for Skript's documentation.
+	 *
+	 * @param since The version this event was added in
+	 * @return This SkriptEventInfo object
+	 */
+	public SkriptEventInfo<E> since(String since) {
+		return since(new String[]{since});
+	}
+
+	/**
+	 * Only used for Skript's documentation.
 	 * 
 	 * @param since The version this event was added in
 	 * @return This SkriptEventInfo object

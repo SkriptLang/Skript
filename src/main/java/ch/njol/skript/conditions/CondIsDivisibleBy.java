@@ -26,7 +26,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	"if 11 cannot be evenly divided by 10:",
 	"if 0.3 can be evenly divided by 0.1 with a tolerance of 0.0000001:"
 })
-@Since("2.10, INSERT VERSION (tolerance)")
+@Since("2.10, 2.12 (tolerance)")
 public class CondIsDivisibleBy extends Condition implements SyntaxRuntimeErrorProducer {
 
 	static {
