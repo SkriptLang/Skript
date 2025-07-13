@@ -11,7 +11,9 @@ import java.util.Set;
  *
  * @param <T> The type of the function parameter.
  */
-public interface Parameter<T> {
+public sealed interface Parameter<T>
+	permits DefaultParameter, ScriptParameter,
+	ch.njol.skript.lang.function.Parameter {
 
 	/**
 	 * @return The name of this parameter.
