@@ -51,5 +51,4 @@ test "except 'or' objects":
 
 local function excludes() returns strings:
 	add 1 to {exprexcept::count}
-	broadcast "test"
 	return "a", "b", "c", "d", and "e"
