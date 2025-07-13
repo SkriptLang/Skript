@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import java.math.BigDecimal;
@@ -34,6 +35,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultFunctions {
+
+	private static final SkriptAddon SKRIPT = Skript.getAddonInstance();
 
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
@@ -48,7 +51,7 @@ public class DefaultFunctions {
 
 		// basic math functions
 
-		DefaultFunction.builder("floor", Long.class)
+		DefaultFunction.builder(SKRIPT, "floor", Long.class)
 			.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 			.since("2.2")
@@ -360,7 +363,7 @@ public class DefaultFunctions {
 			.examples("set {_nether} to world(\"%{_world}%_nether\")")
 			.since("2.2");
 
-		DefaultFunction.builder("location", Location.class)
+		DefaultFunction.builder(SKRIPT, "location", Location.class)
 			.description(
 				"Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
 				"If for whatever reason the world is not found, it will fallback to the server's main world."
@@ -473,7 +476,7 @@ public class DefaultFunctions {
 			.examples("date(2014, 10, 1) # 0:00, 1st October 2014", "date(1990, 3, 5, 14, 30) # 14:30, 5th May 1990", "date(1999, 12, 31, 23, 59, 59, 999, -3*60, 0) # almost year 2000 in parts of Brazil (-3 hours offset, no DST)")
 			.since("2.2"));
 
-		DefaultFunction.builder("vector", Vector.class)
+		DefaultFunction.builder(SKRIPT, "vector", Vector.class)
 			.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 			.examples("vector(0, 0, 0)")
 			.since("2.2-dev23")
@@ -533,7 +536,7 @@ public class DefaultFunctions {
 			)
 			.since("2.5, 2.10 (alpha)");
 
-		DefaultFunction.builder("player", Player.class)
+		DefaultFunction.builder(SKRIPT, "player", Player.class)
 			.description(
 				"Returns an online player from their name or UUID, if player is offline function will return nothing.",
 				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name."
@@ -617,7 +620,7 @@ public class DefaultFunctions {
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
 
-		DefaultFunction.builder("concat", String.class)
+		DefaultFunction.builder(SKRIPT, "concat", String.class)
 			.description("Joins the provided texts (and other things) into a single text.")
 			.examples(
 				"concat(\"hello \", \"there\") # hello there",

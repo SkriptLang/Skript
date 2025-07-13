@@ -1,16 +1,20 @@
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.Skript;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import static org.junit.Assert.*;
 
 public class DefaultFunctionTest {
 
+	private static final SkriptAddon SKRIPT = Skript.getAddonInstance();
+
 	@Test
 	public void testStrings() {
-		DefaultFunction<String> built = DefaultFunction.builder("test", String.class)
+		DefaultFunction<String> built = DefaultFunction.builder(SKRIPT, "test", String.class)
 			.description()
 			.since()
 			.keywords()
@@ -35,7 +39,7 @@ public class DefaultFunctionTest {
 
 	@Test
 	public void testObjectArrays() {
-		DefaultFunction<Object[]> built = DefaultFunction.builder("test", Object[].class)
+		DefaultFunction<Object[]> built = DefaultFunction.builder(SKRIPT, "test", Object[].class)
 			.description("x", "y")
 			.since("1", "2")
 			.keywords("x", "y")

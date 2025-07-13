@@ -60,7 +60,7 @@ public abstract class Functions {
 	 * @param function The function to register.
 	 * @return The registered function.
 	 */
-	public static DefaultFunction<?> register(DefaultFunction<?> function) {
+	static DefaultFunction<?> register(DefaultFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 
 		String name = function.getName();
@@ -77,7 +77,7 @@ public abstract class Functions {
 	}
 
 	/**
-	 * @deprecated Use {@link #register(DefaultFunction)} instead.
+	 * @deprecated Use {@link DefaultFunction#register()} or {@link #register(DefaultFunction)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static JavaFunction<?> registerFunction(JavaFunction<?> function) {

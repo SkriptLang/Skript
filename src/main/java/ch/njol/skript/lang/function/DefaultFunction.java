@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.function.DefaultParameter;
 import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
@@ -20,7 +21,7 @@ import java.util.function.Function;
  * <p>
  * An example implementation is stated below.
  * <pre><code>
- * Functions.register(DefaultFunction.builder("floor", Long.class)
+ * DefaultFunction.builder(addon, "floor", Long.class)
  * 	.description("Rounds a number down.")
  * 	.examples("floor(2.34) = 2")
  * 	.since("3.0")
@@ -32,12 +33,13 @@ import java.util.function.Function;
  * 			return l;
  *
  * 		return Math2.floor(((Number) value).doubleValue());
- *    }));
+ *    })
+ *    .register();
  * </code></pre>
  * </p>
  *
  * @param <T> The return type.
- * @see #builder(String, Class)
+ * @see #builder(SkriptAddon, String, Class)
  */
 public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Function<T> {
 
@@ -49,8 +51,8 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 * @param <T>        The return type.
 	 * @return The builder for a function.
 	 */
-	public static <T> Builder<T> builder(@NotNull String name, @NotNull Class<T> returnType) {
-		return new Builder<>(name, returnType);
+	public static <T> Builder<T> builder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
+		return new Builder<>(source, name, returnType);
 	}
 
 	private final Parameter<?>[] parameters;
@@ -175,7 +177,6 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 * Registers this function.
 	 *
 	 * @return This function.
-	 * @see Functions#register(DefaultFunction)
 	 */
 	@Contract(" -> this")
 	public DefaultFunction<T> register() {
@@ -186,6 +187,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
 	public static class Builder<T> {
 
+		private final SkriptAddon source;
 		private final String name;
 		private final Class<T> returnType;
 		private final Map<String, DefaultParameter<?>> parameters = new LinkedHashMap<>();
@@ -194,10 +196,12 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
 		private String[] description, since, examples, keywords;
 
-		private Builder(@NotNull String name, @NotNull Class<T> returnType) {
+		private Builder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
+			Preconditions.checkNotNull(source, "source cannot be null");
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(returnType, "return type cannot be null");
 
+			this.source = source;
 			this.name = name;
 			this.returnType = returnType;
 		}
