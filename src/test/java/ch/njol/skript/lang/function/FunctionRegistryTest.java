@@ -389,4 +389,35 @@ public class FunctionRegistryTest {
 		assertEquals(FunctionIdentifier.of(function2.getSignature()), identifier);
 	}
 
+	// see https://github.com/SkriptLang/Skript/pull/8015
+	@Test
+	public void testRemoveGlobalScriptFunctions8015() {
+		// create empty TEST_SCRIPT namespace such that it is not null
+		registry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
+		registry.remove(LOCAL_TEST_FUNCTION.getSignature());
+
+		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(TEST_SCRIPT, FUNCTION_NAME).result());
+
+		// construct a global function with a non-null script, which happens in script functions
+		Signature<Boolean> signature = new Signature<>(TEST_SCRIPT, FUNCTION_NAME, new Parameter<?>[0],
+			false, DefaultClasses.BOOLEAN, true, "");
+		SimpleJavaFunction<Boolean> fn = new SimpleJavaFunction<>(signature) {
+			@Override
+			public Boolean @Nullable [] executeSimple(Object[][] params) {
+				return new Boolean[] { true };
+			}
+		};
+
+		// ensure new behaviour
+		assertThrows(IllegalArgumentException.class, () -> registry.register(TEST_SCRIPT, fn));
+
+		registry.register(null, fn);
+
+		assertEquals(RetrievalResult.EXACT, registry.getSignature(null, FUNCTION_NAME).result());
+
+		registry.remove(signature);
+
+		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
+	}
+
 }
