@@ -11,9 +11,7 @@ import java.util.Set;
  *
  * @param <T> The type of the function parameter.
  */
-public sealed interface Parameter<T>
-	permits DefaultParameter, ScriptParameter,
-	ch.njol.skript.lang.function.Parameter {
+public interface Parameter<T> {
 
 	/**
 	 * @return The name of this parameter.
@@ -28,7 +26,8 @@ public sealed interface Parameter<T>
 	/**
 	 * @return All modifiers belonging to this parameter.
 	 */
-	@Unmodifiable @NotNull Set<Modifier> modifiers();
+	@Unmodifiable
+	@NotNull Set<Modifier> modifiers();
 
 	/**
 	 * @return Whether this parameter is for single values.
