@@ -20,6 +20,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Executable;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -294,13 +295,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			return attempt.retrieved();
 		}
 
-		// if we can't find a signature based on param types, try to match any function
-		attempt = FunctionRegistry.getRegistry().getSignature(script, functionName);
-
-		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.retrieved();
-		}
-
 		if (attempt.result() == RetrievalResult.AMBIGUOUS) {
 			ambiguousError(attempt.conflictingArgs());
 		}
@@ -320,13 +314,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		Retrieval<Function<?>> attempt = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
-
-		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.retrieved();
-		}
-
-		// if we can't find a signature based on param types, try to match any function
-		attempt = FunctionRegistry.getRegistry().getFunction(script, functionName);
 
 		if (attempt.result() == RetrievalResult.EXACT) {
 			return attempt.retrieved();

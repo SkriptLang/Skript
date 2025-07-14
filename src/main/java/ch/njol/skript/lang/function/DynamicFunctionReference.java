@@ -1,7 +1,6 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.ScriptLoader;
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.util.common.AnyNamed;

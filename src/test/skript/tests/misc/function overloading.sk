@@ -4,6 +4,9 @@ local function overloaded1(x: int) :: int:
 local function overloaded1(x: text) :: int:
 	return 2
 
+local function overloaded1() :: int:
+	return 3
+
 test "function overloading with 1 parameter":
 	set {_x} to true
 
@@ -16,6 +19,7 @@ test "function overloading with 1 parameter":
 
 	assert overloaded1(number within {_x}) = 1
 	assert overloaded1(text within {_x}) = 2
+	assert overloaded1() = 3
 
 function overloaded2(x: int, y: int) :: int:
 	return 1
