@@ -62,4 +62,4 @@ parse:
 
 test "function overloading with different return types":
 	assert size of {FunctionOverloading3::parse::*} = 1
-	assert {FunctionOverloading3::parse::1} = "Function 'overloaded3' with the same argument types already exists."
+	assert {FunctionOverloading3::parse::1} contains "Function 'overloaded3' with the same argument types already exists in script"
