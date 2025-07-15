@@ -182,7 +182,7 @@ public abstract class Functions {
 				error.append("Function ");
 			}
 			error.append("'%s' with the same argument types already exists".formatted(signature.getName()));
-			if (existing.retrieved().isLocal()) {
+			if (existing.retrieved().script != null) {
 				error.append(" in script '%s'.".formatted(existing.retrieved().script));
 			} else {
 				error.append(".");
