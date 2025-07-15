@@ -67,14 +67,15 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * <p>
 	 * Attempting to register a local signature in the global namespace, or a global signature in
 	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * If {@code namespace} is null, will register this signature globally,
+	 * only if the signature is global.
 	 * </p>
 	 *
 	 * @param namespace The namespace to register the signature in.
-	 *                  If namespace is null, will register this signature globally.
 	 *                  Usually represents the path of the script this signature is registered in.
 	 * @param signature The signature to register.
-	 * @throws SkriptAPIException if a signature with the same name and parameters is already registered
-	 *                            in this namespace.
+	 * @throws SkriptAPIException       if a signature with the same name and parameters is already registered
+	 *                                  in this namespace.
 	 * @throws IllegalArgumentException if the signature is global and namespace is not null, or
 	 *                                  if the signature is local and namespace is null.
 	 */
@@ -122,10 +123,11 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * <p>
 	 * Attempting to register a local function in the global namespace, or a global function in
 	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * If {@code namespace} is null, will register this function globally,
+	 * only if the function is global.
 	 * </p>
 	 *
 	 * @param namespace The namespace to register the function in.
-	 *                  If namespace is null, will register this function globally, only if the function is global.
 	 *                  Usually represents the path of the script this function is registered in.
 	 * @param function  The function to register.
 	 * @throws SkriptAPIException       if the function name is invalid or if
@@ -206,13 +208,65 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
-	 * Gets a function from a script. If no local function is found, checks for global functions.
-	 *
+	 * The result of attempting to retrieve a function.
+	 * Depending on the type, a {@link Retrieval} will feature different data.
+	 */
+	enum RetrievalResult {
+
+		/**
+		 * The specified function or signature has not been registered.
+		 */
+		NOT_REGISTERED,
+
+		/**
+		 * There are multiple functions or signatures that may fit the provided name and argument types.
+		 */
+		AMBIGUOUS,
+
+		/**
+		 * A single function or signature has been found which matches the name and argument types.
+		 */
+		EXACT
+
+	}
+
+	/**
+	 * The result of trying to retrieve a function or signature.
+	 * <p>
+	 * When getting a function or signature, the following situations may occur.
+	 * These are specified by {@code type}.
 	 * <ul>
-	 * <li>If {@code namespace} is null, only global functions will be checked.</li>
-	 * <li>If {@code args} is empty, the first function with
-	 * the same name as the {@code name} param will be returned.</li>
+	 *     <li>
+	 *         {@code NOT_REGISTERED}. The specified function or signature is not registered.
+	 *         Both {@code retrieved} and {@code conflictingArgs} will be null.
+	 *     </li>
+	 *     <li>
+	 *         {@code AMBIGUOUS}. There are multiple functions or signatures that
+	 *         may fit the provided name and argument types.
+	 *           {@code retrieved} will be null, and {@code conflictingArgs}
+	 * 		   will contain the conflicting function or signature parameters.
+	 *     </li>
+	 *     <li>
+	 *         {@code EXACT}. A single function or signature has been found which matches the name and argument types.
+	 *         {@code retrieved} will contain the function or signature, and {@code conflictingArgs} will be null.
+	 *     </li>
 	 * </ul>
+	 * </p>
+	 *
+	 * @param result          The result of the function or signature retrieval.
+	 * @param retrieved       The function or signature that was found if {@code result} is {@code EXACT}.
+	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
+	 */
+	record Retrieval<T>(
+		@NotNull RetrievalResult result,
+		T retrieved,
+		Class<?>[][] conflictingArgs
+	) {
+	}
+
+	/**
+	 * Gets a function from a script. If no local function is found, checks for global functions.
+	 * If {@code namespace} is null, only global functions will be checked.
 	 *
 	 * @param namespace The namespace to get the function from.
 	 *                  Usually represents the path of the script this function is registered in.
@@ -286,13 +340,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 	/**
 	 * Gets the signature for a function with the given name and arguments. If no local function is found,
-	 * checks for global functions.
-	 *
-	 * <ul>
-	 * <li>If {@code namespace} is null, only global signatures will be checked.</li>
-	 * <li>If {@code args} is empty, the first function with
-	 * the same name as the {@code name} param will be returned.</li>
-	 * </ul>
+	 * checks for global functions. If {@code namespace} is null, only global signatures will be checked.
 	 *
 	 * @param namespace The namespace to get the function from.
 	 *                  Usually represents the path of the script this function is registered in.
@@ -507,63 +555,6 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
-	 * The result of attempting to retrieve a function.
-	 * Depending on the type, a {@link FunctionRegistry.Retrieval} will feature different data.
-	 */
-	enum RetrievalResult {
-
-		/**
-		 * The specified function or signature has not been registered.
-		 */
-		NOT_REGISTERED,
-
-		/**
-		 * There are multiple functions or signatures that may fit the provided name and argument types.
-		 */
-		AMBIGUOUS,
-
-		/**
-		 * A single function or signature has been found which matches the name and argument types.
-		 */
-		EXACT
-
-	}
-
-	/**
-	 * The result of trying to retrieve a function or signature.
-	 * <p>
-	 * When getting a function or signature, the following situations may occur.
-	 * These are specified by {@code type}.
-	 * <ul>
-	 *     <li>
-	 *         {@code NOT_REGISTERED}. The specified function or signature is not registered.
-	 *         Both {@code retrieved} and {@code conflictingArgs} will be null.
-	 *     </li>
-	 *     <li>
-	 *         {@code AMBIGUOUS}. There are multiple functions or signatures that
-	 *         may fit the provided name and argument types.
-	 *           {@code retrieved} will be null, and {@code conflictingArgs}
-	 * 		   will contain the conflicting function or signature parameters.
-	 *     </li>
-	 *     <li>
-	 *         {@code EXACT}. A single function or signature has been found which matches the name and argument types.
-	 *         {@code retrieved} will contain the function or signature, and {@code conflictingArgs} will be null.
-	 *     </li>
-	 * </ul>
-	 * </p>
-	 *
-	 * @param result          The result of the function or signature retrieval.
-	 * @param retrieved       The function or signature that was found if {@code result} is {@code EXACT}.
-	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
-	 */
-	record Retrieval<T>(
-		@NotNull FunctionRegistry.RetrievalResult result,
-		T retrieved,
-		Class<?>[][] conflictingArgs
-	) {
-	}
-
-	/**
 	 * An identifier for a function namespace.
 	 */
 	private record NamespaceIdentifier(@Nullable String name) {
@@ -608,7 +599,8 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param name The name of the function.
 	 * @param args The arguments of the function.
 	 */
-	record FunctionIdentifier(@NotNull String name, boolean local, int minArgCount, @NotNull Class<?> @NotNull ... args) {
+	record FunctionIdentifier(@NotNull String name, boolean local, int minArgCount,
+							  @NotNull Class<?> @NotNull ... args) {
 
 		/**
 		 * Returns the identifier for the given arguments.
