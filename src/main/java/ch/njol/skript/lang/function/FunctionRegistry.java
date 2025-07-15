@@ -379,6 +379,22 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		for (FunctionIdentifier candidate : existing) {
 			// by this point, all candidates have matching names
 
+			if (Arrays.stream(candidate.args).filter(Class::isArray).count() == 1
+				&& candidate.args.length == 1
+				&& candidate.args[0].isArray()) {
+				// if a function has single list value param, check all types
+
+				// make sure all types in the passed array are valid for the array parameter
+				Class<?> arrayType = candidate.args[0].componentType();
+				for (Class<?> arrayArg : provided.args) {
+					if (!Converters.converterExists(arrayType, arrayArg)) {
+						continue candidates;
+					}
+				}
+
+				return Set.of(candidate);
+			}
+
 			// if argument counts are not possible, skip
 			if (provided.args.length > candidate.args.length
 				|| provided.args.length < candidate.minArgCount) {
@@ -387,7 +403,15 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 			// if the types of the provided arguments do not match the candidate arguments, skip
 			for (int i = 0; i < provided.args.length; i++) {
-				if (!Converters.converterExists(provided.args[i], candidate.args[i])) {
+				// allows single passed values to still match array type in candidate (e.g. clamp)
+				Class<?> candidateType;
+				if (candidate.args[i].isArray()) {
+					candidateType = candidate.args[i].componentType();
+				} else {
+					candidateType = candidate.args[i];
+				}
+
+				if (!Converters.converterExists(provided.args[i], candidateType)) {
 					continue candidates;
 				}
 			}
