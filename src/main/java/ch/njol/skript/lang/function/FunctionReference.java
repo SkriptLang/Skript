@@ -142,12 +142,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			} else {
 				searchType = parameterType;
 			}
-			ClassInfo<?> exact = Classes.getExactClassInfo(searchType);
-			if (exact != null) {
-				args.add(exact.getCodeName());
-			} else {
-				args.add("unknown type");
-			}
+			args.add(Classes.getSuperClassInfo(searchType).getCodeName());
 		}
 		String stringified = "%s(%s)".formatted(functionName, args);
 
