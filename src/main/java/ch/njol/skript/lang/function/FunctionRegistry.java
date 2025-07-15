@@ -278,7 +278,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	public @NotNull Retrieval<Function<?>> getFunction(
 		@Nullable String namespace,
 		@NotNull String name,
-		@NotNull Class<?> @NotNull ... args
+		@NotNull Class<?>... args
 	) {
 		if (namespace == null) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
@@ -351,7 +351,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	public Retrieval<Signature<?>> getSignature(
 		@Nullable String namespace,
 		@NotNull String name,
-		@NotNull Class<?> @NotNull ... args
+		@NotNull Class<?>... args
 	) {
 		if (namespace == null) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
@@ -600,7 +600,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param args The arguments of the function.
 	 */
 	record FunctionIdentifier(@NotNull String name, boolean local, int minArgCount,
-							  @NotNull Class<?> @NotNull ... args) {
+							  @NotNull Class<?>... args) {
 
 		/**
 		 * Returns the identifier for the given arguments.
@@ -609,7 +609,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		 * @param args The types of the arguments.
 		 * @return The identifier for the signature.
 		 */
-		static FunctionIdentifier of(@NotNull String name, boolean local, @NotNull Class<?> @NotNull ... args) {
+		static FunctionIdentifier of(@NotNull String name, boolean local, @NotNull Class<?>... args) {
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(args, "args cannot be null");
 
