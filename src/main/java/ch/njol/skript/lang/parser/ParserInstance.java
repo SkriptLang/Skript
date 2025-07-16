@@ -518,9 +518,12 @@ public final class ParserInstance implements Experimented {
 	 * This is safe to retain during runtime (e.g. to defer a check) but will
 	 * not see changes, such as if a script subsequently 'uses' another experiment.
 	 *
-	 * @return A snapshot of the current experiment flags in use
+	 * @return A snapshot of the current experiment flags in use,
+	 *  or an empty experiment set if not {@link #isActive()}.
 	 */
 	public Experimented experimentSnapshot() {
+		if (!this.isActive())
+			return new ExperimentSet();
 		Script script = this.getCurrentScript();
 		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
 		if (set == null)
@@ -530,8 +533,12 @@ public final class ParserInstance implements Experimented {
 
 	/**
 	 * Get the {@link ExperimentSet} of the current {@link Script}
+	 * @return Experiment set of {@link #getCurrentScript()},
+	 *  or an empty experiment set if not {@link #isActive()}.
 	 */
 	public ExperimentSet getExperimentSet() {
+		if (!this.isActive())
+			return new ExperimentSet();
 		Script script = this.getCurrentScript();
 		ExperimentSet set = script.getData(ExperimentSet.class);
 		if (set == null)
