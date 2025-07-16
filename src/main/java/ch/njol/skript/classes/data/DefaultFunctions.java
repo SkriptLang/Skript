@@ -3,6 +3,7 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.function.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
@@ -296,7 +297,7 @@ public class DefaultFunctions {
 			.since("2.2"));
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[] {
-					 new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+					 new Parameter<>("values", DefaultClasses.NUMBER, false, null, true),
 					 new Parameter<>("min", DefaultClasses.NUMBER, true, null),
 					 new Parameter<>("max", DefaultClasses.NUMBER, true, null)
 				 }, DefaultClasses.NUMBER, false, new Contract() {
@@ -313,7 +314,8 @@ public class DefaultFunctions {
 				 }) {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
-				Number[] values = (Number[]) params[0];
+				//noinspection unchecked
+				KeyedValue<Number>[] values = (KeyedValue<Number>[]) params[0];
 				Double[] clampedValues = new Double[values.length];
 				double min = ((Number) params[1][0]).doubleValue();
 				double max = ((Number) params[2][0]).doubleValue();
@@ -321,12 +323,13 @@ public class DefaultFunctions {
 				double trueMin = Math.min(min, max);
 				double trueMax = Math.max(min, max);
 				for (int i = 0; i < values.length; i++) {
-					double value = values[i].doubleValue();
+					double value = values[i].value().doubleValue();
 					clampedValues[i] = Math.max(Math.min(value, trueMax), trueMin);
 				}
+				setReturnedKeys(KeyedValue.unzip(values).keys().toArray(new String[0]));
 				return clampedValues;
 			}
-		}).description("Clamps one or more values between two numbers.")
+		}).description("Clamps one or more values between two numbers.", "This function retains indices")
 			.examples(
 					"clamp(5, 0, 10) = 5",
 					"clamp(5.5, 0, 5) = 5",
@@ -541,11 +544,15 @@ public class DefaultFunctions {
 				}
 				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
 			}
-		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.", "Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
-			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
+		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.",
+				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
+			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'",
+				"set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'",
+				"set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
 			.since("2.8.0");
 
 		{ // offline player function
+			// TODO - remove this when Spigot support is dropped
 			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
 
 			List<Parameter<?>> params = new ArrayList<>();
