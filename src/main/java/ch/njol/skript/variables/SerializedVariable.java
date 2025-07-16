@@ -1,5 +1,6 @@
 package ch.njol.skript.variables;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -10,16 +11,24 @@ public class SerializedVariable {
 
 	/**
 	 * The name of the variable.
+	 * <p>
+	 * @deprecated Marked as internal, as this field will soon be private.
 	 */
-	private final String name;
+	@Deprecated
+	@ApiStatus.Internal // Remove the internal status when the field is private.
+	public final String name;
 
 	/**
 	 * The serialized value of the variable.
 	 * <p>
 	 * A value of {@code null} indicates the variable will be deleted.
+	 * <p>
+	 * @deprecated Marked as internal, as this field will soon be private.
 	 */
 	@Nullable
-	private final Value value;
+	@Deprecated
+	@ApiStatus.Internal // Remove the internal status when the field is private.
+	public final Value value;
 
 	/**
 	 * Creates a new serialized variable with the given name and value.
