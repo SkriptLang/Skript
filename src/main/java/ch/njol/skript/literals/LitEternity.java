@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package ch.njol.skript.literals;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;

@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package ch.njol.skript.literals;
 
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;

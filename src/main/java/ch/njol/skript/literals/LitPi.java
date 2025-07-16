@@ -1,6 +1,4 @@
-package ch.njol.skript.expressions;
-
-import org.bukkit.event.Event;
+package ch.njol.skript.literals;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -12,29 +10,31 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("New Line")
-@Description("Returns a line break separator.")
-@Examples("send \"Hello%nl%Goodbye!\" to player")
-@Since("2.5")
-public class LitNewLine extends SimpleLiteral<String> {
+@Name("Pi")
+@Description("Returns the mathematical constant pi. (approx. 3.1415926535)")
+@Examples("set {_tau} to pi * 2")
+@Since("2.7")
+public class LitPi extends SimpleLiteral<Double> {
 
 	static {
-		Skript.registerExpression(LitNewLine.class, String.class, ExpressionType.SIMPLE, "nl", "new[ ]line", "line[ ]break");
+		Skript.registerExpression(LitPi.class, Double.class, ExpressionType.SIMPLE, "(pi|π)");
 	}
 
-	public LitNewLine() {
-		super("\n", false);
+	public LitPi() {
+		super(Math.PI, false);
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult result) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "new line";
+		return "pi";
 	}
+	
 }
