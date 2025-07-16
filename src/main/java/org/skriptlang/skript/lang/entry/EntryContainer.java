@@ -14,10 +14,8 @@ import java.util.*;
 public class EntryContainer {
 
 	private final SectionNode source;
-	@Nullable
-	private final EntryValidator entryValidator;
-	@Nullable
-	private final Map<String, Collection<Node>> handledNodes;
+	private final @Nullable EntryValidator entryValidator;
+	private final @Nullable Map<String, Collection<Node>> handledNodes;
 	private final List<Node> unhandledNodes;
 
 	EntryContainer(
@@ -92,7 +90,8 @@ public class EntryContainer {
 			.filter(data -> data.getKey().equals(key))
 			.findFirst()
 			.orElse(null);
-		if (entryData == null) return Collections.emptyList();
+		if (entryData == null)
+			return Collections.emptyList();
 
 		Collection<Node> nodes = handledNodes.get(key);
 		if (nodes == null || nodes.isEmpty()) {
@@ -108,9 +107,11 @@ public class EntryContainer {
 			Node oldNode = parser.getNode();
 			parser.setNode(node);
 			Object value = entryData.getValue(node);
-			if (value == null && useDefaultValue) value = entryData.getDefaultValue();
+			if (value == null && useDefaultValue)
+				value = entryData.getDefaultValue();
 			parser.setNode(oldNode);
-			if (value != null) values.add(value);
+			if (value != null)
+				values.add(value);
 		}
 
 		return values;

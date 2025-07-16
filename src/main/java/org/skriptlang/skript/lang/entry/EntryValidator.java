@@ -89,7 +89,8 @@ public class EntryValidator {
 					);
 					nodes.add(node);
 					// we do not expect this entry data anymore
-					if (!data.supportsMultiple()) iterator.remove();
+					if (!data.supportsMultiple())
+						iterator.remove();
 					continue nodeLoop;
 				}
 			}
@@ -190,6 +191,15 @@ public class EntryValidator {
 			return this;
 		}
 
+		/**
+		 * Adds a new {@link KeyValueEntryData} to this validator that returns the raw, unhandled String value.
+		 * The added entry is optional and will use the provided default value as a backup.
+		 * The entry data can be included only once within a single entry container.
+		 * @param key The key of the entry.
+		 * @param defaultValue The default value of this entry to use if the user does not include this entry.
+		 * @param optional Whether the entry is optional
+		 * @return The builder instance.
+		 */
 		public EntryValidatorBuilder addEntry(String key, @Nullable String defaultValue, boolean optional) {
 			return addEntry(key, defaultValue, optional, false);
 		}
@@ -220,6 +230,13 @@ public class EntryValidator {
 			return this;
 		}
 
+		/**
+		 * Adds a new, potentially optional {@link SectionEntryData} to this validator.
+		 * The entry data can be included only once within a single entry container.
+		 * @param key The key of the section entry.
+		 * @param optional Whether the entry is optional
+		 * @return The builder instance.
+		 */
 		public EntryValidatorBuilder addSection(String key, boolean optional) {
 			return addSection(key, optional, false);
 		}
