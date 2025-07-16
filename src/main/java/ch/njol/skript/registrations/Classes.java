@@ -16,7 +16,6 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.SQLStorage;
 import ch.njol.skript.variables.JdbcStorage;
 import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.Variables;

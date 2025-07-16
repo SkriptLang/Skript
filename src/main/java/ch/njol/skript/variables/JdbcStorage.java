@@ -434,7 +434,7 @@ public abstract class JdbcStorage extends VariableStorage {
 	}
 
 	@Override
-	public boolean save(String name, @Nullable String type, @Nullable byte[] value) {
+	public boolean save(String name, @Nullable String type, byte @Nullable [] value) {
 		synchronized (database) {
 			if (name.length() > MAX_VARIABLE_NAME_LENGTH)
 				Skript.error("The name of the variable {" + name + "} is too long to be saved in a database (length: " + name.length() + ", maximum allowed: " + MAX_VARIABLE_NAME_LENGTH + ")! It will be truncated and won't be available under the same name again when loaded.");

@@ -17,6 +17,9 @@ local.properties
 .project
 .classpath
 
+### VS Code ###
+.vscode/
+
 # External tool builders
 .externalToolBuilders/
 
@@ -163,9 +166,6 @@ fabric.properties
 # See https://github.com/joeblau/gitignore.io/issues/186 and https://github.com/joeblau/gitignore.io/issues/360
 
 .idea/
-
-### VS Code ###
-.vscode/
 
 # Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
 

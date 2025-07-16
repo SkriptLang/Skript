@@ -12,13 +12,11 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.SerializedVariable.Value;
-import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.Pair;
-import ch.njol.util.StringUtils;
-import ch.njol.util.SynchronizedReference;
+import ch.njol.util.*;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.yggdrasil.Yggdrasil;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -86,7 +84,7 @@ public final class Variables {
 	 */
 	private static final String CONFIGURATION_SERIALIZABLE_PREFIX = "ConfigurationSerializable_";
 
-	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
+	private final static Multimap<Class<? extends VariableStorage>, String> TYPES = HashMultimap.create();
 
 	private final static List<UnloadedStorage> UNLOADED_STORAGES = new ArrayList<>();
 
