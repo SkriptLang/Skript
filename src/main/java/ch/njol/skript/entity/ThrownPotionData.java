@@ -1,8 +1,14 @@
 package ch.njol.skript.entity;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.localization.Adjective;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.Noun;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.LingeringPotion;
@@ -11,20 +17,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Noun;
-import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.converter.Converters;
-import ch.njol.util.coll.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class ThrownPotionData extends EntityData<ThrownPotion> {
+
 	static {
 		EntityData.register(ThrownPotionData.class, "thrown potion", ThrownPotion.class, "thrown potion");
 	}
@@ -38,25 +37,27 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	private static final Material POTION = Material.POTION;
 	private static final Material SPLASH_POTION = Material.SPLASH_POTION;
 	private static final Material LINGER_POTION = Material.LINGERING_POTION;
-	
-	@Nullable
-	private ItemType[] types;
+
+	private ItemType @Nullable [] types;
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null) {
-			return (types = Converters.convert((ItemType[]) exprs[0].getAll(), ItemType.class, t -> {
-				// If the itemtype is a potion, lets make it a splash potion (required by Bukkit)
-				if (t.getMaterial() == POTION) {
-					ItemMeta meta = t.getItemMeta();
-					ItemType itemType = new ItemType(SPLASH_POTION);
-					itemType.setItemMeta(meta);
-					return itemType;
-				} else if (t.getMaterial() != SPLASH_POTION && t.getMaterial() != LINGER_POTION) {
+			//noinspection unchecked
+			ItemType[] itemTypes = ((Literal<ItemType>) exprs[0]).getAll();
+			types = Converters.convert(itemTypes, ItemType.class, itemType -> {
+				Material material = itemType.getMaterial();
+				if (material == POTION) {
+					ItemMeta itemMeta = itemType.getItemMeta();
+					ItemType splashItem = new ItemType(SPLASH_POTION);
+					splashItem.setItemMeta(itemMeta);
+					return splashItem;
+				} else if (material != SPLASH_POTION && material != LINGER_POTION) {
 					return null;
 				}
-				return t;
-			})).length != 0; // no error message - other things can be thrown as well
+				return itemType;
+			});
+			return types.length != 0;
 		} else {
 			types = new ItemType[]{new ItemType(SPLASH_POTION)};
 		}
@@ -64,19 +65,34 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	}
 	
 	@Override
-	protected boolean init(@Nullable Class<? extends ThrownPotion> c, @Nullable ThrownPotion e) {
-		if (e != null) {
-			ItemStack i = e.getItem();
-			types = new ItemType[] {new ItemType(i)};
+	protected boolean init(@Nullable Class<? extends ThrownPotion> entityClass, @Nullable ThrownPotion thrownPotion) {
+		if (thrownPotion != null) {
+			ItemStack itemStack = thrownPotion.getItem();
+			types = new ItemType[] {new ItemType(itemStack)};
 		}
 		return true;
 	}
-	
+
 	@Override
-	protected boolean match(ThrownPotion entity) {
+	public void set(ThrownPotion thrownPotion) {
 		if (types != null) {
-			for (ItemType t : types) {
-				if (t.isOfType(entity.getItem()))
+			ItemType itemType = CollectionUtils.getRandom(types);
+			assert itemType != null;
+			ItemStack itemStack = itemType.getRandom();
+			if (itemStack == null)
+				return; // Missing item, can't make thrown potion of it
+			if (LINGERING_POTION_ENTITY_USED && (LINGERING_POTION_ENTITY_CLASS.isInstance(thrownPotion) != (LINGER_POTION == itemStack.getType())))
+				return;
+			thrownPotion.setItem(itemStack);
+		}
+		assert false;
+	}
+
+	@Override
+	protected boolean match(ThrownPotion thrownPotion) {
+		if (types != null) {
+			for (ItemType itemType : types) {
+				if (itemType.isOfType(thrownPotion.getItem()))
 					return true;
 			}
 			return false;
@@ -85,15 +101,46 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	}
 
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	public Class<? extends ThrownPotion> getType() {
+		return ThrownPotion.class;
+	}
+
+	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new ThrownPotionData();
+	}
+
+	@Override
+	protected int hashCode_i() {
+		return Arrays.hashCode(types);
+	}
+
+	@Override
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof ThrownPotionData other))
+			return false;
+		return Arrays.equals(types, other.types);
+	}
+
+	@Override
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof ThrownPotionData other))
+			return false;
+		if (types == null)
+			return true;
+		return other.types != null && ItemType.isSubset(types, other.types);
+	}
+
+	@Override
 	public @Nullable ThrownPotion spawn(Location location, @Nullable Consumer<ThrownPotion> consumer) {
-		ItemType t = CollectionUtils.getRandom(types);
-		assert t != null;
-		ItemStack i = t.getRandom();
-		if (i == null)
+		ItemType itemType = CollectionUtils.getRandom(types);
+		assert itemType != null;
+		ItemStack itemStack = itemType.getRandom();
+		if (itemStack == null)
 			return null;
 
-		Class<ThrownPotion> thrownPotionClass = (Class) (i.getType() == LINGER_POTION ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
+		// noinspection unchecked,rawtypes
+		Class<ThrownPotion> thrownPotionClass = (Class) (itemStack.getType() == LINGER_POTION ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
 		ThrownPotion potion;
 		if (consumer != null) {
 			potion = EntityData.spawn(location, thrownPotionClass, consumer);
@@ -103,80 +150,21 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 
 		if (potion == null)
 			return null;
-		potion.setItem(i);
+		potion.setItem(itemStack);
 		return potion;
 	}
 
-	@Override
-	public void set(ThrownPotion entity) {
-		if (types != null) {
-			ItemType t = CollectionUtils.getRandom(types);
-			assert t != null;
-			ItemStack i = t.getRandom();
-			if (i == null)
-				return; // Missing item, can't make thrown potion of it
-			if (LINGERING_POTION_ENTITY_USED && (LINGERING_POTION_ENTITY_CLASS.isInstance(entity) != (LINGER_POTION == i.getType())))
-				return;
-			entity.setItem(i);
-		}
-		assert false;
-	}
-	
-	@Override
-	public Class<? extends ThrownPotion> getType() {
-		return ThrownPotion.class;
-	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
-		return new ThrownPotionData();
-	}
-	
-	@Override
-	public boolean isSupertypeOf(EntityData<?> e) {
-		if (!(e instanceof ThrownPotionData))
-			return false;
-		ThrownPotionData d = (ThrownPotionData) e;
-		if (types != null) {
-			return d.types != null && ItemType.isSubset(types, d.types);
-		}
-		return true;
-	}
-	
 	@Override
 	public String toString(int flags) {
 		ItemType[] types = this.types;
 		if (types == null)
 			return super.toString(flags);
-		StringBuilder b = new StringBuilder();
-		b.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
-		b.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
-		b.append(" ");
-		b.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
-		return "" + b.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(" ");
+		builder.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
+		return builder.toString();
 	}
-	
-	//		return ItemType.serialize(types);
-	@Override
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	protected boolean deserialize(String s) {
-		throw new UnsupportedOperationException("old serialization is no longer supported");
-//		if (s.isEmpty())
-//			return true;
-//		types = ItemType.deserialize(s);
-//		return types != null;
-	}
-	
-	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof ThrownPotionData))
-			return false;
-		return Arrays.equals(types, ((ThrownPotionData) obj).types);
-	}
-	
-	@Override
-	protected int hashCode_i() {
-		return Arrays.hashCode(types);
-	}
-	
+
 }

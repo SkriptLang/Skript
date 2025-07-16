@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.ChestBoat;
@@ -51,32 +51,32 @@ public class BoatChestData extends EntityData<ChestBoat> {
 	}
 
 	private BoatChestData(int type) {
-		matchedPattern = type;
+		codeNameIndex = type;
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, SkriptParser.ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends ChestBoat> clazz, @Nullable ChestBoat entity) {
-		if (entity != null)
-			matchedPattern = 2 + entity.getBoatType().ordinal();
+	protected boolean init(@Nullable Class<? extends ChestBoat> entityClass, @Nullable ChestBoat chestBoat) {
+		if (chestBoat != null)
+			codeNameIndex = 2 + chestBoat.getBoatType().ordinal();
 		return true;
 	}
 
 	@Override
-	public void set(ChestBoat entity) {
-		if (matchedPattern == 1) // If the type is 'any boat'.
-			matchedPattern += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
-		if (matchedPattern > 1) // 0 and 1 are excluded
-			entity.setBoatType(types[matchedPattern - 2]); // Removes 2 to fix the index.
+	public void set(ChestBoat chestBoat) {
+		if (codeNameIndex == 1) // If the type is 'any boat'.
+			codeNameIndex += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
+		if (codeNameIndex > 1) // 0 and 1 are excluded
+			chestBoat.setBoatType(types[codeNameIndex - 2]); // Removes 2 to fix the index.
 	}
 
 	@Override
-	protected boolean match(ChestBoat entity) {
-		return matchedPattern <= 1 || entity.getBoatType().ordinal() == matchedPattern - 2;
+	protected boolean match(ChestBoat chestBoat) {
+		return codeNameIndex <= 1 || chestBoat.getBoatType().ordinal() == codeNameIndex - 2;
 	}
 
 	@Override
@@ -85,26 +85,26 @@ public class BoatChestData extends EntityData<ChestBoat> {
 	}
 
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new BoatChestData(matchedPattern);
+	public @NotNull EntityData<?> getSuperType() {
+		return new BoatChestData();
 	}
 
 	@Override
 	protected int hashCode_i() {
-		return matchedPattern <= 1 ? 0 : matchedPattern;
+		return codeNameIndex <= 1 ? 0 : codeNameIndex;
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (obj instanceof BoatChestData boatChestData)
-			return matchedPattern == boatChestData.matchedPattern;
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (entityData instanceof BoatChestData other)
+			return codeNameIndex == other.codeNameIndex;
 		return false;
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> entity) {
-		if (entity instanceof BoatChestData boatChestData)
-			return matchedPattern <= 1 || matchedPattern == boatChestData.matchedPattern;
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (entityData instanceof BoatChestData other)
+			return codeNameIndex <= 1 || codeNameIndex == other.codeNameIndex;
 		return false;
 	}
 
@@ -130,7 +130,7 @@ public class BoatChestData extends EntityData<ChestBoat> {
 			// material is a boat AND (data matches any boat OR material and data are same)
 			if (type != null) {
 				ordinal = type.ordinal();
-				if (matchedPattern <= 1 || matchedPattern == ordinal + 2)
+				if (codeNameIndex <= 1 || codeNameIndex == ordinal + 2)
 					return true;
 			}
 		}
