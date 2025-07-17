@@ -1,25 +1,5 @@
 package ch.njol.skript.effects;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-
-import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.KeyProviderExpression;
-import ch.njol.skript.lang.KeyReceiverExpression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.Variable;
-import ch.njol.skript.util.LiteralUtils;
-import ch.njol.skript.variables.HintManager;
-import org.skriptlang.skript.lang.script.ScriptWarning;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
@@ -29,13 +9,25 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprParse;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
 
 @Name("Change: Set/Add/Remove/Remove All/Delete/Reset")
 @Description({
@@ -288,7 +280,7 @@ public class EffChange extends Effect {
 						hintManager.add(variable, hints);
 					}
 				}
-				if (!variable.isLocal()) {
+				if (!variable.isLocal() && !variable.isEphemeral()) {
 					ClassInfo<?> changerInfo = Classes.getSuperClassInfo(changer.getReturnType());
 					if (changerInfo.getC() != Object.class && changerInfo.getSerializer() == null && changerInfo.getSerializeAs() == null
 						&& !SkriptConfig.disableObjectCannotBeSavedWarnings.value()
