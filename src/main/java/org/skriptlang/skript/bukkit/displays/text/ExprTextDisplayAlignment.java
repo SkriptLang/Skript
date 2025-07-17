@@ -14,7 +14,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display Alignment")
-@Description("Returns or changes the <a href='classes.html#textalignment'>alignment</a> setting of <a href='classes.html#display'>text displays</a>.")
+@Description("Returns or changes the <a href='#textalignment'>alignment</a> setting of <a href='#display'>text displays</a>.")
 @Examples("set text alignment of the last spawned text display to left aligned")
 @Since("2.10")
 public class ExprTextDisplayAlignment extends SimplePropertyExpression<Display, TextAlignment> {

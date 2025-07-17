@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import org.bukkit.Location;
 import org.bukkit.entity.ExperienceOrb;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.lang.Literal;
@@ -108,7 +109,7 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new XpOrbData();
 	}
 	

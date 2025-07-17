@@ -50,7 +50,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 	@Nullable
 	private final ExprInput<?> source;
 	private final Class<? extends T>[] types;
-	private final Class<T> superType;
+	private Class<T> superType;
 
 	private InputSource inputSource;
 
@@ -92,7 +92,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 				break;
 			case 2:
 				if (!inputSource.hasIndices()) {
-					Skript.error("You cannot use 'input index' on lists without indices!");
+					Skript.error("You cannot use 'input index' on expressions without indices!");
 					return false;
 				}
 				specifiedType = DefaultClasses.STRING;
@@ -101,6 +101,9 @@ public class ExprInput<T> extends SimpleExpression<T> {
 			default:
 				specifiedType = null;
 		}
+		if (specifiedType != null)
+			//noinspection unchecked
+			superType = (Class<T>) specifiedType.getC();
 		return true;
 	}
 

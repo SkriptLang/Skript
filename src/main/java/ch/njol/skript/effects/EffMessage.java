@@ -1,37 +1,32 @@
 package ch.njol.skript.effects;
 
-import java.util.List;
-import java.util.UUID;
-
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
-import ch.njol.skript.util.chat.MessageComponent;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.UUID;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
-		"in given string or in <a href=expressions.html#ExprColored>formatted expressions</a> will be parsed.",
+		"in given string or in <a href=#ExprColored>formatted expressions</a> will be parsed.",
 		"Adding an optional sender allows the messages to be sent as if a specific player sent them.",
 		"This is useful with Minecraft 1.16.4's new chat ignore system, in which players can choose to ignore other players,",
 		"but for this to work, the message needs to be sent from a player."})
@@ -47,14 +42,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 @Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {
 	
-	private static final boolean SUPPORTS_SENDER = Skript.classExists("org.bukkit.command.CommandSender$Spigot") &&
-		Skript.methodExists(CommandSender.Spigot.class, "sendMessage", UUID.class, BaseComponent.class);
-	
 	static {
-		if (SUPPORTS_SENDER)
-			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%] [from %-player%]");
-		else
-			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%]");
+		Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%] [from %-player%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -80,8 +69,7 @@ public class EffMessage extends Effect {
 		messages = messageExpr instanceof ExpressionList ?
 			((ExpressionList<?>) messageExpr).getExpressions() : new Expression[] {messageExpr};
 		recipients = (Expression<CommandSender>) exprs[1];
-		if (SUPPORTS_SENDER)
-			sender = (Expression<Player>) exprs[2];
+		sender = (Expression<Player>) exprs[2];
 		return LiteralUtils.canInitSafely(messageExpr);
 	}
 
@@ -130,7 +118,7 @@ public class EffMessage extends Effect {
 	}
 	
 	private void sendMessage(Player receiver, @Nullable Player sender, BaseComponent... components) {
-		if (SUPPORTS_SENDER && sender != null)
+		if (sender != null)
 			receiver.spigot().sendMessage(sender.getUniqueId(), components);
 		else
 			receiver.spigot().sendMessage(components);

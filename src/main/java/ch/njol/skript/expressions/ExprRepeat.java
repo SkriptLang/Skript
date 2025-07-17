@@ -7,12 +7,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Repeat String")
 @Description("Repeats inputted strings a given amount of times.")
@@ -55,6 +57,13 @@ public class ExprRepeat extends SimpleExpression<String> {
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (strings instanceof Literal<String> && repeatCount instanceof Literal<Integer>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

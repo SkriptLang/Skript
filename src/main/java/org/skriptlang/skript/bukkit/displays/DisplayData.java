@@ -16,6 +16,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -210,7 +211,7 @@ public class DisplayData extends EntityData<Display> {
 	}
 
 	@Override
-	public EntityData<?> getSuperType() {
+	public @NotNull EntityData<?> getSuperType() {
 		return new DisplayData(DisplayType.ANY);
 	}
 

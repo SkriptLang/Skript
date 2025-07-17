@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"send target block's brushable item",
 	"set {_gravel}'s brushable item to emerald"
 })
-@Since("INSERT VERSION")
+@Since("2.12")
 @RequiredPlugins("Minecraft 1.20+")
 public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack> {
 

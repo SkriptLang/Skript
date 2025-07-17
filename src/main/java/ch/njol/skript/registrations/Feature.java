@@ -16,6 +16,8 @@ public enum Feature implements Experiment {
 	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]"),
 	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection"),
 	CATCH_ERRORS("catch runtime errors", LifeCycle.EXPERIMENTAL, "error catching [section]"),
+	TYPE_HINTS("type hints", LifeCycle.EXPERIMENTAL, "[local variable] type hints"),
+	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]"),
 	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components")
 	;
 
