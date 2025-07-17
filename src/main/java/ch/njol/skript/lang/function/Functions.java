@@ -67,7 +67,7 @@ public abstract class Functions {
 		javaNamespace.addFunction(function);
 		globalFunctions.put(function.getName(), javaNamespace);
 
-		FunctionRegistry.getRegistry().register(function);
+		FunctionRegistry.getRegistry().register(null, function);
 
 		return function;
 	}
@@ -104,7 +104,11 @@ public abstract class Functions {
 			namespace.addFunction(function);
 		}
 
-		FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
+		if (function.getSignature().isLocal()) {
+			FunctionRegistry.getRegistry().register(script.getConfig().getFileName(), function);
+		} else {
+			FunctionRegistry.getRegistry().register(null, function);
+		}
 
 		return function;
 	}
@@ -170,7 +174,22 @@ public abstract class Functions {
 		// if this function has already been registered, only allow it if one function is local and one is global.
 		// if both are global or both are local, disallow.
 		if (existing.result() == RetrievalResult.EXACT && existing.retrieved().isLocal() == signature.isLocal()) {
-			Skript.error("Function '%s' with the same argument types already exists.".formatted(signature.getName()));
+			StringBuilder error = new StringBuilder();
+
+			if (existing.retrieved().isLocal()) {
+				error.append("Local function ");
+			} else {
+				error.append("Function ");
+			}
+			error.append("'%s' with the same argument types already exists".formatted(signature.getName()));
+			if (existing.retrieved().script != null) {
+				error.append(" in script '%s'.".formatted(existing.retrieved().script));
+			} else {
+				error.append(".");
+			}
+
+			Skript.error(error.toString());
+
 			return null;
 		}
 
