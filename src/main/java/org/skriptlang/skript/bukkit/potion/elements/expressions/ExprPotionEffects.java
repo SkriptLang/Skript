@@ -90,15 +90,9 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(exprs[0]);
 		state = State.fromParseTag(parseResult.tags.isEmpty() ? "" : parseResult.tags.get(0));
-		if (state.includesHidden()) {
-			if (!PotionUtils.HAS_HIDDEN_EFFECTS) {
-				Skript.error("Usage of hidden effects requires Paper 1.20.4 or newer");
-				return false;
-			}
-			if (ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
-				Skript.error("Items (such as potions or stews) do not have hidden effects");
-				return false;
-			}
+		if (state.includesHidden() && ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
+			Skript.error("Items (such as potions or stews) do not have hidden effects");
+			return false;
 		}
 		return true;
 	}

@@ -71,33 +71,29 @@ test "potion effects of entities/items":
 		apply {_stronger} to loop-value
 		assert the potion effects of loop-value are {_stronger} with "holder doesn't have potion effect"
 		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
-		parse if running minecraft "1.20.4":
-			assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effect"
-			assert the active and hidden potion effects of loop-value are {_stronger} and {_weaker} with "holder doesn't have both potion effects"
+		assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effect"
+		assert the active and hidden potion effects of loop-value are {_stronger} and {_weaker} with "holder doesn't have both potion effects"
 		clear the potion effects of loop-value
 		assert the potion effects of loop-value are not set with "holder still has potion effects"
 		apply {_weaker} to loop-value
 		apply {_stronger} to loop-value
-		parse if running minecraft "1.20.4":
-			clear the hidden potion effects of loop-value
+		clear the hidden potion effects of loop-value
 		assert the potion effects of loop-value are {_stronger} with "holder doesn't have potion effect"
 		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
-		parse if running minecraft "1.20.4":
-			assert the hidden potion effects of loop-value are not set with "holder has hidden potion effect"
-			assert the active and hidden potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are not set with "holder has hidden potion effect"
+		assert the active and hidden potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
 		clear the potion effects of loop-value
 		assert the potion effects of loop-value are not set with "holder still has potion effects"
-		parse if running minecraft "1.20.4":
-			apply {_weaker} to loop-value
-			apply {_stronger} to loop-value
-			clear the active potion effects of loop-value
-			assert the potion effects of loop-value are {_weaker} with "holder doesn't have potion effect"
-			assert the active potion effects of loop-value are {_weaker} with "holder doesn't have active potion effect"
-			assert the hidden potion effects of loop-value are not set with "holder has hidden potion effect"
-			assert the active and hidden potion effects of loop-value are {_weaker} with "holder doesn't have active potion effect"
-			apply {_stronger} to loop-value
-			clear the active and hidden potion effects of loop-value
-			assert the active and hidden potion effects of loop-value are not set with "holder still has potion effects"
+		apply {_weaker} to loop-value
+		apply {_stronger} to loop-value
+		clear the active potion effects of loop-value
+		assert the potion effects of loop-value are {_weaker} with "holder doesn't have potion effect"
+		assert the active potion effects of loop-value are {_weaker} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are not set with "holder has hidden potion effect"
+		assert the active and hidden potion effects of loop-value are {_weaker} with "holder doesn't have active potion effect"
+		apply {_stronger} to loop-value
+		clear the active and hidden potion effects of loop-value
+		assert the active and hidden potion effects of loop-value are not set with "holder still has potion effects"
 
 	# test other change modes
 	loop {_potions::*}:
@@ -121,40 +117,38 @@ test "potion effects of entities/items":
 			clear the potion effects of loop-value-2
 			assert the potion effects of loop-value-2 are not set with "holder has potion effect"
 			# remove all
-			parse if running minecraft "1.20.4":
-				loop-value-2 is an entity
-				add {_weaker} to the potion effects of loop-value-2
-				add {_stronger} to the potion effects of loop-value-2
-				assert the size of active and hidden potion effects of loop-value-2 is 2 with "holder missing active/hidden potion effects"
-				remove all speed from the potion effects of loop-value-2
-				assert the potion effects of loop-value-2 are not set with "holder has potion effects"
+			loop-value-2 is an entity
+			add {_weaker} to the potion effects of loop-value-2
+			add {_stronger} to the potion effects of loop-value-2
+			assert the size of active and hidden potion effects of loop-value-2 is 2 with "holder missing active/hidden potion effects"
+			remove all speed from the potion effects of loop-value-2
+			assert the potion effects of loop-value-2 are not set with "holder has potion effects"
 
 	# test multiple hidden effects
-	parse if running minecraft "1.20.4":
-		loop {_holders::*}:
-			loop-value is an entity
-			apply {_weaker} to loop-value
-			apply {_stronger} to loop-value
-			apply {_strongest} to loop-value
-			assert the active potion effects of loop-value are {_strongest} with "holder doesn't have active potion effect"
-			assert the hidden potion effects of loop-value are {_stronger} and {_weaker} with "holder doesn't have hidden potion effects"
-			clear the active potion effects of loop-value
-			assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
-			assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effects"
-			clear the potion effects of loop-value
-			# test specific removals
-			apply {_weaker} to loop-value
-			apply {_stronger} to loop-value
-			apply {_strongest} to loop-value
-			remove ambient potion effect of speed from loop-value's active and hidden potion effects
-			assert the potion effects of loop-value are {_stronger} with "holder doesn't have stronger potion effect"
-			assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active stronger potion effect"
-			assert the hidden potion effects of loop-value are not set with "holder has hidden potion effects"
+	loop {_holders::*}:
+		loop-value is an entity
+		apply {_weaker} to loop-value
+		apply {_stronger} to loop-value
+		apply {_strongest} to loop-value
+		assert the active potion effects of loop-value are {_strongest} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are {_stronger} and {_weaker} with "holder doesn't have hidden potion effects"
+		clear the active potion effects of loop-value
+		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
+		assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effects"
+		clear the potion effects of loop-value
+		# test specific removals
+		apply {_weaker} to loop-value
+		apply {_stronger} to loop-value
+		apply {_strongest} to loop-value
+		remove ambient potion effect of speed from loop-value's active and hidden potion effects
+		assert the potion effects of loop-value are {_stronger} with "holder doesn't have stronger potion effect"
+		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active stronger potion effect"
+		assert the hidden potion effects of loop-value are not set with "holder has hidden potion effects"
 
-		# test invalid usage
-		parse:
-			clear the hidden potion effects of {_holders::1}'s tool
-		assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden potion effects of item did not error"
+	# test invalid usage
+	parse:
+		clear the hidden potion effects of {_holders::1}'s tool
+	assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden potion effects of item did not error"
 
 	# cleanup
 	delete the entity within {_holders::1}
@@ -172,36 +166,32 @@ test "specific potion effect of entities/items":
 	apply {_weaker} to {_entity}
 	apply {_stronger} to {_entity}
 	assert the speed effect of {_entity} is {_stronger} with "holder doesn't have speed effect"
-	parse if running minecraft "1.20.4":
-		assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
-		assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effect"
-		assert the active and hidden speed effects of {_entity} are {_stronger} and {_weaker} with "holder doesn't have both speed effects"
+	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effect"
+	assert the active and hidden speed effects of {_entity} are {_stronger} and {_weaker} with "holder doesn't have both speed effects"
 
 	# test deleting/resetting
 	clear the speed effects of {_entity}
 	assert the speed effects of {_entity} are not set with "holder still has speed effects"
 	apply {_weaker} to {_entity}
 	apply {_stronger} to {_entity}
-	parse if running minecraft "1.20.4":
-		clear the hidden speed effects of {_entity}
+	clear the hidden speed effects of {_entity}
 	assert the speed effect of {_entity} is {_stronger} with "holder doesn't have speed effect"
 	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
-	parse if running minecraft "1.20.4":
-		assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effect"
-		assert the active and hidden speed effects of {_entity} are {_stronger} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effect"
+	assert the active and hidden speed effects of {_entity} are {_stronger} with "holder doesn't have active speed effect"
 	clear the speed effects of {_entity}
 	assert the speed effects of {_entity} are not set with "holder still has speed effects"
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		clear the active speed effects of {_entity}
-		assert the speed effect of {_entity} is {_weaker} with "holder doesn't have speed effect"
-		assert the active speed effect of {_entity} is {_weaker} with "holder doesn't have active speed effect"
-		assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effect"
-		assert the active and hidden speed effects of {_entity} are {_weaker} with "holder doesn't have active speed effect"
-		apply {_stronger} to {_entity}
-		clear the active and hidden speed effects of {_entity}
-		assert the active and hidden speed effects of {_entity} are not set with "holder still has speed effects"
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	clear the active speed effects of {_entity}
+	assert the speed effect of {_entity} is {_weaker} with "holder doesn't have speed effect"
+	assert the active speed effect of {_entity} is {_weaker} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effect"
+	assert the active and hidden speed effects of {_entity} are {_weaker} with "holder doesn't have active speed effect"
+	apply {_stronger} to {_entity}
+	clear the active and hidden speed effects of {_entity}
+	assert the active and hidden speed effects of {_entity} are not set with "holder still has speed effects"
 
 	# test adding/removing
 	apply {_stronger} to {_entity}
@@ -213,29 +203,28 @@ test "specific potion effect of entities/items":
 	clear the speed effects of {_entity}
 
 	# test multiple hidden effects
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		assert the active speed effect of {_entity} is {_strongest} with "holder doesn't have active speed effect"
-		assert the hidden speed effects of {_entity} are {_stronger} and {_weaker} with "holder doesn't have hidden speed effects"
-		clear the active speed effect of {_entity}
-		assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
-		assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effects"
-		clear the speed effects of {_entity}
-		# test specific removals
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		remove ambient potion effect of speed from {_entity}'s active and hidden speed effects
-		assert the speed effects of {_entity} are {_stronger} with "holder doesn't have stronger speed effect"
-		assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active stronger speed effect"
-		assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effects"
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	assert the active speed effect of {_entity} is {_strongest} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are {_stronger} and {_weaker} with "holder doesn't have hidden speed effects"
+	clear the active speed effect of {_entity}
+	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
+	assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effects"
+	clear the speed effects of {_entity}
+	# test specific removals
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	remove ambient potion effect of speed from {_entity}'s active and hidden speed effects
+	assert the speed effects of {_entity} are {_stronger} with "holder doesn't have stronger speed effect"
+	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active stronger speed effect"
+	assert the hidden speed effects of {_entity} are not set with "holder has hidden speed effects"
 
-		# test invalid usage
-		parse:
-			clear the hidden speed effects of {_entity}'s tool
-		assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden speed effects of item did not error"
+	# test invalid usage
+	parse:
+		clear the hidden speed effects of {_entity}'s tool
+	assert last parse logs is "Items (such as potions or stews) do not have hidden effects" with "hidden speed effects of item did not error"
 
 	# cleanup
 	delete the entity within {_entity}
@@ -288,24 +277,23 @@ test "potion amplifier property":
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		set the amplifier of {_entity}'s speed effect to 20
-		assert the amplifier of {_entity}'s speed effect is 20 with "amplifier is not 20"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		add 5 to the amplifier of {_entity}'s speed effect
-		assert the amplifier of {_entity}'s speed effect is 25 with "amplifier is not 25"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		remove 5 from the amplifier of {_entity}'s speed effect
-		assert the amplifier of {_entity}'s speed effect is 20 with "amplifier is not 20"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		# test reducing amplifier and causing reorganization
-		set the amplifier of {_entity}'s speed effect to 8
-		assert the amplifier of {_entity}'s speed effect is 10 with "hidden effect did not take over"
-		assert {_entity}'s hidden speed effects are {_weaker} with "hidden potion effects not reapplied"
-		clear {_entity}'s speed effects
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	set the amplifier of {_entity}'s speed effect to 20
+	assert the amplifier of {_entity}'s speed effect is 20 with "amplifier is not 20"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	add 5 to the amplifier of {_entity}'s speed effect
+	assert the amplifier of {_entity}'s speed effect is 25 with "amplifier is not 25"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	remove 5 from the amplifier of {_entity}'s speed effect
+	assert the amplifier of {_entity}'s speed effect is 20 with "amplifier is not 20"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	# test reducing amplifier and causing reorganization
+	set the amplifier of {_entity}'s speed effect to 8
+	assert the amplifier of {_entity}'s speed effect is 10 with "hidden effect did not take over"
+	assert {_entity}'s hidden speed effects are {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -339,20 +327,19 @@ test "potion duration property":
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		set the duration of {_entity}'s speed effect to 20 seconds
-		assert compare_timespans(20 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 20 seconds"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		add 5 seconds to the duration of {_entity}'s speed effect
-		assert compare_timespans(25 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 25 seconds"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		remove 5 seconds from the duration of {_entity}'s speed effect
-		assert compare_timespans(20 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 20 seconds"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		clear {_entity}'s speed effects
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	set the duration of {_entity}'s speed effect to 20 seconds
+	assert compare_timespans(20 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 20 seconds"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	add 5 seconds to the duration of {_entity}'s speed effect
+	assert compare_timespans(25 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 25 seconds"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	remove 5 seconds from the duration of {_entity}'s speed effect
+	assert compare_timespans(20 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 20 seconds"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -382,17 +369,16 @@ test "potion ambient property":
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		make {_entity}'s speed effect ambient
-		assert {_entity}'s speed effect is ambient with "specific potion effect is not ambient"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		make {_entity}'s speed effect not ambient
-		assert {_entity}'s speed effect is not ambient with "specific potion effect is ambient"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		clear {_entity}'s speed effects
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	make {_entity}'s speed effect ambient
+	assert {_entity}'s speed effect is ambient with "specific potion effect is not ambient"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	make {_entity}'s speed effect not ambient
+	assert {_entity}'s speed effect is not ambient with "specific potion effect is ambient"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -422,17 +408,16 @@ test "potion infinite property":
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		make {_entity}'s speed effect infinite
-		assert {_entity}'s speed effect is infinite with "specific potion effect is not infinite"
-		assert {_entity}'s hidden speed effects are not set with "hidden potion effects were reapplied"
-		make {_entity}'s speed effect not infinite
-		assert {_entity}'s speed effect is not infinite with "specific potion effect is infinite"
-		assert {_entity}'s hidden speed effects are not set with "hidden potion effects appeared"
-		clear {_entity}'s speed effects
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	make {_entity}'s speed effect infinite
+	assert {_entity}'s speed effect is infinite with "specific potion effect is not infinite"
+	assert {_entity}'s hidden speed effects are not set with "hidden potion effects were reapplied"
+	make {_entity}'s speed effect not infinite
+	assert {_entity}'s speed effect is not infinite with "specific potion effect is infinite"
+	assert {_entity}'s hidden speed effects are not set with "hidden potion effects appeared"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -464,17 +449,16 @@ test "potion icon property" when running minecraft "1.20":
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		show the icon for {_entity}'s speed effect
-		assert {_entity}'s speed effect has an icon with "specific potion effect doesn't have an icon"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		hide the icon for {_entity}'s speed effect
-		assert {_entity}'s speed effect doesn't have an icon with "specific potion effect has an icon"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		clear {_entity}'s speed effects
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	show the icon for {_entity}'s speed effect
+	assert {_entity}'s speed effect has an icon with "specific potion effect doesn't have an icon"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	hide the icon for {_entity}'s speed effect
+	assert {_entity}'s speed effect doesn't have an icon with "specific potion effect has an icon"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}
@@ -504,17 +488,16 @@ test "potion particles property":
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
-	parse if running minecraft "1.20.4":
-		apply {_weaker} to {_entity}
-		apply {_stronger} to {_entity}
-		apply {_strongest} to {_entity}
-		show the particles for {_entity}'s speed effect
-		assert {_entity}'s speed effect has particles with "specific potion effect doesn't have particles"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		hide the particles for {_entity}'s speed effect
-		assert {_entity}'s speed effect doesn't have particles with "specific potion effect has particles"
-		assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
-		clear {_entity}'s speed effects
+	apply {_weaker} to {_entity}
+	apply {_stronger} to {_entity}
+	apply {_strongest} to {_entity}
+	show the particles for {_entity}'s speed effect
+	assert {_entity}'s speed effect has particles with "specific potion effect doesn't have particles"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	hide the particles for {_entity}'s speed effect
+	assert {_entity}'s speed effect doesn't have particles with "specific potion effect has particles"
+	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
+	clear {_entity}'s speed effects
 
 	# cleanup
 	delete the entity within {_entity}

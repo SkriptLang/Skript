@@ -33,11 +33,6 @@ public final class PotionUtils {
 	private static final boolean HAS_HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
 	/**
-	 * Whether {@link PotionEffect#getHiddenPotionEffect()} is available.
-	 */
-	public static boolean HAS_HIDDEN_EFFECTS = Skript.methodExists(PotionEffect.class, "getHiddenPotionEffect");
-
-	/**
 	 * Attempts to retrieve a list of potion effects from an ItemType.
 	 * @param itemType The ItemType to get potion effects from.
 	 * @return A list of potion effects from an ItemType, if any were found.
@@ -120,14 +115,9 @@ public final class PotionUtils {
 	 * A utility method to obtain the hidden effects of a potion effect.
 	 * @param effect The effect to obtain hidden effects from.
 	 * @return A deque of the hidden effects of {@code effect} ordered from most hidden to least hidden.
-	 * If {@link #HAS_HIDDEN_EFFECTS} is {@code false}, this returns an empty deque.
 	 */
 	public static Deque<PotionEffect> getHiddenEffects(PotionEffect effect) {
 		Deque<PotionEffect> hiddenEffects = new ArrayDeque<>();
-
-		if (!PotionUtils.HAS_HIDDEN_EFFECTS) {
-			return hiddenEffects;
-		}
 
 		// build hidden effects chain to reapply
 		PotionEffect hiddenEffect = effect.getHiddenPotionEffect();
