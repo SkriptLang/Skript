@@ -49,7 +49,7 @@ public class Delay extends Effect {
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
 			if (duration instanceof LitEternity) {
-				Skript.error("Delaying for an eternity is not allowed, it will cause your script to halt walking.");
+				Skript.error("Delaying for an eternity is not allowed. Use the 'stop' effect instead.");
 				return false;
 			}
 			long millis = ((Literal<Timespan>) duration).getSingle().getAs(Timespan.TimePeriod.MILLISECOND);
