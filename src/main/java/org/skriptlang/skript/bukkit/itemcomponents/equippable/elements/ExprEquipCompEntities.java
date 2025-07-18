@@ -13,9 +13,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.registry.set.RegistryKeySet;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
@@ -52,9 +52,8 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 	protected EntityData @Nullable [] get(Event event, EquippableWrapper[] source) {
 		List<EntityData> types = new ArrayList<>();
 		for (EquippableWrapper wrapper : source) {
-			EquippableComponent component = wrapper.getComponent();
-			Collection<EntityType> allowed = component.getAllowedEntities();
-			if (allowed == null || allowed.isEmpty())
+			Collection<EntityType> allowed = wrapper.getAllowedEntities();
+			if (allowed.isEmpty())
 				continue;
 			allowed.forEach(entityType -> types.add(EntityUtils.toSkriptEntityData(entityType)));
 		}
@@ -78,24 +77,22 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 					converted.add(EntityUtils.toBukkitEntityType(entityData));
 			}
 		}
+		RegistryKeySet<EntityType> keys = EquippableWrapper.convertAllowedEntities(converted);
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> {
-			Collection<EntityType> allowed = component.getAllowedEntities();
-			List<EntityType> current = allowed != null ? new ArrayList<>(allowed) : new ArrayList<>();
+		getExpr().stream(event).forEach(wrapper -> {
+			Collection<EntityType> allowed = wrapper.getAllowedEntities();
+			List<EntityType> current = new ArrayList<>(allowed);
 			switch (mode) {
-				case SET -> component.setAllowedEntities(converted);
-				case ADD -> {
+				case SET -> {
+					current.clear();
 					current.addAll(converted);
-					component.setAllowedEntities(current);
 				}
-				case REMOVE -> {
-					current.removeAll(converted);
-					component.setAllowedEntities(current);
-				}
-				case DELETE -> component.setAllowedEntities((EntityType) null);
-				default -> throw new IllegalStateException("Unexpected value: " + mode);
+				case ADD -> current.addAll(converted);
+				case REMOVE -> current.removeAll(converted);
+				case DELETE -> current.clear();
 			}
-		}));
+			wrapper.editBuilder(builder -> builder.allowedEntities(EquippableWrapper.convertAllowedEntities(current)));
+		});
 	}
 
 	@Override

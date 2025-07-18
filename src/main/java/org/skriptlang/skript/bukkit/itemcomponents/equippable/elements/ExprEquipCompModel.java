@@ -10,6 +10,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.ValidationResult;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +41,7 @@ public class ExprEquipCompModel extends SimplePropertyExpression<EquippableWrapp
 
 	@Override
 	public @Nullable String convert(EquippableWrapper wrapper) {
-		NamespacedKey key = wrapper.getComponent().getModel();
+		Key key = wrapper.getModel();
 		return key == null ? null : key.toString();
 	}
 
@@ -67,7 +68,7 @@ public class ExprEquipCompModel extends SimplePropertyExpression<EquippableWrapp
 		}
 		NamespacedKey finalKey = key;
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setModel(finalKey)));
+		getExpr().stream(event).forEach(wrapper -> wrapper.setModel(finalKey));
 	}
 
 	@Override

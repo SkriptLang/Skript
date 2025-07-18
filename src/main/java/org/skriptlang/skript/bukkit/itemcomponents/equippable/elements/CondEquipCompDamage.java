@@ -39,7 +39,7 @@ public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> im
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
 		//noinspection UnstableApiUsage
-		return wrapper.getComponent().isDamageOnHurt();
+		return wrapper.getComponent().damageOnHurt();
 	}
 
 	@Override

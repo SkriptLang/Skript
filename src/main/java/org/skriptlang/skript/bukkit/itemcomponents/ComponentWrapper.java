@@ -1,6 +1,8 @@
 package org.skriptlang.skript.bukkit.itemcomponents;
 
 import ch.njol.skript.util.ItemSource;
+import io.papermc.paper.datacomponent.BuildableDataComponent;
+import io.papermc.paper.datacomponent.DataComponentBuilder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +17,11 @@ import java.util.function.Consumer;
  * or a stand-alone component.
  * @param <T> The type of component
  */
-public abstract class ComponentWrapper<T> implements Cloneable {
+@SuppressWarnings({"UnstableApiUsage", "NonExtendableApiUsage"})
+public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B extends DataComponentBuilder<T>> implements Cloneable {
 
-	private final @Nullable ItemSource itemSource;
-	private final T component;
+	private final @Nullable ItemSource<?> itemSource;
+	private T component;
 
 	/**
 	 * Constructs a {@link ComponentWrapper} that wraps the given {@link ItemStack} in an {@link ItemSource}.
@@ -26,7 +29,7 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 	 * @param itemStack The original {@link ItemStack}.
 	 */
 	public ComponentWrapper(ItemStack itemStack) {
-		this(new ItemSource(itemStack));
+		this(new ItemSource<>(itemStack));
 	}
 
 	/**
@@ -34,9 +37,9 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 	 * Ensures up-to-date component data retrieval and modification on the {@link ItemStack} of the {@link ItemSource} .
 	 * @param itemSource The {@link ItemSource} representing the original source of the {@link ItemStack}.
 	 */
-	public ComponentWrapper(ItemSource itemSource) {
+	public ComponentWrapper(ItemSource<?> itemSource) {
 		this.itemSource = itemSource;
-		this.component = this.getComponent(itemSource.getItemMeta());
+		this.component = this.getComponent(itemSource.getItemStack());
 	}
 
 	/**
@@ -47,6 +50,11 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 		this.itemSource = null;
 	}
 
+	public ComponentWrapper(B builder) {
+		this.component = builder.build();
+		this.itemSource = null;
+	}
+
 	/**
 	 * Returns the current component.
 	 * If this {@link ComponentWrapper} was constructed with an {@link ItemSource}, the component is retrieved from
@@ -54,9 +62,17 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 	 */
 	public T getComponent() {
 		if (itemSource != null) {
-			return this.getComponent(itemSource.getItemMeta());
+			return this.getComponent(itemSource.getItemStack());
 		}
 		return component;
+	}
+
+	public B getBuilder() {
+		if (itemSource != null) {
+			return this.getBuilder(itemSource.getItemStack());
+		}
+		//noinspection unchecked
+		return (B) component.toBuilder();
 	}
 
 	/**
@@ -69,19 +85,25 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 	/**
 	 * Returns the {@link ItemSource} the {@link ItemStack} is sourced from.
 	 */
-	public @Nullable ItemSource getItemSource() {
+	public @Nullable ItemSource<?> getItemSource() {
 		return itemSource;
 	}
 
 	/**
 	 * Returns the {@link Converter} used to extract the component from the {@link ItemMeta}.
 	 */
-	protected abstract T getComponent(ItemMeta itemMeta);
+	protected abstract T getComponent(ItemStack itemStack);
+
+	protected abstract B getBuilder(ItemStack itemStack);
 
 	/**
 	 * Returns the {@link BiConsumer} that updates the component on the {@link ItemMeta}.
 	 */
-	protected abstract void setComponent(ItemMeta itemMeta, T component);
+	protected abstract void setComponent(ItemStack itemStack, T component);
+
+	protected void setBuilder(ItemStack itemStack, B builder) {
+		setComponent(itemStack, builder.build());
+	}
 
 	/**
 	 * Apply the current {@link #component} to the {@link #itemSource}.
@@ -94,11 +116,15 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 	 * Apply a new {@code component} or {@link #component} to the {@link #itemSource}.
 	 */
 	public void applyComponent(@NotNull T component) {
-		if (itemSource == null)
+		if (itemSource == null) {
+			this.component = component;
 			return;
-		ItemMeta itemMeta = itemSource.getItemMeta();
-		setComponent(itemMeta, component);
-		itemSource.setItemMeta(itemMeta);
+		}
+		setComponent(itemSource.getItemStack(), component);
+	}
+
+	public void applyBuilder(@NotNull B builder) {
+		applyComponent(builder.build());
 	}
 
 	/**
@@ -111,9 +137,15 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 		applyComponent(component);
 	}
 
+	public void editBuilder(Consumer<B> consumer) {
+		B builder = getBuilder();
+		consumer.accept(builder);
+		applyComponent(builder.build());
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof ComponentWrapper<?> other))
+		if (!(obj instanceof ComponentWrapper<?, ?> other))
 			return false;
 		boolean relation = true;
 		if (this.itemSource != null && other.itemSource != null)
@@ -125,17 +157,19 @@ public abstract class ComponentWrapper<T> implements Cloneable {
 	/**
 	 * Get a clone of this {@link ComponentWrapper}.
 	 */
-	public abstract ComponentWrapper<T> clone();
+	public abstract ComponentWrapper<T, B> clone();
 
 	/**
 	 * Get a new component {@link T}.
 	 */
 	public abstract T newComponent();
 
+	public abstract B newBuilder();
+
 	/**
-	 * Get a new {@link ComponentWrapper<T>}.
+	 * Get a new {@link ComponentWrapper}.
 	 */
-	public abstract ComponentWrapper<T> newWrapper();
+	public abstract ComponentWrapper<T, B> newWrapper();
 
 	@Override
 	public String toString() {

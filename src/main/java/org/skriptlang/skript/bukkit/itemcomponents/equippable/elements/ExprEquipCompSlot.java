@@ -8,6 +8,7 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,7 @@ public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrappe
 
 	@Override
 	public @Nullable EquipmentSlot convert(EquippableWrapper wrapper) {
-		return wrapper.getComponent().getSlot();
+		return wrapper.getComponent().slot();
 	}
 
 	@Override
@@ -47,7 +48,10 @@ public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrappe
 		assert delta != null;
 		EquipmentSlot providedSlot = (EquipmentSlot) delta[0];
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSlot(providedSlot)));
+		getExpr().stream(event).forEach(wrapper -> {
+			Equippable changed = wrapper.clone(providedSlot);
+			wrapper.applyComponent(changed);
+		});
 	}
 
 	@Override

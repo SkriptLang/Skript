@@ -9,6 +9,8 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.key.Key;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +35,7 @@ public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapp
 
 	@Override
 	public @Nullable String convert(EquippableWrapper wrapper) {
-		return SoundUtils.getKey(wrapper.getComponent().getEquipSound()).getKey();
+		return wrapper.getComponent().equipSound().toString();
 	}
 
 	@Override
@@ -54,9 +56,14 @@ public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapp
 				return;
 			}
 		}
-		Sound finalSound = enumSound;
+		Key key;
+		if (enumSound != null) {
+			key = Registry.SOUNDS.getKey(enumSound);
+		} else {
+			key = null;
+		}
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setEquipSound(finalSound)));
+		getExpr().stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.equipSound(key)));
 	}
 
 	@Override

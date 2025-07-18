@@ -35,7 +35,7 @@ public class CondEquipCompSwapEquipment extends PropertyCondition<EquippableWrap
 
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
-		return wrapper.getComponent().isSwappable();
+		return wrapper.getComponent().swappable();
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class CondEquipCompSwapEquipment extends PropertyCondition<EquippableWrap
 
 	@Override
 	protected String getPropertyName() {
-		return "swappable";
+		return "swap equipment";
 	}
 
 }

@@ -10,6 +10,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.ValidationResult;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,7 @@ public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<Equippa
 
 	@Override
 	public @Nullable String convert(EquippableWrapper wrapper) {
-		NamespacedKey key = wrapper.getComponent().getCameraOverlay();
+		Key key = wrapper.getComponent().cameraOverlay();
 		return key == null ? null : key.toString();
 	}
 
@@ -68,7 +69,7 @@ public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<Equippa
 		}
 		NamespacedKey finalKey = key;
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setCameraOverlay(finalKey)));
+		getExpr().stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.cameraOverlay(finalKey)));
 	}
 
 	@Override

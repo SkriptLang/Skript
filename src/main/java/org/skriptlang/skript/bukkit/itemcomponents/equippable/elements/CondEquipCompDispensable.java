@@ -53,7 +53,7 @@ public class CondEquipCompDispensable extends PropertyCondition<EquippableWrappe
 
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
-		return wrapper.getComponent().isDispensable();
+		return wrapper.getComponent().dispensable();
 	}
 
 	@Override

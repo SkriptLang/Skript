@@ -8,10 +8,10 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
@@ -25,6 +25,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @Example("set the equipment slot of {_item} to helmet slot")
 @Example("clear the equippable component of {_item}")
+@Example("reset the equippable component of {_item}")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
 public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack, EquippableWrapper> implements EquippableExperimentSyntax {
@@ -41,21 +42,28 @@ public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack,
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
-			return CollectionUtils.array(EquippableWrapper.class);
-		return null;
+		return switch (mode) {
+			case SET, DELETE, RESET -> CollectionUtils.array(EquippableWrapper.class);
+			default -> null;
+		};
 	}
 
 	@Override
+	@SuppressWarnings("UnstableApiUsage")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		EquippableComponent equippableComponent = null;
+		Equippable component = null;
 		if (delta != null)
-			equippableComponent = ((EquippableWrapper) delta[0]).getComponent();
+			component = ((EquippableWrapper) delta[0]).getComponent();
 
 		for (ItemStack itemStack : getExpr().getArray(event)) {
-			ItemMeta itemMeta = itemStack.getItemMeta();
-			itemMeta.setEquippable(equippableComponent);
-			itemStack.setItemMeta(itemMeta);
+			switch (mode) {
+				case SET -> {
+					assert component != null;
+					itemStack.setData(DataComponentTypes.EQUIPPABLE, component);
+				}
+				case DELETE -> itemStack.unsetData(DataComponentTypes.EQUIPPABLE);
+				case REMOVE -> itemStack.resetData(DataComponentTypes.EQUIPPABLE);
+			}
 		}
 	}
 

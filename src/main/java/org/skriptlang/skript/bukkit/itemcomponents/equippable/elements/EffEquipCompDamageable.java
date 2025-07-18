@@ -29,7 +29,7 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 		Skript.registerEffect(EffEquipCompDamageable.class,
 			"(make|let) %equippablecomponents% (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
 			"(allow|force) %equippablecomponents% to (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
-			"(make|let) %equippablecomponents% not (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"make %equippablecomponents% not (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
 			"(disallow|prevent|disallow) %equippablecomponents% from (lose durability|being damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
 		);
 	}
@@ -47,7 +47,7 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setDamageOnHurt(loseDurability)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.damageOnHurt(loseDurability)));
 	}
 
 	@Override

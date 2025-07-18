@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -9,8 +8,8 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ItemSource;
 import ch.njol.skript.util.slot.Slot;
+import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -52,10 +51,14 @@ public class EquippableModule implements AddonModule {
 			})
 		);
 
-		Converters.registerConverter(EquippableComponent.class, EquippableWrapper.class, EquippableWrapper::new, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Equippable.class, EquippableWrapper.class, EquippableWrapper::new, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(ItemStack.class, EquippableWrapper.class, EquippableWrapper::new, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(ItemType.class, EquippableWrapper.class, itemType -> new EquippableWrapper(new ItemSource(itemType)), Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Slot.class, EquippableWrapper.class, slot -> new EquippableWrapper(new ItemSource(slot)), Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Slot.class, EquippableWrapper.class, slot -> {
+			ItemSource<Slot> itemSource = ItemSource.fromSlot(slot);
+			if (itemSource == null)
+				return null;
+			return new EquippableWrapper(itemSource);
+		}, Converter.NO_RIGHT_CHAINING);
 	}
 
 	@Override

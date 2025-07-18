@@ -28,7 +28,7 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 			"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
 			"(make|let) %equippablecomponents% swap equipment [on right click|when right clicked]",
 			"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]",
-			"(make|let) %equippablecomponents% not swap equipment [on right click|when right clicked]"
+			"make| %equippablecomponents% not swap equipment [on right click|when right clicked]"
 		);
 	}
 
@@ -45,7 +45,7 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSwappable(swappable)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.swappable(swappable)));
 	}
 
 	@Override

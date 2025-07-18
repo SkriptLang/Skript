@@ -26,7 +26,7 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
-		return wrapper.getComponent().isEquipOnInteract();
+		return wrapper.getComponent().equipOnInteract();
 	}
 
 	@Override

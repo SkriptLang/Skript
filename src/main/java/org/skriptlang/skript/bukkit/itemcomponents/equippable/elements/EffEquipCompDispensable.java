@@ -29,8 +29,7 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 			"make %equippablecomponents% dispensable",
 			"let %equippablecomponents% be dispensed",
 			"(block|prevent|disallow) %equippablecomponents% from being dispensed",
-			"make %equippablecomponents% not dispensable",
-			"let %equippablecomponents% not be dispensed"
+			"make %equippablecomponents% not dispensable"
 		);
 	}
 
@@ -47,7 +46,7 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setDispensable(dispensable)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.dispensable(dispensable)));
 	}
 
 	@Override

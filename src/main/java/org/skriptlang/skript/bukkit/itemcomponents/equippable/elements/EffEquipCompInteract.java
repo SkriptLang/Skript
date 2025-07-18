@@ -27,8 +27,7 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 				"make %equippablecomponents% equippable on[to] entities",
 				"let %equippablecomponents% be equipped on[to] entities",
 				"(block|prevent|disallow) %equippablecomponents% from being equipped on[to] entities",
-				"make %equippablecomponents% not equippable on[to] entities",
-				"let %equippablecomponents% not be equipped on[to] entities"
+				"make %equippablecomponents% not equippable on[to] entities"
 			);
 	}
 
@@ -45,7 +44,7 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setEquipOnInteract(equip)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.equipOnInteract(equip)));
 	}
 
 	@Override
