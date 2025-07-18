@@ -21,6 +21,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EmptyStacktraceException;
+import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.BungeeConverter;
@@ -478,21 +479,24 @@ public class ScriptCommand implements TabExecutor {
 	}
 
 	public void unregisterHelp() {
-		Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
-		final HelpTopic aliases = Bukkit.getHelpMap().getHelpTopic("Aliases");
-		if (aliases != null && aliases instanceof IndexHelpTopic) {
-			try {
-				final Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
-				topics.setAccessible(true);
-				@SuppressWarnings("unchecked")
-				final ArrayList<HelpTopic> as = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
-				as.removeAll(helps);
-				topics.set(aliases, as);
-			} catch (final Exception e) {
-				Skript.outdatedError(e);//, "error unregistering aliases for /" + getName());
+		Task.callSync(() -> {
+			Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
+			final HelpTopic aliases = Bukkit.getHelpMap().getHelpTopic("Aliases");
+			if (aliases != null && aliases instanceof IndexHelpTopic) {
+				try {
+					final Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
+					topics.setAccessible(true);
+					@SuppressWarnings("unchecked")
+					final ArrayList<HelpTopic> as = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
+					as.removeAll(helps);
+					topics.set(aliases, as);
+				} catch (final Exception e) {
+					Skript.outdatedError(e);//, "error unregistering aliases for /" + getName());
+				}
 			}
-		}
-		helps.clear();
+			helps.clear();
+			return null;
+		});
 	}
 
 	public String getName() {
