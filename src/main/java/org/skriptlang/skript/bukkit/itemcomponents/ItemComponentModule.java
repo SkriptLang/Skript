@@ -42,6 +42,7 @@ public class ItemComponentModule implements AddonModule {
 					return "item component#" + wrapper.hashCode();
 				}
 			})
+			.after("itemstack", "itemtype", "slot")
 		);
 	}
 

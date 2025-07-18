@@ -1,21 +1,22 @@
 package org.skriptlang.skript.bukkit.itemcomponents;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.util.ItemSource;
+import ch.njol.skript.util.slot.Slot;
 import io.papermc.paper.datacomponent.BuildableDataComponent;
 import io.papermc.paper.datacomponent.DataComponentBuilder;
+import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
  * A wrapper that allows access and modification of a specific component from an {@link ItemStack}
  * or a stand-alone component.
  * @param <T> The type of component
+ * @param <B> The builder type of {@link T}
  */
 @SuppressWarnings({"UnstableApiUsage", "NonExtendableApiUsage"})
 public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B extends DataComponentBuilder<T>> implements Cloneable {
@@ -50,6 +51,9 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 		this.itemSource = null;
 	}
 
+	/**
+	 * Constructs a {@link ComponentWrapper} that only references to a built component.
+	 */
 	public ComponentWrapper(B builder) {
 		this.component = builder.build();
 		this.itemSource = null;
@@ -67,6 +71,11 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 		return component;
 	}
 
+	/**
+	 * Returns the builder of the current component
+	 * If this {@link ComponentWrapper} was constructed with an {@link ItemSource}, the builder is retrieved from
+	 * the component of the stored item. Otherwise, the stored {@link #component}.
+	 */
 	public B getBuilder() {
 		if (itemSource != null) {
 			return this.getBuilder(itemSource.getItemStack());
@@ -90,17 +99,28 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 	}
 
 	/**
-	 * Returns the {@link Converter} used to extract the component from the {@link ItemMeta}.
+	 * Returns the {@link DataComponentType} of this {@link ComponentWrapper}.
+	 */
+	public abstract DataComponentType.Valued<T> getDataComponentType();
+
+	/**
+	 * Returns the {@link T} component from {@code itemStack}.
 	 */
 	protected abstract T getComponent(ItemStack itemStack);
 
+	/**
+	 * Returns the {@link B} builder of the component from {@code itemStack}.
+	 */
 	protected abstract B getBuilder(ItemStack itemStack);
 
 	/**
-	 * Returns the {@link BiConsumer} that updates the component on the {@link ItemMeta}.
+	 * Sets the {@link T} component on {@code itemStack}.
 	 */
 	protected abstract void setComponent(ItemStack itemStack, T component);
 
+	/**
+	 * Sets the {@link B} builder component on {@code itemStack}.
+	 */
 	protected void setBuilder(ItemStack itemStack, B builder) {
 		setComponent(itemStack, builder.build());
 	}
@@ -116,27 +136,28 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 	 * Apply a new {@code component} or {@link #component} to the {@link #itemSource}.
 	 */
 	public void applyComponent(@NotNull T component) {
-		if (itemSource == null) {
-			this.component = component;
+		this.component = component;
+		if (itemSource == null)
 			return;
+		ItemStack itemStack = itemSource.getItemStack();
+		setComponent(itemStack, component);
+		if (itemSource.getSource() instanceof ItemType itemType) {
+			itemType.setData(getDataComponentType(), component);
+		} else if (itemSource.getSource() instanceof Slot slot) {
+			slot.setItem(itemStack);
 		}
-		setComponent(itemSource.getItemStack(), component);
 	}
 
+	/**
+	 * Apply a new {@code builder} to the {@link #itemSource}.
+	 */
 	public void applyBuilder(@NotNull B builder) {
 		applyComponent(builder.build());
 	}
 
 	/**
-	 * Edit {@link #component} via {@link Consumer}.
-	 * @param consumer The {@link Consumer} to edit the component.
+	 * Edit the {@link T} component of this {@link ComponentWrapper} and have changes applied.
 	 */
-	public void editComponent(Consumer<T> consumer) {
-		T component = getComponent();
-		consumer.accept(component);
-		applyComponent(component);
-	}
-
 	public void editBuilder(Consumer<B> consumer) {
 		B builder = getBuilder();
 		consumer.accept(builder);
@@ -155,25 +176,28 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 	}
 
 	/**
-	 * Get a clone of this {@link ComponentWrapper}.
+	 * Returns a clone of this {@link ComponentWrapper}.
 	 */
 	public abstract ComponentWrapper<T, B> clone();
 
 	/**
-	 * Get a new component {@link T}.
+	 * Returns a new component {@link T}.
 	 */
 	public abstract T newComponent();
 
+	/**
+	 * Returns a new builder {@link B}.
+	 */
 	public abstract B newBuilder();
 
 	/**
-	 * Get a new {@link ComponentWrapper}.
+	 * Returns a new {@link ComponentWrapper}.
 	 */
 	public abstract ComponentWrapper<T, B> newWrapper();
 
 	@Override
 	public String toString() {
-		return component.toString();
+		return getComponent().toString();
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -21,7 +22,7 @@ public class EquippableModule implements AddonModule {
 
 	@Override
 	public boolean canLoad(SkriptAddon addon) {
-		return Skript.classExists("org.bukkit.inventory.meta.components.EquippableComponent");
+		return Skript.classExists("io.papermc.paper.datacomponent.item.Equippable");
 	}
 
 	@Override
@@ -49,10 +50,12 @@ public class EquippableModule implements AddonModule {
 					return "equippable component#" + wrapper.hashCode();
 				}
 			})
+			.after("itemstack", "itemtype", "slot")
 		);
 
 		Converters.registerConverter(Equippable.class, EquippableWrapper.class, EquippableWrapper::new, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(ItemStack.class, EquippableWrapper.class, EquippableWrapper::new, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(ItemType.class, EquippableWrapper.class, itemType -> new EquippableWrapper(new ItemSource<>(itemType)), Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Slot.class, EquippableWrapper.class, slot -> {
 			ItemSource<Slot> itemSource = ItemSource.fromSlot(slot);
 			if (itemSource == null)

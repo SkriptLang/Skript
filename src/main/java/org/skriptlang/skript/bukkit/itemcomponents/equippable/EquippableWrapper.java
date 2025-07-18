@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.util.ItemSource;
+import io.papermc.paper.datacomponent.DataComponentType.Valued;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Equippable;
 import io.papermc.paper.datacomponent.item.Equippable.Builder;
@@ -35,17 +36,17 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	private static final boolean HAS_SHEAR_SOUND = Skript.methodExists(Equippable.class, "shearSound");
 
 	static {
-        Method componentModelMethod = null;
+		Method componentModelMethod = null;
 		Method builderModelMethod = null;
-        if (HAS_MODEL_METHOD) {
-            try {
+		if (HAS_MODEL_METHOD) {
+			try {
 				componentModelMethod = Equippable.class.getDeclaredMethod("model");
 				builderModelMethod = Equippable.Builder.class.getDeclaredMethod("model");
-            } catch (NoSuchMethodException ignored) {}
+			} catch (NoSuchMethodException ignored) {}
 		}
-        COMPONENT_MODEL_METHOD = componentModelMethod;
+		COMPONENT_MODEL_METHOD = componentModelMethod;
 		BUILDER_MODEL_METHOD = builderModelMethod;
-    }
+	}
 
 	public EquippableWrapper(ItemStack itemStack) {
 		super(itemStack);
@@ -61,6 +62,11 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 
 	public EquippableWrapper(Builder builder) {
 		super(builder);
+	}
+
+	@Override
+	public Valued<Equippable> getDataComponentType() {
+		return DataComponentTypes.EQUIPPABLE;
 	}
 
 	@Override
@@ -92,6 +98,9 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 		return clone;
 	}
 
+	/**
+	 * Returns a cloned {@link Equippable} of this {@link EquippableWrapper} with a new {@link EquipmentSlot}.
+	 */
 	public Equippable clone(EquipmentSlot slot) {
 		Equippable base = getComponent();
 		Builder builder = Equippable.equippable(slot)
@@ -131,14 +140,26 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 		return newInstance();
 	}
 
+	/**
+	 * Returns a {@link Collection} of {@link EntityType}s that are allowed to wear with this {@link EquippableWrapper}.
+	 */
 	public Collection<EntityType> getAllowedEntities() {
 		return getAllowedEntities(getComponent());
 	}
 
-	public Builder setModel(Key key) {
-		return setModel(getBuilder(), key);
+	/**
+	 * Updates the model/assetId of this {@link EquippableWrapper} with {@code key}.
+	 * @param key The {@link Key} to set to.
+	 */
+	public void setModel(Key key) {
+		Builder builder = getBuilder();
+		setModel(builder, key);
+		applyBuilder(builder);
 	}
 
+	/**
+	 * Returns the model/assetId {@link Key} of this {@link EquippableWrapper}.
+	 */
 	public Key getModel() {
 		return getModel(getComponent());
 	}
@@ -152,6 +173,15 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 		);
 	}
 
+	/**
+	 * Returns the model/assetId {@link Key} of {@code component}.
+	 * <p>
+	 *     Paper 1.21.2 to 1.21.3 uses #model
+	 *     Paper 1.21.4+ uses #assetId
+	 * </p>
+	 * @param component The {@link Equippable} component to retrieve.
+	 * @return The {@link Key}.
+	 */
 	public static Key getModel(Equippable component) {
 		if (HAS_MODEL_METHOD) {
 			try {
@@ -161,6 +191,16 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 		return component.assetId();
 	}
 
+	/**
+	 * Updates the model/assetId of {@code builder} with {@code key}.
+	 * <p>
+	 *     Paper 1.21.2 to 1.21.3 uses #model
+	 *     Paper 1.21.4+ uses #assetId
+	 * </p>
+	 * @param builder The {@link Builder} to update.
+	 * @param key The {@link Key} to set to.
+	 * @return {@code builder}.
+	 */
 	public static Builder setModel(Builder builder, Key key) {
 		if (HAS_MODEL_METHOD) {
 			assert BUILDER_MODEL_METHOD != null;
@@ -173,6 +213,14 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 		return builder;
 	}
 
+	/**
+	 * Returns a {@link Collection} of {@link EntityType}s that are allowed to wear with this {@code component}.
+	 * <p>
+	 *     Paper originally returns {@link RegistryKeySet} but has no real modification capabilities.
+	 * </p>
+	 * @param component The {@link Equippable} component to get from.
+	 * @return The allowed {@link EntityType}s.
+	 */
 	public static Collection<EntityType> getAllowedEntities(Equippable component) {
 		RegistryKeySet<EntityType> keys = component.allowedEntities();
 		if (keys == null)
@@ -180,6 +228,11 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 		return keys.resolve(Registry.ENTITY_TYPE);
 	}
 
+	/**
+	 * Converts {@code entityTypes} into a {@link RegistryKeySet} to update the allowed entities of an {@link Equippable} component.
+	 * @param entityTypes The allowed {@link EntityType}s.
+	 * @return {@link RegistryKeySet} representation of {@code entityTypes}.
+	 */
 	public static RegistryKeySet<EntityType> convertAllowedEntities(Collection<EntityType> entityTypes) {
 		return RegistrySet.keySetFromValues(RegistryKey.ENTITY_TYPE, entityTypes);
 	}

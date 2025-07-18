@@ -9,6 +9,7 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -33,7 +34,9 @@ import java.util.Objects;
 import java.util.Set;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
-	
+
+	private static final boolean HAS_DATA_COMPONENTS = Skript.methodExists(ItemStack.class, "getDataTypes");
+
 	static {
 		Variables.yggdrasil.registerSingleClass(ItemData.class, "NewItemData");
 		Variables.yggdrasil.registerSingleClass(OldItemData.class, "ItemData");
@@ -635,5 +638,49 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		BukkitUnsafe.modifyItemStack(stack, tags);
 		itemFlags |= ItemFlags.CHANGED_TAGS;
 	}
-	
+
+	/**
+	 * Sets the {@link DataComponentType} of {@link #stack} to {@code component}.
+	 * @param type The {@link DataComponentType} to reference.
+	 * @param component The {@link io.papermc.paper.datacomponent.BuildableDataComponent} to update to.
+	 */
+	public <T> void setData(Object type, @Nullable T component) {
+		if (!HAS_DATA_COMPONENTS || stack == null)
+			return;
+		if (!(type instanceof DataComponentType.Valued<?> dataType))
+			return;
+		DataComponentType.Valued<T> typed = (DataComponentType.Valued<T>) dataType;
+		if (component == null) {
+			stack.unsetData(typed);
+		} else {
+			stack.setData(typed, component);
+		}
+	}
+
+	/**
+	 * Removes the {@link DataComponentType} of {@link #stack}.
+	 * @param type The {@link DataComponentType} to reference.
+	 */
+	public <T> void unsetData(Object type) {
+		if (!HAS_DATA_COMPONENTS || stack == null)
+			return;
+		if (!(type instanceof DataComponentType.Valued<?> dataType))
+			return;
+		DataComponentType.Valued<T> typed = (DataComponentType.Valued<T>) dataType;
+		stack.unsetData(typed);
+	}
+
+	/**
+	 * Removes the {@link DataComponentType} of {@link #stack} to vanilla behavior.
+	 * @param type The {@link DataComponentType} to reference.
+	 */
+	public <T> void resetData(Object type) {
+		if (!HAS_DATA_COMPONENTS || stack == null)
+			return;
+		if (!(type instanceof DataComponentType.Valued<?> dataType))
+			return;
+		DataComponentType.Valued<T> typed = (DataComponentType.Valued<T>) dataType;
+		stack.resetData(typed);
+	}
+
 }

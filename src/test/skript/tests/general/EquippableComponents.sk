@@ -1,10 +1,10 @@
 options:
-	sound: "item.armor.equip_generic"
+	sound: "minecraft:item.armor.equip_generic"
 	slot: chest slot
 	model: "skript:model_key"
 	camera: "skript:camera_key"
 	allowed: a zombie and a skeleton
-	method: "org.bukkit.inventory.meta.components.EquippableComponent#isEquipOnInteract()"
+	method: "org.bukkit.inventory.meta.components.EquippableComponentisEquipOnInteract()"
 
 using equippable components
 
@@ -135,7 +135,7 @@ test "equippable components - copy" when running minecraft "1.21.2":
 
 	set {_copy} to a item component copy of {_original}
 	set the equip sound of {_copy} to "item.armor.equip_diamond"
-	assert the equip sound of {_copy} is "item.armor.equip_diamond" with "Equip sound of copy was not set"
+	assert the equip sound of {_copy} is "minecraft:item.armor.equip_diamond" with "Equip sound of copy was not set"
 	assert the equip sound of {_original} is {@sound} with "Equip sound of original should not have changed"
 	set the equipment slot of {_copy} to helmet slot
 	assert the equipment slot of {_copy} is helmet slot with "Equipment slot of copy was not set"

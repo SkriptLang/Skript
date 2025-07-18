@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -7,11 +8,11 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.util.ItemSource;
 import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
@@ -28,16 +29,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Example("reset the equippable component of {_item}")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack, EquippableWrapper> implements EquippableExperimentSyntax {
+public class ExprEquippableComponent extends SimplePropertyExpression<ItemType, EquippableWrapper> implements EquippableExperimentSyntax {
 
 	static {
-		register(ExprEquippableComponent.class,  EquippableWrapper.class,
-			"equippable component[s]", "itemstacks");
+		register(ExprEquippableComponent.class, EquippableWrapper.class,
+			"equippable component[s]", "itemtypes");
 	}
 
 	@Override
-	public EquippableWrapper convert(ItemStack itemStack) {
-		return new EquippableWrapper(itemStack);
+	public EquippableWrapper convert(ItemType itemType) {
+		return new EquippableWrapper(new ItemSource<>(itemType));
 	}
 
 	@Override
@@ -55,14 +56,14 @@ public class ExprEquippableComponent extends SimplePropertyExpression<ItemStack,
 		if (delta != null)
 			component = ((EquippableWrapper) delta[0]).getComponent();
 
-		for (ItemStack itemStack : getExpr().getArray(event)) {
+		for (ItemType itemType : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET -> {
 					assert component != null;
-					itemStack.setData(DataComponentTypes.EQUIPPABLE, component);
+					itemType.setData(DataComponentTypes.EQUIPPABLE, component);
 				}
-				case DELETE -> itemStack.unsetData(DataComponentTypes.EQUIPPABLE);
-				case REMOVE -> itemStack.resetData(DataComponentTypes.EQUIPPABLE);
+				case DELETE -> itemType.unsetData(DataComponentTypes.EQUIPPABLE);
+				case RESET -> itemType.resetData(DataComponentTypes.EQUIPPABLE);
 			}
 		}
 	}

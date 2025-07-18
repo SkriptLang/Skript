@@ -23,6 +23,7 @@ import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import com.google.common.collect.Iterators;
+import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -1644,6 +1645,37 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	@Override
 	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
 		this.setAmount(amount != null ? amount.intValue() : 0);
+	}
+
+	/**
+	 * Sets the {@link DataComponentType} of {@link #types} to {@code component}.
+	 * @param type The {@link DataComponentType} to reference.
+	 * @param component The {@link io.papermc.paper.datacomponent.BuildableDataComponent} to update to.
+	 */
+	public void setData(Object type, @Nullable Object component) {
+		for (ItemData data : types) {
+			data.setData(type, component);
+		}
+	}
+
+	/**
+	 * Removes the {@link DataComponentType} of {@link #types}.
+	 * @param type The {@link DataComponentType} to reference.
+	 */
+	public void unsetData(Object type) {
+		for (ItemData data : types) {
+			data.unsetData(type);
+		}
+	}
+
+	/**
+	 * Removes the {@link DataComponentType} of {@link #types} to vanilla behavior.
+	 * @param type The {@link DataComponentType} to reference.
+	 */
+	public void resetData(Object type) {
+		for (ItemData data : types) {
+			data.resetData(type);
+		}
 	}
 
 }
