@@ -5,6 +5,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 
@@ -66,7 +67,7 @@ public class EntryContainer {
 	 * @throws RuntimeException If the entry's value is not of the expected type.
 	 */
 	@SuppressWarnings("unchecked")
-	public <E, R extends E> List<R> getAll(String key, Class<E> expectedType, boolean useDefaultValue) {
+	public <E, R extends E> @Unmodifiable List<R> getAll(String key, Class<E> expectedType, boolean useDefaultValue) {
 		List<?> parsed = getAll(key, useDefaultValue);
 		for (Object object : parsed) {
 			if (!expectedType.isInstance(object))
@@ -82,7 +83,7 @@ public class EntryContainer {
 	 * @param useDefaultValue Whether the default value should be used if parsing failed.
 	 * @return The entry's values. May be empty list if the entry is missing or a parsing error occurred.
 	 */
-	public List<Object> getAll(String key, boolean useDefaultValue) {
+	public @Unmodifiable List<Object> getAll(String key, boolean useDefaultValue) {
 		if (entryValidator == null || handledNodes == null)
 			return Collections.emptyList();
 
@@ -102,19 +103,19 @@ public class EntryContainer {
 		}
 
 		List<Object> values = new LinkedList<>();
+		ParserInstance parser = ParserInstance.get();
+		Node oldNode = parser.getNode();
 		for (Node node : nodes) {
-			ParserInstance parser = ParserInstance.get();
-			Node oldNode = parser.getNode();
 			parser.setNode(node);
 			Object value = entryData.getValue(node);
 			if (value == null && useDefaultValue)
 				value = entryData.getDefaultValue();
-			parser.setNode(oldNode);
 			if (value != null)
 				values.add(value);
 		}
+		parser.setNode(oldNode);
 
-		return values;
+		return Collections.unmodifiableList(values);
 	}
 
 	/**

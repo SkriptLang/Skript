@@ -35,10 +35,8 @@ public abstract class KeyValueEntryData<T> extends EntryData<T> {
 		String key = node.getKey();
 		if (key == null)
 			throw new IllegalArgumentException("EntryData#getValue() called with invalid node.");
-		return getValue(
-			ScriptLoader.replaceOptions(key)
-				.substring(getKey().length() + getSeparator().length())
-		);
+		return getValue(ScriptLoader.replaceOptions(key)
+			.substring(getKey().length() + getSeparator().length()));
 	}
 
 	/**
