@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Executable;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -134,12 +135,24 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		Skript.debug("Validating function " + functionName);
 		Signature<?> sign = getRegisteredSignature();
 
+		StringJoiner args = new StringJoiner(", ");
+		for (Class<?> parameterType : parameterTypes) {
+			Class<?> searchType;
+			if (parameterType.isArray()) {
+				searchType = parameterType.componentType();
+			} else {
+				searchType = parameterType;
+			}
+			args.add(Classes.getSuperClassInfo(searchType).getCodeName());
+		}
+		String stringified = "%s(%s)".formatted(functionName, args);
+
 		// Check if the requested function exists
 		if (sign == null) {
 			if (first) {
-				Skript.error("The function '" + functionName + "' does not exist.");
+				Skript.error("The function '" + stringified + "' does not exist.");
 			} else {
-				Skript.error("The function '" + functionName + "' was deleted or renamed, but is still used in other script(s)."
+				Skript.error("The function '" + stringified + "' was deleted or renamed, but is still used in other script(s)."
 					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 			}
@@ -152,9 +165,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			ClassInfo<?> rt = sign.returnType;
 			if (rt == null) {
 				if (first) {
-					Skript.error("The function '" + functionName + "' doesn't return any value.");
+					Skript.error("The function '" + stringified + "' doesn't return any value.");
 				} else {
-					Skript.error("The function '" + functionName + "' was redefined with no return value, but is still used in other script(s)."
+					Skript.error("The function '" + stringified + "' was redefined with no return value, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
 					function = previousFunction;
 				}
@@ -162,9 +175,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			}
 			if (!Converters.converterExists(rt.getC(), returnTypes)) {
 				if (first) {
-					Skript.error("The returned value of the function '" + functionName + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
+					Skript.error("The returned value of the function '" + stringified + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
 				} else {
-					Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
+					Skript.error("The function '" + stringified + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
 					function = previousFunction;
 				}
@@ -187,15 +200,15 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			if (parameters.length > sign.getMaxParameters()) {
 				if (first) {
 					if (sign.getMaxParameters() == 0) {
-						Skript.error("The function '" + functionName + "' has no arguments, but " + parameters.length + " are given."
+						Skript.error("The function '" + stringified + "' has no arguments, but " + parameters.length + " are given."
 							+ " To call a function without parameters, just write the function name followed by '()', e.g. 'func()'.");
 					} else {
-						Skript.error("The function '" + functionName + "' has only " + sign.getMaxParameters() + " argument" + (sign.getMaxParameters() == 1 ? "" : "s") + ","
+						Skript.error("The function '" + stringified + "' has only " + sign.getMaxParameters() + " argument" + (sign.getMaxParameters() == 1 ? "" : "s") + ","
 							+ " but " + parameters.length + " are given."
 							+ " If you want to use lists in function calls, you have to use additional parentheses, e.g. 'give(player, (iron ore and gold ore))'");
 					}
 				} else {
-					Skript.error("The function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
+					Skript.error("The function '" + stringified + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
 					function = previousFunction;
 				}
@@ -206,10 +219,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Not enough parameters
 		if (parameters.length < sign.getMinParameters()) {
 			if (first) {
-				Skript.error("The function '" + functionName + "' requires at least " + sign.getMinParameters() + " argument" + (sign.getMinParameters() == 1 ? "" : "s") + ","
+				Skript.error("The function '" + stringified + "' requires at least " + sign.getMinParameters() + " argument" + (sign.getMinParameters() == 1 ? "" : "s") + ","
 					+ " but only " + parameters.length + " " + (parameters.length == 1 ? "is" : "are") + " given.");
 			} else {
-				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
+				Skript.error("The function '" + stringified + "' was redefined with a different, incompatible amount of arguments, but is still used in other script(s)."
 					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 			}
@@ -230,12 +243,12 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						} else {
 							String type = Classes.toString(DefaultFunction.getClassInfo(p.type()));
 
-							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is not of the required type " + type + "."
+							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
 								+ " Please note that storing the value in a variable and then using that variable as parameter may suppress this error, but it still won't work.");
 						}
 					} else {
-						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
+						Skript.error("The function '" + stringified + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
 							+ " These will continue to use the old version of the function until Skript restarts.");
 						function = previousFunction;
 					}
@@ -245,7 +258,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
 							+ "but a single argument was expected");
 					} else {
-						Skript.error("The function '" + functionName + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
+						Skript.error("The function '" + stringified + "' was redefined with different, incompatible arguments, but is still used in other script(s)."
 							+ " These will continue to use the old version of the function until Skript restarts.");
 						function = previousFunction;
 					}
@@ -282,7 +295,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	}
 
 	/**
-	 * Attempts to get this function's signature.
+	 * Attempts to geoopst this function's signature.
 	 */
 	private Signature<?> getRegisteredSignature() {
 		parseParameters();
@@ -293,13 +306,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		Retrieval<Signature<?>> attempt = FunctionRegistry.getRegistry().getSignature(script, functionName, parameterTypes);
-		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.retrieved();
-		}
-
-		// if we can't find a signature based on param types, try to match any function
-		attempt = FunctionRegistry.getRegistry().getSignature(script, functionName);
-
 		if (attempt.result() == RetrievalResult.EXACT) {
 			return attempt.retrieved();
 		}
@@ -323,13 +329,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		Retrieval<Function<?>> attempt = FunctionRegistry.getRegistry().getFunction(script, functionName, parameterTypes);
-
-		if (attempt.result() == RetrievalResult.EXACT) {
-			return attempt.retrieved();
-		}
-
-		// if we can't find a signature based on param types, try to match any function
-		attempt = FunctionRegistry.getRegistry().getFunction(script, functionName);
 
 		if (attempt.result() == RetrievalResult.EXACT) {
 			return attempt.retrieved();

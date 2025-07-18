@@ -67,14 +67,15 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * <p>
 	 * Attempting to register a local signature in the global namespace, or a global signature in
 	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * If {@code namespace} is null, will register this signature globally,
+	 * only if the signature is global.
 	 * </p>
 	 *
 	 * @param namespace The namespace to register the signature in.
-	 *                  If namespace is null, will register this signature globally.
 	 *                  Usually represents the path of the script this signature is registered in.
 	 * @param signature The signature to register.
-	 * @throws SkriptAPIException if a signature with the same name and parameters is already registered
-	 *                            in this namespace.
+	 * @throws SkriptAPIException       if a signature with the same name and parameters is already registered
+	 *                                  in this namespace.
 	 * @throws IllegalArgumentException if the signature is global and namespace is not null, or
 	 *                                  if the signature is local and namespace is null.
 	 */
@@ -118,26 +119,15 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
-	 * Registers a global function.
-	 *
-	 * @param function The function to register.
-	 * @throws SkriptAPIException if the function name is invalid or if
-	 *                            a function with the same name and parameters is already registered
-	 *                            in this namespace.
-	 */
-	public void register(@NotNull Function<?> function) {
-		register(null, function);
-	}
-
-	/**
 	 * Registers a function.
 	 * <p>
 	 * Attempting to register a local function in the global namespace, or a global function in
 	 * a local namespace, will throw an {@link IllegalArgumentException}.
+	 * If {@code namespace} is null, will register this function globally,
+	 * only if the function is global.
 	 * </p>
 	 *
 	 * @param namespace The namespace to register the function in.
-	 *                  If namespace is null, will register this function globally, only if the function is global.
 	 *                  Usually represents the path of the script this function is registered in.
 	 * @param function  The function to register.
 	 * @throws SkriptAPIException       if the function name is invalid or if
@@ -221,7 +211,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * The result of attempting to retrieve a function.
 	 * Depending on the type, a {@link Retrieval} will feature different data.
 	 */
-	public enum RetrievalResult {
+	enum RetrievalResult {
 
 		/**
 		 * The specified function or signature has not been registered.
@@ -267,7 +257,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param retrieved       The function or signature that was found if {@code result} is {@code EXACT}.
 	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
 	 */
-	public record Retrieval<T>(
+	record Retrieval<T>(
 		@NotNull RetrievalResult result,
 		T retrieved,
 		Class<?>[][] conflictingArgs
@@ -276,12 +266,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 	/**
 	 * Gets a function from a script. If no local function is found, checks for global functions.
-	 *
-	 * <ul>
-	 * <li>If {@code namespace} is null, only global functions will be checked.</li>
-	 * <li>If {@code args} is null or empty,
-	 * the first function with the same name as the {@code name} param will be returned.</li>
-	 * </ul>
+	 * If {@code namespace} is null, only global functions will be checked.
 	 *
 	 * @param namespace The namespace to get the function from.
 	 *                  Usually represents the path of the script this function is registered in.
@@ -292,7 +277,8 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 */
 	public @NotNull Retrieval<Function<?>> getFunction(
 		@Nullable String namespace,
-		@NotNull String name, Class<?>... args
+		@NotNull String name,
+		@NotNull Class<?>... args
 	) {
 		if (namespace == null) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
@@ -300,7 +286,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 		Retrieval<Function<?>> attempt = getFunction(new NamespaceIdentifier(namespace),
 			FunctionIdentifier.of(name, true, args));
-		if (attempt.result == RetrievalResult.NOT_REGISTERED) {
+		if (attempt.result() == RetrievalResult.NOT_REGISTERED) {
 			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;
@@ -354,13 +340,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 	/**
 	 * Gets the signature for a function with the given name and arguments. If no local function is found,
-	 * checks for global functions.
-	 *
-	 * <ul>
-	 * <li>If {@code namespace} is null, only global signatures will be checked.</li>
-	 * <li>If {@code args} is null or empty,
-	 * the first function with the same name as the {@code name} param will be returned.</li>
-	 * </ul>
+	 * checks for global functions. If {@code namespace} is null, only global signatures will be checked.
 	 *
 	 * @param namespace The namespace to get the function from.
 	 *                  Usually represents the path of the script this function is registered in.
@@ -368,14 +348,18 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	public Retrieval<Signature<?>> getSignature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+	public Retrieval<Signature<?>> getSignature(
+		@Nullable String namespace,
+		@NotNull String name,
+		@NotNull Class<?>... args
+	) {
 		if (namespace == null) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
 		Retrieval<Signature<?>> attempt = getSignature(new NamespaceIdentifier(namespace),
 			FunctionIdentifier.of(name, true, args));
-		if (attempt.result == RetrievalResult.NOT_REGISTERED) {
+		if (attempt.result() == RetrievalResult.NOT_REGISTERED) {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;
@@ -443,11 +427,20 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		for (FunctionIdentifier candidate : existing) {
 			// by this point, all candidates have matching names
 
-			// if we have no provided arguments, we can match any function
-			// we can skip the rest of the checks
-			if (provided.args == null || provided.args.length == 0) {
-				candidates.add(candidate);
-				continue;
+			if (Arrays.stream(candidate.args).filter(Class::isArray).count() == 1
+				&& candidate.args.length == 1
+				&& candidate.args[0].isArray()) {
+				// if a function has single list value param, check all types
+
+				// make sure all types in the passed array are valid for the array parameter
+				Class<?> arrayType = candidate.args[0].componentType();
+				for (Class<?> arrayArg : provided.args) {
+					if (!Converters.converterExists(arrayType, arrayArg)) {
+						continue candidates;
+					}
+				}
+
+				return Set.of(candidate);
 			}
 
 			// if argument counts are not possible, skip
@@ -458,7 +451,15 @@ final class FunctionRegistry implements Registry<Function<?>> {
 
 			// if the types of the provided arguments do not match the candidate arguments, skip
 			for (int i = 0; i < provided.args.length; i++) {
-				if (!Converters.converterExists(provided.args[i], candidate.args[i])) {
+				// allows single passed values to still match array type in candidate (e.g. clamp)
+				Class<?> candidateType;
+				if (candidate.args[i].isArray()) {
+					candidateType = candidate.args[i].componentType();
+				} else {
+					candidateType = candidate.args[i];
+				}
+
+				if (!Converters.converterExists(provided.args[i], candidateType)) {
 					continue candidates;
 				}
 			}
@@ -466,10 +467,8 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			candidates.add(candidate);
 		}
 
-		if (candidates.size() <= 1 || provided.args == null || provided.args.length == 0) {
-			// if there is only one candidate,
-			// or we should match any function if provided.args == null || provided.args.length == 0,
-			// then return without trying to convert
+		if (candidates.size() <= 1) {
+			// if there is only one candidate, then return without trying to convert
 			return Collections.unmodifiableSet(candidates);
 		}
 
@@ -600,7 +599,8 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param name The name of the function.
 	 * @param args The arguments of the function.
 	 */
-	record FunctionIdentifier(@NotNull String name, boolean local, int minArgCount, Class<?>... args) {
+	record FunctionIdentifier(@NotNull String name, boolean local, int minArgCount,
+							  @NotNull Class<?>... args) {
 
 		/**
 		 * Returns the identifier for the given arguments.
@@ -609,12 +609,10 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		 * @param args The types of the arguments.
 		 * @return The identifier for the signature.
 		 */
-		static FunctionIdentifier of(@NotNull String name, boolean local, Class<?>... args) {
+		static FunctionIdentifier of(@NotNull String name, boolean local, @NotNull Class<?>... args) {
 			Preconditions.checkNotNull(name, "name cannot be null");
+			Preconditions.checkNotNull(args, "args cannot be null");
 
-			if (args == null) {
-				return new FunctionIdentifier(name, local, 0);
-			}
 			return new FunctionIdentifier(name, local, args.length, args);
 		}
 
