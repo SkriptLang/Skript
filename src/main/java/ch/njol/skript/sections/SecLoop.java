@@ -33,7 +33,7 @@ import java.util.*;
 		"You can however use <code>stop loop</code> to exit the loop completely and resume code execution after the end of the loop.",
 	"",
 	"<b>Loopable Values</b>",
-	"All <a href=\"/expressions.html\">expressions</a> that represent more than one value, e.g. ‘all players’, ‘worlds’, " +
+	"All expressions that represent more than one value, e.g. ‘all players’, ‘worlds’, " +
 		"etc., as well as list variables, can be looped. You can also use a list of expressions, e.g. <code>loop the victim " +
 		"and the attacker</code>, to execute the same code for only a few values.",
 	"",
@@ -84,6 +84,7 @@ public class SecLoop extends LoopSection {
 	private Object nextValue = null;
 	private boolean loopPeeking;
 	protected boolean iterableSingle;
+	protected boolean keyed;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -99,7 +100,7 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
-		if (Container.class.isAssignableFrom(expression.getReturnType())) {
+		if (!(expression instanceof Variable) && Container.class.isAssignableFrom(expression.getReturnType())) {
 			ContainerType type = expression.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
 				throw new SkriptAPIException(expression.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");
@@ -108,7 +109,7 @@ public class SecLoop extends LoopSection {
 
 		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
 			&& expression.isSingle()
-			&& (expression instanceof Variable<?> || Iterable.class.isAssignableFrom(expression.getReturnType()))) {
+			&& (expression instanceof Variable<?> || expression.canReturn(Iterable.class))) {
 			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
 			this.iterableSingle = true;
 		} else if (expression.isSingle()) {
@@ -118,6 +119,7 @@ public class SecLoop extends LoopSection {
 		loopPeeking = exprs[0].supportsLoopPeeking();
 
 		guaranteedToLoop = guaranteedToLoop(expression);
+		keyed = KeyProviderExpression.canReturnKeys(expression);
 		loadOptionalCode(sectionNode);
 		this.setInternalNext(this);
 
@@ -139,8 +141,9 @@ public class SecLoop extends LoopSection {
 					iter = Collections.singleton(value).iterator();
 				}
 			} else {
-				iter = expression instanceof Variable<?> variable ? variable.variablesIterator(event) :
-					expression.iterator(event);
+				iter = keyed
+					? ((KeyProviderExpression<?>) expression).keyedIterator(event)
+					: expression.iterator(event);
 				if (iter != null && iter.hasNext()) {
 					iteratorMap.put(event, iter);
 				} else {
@@ -204,6 +207,10 @@ public class SecLoop extends LoopSection {
 		return expression;
 	}
 
+	public boolean isKeyedLoop() {
+		return keyed;
+	}
+
 	@Override
 	public SecLoop setNext(@Nullable TriggerItem next) {
 		actualNext = next;
@@ -228,6 +235,7 @@ public class SecLoop extends LoopSection {
 		current.remove(event);
 		iteratorMap.remove(event);
 		previous.remove(event);
+		nextValue = null;
 		super.exit(event);
 	}
 

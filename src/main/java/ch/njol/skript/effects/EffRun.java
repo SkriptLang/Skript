@@ -7,11 +7,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Run (Experimental)")
@@ -24,7 +24,7 @@ import org.skriptlang.skript.util.Executable;
 @Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class EffRun extends Effect {
+public class EffRun extends Effect implements ReflectionExperimentSyntax {
 
 	static {
 		Skript.registerEffect(EffRun.class,
@@ -41,8 +41,6 @@ public class EffRun extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean isDelayed, ParseResult result) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
-			return false;
 		this.executable = ((Expression<Executable>) expressions[0]);
 		this.hasArguments = result.hasTag("arguments");
 		if (hasArguments) {

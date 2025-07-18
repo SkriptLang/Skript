@@ -34,3 +34,6 @@ test "uuid":
 
 	set {_world} to world from {_uuid}
 	assert {_world} is set with "Failed to get world from uuid"
+
+	set {_puuid} to UUID of test-offline-player
+	assert {_puuid} is test-offline-player with "Player does not match uuid of player"

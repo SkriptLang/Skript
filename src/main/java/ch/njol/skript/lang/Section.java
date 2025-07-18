@@ -2,6 +2,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -10,6 +11,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,7 +42,15 @@ import java.util.function.Supplier;
  *
  * @see Skript#registerSection(Class, String...)
  */
-public abstract class Section extends TriggerSection implements SyntaxElement {
+public abstract class Section extends TriggerSection implements SyntaxElement, SyntaxRuntimeErrorProducer {
+
+	private Node node;
+
+	@Override
+	public boolean preInit() {
+		node = getParser().getNode();
+		return SyntaxElement.super.preInit();
+	}
 
 	/**
 	 * This method should not be overridden unless you know what you are doing!
@@ -100,6 +110,15 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	}
 
 	/**
+	 * @deprecated Use {@link #loadCode(SectionNode, String, Runnable, Runnable, Class[])}
+	 */
+	@SafeVarargs
+	@Deprecated(since = "2.12", forRemoval = true)
+	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+		return loadCode(sectionNode, name, null, afterLoading, events);
+	}
+
+	/**
 	 * Loads the code in the given {@link SectionNode},
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
 	 * <br>
@@ -111,19 +130,26 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 *
 	 * @param sectionNode The section node to load.
 	 * @param name The name of the event(s) being used.
+	 * @param beforeLoading A Runnable to execute before the SectionNode has been loaded.
+	 * This occurs after the {@link ParserInstance} context switch.
 	 * @param afterLoading A Runnable to execute after the SectionNode has been loaded.
-	 * This occurs before {@link ParserInstance} states are reset.
+	 * This occurs before {@link ParserInstance} states are reset (context switches back).
 	 * @param events The event(s) during the section's execution.
 	 * @return A trigger containing the loaded section. This should be stored and used
 	 * to run the section one or more times.
 	 */
 	@SafeVarargs
-	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+	protected final Trigger loadCode(SectionNode sectionNode, String name,
+									 @Nullable Runnable beforeLoading, @Nullable Runnable afterLoading,
+									 Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
 		// backup the existing data
 		ParserInstance.Backup parserBackup = parser.backup();
 		parser.reset();
+
+		if (beforeLoading != null)
+			beforeLoading.run();
 
 		// set our new data for parsing this section
 		parser.setCurrentEvent(name, events);
@@ -159,9 +185,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Nullable
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
-		//noinspection unchecked,rawtypes
-		return sectionContext.modify(sectionNode, triggerItems,
-			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
+		return sectionContext.modify(sectionNode, triggerItems, () -> {
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).iterator();
+			//noinspection unchecked,rawtypes
+			return (Section) SkriptParser.parse(expr, (Iterator) iterator, defaultError);
+		});
 	}
 
 	static {
@@ -244,6 +272,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			return owner != null;
 		}
 
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

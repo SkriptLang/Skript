@@ -1,7 +1,6 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
@@ -10,6 +9,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -18,12 +18,13 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.joml.Quaternionf;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Locale;
 
 @Name("Vector/Quaternion - WXYZ Component")
 @Description({
-	"Gets or changes the W, X, Y or Z component of <a href='classes.html#vector'>vectors</a>/<a href='classes.html#quaternion'>quaternions</a>.",
+	"Gets or changes the W, X, Y or Z component of <a href='#vector'>vectors</a>/<a href='#quaternion'>quaternions</a>.",
 	"You cannot use the W component with vectors; it is for quaternions only."
 })
 @Examples({
@@ -191,6 +192,13 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	@Override
 	public Class<Number> getReturnType() {
 		return Number.class;
+	}
+
+	@Override
+	public Expression<? extends Number> simplify() {
+		if (getExpr() instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

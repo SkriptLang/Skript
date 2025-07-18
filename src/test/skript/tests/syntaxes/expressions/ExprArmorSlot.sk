@@ -14,7 +14,7 @@ test "armour slot":
 		delete event-entity
 
 test "body armor wolf" when running minecraft "1.20.5":
-	spawn wolf at spawn of world "world":
+	spawn wolf at test-location:
 		set {_entity} to event-entity
 
 	set body armor of {_entity} to wolf armor
@@ -23,10 +23,27 @@ test "body armor wolf" when running minecraft "1.20.5":
 	assert body armor of {_entity} is air with "Body armor of entity did not get cleared"
 	clear entity within {_entity}
 
-test "invalid body armor":
+test "invalid body armor" when running minecraft "1.20.5":
 	loop a zombie, a skeleton, a zombie horse and a skeleton horse:
-		spawn loop-value at spawn of world "world":
-			assert (body armor of event-entity) is not set with "Entity body armor is accessible"
+		spawn loop-value at test-location:
+			assert (body armor of event-entity) is not set with "Body armor of %type of event-entity% is accessible"
 			set body armor of event-entity to diamond chestplate
-			assert (body armor of event-entity) is not set with "Entity body armor is accessible"
+			assert (body armor of event-entity) is not set with "Body armor of %type of event-entity% is accessible"
+			clear event-entity
+
+test "saddle slot entities" when running minecraft "1.21.5":
+	loop a pig, a strider, a horse, a donkey, a mule, a camel, a llama, a zombie horse and a skeleton horse:
+		spawn loop-value at test-location:
+			set saddle slot of event-entity to a saddle
+			assert saddle slot of event-entity is a saddle with "Saddle of %type of event-entity% was not set"
+			clear saddle slot of event-entity
+			assert saddle slot of event-entity is air with "Saddle of %type of event-entity% was not cleared"
+			clear event-entity
+
+test "invalid saddle entities" when running minecraft "1.21.5":
+	loop a zombie, a skeleton, a cow and a sheep:
+		spawn loop-value at test-location:
+			assert (saddle slot of event-entity) is not set with "Saddle slot of %type of event-entity% is accessible"
+			set saddle slot of event-entity to diamond chestplate
+			assert (saddle slot of event-entity) is not set with "Saddle slot of %type of event-entity% is accessible"
 			clear event-entity

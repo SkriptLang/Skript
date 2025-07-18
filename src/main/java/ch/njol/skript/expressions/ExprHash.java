@@ -14,6 +14,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.lang.script.ScriptWarning;
@@ -30,7 +32,7 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 		"Please note that a hash cannot be reversed under normal circumstances. You will not be able to get original value from a hash with Skript."
 })
 @Example("set {_hash} to \"hello world\" hashed with SHA-256")
-@Since("2.0, 2.2-dev32 (SHA-256 algorithm), INSERT VERSION (SHA-384, SHA-512)")
+@Since("2.0, 2.2-dev32 (SHA-256 algorithm), 2.12 (SHA-384, SHA-512)")
 public class ExprHash extends PropertyExpression<String, String> {
 
 	private static final HexFormat HEX_FORMAT = HexFormat.of().withLowerCase();
@@ -41,7 +43,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 	}
 
 	private MessageDigest digest;
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
@@ -58,7 +60,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 			return false;
 		}
 	}
-	
+
 	@Override
 	protected String[] get(Event event, String[] source) {
 		// Apply it to all strings
@@ -68,15 +70,22 @@ public class ExprHash extends PropertyExpression<String, String> {
 
 		return result;
 	}
-	
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "hash of " + getExpr().toString(event, debug);
-	}
-	
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (getExpr() instanceof Literal<? extends String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "hash of " + getExpr().toString(event, debug);
+	}
+
 }

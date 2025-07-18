@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	+ "item with the exact same items in its inventory as the chest block."
 )
 @Examples("set {_item} to exact item of block at location(0, 0, 0)")
-@Since("INSERT VERSION")
+@Since("2.12")
 public class ExprExactItem extends SimplePropertyExpression<Block, ItemStack> {
 
 	static {

@@ -1,13 +1,12 @@
 test "whitelist":
 	reset whitelist
-	set {_player} to "Njol" parsed as offline player
-	add {_player} to whitelist
-	assert {_player} is whitelisted with "Failed to whitelist a player"
+	add test-offline-player to whitelist
+	assert test-offline-player is whitelisted with "Failed to whitelist a player"
 
-	remove {_player} from whitelist
-	assert {_player} is not whitelisted with "Failed to remove a player from whitelist"
+	remove test-offline-player from whitelist
+	assert test-offline-player is not whitelisted with "Failed to remove a player from whitelist"
 
-	add {_player} to whitelist
+	add test-offline-player to whitelist
 	reset whitelist
 	assert whitelist is not set with "Failed to empty whitelist"
 

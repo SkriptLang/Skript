@@ -35,7 +35,7 @@ public class EvtBlock extends SkriptEvent {
 		Skript.registerEvent("Break / Mine", EvtBlock.class, new Class[]{BlockBreakEvent.class, PlayerBucketFillEvent.class, HangingBreakEvent.class}, "[block] (break[ing]|1¦min(e|ing)) [[of] %-itemtypes/blockdatas%]")
 			.description("Called when a block is broken by a player. If you use 'on mine', only events where the broken block dropped something will call the trigger.")
 			.examples("on mine:", "on break of stone:", "on break of chest[facing=north]:", "on break of potatoes[age=7]:")
-			.since("1.0 (break), <i>unknown</i> (mine), 2.6 (BlockData support)");
+			.since("1.0 (break), unknown (mine), 2.6 (BlockData support)");
 		Skript.registerEvent("Burn", EvtBlock.class, BlockBurnEvent.class, "[block] burn[ing] [[of] %-itemtypes/blockdatas%]")
 			.description("Called when a block is destroyed by fire.")
 			.examples("on burn:", "on burn of oak wood, oak fences, or chests:", "on burn of oak_log[axis=y]:")

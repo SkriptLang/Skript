@@ -3,10 +3,10 @@ package ch.njol.skript.lang;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +44,7 @@ public class ExpressionList<T> implements Expression<T> {
 		assert expressions != null;
 		this.expressions = expressions;
 		this.returnType = returnType;
-		this.possibleReturnTypes = possibleReturnTypes;
+		this.possibleReturnTypes = ImmutableSet.copyOf(possibleReturnTypes).toArray(new Class[0]);
 		this.and = and;
 		if (and) {
 			single = false;
@@ -299,17 +299,9 @@ public class ExpressionList<T> implements Expression<T> {
 	@SuppressWarnings("unchecked")
 	public Expression<T> simplify() {
 		boolean isLiteralList = true;
-		boolean isSimpleList = true;
 		for (int i = 0; i < expressions.length; i++) {
 			expressions[i] = expressions[i].simplify();
 			isLiteralList &= expressions[i] instanceof Literal;
-			isSimpleList &= expressions[i].isSingle();
-		}
-		if (isLiteralList && isSimpleList) {
-			T[] values = (T[]) Array.newInstance(returnType, expressions.length);
-			for (int i = 0; i < values.length; i++)
-				values[i] = ((Literal<? extends T>) expressions[i]).getSingle();
-			return new SimpleLiteral<>(values, returnType, and);
 		}
 		if (isLiteralList) {
 			Literal<? extends T>[] ls = Arrays.copyOf(expressions, expressions.length, Literal[].class);
