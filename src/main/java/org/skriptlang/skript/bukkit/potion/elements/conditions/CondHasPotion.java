@@ -38,9 +38,10 @@ import org.jetbrains.annotations.Nullable;
 public class CondHasPotion extends Condition {
 
 	public static void register(SyntaxRegistry registry) {
-		PropertyCondition.register(registry, CondHasPotion.class, PropertyType.HAVE,
-				"%skriptpotioneffects% [active]",
-				"livingentities");
+		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondHasPotion.class, PropertyType.HAVE,
+			"%skriptpotioneffects% [active]", "livingentities")
+				.supplier(CondHasPotion::new)
+				.build());
 	}
 
 	private Expression<LivingEntity> entities;

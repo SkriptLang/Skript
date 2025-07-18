@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.potion.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -12,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
@@ -30,7 +30,6 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Potion Effect")
 @Description({
@@ -96,7 +95,7 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean delayed, ParseResult parseResult,
-						@Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
+						@Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 		potionEffectType = (Expression<PotionEffectType>) expressions[0];
 		if (matchedPattern == 3) {
 			source = (Expression<PotionEffect>) expressions[1];
@@ -109,14 +108,10 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 			ambient = parseResult.hasTag("ambient");
 		}
 
-		if (node != null) {
-			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(node, "create potion effect", afterLoading, PotionEffectSectionEvent.class);
-			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'create potion effect' section.");
-				return false;
-			}
+		if (sectionNode != null) {
+			trigger = SectionUtils.loadLinkedCode("create potion effect", (beforeLoading, afterLoading)
+					-> loadCode(sectionNode, "create potion effect", beforeLoading, afterLoading, PotionEffectSectionEvent.class));
+			return trigger != null;
 		}
 
 		return true;

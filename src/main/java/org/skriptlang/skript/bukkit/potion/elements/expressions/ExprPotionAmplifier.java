@@ -20,8 +20,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class ExprPotionAmplifier extends SimplePropertyExpression<SkriptPotionEffect, Integer> {
 
 	public static void register(SyntaxRegistry registry) {
-		registerDefault(registry, ExprPotionAmplifier.class, Integer.class,
-				"([potion] amplifier|potion tier|potion level)[s]", "skriptpotioneffects");
+		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionAmplifier.class, Integer.class,
+			"([potion] amplifier|potion tier|potion level)[s]", "skriptpotioneffects", true)
+				.supplier(ExprPotionAmplifier::new)
+				.build());
 	}
 
 	@Override

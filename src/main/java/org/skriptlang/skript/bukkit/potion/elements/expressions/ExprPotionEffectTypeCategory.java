@@ -28,8 +28,10 @@ public class ExprPotionEffectTypeCategory extends SimplePropertyExpression<Potio
 
 	public static void register(SyntaxRegistry registry) {
 		if (Skript.classExists("org.bukkit.potion.PotionEffectTypeCategory")) {
-			register(registry, ExprPotionEffectTypeCategory.class, PotionEffectTypeCategory.class,
-					"[potion [effect [type]]] category", "potioneffecttypes");
+			registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffectTypeCategory.class, PotionEffectTypeCategory.class,
+				"[potion [effect [type]]] category", "potioneffecttypes", false)
+					.supplier(ExprPotionEffectTypeCategory::new)
+					.build());
 		}
 	}
 

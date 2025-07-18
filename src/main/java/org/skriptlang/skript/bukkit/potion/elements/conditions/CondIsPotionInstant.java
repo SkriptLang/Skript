@@ -21,7 +21,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondIsPotionInstant extends PropertyCondition<PotionEffectType> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondIsPotionInstant.class, "instant", "potioneffecttypes");
+		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondIsPotionInstant.class, PropertyType.BE,
+			"instant", "potioneffecttypes")
+				.supplier(CondIsPotionInstant::new)
+				.build());
 	}
 
 	@Override

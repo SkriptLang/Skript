@@ -21,7 +21,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, CondIsPoisoned.class, "poisoned", "livingentities");
+		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondIsPoisoned.class, PropertyType.BE,
+			"poisoned", "livingentities")
+				.supplier(CondIsPoisoned::new)
+				.build());
 	}
 
 	@Override

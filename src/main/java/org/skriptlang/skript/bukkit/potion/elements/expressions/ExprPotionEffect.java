@@ -47,9 +47,12 @@ import java.util.List;
 public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, ExprPotionEffect.class, SkriptPotionEffect.class,
-				"[:active|:hidden|both:active and hidden|both:hidden and active] %potioneffecttypes% [potion] effect[s]",
-				"livingentities/itemtypes");
+		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffect.class, SkriptPotionEffect.class,
+			"[:active|:hidden|both:active and hidden|both:hidden and active] %potioneffecttypes% [potion] effect[s]",
+			"livingentities/itemtypes",
+			false)
+				.supplier(ExprPotionEffect::new)
+				.build());
 	}
 
 	private Expression<PotionEffectType> types;

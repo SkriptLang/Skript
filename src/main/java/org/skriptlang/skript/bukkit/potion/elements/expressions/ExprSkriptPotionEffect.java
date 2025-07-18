@@ -26,7 +26,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class ExprSkriptPotionEffect extends EventValueExpression<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
-		register(registry, ExprSkriptPotionEffect.class, SkriptPotionEffect.class, "[created] [potion] effect");
+		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprSkriptPotionEffect.class, SkriptPotionEffect.class,
+			"[created] [potion] effect")
+				.supplier(ExprSkriptPotionEffect::new)
+				.build());
 	}
 
 	public ExprSkriptPotionEffect() {
