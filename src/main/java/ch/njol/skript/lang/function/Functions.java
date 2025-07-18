@@ -71,7 +71,7 @@ public abstract class Functions {
 		javaNamespace.addFunction(function);
 		globalFunctions.put(function.getName(), javaNamespace);
 
-		FunctionRegistry.getRegistry().register(function);
+		FunctionRegistry.getRegistry().register(null, function);
 
 		return function;
 	}
