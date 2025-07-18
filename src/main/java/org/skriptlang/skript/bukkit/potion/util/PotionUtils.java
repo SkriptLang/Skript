@@ -2,18 +2,15 @@ package org.skriptlang.skript.bukkit.potion.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
-import org.bukkit.Registry;
+import io.papermc.paper.potion.SuspiciousEffectEntry;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -37,29 +34,13 @@ public final class PotionUtils {
 	 */
 	public static final String DEFAULT_DURATION_STRING = new Timespan(TimePeriod.TICK, DEFAULT_DURATION_TICKS).toString();
 
-	private static final boolean HAS_GET_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "getBasePotionType");
+	// TODO remove when supporting 1.20.6+
 	private static final boolean HAS_HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
 	/**
 	 * Whether {@link PotionEffect#getHiddenPotionEffect()} is available.
 	 */
 	public static boolean HAS_HIDDEN_EFFECTS = Skript.methodExists(PotionEffect.class, "getHiddenPotionEffect");
-
-	/**
-	 * A convenience method for obtaining the Registry representing PotionEffectTypes,
-	 * as the API has two different names for the same registry.
-	 *
-	 * @return Registry for PotionEffectType
-	 */
-	@SuppressWarnings("NullableProblems")
-	public static @Nullable Registry<PotionEffectType> getPotionEffectTypeRegistry() {
-		if (BukkitUtils.registryExists("MOB_EFFECT")) { // Paper (1.21.4)
-			return Registry.MOB_EFFECT;
-		} else if (BukkitUtils.registryExists("EFFECT")) { // Bukkit (1.20.3)
-			return Registry.EFFECT;
-		}
-		return null;
-	}
 
 	/**
 	 * Attempts to retrieve a list of potion effects from an ItemType.
@@ -72,21 +53,14 @@ public final class PotionUtils {
 		if (meta instanceof PotionMeta potionMeta) {
 			if (potionMeta.hasCustomEffects())
 				effects.addAll(potionMeta.getCustomEffects());
-			if (HAS_GET_POTION_TYPE_METHOD) {
-				if (HAS_HAS_POTION_TYPE_METHOD) { // Not available on all versions where getBasePotionType exists
-					if (potionMeta.hasBasePotionType())
-						//noinspection ConstantConditions - checked via hasBasePotionType
-						effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
-				} else {
-					PotionType potionType = potionMeta.getBasePotionType();
-					if (potionType != null)
-						effects.addAll(potionType.getPotionEffects());
-				}
+			if (HAS_HAS_POTION_TYPE_METHOD) { // Not available on all versions where getBasePotionType exists
+				if (potionMeta.hasBasePotionType())
+					//noinspection ConstantConditions - checked via hasBasePotionType
+					effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
 			} else {
-				//noinspection deprecation - Compatibility measure
-				PotionData potionData = potionMeta.getBasePotionData();
-				if (potionData != null)
-					effects.addAll(PotionDataUtils.getPotionEffects(potionData));
+				PotionType potionType = potionMeta.getBasePotionType();
+				if (potionType != null)
+					effects.addAll(potionType.getPotionEffects());
 			}
 		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
 			effects.addAll(stewMeta.getCustomEffects());
@@ -107,7 +81,8 @@ public final class PotionUtils {
 			}
 		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
 			for (PotionEffect potionEffect : potionEffects) {
-				stewMeta.addCustomEffect(potionEffect, true);
+				stewMeta.addCustomEffect(
+					SuspiciousEffectEntry.create(potionEffect.getType(), potionEffect.getDuration()), true);
 			}
 		}
 		itemType.setItemMeta(meta);

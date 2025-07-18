@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.potion;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -11,6 +12,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.Fields;
+import org.bukkit.Registry;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -126,19 +128,22 @@ public class PotionModule implements AddonModule {
 				}
 			}));
 
-		var petRegistry = PotionUtils.getPotionEffectTypeRegistry();
-		if (petRegistry != null) {
-			Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
-				.user("potion ?effect ?types?")
-				.name("Potion Effect Type")
-				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
-				.examples("apply swiftness 5 to the player",
-					"apply potion of speed 2 to the player for 60 seconds",
-					"remove invisibility from the victim")
-				.since(""));
+		Registry<PotionEffectType> petRegistry;
+		if (BukkitUtils.registryExists("MOB_EFFECT")) { // Paper (1.21.4)
+			petRegistry = Registry.MOB_EFFECT;
+		} else if (BukkitUtils.registryExists("EFFECT")) { // Bukkit (1.20.3)
+			petRegistry = Registry.EFFECT;
 		} else {
-			Classes.registerClass(LegacyPotionEffectTypeInfo.getInfo());
+			throw new IllegalStateException("Potion effect registry does not exist");
 		}
+		Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
+			.user("potion ?effect ?types?")
+			.name("Potion Effect Type")
+			.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
+			.examples("apply swiftness 5 to the player",
+				"apply potion of speed 2 to the player for 60 seconds",
+				"remove invisibility from the victim")
+			.since(""));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 			.user("(entity ?)?potion ?effect ?cause")
