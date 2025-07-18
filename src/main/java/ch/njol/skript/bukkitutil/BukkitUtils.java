@@ -12,7 +12,6 @@ import org.bukkit.Registry;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * Utility class with methods pertaining to Bukkit API
