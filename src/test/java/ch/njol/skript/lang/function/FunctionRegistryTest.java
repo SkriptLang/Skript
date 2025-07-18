@@ -1,10 +1,12 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.function.FunctionRegistry.FunctionIdentifier;
+import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.DefaultClasses;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
@@ -417,6 +419,48 @@ public class FunctionRegistryTest {
 		registry.remove(signature);
 
 		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
+	}
+
+	private static final Function<Boolean> TEST_FUNCTION_P = new SimpleJavaFunction<>(FUNCTION_NAME,
+		new Parameter[]{
+			new Parameter<>("a", DefaultClasses.PLAYER, true, null)
+		}, DefaultClasses.BOOLEAN, true) {
+		@Override
+		public Boolean @Nullable [] executeSimple(Object[][] params) {
+			return new Boolean[]{true};
+		}
+	};
+
+	private static final Function<Boolean> TEST_FUNCTION_OP = new SimpleJavaFunction<>(FUNCTION_NAME,
+			new Parameter[]{
+					new Parameter<>("a", DefaultClasses.OFFLINE_PLAYER, true, null)
+			}, DefaultClasses.BOOLEAN, true) {
+		@Override
+		public Boolean @Nullable [] executeSimple(Object[][] params) {
+			return new Boolean[]{true};
+		}
+	};
+
+	@Test
+	public void testGetExactSignature() {
+		assertSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, Player.class).result());
+		assertNull(registry.getSignature(null, FUNCTION_NAME, Player.class).retrieved());
+		assertNull(registry.getFunction(null, FUNCTION_NAME, Player.class).retrieved());
+		assertSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, OfflinePlayer.class).result());
+		assertNull(registry.getSignature(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+		assertNull(registry.getFunction(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+
+		registry.register(null, TEST_FUNCTION_P);
+
+		assertSame(RetrievalResult.EXACT, registry.getExactSignature(null, FUNCTION_NAME, Player.class).result());
+		assertEquals(TEST_FUNCTION_P.getSignature(), registry.getExactSignature(null, FUNCTION_NAME, Player.class).retrieved());
+		assertNull(registry.getExactSignature(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+
+		assertEquals(TEST_FUNCTION_P.getSignature(), registry.getSignature(null, FUNCTION_NAME, Player.class).retrieved());
+		assertEquals(TEST_FUNCTION_P.getSignature(), registry.getSignature(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+
+		registry.remove(TEST_FUNCTION_P.getSignature());
+		registry.remove(TEST_FUNCTION_OP.getSignature());
 	}
 
 }
