@@ -18,7 +18,7 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Has Potion")
+@Name("Has Potion Effect")
 @Description({
 	"Checks whether an entity has a potion effect with certain properties.",
 	"An entity is considered having a potion effect if it has a potion effect with at least the specified properties.",

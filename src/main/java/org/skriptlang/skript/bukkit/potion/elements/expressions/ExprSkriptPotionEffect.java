@@ -1,14 +1,11 @@
 package org.skriptlang.skript.bukkit.potion.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprSecPotionEffect.PotionEffectSectionEvent;
@@ -23,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		hide the effect's particles
 	""")
 @Since("INSERT VERSION")
-public class ExprSkriptPotionEffect extends EventValueExpression<SkriptPotionEffect> {
+public class ExprSkriptPotionEffect extends EventValueExpression<SkriptPotionEffect> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprSkriptPotionEffect.class, SkriptPotionEffect.class,
@@ -37,12 +34,9 @@ public class ExprSkriptPotionEffect extends EventValueExpression<SkriptPotionEff
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PotionEffectSectionEvent.class)) {
-			Skript.error("The 'created potion effect' is only usable in a potion effect creation section.");
-			return false;
-		}
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+	public Class<? extends Event>[] supportedEvents() {
+		//noinspection unchecked
+		return new Class[]{PotionEffectSectionEvent.class};
 	}
 
 	@Override

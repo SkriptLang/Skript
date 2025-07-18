@@ -8,7 +8,7 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Potion Is Instant")
+@Name("Potion Effect Type - Is Instant")
 @Description({
 	"Checks whether a potion effect type is instant.",
 	"That is, whether the effect happens once/immediately."

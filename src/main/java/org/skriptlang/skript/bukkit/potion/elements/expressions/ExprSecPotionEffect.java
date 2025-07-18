@@ -31,7 +31,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
-@Name("Potion Effect")
+@Name("New Potion Effect")
 @Description({
 	"Create a new potion effect to apply to an entity or item type.",
 	"Note that when applying potion effects to items like tipped arrows and lingering potions, Minecraft reduces the timespan."

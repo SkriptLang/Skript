@@ -20,11 +20,6 @@ import java.util.List;
 public final class PotionUtils {
 
 	/**
-	 * Changes to the PotionEffectType enum occurred in 1.20.5 which resulted in renaming of several elements
-	 */
-	static final boolean HAS_OLD_POTION_FIELDS = Skript.fieldExists(PotionEffectType.class, "SLOW");
-
-	/**
 	 * 30 seconds is the default length for the /effect command
 	 * See <a href="https://minecraft.fandom.com/wiki/Commands/effect">https://minecraft.fandom.com/wiki/Commands/effect</a>
 	 */

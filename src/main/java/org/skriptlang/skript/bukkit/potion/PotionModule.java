@@ -17,13 +17,13 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.*;
 import org.skriptlang.skript.bukkit.potion.elements.effects.*;
 import org.skriptlang.skript.bukkit.potion.elements.events.*;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.*;
-import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -39,6 +39,7 @@ public class PotionModule implements AddonModule {
 	public void init(SkriptAddon addon) {
 		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "skriptpotioneffect")
+			.name(ClassInfo.NO_DOC)
 			.defaultExpression(new EventValueExpression<>(SkriptPotionEffect.class))
 			.parser(new Parser<>() {
 				@Override
@@ -128,7 +129,7 @@ public class PotionModule implements AddonModule {
 				}
 			}));
 
-		Registry<PotionEffectType> petRegistry;
+		Registry<@NotNull PotionEffectType> petRegistry;
 		if (BukkitUtils.registryExists("MOB_EFFECT")) { // Paper (1.21.4)
 			petRegistry = Registry.MOB_EFFECT;
 		} else if (BukkitUtils.registryExists("EFFECT")) { // Bukkit (1.20.3)
@@ -146,12 +147,12 @@ public class PotionModule implements AddonModule {
 			.since(""));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
-			.user("(entity ?)?potion ?effect ?cause")
+			.user("(entity ?)?potion ?effect ?causes?")
 			.name("Entity Potion Effect Event Cause")
 			.description("Represents the cause of an 'entity potion effect' event. For example, an arrow hitting an entity or a command being executed.")
 			.since("2.10"));
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Action.class, "entitypotionaction", "entity potion actions")
-			.user("(entity ?)?potion ?effect ?action")
+			.user("(entity ?)?potion ?effect ?actions?")
 			.name("Entity Potion Effect Event Action")
 			.description("Represents the action being performed in an 'entity potion effect' event.",
 				"'added' indicates the entity does not already have a potion effect of the event potion effect type.",
