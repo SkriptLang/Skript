@@ -38,7 +38,7 @@ public class EvtEntityPotion extends SkriptEvent {
 					"on entity potion effect of strength removed:",
 						"\tmessage \"You're now weaker!\""
 				)
-				.addSince("2.10, INSERT VERSION (action support)")
+				.addSince("2.10", "INSERT VERSION (action support)")
 				.build());
 
 		// Entity Potion Effect

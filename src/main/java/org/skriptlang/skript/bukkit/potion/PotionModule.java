@@ -115,7 +115,7 @@ public class PotionModule implements AddonModule {
 					if (potionEffect == null) {
 						throw new StreamCorruptedException();
 					}
-					return potionEffect.toPotionEffect();
+					return potionEffect.asBukkitPotionEffect();
 				}
 
 				@Override
@@ -173,7 +173,7 @@ public class PotionModule implements AddonModule {
 		}
 
 		// SkriptPotionEffect -> PotionEffect
-		Converters.registerConverter(SkriptPotionEffect.class, PotionEffect.class, SkriptPotionEffect::toPotionEffect, Converter.NO_CHAINING);
+		Converters.registerConverter(SkriptPotionEffect.class, PotionEffect.class, SkriptPotionEffect::asBukkitPotionEffect, Converter.NO_CHAINING);
 		// PotionEffect -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffect.class, SkriptPotionEffect.class, SkriptPotionEffect::fromBukkitEffect, Converter.NO_CHAINING);
 		// PotionEffectType -> SkriptPotionEffect

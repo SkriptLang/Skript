@@ -241,7 +241,7 @@ test "potion effect application":
 	clear potion effects of {_entity}
 
 	# test timed application
-	apply slowness to {_entity} for 13 seconds
+	affect {_entity} with slowness for 13 seconds
 	assert {_entity} has potion effect of slowness
 	assert compare_timespans(13 seconds, the duration of the first element of the potion effects of {_entity}) is true with "duration is not 13 seconds"
 
@@ -263,17 +263,17 @@ test "potion amplifier property":
 	assert the amplifier of {_potion} is 5 with "amplifier is not 5"
 	add 5 to the amplifier of {_potion}
 	assert the amplifier of {_potion} is 10 with "amplifier is not 10"
-	remove 5 from the amplifier of {_potion}
-	assert the amplifier of {_potion} is 5 with "amplifier is not 5"
+	remove 5 from the potion amplifier of {_potion}
+	assert the potion amplifier of {_potion} is 5 with "amplifier is not 5"
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	set the amplifier of {_entity}'s speed effect to 5
-	assert the amplifier of {_entity}'s speed effect is 5 with "amplifier is not 5"
-	add 5 to the amplifier of {_entity}'s speed effect
-	assert the amplifier of {_entity}'s speed effect is 10 with "amplifier is not 10"
-	remove 5 from the amplifier of {_entity}'s speed effect
-	assert the amplifier of {_entity}'s speed effect is 5 with "amplifier is not 5"
+	set the potion tier of {_entity}'s speed effect to 5
+	assert the potion tier of {_entity}'s speed effect is 5 with "amplifier is not 5"
+	add 5 to the potion tier of {_entity}'s speed effect
+	assert the potion level of {_entity}'s speed effect is 10 with "amplifier is not 10"
+	remove 5 from the potion level of {_entity}'s speed effect
+	assert the potion level of {_entity}'s speed effect is 5 with "amplifier is not 5"
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
@@ -313,17 +313,17 @@ test "potion duration property":
 	assert the duration of {_potion} is 5 seconds with "duration is not 5 seconds"
 	add 5 seconds to the duration of {_potion}
 	assert the duration of {_potion} is 10 seconds with "duration is not 10 seconds"
-	remove 5 seconds from the duration of {_potion}
-	assert the duration of {_potion} is 5 seconds with "duration is not 5 seconds"
+	remove 5 seconds from the potion duration of {_potion}
+	assert the potion duration of {_potion} is 5 seconds with "duration is not 5 seconds"
 
 	# test modifying potion effect of entity
 	apply speed to {_entity}
-	set the duration of {_entity}'s speed effect to 5 seconds
-	assert compare_timespans(5 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 5 seconds"
-	add 5 seconds to the duration of {_entity}'s speed effect
-	assert compare_timespans(10 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 10 seconds"
-	remove 5 seconds from the duration of {_entity}'s speed effect
-	assert compare_timespans(5 seconds, the duration of {_entity}'s speed effect) is true with "duration is not 5 seconds"
+	set the potion length of {_entity}'s speed effect to 5 seconds
+	assert compare_timespans(5 seconds, the potion length of {_entity}'s speed effect) is true with "duration is not 5 seconds"
+	add 5 seconds to the potion length of {_entity}'s speed effect
+	assert compare_timespans(10 seconds, the potion length of {_entity}'s speed effect) is true with "duration is not 10 seconds"
+	remove 5 seconds from the potion length of {_entity}'s speed effect
+	assert compare_timespans(5 seconds, the potion length of {_entity}'s speed effect) is true with "duration is not 5 seconds"
 	clear {_entity}'s speed effects
 
 	# test modifying potion effect of entity when they have a hidden effect
@@ -423,9 +423,7 @@ test "potion infinite property":
 	delete the entity within {_entity}
 
 # CondPotionHasIcon, EffPotionIcon
-# Unfortunately, potion icons are improperly handled on older versions
-# They are not properly set when converting to/from Bukkit PotionEffects
-test "potion icon property" when running minecraft "1.20":
+test "potion icon property":
 	# setup
 	set {_potion} to a potion effect of speed
 	set {_weaker} to a potion effect of speed 5 for 1 minute
@@ -584,7 +582,7 @@ test "potion effect type properties":
 
 # TODO merge into test above when only 1.21+ is supported
 test "ExprPotionEffectTypeCategory" when running minecraft "1.21":
-	assert category of instant health is beneficial with "instant health is not beneficial"
+	assert potion category of instant health is beneficial with "instant health is not beneficial"
 	assert weakness is harmful with "weakness is not harmful"
 	assert potion effect type category of glowing is neutral with "glowing is not neutral"
 

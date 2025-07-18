@@ -219,7 +219,7 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 					}
 				}
 				// since we iterate most to least hidden, we need to preserve that order
-				finalEffects.addLast(skriptEffect.toPotionEffect());
+				finalEffects.addLast(skriptEffect.asBukkitPotionEffect());
 			}
 			if (!madeChanges) { // no potion effects were modified, don't reapply effects
 				return;

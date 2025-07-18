@@ -32,10 +32,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.List;
 
 @Name("New Potion Effect")
-@Description({
-	"Create a new potion effect to apply to an entity or item type.",
-	"Note that when applying potion effects to items like tipped arrows and lingering potions, Minecraft reduces the timespan."
-})
+@Description("Create a new potion effect that can be applied to an entity or item type.")
 @Example("""
 	set {_potion} to a potion effect of speed 2 for 10 minutes:
 		hide the effect's icon
@@ -51,7 +48,7 @@ import java.util.List;
 	# creates a potion effect with the properties of an existing potion effect
 	set {_potion} to a potion effect of slowness based on the player's speed effect
 	""")
-@Since("2.5.2, INSERT VERSION (syntax changes, infinite duration support, no icon support)")
+@Since({"2.5.2", "INSERT VERSION (syntax changes, infinite duration support)"})
 public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {

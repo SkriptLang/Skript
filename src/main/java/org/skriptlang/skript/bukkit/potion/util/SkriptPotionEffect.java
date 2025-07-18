@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
 import java.util.Deque;
+import java.util.StringJoiner;
 
 /**
  * A wrapper class for passing around a modifiable {@link PotionEffect}.
@@ -30,7 +31,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	private Boolean icon = null;
 
 	/**
-	 * Last effect built by {@link #toPotionEffect()}.
+	 * Last effect built by {@link #asBukkitPotionEffect()}.
 	 */
 	private @Nullable PotionEffect lastEffect;
 
@@ -265,7 +266,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * Note that the returned value may be the same across multiple calls,
 	 *  assuming that this potion effect's values have not changed.
 	 */
-	public PotionEffect toPotionEffect() {
+	public PotionEffect asBukkitPotionEffect() {
 		if (lastEffect == null) {
 			lastEffect = new PotionEffect(potionEffectType(), duration(), amplifier(), ambient(), particles(), icon());
 		}
@@ -283,28 +284,28 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see #toString()
 	 */
 	public String toString(int flags) {
-		StringBuilder builder = new StringBuilder();
+		StringJoiner joiner = new StringJoiner(" ");
 		if (ambient()) {
-			builder.append("ambient ");
+			joiner.add("ambient");
 		}
 		boolean infinite = infinite();
 		if (infinite) {
-			builder.append("infinite ");
+			joiner.add("infinite");
 		}
-		builder.append("potion effect of ");
-		builder.append(Classes.toString(potionEffectType()));
-		builder.append(" ");
-		builder.append(amplifier() + 1);
+		joiner.add("potion effect of")
+			.add(Classes.toString(potionEffectType()))
+			.add(String.valueOf(amplifier() + 1));
 		if (!particles()) {
-			builder.append(" without particles");
+			joiner.add("without particles");
 		}
 		if (!icon()) {
-			builder.append(" without an icon");
+			joiner.add("without an icon");
 		}
 		if (duration != null && !infinite) {
-			builder.append(" for ").append(new Timespan(TimePeriod.TICK, duration()));
+			joiner.add("for")
+					.add(new Timespan(TimePeriod.TICK, duration()).toString());
 		}
-		return builder.toString();
+		return joiner.toString();
 	}
 
 	@Override
@@ -345,6 +346,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	private void withSource(Runnable runnable) {
 		Deque<PotionEffect> hiddenEffects = null;
 		if (entitySource != null && entitySource.hasPotionEffect(potionEffectType)) {
+			//noinspection DataFlowIssue - NotNull by hasPotionEffect check
 			hiddenEffects = PotionUtils.getHiddenEffects(entitySource.getPotionEffect(potionEffectType));
 			entitySource.removePotionEffect(potionEffectType);
 		} else if (itemSource != null) {
@@ -352,7 +354,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 		}
 		runnable.run();
 		if (entitySource != null) {
-			PotionEffect thisPotionEffect = toPotionEffect();
+			PotionEffect thisPotionEffect = asBukkitPotionEffect();
 			if (hiddenEffects != null) { // reapply hidden effects
 				for (PotionEffect hiddenEffect : hiddenEffects) {
 					// we need to add this potion effect in the right order
@@ -366,10 +368,10 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 				}
 			}
 			if (thisPotionEffect != null) {
-				entitySource.addPotionEffect(toPotionEffect());
+				entitySource.addPotionEffect(asBukkitPotionEffect());
 			}
 		} else if (itemSource != null) {
-			PotionUtils.addPotionEffects(itemSource, toPotionEffect());
+			PotionUtils.addPotionEffects(itemSource, asBukkitPotionEffect());
 		}
 	}
 
