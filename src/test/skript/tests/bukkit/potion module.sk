@@ -557,7 +557,7 @@ test "poison":
 	# test custom duration poisoning
 	poison {_entity} for 15 seconds
 	set {_poison} to the first element of the potion effects of {_entity}
-	assert type of {_poison} is poison with "entity is not poisoned"
+	assert type of {_poison} is poison (potion effect type) with "entity is not poisoned"
 	assert compare_timespans(15 seconds, duration of {_poison}) is true with "poison duration is not 15 seconds"
 
 	# cleanup

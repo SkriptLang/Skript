@@ -161,9 +161,13 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		if (this.duration != null) {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan != null) {
-				potionEffect.duration((int) Math2.fit(0, timespan.getAs(TimePeriod.TICK), Integer.MAX_VALUE));
+				if (timespan.isInfinite()) {
+					potionEffect.infinite(true);
+				} else {
+					potionEffect.duration((int) Math2.fit(0, timespan.getAs(TimePeriod.TICK), Integer.MAX_VALUE));
+				}
 			}
-		} else if (infinite) { // We do not want to call this when 'infinite' is false as the duration will be overridden
+		} else if (infinite) { // We do not want to call this when 'infinite' is false as the duration would be overridden
 			potionEffect.infinite(true);
 		}
 

@@ -63,9 +63,15 @@ public class EffApplyPotionEffect extends Effect {
 		if (duration != null) {
 			Timespan timespan = duration.getSingle(event);
 			if (timespan != null) {
-				int ticks = (int) timespan.getAs(TimePeriod.TICK);
-				for (int i = 0; i < potions.length; i++) {
-					potions[i] = potions[i].clone().duration(ticks);
+				if (timespan.isInfinite()) {
+					for (int i = 0; i < potions.length; i++) {
+						potions[i] = potions[i].clone().infinite(true);
+					}
+				} else {
+					int ticks = (int) timespan.getAs(TimePeriod.TICK);
+					for (int i = 0; i < potions.length; i++) {
+						potions[i] = potions[i].clone().duration(ticks);
+					}
 				}
 			}
 		}

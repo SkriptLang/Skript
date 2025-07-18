@@ -184,7 +184,6 @@ public class PotionModule implements AddonModule {
 		CondHasPotion.register(registry);
 		CondIsPoisoned.register(registry);
 		CondIsPotionAmbient.register(registry);
-		CondIsPotionInfinite.register(registry);
 		CondIsPotionInstant.register(registry);
 		CondPotionHasIcon.register(registry);
 		CondPotionHasParticles.register(registry);

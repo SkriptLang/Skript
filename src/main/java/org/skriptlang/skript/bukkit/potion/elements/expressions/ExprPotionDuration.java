@@ -26,12 +26,15 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 
 	public static void register(SyntaxRegistry registry) {
 		registerDefault(registry, ExprPotionDuration.class, Timespan.class,
-			"[potion] (duration|length)[s]", "skriptpotioneffects");
+			"([potion] duration|potion length)[s]", "skriptpotioneffects");
 	}
 
 	@Override
 	public Timespan convert(SkriptPotionEffect potionEffect) {
-		return new Timespan(TimePeriod.TICK, potionEffect.infinite() ? Long.MAX_VALUE : potionEffect.duration());
+		if (potionEffect.infinite()) {
+			return Timespan.infinite();
+		}
+		return new Timespan(TimePeriod.TICK, potionEffect.duration());
 	}
 
 	@Override
@@ -55,7 +58,7 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
 			duration = change;
 		} else {
-			if (potionEffect.infinite()) { // add/remove should not affect infinite potions
+			if (potionEffect.infinite()) { // add/remove would have no effect
 				return;
 			}
 			duration = new Timespan(TimePeriod.TICK, potionEffect.duration());
@@ -65,7 +68,11 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 				duration = duration.subtract(change);
 			}
 		}
-		potionEffect.duration((int) Math2.fit(0, duration.getAs(TimePeriod.TICK), Integer.MAX_VALUE));
+		if (duration.isInfinite()) {
+			potionEffect.infinite(true);
+		} else {
+			potionEffect.duration((int) Math2.fit(0, duration.getAs(TimePeriod.TICK), Integer.MAX_VALUE));
+		}
 	}
 
 	@Override

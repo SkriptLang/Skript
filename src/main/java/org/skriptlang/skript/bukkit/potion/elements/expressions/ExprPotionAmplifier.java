@@ -21,7 +21,7 @@ public class ExprPotionAmplifier extends SimplePropertyExpression<SkriptPotionEf
 
 	public static void register(SyntaxRegistry registry) {
 		registerDefault(registry, ExprPotionAmplifier.class, Integer.class,
-				"[potion] (amplifier|tier|level)[s]", "skriptpotioneffects");
+				"([potion] amplifier|potion tier|potion level)[s]", "skriptpotioneffects");
 	}
 
 	@Override
