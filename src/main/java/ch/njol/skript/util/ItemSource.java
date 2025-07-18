@@ -6,6 +6,7 @@ import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Container class for containing the origin of a {@link Slot}, {@link ItemStack}, and {@link ItemType}.
