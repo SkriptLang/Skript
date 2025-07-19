@@ -255,7 +255,7 @@ test "equippable components - slot" when running minecraft "1.21.2":
 		prevent (slot 1 of {_gui}) from being sheared off
 		assert (slot 1 of {_gui}) can not be sheared off with "Slot should not be shearable"
 
-test "equippable components - source":
+test "equippable components - source" when running minecraft "1.21.2":
 	set {_itemType} to a diamond helmet
 	set {_itemStack} to a netherite helmet (item stack)
 
