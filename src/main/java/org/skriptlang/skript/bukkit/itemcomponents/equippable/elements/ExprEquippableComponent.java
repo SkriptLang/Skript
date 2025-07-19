@@ -35,15 +35,13 @@ public class ExprEquippableComponent extends SimplePropertyExpression<Object, Eq
 
 	static {
 		register(ExprEquippableComponent.class, EquippableWrapper.class,
-			"equippable component[s]", "objects");
+			"equippable component[s]", "slots/itemtypes");
 	}
 
 	@Override
 	public EquippableWrapper convert(Object object) {
 		ItemSource<?> itemSource = null;
-		if (object instanceof ItemStack itemStack) {
-			itemSource = new ItemSource<>(itemStack);
-		} else if (object instanceof ItemType itemType) {
+		if (object instanceof ItemType itemType) {
 			itemSource = new ItemSource<>(itemType);
 		} else if (object instanceof Slot slot) {
 			itemSource = ItemSource.fromSlot(slot);
@@ -68,8 +66,6 @@ public class ExprEquippableComponent extends SimplePropertyExpression<Object, Eq
 		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof ItemType itemType) {
 				changeItemType(itemType, mode, component);
-			} else if (object instanceof ItemStack itemStack) {
-				changeItemStack(itemStack, mode, component);
 			} else if (object instanceof Slot slot) {
 				changeSlot(slot, mode, component);
 			}
