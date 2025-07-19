@@ -9,52 +9,61 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Equip On Entities")
-@Description("If an entity should equip the item when right clicking on the entity with the item. "
+@Name("Equippable Component - Shear Off")
+@Description("If the item can be sheared off of entities. "
 	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
-@Example("allow {_item} to be equipped onto entities")
+@Example("allow {_item} to be sheared off")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	if {_component} can be sheared off of entities:
+		prevent {_component} from being sheared off of entities
+	""")
+@RequiredPlugins("Minecraft 1.21.6+")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21.5+")
-public class EffEquipCompInteract extends Effect implements EquippableExperimentSyntax {
+public class EffEquipCompShearable extends Effect implements EquippableExperimentSyntax {
 
 	static {
-		if (EquippableWrapper.HAS_EQUIP_ON_INTERACT)
-			Skript.registerEffect(EffEquipCompInteract.class,
-				"(allow|force) %equippablecomponents% to be equipped on[to] entities",
-				"make %equippablecomponents% equippable on[to] entities",
-				"let %equippablecomponents% be equipped on[to] entities",
-				"(block|prevent|disallow) %equippablecomponents% from being equipped on[to] entities",
-				"make %equippablecomponents% not equippable on[to] entities"
+		if (EquippableWrapper.HAS_CAN_BE_SHEARED) {
+			Skript.registerEffect(EffEquipCompShearable.class,
+				"(allow|force) %equippablecomponents% to be sheared off [of entities]",
+				"(disallow|prevent) %equippablecomponents% from being sheared off [of entities]"
 			);
+		}
 	}
 
-	private boolean equip;
 	private Expression<EquippableWrapper> wrappers;
+	private boolean shearable;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		equip = matchedPattern < 3;
+		shearable = matchedPattern == 0;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.equipOnInteract(equip)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.canBeSheared(shearable)));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (equip)
-			return "allow " + wrappers.toString(event, debug) + " to be equipped onto entities";
-		return "prevent " + wrappers.toString(event, debug) + " from being equipped onto entities";
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		if (shearable) {
+			builder.append("allow", wrappers, "to be");
+		} else {
+			builder.append("prevent", wrappers, "from being");
+		}
+		builder.append("sheared off of entities");
+		return builder.toString();
 	}
 
 }

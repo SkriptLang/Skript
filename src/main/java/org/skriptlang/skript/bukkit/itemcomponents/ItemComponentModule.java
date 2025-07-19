@@ -15,7 +15,7 @@ public class ItemComponentModule implements AddonModule {
 
 	@Override
 	public boolean canLoad(SkriptAddon addon) {
-		return Skript.isRunningMinecraft(1, 20, 5);
+		return Skript.isRunningMinecraft(1, 21, 2);
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class ItemComponentModule implements AddonModule {
 			.name("Item Component")
 			.description("Represents an item component for items. i.e. equippable components.")
 			.since("INSERT VERSION")
-			.requiredPlugins("Minecraft 1.20.5+")
+			.requiredPlugins("Minecraft 1.21.2+")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {

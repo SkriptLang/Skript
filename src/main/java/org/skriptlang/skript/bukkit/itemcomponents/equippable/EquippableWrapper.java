@@ -14,7 +14,6 @@ import org.bukkit.Registry;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
 
@@ -23,7 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * A {@link ComponentWrapper} for getting and setting data on an {@link EquippableComponent}
+ * A {@link ComponentWrapper} for getting and setting data on an {@link Equippable} component.
  */
 @SuppressWarnings("UnstableApiUsage")
 public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
@@ -31,9 +30,10 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	private static final boolean HAS_MODEL_METHOD = Skript.methodExists(Equippable.class, "model");
 	private static final @Nullable Method COMPONENT_MODEL_METHOD;
 	private static final @Nullable Method BUILDER_MODEL_METHOD;
-	private static final boolean HAS_EQUIP_ON_INTERACT = Skript.methodExists(Equippable.class, "equipOnInteract");
-	private static final boolean HAS_CAN_BE_SHEARED = Skript.methodExists(Equippable.class, "canBeSheared");
-	private static final boolean HAS_SHEAR_SOUND = Skript.methodExists(Equippable.class, "shearSound");
+
+	public static final boolean HAS_EQUIP_ON_INTERACT = Skript.methodExists(Equippable.class, "equipOnInteract");
+	public static final boolean HAS_CAN_BE_SHEARED = Skript.methodExists(Equippable.class, "canBeSheared");
+	public static final boolean HAS_SHEAR_SOUND = Skript.methodExists(Equippable.class, "shearSound");
 
 	static {
 		Method componentModelMethod = null;

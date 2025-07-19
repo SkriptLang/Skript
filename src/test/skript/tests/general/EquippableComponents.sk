@@ -1,17 +1,17 @@
 options:
-	sound: "minecraft:item.armor.equip_generic"
+	equipSound: "minecraft:item.armor.equip_generic"
 	slot: chest slot
 	model: "skript:model_key"
 	camera: "skript:camera_key"
 	allowed: a zombie and a skeleton
-	method: "org.bukkit.inventory.meta.components.EquippableComponentisEquipOnInteract()"
+	shearSound: "minecraft:block.note_block.pling"
 
 using equippable components
 
 test "equippable components - new" when running minecraft "1.21.2":
 	set {_component} to a blank equippable component
-	set the equip sound of {_component} to {@sound}
-	assert the equip sound of {_component} is {@sound} with "Equip sound of component was not set"
+	set the equip sound of {_component} to {@equipSound}
+	assert the equip sound of {_component} is {@equipSound} with "Equip sound of component was not set"
 	set the equipment slot of {_component} to {@slot}
 	assert the equipment slot of {_component} is {@slot} with "Equipment slot of component was not set"
 	set the equipped model key of {_component} to {@model}
@@ -33,16 +33,24 @@ test "equippable components - new" when running minecraft "1.21.2":
 	make {_component} not lose durability when hurt
 	assert {_component} will not lose durability when hurt with "Component should not lose durability when hurt"
 
-	parse if method {@method} exists:
+	parse if running minecraft "1.21.5":
 		allow {_component} to be equipped onto entities
 		assert {_component} can be equipped onto entities with "Component should equip onto entities"
 		prevent {_component} from being equipped onto entities
 		assert {_component} can not be equipped onto entities with "Component should not equip onto entities"
+		
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_component} to {@shearSound}
+		assert the shear sound of {_component} is {@shearSound} with "Shear sound of component was not set"
+		allow {_component} to be sheared off
+		assert {_component} can be sheared off with "Component should be shearable"
+		prevent {_component} from being sheared off
+		assert {_component} can not be sheared off with "Component should not be shearable"
 
 test "equippable components - itemtype" when running minecraft "1.21.2":
 	set {_item} to a leather helmet (item type)
-	set the equip sound of {_item} to {@sound}
-	assert the equip sound of {_item} is {@sound} with "Equip sound of itemtype was not set"
+	set the equip sound of {_item} to {@equipSound}
+	assert the equip sound of {_item} is {@equipSound} with "Equip sound of itemtype was not set"
 	set the equipment slot of {_item} to {@slot}
 	assert the equipment slot of {_item} is {@slot} with "Equipment slot of itemtype was not set"
 	set the equipped model key of {_item} to {@model}
@@ -64,16 +72,24 @@ test "equippable components - itemtype" when running minecraft "1.21.2":
 	make {_item} not lose durability when hurt
 	assert {_item} will not lose durability when hurt with "ItemType should not lose durability when hurt"
 
-	parse if method {@method} exists:
+	parse if running minecraft "1.21.5":
 		allow {_item} to be equipped onto entities
 		assert {_item} can be equipped onto entities with "ItemType should equip onto entities"
 		prevent {_item} from being equipped onto entities
 		assert {_item} can not be equipped onto entities with "ItemType should not equip onto entities"
 
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_item} to {@shearSound}
+		assert the shear sound of {_item} is {@shearSound} with "Shear sound of itemtype was not set"
+		allow {_item} to be sheared off
+		assert {_item} can be sheared off with "ItemType should be shearable"
+		prevent {_item} from being sheared off
+		assert {_item} can not be sheared off with "ItemType should not be shearable"
+
 test "equippable components - itemstack" when running minecraft "1.21.2":
 	set {_item} to a iron helmet (item stack)
-	set the equip sound of {_item} to {@sound}
-	assert the equip sound of {_item} is {@sound} with "Equip sound of itemstack was not set"
+	set the equip sound of {_item} to {@equipSound}
+	assert the equip sound of {_item} is {@equipSound} with "Equip sound of itemstack was not set"
 	set the equipment slot of {_item} to {@slot}
 	assert the equipment slot of {_item} is {@slot} with "Equipment slot of itemstack was not set"
 	set the equipped model key of {_item} to {@model}
@@ -95,16 +111,24 @@ test "equippable components - itemstack" when running minecraft "1.21.2":
 	make {_item} not lose durability when hurt
 	assert {_item} will not lose durability when hurt with "ItemStack should not lose durability when hurt"
 
-	parse if method {@method} exists:
+	parse if running minecraft "1.21.5":
 		allow {_item} to be equipped onto entities
 		assert {_item} can be equipped onto entities with "ItemStack should equip onto entities"
 		prevent {_item} from being equipped onto entities
 		assert {_item} can not be equipped onto entities with "ItemStack should not equip onto entities"
 
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_item} to {@shearSound}
+		assert the shear sound of {_item} is {@shearSound} with "Shear sound of itemstack was not set"
+		allow {_item} to be sheared off
+		assert {_item} can be sheared off with "ItemStack should be shearable"
+		prevent {_item} from being sheared off
+		assert {_item} can not be sheared off with "ItemStack should not be shearable"
+
 test "equippable components - copy" when running minecraft "1.21.2":
 	set {_component} to a blank equippable component
-	set the equip sound of {_component} to {@sound}
-	assert the equip sound of {_component} is {@sound} with "Equip sound of component was not set"
+	set the equip sound of {_component} to {@equipSound}
+	assert the equip sound of {_component} is {@equipSound} with "Equip sound of component was not set"
 	set the equipment slot of {_component} to {@slot}
 	assert the equipment slot of {_component} is {@slot} with "Equipment slot of component was not set"
 	set the equipped model key of {_component} to {@model}
@@ -126,17 +150,25 @@ test "equippable components - copy" when running minecraft "1.21.2":
 	make {_component} not lose durability when hurt
 	assert {_component} will not lose durability when hurt with "Component should not lose durability when hurt"
 
-	parse if method {@method} exists:
+	parse if running minecraft "1.21.5":
 		allow {_component} to be equipped onto entities
 		assert {_component} can be equipped onto entities with "Component should equip onto entities"
 		prevent {_component} from being equipped onto entities
 		assert {_component} can not be equipped onto entities with "Component should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_component} to {@shearSound}
+		assert the shear sound of {_component} is {@shearSound} with "Shear sound of component was not set"
+		allow {_component} to be sheared off
+		assert {_component} can be sheared off with "Component should be shearable"
+		prevent {_component} from being sheared off
+		assert {_component} can not be sheared off with "Component should not be shearable"
 	set {_original} to {_component}
 
 	set {_copy} to a item component copy of {_original}
-	set the equip sound of {_copy} to "item.armor.equip_diamond"
+	set the equip sound of {_copy} to "minecraft:item.armor.equip_diamond"
 	assert the equip sound of {_copy} is "minecraft:item.armor.equip_diamond" with "Equip sound of copy was not set"
-	assert the equip sound of {_original} is {@sound} with "Equip sound of original should not have changed"
+	assert the equip sound of {_original} is {@equipSound} with "Equip sound of original should not have changed"
 	set the equipment slot of {_copy} to helmet slot
 	assert the equipment slot of {_copy} is helmet slot with "Equipment slot of copy was not set"
 	assert the equipment slot of {_original} is {@slot} with "Equipment slot of original should not have changed"
@@ -165,19 +197,29 @@ test "equippable components - copy" when running minecraft "1.21.2":
 	make {_copy} not lose durability when hurt
 	assert {_copy} will not lose durability when hurt with "Copy should not lose durability when hurt"
 
-	parse if method {@method} exists:
+	parse if running minecraft "1.21.5":
 		allow {_copy} to be equipped onto entities
 		assert {_copy} can be equipped onto entities with "Copy should equip onto entities"
-		assert (whether {_copy} can be equipped onto entities) is not (whether {_original} can be equipped onto entities) with "Copy should be equipped onto entities and original should not"
+		assert {_original} can not be equipped onto entities with "Original should still not equip onto entities"
 		prevent {_copy} from being equipped onto entities
 		assert {_copy} can not be equipped onto entities with "Copy should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_copy} to "minecraft:block.note_block.snare"
+		assert the shear sound of {_copy} is "minecraft:block.note_block.snare" with "Shear sound of copy was not set"
+		assert the shear sound of {_original} is {@shearSound} with "Shear sound of original should not have changed"
+		allow {_copy} to be sheared off
+		assert {_copy} can be sheared off with "Copy should be shearable"
+		assert {_original} can not be sheared off with "Original should still not be shearable"
+		prevent {_copy} from being sheared off
+		assert {_copy} can not be sheared off with "Copy should not be shearable"
 
 test "equippable components - slot" when running minecraft "1.21.2":
 	set {_gui} to a chest inventory with 1 row
 	set slot 1 of {_gui} to a diamond helmet
 
-	set the equip sound of (slot 1 of {_gui}) to {@sound}
-	assert the equip sound of (slot 1 of {_gui}) is {@sound} with "Equip sound of slot was not set"
+	set the equip sound of (slot 1 of {_gui}) to {@equipSound}
+	assert the equip sound of (slot 1 of {_gui}) is {@equipSound} with "Equip sound of slot was not set"
 	set the equipment slot of (slot 1 of {_gui}) to {@slot}
 	assert the equipment slot of (slot 1 of {_gui}) is {@slot} with "Equipment slot of slot was not set"
 	set the equipped model key of (slot 1 of {_gui}) to {@model}
@@ -199,8 +241,16 @@ test "equippable components - slot" when running minecraft "1.21.2":
 	make (slot 1 of {_gui}) not lose durability when hurt
 	assert (slot 1 of {_gui}) will not lose durability when hurt with "Slot should not lose durability when hurt"
 
-	parse if method {@method} exists:
+	parse if running minecraft "1.21.5":
 		allow (slot 1 of {_gui}) to be equipped onto entities
 		assert (slot 1 of {_gui}) can be equipped onto entities with "Slot should equip onto entities"
 		prevent (slot 1 of {_gui}) from being equipped onto entities
 		assert (slot 1 of {_gui}) can not be equipped onto entities with "Slot should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of (slot 1 of {_gui}) to {@shearSound}
+		assert the shear sound of (slot 1 of {_gui}) is {@shearSound} with "Shear sound of slot was not set"
+		allow (slot 1 of {_gui}) to be sheared off
+		assert (slot 1 of {_gui}) can be sheared off with "Slot should be shearable"
+		prevent (slot 1 of {_gui}) from being sheared off
+		assert (slot 1 of {_gui}) can not be sheared off with "Slot should not be shearable"

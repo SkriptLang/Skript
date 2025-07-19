@@ -17,25 +17,26 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Equip Sound")
-@Description("The sound to be played when the item is equipped. "
+@Name("Equippable Component - Shear Sound")
+@Description("The sound to be played when the item is sheared off of an entity. "
 	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
-@Example("set the equip sound of {_item} to \"entity.experience_orb.pickup\"")
+@Example("set the shear sound of {_item} to \"entity.experience_orb.pickup\"")
 @Example("""
 	set {_component} to the equippable component of {_item}
-	set the equip sound of {_component} to "block.note_block.pling"
+	set the shear sound of {_component} to "block.note_block.pling"
 	""")
-@RequiredPlugins("Minecraft 1.21.2+")
+@RequiredPlugins("Minecraft 1.21.6+")
 @Since("INSERT VERSION")
-public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
+public class ExprEquipCompShearSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	static {
-		registerDefault(ExprEquipCompSound.class, String.class, "equip sound", "equippablecomponents");
+		if (EquippableWrapper.HAS_SHEAR_SOUND)
+			registerDefault(ExprEquipCompShearSound.class, String.class, "shear[ed [off]] sound", "equippablecomponents");
 	}
 
 	@Override
 	public @Nullable String convert(EquippableWrapper wrapper) {
-		return wrapper.getComponent().equipSound().toString();
+		return wrapper.getComponent().shearSound().toString();
 	}
 
 	@Override
@@ -63,7 +64,7 @@ public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapp
 			key = null;
 		}
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.equipSound(key)));
+		getExpr().stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.shearSound(key)));
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapp
 
 	@Override
 	protected String getPropertyName() {
-		return "equip sound";
+		return "shear sound";
 	}
 
 }
