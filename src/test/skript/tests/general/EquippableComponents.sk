@@ -254,3 +254,22 @@ test "equippable components - slot" when running minecraft "1.21.2":
 		assert (slot 1 of {_gui}) can be sheared off with "Slot should be shearable"
 		prevent (slot 1 of {_gui}) from being sheared off
 		assert (slot 1 of {_gui}) can not be sheared off with "Slot should not be shearable"
+
+test "equippable components - source":
+	set {_itemType} to a diamond helmet
+	set {_itemStack} to a netherite helmet (item stack)
+
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to an iron helmet
+
+	set {_typeComponent} to equippable component of {_itemType}
+	set {_stackComponent} to equippable component of {_itemStack}
+	set {_slotComponent} to equippable component of (slot 1 of {_gui})
+
+	set the equipment slot of {_typeComponent} to chest slot
+	set the equipment slot of {_stackComponent} to chest slot
+	set the equipment slot of {_slotComponent} to chest slot
+
+	assert the equipment slot of {_itemType} is chest slot with "ItemType did not retain changes from component"
+	assert the equipment slot of {_itemStack} is chest slot with "ItemStack did not retain changes from component"
+	assert the equipment slot of (slot 1 of {_gui}) is chest slot with "Slot did not retain changes from component"

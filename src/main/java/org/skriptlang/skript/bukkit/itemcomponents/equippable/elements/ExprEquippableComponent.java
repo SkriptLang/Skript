@@ -10,6 +10,7 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.ItemSource;
+import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Equippable;
@@ -26,21 +27,28 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	set {_component} to the equippable component of {_item}
 	set the equipment slot of {_component} to helmet slot
 	""")
-@Example("set the equipment slot of {_item} to helmet slot")
 @Example("clear the equippable component of {_item}")
 @Example("reset the equippable component of {_item}")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquippableComponent extends SimplePropertyExpression<ItemType, EquippableWrapper> implements EquippableExperimentSyntax {
+public class ExprEquippableComponent extends SimplePropertyExpression<Object, EquippableWrapper> implements EquippableExperimentSyntax {
 
 	static {
 		register(ExprEquippableComponent.class, EquippableWrapper.class,
-			"equippable component[s]", "itemtypes");
+			"equippable component[s]", "objects");
 	}
 
 	@Override
-	public EquippableWrapper convert(ItemType itemType) {
-		return new EquippableWrapper(new ItemSource<>(itemType));
+	public EquippableWrapper convert(Object object) {
+		ItemSource<?> itemSource = null;
+		if (object instanceof ItemStack itemStack) {
+			itemSource = new ItemSource<>(itemStack);
+		} else if (object instanceof ItemType itemType) {
+			itemSource = new ItemSource<>(itemType);
+		} else if (object instanceof Slot slot) {
+			itemSource = ItemSource.fromSlot(slot);
+		}
+		return itemSource == null ? null : new EquippableWrapper(itemSource);
 	}
 
 	@Override
@@ -52,27 +60,47 @@ public class ExprEquippableComponent extends SimplePropertyExpression<ItemType, 
 	}
 
 	@Override
-	@SuppressWarnings("UnstableApiUsage")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Equippable component = null;
 		if (delta != null)
 			component = ((EquippableWrapper) delta[0]).getComponent();
 
-		for (ItemType itemType : getExpr().getArray(event)) {
-			for (ItemData itemData : itemType) {
-				ItemStack dataStack = itemData.getStack();
-				if (dataStack == null)
-					continue;
-				switch (mode) {
-					case SET -> {
-						assert component != null;
-						dataStack.setData(DataComponentTypes.EQUIPPABLE, component);
-					}
-					case DELETE -> dataStack.unsetData(DataComponentTypes.EQUIPPABLE);
-					case RESET -> dataStack.resetData(DataComponentTypes.EQUIPPABLE);
-				}
+		for (Object object : getExpr().getArray(event)) {
+			if (object instanceof ItemType itemType) {
+				changeItemType(itemType, mode, component);
+			} else if (object instanceof ItemStack itemStack) {
+				changeItemStack(itemStack, mode, component);
+			} else if (object instanceof Slot slot) {
+				changeSlot(slot, mode, component);
 			}
 		}
+	}
+
+	public void changeItemType(ItemType itemType, ChangeMode mode, Equippable component) {
+		for (ItemData itemData : itemType) {
+			ItemStack dataStack = itemData.getStack();
+			if (dataStack == null)
+				continue;
+			changeItemStack(dataStack, mode, component);
+		}
+	}
+
+	public void changeSlot(Slot slot, ChangeMode mode, Equippable component) {
+		ItemStack itemStack = slot.getItem();
+		if (itemStack == null)
+			return;
+		itemStack = changeItemStack(itemStack, mode, component);
+		slot.setItem(itemStack);
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	public ItemStack changeItemStack(ItemStack itemStack, ChangeMode mode, Equippable component) {
+		switch (mode) {
+			case SET -> itemStack.setData(DataComponentTypes.EQUIPPABLE, component);
+			case DELETE -> itemStack.unsetData(DataComponentTypes.EQUIPPABLE);
+			case RESET -> itemStack.resetData(DataComponentTypes.EQUIPPABLE);
+		}
+		return itemStack;
 	}
 
 	@Override
