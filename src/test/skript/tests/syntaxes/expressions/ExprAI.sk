@@ -1,0 +1,53 @@
+test "Entity AI Expression Functionality":
+    spawn a cow at location(0, 100, 0)
+    set {_cow} to last spawned entity
+
+    assert ai of {_cow} is true
+
+    set ai of {_cow} to false
+    assert ai of {_cow} is false
+
+    set ai of {_cow} to true
+    assert ai of {_cow} is true
+
+    set {_cow}'s ai to false
+    assert {_cow}'s ai is false
+
+    set artificial intelligence of {_cow} to true
+    assert artificial intelligence of {_cow} is true
+
+    set ai of {_cow} to no
+    assert ai of {_cow} is false
+    set ai of {_cow} to yes
+    assert ai of {_cow} is true
+
+    kill {_cow}
+
+test "Entity AI with multiple entities":
+    spawn 2 cows at location(10, 100, 10)
+    set {_cows::*} to last spawned entities
+
+    set ai of {_cows::*} to false
+    loop {_cows::*}:
+        assert ai of loop-value is false
+
+    kill {_cows::*}
+
+test "Setting AI to an unset value":
+    spawn a cow at location(20, 100, 20)
+    set {_cow} to last spawned entity
+    
+    clear {_undefined}
+    set ai of {_cow} to {_undefined}
+
+    assert ai of {_cow} is true
+
+    kill {_cow}
+
+test "Getting AI of a dead entity":
+    spawn a cow at location(30, 100, 30)
+    set {_cow} to last spawned entity
+
+    kill {_cow}
+
+    assert ai of {_cow} is true
