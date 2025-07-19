@@ -33,13 +33,11 @@ import java.util.Objects;
 import java.util.Set;
 
 public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
-
-	private static final boolean HAS_DATA_COMPONENTS = Skript.methodExists(ItemStack.class, "getDataTypes");
-
+	
 	static {
 		Variables.yggdrasil.registerSingleClass(ItemData.class, "NewItemData");
 		Variables.yggdrasil.registerSingleClass(OldItemData.class, "ItemData");
-    }
+	}
 	
 	/**
 	 * Represents old ItemData (before aliases rework and MC 1.13).
@@ -637,5 +635,5 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		BukkitUnsafe.modifyItemStack(stack, tags);
 		itemFlags |= ItemFlags.CHANGED_TAGS;
 	}
-
+	
 }
