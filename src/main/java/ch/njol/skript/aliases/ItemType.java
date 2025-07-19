@@ -1650,35 +1650,4 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 
-	/**
-	 * Sets the DataComponentType of {@link #types} to {@code component}.
-	 * @param type The DataComponentType to reference.
-	 * @param component The BuildableDataComponent to update to.
-	 */
-	public void setData(Object type, @Nullable Object component) {
-		for (ItemData data : types) {
-			data.setData(type, component);
-		}
-	}
-
-	/**
-	 * Removes the DataComponentType of {@link #types}.
-	 * @param type The DataComponentType to reference.
-	 */
-	public void unsetData(Object type) {
-		for (ItemData data : types) {
-			data.unsetData(type);
-		}
-	}
-
-	/**
-	 * Removes the DataComponentType of {@link #types} to vanilla behavior.
-	 * @param type The DataComponentType to reference.
-	 */
-	public void resetData(Object type) {
-		for (ItemData data : types) {
-			data.resetData(type);
-		}
-	}
-
 }

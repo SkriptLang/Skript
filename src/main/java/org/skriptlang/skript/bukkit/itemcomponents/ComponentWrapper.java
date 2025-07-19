@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.itemcomponents;
 
+import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.util.ItemSource;
 import ch.njol.skript.util.slot.Slot;
@@ -39,6 +40,8 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 	 * @param itemSource The {@link ItemSource} representing the original source of the {@link ItemStack}.
 	 */
 	public ComponentWrapper(ItemSource<?> itemSource) {
+		if (itemSource.getItemStack() == null)
+			throw new IllegalArgumentException("ItemSource must have an ItemStack to retrieve");
 		this.itemSource = itemSource;
 		this.component = this.getComponent(itemSource.getItemStack());
 	}
@@ -142,7 +145,12 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 		ItemStack itemStack = itemSource.getItemStack();
 		setComponent(itemStack, component);
 		if (itemSource.getSource() instanceof ItemType itemType) {
-			itemType.setData(getDataComponentType(), component);
+			for (ItemData itemData : itemType) {
+				ItemStack dataStack = itemData.getStack();
+				if (dataStack == null)
+					continue;
+				dataStack.setData(getDataComponentType(), component);
+			}
 		} else if (itemSource.getSource() instanceof Slot slot) {
 			slot.setItem(itemStack);
 		}
@@ -164,17 +172,6 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 		applyComponent(builder.build());
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof ComponentWrapper<?, ?> other))
-			return false;
-		boolean relation = true;
-		if (this.itemSource != null && other.itemSource != null)
-			relation = this.itemSource.getItemStack().equals(other.itemSource.getItemStack());
-		relation &= this.getComponent().equals(other.getComponent());
-		return relation;
-	}
-
 	/**
 	 * Returns a clone of this {@link ComponentWrapper}.
 	 */
@@ -194,6 +191,17 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 	 * Returns a new {@link ComponentWrapper}.
 	 */
 	public abstract ComponentWrapper<T, B> newWrapper();
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ComponentWrapper<?, ?> other))
+			return false;
+		boolean relation = true;
+		if (this.itemSource != null && other.itemSource != null)
+			relation = this.itemSource.getItemStack().equals(other.itemSource.getItemStack());
+		relation &= this.getComponent().equals(other.getComponent());
+		return relation;
+	}
 
 	@Override
 	public String toString() {

@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
+import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -13,6 +14,7 @@ import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
@@ -57,13 +59,18 @@ public class ExprEquippableComponent extends SimplePropertyExpression<ItemType, 
 			component = ((EquippableWrapper) delta[0]).getComponent();
 
 		for (ItemType itemType : getExpr().getArray(event)) {
-			switch (mode) {
-				case SET -> {
-					assert component != null;
-					itemType.setData(DataComponentTypes.EQUIPPABLE, component);
+			for (ItemData itemData : itemType) {
+				ItemStack dataStack = itemData.getStack();
+				if (dataStack == null)
+					continue;
+				switch (mode) {
+					case SET -> {
+						assert component != null;
+						dataStack.setData(DataComponentTypes.EQUIPPABLE, component);
+					}
+					case DELETE -> dataStack.unsetData(DataComponentTypes.EQUIPPABLE);
+					case RESET -> dataStack.resetData(DataComponentTypes.EQUIPPABLE);
 				}
-				case DELETE -> itemType.unsetData(DataComponentTypes.EQUIPPABLE);
-				case RESET -> itemType.resetData(DataComponentTypes.EQUIPPABLE);
 			}
 		}
 	}

@@ -9,7 +9,6 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -40,7 +39,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	static {
 		Variables.yggdrasil.registerSingleClass(ItemData.class, "NewItemData");
 		Variables.yggdrasil.registerSingleClass(OldItemData.class, "ItemData");
-	}
+    }
 	
 	/**
 	 * Represents old ItemData (before aliases rework and MC 1.13).
@@ -637,50 +636,6 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			return;
 		BukkitUnsafe.modifyItemStack(stack, tags);
 		itemFlags |= ItemFlags.CHANGED_TAGS;
-	}
-
-	/**
-	 * Sets the DataComponentType of {@link #stack} to {@code component}.
-	 * @param type The DataComponentType to reference.
-	 * @param component The BuildableDataComponent to update to.
-	 */
-	public <T> void setData(Object type, @Nullable T component) {
-		if (!HAS_DATA_COMPONENTS || stack == null)
-			return;
-		if (!(type instanceof DataComponentType.Valued<?> dataType))
-			return;
-		DataComponentType.Valued<T> typed = (DataComponentType.Valued<T>) dataType;
-		if (component == null) {
-			stack.unsetData(typed);
-		} else {
-			stack.setData(typed, component);
-		}
-	}
-
-	/**
-	 * Removes the DataComponentType of {@link #stack}.
-	 * @param type The DataComponentType to reference.
-	 */
-	public <T> void unsetData(Object type) {
-		if (!HAS_DATA_COMPONENTS || stack == null)
-			return;
-		if (!(type instanceof DataComponentType.Valued<?> dataType))
-			return;
-		DataComponentType.Valued<T> typed = (DataComponentType.Valued<T>) dataType;
-		stack.unsetData(typed);
-	}
-
-	/**
-	 * Removes the DataComponentType of {@link #stack} to vanilla behavior.
-	 * @param type The DataComponentType to reference.
-	 */
-	public <T> void resetData(Object type) {
-		if (!HAS_DATA_COMPONENTS || stack == null)
-			return;
-		if (!(type instanceof DataComponentType.Valued<?> dataType))
-			return;
-		DataComponentType.Valued<T> typed = (DataComponentType.Valued<T>) dataType;
-		stack.resetData(typed);
 	}
 
 }

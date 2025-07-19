@@ -41,7 +41,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 		if (HAS_MODEL_METHOD) {
 			try {
 				componentModelMethod = Equippable.class.getDeclaredMethod("model");
-				builderModelMethod = Equippable.Builder.class.getDeclaredMethod("model");
+				builderModelMethod = Equippable.Builder.class.getDeclaredMethod("model", Key.class);
 			} catch (NoSuchMethodException ignored) {}
 		}
 		COMPONENT_MODEL_METHOD = componentModelMethod;
