@@ -23,8 +23,11 @@ import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import com.google.common.collect.Iterators;
-import io.papermc.paper.datacomponent.DataComponentType;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -1648,9 +1651,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Sets the {@link DataComponentType} of {@link #types} to {@code component}.
-	 * @param type The {@link DataComponentType} to reference.
-	 * @param component The {@link io.papermc.paper.datacomponent.BuildableDataComponent} to update to.
+	 * Sets the DataComponentType of {@link #types} to {@code component}.
+	 * @param type The DataComponentType to reference.
+	 * @param component The BuildableDataComponent to update to.
 	 */
 	public void setData(Object type, @Nullable Object component) {
 		for (ItemData data : types) {
@@ -1659,8 +1662,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Removes the {@link DataComponentType} of {@link #types}.
-	 * @param type The {@link DataComponentType} to reference.
+	 * Removes the DataComponentType of {@link #types}.
+	 * @param type The DataComponentType to reference.
 	 */
 	public void unsetData(Object type) {
 		for (ItemData data : types) {
@@ -1669,8 +1672,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Removes the {@link DataComponentType} of {@link #types} to vanilla behavior.
-	 * @param type The {@link DataComponentType} to reference.
+	 * Removes the DataComponentType of {@link #types} to vanilla behavior.
+	 * @param type The DataComponentType to reference.
 	 */
 	public void resetData(Object type) {
 		for (ItemData data : types) {

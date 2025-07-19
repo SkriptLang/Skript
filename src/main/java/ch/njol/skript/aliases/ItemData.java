@@ -640,9 +640,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 
 	/**
-	 * Sets the {@link DataComponentType} of {@link #stack} to {@code component}.
-	 * @param type The {@link DataComponentType} to reference.
-	 * @param component The {@link io.papermc.paper.datacomponent.BuildableDataComponent} to update to.
+	 * Sets the DataComponentType of {@link #stack} to {@code component}.
+	 * @param type The DataComponentType to reference.
+	 * @param component The BuildableDataComponent to update to.
 	 */
 	public <T> void setData(Object type, @Nullable T component) {
 		if (!HAS_DATA_COMPONENTS || stack == null)
@@ -658,8 +658,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 
 	/**
-	 * Removes the {@link DataComponentType} of {@link #stack}.
-	 * @param type The {@link DataComponentType} to reference.
+	 * Removes the DataComponentType of {@link #stack}.
+	 * @param type The DataComponentType to reference.
 	 */
 	public <T> void unsetData(Object type) {
 		if (!HAS_DATA_COMPONENTS || stack == null)
@@ -671,8 +671,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 
 	/**
-	 * Removes the {@link DataComponentType} of {@link #stack} to vanilla behavior.
-	 * @param type The {@link DataComponentType} to reference.
+	 * Removes the DataComponentType of {@link #stack} to vanilla behavior.
+	 * @param type The DataComponentType to reference.
 	 */
 	public <T> void resetData(Object type) {
 		if (!HAS_DATA_COMPONENTS || stack == null)
