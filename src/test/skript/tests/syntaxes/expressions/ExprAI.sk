@@ -60,3 +60,4 @@ test "Setting AI of a dead entity":
 	set ai of {_cow} to false
 
 	assert ai of {_cow} is false
+	
