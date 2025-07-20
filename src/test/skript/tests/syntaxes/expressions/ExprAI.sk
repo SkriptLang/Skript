@@ -1,6 +1,6 @@
 test "Entity AI Expression Functionality":
 	spawn a cow at location(0, 100, 0)
-	set {_cow} to last spawned entity
+	set {_cow} to last spawned cow
 
 	assert ai of {_cow} is true
 
@@ -25,7 +25,7 @@ test "Entity AI Expression Functionality":
 
 test "Entity AI with multiple entities":
 	spawn 2 cows at location(10, 100, 10)
-	set {_cows::*} to last spawned entities
+	set {_cows::*} to last spawned cow
 
 	set ai of {_cows::*} to false
 	loop {_cows::*}:
@@ -35,7 +35,7 @@ test "Entity AI with multiple entities":
 
 test "Setting AI to an unset value":
 	spawn a cow at location(20, 100, 20)
-	set {_cow} to last spawned entity
+	set {_cow} to last spawned cow
 
 	clear {_undefined}
 	set ai of {_cow} to {_undefined}
@@ -46,7 +46,7 @@ test "Setting AI to an unset value":
 
 test "Getting AI of a dead entity":
 	spawn a cow at location(30, 100, 30)
-	set {_cow} to last spawned entity
+	set {_cow} to last spawned cow
 
 	kill {_cow}
 	
