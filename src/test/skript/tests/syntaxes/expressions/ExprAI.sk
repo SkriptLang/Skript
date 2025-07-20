@@ -1,63 +1,71 @@
 test "Entity AI Expression Functionality":
-	spawn a cow at location(0, 100, 0)
-	set {_cow} to last spawned cow
+	spawn a cow at test-location:
+		set {_cow} to entity
 
-	assert ai of {_cow} is true
+	assert ai of {_cow} is true with "A cow's AI should be true by default"
 
 	set ai of {_cow} to false
-	assert ai of {_cow} is false
+	assert ai of {_cow} is false with "AI should be set to false"
 
 	set ai of {_cow} to true
-	assert ai of {_cow} is true
+	assert ai of {_cow} is true with "AI should be set back to true"
 
 	set {_cow}'s ai to false
-	assert {_cow}'s ai is false
+	assert {_cow}'s ai is false with "Possessive syntax setter should work"
 
 	set artificial intelligence of {_cow} to true
-	assert artificial intelligence of {_cow} is true
+	assert artificial intelligence of {_cow} is true with "Alias syntax setter should work"
 
 	set ai of {_cow} to no
-	assert ai of {_cow} is false
+	assert ai of {_cow} is false with "'no' alias should set AI to false"
 	set ai of {_cow} to yes
-	assert ai of {_cow} is true
+	assert ai of {_cow} is true with "'yes' alias should set AI to true"
 
-	kill {_cow}
+	clear entity within {_cow}
 
 test "Entity AI with multiple entities":
-	spawn 2 cows at location(10, 100, 10)
-	set {_cows::*} to last spawned cows
+	spawn 2 cows at test-location
+	add entities to {_cows::*}
 
 	set ai of {_cows::*} to false
 	loop {_cows::*}:
-		assert ai of loop-value is false
+		assert ai of loop-value is false with "AI for all entities in a list should be set to false"
 
-	kill {_cows::*}
+	clear entities within {_cows::*}
 
 test "Setting AI to an unset value":
-	spawn a cow at location(20, 100, 20)
-	set {_cow} to last spawned cow
-
+	spawn a cow at test-location:
+		set {_cow} to entity
+	
 	clear {_undefined}
 	set ai of {_cow} to {_undefined}
 
-	assert ai of {_cow} is true
+	assert ai of {_cow} is true with "Setting AI to an unset value should not change it"
 
-	kill {_cow}
+	clear entity within {_cow}
 
 test "Getting AI of a dead entity":
-	spawn a cow at location(30, 100, 30)
-	set {_cow} to last spawned cow
+	spawn a cow at test-location:
+		set {_cow} to entity
 
-	kill {_cow}
+	clear entity within {_cow}
 	
-	assert ai of {_cow} is true
+	assert ai of {_cow} is true with "AI of a dead entity should report its last known state (true)"
 
 test "Setting AI of a dead entity":
-	spawn a cow at location(40, 100, 40)
-	set {_cow} to last spawned cow
+	spawn a cow at test-location:
+		set {_cow} to entity
 
-	kill {_cow}
+	clear entity within {_cow}
 	set ai of {_cow} to false
 
-	assert ai of {_cow} is false
-	
+	assert ai of {_cow} is false with "It should be possible to set the AI of a dead entity"
+
+test "Interacting with an undefined entity":
+	clear {_undefined}
+	clear {_value}
+
+	set ai of {_undefined} to false
+
+	set {_value} to ai of {_undefined}
+	assert {_value} is not set with "Getting the AI of an undefined entity should result in <none>"
