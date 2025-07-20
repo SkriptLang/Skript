@@ -51,3 +51,12 @@ test "Getting AI of a dead entity":
 	kill {_cow}
 	
 	assert ai of {_cow} is true
+
+test "Setting AI of a dead entity":
+	spawn a cow at location(40, 100, 40)
+	set {_cow} to last spawned cow
+
+	kill {_cow}
+	set ai of {_cow} to false
+
+	assert ai of {_cow} is false
