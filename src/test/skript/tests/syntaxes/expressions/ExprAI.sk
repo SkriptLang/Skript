@@ -25,7 +25,7 @@ test "Entity AI Expression Functionality":
 
 test "Entity AI with multiple entities":
 	spawn 2 cows at test-location
-	add entities to {_cows::*}
+	add entity to {_cows::*}
 
 	set ai of {_cows::*} to false
 	loop {_cows::*}:
