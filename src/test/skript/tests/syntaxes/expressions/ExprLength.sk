@@ -1,34 +1,34 @@
 test "basic string length":
-	assert length of "hello" is 5
+	assert length of "hello" is 5 with "Length of a simple string literal should be correct"
 
 	set {_string} to "Skript"
-	assert length of {_string} is 6
+	assert length of {_string} is 6 with "Length of a string variable should be correct"
 
 test "edge case string lengths":
 	set {_empty_string} to ""
-	assert length of {_empty_string} is 0
+	assert length of {_empty_string} is 0 with "Length of an empty string should be 0"
 
-	assert length of "   " is 3
-	assert length of "😂" is 2
+	assert length of "   " is 3 with "Length of a string with only whitespace should be correct"
+	assert length of "😂" is 2 with "Length of a Unicode emoji should be calculated correctly"
 
 test "type conversion for length":
-	assert length of "12345" is 5
+	assert length of "12345" is 5 with "Length of a numeric string should be correct"
 
-	assert length of {_undefined} is not set
+	clear {_undefined}
+	assert length of {_undefined} is not set with "Length of an undefined variable should be unset"
 
 test "list looping behavior of length":
 	set {_list::*} to "a", "bb", and "cherry"
 	set {_lengths::*} to length of {_list::*}
 
-	assert {_lengths::1} is 1
-	assert {_lengths::2} is 2
-	assert {_lengths::3} is 6
+	assert {_lengths::1} is 1 with "First element of looped lengths should be correct"
+	assert {_lengths::2} is 2 with "Second element of looped lengths should be correct"
+	assert {_lengths::3} is 6 with "Third element of looped lengths should be correct"
 
 test "string interpolation":
 	set {_string} to "Skript"
 	set {_empty_string} to ""
 
-	assert "%length of "hello"%" is "5"
-	assert "%length of {_string}%" is "6"
-	assert "%length of {_empty_string}%" is "0"
-	
+	assert "%length of "hello"%" is "5" with "String interpolation with a literal should work"
+	assert "%length of {_string}%" is "6" with "String interpolation with a variable should work"
+	assert "%length of {_empty_string}%" is "0" with "String interpolation with an empty string should work"
