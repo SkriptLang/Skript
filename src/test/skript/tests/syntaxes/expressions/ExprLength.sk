@@ -31,3 +31,4 @@ test "string interpolation":
 	assert "%length of "hello"%" is "5"
 	assert "%length of {_string}%" is "6"
 	assert "%length of {_empty_string}%" is "0"
+	
