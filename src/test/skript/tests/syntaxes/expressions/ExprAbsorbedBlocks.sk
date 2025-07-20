@@ -1,0 +1,31 @@
+on sponge absorb:
+	assert size of absorbed blocks is 4
+	
+	loop absorbed blocks:
+		assert loop-value is a water block
+	
+	set {absorbed_blocks_test_success} to true
+	
+	cancel event
+
+test "Absorbed Blocks Expression":
+	clear {absorbed_blocks_test_success}
+	
+	set the block 1 meter east of test-location to water
+	set the block 1 meter west of test-location to water
+	set the block 1 meter south of test-location to water
+	set the block 1 meter north of test-location to water
+	set block at test-location to sponge
+	
+	wait 2 ticks
+	
+	if {absorbed_blocks_test_success} is true:
+		log "SUCCESS: Sponge absorb event fired and tests passed."
+	else:
+		log "FAILURE: Sponge absorb event did not fire or its tests failed."
+	
+	set block at test-location to air
+	set the block 1 meter east of test-location to air
+	set the block 1 meter west of test-location to air
+	set the block 1 meter south of test-location to air
+	set the block 1 meter north of test-location to air
