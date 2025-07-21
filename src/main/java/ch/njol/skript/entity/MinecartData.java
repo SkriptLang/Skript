@@ -71,6 +71,7 @@ public class MinecartData extends EntityData<Minecart> {
 		if (matchedPattern == 0)
 			return true;
 
+		// Avoid the first codeName, as the first codeName is used for super type any comparison
 		type = MinecartType.values()[--matchedPattern];
 		isSupertype = false;
 		return true;
