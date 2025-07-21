@@ -9,10 +9,10 @@ import org.skriptlang.skript.lang.arithmetic.Operation;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Priority;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * Represents a chain of arithmetic operations between two operands.
@@ -23,12 +23,8 @@ import java.util.function.Predicate;
  */
 public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
-	@SuppressWarnings("unchecked")
-	private static final Predicate<Object>[] CHECKERS = new Predicate[] {
-		o -> o.equals(Operator.ADDITION) || o.equals(Operator.SUBTRACTION),
-		o -> o.equals(Operator.MULTIPLICATION) || o.equals(Operator.DIVISION),
-		o -> o.equals(Operator.EXPONENTIATION)
-	};
+	// lazily initialized
+	private static List<Set<Operator>> operatorGroups = null;
 
 	private final ArithmeticGettable<L> left;
 	private final ArithmeticGettable<R> right;
@@ -36,7 +32,10 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 	private final Class<? extends T> returnType;
 	private final @Nullable OperationInfo<? extends L, ? extends R, ? extends T> operationInfo;
 
-	public ArithmeticChain(ArithmeticGettable<L> left, Operator operator, ArithmeticGettable<R> right, @Nullable OperationInfo<L, R, T> operationInfo) {
+	@SuppressWarnings("unchecked")
+	public ArithmeticChain(ArithmeticGettable<L> left, Operator operator,
+						   ArithmeticGettable<R> right,
+						   @Nullable OperationInfo<L, R, T> operationInfo) {
 		this.left = left;
 		this.right = right;
 		this.operator = operator;
@@ -56,8 +55,12 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		if (right == null && this.right instanceof ArithmeticChain)
 			return null;
 
-		Class<? extends L> leftClass = left != null ? (Class<? extends L>) left.getClass() : this.left.getReturnType();
-		Class<? extends R> rightClass = right != null ? (Class<? extends R>) right.getClass() : this.right.getReturnType();
+		Class<? extends L> leftClass = left != null
+			? (Class<? extends L>) left.getClass()
+			: this.left.getReturnType();
+		Class<? extends R> rightClass = right != null
+			? (Class<? extends R>) right.getClass()
+			: this.right.getReturnType();
 
 		if (leftClass == Object.class && rightClass == Object.class)
 			return null;
@@ -86,7 +89,9 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 	@Nullable
 	@SuppressWarnings("unchecked")
-	private OperationInfo<L, R, T> lookupOperationInfo(Class<?> anchor, Function<OperationInfo<?, ?, ?>, Class<?>> anchorFunction) {
+	private OperationInfo<L, R, T> lookupOperationInfo(Class<?> anchor,
+													   Function<OperationInfo<?, ?, ?>,
+													   Class<?>> anchorFunction) {
 		OperationInfo<?, ?, ?> operationInfo = Arithmetics.lookupOperationInfo(operator, anchor, anchor);
 		if (operationInfo != null)
 			return (OperationInfo<L, R, T>) operationInfo;
@@ -107,31 +112,72 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		return returnType;
 	}
 
+	/**
+	 * Initializes the {@code operatorGroups}.
+	 * <p>
+	 * Each group is an unordered set of operators with the same priority.
+	 * Together the groups are stored in a list in reverse priority order:
+	 * e.g. (+, -) -> (*, /) -> (^)
+	 * <p>
+	 * In the same order the arithmetic chain is then evaluated in the {@link ArithmeticChain#parse(List)} method.
+	 */
+	private static void createOperatorGroups() {
+		if (operatorGroups != null)
+			throw new RuntimeException("Operator groups have already been created");
+		operatorGroups = new LinkedList<>();
+		List<Operator> operators = new LinkedList<>(Arithmetics.getAllOperators());
+		Collections.reverse(operators);
+
+		if (operators.isEmpty()) {
+			return;
+		}
+
+		Set<Operator> currentGroup = new HashSet<>();
+		Priority currentGroupPriority = null;
+
+		for (Operator operator : operators) {
+			if (currentGroupPriority == null || operator.priority().compareTo(currentGroupPriority) != 0) {
+				if (!currentGroup.isEmpty()) {
+					operatorGroups.add(currentGroup);
+				}
+				currentGroup = new HashSet<>();
+				currentGroupPriority = operator.priority();
+			}
+			currentGroup.add(operator);
+		}
+
+		operatorGroups.add(currentGroup);
+	}
+
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public static <L, R, T> ArithmeticGettable<T> parse(List<Object> chain) {
-		for (Predicate<Object> checker : CHECKERS) {
-			int lastIndex = Utils.findLastIndex(chain, checker);
+	public static <L, R, T> ArithmeticGettable<T> parse(List<?> chain) {
+		if (operatorGroups == null)
+			createOperatorGroups();
 
-			if (lastIndex != -1) {
-				ArithmeticGettable<L> left = parse(chain.subList(0, lastIndex));
+		for (Set<?> group : operatorGroups) {
+			int lastIndex = Utils.findLastIndex(chain, group::contains);
+			if (lastIndex == -1) continue;
 
-				Operator operator = (Operator) chain.get(lastIndex);
+			ArithmeticGettable<L> left = parse(chain.subList(0, lastIndex));
 
-				ArithmeticGettable<R> right = parse(chain.subList(lastIndex + 1, chain.size()));
+			Operator operator = (Operator) chain.get(lastIndex);
 
-				if (left == null || right == null)
+			ArithmeticGettable<R> right = parse(chain.subList(lastIndex + 1, chain.size()));
+
+			if (left == null || right == null)
+				return null;
+
+			OperationInfo<L, R, T> operationInfo = null;
+			if (left.getReturnType() != Object.class && right.getReturnType() != Object.class) {
+				operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(
+					operator, left.getReturnType(), right.getReturnType()
+				);
+				if (operationInfo == null)
 					return null;
-
-				OperationInfo<L, R, T> operationInfo = null;
-				if (left.getReturnType() != Object.class && right.getReturnType() != Object.class) {
-					operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, left.getReturnType(), right.getReturnType());
-					if (operationInfo == null)
-						return null;
-				}
-
-				return new ArithmeticChain<>(left, operator, right, operationInfo);
 			}
+
+			return new ArithmeticChain<>(left, operator, right, operationInfo);
 		}
 
 		if (chain.size() != 1)

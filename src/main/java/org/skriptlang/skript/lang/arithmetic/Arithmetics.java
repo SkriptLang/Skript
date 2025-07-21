@@ -6,15 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -657,6 +649,21 @@ public final class Arithmetics {
 			types.add(info.returnType());
 		}
 		return types;
+	}
+
+	/**
+	 * Returns set of all operators with operations registered to them.
+	 * <p>
+	 * This set is sorted by the priority of the operators.
+	 * <p>
+	 * Modifying this set does not change the registered modifiers.
+	 *
+	 * @return registered operators
+	 */
+	public static Set<Operator> getAllOperators() {
+		List<Operator> operators = new LinkedList<>(OPERATIONS.keySet());
+		Collections.sort(operators);
+		return new LinkedHashSet<>(operators);
 	}
 
 	private Arithmetics() {
