@@ -15,8 +15,9 @@ import java.util.stream.Collectors;
  */
 public final class Arithmetics {
 
+	// ordered map to create the patterns in registration order
 	private static final Map<Operator, List<OperationInfo<?, ?, ?>>> OPERATIONS
-		= Collections.synchronizedMap(new HashMap<>());
+		= Collections.synchronizedMap(new LinkedHashMap<>());
 	private static final Map<Operator, Map<OperandTypes, OperationInfo<?, ?, ?>>> CACHED_OPERATIONS
 		= Collections.synchronizedMap(new HashMap<>());
 
