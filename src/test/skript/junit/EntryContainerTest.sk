@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.events.EntryContainerTest"
+	test: "org.skriptlang.skript.test.tests.lang.EntryContainerTest"
 
 test "EntryContainerTest" when running JUnit:
 	set {_tests::1} to "has entry"
