@@ -571,7 +571,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		new DefaultConverters();
 		new DefaultFunctions();
 		new DefaultOperations();
-		ExprArithmetic.registerExpression();
 
 		ChatMessages.registerListeners();
 
@@ -1390,6 +1389,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static void stopAcceptingRegistrations() {
 		Converters.createChainedConverters();
+		ExprArithmetic.registerExpression();
 		acceptRegistrations = false;
 		Classes.onRegistrationsStop();
 	}

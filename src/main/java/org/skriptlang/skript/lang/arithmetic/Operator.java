@@ -22,15 +22,15 @@ public record Operator(String sign, Priority priority, Noun node) implements Com
 	public static final Operator DIVISION = new Operator('/', MULTIPLICATION_DIVISION_PRIORITY, "divide");
 	public static final Operator EXPONENTIATION = new Operator('^', EXPONENTIATION_PRIORITY, "exponentiate");
 
-	Operator(String sign, Priority priority, String node) {
+	public Operator(String sign, Priority priority, String node) {
 		this(sign, priority, new Noun("operators." + node));
 	}
 
-	Operator(char sign, Priority priority, Noun node) {
+	public Operator(char sign, Priority priority, Noun node) {
 		this(String.valueOf(sign), priority, node);
 	}
 
-	Operator(char sign, Priority priority, String node) {
+	public Operator(char sign, Priority priority, String node) {
 		this(String.valueOf(sign), priority, node);
 	}
 

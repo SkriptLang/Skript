@@ -51,6 +51,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	private static Patterns<PatternInfo> patterns = null;
 
 	public static void registerExpression() {
+		Skript.checkAcceptRegistrations();
 		List<Object[]> infos = new LinkedList<>();
 		for (Operator operator : Arithmetics.getAllOperators()) {
 			infos.add(new Object[] {"\\(%object%\\)[ ]" + operator.sign() + "[ ]\\(%object%\\)",
