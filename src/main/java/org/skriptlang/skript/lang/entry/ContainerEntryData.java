@@ -25,6 +25,18 @@ public class ContainerEntryData extends EntryData<EntryContainer> {
 		this.entryValidator = validatorBuilder.build();
 	}
 
+	public ContainerEntryData(String key, boolean optional, boolean multiple, EntryValidator entryValidator) {
+		super(key, null, optional, multiple);
+		this.entryValidator = entryValidator;
+	}
+
+	public ContainerEntryData(
+		String key, boolean optional, boolean multiple, EntryValidatorBuilder validatorBuilder
+	) {
+		super(key, null, optional, multiple);
+		this.entryValidator = validatorBuilder.build();
+	}
+
 	public EntryValidator getEntryValidator() {
 		return entryValidator;
 	}
@@ -44,8 +56,7 @@ public class ContainerEntryData extends EntryData<EntryContainer> {
 		key = ScriptLoader.replaceOptions(key);
 		if (!getKey().equalsIgnoreCase(key))
 			return false;
-		EntryContainer container = entryValidator.validate(sectionNode);
-		entryContainer = container;
+		entryContainer = entryValidator.validate(sectionNode);
 		return true;
 	}
 
