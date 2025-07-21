@@ -41,7 +41,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		this.right = right;
 		this.operator = operator;
 		this.operationInfo = operationInfo;
-		this.returnType = operationInfo != null ? operationInfo.getReturnType() : (Class<? extends T>) Object.class;
+		this.returnType = operationInfo != null ? operationInfo.returnType() : (Class<? extends T>) Object.class;
 	}
 
 	@Override
@@ -64,9 +64,9 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 		OperationInfo<? extends L, ? extends R, ? extends T> operationInfo = this.operationInfo;
 		if (left == null && leftClass == Object.class) {
-			operationInfo = lookupOperationInfo(rightClass, OperationInfo::getRight);
+			operationInfo = lookupOperationInfo(rightClass, OperationInfo::right);
 		} else if (right == null && rightClass == Object.class) {
-			operationInfo = lookupOperationInfo(leftClass, OperationInfo::getLeft);
+			operationInfo = lookupOperationInfo(leftClass, OperationInfo::left);
 		} else if (operationInfo == null) {
 			operationInfo = Arithmetics.lookupOperationInfo(operator, leftClass, rightClass, returnType);
 		}
@@ -74,14 +74,14 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		if (operationInfo == null)
 			return null;
 
-		left = left != null ? left : Arithmetics.getDefaultValue(operationInfo.getLeft());
+		left = left != null ? left : Arithmetics.getDefaultValue(operationInfo.left());
 		if (left == null)
 			return null;
-		right = right != null ? right : Arithmetics.getDefaultValue(operationInfo.getRight());
+		right = right != null ? right : Arithmetics.getDefaultValue(operationInfo.right());
 		if (right == null)
 			return null;
 
-		return ((Operation<L, R, T>) operationInfo.getOperation()).calculate(left, right);
+		return ((Operation<L, R, T>) operationInfo.operation()).calculate(left, right);
 	}
 
 	@Nullable
@@ -93,7 +93,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 		return (OperationInfo<L, R, T>) Arithmetics.getOperations(operator).stream()
 			.filter(info -> anchorFunction.apply(info).isAssignableFrom(anchor))
-			.filter(info -> Converters.converterExists(info.getReturnType(), returnType))
+			.filter(info -> Converters.converterExists(info.returnType(), returnType))
 			.reduce((info, info2) -> {
 				if (anchorFunction.apply(info2) == anchor)
 					return info2;

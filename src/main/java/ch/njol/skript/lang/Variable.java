@@ -35,7 +35,6 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -652,11 +651,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 							if (info == null)
 								continue;
 
-							Object value = originalValue == null ? Arithmetics.getDefaultValue(info.getLeft()) : originalValue;
+							Object value = originalValue == null ? Arithmetics.getDefaultValue(info.left()) : originalValue;
 							if (value == null)
 								continue;
 
-							originalValue = info.getOperation().calculate(value, newValue);
+							originalValue = info.operation().calculate(value, newValue);
 							changed = true;
 						}
 						if (changed)

@@ -158,17 +158,17 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			if (second instanceof UnparsedLiteral) { // first and second need converting
 				for (OperationInfo<?, ?, ?> operation : Arithmetics.getOperations(operator)) {
 					// match left type with 'first'
-					Expression<?> convertedFirst = first.getConvertedExpression(operation.getLeft());
+					Expression<?> convertedFirst = first.getConvertedExpression(operation.left());
 					if (convertedFirst == null)
 						continue;
 					// match right type with 'second'
-					Expression<?> convertedSecond = second.getConvertedExpression(operation.getRight());
+					Expression<?> convertedSecond = second.getConvertedExpression(operation.right());
 					if (convertedSecond == null)
 						continue;
 					// success, set the values
 					first = (Expression<L>) convertedFirst;
 					second = (Expression<R>) convertedSecond;
-					returnType = (Class<? extends T>) operation.getReturnType();
+					returnType = (Class<? extends T>) operation.returnType();
 				}
 			} else { // first needs converting
 				// attempt to convert <first> to types that make valid operations with <second>
@@ -180,7 +180,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 					first = (Expression<L>) first.getConvertedExpression(Object.class);
 				} else {
 					first = (Expression<L>) first.getConvertedExpression(operations.stream()
-							.map(OperationInfo::getLeft)
+							.map(OperationInfo::left)
 							.toArray(Class[]::new));
 				}
 			}
@@ -194,7 +194,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 				second = (Expression<R>) second.getConvertedExpression(Object.class);
 			} else {
 				second = (Expression<R>) second.getConvertedExpression(operations.stream()
-						.map(OperationInfo::getRight)
+						.map(OperationInfo::right)
 						.toArray(Class[]::new));
 			}
 		}
@@ -231,11 +231,11 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			if (!(firstClass == Object.class && secondClass == Object.class)) { // both aren't object
 				if (firstClass == Object.class) {
 					returnTypes = Arithmetics.lookupRightOperations(operator, secondClass).stream()
-							.map(OperationInfo::getReturnType)
+							.map(OperationInfo::returnType)
 							.toArray(Class[]::new);
 				} else { // secondClass is Object
 					returnTypes = Arithmetics.lookupLeftOperations(operator, firstClass).stream()
-							.map(OperationInfo::getReturnType)
+							.map(OperationInfo::returnType)
 							.toArray(Class[]::new);
 				}
 			}
@@ -252,7 +252,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
 			if (operationInfo == null) // we error if we couldn't find an operation between the two types
 				return error(firstClass, secondClass);
-			returnType = operationInfo.getReturnType();
+			returnType = operationInfo.returnType();
 		}
 
 		// ensure proper return types for numerical operations

@@ -1,14 +1,6 @@
 package org.skriptlang.skript.lang.arithmetic;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.localization.Noun;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public enum Operator {
 

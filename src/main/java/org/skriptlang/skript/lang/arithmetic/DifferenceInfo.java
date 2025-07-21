@@ -1,31 +1,15 @@
 package org.skriptlang.skript.lang.arithmetic;
 
 /**
- * @param <T> The type of the difference
- * @param <R> The return type of the difference
+ * Represents operation for calculating a "difference" between two values of the same type.
+ * <p>
+ * e.g. difference between timestamps.
+ *
+ * @param type the type of the operands
+ * @param returnType the return type of the difference operation
+ * @param operation operation that calculates the difference
+ * @param <T> the type of the operands
+ * @param <R> the return type of the difference operation
  */
-public final class DifferenceInfo<T, R> {
-
-	private final Class<T> type;
-	private final Class<R> returnType;
-	private final Operation<T, T, R> operation;
-
-	public DifferenceInfo(Class<T> type, Class<R> returnType, Operation<T, T, R> operation) {
-		this.type = type;
-		this.returnType = returnType;
-		this.operation = operation;
-	}
-
-	public Class<T> getType() {
-		return type;
-	}
-
-	public Class<R> getReturnType() {
-		return returnType;
-	}
-
-	public Operation<T, T, R> getOperation() {
-		return operation;
-	}
-
+public record DifferenceInfo<T, R>(Class<T> type, Class<R> returnType, Operation<T, T, R> operation) {
 }
