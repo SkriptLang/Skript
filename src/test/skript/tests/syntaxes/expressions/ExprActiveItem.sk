@@ -5,7 +5,6 @@ test "Active Item Expression":
 	clear entity within {_cow}
 
 test "Active Item Plurality":
-	clear {_cows::*}
 	spawn 2 cows at test-location:
 		add entity to {_cows::*}
 	assert active item of {_cows::*} is not set with "A list of idle entities should return no active items"
