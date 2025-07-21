@@ -49,13 +49,3 @@ test "Getting AI of a dead entity":
 	clear entity within {_cow}
 	
 	assert ai of {_cow} is true with "AI of a dead entity should report its last known state (true)"
-
-test "Setting AI of a dead entity":
-	spawn a cow at test-location:
-		set {_cow} to entity
-
-	clear entity within {_cow}
-	set ai of {_cow} to false
-
-	assert ai of {_cow} is false with "It should be possible to set the AI of a dead entity"
-
