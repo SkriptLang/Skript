@@ -115,7 +115,7 @@ public class MinecartData extends EntityData<Minecart> {
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> other) {
-		return other instanceof MinecartData && isSupertype;
+		return other instanceof MinecartData minecartData && (isSupertype || type == minecartData.type);
 	}
 
 	@Override
