@@ -155,7 +155,7 @@ public class EffOpenInventory extends Effect {
 
 		// Having 'switch' outside rather than inside the consumer reduces any re-iterating
 		return switch (inventoryType) {
-			//case ANVIL -> player -> player.openAnvil(null, true);
+			case ANVIL -> player -> player.openAnvil(null, true);
 			case CARTOGRAPHY -> player -> player.openCartographyTable(null, true);
 			case CRAFTING -> player -> player.openWorkbench(null, true);
 			case ENCHANTING -> player -> player.openEnchanting(null, true);
