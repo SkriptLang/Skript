@@ -69,12 +69,21 @@ public class VisualEffects {
 
 	private static void generateTypes() {
 		List<VisualEffectType> types = new ArrayList<>();
-		Stream.of(Effect.class, EntityEffect.class, Particle.class)
-				.map(Class::getEnumConstants)
-				.flatMap(Arrays::stream)
-				.map(VisualEffectType::of)
-				.filter(Objects::nonNull)
-				.forEach(types::add);
+		Stream<VisualEffectType> effectStream;
+		if (Skript.isRunningMinecraft(1, 20, 2)) {
+			effectStream = Stream.concat(
+				Stream.of(Effect.class, EntityEffect.class)
+					.flatMap(c -> Arrays.stream(c.getEnumConstants()))
+					.map(VisualEffectType::of),
+				Registry.PARTICLE_TYPE.stream()
+					.map(VisualEffectType::of)
+			);
+		} else {
+			effectStream = Stream.of(Effect.class, EntityEffect.class, Particle.class)
+				.flatMap(c -> Arrays.stream(c.getEnumConstants()))
+				.map(VisualEffectType::of);
+		}
+		effectStream.filter(Objects::nonNull).forEach(types::add);
 
 		for (VisualEffectType type : types) {
 			String id = type.getId();
