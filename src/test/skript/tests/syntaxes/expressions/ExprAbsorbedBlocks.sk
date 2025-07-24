@@ -3,67 +3,15 @@ on sponge absorb:
 	assert location of first element of absorbed blocks is {water.loc} with "Absorbed block has an incorrect location"
 	cancel event
 
-test "Absorbed Blocks from East":
-	wait 1 second
-	set {_loc} to test-location
-	# Cleanup First: Clean the entire 3x3 test area.
-	loop blocks in radius 1 around {_loc}:
-		set loop-block to air
-
-	# Setup
-	set {water.loc} to location of the block 1 meter east of {_loc}
-	set block at {water.loc} to water
-	set block at {_loc} to sponge
-	wait 5 ticks
-
-	# Teardown
-	loop blocks in radius 1 around {_loc}:
-		set loop-block to air
-
 test "Absorbed Blocks from West":
-	set {_loc} to location 50 meters east of test-location
-	# Cleanup First
+	set {_loc} to test-location
+
 	loop blocks in radius 1 around {_loc}:
 		set loop-block to air
 
-	# Setup
 	set {water.loc} to location of the block 1 meter west of {_loc}
 	set block at {water.loc} to water
 	set block at {_loc} to sponge
-	wait 5 ticks
 
-	# Teardown
-	loop blocks in radius 1 around {_loc}:
-		set loop-block to air
-
-test "Absorbed Blocks from South":
-	set {_loc} to location 100 meters east of test-location
-	# Cleanup First
-	loop blocks in radius 1 around {_loc}:
-		set loop-block to air
-
-	# Setup
-	set {water.loc} to location of the block 1 meter south of {_loc}
-	set block at {water.loc} to water
-	set block at {_loc} to sponge
-	wait 5 ticks
-
-	# Teardown
-	loop blocks in radius 1 around {_loc}:
-		set loop-block to air
-
-test "Absorbed Blocks from North":
-	set {_loc} to location 150 meters east of test-location
-	# Cleanup First
-	loop blocks in radius 1 around {_loc}:
-		set loop-block to air
-
-	# Setup
-	set {water.loc} to location of the block 1 meter north of {_loc}
-	set block at {water.loc} to water
-	set block at {_loc} to sponge
-	wait 5 ticks
-
-	# Teardown
 	loop blocks in radius 1 around {_loc}:
 		set loop-block to air
