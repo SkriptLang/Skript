@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	if last caught runtime errors contains "Your location can't have a NaN value as one of its components":
 		set worldborder center of {_border} to location(0, 0, 0)
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 public class ExprCaughtErrors extends SimpleExpression<String> {
 
 	static {

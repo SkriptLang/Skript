@@ -1,24 +1,5 @@
 package ch.njol.skript.effects;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-
-import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.KeyProviderExpression;
-import ch.njol.skript.lang.KeyReceiverExpression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.Variable;
-import ch.njol.skript.util.LiteralUtils;
-import org.skriptlang.skript.lang.script.ScriptWarning;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
@@ -28,13 +9,25 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprParse;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
 
 @Name("Change: Set/Add/Remove/Remove All/Delete/Reset")
 @Description({
@@ -180,6 +173,12 @@ public class EffChange extends Effect {
 			flatAcceptedTypes[i] = type;
 		}
 
+		// Hint handling for deleting
+		if (changed instanceof Variable<?> variable && mode == ChangeMode.DELETE && HintManager.canUseHints(variable)) {
+			// Remove type hints in this scope only for a deleted variable
+			getParser().getHintManager().delete(variable);
+		}
+
 		if (changer == null) { // Safe to reset/delete
 			return true;
 		}
@@ -271,13 +270,24 @@ public class EffChange extends Effect {
 			}
 
 			// Print warning if attempting to save a non-serializable type in a global variable
-			if (!variable.isLocal() && (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD))) {
-				ClassInfo<?> changerInfo = Classes.getSuperClassInfo(changer.getReturnType());
-				if (changerInfo.getC() != Object.class && changerInfo.getSerializer() == null && changerInfo.getSerializeAs() == null
-					&& !SkriptConfig.disableObjectCannotBeSavedWarnings.value()
-					&& getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
-					Skript.warning(changerInfo.getName().withIndefiniteArticle() + " cannot be saved. That is, the contents of the variable "
-						+ changed.toString(null, Skript.debug()) + " will be lost when the server stops.");
+			if (mode == ChangeMode.SET || (variable.isList() && mode == ChangeMode.ADD)) {
+				if (HintManager.canUseHints(variable)) { // Hint handling
+					HintManager hintManager = getParser().getHintManager();
+					Class<?>[] hints = changer.possibleReturnTypes();
+					if (mode == ChangeMode.SET) { // Override existing hints in scope
+						hintManager.set(variable, hints);
+					} else {
+						hintManager.add(variable, hints);
+					}
+				}
+				if (!variable.isLocal() && !variable.isEphemeral()) {
+					ClassInfo<?> changerInfo = Classes.getSuperClassInfo(changer.getReturnType());
+					if (changerInfo.getC() != Object.class && changerInfo.getSerializer() == null && changerInfo.getSerializeAs() == null
+						&& !SkriptConfig.disableObjectCannotBeSavedWarnings.value()
+						&& getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
+						Skript.warning(changerInfo.getName().withIndefiniteArticle() + " cannot be saved. That is, the contents of the variable "
+							+ changed.toString(null, Skript.debug()) + " will be lost when the server stops.");
+					}
 				}
 			}
 		}
@@ -303,10 +313,9 @@ public class EffChange extends Effect {
 
 			// Change with keys if applicable
 			if (mode.supportsKeyedChange()
-				&& changer instanceof KeyProviderExpression<?> provider
-				&& changed instanceof KeyReceiverExpression<?> receiver
-				&& provider.areKeysRecommended()) {
-				receiver.change(event, delta, mode, provider.getArrayKeys(event));
+				&& KeyProviderExpression.areKeysRecommended(changer)
+				&& changed instanceof KeyReceiverExpression<?> receiver) {
+				receiver.change(event, delta, mode, ((KeyProviderExpression<?>) changer).getArrayKeys(event));
 				return;
 			}
 		}

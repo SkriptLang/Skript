@@ -26,7 +26,7 @@ test "unload + load script":
 
 	set {_script} to script named {_path}
 	assert {_script} exists with "script wasn't found"
-	unload {_script}
+	unload the script within {_script}
 
 	# Unloading no longer disables the script
 	# so the script should be in the same place
@@ -34,12 +34,12 @@ test "unload + load script":
 	set {EffScriptFile} to false
 	set {_script} to script named {_path}
 	assert {_script} exists with "script moved when unloaded"
-	load {_script}
+	load the script within {_script}
 	# we make sure the script loaded even though it wasn't disabled
 	assert {EffScriptFile} is true with "load event didn't run"
 
 	set {EffScriptFile} to false
-	load {_script}
+	load the script within {_script}
 	# we attempt to load a loaded script
 	# this used to throw an exception, now it should be skipped
 	assert {EffScriptFile} is false with "load ran when already loaded"

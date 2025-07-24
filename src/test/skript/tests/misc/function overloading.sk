@@ -1,0 +1,65 @@
+local function overloaded1(x: int) :: int:
+	return 1
+
+local function overloaded1(x: text) :: int:
+	return 2
+
+local function overloaded1() :: int:
+	return 3
+
+test "function overloading with 1 parameter":
+	set {_x} to true
+
+	parse:
+		overloaded1({_x})
+
+	assert first element of last parse logs contains "Skript cannot determine which function named 'overloaded1' to call."
+
+	set {_x} to 1
+
+	assert overloaded1(number within {_x}) = 1
+	assert overloaded1(text within {_x}) = 2
+	assert overloaded1() = 3
+
+function overloaded2(x: int, y: int) :: int:
+	return 1
+
+function overloaded2(x: int, y: int, z: int) :: int:
+	return 2
+
+function overloaded2(x: text, y: text) :: int:
+	return 3
+
+function overloaded2(x: text, y: int, z: int) :: int:
+	return 4
+
+test "function overloading with 2 parameters":
+
+	# literal overloading
+	assert overloaded2(1, 2) = 1
+	assert overloaded2(1, 2, 3) = 2
+	assert overloaded2("a", "b") = 3
+	assert overloaded2("a", 2, 3) = 4
+
+	# overloading with unknown type
+	assert overloaded2(1, {_x}) = 1
+	assert overloaded2({_x}, 1) = 1
+
+	# can't determine the type, so error
+	parse:
+		overloaded2({_y}, {_x})
+
+	assert first element of last parse logs contains "Skript cannot determine which function named 'overloaded2' to call."
+
+function overloaded3() :: int:
+	return 1
+
+parse:
+	results: {FunctionOverloading3::parse::*}
+	code:
+		function overloaded3() :: string:
+			return ""
+
+test "function overloading with different return types":
+	assert size of {FunctionOverloading3::parse::*} = 1
+	assert {FunctionOverloading3::parse::1} contains "Function 'overloaded3' with the same argument types already exists in script"

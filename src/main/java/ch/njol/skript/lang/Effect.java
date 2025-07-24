@@ -62,8 +62,9 @@ public abstract class Effect extends Statement implements SyntaxRuntimeErrorProd
 			}
 			log.clear();
 
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.EFFECT).iterator();
 			//noinspection unchecked,rawtypes
-			Effect effect = (Effect) SkriptParser.parse(input, (Iterator) Skript.getEffects().iterator(), defaultError);
+			Effect effect = (Effect) SkriptParser.parse(input, (Iterator) iterator, defaultError);
 			if (effect != null) {
 				log.printLog();
 				return effect;

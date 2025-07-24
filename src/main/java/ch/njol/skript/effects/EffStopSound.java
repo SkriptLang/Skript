@@ -31,16 +31,13 @@ import java.util.regex.Pattern;
 	"stop sound in the record category"
 })
 @Since("2.4, 2.7 (stop all sounds)")
-@RequiredPlugins("MC 1.17.1 (stop all sounds)")
 public class EffStopSound extends Effect {
 
-	private static final boolean STOP_ALL_SUPPORTED = Skript.methodExists(Player.class, "stopAllSounds");
 	private static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?[a-z0-9/._-]+");
 
 	static {
-		String stopPattern = STOP_ALL_SUPPORTED ? "(all:all sound[s]|sound[s] %-strings%)" : "sound[s] %strings%";
 		Skript.registerEffect(EffStopSound.class,
-				"stop " + stopPattern + " [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]",
+				"stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]",
 				"stop playing sound[s] %strings% [(in [the]|from) %-soundcategory%] [(to|for) %players%]"
 		);
 	}

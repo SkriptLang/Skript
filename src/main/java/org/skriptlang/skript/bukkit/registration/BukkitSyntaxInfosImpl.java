@@ -27,8 +27,8 @@ final class BukkitSyntaxInfosImpl {
 		private final ListeningBehavior listeningBehavior;
 		private final String name;
 		private final String id;
-		private final @Nullable String since;
 		private final @Nullable String documentationId;
+		private final Collection<String> since;
 		private final Collection<String> description;
 		private final Collection<String> examples;
 		private final Collection<String> keywords;
@@ -37,7 +37,7 @@ final class BukkitSyntaxInfosImpl {
 
 		EventImpl(
 			SyntaxInfo<E> defaultInfo, ListeningBehavior listeningBehavior, String name,
-			@Nullable String since, @Nullable String documentationId, Collection<String> description, Collection<String> examples,
+			@Nullable String documentationId, Collection<String> since, Collection<String> description, Collection<String> examples,
 			Collection<String> keywords, Collection<String> requiredPlugins, Collection<Class<? extends org.bukkit.event.Event>> events
 		) {
 			this.defaultInfo = defaultInfo;
@@ -46,8 +46,8 @@ final class BukkitSyntaxInfosImpl {
 			this.id = name.toLowerCase(Locale.ENGLISH)
 					.replaceAll("[#'\"<>/&]", "")
 					.replaceAll("\\s+", "_");
-			this.since = since;
 			this.documentationId = documentationId;
+			this.since = ImmutableList.copyOf(since);
 			this.description = ImmutableList.copyOf(description);
 			this.examples = ImmutableList.copyOf(examples);
 			this.keywords = ImmutableList.copyOf(keywords);
@@ -61,12 +61,10 @@ final class BukkitSyntaxInfosImpl {
 			defaultInfo.toBuilder().applyTo(builder);
 			builder.listeningBehavior(listeningBehavior);
 			builder.documentationId(id);
-			if (since != null) {
-				builder.since(since);
-			}
 			if (documentationId != null) {
 				builder.documentationId(documentationId);
 			}
+			builder.addSince(since);
 			builder.addDescription(description);
 			builder.addExamples(examples);
 			builder.addKeywords(keywords);
@@ -92,14 +90,13 @@ final class BukkitSyntaxInfosImpl {
 
 		@Override
 		@Nullable
-		public String since() {
-			return since;
+		public String documentationId() {
+			return documentationId;
 		}
 
 		@Override
-		@Nullable
-		public String documentationId() {
-			return documentationId;
+		public Collection<String> since() {
+			return since;
 		}
 
 		@Override
@@ -191,8 +188,8 @@ final class BukkitSyntaxInfosImpl {
 			private final SyntaxInfo.Builder<?, E> defaultBuilder;
 			private ListeningBehavior listeningBehavior = ListeningBehavior.UNCANCELLED;
 			private final String name;
-			private @Nullable String since;
 			private @Nullable String documentationId;
+			private final List<String> since = new ArrayList<>();
 			private final List<String> description = new ArrayList<>();
 			private final List<String> examples = new ArrayList<>();
 			private final List<String> keywords = new ArrayList<>();
@@ -211,14 +208,32 @@ final class BukkitSyntaxInfosImpl {
 			}
 
 			@Override
-			public B since(String since) {
-				this.since = since;
+			public B documentationId(String documentationId) {
+				this.documentationId = documentationId;
 				return (B) this;
 			}
 
 			@Override
-			public B documentationId(String documentationId) {
-				this.documentationId = documentationId;
+			public B addSince(String since) {
+				this.since.add(since);
+				return (B) this;
+			}
+
+			@Override
+			public B addSince(String... since) {
+				this.since.addAll(List.of(since));
+				return (B) this;
+			}
+
+			@Override
+			public B addSince(Collection<String> since) {
+				this.since.addAll(since);
+				return (B) this;
+			}
+
+			@Override
+			public B clearSince() {
+				this.since.clear();
 				return (B) this;
 			}
 
@@ -388,7 +403,7 @@ final class BukkitSyntaxInfosImpl {
 			public Event<E> build() {
 				return new EventImpl<>(
 					defaultBuilder.build(), listeningBehavior, name,
-					since, documentationId, description, examples, keywords, requiredPlugins, events
+					documentationId, since, description, examples, keywords, requiredPlugins, events
 				);
 			}
 
@@ -398,12 +413,10 @@ final class BukkitSyntaxInfosImpl {
 				//noinspection rawtypes - Should be safe, generics will not influence this
 				if (builder instanceof Event.Builder eventBuilder) {
 					eventBuilder.listeningBehavior(listeningBehavior);
-					if (since != null) {
-						eventBuilder.since(since);
-					}
 					if (documentationId != null) {
 						eventBuilder.documentationId(documentationId);
 					}
+					eventBuilder.addSince(since);
 					eventBuilder.addDescription(description);
 					eventBuilder.addExamples(examples);
 					eventBuilder.addKeywords(keywords);
