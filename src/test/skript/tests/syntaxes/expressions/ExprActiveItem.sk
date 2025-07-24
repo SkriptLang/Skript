@@ -1,19 +1,14 @@
-test "Active Item Expression":
+test "Active Item":
 	spawn a cow at test-location:
 		set {_cow} to entity
 	assert active item of {_cow} is not set with "A cow that is not using an item should have no active item"
-	clear entity within {_cow}
-
-test "Active Item Plurality":
-	spawn 2 cows at test-location:
-		add entity to {_cows::*}
-	assert active item of {_cows::*} is not set with "A list of idle entities should return no active items"
-	clear entities within {_cows::*}
-
-test "Active Item Aliases":
-	spawn a cow at test-location:
-		set {_cow} to entity
 	assert raised tool of {_cow} is not set with "'raised tool' alias should work"
 	assert active weapon of {_cow} is not set with "'active weapon' alias should work"
 	assert {_cow}'s active item is not set with "Possessive syntax should work"
 	clear entity within {_cow}
+
+test "Active Item on Multiple Entities":
+	spawn 2 cows at test-location:
+		add entity to {_cows::*}
+	assert active item of {_cows::*} is not set with "A list of idle entities should return no active items"
+	clear entities within {_cows::*}
