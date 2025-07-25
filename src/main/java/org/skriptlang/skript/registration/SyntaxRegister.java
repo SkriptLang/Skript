@@ -1,6 +1,5 @@
 package org.skriptlang.skript.registration;
 
-import ch.njol.util.StringUtils;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Nullable;
 
