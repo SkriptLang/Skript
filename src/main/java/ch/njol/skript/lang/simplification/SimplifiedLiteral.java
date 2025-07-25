@@ -27,11 +27,10 @@ public class SimplifiedLiteral<T> extends SimpleLiteral<T> {
 	 * @return a new simplified literal
 	 */
 	public static <T> SimplifiedLiteral<T> fromExpression(Expression<T> original) {
-		Event event = ContextlessEvent.get();
-
 		if (original instanceof SimplifiedLiteral<T> literal)
 			return literal;
 
+		Event event = ContextlessEvent.get();
 		T[] values = original.getAll(event);
 
 		//noinspection unchecked
