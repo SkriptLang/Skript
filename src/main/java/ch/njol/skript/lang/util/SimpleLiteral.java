@@ -34,7 +34,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private final boolean isDefault;
 	private final boolean and;
 
-	private final Expression<?> source;
+	protected final Expression<?> source;
 
 	/**
 	 * The data of the literal. May not be null or contain null, but may be empty.
