@@ -63,3 +63,25 @@ parse:
 test "function overloading with different return types":
 	assert size of {FunctionOverloading3::parse::*} = 1
 	assert {FunctionOverloading3::parse::1} contains "Function 'overloaded3' with the same argument types already exists in script"
+
+function overloading_supertype1(p: offlineplayer):
+	stop
+
+parse:
+	results: {FunctionOverloadingSupertype1::parse::*}
+	code:
+		function overloading_supertype1(n: player):
+			stop
+
+function overloading_supertype2(p: player):
+	stop
+
+parse:
+	results: {FunctionOverloadingSupertype2::parse::*}
+	code:
+		function overloading_supertype2(n: offlineplayer):
+			stop
+
+test "function overloading with supertype":
+	assert {FunctionOverloadingSupertype1::parse::*} is not set
+	assert {FunctionOverloadingSupertype2::parse::*} is not set
