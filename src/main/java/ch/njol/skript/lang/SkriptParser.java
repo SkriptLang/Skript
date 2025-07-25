@@ -238,10 +238,15 @@ public class SkriptParser {
 								types = parseResult.source.getElements(TypePatternElement.class);;
 							ExprInfo exprInfo = types.get(i).getExprInfo();
 							if (!exprInfo.isOptional) {
-								DefaultExpression<?> expr = getDefaultExpression(exprInfo, pattern);
-								if (!expr.init())
+								List<DefaultExpression<?>> defaults = getDefaultExpressions(exprInfo, pattern);
+								defaultLoop: for (DefaultExpression<?> expr : defaults) {
+									if (expr.init()) {
+										parseResult.exprs[i] = expr;
+										break defaultLoop;
+									}
+								}
+								if (parseResult.exprs[i] == null)
 									continue patternsLoop;
-								parseResult.exprs[i] = expr;
 							}
 						}
 					}
@@ -328,26 +333,55 @@ public class SkriptParser {
 	}
 
 	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
-		DefaultExpression<?> expr;
+		List<DefaultExpression<?>> defaultExpressions = getDefaultExpressions(exprInfo, pattern);
+		return defaultExpressions.get(0);
+	}
+
+	private static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
 		// check custom default values first.
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
-		expr = data.getDefaultValue(exprInfo.classes[0].getC());
 
-		// then check classinfo
-		if (expr == null)
-			expr = exprInfo.classes[0].getDefaultExpression();
+		List<String> errors = new ArrayList<>();
+		List<DefaultExpression<?>> defaults = new ArrayList<>();
+		int i = -1;
+		for (ClassInfo<?> classInfo : exprInfo.classes) {
+			i++;
+			DefaultExpression<?> expr;
+			expr = data.getDefaultValue(classInfo.getC());
+			if (expr == null)
+				expr = classInfo.getDefaultExpression();
 
-		if (expr == null)
-			throw new SkriptAPIException("The class '" + exprInfo.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
-		if (!(expr instanceof Literal) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0)
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a literal. Either allow null (with %-*" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
-		if (expr instanceof Literal && (exprInfo.flagMask & PARSE_LITERALS) == 0)
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is a literal. Either allow null (with %-~" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
-		if (!exprInfo.isPlural[0] && !expr.isSingle())
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a single-element expression. Change your pattern to allow multiple elements or make the expression mandatory [pattern: " + pattern + "]");
-		if (exprInfo.time != 0 && !expr.setTime(exprInfo.time))
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' does not have distinct time states. [pattern: " + pattern + "]");
-		return expr;
+			String codeName = classInfo.getCodeName();
+			if (expr == null) {
+				errors.add("The class '" + codeName + "' does not provide a default expression. " +
+					"Either allow null (with %-" + codeName + "% or make it mandatory [pattern: " + pattern + "]");
+				continue;
+			}
+			if (!(expr instanceof Literal<?>) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0) {
+				errors.add("The default expression of '" + codeName + "' is not a literal. " +
+					"Either allow null (with %-*" + codeName + "%) or make it mandatory [pattern: " + pattern + "]");
+				continue;
+			}
+			if (expr instanceof Literal<?> && (exprInfo.flagMask & PARSE_LITERALS) == 0) {
+				errors.add("The default expression of '" + codeName + "' is a literal. " +
+					"Either allow null (with %-~" + codeName + "%) or make it mandatory [pattern: " + pattern + "]");
+			}
+			if (!exprInfo.isPlural[i] && !expr.isSingle()) {
+				errors.add("The default expression of '" + codeName + "' is not a single-element expression. " +
+					"Change your pattern to allow multiple elements or make the expression mandatory [pattern: " + pattern + "]");
+				continue;
+			}
+			if (exprInfo.time != 0 && !expr.setTime(exprInfo.time)) {
+				errors.add("The default expression of '" + codeName + "' does not have distinct time states. [pattern: " + pattern + "]");
+				continue;
+			}
+			defaults.add(expr);
+		}
+
+		if (!defaults.isEmpty())
+			return defaults;
+
+		throw new SkriptAPIException(StringUtils.join(errors.toArray(), "\n"));
 	}
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);

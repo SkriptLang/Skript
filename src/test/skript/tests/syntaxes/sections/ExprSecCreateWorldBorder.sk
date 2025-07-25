@@ -3,12 +3,12 @@ test "create worldborder":
 	assert {_border} is set with "Failed to create worldborder without a section"
 
 	set {_border2} to a worldborder:
-		set worldborder center of event-worldborder to location(1, 0, 2)
-		set worldborder damage amount of event-worldborder to 23
-		set worldborder damage buffer of event-worldborder to 10
-		set worldborder size of event-worldborder to 30
-		set worldborder warning distance of event-worldborder to 54
-		set worldborder warning time of event-worldborder to 10 seconds
+		set worldborder center to location(1, 0, 2)
+		set worldborder damage amount to 23
+		set worldborder damage buffer to 10
+		set worldborder size to 30
+		set worldborder warning distance to 54
+		set worldborder warning time to 10 seconds
 	set {_center2::x} to x coordinate of worldborder center of {_border2}
 	set {_center2::z} to z coordinate of worldborder center of {_border2}
 	assert {_center2::*} is 1 and 2 with "Worldborder center did not set properly in section"

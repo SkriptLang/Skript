@@ -37,7 +37,7 @@ public class ExprEventExpression extends WrapperExpression<Object> {
 		Class<?> c = classInfo.getC();
 
 		boolean plural = Utils.getEnglishPlural(parser.expr).getSecond();
-		EventValueExpression<?> eventValue = new EventValueExpression<>(plural ? CollectionUtils.arrayType(c) : c);
+		EventValueExpression<?> eventValue = EventValueExpression.simple(plural ? CollectionUtils.arrayType(c) : c);
 		setExpr(eventValue);
 		return eventValue.init();
 	}

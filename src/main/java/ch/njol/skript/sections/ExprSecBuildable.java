@@ -24,7 +24,7 @@ import java.util.List;
 public class ExprSecBuildable extends SectionExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprSecBuildable.class, Object.class, ExpressionType.SIMPLE, "%*buildable%");
+		Skript.registerExpression(ExprSecBuildable.class, Object.class, ExpressionType.SIMPLE, "buildable %*buildable%");
 		SectionValueExpression.registerSectionValue(ExprSecBuildable.class, Object.class);
 	}
 

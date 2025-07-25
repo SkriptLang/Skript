@@ -97,15 +97,20 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 			Class<?>[] values = SECTION_VALUES.get(syntaxElement.getClass());
 			if (values != null && values.length >= 1) {
 				for (Class<?> value : values) {
-					if (value.equals(Object.class) || componentType.isAssignableFrom(value)) {
-						hasValue = true;
-						break;
+					if (sectionableExpression != null) {
+						if (!sectionableExpression.canReturn(componentType))
+							continue;
+					} else if (!value.equals(Object.class) && !componentType.isAssignableFrom(value)) {
+						continue;
 					}
+
+					hasValue = true;
+					break;
 				}
 			}
 
 			if (!hasValue) {
-				log.printError("There's no " + Classes.getSuperClassInfo(componentType).getName().toString(!single) + " in " + Utils.a(sectionSkriptEvent.toString(null, false)) + " event");
+				log.printError("There's no " + Classes.getSuperClassInfo(componentType).getName().toString(!single) + " in " + Utils.a(sectionSkriptEvent.toString(null, false)) + " section");
 				return false;
 			}
 
