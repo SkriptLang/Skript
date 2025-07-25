@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 		send "You are sonic!"
 		if all players have potion effects speed and haste:
 			broadcast "You are ready to MINE!"
-""")
+	""")
 @Since("2.6.1")
 public class CondHasPotion extends Condition {
 
