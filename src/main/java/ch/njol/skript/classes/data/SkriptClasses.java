@@ -10,6 +10,8 @@ import ch.njol.skript.classes.*;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.expressions.base.SectionValueExpression;
+import ch.njol.skript.lang.BuildableObject;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -217,7 +219,9 @@ public class SkriptClasses {
 					}
 				})
 				.cloner(ItemType::clone)
-				.serializer(new YggdrasilSerializer<>()));
+				.serializer(new YggdrasilSerializer<>())
+				.defaultExpression(SectionValueExpression.simple(ItemType.class))
+		);
 
 		Classes.registerClass(new ClassInfo<>(Time.class, "time")
 				.user("times?")
@@ -963,6 +967,12 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{a} contains {b}")
 				.since("2.10")
+		);
+
+		Classes.registerClass(new ClassInfo<>(BuildableObject.class, "buildable")
+			.user("buildables?")
+			.name("Buildable")
+			.description("")
 		);
 	}
 

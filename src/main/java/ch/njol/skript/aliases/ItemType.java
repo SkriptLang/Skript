@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.lang.BuildableObject;
 import ch.njol.skript.lang.Unit;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
@@ -23,7 +24,11 @@ import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import com.google.common.collect.Iterators;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -50,7 +55,7 @@ import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
 public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
-	AnyNamed, AnyAmount {
+	AnyNamed, AnyAmount, BuildableObject<ItemType> {
 
 	private static final boolean IS_RUNNING_1_21 = Skript.isRunningMinecraft(1, 21);
 
@@ -1646,4 +1651,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 
+	@Override
+	public ItemType getSource() {
+		return this;
+	}
+
+	@Override
+	public Class<? extends ItemType> getReturnType() {
+		return ItemType.class;
+	}
 }
