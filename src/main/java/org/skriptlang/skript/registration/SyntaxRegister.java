@@ -27,7 +27,8 @@ final class SyntaxRegister<I extends SyntaxInfo<?>> {
 		char[] chars = pattern.toCharArray();
 		for (int i = 0; i < chars.length; i++) {
 			if (chars[i] == '%') {
-				if (i - 2 >= 0 && chars[i - 2] == '%') { // weigh "%thing% %thing%" heavier
+				// weigh "%thing% %thing%" or "%thing% [%thing%]" heavier
+				if ((i - 2 >= 0 && chars[i - 2] == '%') || (i - 3 >= 0 && chars[i - 3] == '%')) {
 					score += 3;
 				} else {
 					score++;
