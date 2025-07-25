@@ -12,4 +12,20 @@ package org.skriptlang.skript.lang.arithmetic;
  * @param <R> the return type of the difference operation
  */
 public record DifferenceInfo<T, R>(Class<T> type, Class<R> returnType, Operation<T, T, R> operation) {
+
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Class<T> getType() {
+		return type;
+	}
+
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Class<R> getReturnType() {
+		return returnType;
+	}
+
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Operation<T, T, R> getOperation() {
+		return operation;
+	}
+
 }

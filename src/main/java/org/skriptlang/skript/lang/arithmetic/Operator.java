@@ -22,6 +22,9 @@ public record Operator(String sign, Priority priority, Noun node) implements Com
 	public static final Operator DIVISION = new Operator('/', MULTIPLICATION_DIVISION_PRIORITY, "divide");
 	public static final Operator EXPONENTIATION = new Operator('^', EXPONENTIATION_PRIORITY, "exponentiate");
 
+	/**
+	 * @param node resolves to 'operators.<node>' in the lang file
+	 */
 	public Operator(String sign, Priority priority, String node) {
 		this(sign, priority, new Noun("operators." + node));
 	}

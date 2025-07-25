@@ -55,7 +55,7 @@ public final class Arithmetics {
 	 * @param <R> the type of right operand
 	 */
 	public static <L, R> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass,
-												Operation<L, R, L> operation) {
+			Operation<L, R, L> operation) {
 		registerOperation(operator, leftClass, rightClass, leftClass, operation);
 	}
 
@@ -72,8 +72,7 @@ public final class Arithmetics {
 	 * @param <R> the type of right operand
 	 */
 	public static <L, R> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass,
-												Operation<L, R, L> operation,
-												Operation<R, L, L> commutativeOperation) {
+			Operation<L, R, L> operation, Operation<R, L, L> commutativeOperation) {
 		registerOperation(operator, leftClass, rightClass, leftClass, operation);
 		registerOperation(operator, rightClass, leftClass, leftClass, commutativeOperation);
 	}
@@ -92,8 +91,7 @@ public final class Arithmetics {
 	 * @param <T> return type
 	 */
 	public static <L, R, T> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass,
-												   Class<T> returnType, Operation<L, R, T> operation,
-												   Operation<R, L, T> commutativeOperation) {
+			Class<T> returnType, Operation<L, R, T> operation, Operation<R, L, T> commutativeOperation) {
 		registerOperation(operator, leftClass, rightClass, returnType, operation);
 		registerOperation(operator, rightClass, leftClass, returnType, commutativeOperation);
 	}
@@ -112,11 +110,12 @@ public final class Arithmetics {
 	 * @param <T> return type
 	 */
 	public static <L, R, T> void registerOperation(Operator operator, Class<L> leftClass, Class<R> rightClass,
-												   Class<T> returnType, Operation<L, R, T> operation) {
+			Class<T> returnType, Operation<L, R, T> operation) {
 		Skript.checkAcceptRegistrations();
 		if (exactOperationExists(operator, leftClass, rightClass))
 			throw new SkriptAPIException("There's already a " + operator.getName() +
-				" operation registered for types '" + leftClass.getName() + "' and '" + rightClass.getName() + "'");
+				" operation registered for types '" + leftClass.getName() + "' and '" +
+				rightClass.getName() + "'");
 		getRawOperations(operator).add(new OperationInfo<>(leftClass, rightClass, returnType, operation));
 	}
 
@@ -192,7 +191,7 @@ public final class Arithmetics {
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <L> @Unmodifiable List<OperationInfo<L, ?, ?>> lookupLeftOperations(Operator operator,
-																					  Class<L> leftClass) {
+			Class<L> leftClass) {
 		return (List) getOperations(operator).stream()
 			.map(info -> {
 				if (info.left().isAssignableFrom(leftClass)) {
@@ -215,7 +214,7 @@ public final class Arithmetics {
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <R> @Unmodifiable List<OperationInfo<?, R, ?>> lookupRightOperations(Operator operator,
-																					   Class<R> rightClass) {
+			Class<R> rightClass) {
 		return (List) getOperations(operator).stream()
 			.map(info -> {
 				if (info.right().isAssignableFrom(rightClass)) {
@@ -242,10 +241,8 @@ public final class Arithmetics {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <L, R, T> @Nullable OperationInfo<L, R, T> getOperationInfo(Operator operator,
-																			  Class<L> leftClass,
-																			  Class<R> rightClass,
-																			  Class<T> returnType) {
-		OperationInfo<L, R, ?> info =  getOperationInfo(operator, leftClass, rightClass);
+			Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
+		OperationInfo<L, R, ?> info = getOperationInfo(operator, leftClass, rightClass);
 		if (info != null && returnType.isAssignableFrom(info.returnType()))
 			return (OperationInfo<L, R, T>) info;
 		return null;
@@ -264,15 +261,15 @@ public final class Arithmetics {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <L, R> @Nullable OperationInfo<L, R, ?> getOperationInfo(Operator operator,
-																		   Class<L> leftClass,
-																		   Class<R> rightClass) {
+			Class<L> leftClass, Class<R> rightClass) {
 		assertIsOperationsDoneLoading();
 		OperandTypes operandTypes = new OperandTypes(leftClass, rightClass);
 		Map<OperandTypes, OperationInfo<?, ?, ?>> operations = CACHED_OPERATIONS
 			.computeIfAbsent(operator, o -> Collections.synchronizedMap(new HashMap<>()));
 		OperationInfo<L, R, ?> operationInfo = (OperationInfo<L, R, ?>) operations.get(operandTypes);
 		// we also cache null values for non-existing operations
-		if (operations.containsKey(operandTypes)) return operationInfo;
+		if (operations.containsKey(operandTypes))
+			return operationInfo;
 
 		operationInfo = (OperationInfo<L, R, ?>) getOperations(operator).stream()
 			.filter(info ->
@@ -301,9 +298,7 @@ public final class Arithmetics {
 	 * @param <T> return type
 	 */
 	public static <L, R, T> @Nullable Operation<L, R, T> getOperation(Operator operator,
-																	  Class<L> leftClass,
-																	  Class<R> rightClass,
-																	  Class<T> returnType) {
+			Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
 		OperationInfo<L, R, T> info = getOperationInfo(operator, leftClass, rightClass, returnType);
 		return info == null ? null : info.operation();
 	}
@@ -320,8 +315,7 @@ public final class Arithmetics {
 	 * @param <R> the type of right operand
 	 */
 	public static <L, R> @Nullable Operation<L, R, ?> getOperation(Operator operator,
-																   Class<L> leftClass,
-																   Class<R> rightClass) {
+			Class<L> leftClass, Class<R> rightClass) {
 		OperationInfo<L, R, ?> info = getOperationInfo(operator, leftClass, rightClass);
 		return info == null ? null : info.operation();
 	}
@@ -340,9 +334,7 @@ public final class Arithmetics {
 	 * @param <T> return type
 	 */
 	public static <L, R, T> @Nullable OperationInfo<L, R, T> lookupOperationInfo(Operator operator,
-																				 Class<L> leftClass,
-																				 Class<R> rightClass,
-																				 Class<T> returnType) {
+			Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
 		OperationInfo<L, R, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
 		return info != null ? info.getConverted(leftClass, rightClass, returnType) : null;
 	}
@@ -359,15 +351,13 @@ public final class Arithmetics {
 	 * @param <R> the type of right operand
 	 */
 	public static <L, R> @Nullable OperationInfo<L, R, ?> lookupOperationInfo(Operator operator,
-																			  Class<L> leftClass,
-																			  Class<R> rightClass) {
+			Class<L> leftClass, Class<R> rightClass) {
 		OperationInfo<L, R, ?> operationInfo = getOperationInfo(operator, leftClass, rightClass);
 		if (operationInfo != null)
 			return operationInfo;
 		for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
 			OperationInfo<L, R, ?> convertedInfo = info.getConverted(
-				leftClass, rightClass, info.returnType()
-			);
+				leftClass, rightClass, info.returnType());
 			if (convertedInfo != null)
 				return convertedInfo;
 		}
@@ -389,8 +379,7 @@ public final class Arithmetics {
 	@SuppressWarnings("unchecked")
 	public static <L, R, T> @Nullable T calculate(Operator operator, L left, R right, Class<T> returnType) {
 		Operation<L, R, T> operation = (Operation<L, R, T>) getOperation(
-			operator, left.getClass(), right.getClass(), returnType
-		);
+			operator, left.getClass(), right.getClass(), returnType);
 		return operation == null ? null : operation.calculate(left, right);
 	}
 
@@ -410,8 +399,7 @@ public final class Arithmetics {
 	@SuppressWarnings("unchecked")
 	public static <L, R, T> @Nullable T calculateUnsafe(Operator operator, L left, R right) {
 		Operation<L, R, T> operation = (Operation<L, R, T>) getOperation(
-			operator, left.getClass(), right.getClass()
-		);
+			operator, left.getClass(), right.getClass());
 		return operation == null ? null : operation.calculate(left, right);
 	}
 
@@ -508,7 +496,8 @@ public final class Arithmetics {
 		}
 
 		for (Map.Entry<Class<?>, DifferenceInfo<?, ?>> entry : DIFFERENCES.entrySet()) {
-			if (!entry.getKey().isAssignableFrom(type)) continue;
+			if (!entry.getKey().isAssignableFrom(type))
+				continue;
 			difference = (DifferenceInfo<T, ?>) entry.getValue();
 			break;
 		}

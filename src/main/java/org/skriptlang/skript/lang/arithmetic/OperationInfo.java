@@ -18,6 +18,26 @@ import org.skriptlang.skript.lang.converter.Converters;
  */
 public record OperationInfo<L, R, T>(Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation) {
 
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Class<L> getLeft() {
+		return left;
+	}
+
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Class<R> getRight() {
+		return right;
+	}
+
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Class<T> getReturnType() {
+		return returnType;
+	}
+
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Operation<L, R, T> getOperation() {
+		return operation;
+	}
+
 	/**
 	 * Attempts to create a new {@link OperationInfo} that accepts
 	 * operands of types {@code fromLeft} and {@code fromRight},
@@ -50,7 +70,7 @@ public record OperationInfo<L, R, T>(Class<L> left, Class<R> right, Class<T> ret
 	 * @param <R2> type of the new right operand
 	 */
 	public <L2, R2, T2> @Nullable OperationInfo<L2, R2, T2> getConverted(Class<L2> fromLeft, Class<R2> fromRight,
-																		 Class<T2> toReturnType) {
+			Class<T2> toReturnType) {
 		if (fromLeft == Object.class || fromRight == Object.class)
 			return null;
 		if (!Converters.converterExists(fromLeft, left)

@@ -5,7 +5,7 @@ import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.util.Priority;
 
-public class CustomTestOperators {
+public final class CustomTestOperators {
 
 	static {
 		if (TestMode.ENABLED) {
@@ -35,6 +35,7 @@ public class CustomTestOperators {
 	}
 
 	private CustomTestOperators() {
+		throw new UnsupportedOperationException();
 	}
 
 }
