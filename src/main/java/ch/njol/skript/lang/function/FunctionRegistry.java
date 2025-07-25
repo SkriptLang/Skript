@@ -470,7 +470,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 				// make sure all types in the passed array are valid for the array parameter
 				Class<?> arrayType = candidate.args[0].componentType();
 				for (Class<?> arrayArg : provided.args) {
-					if (!Converters.converterExists(arrayType, arrayArg)) {
+					if (!Converters.converterExists(arrayArg, arrayType)) {
 						continue candidates;
 					}
 				}
