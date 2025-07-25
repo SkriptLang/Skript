@@ -42,6 +42,25 @@ test "clamp numbers":
 	assert {_got::2} is {_expected::2} with "(edge cases list) -infinity"
 	assert {_got::3} is {_expected::3} with "(edge cases list) infinity"
 
+test "clamp numbers (keyed)":
+	set {_expected::a} to 0
+	set {_expected::b} to 0
+	set {_expected::c} to 1
+	set {_expected::d} to 2
+	set {_expected::e} to 2
+	set {_expected::f} to 2
+
+	set {_numbers::a} to -1
+	set {_numbers::b} to 0
+	set {_numbers::c} to 1
+	set {_numbers::d} to 2
+	set {_numbers::e} to 3
+	set {_numbers::f} to 4
+
+	set {_got::*} to keyed clamp(keyed {_numbers::*}, 0, 2)
+	loop {_expected::*}:
+		assert {_got::%loop-index%} is {_expected::%loop-index%} with "(keyed ints)"
+
 test "clamp numbers (single)":
 	set {_expected::*} to (1, 0.0, and 2.0)
 	set {_got::*} to clamp((1, -infinity value, infinity value), 0.0, 2.0)

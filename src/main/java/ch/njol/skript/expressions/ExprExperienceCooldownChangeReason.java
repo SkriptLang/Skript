@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Experience Cooldown Change Reason")
 @Description({
-	"The <a href='classes.html#experiencechangereason'>experience change reason</a> within an " +
-	"<a href='events.html#experience%20cooldown%20change%20event'>experience cooldown change event</a>."
+	"The <a href='#experiencechangereason'>experience change reason</a> within an " +
+	"<a href='#experience%20cooldown%20change%20event'>experience cooldown change event</a>."
 })
 @Examples({
 	"on player experience cooldown change:",
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprExperienceCooldownChangeReason extends EventValueExpression<ChangeReason> {
 
 	static {
-		register(ExprExperienceCooldownChangeReason.class, ChangeReason.class, "[the] (experience|[e]xp) cooldown change (reason|cause|type)");
+		register(ExprExperienceCooldownChangeReason.class, ChangeReason.class, "(experience|[e]xp) cooldown change (reason|cause|type)");
 	}
 
 	public ExprExperienceCooldownChangeReason() {

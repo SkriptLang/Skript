@@ -1,7 +1,7 @@
 package ch.njol.skript;
 
+import ch.njol.skript.classes.EnumParser;
 import ch.njol.skript.config.Config;
-import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.OptionSection;
 import ch.njol.skript.hooks.Hook;
@@ -21,6 +21,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.LinkParseMode;
+import ch.njol.skript.variables.FlatFileStorage;
 import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
@@ -202,7 +203,7 @@ public class SkriptConfig {
 		new Option<>("disable starting a variable's name with an expression warnings", false);
 	public static final Option<Boolean> disableUnreachableCodeWarnings = new Option<>("disable unreachable code warnings", false);
 
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)
 			.optional(true);
 
@@ -370,6 +371,13 @@ public class SkriptConfig {
 
 	public static final Option<Integer> runtimeErrorTimeoutDuration = new Option<>("runtime errors.error timeout length", 10);
 	public static final Option<Integer> runtimeWarningTimeoutDuration = new Option<>("runtime errors.warning timeout length", 10);
+
+	public static final Option<Integer> variableChangesUntilSave = new Option<>("variable changes until save", 1000)
+		.setter(FlatFileStorage::setRequiredChangesForResave);
+
+	// intentionally not present in the config presented to the user. Users must manually add this option to disable it.
+	public static final Option<Boolean> simplifySyntaxesOnParse = new Option<>("simplify syntax on parse", true)
+		.optional(true);
 
 	/**
 	 * This should only be used in special cases

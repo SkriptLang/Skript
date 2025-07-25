@@ -19,7 +19,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Firework Effect")
-@Description("Represents a 'firework effect' which can be used in the <a href='effects.html#EffFireworkLaunch'>launch firework</a> effect.")
+@Description("Represents a 'firework effect' which can be used in the <a href='#EffFireworkLaunch'>launch firework</a> effect.")
 @Examples({"launch flickering trailing burst firework colored blue and green at player",
 	"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
 	"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1"})

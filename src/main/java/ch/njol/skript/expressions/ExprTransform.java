@@ -2,23 +2,14 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.InputSource;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import com.google.common.collect.Iterators;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -26,31 +17,29 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Name("Transformed List")
 @Description({
 	"Transforms (or 'maps') a list's values using a given expression. This is akin to looping over the list and getting " +
 	"a modified version of each value.",
-	"Indices cannot be retained with this expression. To retain indices, see the transform effect."
+	"If the given expression returns a single value, the indices of the list will not change. If the expression returns " +
+	"multiple values, then then indices will be reset as a single index cannot contain multiple values.",
 })
-@Examples({
-	"set {_a::*} to (1, 2, and 3) transformed using (input * 2 - 1, input * 2)",
-	"# {_a::*} is now 1, 2, 3, 4, 5, and 6",
-	"",
-	"# get a list of the sizes of all clans without manually looping",
-	"set {_clan-sizes::*} to indices of {clans::*} transformed using [{clans::%input%::size}]",
-})
+@Example("""
+	set {_a::*} to (1, 2, and 3) transformed using (input * 2 - 1, input * 2)
+	# {_a::*} is now 1, 2, 3, 4, 5, and 6
+	""")
+@Example("""
+	# get a list of the sizes of all clans without manually looping
+	set {_clan-sizes::*} to keyed {clans::*} transformed using [{clans::%input index%::size}]
+	# using the 'keyed' expression retains the indices of the clans list
+	""")
 @Since("2.10")
 @Keywords("input")
-public class ExprTransform extends SimpleExpression<Object> implements InputSource {
+public class ExprTransform extends SimpleExpression<Object> implements InputSource, KeyProviderExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprTransform.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
@@ -61,6 +50,9 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}
 
+	private final Map<Event, List<String>> cache = new WeakHashMap<>();
+
+	private boolean keyed;
 	private @UnknownNullability Expression<?> mappingExpr;
 	private @Nullable ClassInfo<?> returnClassInfo;
 	private @UnknownNullability Expression<?> unmappedObjects;
@@ -75,6 +67,7 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 		unmappedObjects = LiteralUtils.defendExpression(expressions[0]);
 		if (unmappedObjects.isSingle() || !LiteralUtils.canInitSafely(unmappedObjects))
 			return false;
+		keyed = KeyProviderExpression.canReturnKeys(unmappedObjects);
 
 		//noinspection DuplicatedCode
 		if (!parseResult.regexes.isEmpty()) {
@@ -89,12 +82,12 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 
 	@Override
 	public @NotNull Iterator<?> iterator(Event event) {
-		if (unmappedObjects instanceof Variable<?> variable) {
-			Iterator<Pair<String, Object>> variableIterator = variable.variablesIterator(event);
-			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(variableIterator, Spliterator.ORDERED), false)
-				.flatMap(pair -> {
-					currentValue = pair.getValue();
-					currentIndex = pair.getKey();
+		if (hasIndices()) {
+			Iterator<? extends KeyedValue<?>> iterator = ((KeyProviderExpression<?>) unmappedObjects).keyedIterator(event);
+			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
+				.flatMap(keyedValue -> {
+					currentValue = keyedValue.value();
+					currentIndex = keyedValue.key();
 					return mappingExpr.stream(event);
 				})
 				.iterator();
@@ -115,12 +108,43 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	}
 
 	@Override
+	public Iterator<KeyedValue<Object>> keyedIterator(Event event) {
+		Iterator<? extends KeyedValue<?>> iterator = ((KeyProviderExpression<?>) unmappedObjects).keyedIterator(event);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
+			.map(keyedValue -> {
+				currentValue = keyedValue.value();
+				currentIndex = keyedValue.key();
+				Object mappedValue = mappingExpr.getSingle(event);
+				return mappedValue != null ? keyedValue.withValue(mappedValue) : null;
+			})
+			.filter(Objects::nonNull)
+			.iterator();
+	}
+
+	@Override
 	protected Object @Nullable [] get(Event event) {
-		try {
+		if (!canReturnKeys())
 			return Converters.convertStrictly(Iterators.toArray(iterator(event), Object.class), getReturnType());
-		} catch (ClassCastException e1) {
-			return (Object[]) Array.newInstance(getReturnType(), 0);
-		}
+		KeyedValue.UnzippedKeyValues<Object> unzipped = KeyedValue.unzip(keyedIterator(event));
+		cache.put(event, unzipped.keys());
+		return Converters.convertStrictly(unzipped.values().toArray(), getReturnType());
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
+		if (!cache.containsKey(event))
+			throw new IllegalStateException();
+		return cache.remove(event).toArray(new String[0]);
+	}
+
+	@Override
+	public boolean canReturnKeys() {
+		return hasIndices() && mappingExpr.isSingle();
+	}
+
+	@Override
+	public boolean areKeysRecommended() {
+		return false;
 	}
 
 	@Override
@@ -134,8 +158,20 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	}
 
 	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return mappingExpr.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		return mappingExpr.canReturn(returnType);
+	}
+
+	@Override
 	public boolean isLoopOf(String candidateString) {
-		return mappingExpr.isLoopOf(candidateString) || matchesReturnType(candidateString);
+		return KeyProviderExpression.super.isLoopOf(candidateString)
+			|| mappingExpr.isLoopOf(candidateString)
+			|| matchesReturnType(candidateString);
 	}
 
 	private boolean matchesReturnType(String candidateString) {
@@ -156,7 +192,7 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 
 	@Override
 	public boolean hasIndices() {
-		return unmappedObjects instanceof Variable<?>;
+		return keyed;
 	}
 
 	@Override
@@ -168,5 +204,5 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	public String toString(@Nullable Event event, boolean debug) {
 		return unmappedObjects.toString(event, debug) + " transformed using " + mappingExpr.toString(event, debug);
 	}
-	
+
 }

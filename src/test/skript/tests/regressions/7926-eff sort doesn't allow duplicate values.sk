@@ -1,0 +1,11 @@
+test "eff sort collapsing duplicates":
+	set {_levels::a} to 1
+	set {_levels::b} to 2
+
+	add (shuffled "a", "a", and "b") to {_items::*}
+
+	assert {_items::*} contains "a", "a", and "b" with "Items were not added correctly"
+
+	sort {_items::*} in descending order by {_levels::%input%}
+
+	assert {_items::*} is "b", "a", and "a" with "Items were not sorted correctly or duplicates were collapsed"

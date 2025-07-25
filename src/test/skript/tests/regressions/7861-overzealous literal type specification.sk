@@ -1,0 +1,8 @@
+test "literal specification breaks command arguments":
+	execute console command "littypecmd a (b)"
+	assert {littypecmd} is 1 with "Literal type specification broke command arguments"
+
+command /littypecmd <text>:
+	trigger:
+		if arg 1 is "a (b)":
+			set {littypecmd} to 1

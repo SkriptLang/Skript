@@ -329,7 +329,8 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 //		return "" + relative + ":" + (relative ? pitch + "," + yaw + "," + length : mod[0] + "," + mod[1] + "," + mod[2]);
-	@Deprecated
+
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public static Direction deserialize(final String s) {
 		final String[] split = s.split(":");
@@ -419,7 +420,37 @@ public class Direction implements YggdrasilRobustSerializable {
 			@Override
 			public Expression<? extends Location> simplify() {
 				if (dirs instanceof Literal && dirs.isSingle() && Direction.ZERO.equals(((Literal<?>) dirs).getSingle())) {
-					return locs;
+					return new SimpleExpression<>() {
+						@Override
+						public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+							throw new UnsupportedOperationException();
+						}
+
+						@Override
+						protected Location @Nullable [] get(Event event) {
+							return locs.getAll(event);
+						}
+
+						@Override
+						public boolean getAnd() {
+							return locs.getAnd();
+						}
+
+						@Override
+						public boolean isSingle() {
+							return locs.isSingle();
+						}
+
+						@Override
+						public Class<? extends Location> getReturnType() {
+							return Location.class;
+						}
+
+						@Override
+						public String toString(@Nullable Event event, boolean debug) {
+							return "at " + locs.toString(event, debug);
+						}
+					};
 				}
 				return this;
 			}

@@ -61,7 +61,7 @@ public class ExprAttacker extends SimpleExpression<Entity> implements EventRestr
 	}
 	
 	@Nullable
-	private static Entity getAttacker(@Nullable Event e) {
+	static Entity getAttacker(@Nullable Event e) {
 		if (e == null)
 			return null;
 		if (e instanceof EntityDamageByEntityEvent) {

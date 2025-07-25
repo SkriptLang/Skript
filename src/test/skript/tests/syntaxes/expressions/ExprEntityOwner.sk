@@ -1,0 +1,6 @@
+test "entity owner of tameable":
+	spawn a wolf at test-location:
+		assert event-entity is tameable with "entity is tameable condition not passing, last spawned wolf is not tameable"
+		set owner of event-entity to test-offline-player
+		assert "%owner of event-entity%" is test-offline-player with "Owner of last spawned wolf was not set"
+		delete event-entity

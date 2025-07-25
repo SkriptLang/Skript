@@ -23,7 +23,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Load Server Icon")
 @Description({"Loads server icons from the given files. You can get the loaded icon using the",
-		"<a href='expressions.html#ExprLastLoadedServerIcon'>last loaded server icon</a> expression.",
+		"<a href='#ExprLastLoadedServerIcon'>last loaded server icon</a> expression.",
 		"Please note that the image must be 64x64 and the file path starts from the server folder.",})
 @Examples({"on load:",
 		"	clear {server-icons::*}",

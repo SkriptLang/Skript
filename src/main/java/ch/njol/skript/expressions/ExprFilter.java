@@ -6,17 +6,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.InputSource;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.KeyedValue.UnzippedKeyValues;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import com.google.common.collect.Iterators;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -24,12 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 @Name("Filter")
@@ -43,7 +34,7 @@ import java.util.stream.StreamSupport;
 	"loop (all blocks in radius 5 of player) where [block input is not air]:"
 })
 @Since("2.2-dev36, 2.10 (parenthesis pattern)")
-public class ExprFilter extends SimpleExpression<Object> implements InputSource {
+public class ExprFilter extends SimpleExpression<Object> implements InputSource, KeyProviderExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprFilter.class, Object.class, ExpressionType.COMBINED,
@@ -54,6 +45,9 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}
 
+	private final Map<Event, List<String>> cache = new WeakHashMap<>();
+
+	private boolean keyed;
 	private @UnknownNullability Condition filterCondition;
 	private @UnknownNullability String unparsedCondition;
 	private @UnknownNullability Expression<?> unfilteredObjects;
@@ -67,6 +61,7 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 		unfilteredObjects = LiteralUtils.defendExpression(expressions[0]);
 		if (unfilteredObjects.isSingle() || !LiteralUtils.canInitSafely(unfilteredObjects))
 			return false;
+		keyed = KeyProviderExpression.canReturnKeys(unfilteredObjects);
 		unparsedCondition = parseResult.regexes.get(0).group();
 		InputData inputData = getParser().getData(InputData.class);
 		InputSource originalSource = inputData.getSource();
@@ -76,20 +71,10 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 		return filterCondition != null;
 	}
 
-
 	@Override
 	public @NotNull Iterator<?> iterator(Event event) {
-		if (unfilteredObjects instanceof Variable<?>) {
-			Iterator<Pair<String, Object>> variableIterator = ((Variable<?>) unfilteredObjects).variablesIterator(event);
-			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(variableIterator, Spliterator.ORDERED), false)
-				.filter(pair -> {
-					currentValue = pair.getValue();
-					currentIndex = pair.getKey();
-					return filterCondition.check(event);
-				})
-				.map(Pair::getValue)
-				.iterator();
-		}
+		if (keyed)
+			return Iterators.transform(keyedIterator(event), KeyedValue::value);
 
 		// clear current index just to be safe
 		currentIndex = null;
@@ -104,12 +89,42 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 	}
 
 	@Override
+	public Iterator<KeyedValue<Object>> keyedIterator(Event event) {
+		//noinspection unchecked
+		Iterator<KeyedValue<Object>> keyedIterator = ((KeyProviderExpression<Object>) unfilteredObjects).keyedIterator(event);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(keyedIterator, Spliterator.ORDERED), false)
+			.filter(keyedValue -> {
+				currentValue = keyedValue.value();
+				currentIndex = keyedValue.key();
+				return filterCondition.check(event);
+			})
+			.iterator();
+	}
+
+	@Override
 	protected Object @Nullable [] get(Event event) {
-		try {
+		if (!keyed)
 			return Converters.convertStrictly(Iterators.toArray(iterator(event), Object.class), getReturnType());
-		} catch (ClassCastException e1) {
-			return null;
-		}
+		UnzippedKeyValues<Object> unzipped = KeyedValue.unzip(keyedIterator(event));
+		cache.put(event, unzipped.keys());
+		return Converters.convertStrictly(unzipped.values().toArray(), getReturnType());
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
+		if (!cache.containsKey(event))
+			throw new IllegalStateException();
+		return cache.remove(event).toArray(new String[0]);
+	}
+
+	@Override
+	public boolean canReturnKeys() {
+		return keyed;
+	}
+
+	@Override
+	public boolean areKeysRecommended() {
+		return false;
 	}
 
 	@Override
@@ -120,6 +135,16 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 	@Override
 	public Class<?> getReturnType() {
 		return unfilteredObjects.getReturnType();
+	}
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return unfilteredObjects.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		return unfilteredObjects.canReturn(returnType);
 	}
 
 	@Override
@@ -153,7 +178,7 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 
 	@Override
 	public boolean hasIndices() {
-		return unfilteredObjects instanceof Variable<?>;
+		return keyed;
 	}
 
 	@Override

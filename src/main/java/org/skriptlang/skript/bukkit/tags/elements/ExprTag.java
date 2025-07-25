@@ -1,19 +1,11 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
@@ -75,40 +67,55 @@ public class ExprTag extends SimpleExpression<Tag> {
 
 	@Override
 	protected Tag<?> @Nullable [] get(Event event) {
-		String[] names = this.names.getArray(event);
 		List<Tag<?>> tags = new ArrayList<>();
 
-		String namespace = switch (origin) {
-			case ANY, BUKKIT -> "minecraft";
-			case PAPER -> "paper";
-			case SKRIPT -> "skript";
+		String[] namespaces = switch (origin) {
+			case ANY -> new String[]{"minecraft", "paper", "skript"};
+			case BUKKIT -> new String[]{"minecraft"};
+			case PAPER -> new String[]{"paper"};
+			case SKRIPT -> new String[]{"skript"};
 		};
 
-		nextName: for (String name : names) {
-			// get key
-			NamespacedKey key;
-			if (name.contains(":")) {
-				key = NamespacedKey.fromString(name);
-			} else {
-				// populate namespace if not provided
-				key = new NamespacedKey(namespace, name);
-			}
-			if (key == null)
-				continue;
-
-			Tag<?> tag;
-			for (TagType<?> type : types) {
-				tag = TagModule.tagRegistry.getTag(origin, type, key);
-				if (tag != null
-					// ensures that only datapack/minecraft tags are sent when specifically requested
-					&& (origin != TagOrigin.BUKKIT || (datapackOnly ^ tag.getKey().getNamespace().equals("minecraft")))
-				) {
-					tags.add(tag);
-					continue nextName; // ensure 1:1
+		nextName: for (String name : this.names.getArray(event)) {
+			boolean invalidKey = false;
+			try {
+				if (name.contains(":")) {
+					NamespacedKey key = NamespacedKey.fromString(name);
+					invalidKey = key == null;
+					if (!invalidKey) {
+						tags.add(findTag(key));
+					}
+				} else {
+					for (String namespace : namespaces) {
+						Tag<?> tag = findTag(new NamespacedKey(namespace, name));
+						if (tag != null) {
+							tags.add(tag);
+							continue nextName;
+						}
+					}
 				}
+			} catch (IllegalArgumentException e) {
+				invalidKey = true;
+			}
+			if (invalidKey) {
+				error("Invalid tag key: '" + name + "'. Tags may only contain a-z, 0-9, _, ., /, or - characters.");
+				continue;
 			}
 		}
-		return tags.toArray(new Tag[0]);
+		return tags.toArray(Tag[]::new);
+	}
+
+	private @Nullable Tag<?> findTag(NamespacedKey key) {
+		for (TagType<?> type : types) {
+			Tag<?> tag = TagModule.tagRegistry.getTag(origin, type, key);
+			if (tag != null
+				// ensures that only datapack/minecraft tags are sent when specifically requested
+				&& (origin != TagOrigin.BUKKIT || (datapackOnly ^ tag.getKey().getNamespace().equals(NamespacedKey.MINECRAFT)))
+			) {
+				return tag;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -126,13 +133,6 @@ public class ExprTag extends SimpleExpression<Tag> {
 	public String toString(@Nullable Event event, boolean debug) {
 		String registry = types.length > 1 ? "" : " " + types[0].toString();
 		return origin.toString(datapackOnly) + registry + " tag " + names.toString(event, debug);
-	}
-
-	@Override
-	public Expression<? extends Tag> simplify() {
-		if (names instanceof Literal<String>)
-			return new SimpleLiteral<>(getArray(ContextlessEvent.get()), Tag.class, true);
-		return super.simplify();
 	}
 
 }

@@ -1,14 +1,5 @@
 package ch.njol.skript.lang;
 
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-import java.util.function.Predicate;
-import java.util.function.Function;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -16,10 +7,6 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.variables.VariablesStorage;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.OperationInfo;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -27,7 +14,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructVariables.DefaultVariables;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.TypeHints;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
@@ -35,8 +21,9 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.util.coll.iterator.SingleItemIterator;
+import com.google.common.collect.Iterators;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +48,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
 	public final static String LOCAL_VARIABLE_TOKEN = "_";
-	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*', '-'};
+	public static final String EPHEMERAL_VARIABLE_TOKEN = "-";
+	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*'};
 
 	/**
 	 * Script this variable was created in.
@@ -77,12 +65,14 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	private final Class<? extends T>[] types;
 
 	private final boolean local;
+	private final boolean ephemeral;
 	private final boolean list;
 
 	private final @Nullable Variable<?> source;
+	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
 	@SuppressWarnings("unchecked")
-	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean list, @Nullable Variable<?> source) {
+	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean ephemeral, boolean list, @Nullable Variable<?> source) {
 		assert types.length > 0;
 
 		assert name.isSimple() || name.getMode() == StringMode.VARIABLE_NAME;
@@ -92,12 +82,13 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		this.script = parser.isActive() ? parser.getCurrentScript() : null;
 
 		this.local = local;
+		this.ephemeral = ephemeral;
 		this.list = list;
 
 		this.name = name;
 
 		this.types = types;
-		this.superType = (Class<T>) Utils.getSuperType(types);
+		this.superType = (Class<T>) Classes.getSuperClassInfo(types).getC();
 
 		this.source = source;
 	}
@@ -113,21 +104,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public static boolean isValidVariableName(String name, boolean allowListVariable, boolean printErrors) {
 		assert !name.isEmpty(): "Variable name should not be empty";
 		char first = name.charAt(0);
-		check_reserved_tokens:
 		for (char token : reservedTokens) {
 			if (first == token && printErrors) {
-				/*
-				A lot of people already use '-' so we want to skip this warning iff they're using it here
-				*/
-				if (first == '-') {
-					for (VariablesStorage store : Variables.getStores()) {
-						@Nullable Pattern pattern = store.getNamePattern();
-						if (pattern != null && pattern.pattern().equals("(?!-).*"))
-							continue check_reserved_tokens;
-					}
-				}
-				Skript.warning("The character '" + token + "' is reserved at the start of variable names, " +
-					"and may be restricted in future versions");
+				Skript.warning("The character '" + token + "' is reserved at the start of variable names, "
+					+ "and may be restricted in future versions");
 			}
 		}
 		name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : name.trim();
@@ -180,10 +160,14 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	/**
-	 * Prints errors
+	 * Creates a new variable instance with the given name and types. Prints errors.
+	 * @param name The raw name of the variable.
+	 * @param types The types this variable is expected to be.
+	 * @return A new variable instance, or null if the name is invalid or the variable could not be created.
+	 * @param <T> The supertype the variable is expected to be.
 	 */
 	public static <T> @Nullable Variable<T> newInstance(String name, Class<? extends T>[] types) {
-		name = "" + name.trim();
+		name = name.trim();
 		if (!isValidVariableName(name, true, true))
 			return null;
 		VariableString variableString = VariableString.newInstance(
@@ -192,61 +176,69 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			return null;
 
 		boolean isLocal = name.startsWith(LOCAL_VARIABLE_TOKEN);
+		boolean isEphemeral = name.startsWith(EPHEMERAL_VARIABLE_TOKEN);
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
 
 		ParserInstance parser = ParserInstance.get();
 		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
+
+		// check for 'starting with expression' warning
 		if (currentScript != null
 			&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
-			&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
-			&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
-			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
-				"You could prefix it with the script's name: " +
-				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
+			&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)) {
+
+			String strippedName = name;
+			if (isLocal) {
+				strippedName = strippedName.substring(LOCAL_VARIABLE_TOKEN.length());
+			} else if (isEphemeral) {
+				strippedName = strippedName.substring(EPHEMERAL_VARIABLE_TOKEN.length());
+			}
+			if (strippedName.startsWith("%")) {
+				Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
+					"You could prefix it with the script's name: " +
+					"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
+			}
 		}
 
 		// Check for local variable type hints
 		if (isLocal && variableString.isSimple()) { // Only variable names we fully know already
-			Class<?> hint = TypeHints.get(variableString.toString());
-			if (hint != null && !hint.equals(Object.class)) { // Type hint available
-				// See if we can get correct type without conversion
-				for (Class<? extends T> type : types) {
-					assert type != null;
-					if (type.isAssignableFrom(hint)) {
-						// Hint matches, use variable with exactly correct type
-						return new Variable<>(variableString, CollectionUtils.array(type), true, isPlural, null);
-					}
+			Set<Class<?>> hints = parser.getHintManager().get(variableString.toString(null));
+			if (!hints.isEmpty()) { // Type hint(s) available
+				if (types[0] == Object.class) { // Object is generic, so we initialize with the hints instead
+					//noinspection unchecked
+					return new Variable<>(variableString, hints.toArray(new Class[0]), true, isEphemeral, isPlural, null);
 				}
 
-				// Or with conversion?
-				for (Class<? extends T> type : types) {
-					if (Converters.converterExists(hint, type)) {
-						// Hint matches, even though converter is needed
-						return new Variable<>(variableString, CollectionUtils.array(type), true, isPlural, null);
-					}
+				List<Class<? extends T>> potentialTypes = new ArrayList<>();
 
-					// Special cases
-					if (type.isAssignableFrom(World.class) && hint.isAssignableFrom(String.class)) {
-						// String->World conversion is weird spaghetti code
-						return new Variable<>(variableString, types, true, isPlural, null);
-					} else if (type.isAssignableFrom(Player.class) && hint.isAssignableFrom(String.class)) {
-						// String->Player conversion is not available at this point
-						return new Variable<>(variableString, types, true, isPlural, null);
+				// Determine what types are applicable based on our known hints
+				for (Class<? extends T> type : types) {
+					// Check whether we could resolve to 'type' at runtime
+					if (hints.stream().anyMatch(hint -> type.isAssignableFrom(hint) || Converters.converterExists(hint, type))) {
+						potentialTypes.add(type);
 					}
+				}
+				if (!potentialTypes.isEmpty()) { // Hint matches, use variable with exactly correct type
+					//noinspection unchecked
+					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isEphemeral, isPlural, null);
 				}
 
 				// Hint exists and does NOT match any types requested
 				ClassInfo<?>[] infos = new ClassInfo[types.length];
 				for (int i = 0; i < types.length; i++) {
-					infos[i] = Classes.getExactClassInfo(types[i]);
+					infos[i] = Classes.getSuperClassInfo(types[i]);
 				}
-				Skript.warning("Variable '{_" + name + "}' is " + Classes.toString(Classes.getExactClassInfo(hint))
-					+ ", not " + Classes.toString(infos, false));
-				// Fall back to not having any type hints
+				ClassInfo<?>[] hintInfos = hints.stream()
+						.map(Classes::getSuperClassInfo)
+						.toArray(ClassInfo[]::new);
+				String isTypes = Utils.a(Classes.toString(hintInfos, false));
+				String notTypes = Utils.a(Classes.toString(infos, false));
+				Skript.error("Expected variable '{_" + variableString.toString(null) + "}' to be " + notTypes + ", but it is " + isTypes);
+				return null;
 			}
 		}
 
-		return new Variable<>(variableString, types, isLocal, isPlural, null);
+		return new Variable<>(variableString, types, isLocal, isEphemeral, isPlural, null);
 	}
 
 	@Override
@@ -254,10 +246,23 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @return Whether this variable is a local variable, i.e. starts with {@link #LOCAL_VARIABLE_TOKEN}.
+	 */
 	public boolean isLocal() {
 		return local;
 	}
 
+	/**
+	 * @return Whether this variable is an ephemeral variable, i.e. starts with {@link #EPHEMERAL_VARIABLE_TOKEN}.
+	 */
+	public boolean isEphemeral() {
+		return ephemeral;
+	}
+
+	/**
+	 * @return Whether this variable is a list variable, i.e. ends with {@link #SEPARATOR + "*"}.
+	 */
 	public boolean isList() {
 		return list;
 	}
@@ -270,6 +275,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	@Override
 	public Class<? extends T> getReturnType() {
 		return superType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(types, types.length);
 	}
 
 	@Override
@@ -302,7 +312,19 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R> Variable<R> getConvertedExpression(Class<R>... to) {
-		return new Variable<>(name, to, local, list, this);
+		boolean converterExists = superType == Object.class;
+		if (!converterExists) {
+			for (Class<?> type : types) {
+				if (Converters.converterExists(type, to)) {
+					converterExists = true;
+					break;
+				}
+			}
+		}
+		if (!converterExists) {
+			return null;
+		}
+		return new Variable<>(name, to, local, ephemeral, list, this);
 	}
 
 	/**
@@ -380,6 +402,22 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		return object;
 	}
 
+	@Override
+	public Iterator<KeyedValue<T>> keyedIterator(Event event) {
+		if (!list)
+			throw new SkriptAPIException("Invalid call to keyedIterator");
+		Iterator<KeyedValue<T>> transformed = Iterators.transform(variablesIterator(event), pair -> {
+			Object value = pair.getValue();
+			if (value instanceof Map<?, ?> map)
+				value = map.get(null);
+			T converted = Converters.convert(value, types);
+			if (converted == null)
+				return null;
+			return new KeyedValue<>(pair.getKey(), converted);
+		});
+		return Iterators.filter(transformed, Objects::nonNull);
+	}
+
 	public Iterator<Pair<String, Object>> variablesIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Looping a non-list variable");
@@ -446,7 +484,29 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private T[] getConvertedArray(Event event) {
 		assert list;
-		return Converters.convert((Object[]) get(event), types, superType);
+		Object[] values = (Object[]) get(event);
+		String[] keys = getKeys(event);
+		assert values != null;
+		//noinspection unchecked
+		T[] converted = (T[]) Array.newInstance(superType, values.length);
+		Converters.convert(values, converted, types);
+		for (int i = 0; i < converted.length; i++) {
+			if (converted[i] == null)
+				keys[i] = null;
+		}
+		cache.put(event, ArrayUtils.removeAllOccurrences(keys, null));
+		return ArrayUtils.removeAllOccurrences(converted, null);
+	}
+
+	private String[] getKeys(Event event) {
+		assert list;
+		String name = StringUtils.substring(this.name.toString(event), 0, -1);
+		Object value = Variables.getVariable(name + "*", event, local);
+		if (value == null)
+			return new String[0];
+		assert value instanceof Map<?,?>;
+		//noinspection unchecked
+		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
 	}
 
 	private void set(Event event, @Nullable Object value) {
@@ -670,12 +730,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			set(event, changeFunction.apply(value));
 			return;
 		}
-		variablesIterator(event).forEachRemaining(pair -> {
-			String index = pair.getKey();
-			T value = Converters.convert(pair.getValue(), types);
-			if (value == null)
-				return;
-			Object newValue = changeFunction.apply(value);
+		keyedIterator(event).forEachRemaining(keyedValue -> {
+			String index = keyedValue.key();
+			Object newValue = changeFunction.apply(keyedValue.value());
 			setIndex(event, index, newValue);
 		});
 	}
@@ -691,17 +748,19 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public @NotNull String @NotNull [] getArrayKeys(Event event) throws SkriptAPIException {
 		if (!list)
 			throw new SkriptAPIException("Invalid call to getArrayKeys on non-list");
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object value = Variables.getVariable(name + "*", event, local);
-		if (value == null)
-			return new String[0];
-		assert value instanceof Map<?,?>;
-		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
+		if (!cache.containsKey(event))
+			throw new IllegalStateException();
+		return cache.remove(event);
 	}
 
 	@Override
 	public @NotNull String @NotNull [] getAllKeys(Event event) {
 		return this.getArrayKeys(event);
+	}
+
+	@Override
+	public boolean canReturnKeys() {
+		return list;
 	}
 
 	@Override
@@ -730,11 +789,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	@Override
 	public boolean isLoopOf(String input) {
-		return input.equalsIgnoreCase("var") || input.equalsIgnoreCase("variable") || input.equalsIgnoreCase("value") || input.equalsIgnoreCase("index");
-	}
-
-	public boolean isIndexLoop(String input) {
-		return input.equalsIgnoreCase("index");
+		return KeyProviderExpression.super.isLoopOf(input)
+			|| input.equalsIgnoreCase("var")
+			|| input.equalsIgnoreCase("variable")
+			|| input.equalsIgnoreCase("value");
 	}
 
 	@Override
