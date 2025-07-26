@@ -10,30 +10,38 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 public class DefaultBuildables {
 
-	static {
-		Converters.registerConverter(ItemType.class, BuildableObject.class, itemType -> new BuildableObject<ItemType>() {
+	public static <T> void registerBuildable(Class<T> type) {
+		Converters.registerConverter(type, BuildableObject.class, object -> new BuildableObject<T>() {
 			@Override
-			public ItemType getSource() {
-				return itemType;
+			public T getSource() {
+				return object;
 			}
 
 			@Override
-			public Class<? extends ItemType> getReturnType() {
-				return ItemType.class;
+			public Class<? extends T> getReturnType() {
+				return type;
 			}
 		});
+	}
 
-		Converters.registerConverter(InventoryType.class, BuildableObject.class, inventoryType -> new BuildableObject<Inventory>() {
+	public static <F, T> void registerBuildable(Class<F> fromType, Class<T> toType, Converter<F, T> converter) {
+		Converters.registerConverter(fromType, BuildableObject.class, object -> new BuildableObject<T>() {
 			@Override
-			public Inventory getSource() {
-				return Bukkit.createInventory(null, inventoryType);
+			public T getSource() {
+				return converter.convert(object);
 			}
 
 			@Override
-			public Class<? extends Inventory> getReturnType() {
-				return Inventory.class;
+			public Class<? extends T> getReturnType() {
+				return toType;
 			}
-		}, Converter.NO_CHAINING);
+		});
+	}
+
+	static {
+		registerBuildable(ItemType.class);
+		registerBuildable(InventoryType.class, Inventory.class, inventoryType -> Bukkit.createInventory(null, inventoryType));
+		registerBuildable(Inventory.class);
 	}
 
 }

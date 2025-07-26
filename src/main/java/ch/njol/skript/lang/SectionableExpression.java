@@ -19,7 +19,11 @@ public class SectionableExpression<T> implements Expression<T> {
 	private T value = null;
 	private final Class<T> type;
 
-	public SectionableExpression(Object value, Class<T> type) {
+	public SectionableExpression(Class<T> type) {
+		this.type = type;
+	}
+
+	public SectionableExpression(Class<T> type, Object value) {
 		//noinspection unchecked
 		this.value = (T) value;
 		this.type = type;

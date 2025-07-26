@@ -16,16 +16,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-public class MultiValueExpression<T> extends WrapperExpression<T> implements DefaultExpression<T> {
+public class MultiDefaultExpression<T> extends WrapperExpression<T> implements DefaultExpression<T> {
 
 
 	public static <T> Builder<T> builder(Class<? extends T> type) {
 		return new Builder<>(type);
 	}
 
-	public static <T> MultiValueExpression<T> all(Class<? extends T> type) {
+	public static <T> MultiDefaultExpression<T> all(Class<? extends T> type) {
 		//noinspection unchecked
-		return (MultiValueExpression<T>) builder(type)
+		return (MultiDefaultExpression<T>) builder(type)
 			.with(SectionValueExpression::simple)
 			.with(EventValueExpression::simple)
 			.build();
@@ -36,7 +36,7 @@ public class MultiValueExpression<T> extends WrapperExpression<T> implements Def
 	private final boolean single;
 	private final Class<?> componentType;
 
-	private MultiValueExpression(Class<? extends T> type, Set<DefaultExpression<T>> expressions) {
+	private MultiDefaultExpression(Class<? extends T> type, Set<DefaultExpression<T>> expressions) {
 		this.type = type;
 		this.expressions = expressions;
 		single = !type.isArray();
@@ -117,9 +117,9 @@ public class MultiValueExpression<T> extends WrapperExpression<T> implements Def
 			return this;
 		}
 
-		public MultiValueExpression<T> build() {
+		public MultiDefaultExpression<T> build() {
 			Preconditions.checkArgument(expressions.size() >= 2, "Must contain atleast two expressions.");
-			return new MultiValueExpression<>(type, expressions);
+			return new MultiDefaultExpression<>(type, expressions);
 		}
 
 	}

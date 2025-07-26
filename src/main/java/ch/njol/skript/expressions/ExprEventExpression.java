@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.NoDoc;
-import ch.njol.skript.expressions.base.MultiValueExpression;
+import ch.njol.skript.expressions.base.MultiDefaultExpression;
 import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.Expression;
@@ -34,7 +34,7 @@ public class ExprEventExpression extends WrapperExpression<Object> {
 		Class<?> objectClass = classInfo.getC();
 
 		boolean plural = Utils.getEnglishPlural(parser.expr).getSecond();
-		DefaultExpression<?> expression = MultiValueExpression.all(plural ? CollectionUtils.arrayType(objectClass) : objectClass);
+		DefaultExpression<?> expression = MultiDefaultExpression.all(plural ? CollectionUtils.arrayType(objectClass) : objectClass);
 		setExpr(expression);
 		return expression.init();
 	}
