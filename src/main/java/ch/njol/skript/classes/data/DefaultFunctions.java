@@ -59,10 +59,16 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
-				if (params[0][0] instanceof Long)
-					return new Long[] {(Long) params[0][0]};
+				if (params[0][0] instanceof Long longValue)
+					return new Long[] {longValue};
 				double value = ((Number) params[0][0]).doubleValue();
-				int placement = ((Number) params[1][0]).intValue();
+				if (!Double.isFinite(value))
+					return new Double[] {value};
+
+				double placementDouble = ((Number) params[1][0]).doubleValue();
+				if (!Double.isFinite(placementDouble) || placementDouble >= Integer.MAX_VALUE || placementDouble <= Integer.MIN_VALUE)
+					return new Double[] {Double.NaN};
+				int placement = (int) placementDouble;
 				if (placement == 0)
 					return new Long[] {Math2.round(value)};
 				if (placement >= 0) {
