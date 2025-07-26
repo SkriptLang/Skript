@@ -15,15 +15,7 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.Strider;
-import org.bukkit.entity.TraderLlama;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +63,8 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 	static {
 		if (Material.getMaterial("WOLF_ARMOR") != null)
 			BODY_ENTITIES.add(Wolf.class);
+		if (Skript.classExists("org.bukkit.entity.HappyGhast"))
+			BODY_ENTITIES.add(HappyGhast.class);
 
 		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r[s]) [item:item[s]]", "livingentities");
 	}
