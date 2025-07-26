@@ -1,11 +1,9 @@
 package ch.njol.skript.expressions.base;
 
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -18,7 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-public class MultiValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
+public class MultiValueExpression<T> extends WrapperExpression<T> implements DefaultExpression<T> {
 
 
 	public static <T> Builder<T> builder(Class<? extends T> type) {
@@ -37,7 +35,6 @@ public class MultiValueExpression<T> extends SimpleExpression<T> implements Defa
 	private final Set<DefaultExpression<T>> expressions;
 	private final boolean single;
 	private final Class<?> componentType;
-	private Expression<T> matchedExpression;
 
 	private MultiValueExpression(Class<? extends T> type, Set<DefaultExpression<T>> expressions) {
 		this.type = type;
@@ -57,6 +54,7 @@ public class MultiValueExpression<T> extends SimpleExpression<T> implements Defa
 	public boolean init() {
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
+			Expression<T> matchedExpression = null;
 			for (DefaultExpression<T> defaultExpression : expressions) {
 				if (defaultExpression.init()) {
 					matchedExpression = defaultExpression;
@@ -70,26 +68,12 @@ public class MultiValueExpression<T> extends SimpleExpression<T> implements Defa
 				return false;
 			}
 
+			setExpr(matchedExpression);
 			log.printLog();
 			return true;
 		} finally {
 			log.stop();
 		}
-	}
-
-	@Override
-	protected T @Nullable [] get(Event event) {
-		return matchedExpression.getArray(event);
-	}
-
-	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return matchedExpression.acceptChange(mode);
-	}
-
-	@Override
-	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		matchedExpression.change(event, delta, mode);
 	}
 
 	@Override
@@ -110,7 +94,7 @@ public class MultiValueExpression<T> extends SimpleExpression<T> implements Defa
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return matchedExpression.toString(event, debug);
+		return getExpr().toString(event, debug);
 	}
 
 	public static class Builder<T> {

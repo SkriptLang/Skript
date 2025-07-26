@@ -3,7 +3,6 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.SectionExpression;
-import ch.njol.skript.expressions.base.SectionValueExpression;
 import ch.njol.skript.lang.BuildableObject;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -25,7 +24,6 @@ public class ExprSecBuildable extends SectionExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprSecBuildable.class, Object.class, ExpressionType.SIMPLE, "buildable %*buildable%");
-		SectionValueExpression.registerSectionValue(ExprSecBuildable.class, Object.class);
 	}
 
 	private BuildableObject<?> buildableObject;
@@ -41,8 +39,8 @@ public class ExprSecBuildable extends SectionExpression<Object> {
 			return false;
 		buildableObject = buildable;
 		sectionableExpression = new SectionableExpression<>(buildableObject.getSource(), buildableObject.getReturnType());
-		trigger = SectionUtils.loadLinkedCode("buildable section", (beforeLoading, afterLoading) ->
-			loadCode(node, "buildable section", beforeLoading, afterLoading, SectionEvent.class)
+		trigger = SectionUtils.loadLinkedCode("buildable", (beforeLoading, afterLoading) ->
+			loadCode(node, "buildable", beforeLoading, afterLoading, SectionEvent.class)
 		);
 		return trigger != null;
 	}

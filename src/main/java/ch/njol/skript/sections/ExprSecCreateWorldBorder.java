@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
-import ch.njol.skript.expressions.base.SectionValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SectionEvent;
@@ -49,7 +48,6 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	static {
 		Skript.registerExpression(ExprSecCreateWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "a [virtual] world[ ]border");
-		SectionValueExpression.registerSectionValue(ExprSecCreateWorldBorder.class, WorldBorder.class);
 	}
 
 	private Trigger trigger = null;

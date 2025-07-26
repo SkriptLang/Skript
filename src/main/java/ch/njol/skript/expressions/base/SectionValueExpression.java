@@ -51,14 +51,12 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 
 	private final Class<? extends T> type;
 	private final Class<?> componentType;
-	private final boolean exact;
 	private final boolean single;
 	private @Nullable Changer<? super T> changer;
 	private @Nullable SectionableExpression<T> sectionableExpression = null;
 
-	private SectionValueExpression(Class<? extends T> type, boolean exact, @Nullable Changer<? super T> changer) {
+	private SectionValueExpression(Class<? extends T> type, @Nullable Changer<? super T> changer) {
 		this.type = type;
-		this.exact = exact;
 		this.changer = changer;
 		single = !type.isArray();
 		componentType = single ? type : type.getComponentType();
@@ -95,18 +93,22 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 			}
 
 			Class<?>[] values = SECTION_VALUES.get(syntaxElement.getClass());
-			if (values != null && values.length >= 1) {
-				for (Class<?> value : values) {
-					if (sectionableExpression != null) {
-						if (!sectionableExpression.canReturn(componentType))
-							continue;
-					} else if (!value.equals(Object.class) && !componentType.isAssignableFrom(value)) {
-						continue;
-					}
+			if (values == null || values.length == 0) {
+				if (!(syntaxElement instanceof Expression<?> expression))
+					return false;
+				values = new Class[]{expression.getReturnType()};
+			}
 
-					hasValue = true;
-					break;
+			for (Class<?> value : values) {
+				if (sectionableExpression != null) {
+					if (!sectionableExpression.canReturn(componentType))
+						continue;
+				} else if (!value.equals(Object.class) && !componentType.isAssignableFrom(value)) {
+					continue;
 				}
+
+				hasValue = true;
+				break;
 			}
 
 			if (!hasValue) {
@@ -200,16 +202,10 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 	public static class Builder<T> {
 
 		private final Class<? extends T> type;
-		private boolean exact = false;
 		private Changer<? super T> changer = null;
 
 		private Builder(Class<? extends T> type) {
 			this.type = type;
-		}
-
-		public Builder<T> exact(boolean exact) {
-			this.exact = exact;
-			return this;
 		}
 
 		public Builder<T> changer(Changer<? super T> changer) {
@@ -218,7 +214,7 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 		}
 
 		public SectionValueExpression<T> build() {
-			return new SectionValueExpression<>(type, exact, changer);
+			return new SectionValueExpression<>(type, changer);
 		}
 
 	}

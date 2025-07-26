@@ -554,7 +554,7 @@ public class BukkitClasses {
 				.usage("")
 				.examples("")
 				.since("1.0")
-				.defaultExpression(new EventValueExpression<>(Inventory.class))
+				.defaultExpression(MultiValueExpression.all(Inventory.class))
 				.parser(new Parser<Inventory>() {
 					@Override
 					@Nullable
