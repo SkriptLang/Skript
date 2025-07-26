@@ -47,7 +47,12 @@ public class Delay extends Effect {
 
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
-			long millis = ((Literal<Timespan>) duration).getSingle().getAs(Timespan.TimePeriod.MILLISECOND);
+			Timespan timespan = ((Literal<Timespan>) duration).getSingle();
+			if (timespan.isInfinite()) {
+				Skript.error("Delaying for an eternity is not allowed. Use the 'stop' effect instead.");
+				return false;
+			}
+			long millis = timespan.getAs(Timespan.TimePeriod.MILLISECOND);
 			if (millis < 50) {
 				Skript.warning("Delays less than one tick are not possible, defaulting to one tick.");
 			}
