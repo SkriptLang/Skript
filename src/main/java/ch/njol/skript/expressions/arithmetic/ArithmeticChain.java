@@ -133,10 +133,10 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 		}
 
 		Set<Operator> currentGroup = new HashSet<>();
-		Priority currentGroupPriority = null;
+		Priority currentGroupPriority = operators.get(0).priority();
 
 		for (Operator operator : operators) {
-			if (currentGroupPriority == null || operator.priority().compareTo(currentGroupPriority) != 0) {
+			if (operator.priority().compareTo(currentGroupPriority) != 0) {
 				if (!currentGroup.isEmpty()) {
 					operatorGroups.add(currentGroup);
 				}
@@ -157,7 +157,8 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 		for (Set<?> group : operatorGroups) {
 			int lastIndex = Utils.findLastIndex(chain, group::contains);
-			if (lastIndex == -1) continue;
+			if (lastIndex == -1)
+				continue;
 
 			ArithmeticGettable<L> left = parse(chain.subList(0, lastIndex));
 
@@ -171,8 +172,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 			OperationInfo<L, R, T> operationInfo = null;
 			if (left.getReturnType() != Object.class && right.getReturnType() != Object.class) {
 				operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(
-					operator, left.getReturnType(), right.getReturnType()
-				);
+					operator, left.getReturnType(), right.getReturnType());
 				if (operationInfo == null)
 					return null;
 			}

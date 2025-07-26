@@ -20,6 +20,8 @@ public final class Arithmetics {
 		= Collections.synchronizedMap(new LinkedHashMap<>());
 	private static final Map<Operator, Map<OperandTypes, OperationInfo<?, ?, ?>>> CACHED_OPERATIONS
 		= Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Operator, Map<OperandTypes, OperationInfo<?, ?, ?>>> CACHED_CONVERTED_OPERATIONS
+		= Collections.synchronizedMap(new HashMap<>());
 
 	private static final Map<Class<?>, DifferenceInfo<?, ?>> DIFFERENCES
 		= Collections.synchronizedMap(new HashMap<>());
@@ -350,17 +352,31 @@ public final class Arithmetics {
 	 * @param <L> the type of left operand
 	 * @param <R> the type of right operand
 	 */
+	@SuppressWarnings("unchecked")
 	public static <L, R> @Nullable OperationInfo<L, R, ?> lookupOperationInfo(Operator operator,
 			Class<L> leftClass, Class<R> rightClass) {
 		OperationInfo<L, R, ?> operationInfo = getOperationInfo(operator, leftClass, rightClass);
 		if (operationInfo != null)
 			return operationInfo;
+
+		OperandTypes operandTypes = new OperandTypes(leftClass, rightClass);
+		Map<OperandTypes, OperationInfo<?, ?, ?>> operations = CACHED_CONVERTED_OPERATIONS
+			.computeIfAbsent(operator, o -> Collections.synchronizedMap(new HashMap<>()));
+		operationInfo = (OperationInfo<L, R, ?>) operations.get(operandTypes);
+		// we also cache null values for non-existing operations
+		if (operations.containsKey(operandTypes))
+			return operationInfo;
+
 		for (OperationInfo<?, ?, ?> info : getOperations(operator)) {
 			OperationInfo<L, R, ?> convertedInfo = info.getConverted(
 				leftClass, rightClass, info.returnType());
-			if (convertedInfo != null)
-				return convertedInfo;
+			if (convertedInfo == null)
+				continue;
+			operations.put(operandTypes, convertedInfo);
+			return convertedInfo;
 		}
+
+		operations.put(operandTypes, null);
 		return null;
 	}
 

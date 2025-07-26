@@ -29,7 +29,6 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 @Name("Arithmetic")
@@ -52,7 +51,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 
 	public static void registerExpression() {
 		Skript.checkAcceptRegistrations();
-		List<Object[]> infos = new LinkedList<>();
+		List<Object[]> infos = new ArrayList<>();
 		for (Operator operator : Arithmetics.getAllOperators()) {
 			infos.add(new Object[] {"\\(%object%\\)[ ]" + operator.sign() + "[ ]\\(%object%\\)",
 				new PatternInfo(operator, true, true)});
@@ -240,8 +239,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			}
 		} else if (returnType == null) { // lookup
 			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(
-				operator, firstClass, secondClass
-			);
+				operator, firstClass, secondClass);
 			if (operationInfo == null) // we error if we couldn't find an operation between the two types
 				return error(firstClass, secondClass);
 			returnType = operationInfo.returnType();
