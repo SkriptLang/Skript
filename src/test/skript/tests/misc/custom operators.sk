@@ -1,0 +1,16 @@
+test "custom string operator":
+	set {_got} to "Foo" bar! "World" # bar! operator joins string with ' bar '
+	assert {_got} is "Foo bar World" with "custom string operator expected ""Foo bar World"" but got ""%{_got}%"""
+
+test "custom operator priority":
+	# foo!: A + 2 * B
+	# foo!1 lowest priority (evaluated last)
+	# foo!2 highest priority (evaluated first)
+	set {_got} to 1 + 2 foo!1 3 * 4 foo!2 5
+	set {_expect} to (1 + 2) + 2 * (3 * (4 + 2 * 5))
+	assert {_got} is {_expect} with "custom operator for testing priority expected %{_expect}% but got %{_got}%"
+
+test "different types operator":
+	# blob! operator joins string with a number + 1
+	set {_got} to "Hello " blob! 1
+	assert {_got} is "Hello 2" with "custom operator with different types expected ""Hello 2"" but got ""%{_got}%"""
