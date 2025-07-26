@@ -3,15 +3,8 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.SectionExpression;
-import ch.njol.skript.lang.BuildableObject;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SectionEvent;
-import ch.njol.skript.lang.SectionableExpression;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -20,10 +13,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ExprSecBuildable extends SectionExpression<Object> {
+public class ExprSecBuildable extends SectionExpression<Object> implements ExpressionProvider {
 
 	static {
-		Skript.registerExpression(ExprSecBuildable.class, Object.class, ExpressionType.SIMPLE, "buildable %*buildable%");
+		Skript.registerExpression(ExprSecBuildable.class, Object.class, ExpressionType.SIMPLE,
+			"[a] buildable %*buildable%", "%*buildable% builder");
 	}
 
 	private BuildableObject<?> buildableObject;
@@ -67,13 +61,16 @@ public class ExprSecBuildable extends SectionExpression<Object> {
 		return true;
 	}
 
-	public SectionableExpression<?> getSectionableExpression() {
+	@Override
+	public Expression<?> getProvidedExpression() {
 		return sectionableExpression;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "";
+		return new SyntaxStringBuilder(event, debug)
+			.append("buildable", buildableObject)
+			.toString();
 	}
 
 }

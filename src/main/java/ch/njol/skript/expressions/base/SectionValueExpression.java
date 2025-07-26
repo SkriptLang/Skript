@@ -6,11 +6,11 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionProvider;
 import ch.njol.skript.lang.ExpressionSection;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SectionEvent;
 import ch.njol.skript.lang.SectionSkriptEvent;
-import ch.njol.skript.lang.SectionableExpression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -18,7 +18,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.sections.ExprSecBuildable;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -53,7 +52,7 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 	private final Class<?> componentType;
 	private final boolean single;
 	private @Nullable Changer<? super T> changer;
-	private @Nullable SectionableExpression<T> sectionableExpression = null;
+	private @Nullable Expression<T> wrappedExpression = null;
 
 	private SectionValueExpression(Class<? extends T> type, @Nullable Changer<? super T> changer) {
 		this.type = type;
@@ -82,14 +81,14 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 			Section section = sectionSkriptEvent.getSection();
 			SyntaxElement syntaxElement;
 			if (section instanceof ExpressionSection exprSec) {
-				SectionExpression<?> secExpr = exprSec.getAsExpression();
-				syntaxElement = secExpr;
-				if (secExpr instanceof ExprSecBuildable exprSecBuildable) {
-					//noinspection unchecked
-					sectionableExpression = (SectionableExpression<T>) exprSecBuildable.getSectionableExpression();
-				}
+                syntaxElement = exprSec.getAsExpression();
 			} else {
 				syntaxElement = section;
+			}
+
+			if (syntaxElement instanceof ExpressionProvider provider) {
+				//noinspection unchecked
+				wrappedExpression = (Expression<T>) provider.getProvidedExpression();
 			}
 
 			Class<?>[] values = SECTION_VALUES.get(syntaxElement.getClass());
@@ -100,8 +99,8 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 			}
 
 			for (Class<?> value : values) {
-				if (sectionableExpression != null) {
-					if (!sectionableExpression.canReturn(componentType))
+				if (wrappedExpression != null) {
+					if (!wrappedExpression.canReturn(componentType))
 						continue;
 				} else if (!value.equals(Object.class) && !componentType.isAssignableFrom(value)) {
 					continue;
@@ -125,8 +124,8 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 
 	@Override
 	protected T @Nullable [] get(Event event) {
-		if (sectionableExpression != null)
-			return sectionableExpression.getArray(event);
+		if (wrappedExpression != null)
+			return wrappedExpression.getArray(event);
 		T value = getValue(event);
 		if (value == null)
 			//noinspection unchecked
@@ -148,16 +147,16 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 	private @Nullable T getValue(Event event) {
 		if (!(event instanceof SectionEvent<?> sectionEvent))
 			return null;
-		if (sectionableExpression != null)
-			return sectionableExpression.getSingle(event);
+		if (wrappedExpression != null)
+			return wrappedExpression.getSingle(event);
 		//noinspection unchecked
 		return (T) sectionEvent.getObject();
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (sectionableExpression != null)
-			return sectionableExpression.acceptChange(mode);
+		if (wrappedExpression != null)
+			return wrappedExpression.acceptChange(mode);
 		if (changer == null) {
 			//noinspection unchecked
 			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
@@ -167,8 +166,8 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (sectionableExpression != null) {
-			sectionableExpression.change(event, delta, mode);
+		if (wrappedExpression != null) {
+			wrappedExpression.change(event, delta, mode);
 			return;
 		}
 		if (changer == null)

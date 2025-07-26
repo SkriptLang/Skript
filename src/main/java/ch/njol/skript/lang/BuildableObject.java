@@ -1,9 +1,9 @@
 package ch.njol.skript.lang;
 
-public interface BuildableObject<E> {
+public interface BuildableObject<T> {
 
-	E getSource();
+	T getSource();
 
-	Class<? extends E> getReturnType();
+	Class<? extends T> getReturnType();
 
 }

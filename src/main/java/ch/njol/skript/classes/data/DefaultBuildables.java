@@ -21,7 +21,7 @@ public class DefaultBuildables {
 			public Class<? extends ItemType> getReturnType() {
 				return ItemType.class;
 			}
-		}, Converter.NO_CHAINING);
+		});
 
 		Converters.registerConverter(InventoryType.class, BuildableObject.class, inventoryType -> new BuildableObject<Inventory>() {
 			@Override
