@@ -350,7 +350,7 @@ public class SkriptParser {
 	 * @return All available {@link DefaultExpression}s.
 	 * @throws SkriptAPIException If no {@link DefaultExpression}s pass, produces an error message for the reasoning of failure.
 	 */
-	private static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
+	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
 
 		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);

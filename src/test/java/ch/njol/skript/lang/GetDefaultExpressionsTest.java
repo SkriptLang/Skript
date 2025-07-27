@@ -1,0 +1,484 @@
+package ch.njol.skript.lang;
+
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.SkriptParser.ExprInfo;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+
+import static ch.njol.skript.lang.SkriptParser.getDefaultExpressions;
+
+public class GetDefaultExpressionsTest extends SkriptJUnitTest {
+
+	private static final ClassInfo<?> INFO_SINGLE = new ClassInfo<>(Object.class, "infosingle")
+		.defaultExpression(new EventValueExpression<>(Object.class));
+
+	private static final ClassInfo<?> INFO_PLURAL = new ClassInfo<>(Object.class, "infoplural")
+		.defaultExpression(new EventValueExpression<>(Object[].class));
+
+	private static final ClassInfo<?> INFO_SINGLE_LITERAL = new ClassInfo<>(Object.class, "infosingleliteral")
+		.defaultExpression(new SimpleLiteral<>(0, true));
+
+	private static final ClassInfo<?> INFO_PLURAL_LITERAL = new ClassInfo<>(Object.class, "infopluralliteral")
+		.defaultExpression(new PluralLiteral());
+
+	private ExprInfo createExprInfo(ClassInfo<?>... infos) {
+		return createExprInfo(false, infos);
+	}
+
+	private ExprInfo createExprInfo(boolean isPlural, ClassInfo<?>...  infos) {
+		ExprInfo exprInfo = new ExprInfo(infos.length);
+		for (int i = 0; i < infos.length; i++) {
+			exprInfo.classes[i] = infos[i];
+			exprInfo.isPlural[i] = isPlural;
+		}
+		return exprInfo;
+	}
+
+	private ExprInfo createRespectiveExprInfo(ClassInfo<?>... infos) {
+		ExprInfo exprInfo = new ExprInfo(infos.length);
+		for (int i = 0; i < infos.length; i++) {
+			exprInfo.classes[i] = infos[i];
+			exprInfo.isPlural[i] = infos[i].getCodeName().contains("plural");
+		}
+		return exprInfo;
+	}
+
+	private ExprInfo createAlternateExprInfo(ClassInfo<?>... infos) {
+		ExprInfo exprInfo = new ExprInfo(infos.length);
+		for (int i = 0; i < infos.length; i++) {
+			exprInfo.classes[i] = infos[i];
+			exprInfo.isPlural[i] = !infos[i].getCodeName().contains("plural");
+		}
+		return exprInfo;
+	}
+
+	private String getPattern(ExprInfo exprInfo) {
+		List<String> list = Arrays.stream(exprInfo.classes).map(ClassInfo::getCodeName).toList();
+		return StringUtils.join(list, "/");
+	}
+
+	private void test(ExprInfo exprInfo, BiConsumer<ExprInfo, String> consumer) {
+		String pattern = getPattern(exprInfo);
+		consumer.accept(exprInfo, pattern);
+	}
+
+	@Test
+	public void test_one_info() {
+		test(createExprInfo(false, INFO_SINGLE), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createExprInfo(true, INFO_SINGLE), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+
+		test(createExprInfo(false, INFO_PLURAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (NOT_SINGLE)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+		});
+		test(createExprInfo(true, INFO_PLURAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+
+		test(createExprInfo(false, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createExprInfo(true, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+
+		test(createExprInfo(false, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // fail (NOT_SINGLE)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+		});
+		test(createExprInfo(true, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+	}
+
+	@Test
+	public void test_two_infos() {
+		test(createExprInfo(false, INFO_SINGLE, INFO_PLURAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (NOT_SINGLE)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createExprInfo(true, INFO_SINGLE, INFO_PLURAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, pass
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createRespectiveExprInfo(INFO_SINGLE, INFO_PLURAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, pass
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createAlternateExprInfo(INFO_SINGLE, INFO_PLURAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (NOT_SINGLE)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+
+		test(createExprInfo(false, INFO_SINGLE, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createExprInfo(true, INFO_SINGLE, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createRespectiveExprInfo(INFO_SINGLE, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createAlternateExprInfo(INFO_SINGLE, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+
+		test(createExprInfo(false, INFO_SINGLE, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_SINGLE)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+		});
+		test(createExprInfo(true, INFO_SINGLE, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createRespectiveExprInfo(INFO_SINGLE, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createAlternateExprInfo(INFO_SINGLE, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_SINGLE)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+		});
+
+		test(createExprInfo(false, INFO_PLURAL, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (NOT_SINGLE), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createExprInfo(true, INFO_PLURAL, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createRespectiveExprInfo(INFO_PLURAL, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createAlternateExprInfo(INFO_PLURAL, INFO_SINGLE_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (NOT_SINGLE), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+
+		test(createExprInfo(false, INFO_PLURAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (NOT_SINGLE), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_SINGLE)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+		});
+		test(createExprInfo(true, INFO_PLURAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createRespectiveExprInfo(INFO_PLURAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), pass
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createAlternateExprInfo(INFO_PLURAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (NOT_SINGLE), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_SINGLE)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+		});
+
+		test(createExprInfo(false, INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // pass, fail (NOT_SINGLE)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createExprInfo(true, INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // pass, pass
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createRespectiveExprInfo(INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // pass, pass
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createAlternateExprInfo(INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 2; // pass, fail (NOT_SINGLE)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+	}
+
+	@Test
+	public void test_all_infos() {
+		test(createExprInfo(false, INFO_SINGLE, INFO_PLURAL, INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL), fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (NOT_SINGLE), fail (LITERAL), fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_LITERAL), pass, fail (NOT_SINGLE)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createExprInfo(true, INFO_SINGLE, INFO_PLURAL, INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL), fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, pass, fail (LITERAL), fail (LITERAL)
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_LITERAL), pass, pass
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createRespectiveExprInfo(INFO_SINGLE, INFO_PLURAL, INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL), fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, pass, fail (LITERAL), fail (LITERAL)
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_LITERAL), pass, pass
+			Assert.assertEquals(2, getDefaultExpressions(exprInfo, string).size());
+		});
+		test(createAlternateExprInfo(INFO_SINGLE, INFO_PLURAL, INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
+			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL), fail (LITERAL), fail (LITERAL)
+			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
+			exprInfo.flagMask = 1; // pass, fail (NOT_SINGLE), fail (LITERAL), fail (LITERAL)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+			exprInfo.flagMask = 2; // fail (NOT_LITERAL), fail (NOT_LITERAL), pass, fail (NOT_SINGLE)
+			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
+		});
+	}
+
+	//<editor-fold desc="PluralLiteral" defaultstate="collapsed">
+	private static class PluralLiteral implements Literal<Object>, DefaultExpression<Object> {
+		@Override
+		public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+			return true;
+		}
+
+		@Override
+		public boolean init() {
+			return true;
+		}
+
+		@Override
+		public @Nullable Object getSingle(Event event) {
+			return null;
+		}
+
+		@Override
+		public Object[] getArray(Event event) {
+			return new Object[0];
+		}
+
+		@Override
+		public Object[] getAll(Event event) {
+			return new Object[0];
+		}
+
+		@Override
+		public boolean isSingle() {
+			return false;
+		}
+
+		@Override
+		public boolean check(Event event, Predicate<? super Object> checker, boolean negated) {
+			return false;
+		}
+
+		@Override
+		public boolean check(Event event, Predicate<? super Object> checker) {
+			return false;
+		}
+
+		@Override
+		public Class<?> getReturnType() {
+			return Object.class;
+		}
+
+		@Override
+		public boolean getAnd() {
+			return false;
+		}
+
+		@Override
+		public boolean setTime(int time) {
+			return false;
+		}
+
+		@Override
+		public int getTime() {
+			return 0;
+		}
+
+		@Override
+		public boolean isDefault() {
+			return true;
+		}
+
+		@Override
+		public Expression<?> getSource() {
+			return this;
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return null;
+		}
+
+		@Override
+		public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+
+		}
+
+		@Override
+		public Object[] getArray() {
+			return new Object[0];
+		}
+
+		@Override
+		public Object getSingle() {
+			return null;
+		}
+
+		@Override
+		public @Nullable <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
+			return null;
+		}
+
+		@Override
+		public Object[] getAll() {
+			return new Object[0];
+		}
+
+		@Override
+		public @Nullable Iterator<?> iterator(Event event) {
+			return null;
+		}
+
+		@Override
+		public boolean isLoopOf(String input) {
+			return false;
+		}
+
+		@Override
+		public String toString(@Nullable Event event, boolean debug) {
+			return "";
+		}
+	}
+	//</editor-fold>
+
+}
