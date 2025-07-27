@@ -53,7 +53,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -342,15 +342,18 @@ public class SkriptParser {
 		return experimentalSyntax.isSatisfiedBy(experiments);
 	}
 
-	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
-		List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
-		return exprs.get(0);
-	}
-
+	/**
+	 * Returns all {@link DefaultExpression}s from all the {@link ClassInfo}s embedded in {@code exprInfo} that pass all checks.
+	 *
+	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}s.
+	 * @param pattern The pattern used to create {@link ExprInfo}.
+	 * @return All available {@link DefaultExpression}s.
+	 * @throws SkriptAPIException If no {@link DefaultExpression}s pass, produces an error message for the reasoning of failure.
+	 */
 	private static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
 
-		Map<DefaultExpressionError, List<String>> failed = new HashMap<>();
+		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);
 		List<DefaultExpression<?>> passed = new ArrayList<>();
 		for (int i = 0; i < exprInfo.classes.length; i++) {
 			ClassInfo<?> classInfo = exprInfo.classes[i];
