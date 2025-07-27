@@ -362,16 +362,21 @@ public class SkriptParser {
 				expr = classInfo.getDefaultExpression();
 
 			String codeName = classInfo.getCodeName();
+			DefaultExpressionError errorType = null;
 			if (expr == null) {
-				failed.computeIfAbsent(DefaultExpressionError.NOT_FOUND, list -> new ArrayList<>()).add(codeName);
+				errorType = DefaultExpressionError.NOT_FOUND;
 			} else if (!(expr instanceof Literal<?>) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0) {
-				failed.computeIfAbsent(DefaultExpressionError.NOT_LITERAL, list -> new ArrayList<>()).add(codeName);
+				errorType = DefaultExpressionError.NOT_LITERAL;
 			} else if (expr instanceof Literal<?> && (exprInfo.flagMask & PARSE_LITERALS) == 0) {
-				failed.computeIfAbsent(DefaultExpressionError.LITERAL, list -> new ArrayList<>()).add(codeName);
+				errorType = DefaultExpressionError.LITERAL;
 			} else if (!exprInfo.isPlural[i] && !expr.isSingle()) {
-				failed.computeIfAbsent(DefaultExpressionError.NOT_SINGLE, list -> new ArrayList<>()).add(codeName);
+				errorType = DefaultExpressionError.NOT_SINGLE;
 			} else if (exprInfo.time != 0 && !expr.setTime(exprInfo.time)) {
-				failed.computeIfAbsent(DefaultExpressionError.TIME_STATE, list -> new ArrayList<>()).add(codeName);
+				errorType = DefaultExpressionError.TIME_STATE;
+			}
+
+			if (errorType != null) {
+				failed.computeIfAbsent(errorType, list -> new ArrayList<>()).add(codeName);
 			} else {
 				passed.add(expr);
 			}
@@ -385,7 +390,7 @@ public class SkriptParser {
 			String error = entry.getKey().getError(entry.getValue(), pattern);
 			errors.add(error);
 		}
-		throw new SkriptAPIException(StringUtils.join(errors, "\nl"));
+		throw new SkriptAPIException(StringUtils.join(errors, "\n"));
 	}
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);

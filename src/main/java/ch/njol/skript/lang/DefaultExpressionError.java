@@ -20,11 +20,8 @@ public enum DefaultExpressionError {
 			StringBuilder builder = new StringBuilder();
 			String combinedComma = StringUtils.join(codeNames, ", ");
 			String combinedSlash = StringUtils.join(codeNames, "/");
-			builder.append("The class");
-			if (codeNames.size() > 1)
-				builder.append("es");
-			builder.append(" '")
-				.append(combinedComma)
+			builder.append(plurality(codeNames, "The class '", "The classes '"));
+			builder.append(combinedComma)
 				.append("'")
 				.append(plurality(codeNames, "does", "do"))
 			    .append("not provide a default expression. Either allow null (with %-")
@@ -43,8 +40,8 @@ public enum DefaultExpressionError {
 	NOT_LITERAL {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
-			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, "is", "are"));
-			builder.append("not a literal. Either allow null (with %-*")
+			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, " is not a literal ", " are not literals "));
+			builder.append("Either allow null (with %-*")
 				.append(StringUtils.join(codeNames, "/"))
 				.append("%) or make it mandatory [pattern: ")
 				.append(pattern)
@@ -60,8 +57,8 @@ public enum DefaultExpressionError {
 	LITERAL {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
-			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, "is", "are"));
-			builder.append("a literal. Either allow null (with %-~")
+			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, " is a literal ", "are literals "));
+			builder.append("Either allow null (with %-~")
 				.append(StringUtils.join(codeNames, "/"))
 				.append("%) or make it mandatory [pattern: ")
 				.append(pattern)
@@ -77,8 +74,9 @@ public enum DefaultExpressionError {
 	NOT_SINGLE {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
-			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, "is", "are"));
-			builder.append("not a single-element expression. Change your pattern to allow multiple elements or make the expression mandatory [pattern: ")
+			StringBuilder builder = new StringBuilder(
+					defaultExpression(codeNames, " is not a single-element expression ", " are not single-element expressions "));
+			builder.append("Change your pattern to allow multiple elements or make the expression mandatory [pattern: ")
 				.append(pattern)
 				.append("]");
 			return builder.toString();
@@ -92,7 +90,7 @@ public enum DefaultExpressionError {
 	TIME_STATE {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
-			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, "does", "do"));
+			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, " does ", " do "));
 			builder.append("not have distinct time states. [pattern: ")
 				.append(pattern)
 				.append("]");
@@ -141,10 +139,10 @@ public enum DefaultExpressionError {
 	 * @param codeNames The list of codenames to be checked.
 	 * @param single The string to be used if there is only one codename.
 	 * @param plural The string to be used if there is more than one codename.
-	 * @return {@code single} or {@code plural} including a space at the front and end.
+	 * @return {@code single} or {@code plural}.
 	 */
 	private static String plurality(List<String> codeNames, String single, String plural) {
-		return " " + (codeNames.size() > 1 ? plural : single) + " ";
+		return codeNames.size() > 1 ? plural : single;
 	}
 
 }
