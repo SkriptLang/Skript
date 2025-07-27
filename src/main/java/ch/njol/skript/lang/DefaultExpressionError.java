@@ -18,13 +18,13 @@ public enum DefaultExpressionError {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
 			StringBuilder builder = new StringBuilder();
-			String combinedComma = StringUtils.join(codeNames, ", ");
+			String combinedComma = StringUtils.join(codeNames, ", ", " and ");
 			String combinedSlash = StringUtils.join(codeNames, "/");
 			builder.append(plurality(codeNames, "The class '", "The classes '"));
 			builder.append(combinedComma)
 				.append("'")
-				.append(plurality(codeNames, "does", "do"))
-			    .append("not provide a default expression. Either allow null (with %-")
+				.append(plurality(codeNames, " does ", " do "))
+				.append("not provide a default expression. Either allow null (with %-")
 				.append(combinedSlash)
 				.append("%) or make it mandatory [pattern: ")
 				.append(pattern)
@@ -40,8 +40,9 @@ public enum DefaultExpressionError {
 	NOT_LITERAL {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
-			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, " is not a literal ", " are not literals "));
-			builder.append("Either allow null (with %-*")
+			StringBuilder builder = new StringBuilder();
+			builder.append(defaultExpression(codeNames, " is not a literal. ", " are not literals. "))
+				.append("Either allow null (with %-*")
 				.append(StringUtils.join(codeNames, "/"))
 				.append("%) or make it mandatory [pattern: ")
 				.append(pattern)
@@ -57,8 +58,9 @@ public enum DefaultExpressionError {
 	LITERAL {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
-			StringBuilder builder = new StringBuilder(defaultExpression(codeNames, " is a literal ", "are literals "));
-			builder.append("Either allow null (with %-~")
+			StringBuilder builder = new StringBuilder();
+			builder.append(defaultExpression(codeNames, " is a literal. ", " are literals. "))
+				.append("Either allow null (with %-~")
 				.append(StringUtils.join(codeNames, "/"))
 				.append("%) or make it mandatory [pattern: ")
 				.append(pattern)
@@ -74,9 +76,9 @@ public enum DefaultExpressionError {
 	NOT_SINGLE {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
-			StringBuilder builder = new StringBuilder(
-					defaultExpression(codeNames, " is not a single-element expression ", " are not single-element expressions "));
-			builder.append("Change your pattern to allow multiple elements or make the expression mandatory [pattern: ")
+			StringBuilder builder = new StringBuilder();
+			builder.append(defaultExpression(codeNames, " is not a single-element expression. ", " are not single-element expressions. "))
+				.append("Change your pattern to allow multiple elements or make the expression mandatory [pattern: ")
 				.append(pattern)
 				.append("]");
 			return builder.toString();
@@ -122,11 +124,10 @@ public enum DefaultExpressionError {
 	 */
 	private static String defaultExpression(List<String> codeNames, String single, String plural) {
 		StringBuilder builder = new StringBuilder();
-		String combinedComma = StringUtils.join(codeNames, ", ", "and");
-		builder.append("The default expression");
-		if (codeNames.size() > 1)
-			builder.append("s");
-		builder.append(" of '")
+		String combinedComma = StringUtils.join(codeNames, ", ", " and ");
+		builder.append("The default ")
+			.append(plurality(codeNames, "expression ", "expressions "))
+			.append("of '")
 			.append(combinedComma)
 			.append("'")
 			.append(plurality(codeNames, single, plural));
