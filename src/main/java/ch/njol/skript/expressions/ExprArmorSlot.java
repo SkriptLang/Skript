@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 	"<li>Horses: Horse armour (doesn't work on zombie or skeleton horses)</li>",
 	"<li>Wolves: Wolf Armor</li>",
 	"<li>Llamas (regular or trader): Carpet</li>",
+	"<li>Happy Ghasts: Harness</li>",
 	"</ul>",
 	"Saddle is a special slot that can only be used for: pigs, striders and horse types (horse, camel, llama, mule, donkey)."
 })
@@ -43,7 +44,10 @@ import java.util.stream.Stream;
 	"helmet of player is neither tag values of tag \"paper:helmets\" nor air # player is wearing a block, e.g. from another plugin"
 })
 @Keywords("armor")
-@Since("1.0, 2.8.0 (armor), 2.10 (body armor), 2.12 (saddle)")
+@Since({
+	"1.0, 2.8.0 (armor), 2.10 (body armor), 2.12 (saddle)",
+	"INSERT VERSION (happy ghast)"
+})
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	private static final Set<Class<? extends Entity>> BODY_ENTITIES =
