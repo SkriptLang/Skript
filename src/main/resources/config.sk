@@ -150,7 +150,7 @@ maximum target block distance: 100
 
 case sensitive: false
 # Whether Skript's functions should be case sensitive or not.
-# This e.g. applies to the effect 'replace' and the conditions 'contains' and 'is/is not'.
+# This e.g. applies to the effect 'replace', expression 'indices of value' and the conditions 'contains' and 'is/is not'.
 # Variable names are case-insensitive irrespective of this setting.
 
 case-insensitive variables: true

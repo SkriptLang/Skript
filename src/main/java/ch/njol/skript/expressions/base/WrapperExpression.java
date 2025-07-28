@@ -5,14 +5,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.util.ConvertedExpression;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
-import org.skriptlang.skript.lang.converter.Converters;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Iterator;
 
@@ -99,6 +96,14 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 		return expr.isDefault();
 	}
 
+	/**
+	 * This method must be overridden if the subclass uses more than one expression.
+	 * i.e. if only {@link #setExpr(Expression)} is used, this method does not need to be overridden.
+	 * But if a second expression is stored, this method must be overridden to account for that.
+	 * <br>
+	 * <br>
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Expression<? extends T> simplify() {
 		setExpr(expr.simplify());

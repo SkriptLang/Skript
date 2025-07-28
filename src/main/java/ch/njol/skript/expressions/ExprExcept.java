@@ -6,11 +6,9 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.WrapperExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -68,6 +66,14 @@ public class ExprExcept extends WrapperExpression<Object> {
 				return true;
 			})
 			.toArray(o -> (Object[]) Array.newInstance(getReturnType(), o));
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		setExpr(getExpr().simplify());
+		if (getExpr() instanceof Literal<?> && exclude instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

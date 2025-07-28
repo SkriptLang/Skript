@@ -550,8 +550,23 @@ public class HTMLGenerator extends DocumentationGenerator {
 			return this.addExamples(desc, examples.value());
 		} else if (syntax.isAnnotationPresent(Example.Examples.class)) {
 			Example.Examples examples = syntax.getAnnotation(Example.Examples.class);
-			return this.addExamples(desc, Arrays.stream(examples.value())
-				.map(Example::value).toArray(String[]::new));
+			Example[] examplesArray = examples.value();
+			// we map the examples into a new array
+			// [example1, "", example2, "", example3]
+			// blank strings are a hacky way to insert spacing between the examples
+			String[] mappedExamples = new String[examplesArray.length * 2 - 1];
+			for (int i = 0; i < mappedExamples.length; i++) {
+				if (i % 2 == 0) {
+					String example = examplesArray[i / 2].value();
+					if (example.endsWith("\n")) {
+						example = example.substring(0, example.length() - "\n".length());
+					}
+					mappedExamples[i] = example;
+				} else {
+					mappedExamples[i] = "";
+				}
+			}
+			return this.addExamples(desc, mappedExamples);
 		} else if (syntax.isAnnotationPresent(Examples.class)) {
 			Examples examples = syntax.getAnnotation(Examples.class);
 			return this.addExamples(desc, examples.value());
@@ -561,9 +576,19 @@ public class HTMLGenerator extends DocumentationGenerator {
 	}
 
 	private @NotNull String addExamples(String desc, String @Nullable ... examples) {
-		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples) : null), "Missing examples.")));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples) : null), "Missing examples."))
-			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+		if (examples != null) {
+			// sanitize
+			Documentation.escapeHTML(examples);
+			// replace newlines
+			for (int i = 0; i < examples.length; i++) {
+				examples[i] = examples[i].replace("\n", "<br>");
+			}
+		}
+
+		String mergedExamples = Joiner.on("<br>").join(getDefaultIfNullOrEmpty(examples, "Missing examples."));
+		desc = desc.replace("${element.examples}", mergedExamples)
+				.replace("${element.examples-safe}", mergedExamples);
+
 		return desc;
 	}
 
