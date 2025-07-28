@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Consume Brewing Fuel")
 @Description("""
-	Makes the brewing stand in the brewing fuel event consume its fuel.
-	Preventing the fuel from being consumed, will keep the fuel item and still add to the fuel level of the brewing stand.
+	Makes the brewing stand in a brewing fuel event consume its fuel.
+	Preventing the fuel from being consumed will keep the fuel item and still add to the fuel level of the brewing stand.
 	""")
 @Example("""
 	on brewing fuel consumption:
@@ -31,8 +31,8 @@ public class EffBrewingConsume extends Effect implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerEffect(EffBrewingConsume.class,
-			"make [the] brewing stand consume [the] fuel",
-			"prevent [the] brewing stand from consuming [the] fuel");
+			"make [the] brewing stand consume [its|the] fuel",
+			"prevent [the] brewing stand from consuming [its|the] fuel");
 	}
 
 	private boolean consume;

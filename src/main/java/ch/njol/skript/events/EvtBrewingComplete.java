@@ -21,7 +21,7 @@ public class EvtBrewingComplete extends SkriptEvent {
 	static {
 		Skript.registerEvent("Brewing Complete", EvtBrewingComplete.class, BrewEvent.class,
 				"brew[ing] [complet[ed|ion]|finish[ed]] [(of|for) %-itemtypes/potioneffecttypes%]")
-			.description("Called when a brewing stand finishes brewing the ingredient and changes the potions.")
+			.description("Called when a brewing stand finishes brewing an ingredient and changes the potions.")
 			.examples("""
 				on brew:
 					broadcast event-item

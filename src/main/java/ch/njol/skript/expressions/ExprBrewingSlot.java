@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Name("Brewing Stand Slot")
-@Description("A slot of a brewing stand, i.e., the first, second, or third bottle slot, the fuel slot or the ingredient slot.")
+@Description("A slot of a brewing stand, i.e. the first, second, or third bottle slot, the fuel slot or the ingredient slot.")
 @Examples({
 	"set the 1st bottle slot of {_block} to potion of water",
 	"clear the brewing stand second bottle slot of {_block}"

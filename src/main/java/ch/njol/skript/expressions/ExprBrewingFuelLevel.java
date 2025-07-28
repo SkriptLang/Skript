@@ -15,7 +15,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Brewing Stand Fuel Level")
-@Description("The fuel level of a brewing stand. The fuel level is decreased by one for each potion that is being brewed.")
+@Description("The fuel level of a brewing stand. The fuel level is decreased by one at the start of brewing each potion.")
 @Example("""
 	set the brewing stand fuel level of {_block} to 10
 	clear the brewing stand fuel level of {_block}
@@ -59,7 +59,6 @@ public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Intege
 			}
 			brewingStand.setFuelLevel(newValue);
 			brewingStand.update(true, false);
-			Skript.adminBroadcast("Set Fuel Level: " + newValue + " | " + brewingStand.getFuelLevel());
 		}
 	}
 

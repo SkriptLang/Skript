@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Brewing Will Consume Fuel")
 @Description("""
 	Checks if the 'brewing fuel' event will consume fuel.
-	Preventing the fuel from being consumed, will keep the fuel item and still add to the fuel level of the brewing stand.
+	Preventing the fuel from being consumed will keep the fuel item and still add to the fuel level of the brewing stand.
 	""")
 @Example("""
 	on brewing fuel:

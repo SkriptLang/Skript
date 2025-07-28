@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Name("Brewing Results")
-@Description("The result items of an 'on brew complete' event.")
+@Description("The resulting items in an 'on brew complete' event.")
 @Examples({
 	"on brew complete:",
 		"\tset {_results::*} to the brewing results"
