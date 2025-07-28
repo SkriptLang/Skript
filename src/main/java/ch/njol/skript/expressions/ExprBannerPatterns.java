@@ -49,9 +49,9 @@ public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 
 	static {
 		Skript.registerExpression(ExprBannerPatterns.class, Pattern.class, ExpressionType.PROPERTY,
-			"[all [[of] the]|the] banner pattern[s] of %itemstacks/itemtypes/slots/blocks%",
+			"[all [[of] the]|the] banner pattern[s] [of %itemstacks/itemtypes/slots/blocks%]",
 			"%itemstacks/itemtypes/slots/blocks%'[s] banner pattern[s]",
-			"[the] %integer%[st|nd|rd|th] [banner] pattern of %itemstacks/itemtypes/slots/blocks%",
+			"[the] %integer%[st|nd|rd|th] [banner] pattern [of %itemstacks/itemtypes/slots/blocks%]",
 			"%itemstacks/itemtypes/slots/blocks%'[s] %integer%[st|nd|rd|th] [banner] pattern"
 		);
 	}

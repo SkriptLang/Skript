@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Predicate;
 
+/**
+ * Placeholder {@link Expression} to treat an object as changeable utilizing elements.
+ */
 public class SectionableExpression<T> implements Expression<T> {
 
 	private T value = null;
@@ -54,7 +57,9 @@ public class SectionableExpression<T> implements Expression<T> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return CollectionUtils.array(type);
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(type);
+		return null;
 	}
 
 	@Override

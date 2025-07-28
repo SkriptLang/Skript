@@ -4,7 +4,9 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.DefaultExpression;
+import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionProvider;
 import ch.njol.skript.lang.ExpressionSection;
@@ -28,10 +30,29 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Typed {@link DefaultExpression} to grab values from {@link EffectSection}s and {@link SectionExpression}s.
+ * <p>
+ *     Similar to {@link EventValueExpression}, this class only works for the aforementioned classes in which they must
+ *     use {@link SectionEvent} to load their section.
+ *     This class allows utilization of {@link DefaultExpression}s for {@link ClassInfo}s without granting the
+ *     ability to retrieve it through a Bukkit Event via conversion.
+ * </p>
+ */
 public class SectionValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
 
 	private static final Map<Class<? extends SyntaxElement>, Class<?>[]> SECTION_VALUES =  new HashMap<>();
 
+	/**
+	 * Register the types of classes {@code elementClass} can be returned as.
+	 * <p>
+	 *     Registering allows a {@link SectionValueExpression} to determine if it's available and successfully parse.
+	 *     Not registering will use the {@link Class} from {@link Expression#getReturnType()}
+	 * </p>
+	 *
+	 * @param elementClass The {@link SyntaxElement} class to register.
+	 * @param valueClasses The types of {@link Class}es {@code elementClass} can be used with.
+	 */
 	public static void registerSectionValue(
 		Class<? extends SyntaxElement> elementClass,
 		Class<?>... valueClasses
@@ -39,10 +60,22 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 		SECTION_VALUES.put(elementClass, valueClasses);
 	}
 
+	/**
+	 * Create a new {@link Builder} to build a {@link SectionValueExpression}.
+	 *
+	 * @param type The typed {@link Class}.
+	 * @return {@link Builder}.
+	 */
 	public static <T> Builder<T> builder(Class<? extends T> type) {
 		return new Builder<>(type);
 	}
 
+	/**
+	 * Constructs a simple {@link SectionValueExpression} with the provided {@code type}.
+	 *
+	 * @param type The typed {@link Class}.
+	 * @return {@link SectionValueExpression}.
+	 */
 	public static <T> SectionValueExpression<T> simple(Class<? extends T> type) {
 		//noinspection unchecked
 		return (SectionValueExpression<T>) builder(type).build();
@@ -198,6 +231,9 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 		return Classes.getDebugMessage(getValue(event));
 	}
 
+	/**
+	 * Builder class to build a {@link SectionValueExpression}.
+	 */
 	public static class Builder<T> {
 
 		private final Class<? extends T> type;
@@ -207,11 +243,23 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 			this.type = type;
 		}
 
+		/**
+		 * Apply a custom {@link Changer} to be used with {@link Expression#acceptChange(ChangeMode)}
+		 * and {@link Expression#change(Event, Object[], ChangeMode)}.
+		 *
+		 * @param changer The {@link Changer}.
+		 * @return {@code this}.
+		 */
 		public Builder<T> changer(Changer<? super T> changer) {
 			this.changer = changer;
 			return this;
 		}
 
+		/**
+		 * Finalizes this builder and builds a {@link SectionValueExpression}.
+		 *
+		 * @return {@link SectionValueExpression}.
+		 */
 		public SectionValueExpression<T> build() {
 			return new SectionValueExpression<>(type, changer);
 		}

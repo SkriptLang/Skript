@@ -30,7 +30,7 @@ import java.util.Set;
 public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 
 	static {
-		register(ExprItemFlags.class, ItemFlag.class, "item flags", "itemtypes");
+		registerDefault(ExprItemFlags.class, ItemFlag.class, "item flags", "itemtypes");
 	}
 
 	@Override
