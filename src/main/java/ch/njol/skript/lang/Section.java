@@ -1,31 +1,17 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,7 +42,15 @@ import java.util.function.Supplier;
  *
  * @see Skript#registerSection(Class, String...)
  */
-public abstract class Section extends TriggerSection implements SyntaxElement {
+public abstract class Section extends TriggerSection implements SyntaxElement, SyntaxRuntimeErrorProducer {
+
+	private Node node;
+
+	@Override
+	public boolean preInit() {
+		node = getParser().getNode();
+		return SyntaxElement.super.preInit();
+	}
 
 	/**
 	 * This method should not be overridden unless you know what you are doing!
@@ -64,7 +58,8 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
-		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
+		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems)
+			&& sectionContext.claim(this);
 	}
 
 	public abstract boolean init(Expression<?>[] expressions,
@@ -115,6 +110,15 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	}
 
 	/**
+	 * @deprecated Use {@link #loadCode(SectionNode, String, Runnable, Runnable, Class[])}
+	 */
+	@SafeVarargs
+	@Deprecated(since = "2.12", forRemoval = true)
+	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+		return loadCode(sectionNode, name, null, afterLoading, events);
+	}
+
+	/**
 	 * Loads the code in the given {@link SectionNode},
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
 	 * <br>
@@ -126,19 +130,26 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 *
 	 * @param sectionNode The section node to load.
 	 * @param name The name of the event(s) being used.
+	 * @param beforeLoading A Runnable to execute before the SectionNode has been loaded.
+	 * This occurs after the {@link ParserInstance} context switch.
 	 * @param afterLoading A Runnable to execute after the SectionNode has been loaded.
-	 * This occurs before {@link ParserInstance} states are reset.
+	 * This occurs before {@link ParserInstance} states are reset (context switches back).
 	 * @param events The event(s) during the section's execution.
 	 * @return A trigger containing the loaded section. This should be stored and used
 	 * to run the section one or more times.
 	 */
 	@SafeVarargs
-	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+	protected final Trigger loadCode(SectionNode sectionNode, String name,
+									 @Nullable Runnable beforeLoading, @Nullable Runnable afterLoading,
+									 Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
 		// backup the existing data
 		ParserInstance.Backup parserBackup = parser.backup();
 		parser.reset();
+
+		if (beforeLoading != null)
+			beforeLoading.run();
 
 		// set our new data for parsing this section
 		parser.setCurrentEvent(name, events);
@@ -174,9 +185,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Nullable
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
-		//noinspection unchecked,rawtypes
-		return sectionContext.modify(sectionNode, triggerItems,
-			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
+		return sectionContext.modify(sectionNode, triggerItems, () -> {
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).iterator();
+			//noinspection unchecked,rawtypes
+			return (Section) SkriptParser.parse(expr, (Iterator) iterator, defaultError);
+		});
 	}
 
 	static {
@@ -188,6 +201,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		protected SectionNode sectionNode;
 		protected List<TriggerItem> triggerItems;
+		protected @Nullable Debuggable owner;
 
 		public SectionContext(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -205,18 +219,69 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		protected <T> T modify(SectionNode sectionNode, List<TriggerItem> triggerItems, Supplier<T> supplier) {
 			SectionNode prevSectionNode = this.sectionNode;
 			List<TriggerItem> prevTriggerItems = this.triggerItems;
+			Debuggable owner = this.owner;
 
 			this.sectionNode = sectionNode;
 			this.triggerItems = triggerItems;
+			this.owner = null;
 
 			T result = supplier.get();
 
 			this.sectionNode = prevSectionNode;
 			this.triggerItems = prevTriggerItems;
+			this.owner = owner;
 
 			return result;
 		}
 
+		/**
+		 * Marks the section this context represents as having been 'claimed' by the current syntax.
+		 * Once a syntax has claimed a section, another syntax may not claim it.
+		 *
+		 * @param syntax The syntax that wants to own this section
+		 * @return True if this was successfully claimed, false if it was already owned
+		 */
+		@ApiStatus.Internal
+		public <Syntax extends SyntaxElement & Debuggable> boolean claim(Syntax syntax) {
+			if (sectionNode == null)
+				return true;
+			if (this.claimed()) {
+				if (owner == syntax)
+					return true;
+				assert owner != null;
+				Skript.error("The syntax '" + syntax.toString(null, false)
+					+ "' tried to claim the current section, but it was already claimed by '"
+					+ this.owner.toString(null, false)
+					+ "'. You cannot have two section-starters in the same line.");
+				return false;
+			}
+			this.owner = syntax;
+			return true;
+		}
+
+		/**
+		 * Used to keep track of whether a syntax is managing the current section.
+		 * Every section needs exactly one manager. This is used to detect errors such as:
+		 * <ol>
+		 *     <li>Two syntax both want to manage the section (e.g. an effectsection and an expression or two expressions).</li>
+		 *     <li>No syntax wants to manage the section.</li>
+		 * </ol>
+		 * @return Whether a syntax is already managing this section context
+		 */
+		public boolean claimed() {
+			return owner != null;
+		}
+
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
+	}
+
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "section";
 	}
 
 }

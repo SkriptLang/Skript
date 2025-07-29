@@ -1,30 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
-
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -35,9 +9,21 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -55,54 +41,71 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 		Skript.registerExpression(ExprNamed.class, Object.class, ExpressionType.PROPERTY,
 				"%itemtype/inventorytype% (named|with name[s]) %string%");
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<String> name;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private Class<?>[] returnTypes;
+
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		setExpr(exprs[0]);
+		if (exprs[0] instanceof Literal<?> lit && lit.getSingle() instanceof InventoryType inventoryType && !inventoryType.isCreatable()) {
+			Skript.error("Cannot create an inventory of type " + Classes.toString(inventoryType));
+			return false;
+		}
+		//noinspection unchecked
 		name = (Expression<String>) exprs[1];
+
+		List<Class<?>> returnTypes = new ArrayList<>();
+		if (exprs[0].canReturn(ItemType.class))
+			returnTypes.add(ItemType.class);
+		if (exprs[0].canReturn(InventoryType.class))
+			returnTypes.add(Inventory.class);
+		this.returnTypes = returnTypes.toArray(new Class<?>[0]);
+
 		return true;
 	}
 	
 	@Override
-	protected Object[] get(final Event e, final Object[] source) {
-		String name = this.name.getSingle(e);
+	protected Object[] get(Event event, Object[] source) {
+		String name = this.name.getSingle(event);
 		if (name == null)
 			return get(source, obj -> obj); // No name provided, do nothing
-		return get(source, new Getter<Object, Object>() {
-			@Override
-			@Nullable
-			public Object get(Object obj) {
-				if (obj instanceof InventoryType)
-					return Bukkit.createInventory(null, (InventoryType) obj, name);
-				if (obj instanceof ItemStack) {
-					ItemStack stack = (ItemStack) obj;
-					stack = stack.clone();
-					ItemMeta meta = stack.getItemMeta();
-					if (meta != null) {
-						meta.setDisplayName(name);
-						stack.setItemMeta(meta);
-					}
-					return new ItemType(stack);
-				}
-				ItemType item = (ItemType) obj;
-				item = item.clone();
-				ItemMeta meta = item.getItemMeta();
-				meta.setDisplayName(name);
-				item.setItemMeta(meta);
-				return item;
+		return get(source, object -> {
+			if (object instanceof InventoryType inventoryType) {
+				if (!inventoryType.isCreatable())
+					return null;
+				return Bukkit.createInventory(null, inventoryType, name);
 			}
+			if (object instanceof ItemStack stack) {
+				stack = stack.clone();
+				ItemMeta meta = stack.getItemMeta();
+				if (meta != null) {
+					meta.setDisplayName(name);
+					stack.setItemMeta(meta);
+				}
+				return new ItemType(stack);
+			}
+			ItemType item = (ItemType) object;
+			item = item.clone();
+			ItemMeta meta = item.getItemMeta();
+			meta.setDisplayName(name);
+			item.setItemMeta(meta);
+			return item;
 		});
 	}
-	
+
 	@Override
-	public Class<? extends Object> getReturnType() {
-		return getExpr().getReturnType() == InventoryType.class ? Inventory.class : ItemType.class;
+	public Class<?> getReturnType() {
+		if (returnTypes.length == 1)
+			return returnTypes[0];
+		return Object.class;
 	}
-	
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return Arrays.copyOf(returnTypes, returnTypes.length);
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return getExpr().toString(e, debug) + " named " + name;

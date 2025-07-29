@@ -1,29 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
-
-import java.text.SimpleDateFormat;
-
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.VariableString;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -33,10 +8,16 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.Date;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+
+import java.text.SimpleDateFormat;
 
 @Name("Formatted Date")
 @Description({
@@ -60,10 +41,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 			"[human-readable] formatted %dates% [(with|as) %-string%]");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private SimpleDateFormat format;
-
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> customFormat;
 
 	@Override
@@ -115,17 +93,19 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 			format = this.format;
 		}
 
-		return get(source, new Getter<String, Date>() {
-			@Override
-			public String get(Date date) {
-				return format.format(new java.util.Date(date.getTimestamp()));
-			}
-		});
+		return get(source, date -> format.format(date));
 	}
 
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (getExpr() instanceof Literal && (customFormat == null || customFormat instanceof Literal))
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

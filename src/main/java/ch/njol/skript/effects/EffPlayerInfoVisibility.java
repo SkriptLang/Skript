@@ -1,25 +1,7 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
@@ -37,10 +19,10 @@ import ch.njol.util.Kleenean;
 @Name("Player Info Visibility")
 @Description({"Sets whether all player related information is hidden in the server list.",
 		"The Vanilla Minecraft client will display ??? (dark gray) instead of player counts and will not show the",
-		"<a href='expressions.html#ExprHoverList'>hover hist</a> when hiding player info.",
-		"<a href='expressions.html#ExprVersionString'>The version string</a> can override the ???.",
-		"Also the <a href='expressions.html#ExprOnlinePlayersCount'>Online Players Count</a> and",
-		"<a href='expressions.html#ExprMaxPlayers'>Max Players</a> expressions will return -1 when hiding player info."})
+		"<a href='#ExprHoverList'>hover hist</a> when hiding player info.",
+		"<a href='#ExprVersionString'>The version string</a> can override the ???.",
+		"Also the <a href='#ExprOnlinePlayersCount'>Online Players Count</a> and",
+		"<a href='#ExprMaxPlayers'>Max Players</a> expressions will return -1 when hiding player info."})
 @Examples({"hide player info",
 		"hide player related information in the server list",
 		"reveal all player related info"})

@@ -1,29 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -42,6 +17,7 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -52,6 +28,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Name("Broadcast")
 @Description("Broadcasts a message to the server.")
@@ -101,12 +80,15 @@ public class EffBroadcast extends Effect {
 		}
 
 		for (Expression<?> message : getMessages()) {
-			if (message instanceof VariableString) {
-				if (!dispatchEvent(getRawString(event, (VariableString) message), receivers))
+			if (message instanceof VariableString variableString) {
+				// get both unformatted and components with single evaluation: https://github.com/SkriptLang/Skript/issues/7718
+				StringBuilder unformattedString = new StringBuilder();
+				List<MessageComponent> messageComponents = variableString.getMessageComponents(event, unformattedString);
+				if (!dispatchEvent(unformattedString.toString(), receivers))
 					continue;
-				BaseComponent[] components = BungeeConverter.convert(((VariableString) message).getMessageComponents(event));
+				BaseComponent[] components = BungeeConverter.convert(messageComponents);
 				receivers.forEach(receiver -> receiver.spigot().sendMessage(components));
-			} else if (message instanceof ExprColoured && ((ExprColoured) message).isUnsafeFormat()) { // Manually marked as trusted
+			} else if (message instanceof ExprColoured coloured && coloured.isUnsafeFormat()) { // Manually marked as trusted
 				for (Object realMessage : message.getArray(event)) {
 					if (!dispatchEvent(Utils.replaceChatStyles((String) realMessage), receivers))
 						continue;
@@ -115,7 +97,7 @@ public class EffBroadcast extends Effect {
 				}
 			} else {
 				for (Object messageObject : message.getArray(event)) {
-					String realMessage = messageObject instanceof String ? (String) messageObject : Classes.toString(messageObject);
+					String realMessage = messageObject instanceof String string ? string : Classes.toString(messageObject);
 					if (!dispatchEvent(Utils.replaceChatStyles(realMessage), receivers))
 						continue;
 					receivers.forEach(receiver -> receiver.sendMessage(realMessage));
@@ -141,9 +123,9 @@ public class EffBroadcast extends Effect {
 	 * @param message the message
 	 * @return true if the dispatched event does not get cancelled
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("removal")
 	private static boolean dispatchEvent(String message, List<CommandSender> receivers) {
-		Set<CommandSender> recipients = Collections.unmodifiableSet(new HashSet<>(receivers));
+		Set<CommandSender> recipients = Set.copyOf(receivers);
 		BroadcastMessageEvent broadcastEvent;
 		if (Skript.isRunningMinecraft(1, 14)) {
 			broadcastEvent = new BroadcastMessageEvent(!Bukkit.isPrimaryThread(), message, recipients);
@@ -154,11 +136,18 @@ public class EffBroadcast extends Effect {
 		return !broadcastEvent.isCancelled();
 	}
 
-	@Nullable
-	private static String getRawString(Event event, Expression<? extends String> string) {
-		if (string instanceof VariableString)
-			return ((VariableString) string).toUnformattedString(event);
+	/**
+	 * Gets the raw string from the expression, replacing colour codes.
+	 * @param event the event
+	 * @param string the expression
+	 * @return the raw string
+	 */
+	private static @Nullable String getRawString(Event event, Expression<? extends String> string) {
+		if (string instanceof VariableString variableString)
+			return variableString.toUnformattedString(event);
 		String rawString = string.getSingle(event);
+		if (rawString == null)
+			return null;
 		rawString = SkriptColor.replaceColorChar(rawString);
 		if (rawString.toLowerCase().contains("&x")) {
 			rawString = StringUtils.replaceAll(rawString, HEX_PATTERN, matchResult ->

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
@@ -47,13 +29,14 @@ import org.bukkit.inventory.MainHand;
 @RequiredPlugins("Paper 1.17.1+ (entities)")
 public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
+	// TODO - remove this when Spigot support is dropped
 	private static final boolean CAN_USE_ENTITIES = Skript.methodExists(Mob.class, "isLeftHanded");
 
 	static {
 		if (CAN_USE_ENTITIES) {
-			register(CondIsLeftHanded.class, PropertyType.BE, "(:left|right)( |-)handed", "livingentities");
+			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "livingentities");
 		} else {
-			register(CondIsLeftHanded.class, PropertyType.BE, "(:left|right)( |-)handed", "players");
+			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "players");
 		}
 	}
 
@@ -68,12 +51,12 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		// check if entity is a mob and if the method exists
-		if (CAN_USE_ENTITIES && livingEntity instanceof Mob)
-			return ((Mob) livingEntity).isLeftHanded() == (hand == MainHand.LEFT);
+		if (CAN_USE_ENTITIES && livingEntity instanceof Mob mob)
+			return mob.isLeftHanded() == (hand == MainHand.LEFT);
 
 		// check if entity is a player
-		if (livingEntity instanceof HumanEntity)
-			return ((HumanEntity) livingEntity).getMainHand() == hand;
+		if (livingEntity instanceof HumanEntity humanEntity)
+			return humanEntity.getMainHand() == hand;
 
 		// invalid entity
 		return false;

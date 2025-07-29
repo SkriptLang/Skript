@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -31,13 +13,13 @@ import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Colored / Uncolored")
 @Description({"Parses &lt;color&gt;s and, optionally, chat styles in a message or removes",
 		"any colors <i>and</i> chat styles from the message. Parsing all",
 		"chat styles requires this expression to be used in same line with",
-		"the <a href=effects.html#EffSend>send effect</a>."})
+		"the <a href=#EffSend>send effect</a>."})
 @Examples({"on chat:",
 		"	set message to colored message # Safe; only colors get parsed",
 		"command /fade &lt;player&gt;:",

@@ -1,30 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
-
-import java.util.List;
-import java.util.regex.MatchResult;
-
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -35,6 +9,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
@@ -45,6 +20,14 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.regex.MatchResult;
 
 @Name("Argument")
 @Description({
@@ -61,7 +44,7 @@ import ch.njol.util.StringUtils;
 	"heal the last argument"
 })
 @Since("1.0, 2.7 (support for command events)")
-public class ExprArgument extends SimpleExpression<Object> {
+public class ExprArgument extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprArgument.class, Object.class, ExpressionType.SIMPLE,
@@ -81,15 +64,13 @@ public class ExprArgument extends SimpleExpression<Object> {
 	private Argument<?> argument;
 
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
-	
+
+	private boolean couldCauseArithmeticConfusion = false;
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean scriptCommand = getParser().isCurrentEvent(ScriptCommandEvent.class);
-		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class)) {
-			Skript.error("The 'argument' expression can only be used in a script command or command event");
-			return false;
-		}
 
 		switch (matchedPattern) {
 			case 0:
@@ -101,6 +82,8 @@ public class ExprArgument extends SimpleExpression<Object> {
 				break;
 			case 3:
 				what = parseResult.mark == 1 ? ALL : SINGLE;
+				if (what == SINGLE && parseResult.expr.matches("(the )?arg(ument)?"))
+					couldCauseArithmeticConfusion = true; // 'arg-1' could be parsed as 'argument - 1'
 				break;
 			case 4:
 			case 5:
@@ -210,7 +193,13 @@ public class ExprArgument extends SimpleExpression<Object> {
 
 		return true;
 	}
-	
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class,
+			ServerCommandEvent.class);
+	}
+
 	@Override
 	@Nullable
 	protected Object[] get(final Event e) {
@@ -259,6 +248,13 @@ public class ExprArgument extends SimpleExpression<Object> {
 	@Override
 	public boolean isSingle() {
 		return argument != null ? argument.isSingle() : what != ALL;
+	}
+
+	/**
+	 * @return whether the expression is 'arg', a single argument that could cause confusion with 'arg-1' being parsed as 'argument - 1'.
+	 */
+	public boolean couldCauseArithmeticConfusion() {
+		return couldCauseArithmeticConfusion;
 	}
 	
 	@Override

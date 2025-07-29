@@ -1,34 +1,11 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.test.runner;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import ch.njol.skript.Skript;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
-
-import ch.njol.skript.Skript;
 
 /**
  * Class that helps the JUnit test communicate with Skript.
@@ -102,9 +79,19 @@ public abstract class SkriptJUnitTest {
 	 * @return Pig that has been spawned.
 	 */
 	public static Pig spawnTestPig() {
+		return spawnTestEntity(EntityType.PIG);
+	}
+
+	/**
+	 * Spawns a test {@link Entity} from the provided {@code entityType}
+	 * @param entityType The desired {@link EntityType} to spawn
+	 * @return The spawned {@link Entity}
+	 */
+	public static <E extends Entity> E spawnTestEntity(EntityType entityType) {
 		if (delay <= 0D)
-			delay = 1; // A single tick allows the piggy to spawn before server shutdown.
-		return (Pig) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIG);
+			delay = 1; // A single tick allows the entity to spawn before server shutdown.
+		//noinspection unchecked
+		return (E) getTestWorld().spawnEntity(getTestLocation(), entityType);
 	}
 
 	/**

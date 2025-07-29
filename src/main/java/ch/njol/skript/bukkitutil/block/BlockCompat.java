@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.bukkitutil.block;
 
 import java.util.Map;
@@ -26,7 +8,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.aliases.ItemFlags;
 
@@ -48,9 +30,9 @@ public interface BlockCompat {
 	 * values if needed, but cannot be used to retrieve any other data.
 	 * @param block Block state to retrieve value from.
 	 * @return Block values.
-	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
+	 * @deprecated Use {@link #getBlockValues(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	@Nullable
 	BlockValues getBlockValues(BlockState block);
 	
@@ -86,7 +68,7 @@ public interface BlockCompat {
 	 * @return Block state.
 	 * @deprecated This shouldn't be used
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	BlockState fallingBlockToState(FallingBlock entity);
 
 	@Nullable

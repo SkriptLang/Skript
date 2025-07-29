@@ -1,52 +1,32 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.config;
 
 import java.util.Locale;
-
-import org.eclipse.jdt.annotation.Nullable;
-
+import java.util.function.Consumer;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Setter;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.Locale;
+import java.util.function.Consumer;
+
 public class Option<T> {
-	
+
 	public final String key;
 	private boolean optional = false;
-	
+
 	@Nullable
 	private String value = null;
 	private final Converter<String, ? extends T> parser;
 	private final T defaultValue;
 	private T parsedValue;
-	
+
 	@Nullable
-	private Setter<? super T> setter;
-	
+	private Consumer<? super T> setter;
+
 	public Option(final String key, final T defaultValue) {
 		this.key = "" + key.toLowerCase(Locale.ENGLISH);
 		this.defaultValue = defaultValue;
@@ -54,13 +34,7 @@ public class Option<T> {
 		@SuppressWarnings("unchecked")
 		final Class<T> c = (Class<T>) defaultValue.getClass();
 		if (c == String.class) {
-			parser = new Converter<String, T>() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public T convert(final String s) {
-					return (T) s;
-				}
-			};
+			parser = (Converter<String, T>) s -> (T) s;
 		} else {
 			final ClassInfo<T> ci = Classes.getExactClassInfo(c);
 			final Parser<? extends T> p;
@@ -79,24 +53,24 @@ public class Option<T> {
 			};
 		}
 	}
-	
+
 	public Option(final String key, final T defaultValue, final Converter<String, ? extends T> parser) {
 		this.key = "" + key.toLowerCase(Locale.ENGLISH);
 		this.defaultValue = defaultValue;
 		parsedValue = defaultValue;
 		this.parser = parser;
 	}
-	
-	public final Option<T> setter(final Setter<? super T> setter) {
+
+	public final Option<T> setter(final Consumer<? super T> setter) {
 		this.setter = setter;
 		return this;
 	}
-	
+
 	public final Option<T> optional(final boolean optional) {
 		this.optional = optional;
 		return this;
 	}
-	
+
 	public final void set(final Config config, final String path) {
 		final String oldValue = value;
 		value = config.getByPath(path + key);
@@ -110,18 +84,22 @@ public class Option<T> {
 			onValueChange();
 		}
 	}
-	
+
 	protected void onValueChange() {
 		if (setter != null)
-			setter.set(parsedValue);
+			setter.accept(parsedValue);
 	}
-	
+
 	public final T value() {
 		return parsedValue;
 	}
-	
+
+	public final T defaultValue() {
+		return defaultValue;
+	}
+
 	public final boolean isOptional() {
 		return optional;
 	}
-	
+
 }

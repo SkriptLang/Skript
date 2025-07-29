@@ -1,4 +1,4 @@
-test "villager comparisons" when running minecraft "1.15.2":
+test "villager comparisons":
 	spawn cleric at location(0, 64, 0, world "world")
 	assert last spawned entity is a cleric with "comparison failed"
 	delete last spawned entity

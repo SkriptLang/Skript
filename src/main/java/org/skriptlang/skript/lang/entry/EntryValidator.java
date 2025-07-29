@@ -1,28 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.entry;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,8 +38,7 @@ public class EntryValidator {
 
 	private final List<EntryData<?>> entryData;
 
-	@Nullable
-	private final Predicate<Node> unexpectedNodeTester;
+	private final @Nullable Predicate<Node> unexpectedNodeTester;
 
 	private final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
@@ -89,8 +70,7 @@ public class EntryValidator {
 	 *         The returned map uses the matched entry data's key as a key and uses a pair containing the entry data and matching node
 	 *         Will return null if the provided node couldn't be validated.
 	 */
-	@Nullable
-	public EntryContainer validate(SectionNode sectionNode) {
+	public @Nullable EntryContainer validate(SectionNode sectionNode) {
 		List<EntryData<?>> entries = new ArrayList<>(entryData);
 		Map<String, Node> handledNodes = new HashMap<>();
 		List<Node> unhandledNodes = new ArrayList<>();
@@ -150,11 +130,9 @@ public class EntryValidator {
 		private final List<EntryData<?>> entryData = new ArrayList<>();
 		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
 
-		@Nullable
-		private Predicate<Node> unexpectedNodeTester;
+		private @Nullable Predicate<Node> unexpectedNodeTester;
 
-		@Nullable
-		private Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+		private @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
 		/**
 		 * Updates the separator to be used when creating KeyValue entries. Please note

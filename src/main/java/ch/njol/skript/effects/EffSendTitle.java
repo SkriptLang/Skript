@@ -1,26 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -41,7 +23,7 @@ import ch.njol.util.Kleenean;
 	"be sent with the next title. To show only the subtitle, use: <code>send title \" \" with subtitle \"yourtexthere\" to player</code>.",
 	"",
 	"Note: if no input is given for the times, it will keep the ones from the last title sent, " +
-	"use the <a href='effects.html#EffResetTitle'>reset title</a> effect to restore the default values."
+	"use the <a href='#EffResetTitle'>reset title</a> effect to restore the default values."
 })
 @Examples({
 	"send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds",
@@ -101,17 +83,17 @@ public class EffSendTitle extends Effect {
 
 			if (this.fadeIn != null) {
 				Timespan t = this.fadeIn.getSingle(e);
-				fadeIn = t != null ? (int) t.getTicks() : -1;
+				fadeIn = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
 			}
 
 			if (this.stay != null) {
 				Timespan t = this.stay.getSingle(e);
-				stay = t != null ? (int) t.getTicks() : -1;
+				stay = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
 			}
 
 			if (this.fadeOut != null) {
 				Timespan t = this.fadeOut.getSingle(e);
-				fadeOut = t != null ? (int) t.getTicks() : -1;
+				fadeOut = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
 			}
 			
 			for (Player p : recipients.getArray(e))

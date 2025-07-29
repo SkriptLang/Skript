@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -34,7 +16,7 @@ import com.google.common.collect.Iterables;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +27,7 @@ import java.util.stream.StreamSupport;
 @Name("Items")
 @Description("Items or blocks of a specific type, useful for looping.")
 @Examples({
-		"loop items of type ore and log:",
+		"loop tag values of tag \"diamond_ores\" and tag values of tag \"oak_logs\":",
 		"\tblock contains loop-item",
 		"\tmessage \"Theres at least one %loop-item% in this block\"",
 		"drop all blocks at the player # drops one of every block at the player"
@@ -54,7 +36,7 @@ import java.util.stream.StreamSupport;
 public class ExprItems extends SimpleExpression<ItemType> {
 
 	private static final ItemType[] ALL_BLOCKS = Arrays.stream(Material.values())
-		.filter(Material::isBlock)
+		.filter(material -> !material.isLegacy() && material.isBlock())
 		.map(ItemType::new)
 		.toArray(ItemType[]::new);
 

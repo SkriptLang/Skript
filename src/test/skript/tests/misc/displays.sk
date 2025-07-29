@@ -1,0 +1,17 @@
+test "spawn displays":
+	spawn a text display at spawn of world "world":
+		set {_display} to event-display
+	assert billboard of display within {_display} is "fixed" parsed as billboard with "default billboard was not fixed"
+	set billboard of display within {_display} to "center" parsed as billboard
+	assert billboard of display within {_display} is center with "failed to set billboard to center"
+	clear all entities
+	spawn a block display at spawn of world "world":
+		set block data of event-display to grass_block[snowy=true]
+		set {_display} to event-display
+	assert block data of display within {_display} is grass_block[snowy=true] with "failed to compare block display block data"
+	spawn an item display of a diamond sword of sharpness at spawn of world "world":
+		assert item transform of event-display is no transform with "item transform was not default"
+		set item transform of event-display to head
+		assert item transform of event-display is head with "failed to set item transform to head"
+		assert item of event-display is a diamond sword of sharpness with "failed to compare against the item of the display %item of display%"
+	clear all entities

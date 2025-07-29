@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -35,7 +17,6 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.MessageComponent;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -43,14 +24,16 @@ import ch.njol.util.coll.iterator.SingleItemIterator;
 import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -403,6 +386,19 @@ public class VariableString implements Expression<String> {
 	 * @return Message components.
 	 */
 	public List<MessageComponent> getMessageComponents(Event event) {
+		return getMessageComponents(event, null);
+	}
+
+	/**
+	 * Gets message components from this string. Formatting is parsed only
+	 * in simple parts for security reasons. Providing a StringBuilder allows an unformatted output
+	 * identical to {@link #toUnformattedString(Event)} while only evaluating any expressions once.
+	 *
+	 * @param event Currently running event.
+	 * @param unformattedBuilder Unformatted string to append to.
+	 * @return Message components.
+	 */
+	public List<MessageComponent> getMessageComponents(Event event, @Nullable StringBuilder unformattedBuilder) {
 		if (isSimple) { // Trusted, constant string in a script
 			assert simpleUnformatted != null;
 			return ChatMessages.parse(simpleUnformatted);
@@ -426,14 +422,15 @@ public class VariableString implements Expression<String> {
 
 				// Convert it to plain text
 				String text = null;
-				if (string instanceof ExprColoured && ((ExprColoured) string).isUnsafeFormat()) { // Special case: user wants to process formatting
-					String unformatted = Classes.toString(((ExprColoured) string).getArray(event), true, mode);
-					if (unformatted != null) {
-						message.addAll(ChatMessages.parse(unformatted));
+				if (string instanceof Expression<?> expression) {
+					text = Classes.toString(expression.getArray(event), true, mode);
+					if (unformattedBuilder != null)
+						unformattedBuilder.append(text);
+					// Special case: user wants to process formatting
+					if (string instanceof ExprColoured exprColoured && exprColoured.isUnsafeFormat()) {
+						message.addAll(ChatMessages.parse(text));
+						continue;
 					}
-					continue;
-				} else if (string instanceof Expression<?>) {
-					text = Classes.toString(((Expression<?>) string).getArray(event), true, mode);
 				}
 
 				assert text != null;
@@ -594,6 +591,9 @@ public class VariableString implements Expression<String> {
 				typeHints.forEach(builder -> builder.append(object));
 				continue;
 			}
+			if (hintIndex >= savedHints.length) {
+				break;
+			}
 			StringBuilder[] current = typeHints.toArray(new StringBuilder[0]);
 			for (ClassInfo<?> classInfo : Classes.getAllSuperClassInfos(savedHints[hintIndex])) {
 				for (StringBuilder builder : current) {
@@ -655,12 +655,12 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super String> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super String> checker, boolean negated) {
 		return SimpleExpression.check(getAll(event), checker, negated, false);
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super String> checker) {
+	public boolean check(Event event, Predicate<? super String> checker) {
 		return SimpleExpression.check(getAll(event), checker, false, false);
 	}
 
@@ -739,6 +739,10 @@ public class VariableString implements Expression<String> {
 
 	@Override
 	public Expression<String> simplify() {
+		if (isSimple)
+			return SimplifiedLiteral.fromExpression(this);
+		if (this.strings == null || Arrays.stream(this.strings).allMatch(o -> o instanceof Literal))
+			return SimplifiedLiteral.fromExpression(this);
 		return this;
 	}
 

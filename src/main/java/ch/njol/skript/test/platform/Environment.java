@@ -1,39 +1,22 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.test.platform;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import ch.njol.skript.test.utils.TestResults;
-
-import org.eclipse.jdt.annotation.Nullable;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -111,33 +94,26 @@ public class Environment {
 			return source;
 		}
 
-		private void generateSource() throws IOException {
+		private void generateSource() throws IOException, InterruptedException {
 			if (source != null)
 				return;
 
-			String stringUrl = "https://api.papermc.io/v2/projects/paper/versions/" + version;
-			URL url = new URL(stringUrl);
-			JsonObject jsonObject;
-			try (InputStream is = url.openStream()) {
-				InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-				jsonObject = gson.fromJson(reader, JsonObject.class);
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest buildRequest = HttpRequest.newBuilder()
+				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/latest"))
+				.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
+				.GET()
+				.build();
+			HttpResponse<InputStream> buildResponse = client.send(buildRequest, BodyHandlers.ofInputStream());
+			JsonObject buildObject;
+			try (InputStreamReader reader = new InputStreamReader(buildResponse.body(), StandardCharsets.UTF_8)) {
+				buildObject = gson.fromJson(reader, JsonObject.class);
 			}
-
-			JsonArray jsonArray = jsonObject.get("builds").getAsJsonArray();
-
-			int latestBuild = -1;
-			for (JsonElement jsonElement : jsonArray) {
-				int build = jsonElement.getAsInt();
-				if (build > latestBuild) {
-					latestBuild = build;
-				}
-			}
-
-			if (latestBuild == -1)
-				throw new IllegalStateException("No builds for this version");
-
-			source = "https://api.papermc.io/v2/projects/paper/versions/" + version + "/builds/" + latestBuild
-				+ "/downloads/paper-" + version + "-" + latestBuild + ".jar";
+			String downloadURL = buildObject.getAsJsonObject("downloads")
+				.getAsJsonObject("server:default")
+				.get("url").getAsString();
+			assert downloadURL != null && !downloadURL.isEmpty();
+			source = downloadURL;
 		}
 	}
 
@@ -249,6 +225,8 @@ public class Environment {
 		args.add("-Ddisable.watchdog=true");
 		if (debug)
 			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000");
+		args.add("-Duser.language=en");
+		args.add("-Duser.country=US");
 		args.addAll(jvmArgs);
 		args.addAll(Arrays.asList(commandLine));
 

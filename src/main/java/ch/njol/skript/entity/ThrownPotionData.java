@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
 import java.util.Arrays;
@@ -27,7 +9,8 @@ import org.bukkit.entity.LingeringPotion;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -145,7 +128,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new ThrownPotionData();
 	}
 	
@@ -175,7 +158,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	
 	//		return ItemType.serialize(types);
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	protected boolean deserialize(String s) {
 		throw new UnsupportedOperationException("old serialization is no longer supported");
 //		if (s.isEmpty())

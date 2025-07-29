@@ -1,39 +1,22 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import org.bukkit.Location;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Altitude")
-@Description("Effectively an alias of 'y-<a href='#ExprCoordinate'>coordinate</a> of …', it represents the height of some object above bedrock.")
-@Examples({"on damage:",
-		"	altitude of the attacker is higher than the altitude of the victim",
-		"	set damage to damage * 1.2"})
+@Description("Effectively an alias of 'y-<a href='#ExprCoordinate'>coordinate</a> of …', it represents the height of some location within the world.")
+@Example("""
+	on damage:
+		altitude of the attacker is higher than the altitude of the victim
+		set damage to damage * 1.2
+	""")
 @Since("1.4.3")
 public class ExprAltitude extends SimplePropertyExpression<Location, Number> {
 	
@@ -55,5 +38,12 @@ public class ExprAltitude extends SimplePropertyExpression<Location, Number> {
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
 	}
-	
+
+	@Override
+	public Expression<? extends Number> simplify() {
+		if (getExpr() instanceof Literal<? extends Location>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
 }

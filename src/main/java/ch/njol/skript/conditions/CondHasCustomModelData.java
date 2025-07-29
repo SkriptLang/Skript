@@ -1,55 +1,84 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
-
-import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
+
+import java.util.Locale;
 
 @Name("Has Custom Model Data")
 @Description("Check if an item has a custom model data tag")
-@Examples("player's tool has custom model data")
-@RequiredPlugins("1.14+")
-@Since("2.5")
+@Example("player's tool has custom model data")
+@Example("""
+	if player's tool has custom model data flags:
+		loop custom model data flags of player's tool:
+			send "Flag %loop-index%: %loop-value%"
+	""")
+@Example("set {_coloured} to whether player's tool has model data colours")
+@Since("2.5, 2.12 (expanded data types)")
+@RequiredPlugins("Minecraft 1.21.4+ (floats/flags/strings/colours)")
 public class CondHasCustomModelData extends PropertyCondition<ItemType> {
-	
+
+	// 1.21.5+
+	private static final boolean HAS_HAS_COMPONENT = Skript.methodExists(ItemMeta.class, "hasCustomModelDataComponent");
+
 	static {
-		if (Skript.methodExists(ItemMeta.class, "hasCustomModelData")) {
+		// 1.21.4+
+		if (Skript.methodExists(ItemMeta.class, "getCustomModelDataComponent")) {
+			// new style
+			register(CondHasCustomModelData.class, PropertyType.HAVE, "[custom] model data [1:floats|2:flags|3:strings|4:colo[u]rs]", "itemtypes");
+		} else {
+			// old style
 			register(CondHasCustomModelData.class, PropertyType.HAVE, "[custom] model data", "itemtypes");
 		}
 	}
-	
-	@Override
-	public boolean check(ItemType item) {
-		return item.getItemMeta().hasCustomModelData();
+
+	private enum CMDType {
+		ANY,
+		FLOATS,
+		FLAGS,
+		STRINGS,
+		COLORS
 	}
-	
+
+	private CMDType dataType;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		dataType = CMDType.values()[parseResult.mark];
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+	}
+
+	@Override
+	@SuppressWarnings("UnstableApiUsage")
+	public boolean check(ItemType item) {
+		ItemMeta meta = item.getItemMeta();
+		if (dataType == CMDType.ANY)
+			return HAS_HAS_COMPONENT ? meta.hasCustomModelDataComponent() : meta.hasCustomModelData();
+		CustomModelDataComponent component = meta.getCustomModelDataComponent();
+		return switch (dataType) {
+			case FLOATS -> !component.getFloats().isEmpty();
+			case FLAGS -> !component.getFlags().isEmpty();
+			case STRINGS -> !component.getStrings().isEmpty();
+			case COLORS -> !component.getColors().isEmpty();
+			case ANY -> throw new IllegalStateException("Wrong path for CMDType.ANY.");
+		};
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
+	}
+
 	@Override
 	protected String getPropertyName() {
-		return "custom model data";
+		return "custom model data" + (dataType != CMDType.ANY ? " " + dataType.name().toLowerCase(Locale.ENGLISH) : "");
 	}
 	
 }

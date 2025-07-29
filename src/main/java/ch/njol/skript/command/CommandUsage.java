@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.command;
 
 import ch.njol.skript.lang.VariableString;
@@ -46,6 +28,10 @@ public class CommandUsage {
 	 */
 	public CommandUsage(@Nullable VariableString usage, String defaultUsage) {
 		if (usage == null) {
+			// Manually escape quotes. This is not a good solution, as it doesn't handle many other issues, like % in
+			// commands, but in lieu of re-writing the argument parser and command logic completely, I believe this is
+			// a decent stop-gap measure for using " in commands.
+			defaultUsage = VariableString.quote(defaultUsage);
 			usage = VariableString.newInstance(defaultUsage);
 			assert usage != null;
 		}

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -36,10 +18,11 @@ import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Set;
 
 @Name("Input")
@@ -67,7 +50,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 	@Nullable
 	private final ExprInput<?> source;
 	private final Class<? extends T>[] types;
-	private final Class<T> superType;
+	private Class<T> superType;
 
 	private InputSource inputSource;
 
@@ -109,7 +92,7 @@ public class ExprInput<T> extends SimpleExpression<T> {
 				break;
 			case 2:
 				if (!inputSource.hasIndices()) {
-					Skript.error("You cannot use 'input index' on lists without indices!");
+					Skript.error("You cannot use 'input index' on expressions without indices!");
 					return false;
 				}
 				specifiedType = DefaultClasses.STRING;
@@ -118,6 +101,9 @@ public class ExprInput<T> extends SimpleExpression<T> {
 			default:
 				specifiedType = null;
 		}
+		if (specifiedType != null)
+			//noinspection unchecked
+			superType = (Class<T>) specifiedType.getC();
 		return true;
 	}
 
@@ -154,11 +140,15 @@ public class ExprInput<T> extends SimpleExpression<T> {
 		return superType;
 	}
 
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(types, types.length);
+	}
+
 	@Nullable
 	public ClassInfo<?> getSpecifiedType() {
 		return specifiedType;
 	}
-
 
 	@Override
 	public String toString(Event event, boolean debug) {

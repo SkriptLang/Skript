@@ -1,0 +1,11 @@
+test "scientific notation":
+	assert 1.23e+4 is 12300 with "1.23e4 is not 12300"
+	assert 1.23e-4 is 0.000123 with "1.23e-4 is not 0.000123"
+	assert 1.23E+4 is 12300 with "1.23E4 is not 12300"
+	assert 1.23E-4 is 0.000123 with "1.23E-4 is not 0.000123"
+
+	assert 123e+2 is 12300 with "123e2 is not 12300"
+	assert 123e-2 is 1.23 with "123e-2 is not 1.23"
+
+	assert 1.23e+4 degs is 12300 with "1.23e+4 degs is not 12300"
+	assert 1.23e4 degs is 12300 with "1.23e4 degs is not 12300"

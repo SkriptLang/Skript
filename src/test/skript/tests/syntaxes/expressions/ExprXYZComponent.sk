@@ -1,0 +1,62 @@
+test "vector xyz":
+	assert the w component of vector(0, 0, 0) is not set with "w vector component return value for vector unexpectedly"
+	assert the x component of vector(1, 0, 0) is 1 with "x vector component failed"
+	assert the y component of vector(0, 1, 0) is 1 with "y vector component failed"
+	assert the z component of vector(0, 0, 1) is 1 with "z vector component failed"
+
+	set {_v} to vector(0,0,0)
+	set x of {_v} to infinity value
+	assert the w component of {_v} is not set with "set x of vector created w component somehow"
+	assert the x component of {_v} is infinity value with "set x of vector failed"
+	assert the y component of {_v} is 0 with "set x of vector modified other components"
+	assert the z component of {_v} is 0 with "set x of vector modified other components"
+
+	loop 60 times:
+		set {_x} to a random number between -100 and 100
+		set {_y} to a random number between -100 and 100
+		set {_z} to a random number between -100 and 100
+		set {_vector} to vector({_x}, {_y}, {_z})
+		assert the x component of {_vector} is {_x} with "randomly-created vector x equality failed"
+		assert the y component of {_vector} is {_y} with "randomly-created vector y equality failed"
+		assert the z component of {_vector} is {_z} with "randomly-created vector z equality failed"
+	set {_random} to a random vector
+	set {_vector} to a new vector from x component of {_random}, y component of {_random}, z component of {_random}
+	assert {_vector} is {_random} with "random vector to created component equality failed (expected %{_random}%, got %{_vector}%)"
+
+	set {_v::*} to vector(1,2,3), vector(2,3,4), and vector(3,4,5)
+	set x component of {_v::*} to -1.5
+	assert the x component of {_v::*} is (-1.5, -1.5, and -1.5) with "x component of multiple vectors failed"
+	assert the y component of {_v::*} is (2, 3, and 4) with "changing x component of multiple vectors changed y components too"
+
+test "quaternion wxyz":
+	assert the w component of quaternion(1, 0, 0, 0) is 1 with "w vector component failed"
+	assert the x component of quaternion(1, 0, 0, 0) is 0 with "x vector component failed"
+	assert the y component of quaternion(1, 0, 0, 0) is 0 with "y vector component failed"
+	assert the z component of quaternion(1, 0, 0, 0) is 0 with "z vector component failed"
+
+	assert the x component of quaternion(0, 1, 0, 0) is 1 with "x vector component failed"
+	assert the y component of quaternion(0, 0, 1, 0) is 1 with "y vector component failed"
+	assert the z component of quaternion(0, 0, 0, 1) is 1 with "z vector component failed"
+
+	set {_q} to quaternion(0,0,0,0)
+	set x of {_q} to infinity value
+	assert the w component of {_q} is 0 with "set x of quaternion modified other components"
+	assert the x component of {_q} is infinity value with "set x of quaternion failed"
+	assert the y component of {_q} is 0 with "set x of quaternion modified other components"
+	assert the z component of {_q} is 0 with "set x of quaternion modified other components"
+
+	loop 60 times:
+		set {_w} to a random number between -100 and 100
+		set {_x} to a random number between -100 and 100
+		set {_y} to a random number between -100 and 100
+		set {_z} to a random number between -100 and 100
+		set {_quaternion} to quaternion({_w}, {_x}, {_y}, {_z})
+		assert the w component of {_quaternion} is {_w} with "randomly-created quaternion w equality failed"
+		assert the x component of {_quaternion} is {_x} with "randomly-created quaternion x equality failed"
+		assert the y component of {_quaternion} is {_y} with "randomly-created quaternion y equality failed"
+		assert the z component of {_quaternion} is {_z} with "randomly-created quaternion z equality failed"
+
+	set {_v::*} to quaternion(0,1,2,3), quaternion(1,2,3,4), and quaternion(2,3,4,5)
+	set x component of {_v::*} to -1.5
+	assert the x component of {_v::*} is (-1.5, -1.5, and -1.5) with "x component of multiple quaternions failed"
+	assert the y component of {_v::*} is (2, 3, and 4) with "changing x component of multiple quaternions changed y components too"

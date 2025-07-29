@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
@@ -25,23 +7,20 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ContainerExpression;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.PeekingIterator;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 
 @Name("Loop")
 @Description({
@@ -54,7 +33,7 @@ import java.util.WeakHashMap;
 		"You can however use <code>stop loop</code> to exit the loop completely and resume code execution after the end of the loop.",
 	"",
 	"<b>Loopable Values</b>",
-	"All <a href=\"/expressions.html\">expressions</a> that represent more than one value, e.g. ‘all players’, ‘worlds’, " +
+	"All expressions that represent more than one value, e.g. ‘all players’, ‘worlds’, " +
 		"etc., as well as list variables, can be looped. You can also use a list of expressions, e.g. <code>loop the victim " +
 		"and the attacker</code>, to execute the same code for only a few values.",
 	"",
@@ -65,19 +44,27 @@ import java.util.WeakHashMap;
 })
 @Examples({
 	"loop all players:",
-	"\tsend \"Hello %loop-player%!\" to loop-player",
+		"\tsend \"Hello %loop-player%!\" to loop-player",
 	"",
 	"loop items in player's inventory:",
-	"\tif loop-item is dirt:",
-	"\t\tset loop-item to air",
+		"\tif loop-item is dirt:",
+			"\t\tset loop-item to air",
 	"",
 	"loop 10 times:",
-	"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
-	"\twait 1 second",
+		"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
+		"\twait 1 second",
 	"",
 	"loop {Coins::*}:",
-	"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
-		"the player and loop-value is the actually coins value such as 200"
+		"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
+		"the player and loop-value is the number of coins for the player",
+	"",
+	"loop shuffled (integers between 0 and 8):",
+		"\tif all:",
+			"\t\tprevious loop-value = 1",
+			"\t\tloop-value = 4",
+			"\t\tnext loop-value = 8",
+		"\tthen:",
+			"\t\t kill all players"
 })
 @Since("1.0")
 public class SecLoop extends LoopSection {
@@ -86,14 +73,18 @@ public class SecLoop extends LoopSection {
 		Skript.registerSection(SecLoop.class, "loop %objects%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> expr;
+	protected @UnknownNullability Expression<?> expression;
 
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
-	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
+	private final transient Map<Event, Iterator<?>> iteratorMap = new WeakHashMap<>();
+	private final transient Map<Event, Object> previous = new WeakHashMap<>();
 
-	@Nullable
-	private TriggerItem actualNext;
+	protected @Nullable TriggerItem actualNext;
+	private boolean guaranteedToLoop;
+	private Object nextValue = null;
+	private boolean loopPeeking;
+	protected boolean iterableSingle;
+	protected boolean keyed;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -103,72 +94,134 @@ public class SecLoop extends LoopSection {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
-		expr = LiteralUtils.defendExpression(exprs[0]);
-		if (!LiteralUtils.canInitSafely(expr)) {
+		this.expression = LiteralUtils.defendExpression(exprs[0]);
+		if (!LiteralUtils.canInitSafely(expression)) {
 			Skript.error("Can't understand this loop: '" + parseResult.expr.substring(5) + "'");
 			return false;
 		}
 
-		if (Container.class.isAssignableFrom(expr.getReturnType())) {
-			ContainerType type = expr.getReturnType().getAnnotation(ContainerType.class);
+		if (!(expression instanceof Variable) && Container.class.isAssignableFrom(expression.getReturnType())) {
+			ContainerType type = expression.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
-				throw new SkriptAPIException(expr.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");
-			expr = new ContainerExpression((Expression<? extends Container<?>>) expr, type.value());
+				throw new SkriptAPIException(expression.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");
+			this.expression = new ContainerExpression((Expression<? extends Container<?>>) expression, type.value());
 		}
 
-		if (expr.isSingle()) {
-			Skript.error("Can't loop '" + expr + "' because it's only a single value");
+		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
+			&& expression.isSingle()
+			&& (expression instanceof Variable<?> || expression.canReturn(Iterable.class))) {
+			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
+			this.iterableSingle = true;
+		} else if (expression.isSingle()) {
+			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}
+		loopPeeking = exprs[0].supportsLoopPeeking();
 
+		guaranteedToLoop = guaranteedToLoop(expression);
+		keyed = KeyProviderExpression.canReturnKeys(expression);
 		loadOptionalCode(sectionNode);
-		super.setNext(this);
+		this.setInternalNext(this);
 
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
-		Iterator<?> iter = currentIter.get(event);
+	protected @Nullable TriggerItem walk(Event event) {
+		Iterator<?> iter = iteratorMap.get(event);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
-			if (iter != null) {
-				if (iter.hasNext())
-					currentIter.put(event, iter);
-				else
+			if (iterableSingle) {
+				Object value = expression.getSingle(event);
+				if (value instanceof Container<?> container) {
+					// Container may have special behaviour over regular iterator
+					iter = container.containerIterator();
+				} else if (value instanceof Iterable<?> iterable) {
+					iter = iterable.iterator();
+				} else {
+					iter = Collections.singleton(value).iterator();
+				}
+			} else {
+				iter = keyed
+					? ((KeyProviderExpression<?>) expression).keyedIterator(event)
+					: expression.iterator(event);
+				if (iter != null && iter.hasNext()) {
+					iteratorMap.put(event, iter);
+				} else {
 					iter = null;
+				}
 			}
 		}
-		if (iter == null || !iter.hasNext()) {
+
+		if (iter == null || (!iter.hasNext() && nextValue == null)) {
 			exit(event);
 			debug(event, false);
 			return actualNext;
 		} else {
-			current.put(event, iter.next());
-			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
+			previous.put(event, current.get(event));
+			if (nextValue != null) {
+				this.store(event, nextValue);
+				nextValue = null;
+			} else if (iter.hasNext()) {
+				this.store(event, iter.next());
+			}
 			return walk(event, true);
 		}
 	}
 
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "loop " + expr.toString(event, debug);
+	protected void store(Event event, Object next) {
+		this.current.put(event, next);
+		this.currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
 	}
 
-	@Nullable
-	public Object getCurrent(Event event) {
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return guaranteedToLoop ? triggerExecutionIntent() : null;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "loop " + expression.toString(event, debug);
+	}
+
+	public @Nullable Object getCurrent(Event event) {
 		return current.get(event);
 	}
 
+	public @Nullable Object getNext(Event event) {
+		if (!loopPeeking)
+			return null;
+		Iterator<?> iter = iteratorMap.get(event);
+		if (iter == null || !iter.hasNext())
+			return null;
+		if (iter instanceof PeekingIterator<?> peekingIterator)
+			return peekingIterator.peek();
+		nextValue = iter.next();
+		return nextValue;
+	}
+
+	public @Nullable Object getPrevious(Event event) {
+		return previous.get(event);
+	}
+
 	public Expression<?> getLoopedExpression() {
-		return expr;
+		return expression;
+	}
+
+	public boolean isKeyedLoop() {
+		return keyed;
 	}
 
 	@Override
 	public SecLoop setNext(@Nullable TriggerItem next) {
 		actualNext = next;
 		return this;
+	}
+
+	/**
+	 * @see LoopSection#setNext(TriggerItem)
+	 */
+	protected void setInternalNext(TriggerItem item) {
+		super.setNext(item);
 	}
 
 	@Nullable
@@ -180,8 +233,46 @@ public class SecLoop extends LoopSection {
 	@Override
 	public void exit(Event event) {
 		current.remove(event);
-		currentIter.remove(event);
+		iteratorMap.remove(event);
+		previous.remove(event);
+		nextValue = null;
 		super.exit(event);
+	}
+
+	private static boolean guaranteedToLoop(Expression<?> expression) {
+		// If the expression is a literal, it's guaranteed to loop if it has at least one value
+		if (expression instanceof Literal<?> literal)
+			return literal.getAll().length > 0;
+
+		// If the expression isn't a list, then we can't guarantee that it will loop
+		if (!(expression instanceof ExpressionList<?> list))
+			return false;
+
+		// If the list is an OR list (a, b or c), then it's guaranteed to loop iff all its values are guaranteed to loop
+		if (!list.getAnd()) {
+			for (Expression<?> expr : list.getExpressions()) {
+				if (!guaranteedToLoop(expr))
+					return false;
+			}
+			return true;
+		}
+
+		// If the list is an AND list (a, b and c), then it's guaranteed to loop if any of its values are guaranteed to loop
+		for (Expression<?> expr : list.getExpressions()) {
+			if (guaranteedToLoop(expr))
+				return true;
+		}
+
+		// Otherwise, we can't guarantee that it will loop
+		return false;
+	}
+
+	public boolean supportsPeeking() {
+		return loopPeeking;
+	}
+
+	public Expression<?> getExpression() {
+		return expression;
 	}
 
 }

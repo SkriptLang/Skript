@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -72,14 +54,13 @@ public abstract class EffectSection extends Section {
 	public static @Nullable EffectSection parse(String input, @Nullable String defaultError, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
 
-		//noinspection unchecked,rawtypes
-		return sectionContext.modify(sectionNode, triggerItems, () ->
-			(EffectSection) SkriptParser.parse(
-				input,
-				(Iterator) Skript.getSections().stream()
-					.filter(info -> EffectSection.class.isAssignableFrom(info.getElementClass()))
-					.iterator(),
-				defaultError));
+		return sectionContext.modify(sectionNode, triggerItems, () -> {
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).stream()
+					.filter(info -> EffectSection.class.isAssignableFrom(info.type()))
+					.iterator();
+			//noinspection unchecked,rawtypes
+			return (EffectSection) SkriptParser.parse(input, (Iterator) iterator, defaultError);
+		});
 	}
 
 }

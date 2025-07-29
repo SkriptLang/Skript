@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.events;
 
 import org.bukkit.Material;
@@ -24,7 +6,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -37,8 +19,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
  * @author Peter Güttinger
  */
 public class EvtPressurePlate extends SkriptEvent {
-
-	private static final boolean HAS_PRESSURE_PLATE_TAG = Skript.fieldExists(Tag.class, "PRESSURE_PLATES");
 
 	static {
 		// TODO is EntityInteractEvent similar for entities?
@@ -60,22 +40,16 @@ public class EvtPressurePlate extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		Block clickedBlock = ((PlayerInteractEvent) event).getClickedBlock();
+		PlayerInteractEvent interactEvent = (PlayerInteractEvent) event;
+		Block clickedBlock = interactEvent.getClickedBlock();
 		Material type = clickedBlock == null ? null : clickedBlock.getType();
-		if (type == null || ((PlayerInteractEvent) event).getAction() != Action.PHYSICAL )
+		if (type == null || interactEvent.getAction() != Action.PHYSICAL)
 			return false;
 
 		if (tripwire)
 			return(type == Material.TRIPWIRE || type == Material.TRIPWIRE_HOOK);
 
-		// TODO: 1.16+, remove check in 2.10
-		if (HAS_PRESSURE_PLATE_TAG)
-			return Tag.PRESSURE_PLATES.isTagged(type);
-
-		return Tag.WOODEN_PRESSURE_PLATES.isTagged(type)
-			|| type == Material.HEAVY_WEIGHTED_PRESSURE_PLATE
-			|| type == Material.LIGHT_WEIGHTED_PRESSURE_PLATE
-			|| type == Material.STONE_PRESSURE_PLATE;
+		return Tag.PRESSURE_PLATES.isTagged(type);
 	}
 	
 	@Override

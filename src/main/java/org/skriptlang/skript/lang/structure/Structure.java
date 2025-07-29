@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.structure;
 
 import ch.njol.skript.Skript;
@@ -29,6 +11,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -96,8 +79,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * If the EntryContainer is needed outside of {@link #init(Literal[], int, ParseResult, EntryContainer)},
 	 * the Structure should keep a reference to it.
 	 */
-	@Deprecated
-	@ApiStatus.ScheduledForRemoval
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public final EntryContainer getEntryContainer() {
 		if (entryContainer == null)
 			throw new IllegalStateException("This Structure hasn't been initialized!");
@@ -113,7 +95,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
 
-		if (structureInfo.simple) { // simple structures do not have validators
+		if (structureData.node instanceof SimpleNode) { // simple structures do not have validators
 			return init(literals, matchedPattern, parseResult, null);
 		}
 
@@ -195,9 +177,35 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		return toString(null, false);
 	}
 
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "structure";
+	}
+
 	@Nullable
 	public static Structure parse(String expr, Node node, @Nullable String defaultError) {
-		return parse(expr, node, defaultError, Skript.getStructures().iterator());
+		if (!(node instanceof SimpleNode) && !(node instanceof SectionNode))
+			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
+		ParserInstance.get().getData(StructureData.class).node = node;
+
+		var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.STRUCTURE).iterator();
+		if (node instanceof SimpleNode) { // filter out section only structures
+			iterator = new CheckedIterator<>(iterator, info -> info != null && info.nodeType().canBeSimple());
+		} else { // filter out simple only structures
+			iterator = new CheckedIterator<>(iterator, info -> info != null && info.nodeType().canBeSection());
+		}
+		iterator = new ConsumingIterator<>(iterator, info -> ParserInstance.get().getData(StructureData.class).structureInfo =
+			(StructureInfo<?>) SyntaxElementInfo.fromModern(info));
+
+		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
+			Structure structure = SkriptParser.parseStatic(expr, iterator, ParseContext.EVENT, defaultError);
+			if (structure != null) {
+				parseLogHandler.printLog();
+				return structure;
+			}
+			parseLogHandler.printError();
+			return null;
+		}
 	}
 
 	@Nullable
@@ -206,10 +214,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
 		ParserInstance.get().getData(StructureData.class).node = node;
 
-		if (node instanceof SimpleNode) { // only allow simple structures for simple nodes
-			iterator = new CheckedIterator<>(iterator, item -> item != null && item.simple);
-		} else { // only allow non-simple structures for section nodes
-			iterator = new CheckedIterator<>(iterator, item -> item != null && !item.simple);
+		if (node instanceof SimpleNode) { // filter out section only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSimple());
+		} else { // filter out simple only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSection());
 		}
 		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
@@ -231,16 +239,16 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
 
-		private Node node;
-		@Nullable
-		private StructureInfo<? extends Structure> structureInfo;
+		@ApiStatus.Internal
+		public Node node;
+		@ApiStatus.Internal
+		public @Nullable StructureInfo<? extends Structure> structureInfo;
 
 		public StructureData(ParserInstance parserInstance) {
 			super(parserInstance);
 		}
 
-		@Nullable
-		public StructureInfo<? extends Structure> getStructureInfo() {
+		public @Nullable StructureInfo<? extends Structure> getStructureInfo() {
 			return structureInfo;
 		}
 
