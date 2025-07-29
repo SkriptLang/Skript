@@ -82,8 +82,6 @@ public class Variables {
 	 */
 	private static final String CONFIGURATION_SERIALIZABLE_PREFIX = "ConfigurationSerializable_";
 
-	public static final String EPHEMERAL_VARIABLE_PREFIX = "-";
-
 	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
 
 	// Register some things with Yggdrasil
@@ -889,7 +887,7 @@ public class Variables {
 	 * @param value the value of the variable.
 	 */
 	private static void saveVariableChange(String name, @Nullable Object value) {
-		if (name.startsWith(Variables.EPHEMERAL_VARIABLE_PREFIX))
+		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
 			return;
 		saveQueue.add(serialize(name, value));
 	}
