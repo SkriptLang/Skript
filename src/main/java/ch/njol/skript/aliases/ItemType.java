@@ -528,7 +528,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 			@Override
 			public boolean hasNext() {
-				while ((nextItem == null) && iter.hasNext()) {
+				while (nextItem == null && iter.hasNext()) {
 					ItemData data = iter.next();
 					ItemStack is = data.getStack();
 					if (is != null) {
