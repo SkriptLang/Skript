@@ -4,6 +4,9 @@ local function overloaded1(x: int) :: int:
 local function overloaded1(x: text) :: int:
 	return 2
 
+local function overloaded1() :: int:
+	return 3
+
 test "function overloading with 1 parameter":
 	set {_x} to true
 
@@ -16,6 +19,7 @@ test "function overloading with 1 parameter":
 
 	assert overloaded1(number within {_x}) = 1
 	assert overloaded1(text within {_x}) = 2
+	assert overloaded1() = 3
 
 function overloaded2(x: int, y: int) :: int:
 	return 1
@@ -58,4 +62,4 @@ parse:
 
 test "function overloading with different return types":
 	assert size of {FunctionOverloading3::parse::*} = 1
-	assert {FunctionOverloading3::parse::1} = "Function 'overloaded3' with the same argument types already exists."
+	assert {FunctionOverloading3::parse::1} contains "Function 'overloaded3' with the same argument types already exists in script"

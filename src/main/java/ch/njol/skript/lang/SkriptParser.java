@@ -680,7 +680,11 @@ public class SkriptParser {
 				if (classInfoMatcher.matches()) {
 					String literalString = classInfoMatcher.group("literal");
 					String unparsedClassInfo = Noun.stripDefiniteArticle(classInfoMatcher.group("classinfo"));
-					return parseSpecifiedLiteral(literalString, unparsedClassInfo, log, types);
+					Expression<?> result = parseSpecifiedLiteral(literalString, unparsedClassInfo, types);
+					if (result != null) {
+						log.printLog();
+						return result;
+					}
 				}
 			}
 			if (exprInfo.classes.length == 1 && exprInfo.classes[0].getC() == Object.class) {
@@ -752,38 +756,31 @@ public class SkriptParser {
 	 * </p>
 	 * @param literalString A {@link String} representing a literal
 	 * @param unparsedClassInfo A {@link String} representing a class info
-	 * @param log The current {@link ParseLogHandler} for containing errors
 	 * @param types An {@link Array} of the acceptable {@link Class}es
 	 * @return {@link SimpleLiteral} or {@code null} if any checks fail
 	 */
 	private @Nullable Expression<?> parseSpecifiedLiteral(
 		String literalString,
 		String unparsedClassInfo,
-		ParseLogHandler log,
 		Class<?> ... types
 	) {
 		ClassInfo<?> classInfo = Classes.parse(unparsedClassInfo, ClassInfo.class, context);
 		if (classInfo == null) {
-			log.printError();
+			Skript.error("A " + unparsedClassInfo  + " is not a valid type.");
 			return null;
 		}
 		Parser<?> classInfoParser = classInfo.getParser();
 		if (classInfoParser == null || !classInfoParser.canParse(context)) {
 			Skript.error("A " + unparsedClassInfo  + " cannot be parsed.");
-			log.printError();
 			return null;
 		}
 		if (!checkAcceptedType(classInfo.getC(), types)) {
 			Skript.error(expr + " " + Language.get("is") + " " + notOfType(types));
-			log.printError();
 			return null;
 		}
 		Object parsedObject = classInfoParser.parse(literalString, context);
-		if (parsedObject != null) {
-			log.printLog();
+		if (parsedObject != null)
 			return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(literalString));
-		}
-		log.printError();
 		return null;
 	}
 
@@ -1127,20 +1124,22 @@ public class SkriptParser {
 			ParserInstance parser = getParser();
 			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 			FunctionReference<T> functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+
 			attempt_list_parse:
 			if (unaryArgument.get() && !functionReference.validateParameterArity(true)) {
 				try (ParseLogHandler ignored = SkriptLogger.startParseLogHandler()) {
 					SkriptParser alternative = new SkriptParser(args, flags | PARSE_LITERALS, context);
 					params = this.getFunctionArguments(() -> alternative.suppressMissingAndOrWarnings()
-								.parseExpressionList(ignored, Object.class), args, unaryArgument);
+						.parseExpressionList(ignored, Object.class), args, unaryArgument);
 					ignored.clear();
 					if (params == null)
 						break attempt_list_parse;
 				}
 				functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-						currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
 			}
+
 			if (!functionReference.validateFunction(true)) {
 				log.printError();
 				return null;
