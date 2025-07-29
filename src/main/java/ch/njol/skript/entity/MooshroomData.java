@@ -77,7 +77,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	
 	@Override
 	protected int hashCode_i() {
-		return variant != null ? Objects.hashCode(variant) : 0;
+		return Objects.hashCode(variant);
 	}
 	
 	@Override

@@ -34,10 +34,9 @@ public class Patterns<T> {
 		for (int i = 0; i < info.length; i++) {
 			if (info[i].length != 2 || !(info[i][0] instanceof String))
 				throw new IllegalArgumentException("given array is not like {{String, T}, {String, T}, ...}");
-			Optional<?> optional = Optional.ofNullable(info[i][1]);
 			patterns[i] = (String) info[i][0];
-			types[i] = optional;
-			matchedPatterns.computeIfAbsent(optional, list -> new ArrayList<>()).add(i);
+			types[i] = info[i][1];
+			matchedPatterns.computeIfAbsent(info[i][1], list -> new ArrayList<>()).add(i);
 		}
 	}
 
@@ -56,9 +55,8 @@ public class Patterns<T> {
 	 * @return The info associated with the matched pattern
 	 * @throws ClassCastException If the item in the source array is not of the requested type
 	 */
-	public @Nullable T getInfo(int matchedPattern) {
-		Optional<?> optional = (Optional<?>) types[matchedPattern];
-		Object object = optional.orElse(null);
+	public T getInfo(int matchedPattern) {
+		Object object = types[matchedPattern];
 		if (object == null)
 			return null;
 		//noinspection unchecked
@@ -76,9 +74,8 @@ public class Patterns<T> {
 	 * @return An array of matched pattern indices, or {@code null} if no patterns are registered for the given type.
 	 */
 	public Integer @Nullable [] getMatchedPatterns(@Nullable T type) {
-		Optional<?> optional = Optional.ofNullable(type);
-		if (matchedPatterns.containsKey(optional))
-			return matchedPatterns.get(optional).toArray(Integer[]::new);
+		if (matchedPatterns.containsKey(type))
+			return matchedPatterns.get(type).toArray(Integer[]::new);
 		return null;
 	}
 

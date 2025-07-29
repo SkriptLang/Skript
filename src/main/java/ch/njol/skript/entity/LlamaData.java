@@ -56,7 +56,7 @@ public class LlamaData extends EntityData<Llama> {
 		} else {
 			this.color = null;
 			this.isTrader = false;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(null, false), 0).orElse(0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(this.color, this.isTrader), 0).orElse(0);
 		}
 	}
 	
@@ -111,7 +111,7 @@ public class LlamaData extends EntityData<Llama> {
 	protected int hashCode_i() {
 		int prime = 31;
 		int result = 1;
-		result = prime * result + (color != null ? Objects.hashCode(color) : 0);
+		result = prime * result + Objects.hashCode(color);
 		result = prime * result + (isTrader ? 1 : 0);
 		return result;
 	}

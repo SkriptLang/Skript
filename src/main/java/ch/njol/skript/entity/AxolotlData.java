@@ -80,7 +80,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	@Override
 	protected int hashCode_i() {
-		return variant == null ? 0 : Objects.hashCode(variant);
+		return Objects.hashCode(variant);
 	}
 
 	@Override

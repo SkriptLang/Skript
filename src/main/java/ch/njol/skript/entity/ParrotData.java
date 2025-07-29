@@ -10,6 +10,8 @@ import org.bukkit.entity.Parrot.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class ParrotData extends EntityData<Parrot> {
 
 	private static final Variant[] VARIANTS = Variant.values();
@@ -79,7 +81,7 @@ public class ParrotData extends EntityData<Parrot> {
 
 	@Override
 	protected int hashCode_i() {
-		return variant == null ? 0 : variant.hashCode();
+		return Objects.hashCode(variant);
 	}
 
 	@Override

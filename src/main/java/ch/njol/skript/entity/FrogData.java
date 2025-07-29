@@ -1,7 +1,10 @@
 package ch.njol.skript.entity;
 
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Frog;
@@ -9,7 +12,6 @@ import org.bukkit.entity.Frog.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
 
 public class FrogData extends EntityData<Frog> {
@@ -25,7 +27,22 @@ public class FrogData extends EntityData<Frog> {
 
 	static {
 		EntityData.register(FrogData.class, "frog", Frog.class, 0, PATTERNS.getPatterns());
-		VARIANTS = List.of(Variant.TEMPERATE, Variant.WARM, Variant.COLD).toArray(Variant[]::new);
+		VARIANTS = new Variant[]{Variant.TEMPERATE, Variant.WARM, Variant.COLD};
+		ClassInfo<?> frogVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+			"org.bukkit.entity.Frog$Variant",
+			"FROG_VARIANT",
+			"frogvariant",
+			"frog variants"
+		);
+		assert frogVariantClassInfo != null;
+		Classes.registerClass(frogVariantClassInfo
+			.user("frog ?variants?")
+			.name("Frog Variant")
+			.description("Represents the variant of a frog entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("INSERT VERSION")
+			.documentationId("FrogVariant")
+		);
 	}
 
 	private @Nullable Variant variant = null;

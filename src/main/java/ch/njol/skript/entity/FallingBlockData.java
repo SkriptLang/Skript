@@ -16,10 +16,10 @@ import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class FallingBlockData extends EntityData<FallingBlock> {
@@ -45,21 +45,24 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 			assert exprs[0] != null;
 			//noinspection unchecked
 			ItemType[] itemTypes = ((Literal<ItemType>) exprs[0]).getAll();
-			types = Converters.convert(itemTypes, ItemType.class, itemType -> {
-				ItemType clone = itemType.getBlock().clone();
-				Iterator<ItemData> iterator = clone.iterator();
-				while (iterator.hasNext()) {
-					Material material = iterator.next().getType();
-					if (!material.isBlock())
-						iterator.remove();
-				}
-				if (clone.numTypes() == 0)
-					return null;
-				clone.setAmount(-1);
-				clone.setAll(false);
-				clone.clearEnchantments();
-				return clone;
-			});
+			types = Arrays.stream(itemTypes)
+				.map(itemType -> {
+					ItemType clone = itemType.getBlock().clone();
+					Iterator<ItemData> iterator = clone.iterator();
+					while (iterator.hasNext()) {
+						Material material = iterator.next().getType();
+						if (!material.isBlock())
+							iterator.remove();
+					}
+					if (clone.numTypes() == 0)
+						return null;
+					clone.setAmount(-1);
+					clone.setAll(false);
+					clone.clearEnchantments();
+					return clone;
+				})
+				.filter(Objects::nonNull)
+				.toArray(ItemType[]::new);
 			if (types.length == 0) {
 				Skript.error(m_not_a_block_error.toString());
 				return false;

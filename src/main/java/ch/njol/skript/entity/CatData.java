@@ -1,10 +1,15 @@
 package ch.njol.skript.entity;
 
+import ch.njol.skript.bukkitutil.BukkitUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
+import org.bukkit.Registry;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Cat.Type;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +22,24 @@ public class CatData extends EntityData<Cat> {
 	private static final Type[] TYPES;
 
 	static {
+		ClassInfo<Type> catTypeClassInfo;
+		if (BukkitUtils.registryExists("CAT_VARIANT")) {
+			catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
+		} else {
+			//noinspection unchecked, rawtypes - it is an enum on other versions
+			catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
+		}
+		Classes.registerClass(catTypeClassInfo
+			.user("cat ?(type|race)s?")
+			.name("Cat Type")
+			.description("Represents the race/type of a cat entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:british_shorthair'.")
+			.since("2.4")
+			.requiredPlugins("Minecraft 1.14 or newer")
+			.documentationId("CatType"));
+
 		EntityData.register(CatData.class, "cat", Cat.class, "cat");
-		TYPES = Iterators.toArray(Classes.getExactClassInfo(Type.class).getSupplier().get(), Type.class);
+		TYPES = Iterators.toArray(catTypeClassInfo.getSupplier().get(), Type.class);
 	}
 
 	private @Nullable Type type = null;

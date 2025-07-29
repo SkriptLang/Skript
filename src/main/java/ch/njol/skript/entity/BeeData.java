@@ -8,7 +8,6 @@ import org.bukkit.entity.Bee;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Random;
 
 public class BeeData extends EntityData<Bee> {
@@ -75,8 +74,10 @@ public class BeeData extends EntityData<Bee> {
 	
 	@Override
 	public void set(Bee bee) {
-		int random = new Random().nextInt(400) + 400;
-		bee.setAnger(isAngry.isTrue() ? random : 0);
+		int anger = 0;
+		if (isAngry.isTrue())
+			anger = new Random().nextInt(400) + 400;
+		bee.setAnger(anger);
 		bee.setHasNectar(hasNectar.isTrue());
 	}
 	
@@ -101,8 +102,8 @@ public class BeeData extends EntityData<Bee> {
 	protected int hashCode_i() {
 		int prime = 31;
 		int result = 1;
-		result = prime * result + Objects.hashCode(isAngry);
-		result = prime * result + Objects.hashCode(hasNectar);
+		result = prime * result + isAngry.hashCode();
+		result = prime * result + hasNectar.hashCode();
 		return result;
 	}
 

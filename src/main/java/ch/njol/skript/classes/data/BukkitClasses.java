@@ -8,20 +8,25 @@ import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
-import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.PatternedParser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
-import ch.njol.skript.entity.ChickenData.ChickenVariantDummy;
-import ch.njol.skript.entity.CowData.CowVariantDummy;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.PigData.PigVariantDummy;
-import ch.njol.skript.entity.WolfData.WolfVariantDummy;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.*;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.PaperUtils;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -36,8 +41,14 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.*;
-import org.bukkit.entity.Panda.Gene;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntitySnapshot;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -54,7 +65,11 @@ import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.BlockInventoryHolder;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -63,14 +78,61 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BukkitClasses {
 
 	// TODO - remove unnecessary classExists checks when Spigot support is dropped
+
+	/**
+	 * Gets a {@link RegistryClassInfo} by checking if the {@link Class} from {@code classPath} exists
+	 * and {@link Registry} or {@link io.papermc.paper.registry.RegistryKey} contains {@code registryName}.
+	 * @param classPath The {@link String} representation of the desired {@link Class}.
+	 * @param registryName The {@link String} representation of the desired {@link Registry}.
+	 * @param codeName The name used in patterns.
+	 * @param languageNode The language node of the type.
+	 * @return {@link RegistryClassInfo} if the class and registry exists, otherwise {@code null}.
+	 */
+	public static <R extends Keyed> @Nullable RegistryClassInfo<?> getRegistryClassInfo(
+		String classPath,
+		String registryName,
+		String codeName,
+		String languageNode
+	) {
+		if (!Skript.classExists(classPath))
+			return null;
+		Registry<R> registry = null;
+		if (BukkitUtils.registryExists(registryName)) {
+			try {
+				//noinspection unchecked
+				registry = (Registry<R>) Registry.class.getField(registryName).get(null);
+			} catch (NoSuchFieldException | IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		} else if (PaperUtils.registryExists(registryName)) {
+			registry = PaperUtils.getBukkitRegistry(registryName);
+		}
+		if (registry != null) {
+			Class<R> registryClass;
+			try {
+				//noinspection unchecked
+				registryClass = (Class<R>) Class.forName(classPath);
+			} catch (ClassNotFoundException e) {
+				Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
+				throw new RuntimeException(e);
+			}
+			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
+		}
+		Skript.debug("There were no registries found for '" + registryName + "'.");
+		return null;
+	}
 
 	public BukkitClasses() {}
 
@@ -1265,36 +1327,11 @@ public class BukkitClasses {
 						"See the <a href='#EffPlaySound'>play sound</a> and <a href='#EffStopSound'>stop sound</a> effects.")
 				.since("2.4"));
 
-		Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
-				.user("(panda )?genes?")
-				.name("Gene")
-				.description("Represents a Panda's main or hidden gene. " +
-					"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
-				.since("2.4")
-				.requiredPlugins("Minecraft 1.14 or newer"));
-
 		Classes.registerClass(new EnumClassInfo<>(RegainReason.class, "healreason", "heal reasons")
 				.user("(regen|heal) (reason|cause)")
 				.name("Heal Reason")
 				.description("The health regain reason in a <a href='#heal'>heal</a> event.")
 				.since("2.5"));
-
-		ClassInfo<Cat.Type> catTypeClassInfo;
-		if (BukkitUtils.registryExists("CAT_VARIANT")) {
-			catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
-		} else {
-			//noinspection unchecked, rawtypes - it is an enum on other versions
-			catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
-		}
-		Classes.registerClass(catTypeClassInfo
-			.user("cat ?(type|race)s?")
-			.name("Cat Type")
-			.description("Represents the race/type of a cat entity.",
-				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:british_shorthair'.")
-			.since("2.4")
-			.requiredPlugins("Minecraft 1.14 or newer")
-			.documentationId("CatType"));
-
 
 		PatternedParser<GameRule> gameRuleParser = new PatternedParser<>() {
 			
@@ -1417,25 +1454,6 @@ public class BukkitClasses {
 				.name("Entity Potion Cause")
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("2.10"));
-
-		ClassInfo<?> wolfVariantClassInfo = getRegistryClassInfo(
-			"org.bukkit.entity.Wolf$Variant",
-			"WOLF_VARIANT",
-			"wolfvariant",
-			"wolf variants"
-		);
-		if (wolfVariantClassInfo == null) {
-			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Wolf.Variant' (1.20.4-)
-			wolfVariantClassInfo = new ClassInfo<>(WolfVariantDummy.class, "wolfvariant");
-		}
-		Classes.registerClass(wolfVariantClassInfo
-			.user("wolf ?variants?")
-			.name("Wolf Variant")
-			.description("Represents the variant of a wolf entity.",
-				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:ashen'.")
-			.since("2.10")
-			.requiredPlugins("Minecraft 1.21+")
-			.documentationId("WolfVariant"));
 
 		Classes.registerClass(new EnumClassInfo<>(ChangeReason.class,  "experiencecooldownchangereason", "experience cooldown change reasons")
 			.user("(experience|[e]xp) cooldown change (reason|cause)s?")
@@ -1566,131 +1584,12 @@ public class BukkitClasses {
 			.since("2.11")
 		);
 
-		ClassInfo<?> pigVariantClassInfo = getRegistryClassInfo(
-			"org.bukkit.entity.Pig$Variant",
-			"PIG_VARIANT",
-			"pigvariant",
-			"pig variants"
-		);
-		if (pigVariantClassInfo == null) {
-			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Pig.Variant' (1.21.4-)
-			pigVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
-		}
-		Classes.registerClass(pigVariantClassInfo
-			.user("pig ?variants?")
-			.name("Pig Variant")
-			.description("Represents the variant of a pig entity.",
-				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("2.12")
-			.requiredPlugins("Minecraft 1.21.5+")
-			.documentationId("PigVariant"));
-
-		ClassInfo<?> chickenVariantClassInfo = getRegistryClassInfo(
-			"org.bukkit.entity.Chicken$Variant",
-			"CHICKEN_VARIANT",
-			"chickenvariant",
-			"chicken variants"
-		);
-		if (chickenVariantClassInfo == null) {
-			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Chicken.Variant' (1.21.4-)
-			chickenVariantClassInfo = new ClassInfo<>(ChickenVariantDummy.class,  "chickenvariant");
-		}
-		Classes.registerClass(chickenVariantClassInfo
-			.user("chicken ?variants?")
-			.name("Chicken Variant")
-			.description("Represents the variant of a chicken entity.",
-				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("2.12")
-			.requiredPlugins("Minecraft 1.21.5+")
-			.documentationId("ChickenVariant")
-		);
-
-		ClassInfo<?> cowVariantClassInfo = getRegistryClassInfo(
-			"org.bukkit.entity.Cow$Variant",
-			"COW_VARIANT",
-			"cowvariant",
-			"cow variants"
-		);
-		if (cowVariantClassInfo == null) {
-			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Cow.Variant' (1.21.4-)
-			cowVariantClassInfo = new ClassInfo<>(CowVariantDummy.class, "cowvariant");
-		}
-		Classes.registerClass(cowVariantClassInfo
-			.user("cow ?variants?")
-			.name("Cow Variant")
-			.description("Represents the variant of a cow entity.",
-				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("2.12")
-			.requiredPlugins("Minecraft 1.21.5+")
-			.documentationId("CowVariant")
-		);
-
 		Classes.registerClass(new EnumClassInfo<>(VillagerCareerChangeEvent.ChangeReason.class, "villagercareerchangereason", "villager career change reasons")
 			.user("(villager )?career ?change ?reasons?")
 			.name("Villager Career Change Reason")
 			.description("Represents a reason why a villager changed its career.")
 			.since("2.12")
 		);
-
-		ClassInfo<?> frogVariantClassInfo = getRegistryClassInfo(
-			"org.bukkit.entity.Frog$Variant",
-			"FROG_VARIANT",
-			"frogvariant",
-			"frog variants"
-		);
-		assert frogVariantClassInfo != null;
-		Classes.registerClass(frogVariantClassInfo
-			.user("frog ?variants?")
-			.name("Frog Variant")
-			.description("Represents the variant of a frog entity.",
-				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
-			.documentationId("FrogVariant")
-		);
-
-	}
-
-	/**
-	 * Gets a {@link RegistryClassInfo} by checking if the {@link Class} from {@code classPath} exists
-	 * and {@link Registry} or {@link io.papermc.paper.registry.RegistryKey} contains {@code registryName}.
-	 * @param classPath The {@link String} representation of the desired {@link Class}.
-	 * @param registryName The {@link String} representation of the desired {@link Registry}.
-	 * @param codeName The name used in patterns.
-	 * @param languageNode The language node of the type.
-	 * @return {@link RegistryClassInfo} if the class and registry exists, otherwise {@code null}.
-	 */
-	private static <R extends Keyed> @Nullable RegistryClassInfo<?> getRegistryClassInfo(
-		String classPath,
-		String registryName,
-		String codeName,
-		String languageNode
-	) {
-		if (!Skript.classExists(classPath))
-			return null;
-		Registry<R> registry = null;
-		if (BukkitUtils.registryExists(registryName)) {
-			try {
-				//noinspection unchecked
-				registry = (Registry<R>) Registry.class.getField(registryName).get(null);
-			} catch (NoSuchFieldException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		} else if (PaperUtils.registryExists(registryName)) {
-			registry = PaperUtils.getBukkitRegistry(registryName);
-		}
-		if (registry != null) {
-			Class<R> registryClass;
-			try {
-				//noinspection unchecked
-				registryClass = (Class<R>) Class.forName(classPath);
-			} catch (ClassNotFoundException e) {
-				Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
-				throw new RuntimeException(e);
-			}
-			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
-		}
-		Skript.debug("There were no registries found for '" + registryName + "'.");
-		return null;
 	}
 
 }

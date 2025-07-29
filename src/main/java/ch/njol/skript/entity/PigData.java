@@ -1,6 +1,8 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -25,7 +27,26 @@ public class PigData extends EntityData<Pig> {
 	});
 
 	static {
-		EntityData.register(PigData.class, "pig", Pig.class, 0, PATTERNS.getPatterns());
+		ClassInfo<?> pigVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+			"org.bukkit.entity.Pig$Variant",
+			"PIG_VARIANT",
+			"pigvariant",
+			"pig variants"
+		);
+		if (pigVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Pig.Variant' (1.21.4-)
+			pigVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
+		}
+		Classes.registerClass(pigVariantClassInfo
+			.user("pig ?variants?")
+			.name("Pig Variant")
+			.description("Represents the variant of a pig entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("2.12")
+			.requiredPlugins("Minecraft 1.21.5+")
+			.documentationId("PigVariant"));
+
+		register(PigData.class, "pig", Pig.class, 0, PATTERNS.getPatterns());
 		if (Skript.classExists("org.bukkit.entity.Pig$Variant")) {
 			VARIANTS_ENABLED = true;
 			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);

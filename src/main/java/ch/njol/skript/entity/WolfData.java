@@ -1,6 +1,8 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -32,6 +34,25 @@ public class WolfData extends EntityData<Wolf> {
 	private static final Object[] VARIANTS;
 
 	static {
+		ClassInfo<?> wolfVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+			"org.bukkit.entity.Wolf$Variant",
+			"WOLF_VARIANT",
+			"wolfvariant",
+			"wolf variants"
+		);
+		if (wolfVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Wolf.Variant' (1.20.4-)
+			wolfVariantClassInfo = new ClassInfo<>(WolfVariantDummy.class, "wolfvariant");
+		}
+		Classes.registerClass(wolfVariantClassInfo
+			.user("wolf ?variants?")
+			.name("Wolf Variant")
+			.description("Represents the variant of a wolf entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:ashen'.")
+			.since("2.10")
+			.requiredPlugins("Minecraft 1.21+")
+			.documentationId("WolfVariant"));
+
 		EntityData.register(WolfData.class, "wolf", Wolf.class, 0, PATTERNS.getPatterns());
 		if (Skript.classExists("org.bukkit.entity.Wolf$Variant")) {
 			VARIANTS_ENABLED = true;
@@ -134,11 +155,11 @@ public class WolfData extends EntityData<Wolf> {
 	@Override
 	protected int hashCode_i() {
 		int prime = 31, result = 1;
-		result = prime * result + Objects.hashCode(isAngry);
-		result = prime * result + Objects.hashCode(isTamed);;
-		result = prime * result + (collarColor == null ? 0 : collarColor.hashCode());
+		result = prime * result + isAngry.hashCode();
+		result = prime * result + isTamed.hashCode();
+		result = prime * result + Objects.hashCode(collarColor);
 		if (VARIANTS_ENABLED)
-			result = prime * result + (variant == null ? 0 : Objects.hashCode(variant));
+			result = prime * result + Objects.hashCode(variant);
 		return result;
 	}
 

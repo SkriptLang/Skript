@@ -10,6 +10,8 @@ import org.bukkit.entity.Rabbit.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class RabbitData extends EntityData<Rabbit> {
 
 	private static final Type[] TYPES = Type.values();
@@ -81,7 +83,7 @@ public class RabbitData extends EntityData<Rabbit> {
 
     @Override
     protected int hashCode_i() {
-        return type == null ? 1 : type.hashCode();
+        return Objects.hashCode(type);
     }
 
     @Override

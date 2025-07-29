@@ -11,6 +11,8 @@ import org.bukkit.entity.Salmon.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class SalmonData extends EntityData<Salmon> {
 
 	private static final boolean SUPPORT_SALMON_VARIANTS = Skript.classExists("org.bukkit.entity.Salmon$Variant");
@@ -92,7 +94,7 @@ public class SalmonData extends EntityData<Salmon> {
 
 	@Override
 	protected int hashCode_i() {
-		return variant == null ? 1 : variant.hashCode();
+		return Objects.hashCode(variant);
 	}
 
 	@Override

@@ -37,7 +37,6 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0, PATTERNS.getPatterns());
 
 		Variables.yggdrasil.registerSingleClass(Pattern.class, "TropicalFish.Pattern");
-		Variables.yggdrasil.registerSingleClass(DyeColor.class, "DyeColor");
 	}
 
 	private @Nullable DyeColor bodyColor = null;

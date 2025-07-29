@@ -8,8 +8,6 @@ import org.bukkit.entity.Strider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 public class StriderData extends EntityData<Strider> {
 
 	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
@@ -68,7 +66,7 @@ public class StriderData extends EntityData<Strider> {
 
 	@Override
 	protected int hashCode_i() {
-		return Objects.hash(shivering);
+		return shivering.hashCode();
 	}
 
 	@Override

@@ -77,7 +77,7 @@ public class FoxData extends EntityData<Fox> {
 	
 	@Override
 	protected int hashCode_i() {
-		return type != null ? Objects.hashCode(type) : 0;
+		return Objects.hashCode(type);
 	}
 	
 	@Override

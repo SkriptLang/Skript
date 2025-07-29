@@ -8,8 +8,6 @@ import org.bukkit.entity.Goat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 public class GoatData extends EntityData<Goat> {
 
 	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
@@ -68,7 +66,7 @@ public class GoatData extends EntityData<Goat> {
 
 	@Override
 	protected int hashCode_i() {
-		return Objects.hashCode(screaming);
+		return screaming.hashCode();
 	}
 
 	@Override

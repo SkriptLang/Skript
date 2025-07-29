@@ -1,6 +1,8 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -25,6 +27,26 @@ public class CowData extends EntityData<Cow> {
 	private static final @Nullable Method setVariantMethod;
 
 	static {
+		ClassInfo<?> cowVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+			"org.bukkit.entity.Cow$Variant",
+			"COW_VARIANT",
+			"cowvariant",
+			"cow variants"
+		);
+		if (cowVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Cow.Variant' (1.21.4-)
+			cowVariantClassInfo = new ClassInfo<>(CowVariantDummy.class, "cowvariant");
+		}
+		Classes.registerClass(cowVariantClassInfo
+			.user("cow ?variants?")
+			.name("Cow Variant")
+			.description("Represents the variant of a cow entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("2.12")
+			.requiredPlugins("Minecraft 1.21.5+")
+			.documentationId("CowVariant")
+		);
+
 		Class<Cow> cowClass = null;
 
 		try {

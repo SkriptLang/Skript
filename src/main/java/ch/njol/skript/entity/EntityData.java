@@ -74,14 +74,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	private static final boolean HAS_ENABLED_BY_FEATURE = Skript.methodExists(EntityType.class, "isEnabledByFeature", World.class);
-	public final static String LANGUAGE_NODE = "entities";
+	public static final String LANGUAGE_NODE = "entities";
 
-	public final static Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
-	public final static Adjective m_baby = new Adjective(LANGUAGE_NODE + ".age adjectives.baby"),
+	public static final Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
+	public static final Adjective m_baby = new Adjective(LANGUAGE_NODE + ".age adjectives.baby"),
 			m_adult = new Adjective(LANGUAGE_NODE + ".age adjectives.adult");
 
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
-	private final static List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
+	private static final List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
 
 	private static final List<EntityData> ALL_ENTITY_DATAS = new ArrayList<>();
 
@@ -197,7 +197,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
-	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
+	private static final class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
 
 		final String codeName;
 		final String[] codeNames;
@@ -247,16 +247,17 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			for (String codeName : codeNames) {
 				if (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".pattern")) {
 					String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".pattern")
-							.replace("<age>", m_age_pattern.toString());
+						.replace("<age>", m_age_pattern.toString());
 					matchedPatternToCodeName.put(allPatterns.size(), codeName);
 					matchedPatternToCodeNamePattern.put(allPatterns.size(), 0);
 					allPatterns.add(pattern);
-				}
-				if (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns.0")) {
+				} else if (!Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns.0")) {
+					throw new IllegalStateException("lang section for '" + codeName + "' should contain 'pattern' or a 'patterns' section");
+				} else {
 					int multiCount = 0;
 					while (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)) {
 						String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)
-								.replace("<age>", m_age_pattern.toString());
+							.replace("<age>", m_age_pattern.toString());
 						// correlates '#init.matchedPattern' to 'codeName'
 						matchedPatternToCodeName.put(allPatterns.size(), codeName);
 						// correlates '#init.matchedPattern' to pattern in code name

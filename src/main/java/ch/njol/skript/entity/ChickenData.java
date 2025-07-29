@@ -1,6 +1,8 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -19,6 +21,26 @@ public class ChickenData extends EntityData<Chicken> {
 	private static final Object[] VARIANTS;
 
 	static {
+		ClassInfo<?> chickenVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+			"org.bukkit.entity.Chicken$Variant",
+			"CHICKEN_VARIANT",
+			"chickenvariant",
+			"chicken variants"
+		);
+		if (chickenVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Chicken.Variant' (1.21.4-)
+			chickenVariantClassInfo = new ClassInfo<>(ChickenVariantDummy.class,  "chickenvariant");
+		}
+		Classes.registerClass(chickenVariantClassInfo
+			.user("chicken ?variants?")
+			.name("Chicken Variant")
+			.description("Represents the variant of a chicken entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("2.12")
+			.requiredPlugins("Minecraft 1.21.5+")
+			.documentationId("ChickenVariant")
+		);
+
 		register(ChickenData.class, "chicken", Chicken.class, "chicken");
 		if (Skript.classExists("org.bukkit.entity.Chicken$Variant")) {
 			VARIANTS_ENABLED = true;

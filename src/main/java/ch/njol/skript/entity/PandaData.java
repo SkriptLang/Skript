@@ -1,8 +1,10 @@
 package ch.njol.skript.entity;
 
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Panda;
 import org.bukkit.entity.Panda.Gene;
@@ -17,6 +19,14 @@ public class PandaData extends EntityData<Panda> {
 
 	static {
 		EntityData.register(PandaData.class, "panda", Panda.class, "panda");
+
+		Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
+			.user("(panda )?genes?")
+			.name("Gene")
+			.description("Represents a Panda's main or hidden gene. " +
+				"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
+			.since("2.4")
+			.requiredPlugins("Minecraft 1.14 or newer"));
 	}
 
 	private @Nullable Gene mainGene = null;
@@ -79,8 +89,8 @@ public class PandaData extends EntityData<Panda> {
 	protected int hashCode_i() {
 		int prime = 7;
 		int result = 0;
-		result = result * prime + (mainGene != null ? Objects.hashCode(mainGene) : 0);
-		result = result * prime + (hiddenGene != null ? Objects.hashCode(hiddenGene) : 0);
+		result = result * prime + Objects.hashCode(mainGene);
+		result = result * prime + Objects.hashCode(hiddenGene);
 		return result;
 	}
 	

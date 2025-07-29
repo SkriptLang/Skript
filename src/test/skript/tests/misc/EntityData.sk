@@ -5,7 +5,7 @@ local function setSuperTypes(data: entity types):
 local function testData(data: entity type):
 	set {testDataSave} to {_data} # Ensure serialization does not error
 	clear {testDataSave}
-	if {_data} is spawnable:
+	if {_data} is spawnable in world "world":
 		spawn {_data} at test-location:
 			set {_entity} to entity
 		assert {_entity} is set with "Could not spawn '%{_data}%'"

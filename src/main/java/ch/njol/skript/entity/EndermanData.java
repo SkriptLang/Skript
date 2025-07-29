@@ -101,7 +101,9 @@ public class EndermanData extends EntityData<Enderman> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof EndermanData other))
 			return false;
-		return isSubhand(other.hand);
+		if (hand != null)
+			return other.hand != null &&  ItemType.isSubset(hand, other.hand);
+		return true;
 	}
 
 	@Override

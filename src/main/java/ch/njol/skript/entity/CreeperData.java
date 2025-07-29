@@ -8,8 +8,6 @@ import org.bukkit.entity.Creeper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 public class CreeperData extends EntityData<Creeper> {
 
 	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
@@ -28,7 +26,7 @@ public class CreeperData extends EntityData<Creeper> {
 
 	public CreeperData(@Nullable Kleenean powered)  {
 		this.powered = powered != null ? powered : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.powered, 0).orElse(0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.powered, 0).orElseThrow();
 	}
 	
 	@Override
@@ -68,7 +66,7 @@ public class CreeperData extends EntityData<Creeper> {
 
 	@Override
 	protected int hashCode_i() {
-		return Objects.hashCode(powered);
+		return powered.hashCode();
 	}
 
 	@Override

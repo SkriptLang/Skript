@@ -63,6 +63,7 @@ public enum SkriptColor implements Color {
 		});
 
 		Variables.yggdrasil.registerSingleClass(SkriptColor.class, "SkriptColor");
+		Variables.yggdrasil.registerSingleClass(DyeColor.class, "DyeColor");
 	}
 	
 	private ChatColor chat;

@@ -9,7 +9,6 @@ import org.bukkit.entity.ZombieVillager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
 
 public class ZombieVillagerData extends EntityData<ZombieVillager> {
@@ -36,10 +35,10 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 
 	static {
 		EntityData.register(ZombieVillagerData.class, "zombie villager", ZombieVillager.class, 0, PATTERNS.getPatterns());
-		PROFESSIONS = List.of(Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
+		PROFESSIONS = new Profession[] {Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
 			Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
 			Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
-			Profession.WEAPONSMITH).toArray(Profession[]::new);
+			Profession.WEAPONSMITH};
 	}
 
 	private @Nullable Profession profession = null;
