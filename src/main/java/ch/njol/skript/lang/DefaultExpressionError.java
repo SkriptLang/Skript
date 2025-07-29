@@ -18,7 +18,7 @@ public enum DefaultExpressionError {
 		@Override
 		public String getError(List<String> codeNames, String pattern) {
 			StringBuilder builder = new StringBuilder();
-			String combinedComma = StringUtils.join(codeNames, ", ", " and ");
+			String combinedComma = getCombinedComma(codeNames);
 			String combinedSlash = StringUtils.join(codeNames, "/");
 			builder.append(plurality(codeNames, "The class '", "The classes '"));
 			builder.append(combinedComma)
@@ -124,7 +124,7 @@ public enum DefaultExpressionError {
 	 */
 	private static String defaultExpression(List<String> codeNames, String single, String plural) {
 		StringBuilder builder = new StringBuilder();
-		String combinedComma = StringUtils.join(codeNames, ", ", " and ");
+		String combinedComma = getCombinedComma(codeNames);
 		builder.append("The default ")
 			.append(plurality(codeNames, "expression ", "expressions "))
 			.append("of '")
@@ -144,6 +144,27 @@ public enum DefaultExpressionError {
 	 */
 	private static String plurality(List<String> codeNames, String single, String plural) {
 		return codeNames.size() > 1 ? plural : single;
+	}
+
+	/**
+	 * Utility method for combining {@code codeNames} into one string following this format.
+	 * <p>
+	 *     1: x
+	 *     2: x and y
+	 *     3 or more: x, y, and z
+	 * </p>
+	 * @param codeNames {@link List} of codenames to combine.
+	 * @return The combined string.
+	 */
+	private static String getCombinedComma(List<String> codeNames) {
+		assert !codeNames.isEmpty();
+		if (codeNames.size() == 1) {
+			return codeNames.get(0);
+		} else if (codeNames.size() == 2) {
+			return StringUtils.join(codeNames, " and ");
+		} else {
+			return StringUtils.join(codeNames, ", ", ", and ");
+		}
 	}
 
 }

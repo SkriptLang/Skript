@@ -25,7 +25,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 
 		Assert.assertEquals(
 			DefaultExpressionError.NOT_FOUND.getError(List.of("itemtype", "entity", "object"), "itemtype/entity/object"),
-			"The classes 'itemtype, entity and object' do not provide a default expression. Either allow null " +
+			"The classes 'itemtype, entity, and object' do not provide a default expression. Either allow null " +
 				"(with %-itemtype/entity/object%) or make it mandatory [pattern: itemtype/entity/object]"
 		);
 	}
@@ -46,7 +46,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 
 		Assert.assertEquals(
 			DefaultExpressionError.NOT_LITERAL.getError(List.of("itemtype", "entity", "object"), "itemtype/entity/object"),
-			"The default expressions of 'itemtype, entity and object' are not literals. Either allow null " +
+			"The default expressions of 'itemtype, entity, and object' are not literals. Either allow null " +
 				"(with %-*itemtype/entity/object%) or make it mandatory [pattern: itemtype/entity/object]"
 		);
 	}
@@ -67,7 +67,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 
 		Assert.assertEquals(
 			DefaultExpressionError.LITERAL.getError(List.of("itemtype", "entity", "object"), "itemtype/entity/object"),
-			"The default expressions of 'itemtype, entity and object' are literals. Either allow null " +
+			"The default expressions of 'itemtype, entity, and object' are literals. Either allow null " +
 				"(with %-~itemtype/entity/object%) or make it mandatory [pattern: itemtype/entity/object]"
 		);
 	}
@@ -88,7 +88,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 
 		Assert.assertEquals(
 			DefaultExpressionError.NOT_SINGLE.getError(List.of("itemtype", "entity", "object"), "itemtype/entity/object"),
-			"The default expressions of 'itemtype, entity and object' are not single-element expressions. Change your pattern " +
+			"The default expressions of 'itemtype, entity, and object' are not single-element expressions. Change your pattern " +
 				"to allow multiple elements or make the expression mandatory [pattern: itemtype/entity/object]"
 		);
 	}
@@ -107,7 +107,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 
 		Assert.assertEquals(
 			DefaultExpressionError.TIME_STATE.getError(List.of("itemtype", "entity", "object"), "itemtype/entity/object"),
-			"The default expressions of 'itemtype, entity and object' do not have distinct time states. [pattern: itemtype/entity/object]"
+			"The default expressions of 'itemtype, entity, and object' do not have distinct time states. [pattern: itemtype/entity/object]"
 		);
 	}
 
