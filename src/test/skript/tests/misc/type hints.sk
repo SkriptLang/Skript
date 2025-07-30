@@ -140,3 +140,19 @@ test "type hints":
 				set {_a} to {_x} in lowercase # ensure type hints still work for unreachable code
 	assert last parse logs is "Expected variable '{_x}' to be a text, but it is a boolean (yes/no)" with "Hint failed (%last parse logs%)"
 	delete {_x}
+
+function typehints_overloading(n: number):
+	stop
+
+test "type hints with function overloading":
+	set {_number} to true
+
+	parse:
+		typehints_overloading({_number})
+
+	assert last parse logs contain "does not exist"
+
+	parse:
+		typehints_overloading(asdasg)
+
+	assert last parse logs contain "Can't understand this expression"
