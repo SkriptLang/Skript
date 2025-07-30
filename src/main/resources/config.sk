@@ -335,7 +335,7 @@ databases:
 
 		backup interval: 2 hours
 		# Creates a backup of the file every so often. This can be useful if you ever want to revert variables to an older state.
-		# Variables are saved constantly no matter what is set here, thus a server crash will never make you loose any variables.
+		# Variables are saved constantly no matter what is set here, thus a server crash will never make you lose any variables.
 		# Set this to 0 to disable this feature.
 
 		backups to keep: -1
@@ -385,7 +385,7 @@ databases:
 	default:
 		# The default "database" is a simple text file, with each variable on a separate line and the variable's name, type, and value separated by commas.
 		# This is the last database in this list to catch all variables that have not been saved anywhere else.
-		# You can modify this database freely, but make sure to know what you're doing if you don't want to loose any variables.
+		# You can modify this database freely, but make sure to know what you're doing if you don't want to lose any variables.
 
 		type: CSV
 
