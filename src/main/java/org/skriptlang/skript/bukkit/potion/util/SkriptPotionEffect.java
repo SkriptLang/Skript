@@ -289,12 +289,12 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 */
 	public String toString(int flags) {
 		StringJoiner joiner = new StringJoiner(" ");
-		if (ambient()) {
-			joiner.add("ambient");
-		}
 		boolean infinite = infinite();
 		if (infinite) {
 			joiner.add("infinite");
+		}
+		if (ambient()) {
+			joiner.add("ambient");
 		}
 		joiner.add("potion effect of")
 			.add(Classes.toString(potionEffectType()))
