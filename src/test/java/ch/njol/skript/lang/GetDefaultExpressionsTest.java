@@ -1,25 +1,18 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.SkriptParser.ExprInfo;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 
 import static ch.njol.skript.lang.SkriptParser.getDefaultExpressions;
 
@@ -35,11 +28,7 @@ public class GetDefaultExpressionsTest extends SkriptJUnitTest {
 		.defaultExpression(new SimpleLiteral<>(0, true));
 
 	private static final ClassInfo<?> INFO_PLURAL_LITERAL = new ClassInfo<>(Object.class, "infopluralliteral")
-		.defaultExpression(new PluralLiteral());
-
-	private ExprInfo createExprInfo(ClassInfo<?>... infos) {
-		return createExprInfo(false, infos);
-	}
+		.defaultExpression(new SimpleLiteral<>(new Object[]{0, 1}, Object.class, true, true, null));
 
 	private ExprInfo createExprInfo(boolean isPlural, ClassInfo<?>...  infos) {
 		ExprInfo exprInfo = new ExprInfo(infos.length);
@@ -361,124 +350,5 @@ public class GetDefaultExpressionsTest extends SkriptJUnitTest {
 			Assert.assertEquals(1, getDefaultExpressions(exprInfo, string).size());
 		});
 	}
-
-	//<editor-fold desc="PluralLiteral" defaultstate="collapsed">
-	private static class PluralLiteral implements Literal<Object>, DefaultExpression<Object> {
-		@Override
-		public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-			return true;
-		}
-
-		@Override
-		public boolean init() {
-			return true;
-		}
-
-		@Override
-		public @Nullable Object getSingle(Event event) {
-			return null;
-		}
-
-		@Override
-		public Object[] getArray(Event event) {
-			return new Object[0];
-		}
-
-		@Override
-		public Object[] getAll(Event event) {
-			return new Object[0];
-		}
-
-		@Override
-		public boolean isSingle() {
-			return false;
-		}
-
-		@Override
-		public boolean check(Event event, Predicate<? super Object> checker, boolean negated) {
-			return false;
-		}
-
-		@Override
-		public boolean check(Event event, Predicate<? super Object> checker) {
-			return false;
-		}
-
-		@Override
-		public Class<?> getReturnType() {
-			return Object.class;
-		}
-
-		@Override
-		public boolean getAnd() {
-			return false;
-		}
-
-		@Override
-		public boolean setTime(int time) {
-			return false;
-		}
-
-		@Override
-		public int getTime() {
-			return 0;
-		}
-
-		@Override
-		public boolean isDefault() {
-			return true;
-		}
-
-		@Override
-		public Expression<?> getSource() {
-			return this;
-		}
-
-		@Override
-		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			return null;
-		}
-
-		@Override
-		public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-
-		}
-
-		@Override
-		public Object[] getArray() {
-			return new Object[0];
-		}
-
-		@Override
-		public Object getSingle() {
-			return null;
-		}
-
-		@Override
-		public @Nullable <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
-			return null;
-		}
-
-		@Override
-		public Object[] getAll() {
-			return new Object[0];
-		}
-
-		@Override
-		public @Nullable Iterator<?> iterator(Event event) {
-			return null;
-		}
-
-		@Override
-		public boolean isLoopOf(String input) {
-			return false;
-		}
-
-		@Override
-		public String toString(@Nullable Event event, boolean debug) {
-			return "";
-		}
-	}
-	//</editor-fold>
 
 }

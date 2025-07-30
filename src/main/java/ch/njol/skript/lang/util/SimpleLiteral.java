@@ -71,6 +71,16 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 		this.source = source == null ? this : source;
 	}
 
+	public SimpleLiteral(T[] data, Class<T> type, boolean and, boolean isDefault, @Nullable Expression<?> source) {
+		assert data != null;
+		assert type != null;
+		this.data = data;
+		this.type = type;
+		this.and = data.length <= 1 || and;
+		this.isDefault = isDefault;
+		this.source = source == null ? this : source;
+	}
+
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		throw new UnsupportedOperationException();
