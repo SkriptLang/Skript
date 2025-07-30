@@ -34,7 +34,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private final boolean isDefault;
 	private final boolean and;
 
-	private @Nullable Expression<?> source = null;
+	protected final Expression<?> source;
 
 	/**
 	 * The data of the literal. May not be null or contain null, but may be empty.
@@ -42,12 +42,17 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	protected transient T[] data;
 
 	public SimpleLiteral(T[] data, Class<T> type, boolean and) {
+		this(data, type, and, null);
+	}
+
+	public SimpleLiteral(T[] data, Class<T> type, boolean and, @Nullable Expression<?> source) {
 		assert data != null;
 		assert type != null;
 		this.data = data;
 		this.type = type;
 		this.and = data.length <= 1 || and;
 		this.isDefault = false;
+		this.source = source == null ? this : source;
 	}
 
 	public SimpleLiteral(T data, boolean isDefault) {
@@ -63,11 +68,6 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 		type = (Class<T>) data.getClass();
 		and = true;
 		this.isDefault = isDefault;
-		this.source = source == null ? this : source;
-	}
-
-	public SimpleLiteral(T[] data, Class<T> to, boolean and, @Nullable Expression<?> source) {
-		this(data, to, and);
 		this.source = source == null ? this : source;
 	}
 
@@ -203,7 +203,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 
 	@Override
 	public NonNullIterator<T> iterator(final Event event) {
-		return new NonNullIterator<T>() {
+		return new NonNullIterator<>() {
 			private int i = 0;
 
 			@Override

@@ -3,6 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.util.LiteralUtils;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -24,7 +25,9 @@ import org.skriptlang.skript.lang.converter.Converters;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 @Name("Contains")
 @Description("Checks whether an inventory contains an item, a text contains another piece of text, "
@@ -34,7 +37,7 @@ import java.util.Objects;
 		"player has 4 flint and 2 iron ingots",
 		"{list::*} contains 5"})
 @Since("1.0")
-public class CondContains extends Condition {
+public class CondContains extends Condition implements VerboseAssert {
 
 	static {
 		Skript.registerCondition(CondContains.class,
@@ -155,6 +158,29 @@ public class CondContains extends Condition {
 				}, isNegated());
 			}
 		};
+	}
+
+	@Override
+	public String getExpectedMessage(Event event) {
+		StringJoiner joiner = new StringJoiner(" ");
+		joiner.add("to");
+		if (isNegated()) {
+			joiner.add("not");
+		}
+		joiner.add("find %s".formatted(VerboseAssert.getExpressionValue(items, event)));
+		return joiner.toString();
+	}
+
+	@Override
+	public String getReceivedMessage(Event event) {
+		StringJoiner joiner = new StringJoiner(" ");
+		if (!isNegated()) {
+			joiner.add("no");
+		} else {
+			joiner.add("a");
+		}
+		joiner.add("match in %s".formatted(VerboseAssert.getExpressionValue(containers, event)));
+		return joiner.toString();
 	}
 
 	@Override
