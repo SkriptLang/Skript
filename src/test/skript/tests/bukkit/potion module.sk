@@ -506,7 +506,11 @@ test "has potion effect":
 	spawn a pig at event-location:
 		set {_entity} to event-entity
 
+	assert {_entity} does not have any potion effects with "entity has a potion effect"
+	assert {_entity} does not have a potion effect active with "entity has a potion effect"
 	apply ambient potion effect of speed 5 to {_entity} for 15 seconds
+	assert {_entity} has any potion effect with "entity does not have a potion effect"
+	assert {_entity} has a potion effect active with "entity does not have a potion effect"
 	assert {_entity} has speed with "entity does not have speed"
 	assert {_entity} has speed 5 with "entity does not have speed 5"
 	assert {_entity} has ambient potion effect of speed with "entity does not have ambient speed"

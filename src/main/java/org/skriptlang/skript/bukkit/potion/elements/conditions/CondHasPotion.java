@@ -39,25 +39,32 @@ public class CondHasPotion extends Condition {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondHasPotion.class, PropertyType.HAVE,
-			"%skriptpotioneffects% [active]", "livingentities")
+			"([any|a[n]] [active] potion effect[s]|[any|a] potion effect[s] active)", "livingentities")
+				.addPatterns(PropertyCondition.getPatterns(PropertyType.HAVE,
+						"%skriptpotioneffects% [active]", "livingentities"))
 				.supplier(CondHasPotion::new)
 				.build());
 	}
 
 	private Expression<LivingEntity> entities;
-	private Expression<SkriptPotionEffect> effects;
+	private @Nullable Expression<SkriptPotionEffect> effects;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
-		effects = (Expression<SkriptPotionEffect>) exprs[1];
-		setNegated(matchedPattern == 1);
+		if (exprs.length == 2) {
+			effects = (Expression<SkriptPotionEffect>) exprs[1];
+		}
+		setNegated(matchedPattern % 2 != 0);
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
+		if (this.effects == null) {
+			return entities.check(event, entity -> !entity.getActivePotionEffects().isEmpty(), isNegated());
+		}
 		SkriptPotionEffect[] effects = this.effects.getArray(event);
 		return entities.check(event, entity -> SimpleExpression.check(effects,
 				base -> {
