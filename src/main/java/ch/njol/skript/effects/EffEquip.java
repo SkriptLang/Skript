@@ -1,7 +1,6 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
@@ -19,6 +18,7 @@ import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Steerable;
 import org.bukkit.entity.Wolf;
@@ -43,21 +43,31 @@ import org.jetbrains.annotations.UnknownNullability;
 	"unequip diamond chestplate from player",
 	"unequip player's armor"
 })
-@Since("1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)")
+@Since({
+	"1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)",
+	"INSERT VERSION (happy ghasts)"
+})
 public class EffEquip extends Effect {
 
-	private static ItemType CHESTPLATE;
-	private static ItemType LEGGINGS;
-	private static ItemType BOOTS;
-	private static ItemType CARPET = new ItemType(Tag.WOOL_CARPETS);
-	private static ItemType WOLF_ARMOR;
+	private static final ItemType CHESTPLATE;
+	private static final ItemType LEGGINGS;
+	private static final ItemType BOOTS;
+	private static final ItemType CARPET = new ItemType(Tag.WOOL_CARPETS);
+	private static final ItemType WOLF_ARMOR;
 	private static final ItemType HORSE_ARMOR = new ItemType(Material.LEATHER_HORSE_ARMOR, Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR, Material.DIAMOND_HORSE_ARMOR);
 	private static final ItemType SADDLE = new ItemType(Material.SADDLE);
 	private static final ItemType CHEST = new ItemType(Material.CHEST);
+	private static final ItemType HAPPY_GHAST_HARNESS;
+
+	private static final Class<?> HAPPY_GHAST_CLASS;
 
 	static {
-		boolean hasWolfArmor = Skript.fieldExists(Material.class, "WOLF_ARMOR");
-		WOLF_ARMOR = hasWolfArmor ? new ItemType(Material.WOLF_ARMOR) : new ItemType();
+		// added in 1.20.5
+		if (Skript.fieldExists(Material.class, "WOLF_ARMOR")) {
+			WOLF_ARMOR = new ItemType(Material.WOLF_ARMOR);
+		} else {
+			WOLF_ARMOR = new ItemType();
+		}
 
 		// added in 1.20.6
 		if (Skript.fieldExists(Tag.class, "ITEM_CHEST_ARMOR")) {
@@ -71,7 +81,7 @@ public class EffEquip extends Effect {
 				Material.GOLDEN_CHESTPLATE,
 				Material.IRON_CHESTPLATE,
 				Material.DIAMOND_CHESTPLATE,
-        Material.NETHERITE_CHESTPLATE,
+				Material.NETHERITE_CHESTPLATE,
 				Material.ELYTRA
 			);
 
@@ -81,7 +91,7 @@ public class EffEquip extends Effect {
 				Material.GOLDEN_LEGGINGS,
 				Material.IRON_LEGGINGS,
 				Material.DIAMOND_LEGGINGS,
-        Material.NETHERITE_LEGGINGS
+				Material.NETHERITE_LEGGINGS
 			);
 
 			BOOTS = new ItemType(
@@ -90,12 +100,25 @@ public class EffEquip extends Effect {
 				Material.GOLDEN_BOOTS,
 				Material.IRON_BOOTS,
 				Material.DIAMOND_BOOTS,
-        Material.NETHERITE_BOOTS
+				Material.NETHERITE_BOOTS
 			);
+		}
+
+		// added in 1.21.6
+		if (Skript.fieldExists(Tag.class, "ITEMS_HARNESSES")) {
+			HAPPY_GHAST_HARNESS = new ItemType(Tag.ITEMS_HARNESSES);
+			try {
+				HAPPY_GHAST_CLASS = Class.forName("org.bukkit.entity.HappyGhast");
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			HAPPY_GHAST_HARNESS = new ItemType();
+			HAPPY_GHAST_CLASS = null;
 		}
 	}
 
-	private static final ItemType[] ALL_EQUIPMENT = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET, WOLF_ARMOR};
+	private static final ItemType[] ALL_EQUIPMENT = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET, WOLF_ARMOR, HAPPY_GHAST_HARNESS};
 
 	static {
 		Skript.registerEffect(EffEquip.class,
@@ -175,6 +198,14 @@ public class EffEquip extends Effect {
 					for (ItemStack item : itemType.getAll()) {
 						if (WOLF_ARMOR.isOfType(item))
 							equipment.setItem(EquipmentSlot.BODY, equip ? item : null);
+					}
+				}
+			} else if (HAPPY_GHAST_CLASS != null && HAPPY_GHAST_CLASS.isInstance(entity)) {
+				EntityEquipment equipment = ((Mob) entity).getEquipment();
+				for (ItemType itemType : itemTypes) {
+					for (ItemStack itemStack : itemType.getAll()) {
+						if (HAPPY_GHAST_HARNESS.isOfType(itemStack))
+							equipment.setItem(EquipmentSlot.BODY, equip ? itemStack : null);
 					}
 				}
 			} else {
