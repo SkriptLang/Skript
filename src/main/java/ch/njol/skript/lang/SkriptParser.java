@@ -10,6 +10,7 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
+import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
@@ -343,14 +344,41 @@ public class SkriptParser {
 	}
 
 	/**
-	 * Returns all {@link DefaultExpression}s from all the {@link ClassInfo}s embedded in {@code exprInfo} that pass all checks.
+	 * Returns the {@link DefaultExpression} from the first {@link ClassInfo} stored in {@code exprInfo}.
+	 *
+	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}.
+	 * @param pattern The pattern used to create {@link ExprInfo}.
+	 * @return {@link DefaultExpression}.
+	 * @throws SkriptAPIException If the {@link DefaultExpression} is not valid, produces an error message for the reasoning of failure.
+	 */
+	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
+		DefaultValueData data = getParser().getData(DefaultValueData.class);
+		ClassInfo<?> classInfo = exprInfo.classes[0];
+		DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
+		if (expr == null)
+			expr = classInfo.getDefaultExpression();
+
+		DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, 0);
+		if (errorType == null) {
+			assert expr != null;
+			return expr;
+		}
+
+		throw new SkriptAPIException(errorType.getError(List.of(classInfo.getCodeName()), pattern));
+	}
+
+	/**
+	 * Returns all {@link DefaultExpression}s from all the {@link ClassInfo}s embedded in {@code exprInfo} that are valid.
 	 *
 	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}s.
 	 * @param pattern The pattern used to create {@link ExprInfo}.
 	 * @return All available {@link DefaultExpression}s.
-	 * @throws SkriptAPIException If no {@link DefaultExpression}s pass, produces an error message for the reasoning of failure.
+	 * @throws SkriptAPIException If no {@link DefaultExpression}s are valid, produces an error message for the reasoning of failure.
 	 */
 	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
+		if (exprInfo.classes.length == 1)
+			return new ArrayList<>(List.of(getDefaultExpression(exprInfo, pattern)));
+
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
 
 		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);
@@ -362,18 +390,7 @@ public class SkriptParser {
 				expr = classInfo.getDefaultExpression();
 
 			String codeName = classInfo.getCodeName();
-			DefaultExpressionError errorType = null;
-			if (expr == null) {
-				errorType = DefaultExpressionError.NOT_FOUND;
-			} else if (!(expr instanceof Literal<?>) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0) {
-				errorType = DefaultExpressionError.NOT_LITERAL;
-			} else if (expr instanceof Literal<?> && (exprInfo.flagMask & PARSE_LITERALS) == 0) {
-				errorType = DefaultExpressionError.LITERAL;
-			} else if (!exprInfo.isPlural[i] && !expr.isSingle()) {
-				errorType = DefaultExpressionError.NOT_SINGLE;
-			} else if (exprInfo.time != 0 && !expr.setTime(exprInfo.time)) {
-				errorType = DefaultExpressionError.TIME_STATE;
-			}
+			DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, i);
 
 			if (errorType != null) {
 				failed.computeIfAbsent(errorType, list -> new ArrayList<>()).add(codeName);

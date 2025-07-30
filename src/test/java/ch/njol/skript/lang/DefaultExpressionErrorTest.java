@@ -1,6 +1,6 @@
-package org.skriptlang.skript.test.tests.lang;
+package ch.njol.skript.lang;
 
-import ch.njol.skript.lang.DefaultExpressionError;
+import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.junit.Assert;
 import org.junit.Test;
