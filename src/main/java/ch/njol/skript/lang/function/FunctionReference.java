@@ -4,10 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.KeyProviderExpression;
-import ch.njol.skript.lang.KeyedValue;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -111,7 +108,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		Signature<?> sign = getRegisteredSignature();
 
 		if (sign == null)
-			return false;
+			return true;
 
 		// Not enough parameters
 		return parameters.length >= sign.getMinParameters();
@@ -239,11 +236,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				if (e == null) {
 					if (first) {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
-							if (ParserInstance.get().getHintManager().isActive()) {
-								Skript.error("The expression %s is not of the expected type %s for %s", parameters[i].toString(), Classes.getSuperClassInfo(p.type.getC()), sign);
-							} else {
-								Skript.error("Can't understand this expression: " + parameters[i].toString());
-							}
+							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
 							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + p.type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."

@@ -101,3 +101,18 @@ test "function overloading with single param lists":
 	assert overloading_listarg(1, 2, 3) = 2
 	assert overloading_listarg(1, 2, 3, 4) = 3
 	assert overloading_listarg(1, 2, 3, 4, 5) = 3
+
+using local variable type hints
+
+test "function overloading with local type hints"
+	set {_number} to true
+
+	parse:
+		overloaded1({_number})
+
+	assert last parse logs contain "does not exist"
+
+	parse:
+		overloaded1(asdasg)
+
+	assert last parse logs contain "Can't understand this expression"
