@@ -89,10 +89,15 @@ test "function overloading with supertype":
 function overloading_listarg(x: int, y: int) :: int:
 	return 1
 
-function overloading_listarg(x: ints) :: int:
+function overloading_listarg(x: int, y: int, z: int) :: int:
 	return 2
 
+function overloading_listarg(x: ints) :: int:
+	return 3
+
 test "function overloading with single param lists":
-	assert overloading_listarg(1) = 2
+	assert overloading_listarg(1) = 3
 	assert overloading_listarg(1, 2) = 1
 	assert overloading_listarg(1, 2, 3) = 2
+	assert overloading_listarg(1, 2, 3, 4) = 3
+	assert overloading_listarg(1, 2, 3, 4, 5) = 3
