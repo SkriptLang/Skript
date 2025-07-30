@@ -104,7 +104,7 @@ test "function overloading with single param lists":
 
 using local variable type hints
 
-test "function overloading with local type hints"
+test "function overloading with local type hints":
 	set {_number} to true
 
 	parse:
