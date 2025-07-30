@@ -49,7 +49,7 @@ abstract class PotionPropertyEffect extends Effect {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		potions = (Expression<SkriptPotionEffect>) expressions[0];
 		isNegated = parseResult.hasTag("not");
-		return true;
+		return SkriptPotionEffect.isChangeable(potions);
 	}
 
 	@Override

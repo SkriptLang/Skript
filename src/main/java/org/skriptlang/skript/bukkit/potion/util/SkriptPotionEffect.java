@@ -1,6 +1,8 @@
 package org.skriptlang.skript.bukkit.potion.util;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
@@ -13,6 +15,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprPotionEffect;
+import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprPotionEffects;
 
 import java.io.StreamCorruptedException;
 import java.util.Deque;
@@ -405,12 +409,30 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	public SkriptPotionEffect clone() {
 		try {
 			SkriptPotionEffect skriptPotionEffect = (SkriptPotionEffect) super.clone();
+			// we do not copy over sources on clones
+			// for example, copying a potion effect into a variable should not continue tracking the source
 			skriptPotionEffect.entitySource = null;
 			skriptPotionEffect.itemSource = null;
 			return skriptPotionEffect;
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError();
 		}
+	}
+
+	/**
+	 * Checks whether the potion effects represented by an expression can be modified.
+	 * For example, hidden potion effects cannot be modified.
+	 * @param expression The expression to check.
+	 * @return Whether the potion effects represented by {@code expression} can be modified.
+	 * Logs an error if {@code false}.
+	 */
+	public static boolean isChangeable(Expression<? extends SkriptPotionEffect> expression) {
+		if ((expression instanceof ExprPotionEffects exprPotionEffects && exprPotionEffects.getState().includesHidden()) ||
+			expression instanceof ExprPotionEffect exprPotionEffect && exprPotionEffect.getState().includesHidden()) {
+			Skript.error("Hidden potion effects cannot be changed");
+			return false;
+		}
+		return true;
 	}
 
 }

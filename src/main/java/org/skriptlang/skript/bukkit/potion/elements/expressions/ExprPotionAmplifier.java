@@ -33,6 +33,9 @@ public class ExprPotionAmplifier extends SimplePropertyExpression<SkriptPotionEf
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (!SkriptPotionEffect.isChangeable(getExpr())) {
+			return null;
+		}
 		return switch (mode) {
 			case ADD, SET, REMOVE -> CollectionUtils.array(Integer.class);
 			default -> null;

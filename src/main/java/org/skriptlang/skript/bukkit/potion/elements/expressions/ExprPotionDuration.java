@@ -11,7 +11,6 @@ import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
@@ -41,6 +40,9 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (!SkriptPotionEffect.isChangeable(getExpr())) {
+			return null;
+		}
 		return switch (mode) {
 			case ADD, SET, REMOVE, RESET -> CollectionUtils.array(Timespan.class);
 			default -> null;

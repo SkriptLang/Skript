@@ -1,3 +1,6 @@
+options:
+	he_error: "Hidden potion effects cannot be changed"
+
 # ExprSecPotionEffect
 test "potion effect creation":
 	# test first pattern
@@ -295,6 +298,12 @@ test "potion amplifier property":
 	assert {_entity}'s hidden speed effects are {_weaker} with "hidden potion effects not reapplied"
 	clear {_entity}'s speed effects
 
+	# test blocking modification
+	parse:
+		set the amplifiers of the hidden potion effects of {_null} to {_null}
+		set the amplifiers of the hidden speed effects of {_null} to {_null}
+	assert the last parse logs is {@he_error} and {@he_error} with "Modification did not error"
+
 	# cleanup
 	delete the entity within {_entity}
 
@@ -341,6 +350,12 @@ test "potion duration property":
 	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
 	clear {_entity}'s speed effects
 
+	# test blocking modification
+	parse:
+		set the duration of the hidden potion effects of {_null} to {_null}
+		set the duration of the hidden speed effects of {_null} to {_null}
+	assert the last parse logs is {@he_error} and {@he_error} with "Modification did not error"
+
 	# cleanup
 	delete the entity within {_entity}
 
@@ -379,6 +394,12 @@ test "potion ambient property":
 	assert {_entity}'s speed effect is not ambient with "specific potion effect is ambient"
 	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
 	clear {_entity}'s speed effects
+
+	# test blocking modification
+	parse:
+		make the hidden potion effects of {_null} ambient
+		make the hidden speed effects of {_null} not ambient
+	assert the last parse logs is {@he_error} and {@he_error} with "Modification did not error"
 
 	# cleanup
 	delete the entity within {_entity}
@@ -419,6 +440,12 @@ test "potion infinite property":
 	assert {_entity}'s hidden speed effects are not set with "hidden potion effects appeared"
 	clear {_entity}'s speed effects
 
+	# test blocking modification
+	parse:
+		make the hidden potion effects of {_null} infinite
+		make the hidden speed effects of {_null} not infinite
+	assert the last parse logs is {@he_error} and {@he_error} with "Modification did not error"
+
 	# cleanup
 	delete the entity within {_entity}
 
@@ -458,6 +485,12 @@ test "potion icon property":
 	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
 	clear {_entity}'s speed effects
 
+	# test blocking modification
+	parse:
+		show the icon for the hidden potion effects of {_null}
+		hide the icon for the hidden speed effects of {_null}
+	assert the last parse logs is {@he_error} and {@he_error} with "Modification did not error"
+
 	# cleanup
 	delete the entity within {_entity}
 
@@ -496,6 +529,12 @@ test "potion particles property":
 	assert {_entity}'s speed effect doesn't have particles with "specific potion effect has particles"
 	assert {_entity}'s hidden speed effects are {_stronger} and {_weaker} with "hidden potion effects not reapplied"
 	clear {_entity}'s speed effects
+
+	# test blocking modification
+	parse:
+		show the particles for the hidden potion effects of {_null}
+		hide the particles for the hidden speed effects of {_null}
+	assert the last parse logs is {@he_error} and {@he_error} with "Modification did not error"
 
 	# cleanup
 	delete the entity within {_entity}

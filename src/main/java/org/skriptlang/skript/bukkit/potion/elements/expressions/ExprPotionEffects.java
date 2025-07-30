@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
@@ -53,7 +54,8 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 				.build());
 	}
 
-	enum State {
+	@ApiStatus.Internal
+	public enum State {
 
 		UNSET, ACTIVE, HIDDEN, BOTH;
 
@@ -70,7 +72,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 			return this != State.HIDDEN;
 		}
 
-		boolean includesHidden() {
+		public boolean includesHidden() {
 			return this == State.HIDDEN || this == State.BOTH;
 		}
 
@@ -280,6 +282,11 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the " + state.displayName() + " potion effects of " + getExpr().toString(event, debug);
+	}
+
+	@ApiStatus.Internal
+	public State getState() {
+		return state;
 	}
 
 }

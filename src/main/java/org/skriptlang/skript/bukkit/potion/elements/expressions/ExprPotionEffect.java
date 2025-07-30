@@ -15,6 +15,7 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprPotionEffects.State;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
@@ -268,6 +269,11 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 		}
 		builder.append("of", getExpr());
 		return builder.toString();
+	}
+
+	@ApiStatus.Internal
+	public State getState() {
+		return state;
 	}
 
 }
