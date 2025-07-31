@@ -4,6 +4,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -18,7 +20,8 @@ import java.util.stream.Collectors;
 /**
  * A registry for functions.
  */
-final class FunctionRegistry implements Registry<Function<?>> {
+@ApiStatus.Internal
+public final class FunctionRegistry implements Registry<Function<?>> {
 
 	private static FunctionRegistry registry;
 
@@ -363,6 +366,34 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;
+	}
+
+	public List<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
+		ImmutableList.Builder<Signature<?>> listBuilder = ImmutableList.builder();
+
+		// obtain all global functions of "name"
+		Namespace globalNamespace = namespaces.get(GLOBAL_NAMESPACE);
+		Set<FunctionIdentifier> globalIdentifiers = globalNamespace.identifiers.get(name);
+		if (globalIdentifiers != null) {
+			for (FunctionIdentifier identifier : globalIdentifiers) {
+				listBuilder.add(globalNamespace.signatures.get(identifier));
+			}
+		}
+
+		// obtain all local functions of "name"
+		if (namespace != null) {
+			Namespace localNamespace = namespaces.get(new NamespaceIdentifier(namespace));
+			if (localNamespace != null) {
+				Set<FunctionIdentifier> localIdentifiers = localNamespace.identifiers.get(name);
+				if (localIdentifiers != null) {
+					for (FunctionIdentifier identifier : localIdentifiers) {
+						listBuilder.add(localNamespace.signatures.get(identifier));
+					}
+				}
+			}
+		}
+
+		return listBuilder.build();
 	}
 
 	/**

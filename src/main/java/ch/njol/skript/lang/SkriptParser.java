@@ -12,7 +12,9 @@ import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
+import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -36,6 +38,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -858,24 +861,30 @@ public final class SkriptParser {
 	 * List parsing
 	 */
 
-	private <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
-		return parseExpressionList(log, false, types);
-	}
+	private record OrderedExprInfo(ClassInfo<?>[][] classes, boolean[][] plural) { }
 
-	private <T> @Nullable Expression<? extends T> parseExpressionList( ParseLogHandler log, boolean orderedTypes, Class<? extends T>... types) {
+	@SafeVarargs
+	private <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
 		//noinspection unchecked
-		return (Expression<? extends T>) parseExpressionList_i(log, orderedTypes, types);
+		return (Expression<? extends T>) parseExpressionList_i(log, types);
 	}
 
 	private @Nullable Expression<?> parseExpressionList(ParseLogHandler log, ExprInfo info) {
-		return parseExpressionList_i(log, false, info);
+		return parseExpressionList_i(log, info);
 	}
 
-	private @Nullable Expression<?> parseExpressionList_i(ParseLogHandler log, boolean orderedTypes, Object data) {
+	private @Nullable Expression<?> parseExpressionList(ParseLogHandler log, OrderedExprInfo info) {
+		return parseExpressionList_i(log, info);
+	}
+
+	private @Nullable Expression<?> parseExpressionList_i(ParseLogHandler log, Object data) {
+		OrderedExprInfo orderedExprInfo = data instanceof OrderedExprInfo info ? info : null;
 		ExprInfo exprInfo = data instanceof ExprInfo info ? info : null;
-		Class<?>[] types = exprInfo == null ? (Class<?>[]) data : null;
+		Class<?>[] types = orderedExprInfo == null && exprInfo == null ? (Class<?>[]) data : null;
 		boolean isObject;
-		if (exprInfo != null) {
+		if (orderedExprInfo != null) {
+			isObject = orderedExprInfo.classes.length == 1 && orderedExprInfo.classes[0][0].getC() == Object.class;
+		} else if (exprInfo != null) {
 			isObject = exprInfo.classes.length == 1 && exprInfo.classes[0].getC() == Object.class;
 		} else {
 			isObject = types.length == 1 && types[0] == Object.class;
@@ -946,13 +955,29 @@ public final class SkriptParser {
 				// allow parsing as a list only if subExpr is wrapped with parentheses
 				SkriptParser parser = new SkriptParser(this, subExpr);
 				if (subExpr.startsWith("(") && subExpr.endsWith(")") && next(subExpr, 0, context) == subExpr.length()) {
-					if (exprInfo != null) {
+					if (orderedExprInfo != null) {
+						int typeIndex = parsedExpressions.size();
+						if (typeIndex >= orderedExprInfo.classes.length) {
+							log.printError();
+							return null;
+						}
+						ExprInfo indexInfo = new ExprInfo(orderedExprInfo.classes[typeIndex], orderedExprInfo.plural[typeIndex]);
+						parsedExpression = parser.parseExpression(indexInfo);
+					} else if (exprInfo != null) {
 						parsedExpression = parser.parseExpression(exprInfo);
 					} else {
 						parsedExpression = parser.parseExpression(types);
 					}
 				} else {
-					if (exprInfo != null) {
+					if (orderedExprInfo != null) {
+						int typeIndex = parsedExpressions.size();
+						if (typeIndex >= orderedExprInfo.classes.length) {
+							log.printError();
+							return null;
+						}
+						ExprInfo indexInfo = new ExprInfo(orderedExprInfo.classes[typeIndex], orderedExprInfo.plural[typeIndex]);
+						parsedExpression = parser.parseSingleExpr(last == first, log.getError(), indexInfo);
+					} else if (exprInfo != null) {
 						parsedExpression = parser.parseSingleExpr(last == first, log.getError(), exprInfo);
 					} else {
 						parsedExpression = parser.parseSingleExpr(last == first, log.getError(), types);
@@ -1024,6 +1049,10 @@ public final class SkriptParser {
 		}
 	}
 
+	/*
+	 * Function parsing
+	 */
+
 	private final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
 
 	/**
@@ -1034,7 +1063,6 @@ public final class SkriptParser {
 	public <T> @Nullable FunctionReference<T> parseFunction(@Nullable Class<? extends T>... types) {
 		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
 			return null;
-		AtomicBoolean unaryArgument = new AtomicBoolean(false);
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			Matcher matcher = FUNCTION_CALL_PATTERN.matcher(expr);
 			if (!matcher.matches()) {
@@ -1042,9 +1070,8 @@ public final class SkriptParser {
 				return null;
 			}
 
-			String functionName = "" + matcher.group(1);
+			String functionName = matcher.group(1);
 			String args = matcher.group(2);
-			Expression<?>[] params;
 
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
 			// See https://github.com/SkriptLang/Skript/issues/1532
@@ -1060,32 +1087,102 @@ public final class SkriptParser {
 				log.printError();
 				return null;
 			}
-			final SkriptParser skriptParser = new SkriptParser(args, flags | PARSE_LITERALS, context);
-			params = this.getFunctionArguments(() -> skriptParser.suppressMissingAndOrWarnings().parseExpression(Object.class), args, unaryArgument);
-			if (params == null) {
-				log.printError();
-				return null;
-			}
 
+			SkriptParser skriptParser = new SkriptParser(args, flags | PARSE_LITERALS, context)
+				.suppressMissingAndOrWarnings();
+			Expression<?>[] params = args.isEmpty() ? new Expression[0] : null;
+
+			String namespace = null;
 			ParserInstance parser = getParser();
-			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
-			FunctionReference<T> functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
-
-			attempt_list_parse:
-			if (unaryArgument.get() && !functionReference.validateParameterArity(true)) {
-				try (ParseLogHandler ignored = SkriptLogger.startParseLogHandler()) {
-					SkriptParser alternative = new SkriptParser(args, flags | PARSE_LITERALS, context);
-					params = this.getFunctionArguments(() -> alternative.suppressMissingAndOrWarnings()
-						.parseExpressionList(ignored, Object.class), args, unaryArgument);
-					ignored.clear();
-					if (params == null)
-						break attempt_list_parse;
-				}
-				functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+			if (parser.isActive()) {
+				namespace = parser.getCurrentScript().getConfig().getFileName();
 			}
 
+			if (params == null) { // there are arguments to parse
+				// determine signatures that could match
+				var signatures = FunctionRegistry.getRegistry().getSignatures(namespace, functionName).stream()
+					.filter(signature -> {
+						if (signature.getMaxParameters() == 0) { // we have arguments, but this function doesn't
+							return false;
+						}
+						if (types != null) { // filter signatures based on expected return type
+							if (signature.getReturnType() == null) {
+								return false;
+							}
+							Class<?> signatureType = signature.getReturnType().getC();
+							for (Class<?> type : types) {
+								//noinspection DataFlowIssue - individual elements won't be null
+								if (Converters.converterExists(signatureType, type)) {
+									return true;
+								}
+							}
+							return false;
+						}
+						return true;
+					})
+					.toList();
+
+				List<List<ClassInfo<?>>> signatureTypes = new ArrayList<>();
+				List<List<Boolean>> signaturePlurals = new ArrayList<>();
+				boolean trySingle = false;
+				boolean trySinglePlural = false;
+				for (var signature : signatures) {
+					trySingle |= signature.getMinParameters() == 1 || signature.getMaxParameters() == 1;
+					trySinglePlural |= trySingle && !signature.getParameter(0).isSingleValue();
+					for (int i = 0; i < signature.getMaxParameters(); i++) {
+						if (signatureTypes.size() <= i) {
+							signatureTypes.add(new ArrayList<>());
+							signaturePlurals.add(new ArrayList<>());
+						}
+						var parameter = signature.getParameter(i);
+						signatureTypes.get(i).add(parameter.getType());
+						signaturePlurals.get(i).add(!parameter.isSingleValue());
+					}
+				}
+				boolean[][] plural = new boolean[signaturePlurals.size()][];
+				for (int i = 0; i < plural.length; i++) {
+					plural[i] = new boolean[signaturePlurals.get(i).size()];
+					for (int j = 0; j < plural[i].length; j++) {
+						plural[i][j] = signaturePlurals.get(i).get(j);
+					}
+				}
+				OrderedExprInfo orderedExprInfo = new OrderedExprInfo(
+					signatureTypes.stream()
+						.map(list -> list.toArray(new ClassInfo[0]))
+						.toArray(ClassInfo[][]::new),
+					plural);
+
+				if (trySingle) {
+					ExprInfo exprInfo = new ExprInfo(orderedExprInfo.classes[0], orderedExprInfo.plural[0]);
+					params = this.getFunctionArguments(
+						() -> skriptParser.parseSingleExpr(true, null, exprInfo),
+						args);
+					if (params == null && trySinglePlural) {
+						log.clear();
+						log.clearError();
+						try (ParseLogHandler listLog = SkriptLogger.startParseLogHandler()) {
+							params = this.getFunctionArguments(
+								() -> skriptParser.parseExpressionList(listLog, exprInfo),
+								args);
+						}
+					}
+				}
+				if (params == null) {
+					log.clear();
+					log.clearError();
+					try (ParseLogHandler listLog = SkriptLogger.startParseLogHandler()) {
+						params = this.getFunctionArguments(
+							() -> skriptParser.parseExpressionList(listLog, orderedExprInfo),
+							args);
+					}
+				}
+				if (params == null) {
+					log.printError();
+					return null;
+				}
+			}
+
+			FunctionReference<T> functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(), namespace, types, params);
 			if (!functionReference.validateFunction(true)) {
 				log.printError();
 				return null;
@@ -1095,28 +1192,34 @@ public final class SkriptParser {
 		}
 	}
 
-	private Expression<?> @Nullable [] getFunctionArguments(Supplier<Expression<?>> parsing, String args, AtomicBoolean unary) {
-		Expression<?>[] params;
-		if (args.length() != 0) {
-			Expression<?> parsedExpression = parsing.get();
-			if (parsedExpression == null)
-				return null;
-			if (parsedExpression instanceof ExpressionList) {
-				if (!parsedExpression.getAnd()) {
-					Skript.error("Function arguments must be separated by commas and optionally an 'and', but not an 'or'."
-									 + " Put the 'or' into a second set of parentheses if you want to make it a single parameter, e.g. 'give(player, (sword or axe))'");
-					return null;
-				}
-				params = ((ExpressionList<?>) parsedExpression).getExpressions();
-			} else {
-				unary.set(true);
-				params = new Expression[] {parsedExpression};
-			}
-		} else {
-			params = new Expression[0];
+	private Expression<?> @Nullable [] getFunctionArguments(Supplier<Expression<?>> parsing, String args) {
+		if (args.isEmpty()) {
+			return new Expression[0];
 		}
+
+		Expression<?> parsedExpression = parsing.get();
+		if (parsedExpression == null) {
+			return null;
+		}
+
+		Expression<?>[] params;
+		if (parsedExpression instanceof ExpressionList) {
+			if (!parsedExpression.getAnd()) {
+				Skript.error("Function arguments must be separated by commas and optionally an 'and', but not an 'or'."
+								 + " Put the 'or' into a second set of parentheses if you want to make it a single parameter, e.g. 'give(player, (sword or axe))'");
+				return null;
+			}
+			params = ((ExpressionList<?>) parsedExpression).getExpressions();
+		} else {
+			params = new Expression[] {parsedExpression};
+		}
+
 		return params;
 	}
+
+	/*
+	 * Command parsing
+	 */
 
 	/**
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
@@ -1137,6 +1240,10 @@ public final class SkriptParser {
 		}
 		return true;
 	}
+
+	/*
+	 * Utility methods
+	 */
 
 	/**
 	 * Parses the text as the given pattern as {@link ParseContext#COMMAND}.
@@ -1544,8 +1651,13 @@ public final class SkriptParser {
 
 	public static class ExprInfo {
 		public ExprInfo(int length) {
-			classes = new ClassInfo[length];
-			isPlural = new boolean[length];
+			this(new ClassInfo[length], new boolean[length]);
+		}
+
+		public ExprInfo(ClassInfo<?>[] classes, boolean[] isPlural) {
+			Preconditions.checkState(classes.length == isPlural.length, "classes and isPlural must be the same length");
+			this.classes = classes;
+			this.isPlural = isPlural;
 		}
 
 		public final ClassInfo<?>[] classes;
