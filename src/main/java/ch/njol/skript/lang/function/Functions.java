@@ -12,6 +12,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.DefaultFunction;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;
@@ -60,7 +61,7 @@ public abstract class Functions {
 	 * @param function The function to register.
 	 * @return The registered function.
 	 */
-	static DefaultFunction<?> register(DefaultFunction<?> function) {
+	public static DefaultFunction<?> register(DefaultFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 
 		String name = function.getName();

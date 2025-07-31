@@ -1,4 +1,4 @@
-package ch.njol.skript.lang.function;
+package org.skriptlang.skript.lang.function;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;

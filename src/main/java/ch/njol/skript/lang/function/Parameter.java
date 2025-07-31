@@ -17,6 +17,7 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.lang.function.DefaultFunction;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -54,7 +55,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 
 	/**
 	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
-	 * or {@link ch.njol.skript.lang.function.DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
@@ -64,7 +65,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 
 	/**
 	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
-	 * or {@link ch.njol.skript.lang.function.DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
@@ -85,7 +86,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 
 	/**
 	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
-	 * or {@link ch.njol.skript.lang.function.DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)

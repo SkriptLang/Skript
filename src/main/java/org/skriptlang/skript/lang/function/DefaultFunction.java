@@ -1,14 +1,13 @@
-package ch.njol.skript.lang.function;
+package org.skriptlang.skript.lang.function;
 
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.lang.function.FunctionEvent;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.Signature;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.lang.function.DefaultParameter;
-import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import java.lang.reflect.Array;
@@ -320,27 +319,6 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 				!returnType.isArray(), contract, execute, description, since, examples, keywords);
 		}
 
-	}
-
-	/**
-	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
-	 *
-	 * @param cls The class.
-	 * @param <T> The type of class.
-	 * @return The non-array {@link ClassInfo} of {@code cls}.
-	 */
-	static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
-		ClassInfo<T> classInfo;
-		if (cls.isArray()) {
-			//noinspection unchecked
-			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
-		} else {
-			classInfo = Classes.getExactClassInfo(cls);
-		}
-		if (classInfo == null) {
-			throw new IllegalArgumentException("No type found for " + cls.getSimpleName());
-		}
-		return classInfo;
 	}
 
 }

@@ -16,6 +16,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.function.DefaultFunction;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Executable;
 
@@ -238,7 +239,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
 							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
-							String type = Classes.toString(DefaultFunction.getClassInfo(p.type()));
+							String type = Classes.toString(getClassInfo(p.type()));
 
 							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
@@ -276,6 +277,27 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			this.contract = contract;
 
 		return true;
+	}
+
+	/**
+	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
+	 *
+	 * @param cls The class.
+	 * @param <T> The type of class.
+	 * @return The non-array {@link ClassInfo} of {@code cls}.
+	 */
+	private static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
+		ClassInfo<T> classInfo;
+		if (cls.isArray()) {
+			//noinspection unchecked
+			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
+		} else {
+			classInfo = Classes.getExactClassInfo(cls);
+		}
+		if (classInfo == null) {
+			throw new IllegalArgumentException("No type found for " + cls.getSimpleName());
+		}
+		return classInfo;
 	}
 
 	// attempt to get the types of the parameters for this function reference

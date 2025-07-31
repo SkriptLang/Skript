@@ -1,6 +1,6 @@
 package org.skriptlang.skript.lang.function;
 
-import ch.njol.skript.lang.function.DefaultFunction.Builder;
+import org.skriptlang.skript.lang.function.DefaultFunction.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 

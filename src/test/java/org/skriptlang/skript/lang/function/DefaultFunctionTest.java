@@ -1,6 +1,8 @@
-package ch.njol.skript.lang.function;
+package org.skriptlang.skript.lang.function;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -34,7 +36,7 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = built.getParameters();
 
-		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(String[].class), false, null, false, true), parameters[0]);
+		assertEquals(new ch.njol.skript.lang.function.Parameter<>("x", getClassInfo(String[].class), false, null, false, true), parameters[0]);
 	}
 
 	@Test
@@ -56,8 +58,8 @@ public class DefaultFunctionTest {
 
 		Parameter<?>[] parameters = built.getParameters();
 
-		assertEquals(new Parameter<>("x", DefaultFunction.getClassInfo(Object[].class), false, null, false, true), parameters[0]);
-		assertEquals(new Parameter<>("y", DefaultFunction.getClassInfo(Boolean.class), true, null), parameters[1]);
+		assertEquals(new ch.njol.skript.lang.function.Parameter<>("x", getClassInfo(Object[].class), false, null, false, true), parameters[0]);
+		assertEquals(new ch.njol.skript.lang.function.Parameter<>("y", getClassInfo(Boolean.class), true, null), parameters[1]);
 
 		Object[] execute = built.execute(consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
 
@@ -78,6 +80,27 @@ public class DefaultFunctionTest {
 			}
 		}
 		return consigned;
+	}
+
+	/**
+	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
+	 *
+	 * @param cls The class.
+	 * @param <T> The type of class.
+	 * @return The non-array {@link ClassInfo} of {@code cls}.
+	 */
+	private static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
+		ClassInfo<T> classInfo;
+		if (cls.isArray()) {
+			//noinspection unchecked
+			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
+		} else {
+			classInfo = Classes.getExactClassInfo(cls);
+		}
+		if (classInfo == null) {
+			throw new IllegalArgumentException("No type found for " + cls.getSimpleName());
+		}
+		return classInfo;
 	}
 
 }

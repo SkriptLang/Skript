@@ -5,7 +5,7 @@ import ch.njol.skript.lang.Expression;
 import java.util.Set;
 
 /**
- * A parameter for a {@link ch.njol.skript.lang.function.DefaultFunction}.
+ * A parameter for a {@link DefaultFunction}.
  *
  * @param name The name.
  * @param type The type's class.

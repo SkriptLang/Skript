@@ -5,6 +5,7 @@ import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.DefaultFunction;
 
 /**
  * @deprecated Use {@link DefaultFunction} instead.
