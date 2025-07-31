@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -406,15 +406,17 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param name      The name of the signature(s) to obtain.
 	 * @return A list of all signatures named {@code name}.
 	 */
-	public List<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
-		ImmutableList.Builder<Signature<?>> listBuilder = ImmutableList.builder();
+	public Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+
+		ImmutableSet.Builder<Signature<?>> setBuilder = ImmutableSet.builder();
 
 		// obtain all global functions of "name"
 		Namespace globalNamespace = namespaces.get(GLOBAL_NAMESPACE);
 		Set<FunctionIdentifier> globalIdentifiers = globalNamespace.identifiers.get(name);
 		if (globalIdentifiers != null) {
 			for (FunctionIdentifier identifier : globalIdentifiers) {
-				listBuilder.add(globalNamespace.signatures.get(identifier));
+				setBuilder.add(globalNamespace.signatures.get(identifier));
 			}
 		}
 
@@ -425,13 +427,13 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				Set<FunctionIdentifier> localIdentifiers = localNamespace.identifiers.get(name);
 				if (localIdentifiers != null) {
 					for (FunctionIdentifier identifier : localIdentifiers) {
-						listBuilder.add(localNamespace.signatures.get(identifier));
+						setBuilder.add(localNamespace.signatures.get(identifier));
 					}
 				}
 			}
 		}
 
-		return listBuilder.build();
+		return setBuilder.build();
 	}
 
 	/**
