@@ -21,7 +21,7 @@ public class ScriptCommandEvent extends CommandEvent {
 	 * @param rest The rest of the command string (the arguments)
 	 */
 	public ScriptCommandEvent(ScriptCommand scriptCommand, CommandSender sender, String commandLabel, String rest) {
-		super(sender, scriptCommand.getLabel(), rest.split(" "));
+		super(sender, scriptCommand.getName(), rest.split(" "));
 		this.scriptCommand = scriptCommand;
 		this.commandLabel = commandLabel;
 		this.rest = rest;

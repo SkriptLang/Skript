@@ -178,7 +178,7 @@ public class StructCommand extends Structure {
 
 		String command = matcher.group(1).toLowerCase();
 		ScriptCommand existingCommand = Commands.getScriptCommand(command);
-		if (existingCommand != null && existingCommand.getLabel().equals(command)) {
+		if (existingCommand != null && existingCommand.getName().equals(command)) {
 			Script script = existingCommand.getScript();
 			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined"
 				+ (script != null ? (" in " + script.getConfig().getFileName()) : "")
@@ -283,9 +283,20 @@ public class StructCommand extends Structure {
 
 		Commands.currentArguments = currentArguments;
 		try {
-			scriptCommand = new ScriptCommand(getParser().getCurrentScript(), command, pattern.toString(), currentArguments, description, prefix,
-				usage, aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass, cooldownStorage,
-				executableBy, entryContainer.get("trigger", SectionNode.class, false));
+			SectionNode trigger = entryContainer.get("trigger", SectionNode.class, false);
+			scriptCommand = new ScriptCommand.Builder(getParser().getCurrentScript(), trigger, command, pattern.toString())
+					.permissionMessage(permissionMessage)
+					.cooldownMessage(cooldownMessage)
+					.cooldownStorage(cooldownStorage)
+					.cooldownBypass(cooldownBypass)
+					.executableBy(executableBy)
+					.description(description)
+					.permission(permission)
+					.cooldown(cooldown)
+					.aliases(aliases)
+					.prefix(prefix)
+					.usage(usage)
+					.build();
 		} finally {
 			Commands.currentArguments = null;
 		}
