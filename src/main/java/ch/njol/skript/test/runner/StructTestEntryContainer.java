@@ -23,7 +23,7 @@ public class StructTestEntryContainer extends Structure {
 			Skript.registerStructure(StructTestEntryContainer.class,
 				EntryValidator.builder()
 					.addSection("has entry", true)
-					.addSection("has multiple entry", true, true)
+					.addSection("has multiple entries", true, true)
 					.build(),
 				"test entry container");
 	}
