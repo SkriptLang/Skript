@@ -26,7 +26,7 @@ public class StriderData extends EntityData<Strider> {
 
 	public StriderData(@Nullable Kleenean shivering) {
 		this.shivering = shivering != null ? shivering : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.shivering, 0).orElse(0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.shivering, 0).orElseThrow();
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class StriderData extends EntityData<Strider> {
 	protected boolean init(@Nullable Class<? extends Strider> entityClass, @Nullable Strider strider) {
 		if (strider != null) {
 			shivering = Kleenean.get(strider.isShivering());
-			super.codeNameIndex = PATTERNS.getMatchedPattern(shivering, 0).orElse(0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(shivering, 0).orElseThrow();
 		}
 		return true;
 	}

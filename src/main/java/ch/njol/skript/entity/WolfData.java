@@ -73,7 +73,7 @@ public class WolfData extends EntityData<Wolf> {
 	public WolfData(@Nullable Kleenean isAngry, @Nullable Kleenean isTamed) {
 		this.isAngry = isAngry != null ? isAngry : Kleenean.UNKNOWN;
 		this.isTamed = isTamed != null ? isTamed : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(this.isAngry, this.isTamed), 0).orElse(0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new WolfStates(this.isAngry, this.isTamed), 0).orElseThrow();
 	}
 
 	public WolfData(@Nullable WolfStates wolfState) {

@@ -38,7 +38,7 @@ public class BeeData extends EntityData<Bee> {
 	public BeeData(@Nullable Kleenean isAngry, @Nullable Kleenean hasNectar) {
 		this.isAngry = isAngry != null ? isAngry : Kleenean.UNKNOWN;
 		this.hasNectar = hasNectar != null ? hasNectar : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(this.isAngry, this.hasNectar), 0).orElse(0);
+		super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(this.isAngry, this.hasNectar), 0).orElseThrow();
 	}
 
 	public BeeData(@Nullable BeeState beeState) {
@@ -49,7 +49,7 @@ public class BeeData extends EntityData<Bee> {
 		} else {
 			this.isAngry = Kleenean.UNKNOWN;
 			this.hasNectar = Kleenean.UNKNOWN;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0).orElse(0);
+			super.codeNameIndex = PATTERNS.getMatchedPattern(new BeeState(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0).orElseThrow();
 		}
 	}
 	

@@ -952,7 +952,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * Checks if {@code from} is {@link Kleenean#UNKNOWN} or is equal to {@code to}.
 	 *
 	 * @param from The {@link Kleenean} to compare to.
-	 * @param to The {@link boolean} to compare against.
+	 * @param to The {@link Kleenean} to compare against.
 	 * @return {@code true} if {@code from} is {@link Kleenean#UNKNOWN} or is equal to {@code to}, otherwise {@code false}.
 	 */
 	protected boolean kleeneanMatch(Kleenean from, Kleenean to) {
