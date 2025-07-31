@@ -1,0 +1,15 @@
+test "happy ghast equipment" when running minecraft "1.21.6":
+	spawn a happy ghast at test-location:
+		set {_entity} to entity
+
+	equip {_entity} with a red harness
+	assert the body slot of {_entity} is a red harness with "Equip effect did not equip harness to happy ghast"
+	unequip a red harness from {_entity}
+	assert the body slot of {_entity} is air with "Equip effect did not unequip harness from happy ghast"
+
+	set the body slot of {_entity} to a blue harness
+	assert the body slot of {_entity} is a blue harness with "ExprArmorSlot did not set body slot of happy ghast"
+	clear the body slot of {_entity}
+	assert the body slot of {_entity} is air with "ExprArmorSlot did not clear body slot of happy ghast"
+
+	clear entity within {_entity}
