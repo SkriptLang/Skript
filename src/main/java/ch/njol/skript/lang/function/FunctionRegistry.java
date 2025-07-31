@@ -9,7 +9,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
@@ -54,8 +53,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
 
 	@Override
-	@UnmodifiableView
-	public @NotNull Collection<Function<?>> elements() {
+	public @Unmodifiable @NotNull Collection<Function<?>> elements() {
 		Set<Function<?>> functions = new HashSet<>();
 
 		for (Namespace namespace : namespaces.values()) {
@@ -406,7 +404,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param name      The name of the signature(s) to obtain.
 	 * @return A list of all signatures named {@code name}.
 	 */
-	public Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
+	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
 		ImmutableSet.Builder<Signature<?>> setBuilder = ImmutableSet.builder();
