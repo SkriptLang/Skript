@@ -861,7 +861,7 @@ public final class SkriptParser {
 	 * List parsing
 	 */
 
-	private record OrderedExprInfo(ClassInfo<?>[][] classes, boolean[][] plural) { }
+	private record OrderedExprInfo(ExprInfo[] infos) { }
 
 	@SafeVarargs
 	private <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
@@ -883,7 +883,7 @@ public final class SkriptParser {
 		Class<?>[] types = orderedExprInfo == null && exprInfo == null ? (Class<?>[]) data : null;
 		boolean isObject;
 		if (orderedExprInfo != null) {
-			isObject = orderedExprInfo.classes.length == 1 && orderedExprInfo.classes[0][0].getC() == Object.class;
+			isObject = orderedExprInfo.infos.length == 1 && orderedExprInfo.infos[0].classes[0].getC() == Object.class;
 		} else if (exprInfo != null) {
 			isObject = exprInfo.classes.length == 1 && exprInfo.classes[0].getC() == Object.class;
 		} else {
@@ -956,13 +956,12 @@ public final class SkriptParser {
 				SkriptParser parser = new SkriptParser(this, subExpr);
 				if (subExpr.startsWith("(") && subExpr.endsWith(")") && next(subExpr, 0, context) == subExpr.length()) {
 					if (orderedExprInfo != null) {
-						int typeIndex = parsedExpressions.size();
-						if (typeIndex >= orderedExprInfo.classes.length) {
+						int infoIndex = parsedExpressions.size();
+						if (infoIndex >= orderedExprInfo.infos.length) {
 							log.printError();
 							return null;
 						}
-						ExprInfo indexInfo = new ExprInfo(orderedExprInfo.classes[typeIndex], orderedExprInfo.plural[typeIndex]);
-						parsedExpression = parser.parseExpression(indexInfo);
+						parsedExpression = parser.parseExpression(orderedExprInfo.infos[infoIndex]);
 					} else if (exprInfo != null) {
 						parsedExpression = parser.parseExpression(exprInfo);
 					} else {
@@ -970,13 +969,12 @@ public final class SkriptParser {
 					}
 				} else {
 					if (orderedExprInfo != null) {
-						int typeIndex = parsedExpressions.size();
-						if (typeIndex >= orderedExprInfo.classes.length) {
+						int infoIndex = parsedExpressions.size();
+						if (infoIndex >= orderedExprInfo.infos.length) {
 							log.printError();
 							return null;
 						}
-						ExprInfo indexInfo = new ExprInfo(orderedExprInfo.classes[typeIndex], orderedExprInfo.plural[typeIndex]);
-						parsedExpression = parser.parseSingleExpr(last == first, log.getError(), indexInfo);
+						parsedExpression = parser.parseSingleExpr(last == first, log.getError(), orderedExprInfo.infos[infoIndex]);
 					} else if (exprInfo != null) {
 						parsedExpression = parser.parseSingleExpr(last == first, log.getError(), exprInfo);
 					} else {
@@ -1122,47 +1120,48 @@ public final class SkriptParser {
 					})
 					.toList();
 
-				List<List<ClassInfo<?>>> signatureTypes = new ArrayList<>();
-				List<List<Boolean>> signaturePlurals = new ArrayList<>();
+				// here, we map all signatures into type/plurality collections
+				// for example, all possible types (and whether they are plural) for the first parameter
+				//  will be mapped into the 0-index of both collections
+				record SignatureData(ClassInfo<?> classInfo, boolean plural) { }
+				List<List<SignatureData>> signatureDatas = new ArrayList<>();
 				boolean trySingle = false;
 				boolean trySinglePlural = false;
 				for (var signature : signatures) {
 					trySingle |= signature.getMinParameters() == 1 || signature.getMaxParameters() == 1;
 					trySinglePlural |= trySingle && !signature.getParameter(0).isSingleValue();
 					for (int i = 0; i < signature.getMaxParameters(); i++) {
-						if (signatureTypes.size() <= i) {
-							signatureTypes.add(new ArrayList<>());
-							signaturePlurals.add(new ArrayList<>());
+						if (signatureDatas.size() <= i) {
+							signatureDatas.add(new ArrayList<>());
 						}
 						var parameter = signature.getParameter(i);
-						signatureTypes.get(i).add(parameter.getType());
-						signaturePlurals.get(i).add(!parameter.isSingleValue());
+						signatureDatas.get(i).add(new SignatureData(parameter.getType(), !parameter.isSingleValue()));
 					}
 				}
-				boolean[][] plural = new boolean[signaturePlurals.size()][];
-				for (int i = 0; i < plural.length; i++) {
-					plural[i] = new boolean[signaturePlurals.get(i).size()];
-					for (int j = 0; j < plural[i].length; j++) {
-						plural[i][j] = signaturePlurals.get(i).get(j);
+				ExprInfo[] signatureInfos = new ExprInfo[signatureDatas.size()];
+				for (int infoIndex = 0; infoIndex < signatureInfos.length; infoIndex++) {
+					List<SignatureData> datas = signatureDatas.get(infoIndex);
+					ClassInfo<?>[] infos = new ClassInfo[datas.size()];
+					boolean[] isPlural = new boolean[infos.length];
+					for (int dataIndex = 0; dataIndex < infos.length; dataIndex++) {
+						SignatureData data = datas.get(dataIndex);
+						infos[dataIndex] = data.classInfo;
+						isPlural[dataIndex] = data.plural;
 					}
+					signatureInfos[infoIndex] = new ExprInfo(infos, isPlural);
 				}
-				OrderedExprInfo orderedExprInfo = new OrderedExprInfo(
-					signatureTypes.stream()
-						.map(list -> list.toArray(new ClassInfo[0]))
-						.toArray(ClassInfo[][]::new),
-					plural);
+				OrderedExprInfo orderedExprInfo = new OrderedExprInfo(signatureInfos);
 
 				if (trySingle) {
-					ExprInfo exprInfo = new ExprInfo(orderedExprInfo.classes[0], orderedExprInfo.plural[0]);
 					params = this.getFunctionArguments(
-						() -> skriptParser.parseSingleExpr(true, null, exprInfo),
+						() -> skriptParser.parseSingleExpr(true, null, orderedExprInfo.infos[0]),
 						args);
 					if (params == null && trySinglePlural) {
 						log.clear();
 						log.clearError();
 						try (ParseLogHandler listLog = SkriptLogger.startParseLogHandler()) {
 							params = this.getFunctionArguments(
-								() -> skriptParser.parseExpressionList(listLog, exprInfo),
+								() -> skriptParser.parseExpressionList(listLog, orderedExprInfo.infos[0]),
 								args);
 						}
 					}

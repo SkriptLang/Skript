@@ -398,6 +398,14 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		return attempt;
 	}
 
+	/**
+	 * Gets every signature with the name {@code name}.
+	 * This includes global functions and, if {@code namespace} is not null, functions under that namespace (if valid).
+	 * @param namespace The additional namespace to obtain signatures from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name      The name of the signature(s) to obtain.
+	 * @return A list of all signatures named {@code name}.
+	 */
 	public List<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		ImmutableList.Builder<Signature<?>> listBuilder = ImmutableList.builder();
 
