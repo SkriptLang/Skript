@@ -4,6 +4,8 @@ import ch.njol.skript.localization.Noun;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.util.Priority;
 
+import java.util.Comparator;
+
 /**
  * Represents an operator used in expressions.
  *
@@ -46,9 +48,13 @@ public record Operator(String sign, Priority priority, Noun node) implements Com
 		return sign;
 	}
 
+	private static final Comparator<Operator> COMPARATOR = Comparator
+		.comparing(Operator::priority)
+		.thenComparing(Operator::sign);
+
 	@Override
 	public int compareTo(@NotNull Operator o) {
-		return priority.compareTo(o.priority);
+		return COMPARATOR.compare(this, o);
 	}
 
 }
