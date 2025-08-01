@@ -4,6 +4,7 @@ import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -55,6 +56,20 @@ public interface Experiment {
 	 * @return The compiled matching pattern for this experiment
 	 */
 	SkriptPattern pattern();
+
+	/**
+	 * @return The display name for this experiment.
+	 */
+	default @NotNull String displayName() {
+		return "";
+	}
+
+	/**
+	 * @return The description for this experiment.
+	 */
+	default @NotNull String description() {
+		return "";
+	}
 
 	/**
 	 * @return Whether the usage pattern of this experiment matches the input text
