@@ -17,7 +17,6 @@ test "new custom model data expression" when running minecraft "1.21.4":
 
 	set model data strings of {_item} to "hello" and "world"
 	assert model data of {_item} is 456 with "wrong model data"
-	broadcast full model data of {_item}
 	assert full model data of {_item} is 456, 52, "hello", and "world" with "wrong full model data"
 	assert model data floats of {_item} is 456 and 52 with "wrong model data floats"
 	assert model data flags of {_item} is not set with "wrong model data flags"

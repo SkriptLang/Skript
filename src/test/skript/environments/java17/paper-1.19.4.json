@@ -1,7 +1,8 @@
 {
 	"name": "paper-1.19.4",
 	"resources": [
-		{"source": "server.properties.generic", "target": "server.properties"}
+		{"source": "server.properties.generic", "target": "server.properties"},
+		{"source": "bukkit.yml.generic", "target": "bukkit.yml"}
 	],
 	"paperDownloads": [
 		{

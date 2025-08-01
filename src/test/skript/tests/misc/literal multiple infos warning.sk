@@ -9,6 +9,9 @@ parse:
 		function a():: object:
 			return unknown
 
+function empty():
+	stop
+
 test "literal multiple infos warning":
 	parse:
 		set {_test} to unknown
@@ -16,12 +19,12 @@ test "literal multiple infos warning":
 
 	parse:
 		if {_list::*} contains unknown:
-			broadcast "Filler"
+			empty()
 	assert last parse logs matches {@error} with "Contains should throw warning"
 
 	parse:
 		if the 1st element of {_list::*} is unknown:
-			broadcast "filler"
+			empty()
 	assert last parse logs matches {@error} with "Element of should throw warning"
 
 	parse:
@@ -32,7 +35,7 @@ test "literal multiple infos warning":
 	parse:
 		for each {_value} in {_list::*}:
 			if {_value} is unknown:
-				broadcast "filler"
+				empty()
 	assert last parse logs matches {@error} with "For each should throw warning"
 
 	assert {LiteralMultipleWarn::FunctionObject} matches {@error} with "Function with Object return type should throw warning"
@@ -43,7 +46,7 @@ parse:
 	code:
 		on damage:
 			if damage cause is unknown:
-				broadcast "filler"
+				empty()
 
 parse:
 	results: {LiteralMultipleNoWarn::FunctionDamageCause}

@@ -2207,6 +2207,7 @@ spawn reasons:
 	# 1.21
 	trial_spawner: trial spawner, trial mob spawner, trial creature spawner
 	enchantment: enchantment
+	rehydration: rehydration, rehydrate
 
 # -- Difficulties --
 difficulties:
@@ -2826,6 +2827,12 @@ types:
 	numbered: numbered thing¦s @a
 	valued: valued thing¦s @a
 	containing: container¦s @a
+
+	# Testing
+	testgui: testgui
+	exemplus: exemplus
+	aardwolf: aardwolf
+	hoof: hoof
 
 	# Hooks
 	money: money
