@@ -15,7 +15,10 @@ import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Tablisted Players")
@@ -28,18 +31,25 @@ import ch.njol.util.coll.CollectionUtils;
 @RequiredPlugins("Paper 1.20.1+")
 @Since("INSERT VERSION")
 @Keywords("tablist")
-public class ExprListedPlayers extends SimplePropertyExpression<Player, Player[]> {
+public class ExprListedPlayers extends PropertyExpression<Player, Player> {
 
 	static {
 		if (Skript.methodExists(Player.class, "isListed", Player.class)) {
-			registerDefault(ExprListedPlayers.class, Player[].class, "[the] (tablist[ed]|listed) players", "players");
+			registerDefault(ExprListedPlayers.class, Player.class, "[the] (tablist[ed]|listed) players", "players");
 		}
 	}
 
 	@Override
-	public Player[] convert(Player viewer) {
-		return Bukkit.getOnlinePlayers().stream()
-				.filter(player -> viewer.isListed(player))
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr((Expression<Player>) expressions[0]);
+		return true;
+	}
+
+	@Override
+	protected Player[] get(Event event, Player[] source) {
+		return Arrays.stream(source)
+				.flatMap(viewer -> Bukkit.getOnlinePlayers().stream().filter(viewer::isListed))
 				.toArray(Player[]::new);
 	}
 
@@ -103,13 +113,13 @@ public class ExprListedPlayers extends SimplePropertyExpression<Player, Player[]
 	}
 
 	@Override
-	public Class<? extends Player[]> getReturnType() {
-		return Player[].class;
+	public Class<? extends Player> getReturnType() {
+		return Player.class;
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "tablisted players";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "tablisted players of " + getExpr().toString(event, debug);
 	}
 
 }
