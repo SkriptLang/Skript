@@ -280,14 +280,13 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		@NotNull String name,
 		@NotNull Class<?>... args
 	) {
-		if (namespace == null) {
-			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+		Retrieval<Function<?>> attempt = null;
+		if (namespace != null) {
+			attempt = getFunction(new NamespaceIdentifier(namespace),
+				FunctionIdentifier.of(name, true, args));
 		}
-
-		Retrieval<Function<?>> attempt = getFunction(new NamespaceIdentifier(namespace),
-			FunctionIdentifier.of(name, true, args));
-		if (attempt.result() == RetrievalResult.NOT_REGISTERED) {
-			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+		if (attempt == null || attempt.result() == RetrievalResult.NOT_REGISTERED) {
+			attempt = getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return attempt;
 	}
@@ -312,7 +311,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		}
 
-		Set<FunctionIdentifier> candidates = candidates(provided, existing);
+		Set<FunctionIdentifier> candidates = candidates(provided, existing, false);
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a function for '%s'", provided.name);
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
@@ -353,14 +352,45 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		@NotNull String name,
 		@NotNull Class<?>... args
 	) {
-		if (namespace == null) {
-			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+		Retrieval<Signature<?>> attempt = null;
+		if (namespace != null) {
+			attempt = getSignature(new NamespaceIdentifier(namespace),
+				FunctionIdentifier.of(name, true, args), false);
+		}
+		if (attempt == null || attempt.result() == RetrievalResult.NOT_REGISTERED) {
+			attempt = getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args), false);
+		}
+		return attempt;
+	}
+
+	/**
+	 * Gets the signature for a function with the given name and arguments. If no local function is found,
+	 * checks for global functions. If {@code namespace} is null, only global signatures will be checked.
+	 * <p>
+	 * This function checks performs no argument conversions, and is only used for determining whether a
+	 * signature already exists with the exact specified arguments. In almost all cases, {@link #getSignature(String, String, Class[])}
+	 * should be used.
+	 * </p>
+	 *
+	 * @param namespace The namespace to get the function from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name      The name of the function.
+	 * @param args      The types of the arguments of the function.
+	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
+	 */
+	Retrieval<Signature<?>> getExactSignature(
+		@Nullable String namespace,
+		@NotNull String name,
+		@NotNull Class<?>... args
+	) {
+		Retrieval<Signature<?>> attempt = null;
+		if (namespace != null) {
+			attempt = getSignature(new NamespaceIdentifier(namespace),
+				FunctionIdentifier.of(name, true, args), true);
 		}
 
-		Retrieval<Signature<?>> attempt = getSignature(new NamespaceIdentifier(namespace),
-			FunctionIdentifier.of(name, true, args));
-		if (attempt.result() == RetrievalResult.NOT_REGISTERED) {
-			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+		if (attempt == null || attempt.result() == RetrievalResult.NOT_REGISTERED) {
+			attempt = getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args), true);
 		}
 		return attempt;
 	}
@@ -370,10 +400,12 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 *
 	 * @param namespace The namespace to get the function from.
 	 * @param provided  The provided identifier of the function.
+	 * @param exact When false, will convert arguments to different types to attempt to find a match.
+	 *              When true, will not convert arguments.
 	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
 	 * in the specified namespace.
 	 */
-	private Retrieval<Signature<?>> getSignature(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided) {
+	private Retrieval<Signature<?>> getSignature(@NotNull NamespaceIdentifier namespace, @NotNull FunctionIdentifier provided, boolean exact) {
 		Preconditions.checkNotNull(namespace, "namespace cannot be null");
 		Preconditions.checkNotNull(provided, "provided cannot be null");
 
@@ -383,7 +415,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
 		}
 
-		Set<FunctionIdentifier> candidates = candidates(provided, ns.identifiers.get(provided.name));
+		Set<FunctionIdentifier> candidates = candidates(provided, ns.identifiers.get(provided.name), exact);
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a signature for '%s'", provided.name);
 			return new Retrieval<>(RetrievalResult.NOT_REGISTERED, null, null);
@@ -415,11 +447,14 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 *
 	 * @param provided The provided function.
 	 * @param existing The existing functions with the same name.
+	 * @param exact When false, will convert arguments to different types to attempt to find a match.
+	 *              When true, will not convert arguments.
 	 * @return An unmodifiable list of candidates for the provided function.
 	 */
 	private static @Unmodifiable @NotNull Set<FunctionIdentifier> candidates(
 		@NotNull FunctionIdentifier provided,
-		Set<FunctionIdentifier> existing
+		Set<FunctionIdentifier> existing,
+		boolean exact
 	) {
 		Set<FunctionIdentifier> candidates = new HashSet<>();
 
@@ -435,7 +470,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 				// make sure all types in the passed array are valid for the array parameter
 				Class<?> arrayType = candidate.args[0].componentType();
 				for (Class<?> arrayArg : provided.args) {
-					if (!Converters.converterExists(arrayType, arrayArg)) {
+					if (!Converters.converterExists(arrayArg, arrayType)) {
 						continue candidates;
 					}
 				}
@@ -459,8 +494,15 @@ final class FunctionRegistry implements Registry<Function<?>> {
 					candidateType = candidate.args[i];
 				}
 
-				if (!Converters.converterExists(provided.args[i], candidateType)) {
-					continue candidates;
+				Class<?> providedArg = provided.args[i];
+				if (exact) {
+					if (providedArg != candidateType) {
+						continue candidates;
+					}
+				} else {
+					if (!Converters.converterExists(providedArg, candidateType)) {
+						continue candidates;
+					}
 				}
 			}
 
