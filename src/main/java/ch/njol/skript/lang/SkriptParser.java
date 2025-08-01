@@ -527,31 +527,12 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (types[0] == Object.class) {
-				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
-				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
-					log.printError();
-					return null;
-				}
-				log.clear();
-				LogEntry logError = log.getError();
-				return (Literal<? extends T>) new UnparsedLiteral(expr, logError != null && (error == null || logError.quality > error.quality) ? logError : error);
-			}
-			for (Class<? extends T> type : types) {
-				log.clear();
-				assert type != null;
-				T parsedObject = Classes.parse(expr, type, context);
-				if (parsedObject != null) {
-					log.printLog();
-					return new SimpleLiteral<>(parsedObject, false);
-				}
-			}
-			log.printError();
-			return null;
+			return parseAsLiteral(allowUnparsedLiteral, log, error, types);
 		}
 	}
 
-	private static final Pattern LITERAL_SPECIFICATION_PATTERN = Pattern.compile("(?<literal>[^(]+) \\((?<classinfo>[^)]+)\\)");
+	private static final String INVALID_LSPEC_CHARS = "[^,():/\"'\\[\\]}{]";
+	private static final Pattern LITERAL_SPECIFICATION_PATTERN = Pattern.compile("(?<literal>" + INVALID_LSPEC_CHARS + "+) \\((?<classinfo>[\\w\\p{L} ]+)\\)");
 
 	private @Nullable Expression<?> parseSingleExpr(boolean allowUnparsedLiteral, @Nullable LogEntry error, ExprInfo exprInfo) {
 		if (expr.isEmpty()) // Empty expressions return nothing, obviously
@@ -735,56 +716,80 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (expr.endsWith(")") && expr.indexOf("(") != -1) {
-				Matcher classInfoMatcher = LITERAL_SPECIFICATION_PATTERN.matcher(expr);
-				if (classInfoMatcher.matches()) {
-					String literalString = classInfoMatcher.group("literal");
-					String unparsedClassInfo = Noun.stripDefiniteArticle(classInfoMatcher.group("classinfo"));
-					Expression<?> result = parseSpecifiedLiteral(literalString, unparsedClassInfo, types);
-					if (result != null) {
-						log.printLog();
-						return result;
-					}
-				}
-			}
-			if (exprInfo.classes.length == 1 && exprInfo.classes[0].getC() == Object.class) {
-				if (!allowUnparsedLiteral) {
-					log.printError();
-					return null;
-				}
-				return getUnparsedLiteral(log, error);
-			}
-			boolean containsObjectClass = false;
-			for (ClassInfo<?> classInfo : exprInfo.classes) {
-				log.clear();
-				assert classInfo.getC() != null;
-				if (classInfo.getC().equals(Object.class)) {
-					// If 'Object.class' is an option, needs to be treated as previous behavior
-					// But we also want to be sure every other 'ClassInfo' is attempted to be parsed beforehand
-					containsObjectClass = true;
-					continue;
-				}
-				Object parsedObject = Classes.parse(expr, classInfo.getC(), context);
-				if (parsedObject != null) {
-					log.printLog();
-					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
-				}
-			}
-			if (allowUnparsedLiteral && containsObjectClass)
-				return getUnparsedLiteral(log, error);
-			if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
-				for (ClassInfo<?> aClass : exprInfo.classes) {
-					if (!aClass.getC().isAssignableFrom(String.class))
-						continue;
-					VariableString string = VariableString.newInstance(expr.substring(1, expr.length() - 1));
-					if (string instanceof LiteralString)
-						return string;
-					break;
-				}
-			}
-			log.printError();
-			return null;
+			return parseAsLiteral(allowUnparsedLiteral, log, error, nonNullTypes);
 		}
+	}
+
+	/**
+	 * Helper method for {@link #parseSingleExpr(boolean, LogEntry, Class[])} and {@link #parseSingleExpr(boolean, LogEntry, ExprInfo)}.
+	 * Attempts to parse {@link #expr} as a literal. Prints errors.
+	 *
+	 * @param allowUnparsedLiteral If {@code true}, will allow unparsed literals to be returned.
+	 * @param log The current {@link ParseLogHandler} to use for logging.
+	 * @param error A {@link LogEntry} containing a default error to be printed if failed to parse.
+	 * @param types The valid types to parse the literal as.
+	 * @return {@link Expression} of type {@code T} if successful, otherwise {@code null}.<br>
+	 * @param <T> The type of the literal to parse.<br>
+	 */
+	@SafeVarargs
+	private <T> @Nullable Expression<? extends T> parseAsLiteral(
+			boolean allowUnparsedLiteral,
+			ParseLogHandler log,
+			@Nullable LogEntry error,
+			Class<? extends T>... types
+	) {
+		if (expr.endsWith(")") && expr.contains("(")) {
+			Matcher classInfoMatcher = LITERAL_SPECIFICATION_PATTERN.matcher(expr);
+			if (classInfoMatcher.matches()) {
+				String literalString = classInfoMatcher.group("literal");
+				String unparsedClassInfo = Noun.stripDefiniteArticle(classInfoMatcher.group("classinfo"));
+				Expression<? extends T> result = parseSpecifiedLiteral(literalString, unparsedClassInfo, types);
+				if (result != null) {
+					log.printLog();
+					return result;
+				}
+			}
+		}
+		if (types.length == 1 && types[0] == Object.class) {
+			if (!allowUnparsedLiteral) {
+				log.printError();
+				return null;
+			}
+			//noinspection unchecked
+			return (Expression<? extends T>) getUnparsedLiteral(log, error);
+		}
+		boolean containsObjectClass = false;
+		for (Class<?> type : types) {
+			log.clear();
+			if (type == Object.class) {
+				// If 'Object.class' is an option, needs to be treated as previous behavior
+				// But we also want to be sure every other 'ClassInfo' is attempted to be parsed beforehand
+				containsObjectClass = true;
+				continue;
+			}
+			//noinspection unchecked
+			T parsedObject = (T) Classes.parse(expr, type, context);
+			if (parsedObject != null) {
+				log.printLog();
+				return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
+			}
+		}
+		if (allowUnparsedLiteral && containsObjectClass)
+			//noinspection unchecked
+			return (Expression<? extends T>) getUnparsedLiteral(log, error);
+		if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
+			for (Class<?> type : types) {
+				if (!type.isAssignableFrom(String.class))
+					continue;
+				VariableString string = VariableString.newInstance(expr.substring(1, expr.length() - 1));
+				if (string instanceof LiteralString)
+					//noinspection unchecked
+					return (Expression<? extends T>) string;
+				break;
+			}
+		}
+		log.printError();
+		return null;
 	}
 
 	/**
@@ -819,10 +824,11 @@ public class SkriptParser {
 	 * @param types An {@link Array} of the acceptable {@link Class}es
 	 * @return {@link SimpleLiteral} or {@code null} if any checks fail
 	 */
-	private @Nullable Expression<?> parseSpecifiedLiteral(
+	@SafeVarargs
+	private <T> @Nullable Expression<? extends T> parseSpecifiedLiteral(
 		String literalString,
 		String unparsedClassInfo,
-		Class<?> ... types
+		Class<? extends T> ... types
 	) {
 		ClassInfo<?> classInfo = Classes.parse(unparsedClassInfo, ClassInfo.class, context);
 		if (classInfo == null) {
@@ -838,7 +844,8 @@ public class SkriptParser {
 			Skript.error(expr + " " + Language.get("is") + " " + notOfType(types));
 			return null;
 		}
-		Object parsedObject = classInfoParser.parse(literalString, context);
+		//noinspection unchecked
+		T parsedObject = (T) classInfoParser.parse(literalString, context);
 		if (parsedObject != null)
 			return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(literalString));
 		return null;

@@ -30,6 +30,13 @@ test "literal specification":
 	assert firework (the item type) is an item type with "Literal specification should work with definite articles"
 	assert firework (an entity type) is an entity type with "Literal specification should work with indefinite article"
 
+local function test(entity: entitytype, item: itemtype):
+	assert {_entity} is an entity type with "Literal specification should work with entitytype"
+	assert {_item} is an item type with "Literal specification should work with itemtype"
+
+test "literal specification in functions":
+	test(firework (entity type), firework (item type))
+
 test "literal specification error":
 	parse:
 		set {_block} to oak log (block)
