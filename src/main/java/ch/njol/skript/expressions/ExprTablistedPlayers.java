@@ -45,6 +45,7 @@ public class ExprTablistedPlayers extends PropertyExpression<Player, Player> {
 	protected Player[] get(Event event, Player[] source) {
 		return Arrays.stream(source)
 				.flatMap(viewer -> Bukkit.getOnlinePlayers().stream().filter(viewer::isListed))
+				.distinct()
 				.toArray(Player[]::new);
 	}
 
