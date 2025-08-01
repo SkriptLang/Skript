@@ -51,7 +51,6 @@ dependencies {
 }
 
 checkstyle {
-	group = 'help'
 	configFile = new File("checkstyle.xml")
 	sourceSets = [] // disables checkstyle after build task
 }
