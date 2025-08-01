@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 @Keywords("armor")
 @Since({
 	"1.0, 2.8.0 (armor), 2.10 (body armor), 2.12 (saddle)",
-	"INSERT VERSION (happy ghast)"
+	"2.12.1 (happy ghast)"
 })
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
