@@ -210,7 +210,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 		if (modifiers.contains(Modifiers.DEV_MODE)) {
 			standardInput = System.in
 		}
-		group = 'execution'
+		group = 'skript'
 		classpath = files([
 			artifact,
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
@@ -279,6 +279,7 @@ createTestTask('genReleaseDocs', 'Generates the Skript documentation website htm
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
 	dependsOn skriptTestJava17, skriptTestJava21
+	group = 'skript'
 }
 
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
@@ -287,12 +288,14 @@ createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', e
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
 	dependsOn JUnitJava17, JUnitJava21
+	group = 'skript'
 }
 
 tasks.register('quickTests') {
 	description = 'Runs quick test and junit quick.'
 	dependsOn quickTest
 	mustRunAfter JUnitQuick
+	group = 'skript'
 }
 
 // Build flavor configurations
