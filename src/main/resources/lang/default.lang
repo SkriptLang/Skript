@@ -2207,6 +2207,7 @@ spawn reasons:
 	# 1.21
 	trial_spawner: trial spawner, trial mob spawner, trial creature spawner
 	enchantment: enchantment
+	# 1.21.8
 	rehydration: rehydration, rehydrate
 
 # -- Difficulties --

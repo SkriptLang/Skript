@@ -268,6 +268,7 @@ compileTestJava.options.encoding = 'UTF-8'
 String environments = 'src/test/skript/environments/';
 String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
+
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0)
 createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
 createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
@@ -286,6 +287,12 @@ createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', e
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
 	dependsOn JUnitJava17, JUnitJava21
+}
+
+tasks.register('quickTests') {
+	description = 'Runs quick test and junit quick.'
+	dependsOn quickTest
+	mustRunAfter JUnitQuick
 }
 
 // Build flavor configurations
