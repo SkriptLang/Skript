@@ -68,7 +68,7 @@ public class GetDefaultExpressionsTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test_one_info() {
+	public void testOneInfo() {
 		test(createExprInfo(false, INFO_SINGLE), (exprInfo, string) -> {
 			exprInfo.flagMask = 0; // fail (NOT_LITERAL)
 			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
@@ -123,7 +123,7 @@ public class GetDefaultExpressionsTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test_two_infos() {
+	public void testTwoInfos() {
 		test(createExprInfo(false, INFO_SINGLE, INFO_PLURAL), (exprInfo, string) -> {
 			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL)
 			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));
@@ -316,7 +316,7 @@ public class GetDefaultExpressionsTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test_all_infos() {
+	public void testAllInfos() {
 		test(createExprInfo(false, INFO_SINGLE, INFO_PLURAL, INFO_SINGLE_LITERAL, INFO_PLURAL_LITERAL), (exprInfo, string) -> {
 			exprInfo.flagMask = 0; // fail (NOT_LITERAL), fail (NOT_LITERAL), fail (LITERAL), fail (LITERAL)
 			Assert.assertThrows(SkriptAPIException.class, () ->  getDefaultExpressions(exprInfo, string));

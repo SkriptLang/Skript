@@ -10,7 +10,7 @@ import java.util.List;
 public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 
 	@Test
-	public void test_not_found() {
+	public void testNotFound() {
 		Assert.assertEquals(
 			DefaultExpressionError.NOT_FOUND.getError(List.of("itemtype"), "itemtype"),
 			"The class 'itemtype' does not provide a default expression. Either allow null (with %-itemtype%) " +
@@ -31,7 +31,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test_not_literal() {
+	public void testNotLiteral() {
 		Assert.assertEquals(
 			DefaultExpressionError.NOT_LITERAL.getError(List.of("itemtype"), "itemtype"),
 			"The default expression of 'itemtype' is not a literal. Either allow null (with %-*itemtype%) " +
@@ -52,7 +52,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test_literal() {
+	public void testLiteral() {
 		Assert.assertEquals(
 			DefaultExpressionError.LITERAL.getError(List.of("itemtype"), "itemtype"),
 			"The default expression of 'itemtype' is a literal. Either allow null (with %-~itemtype%) " +
@@ -73,7 +73,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test_not_single() {
+	public void testNotSingle() {
 		Assert.assertEquals(
 			DefaultExpressionError.NOT_SINGLE.getError(List.of("itemtype"), "itemtype"),
 			"The default expression of 'itemtype' is not a single-element expression. Change your pattern to allow " +
@@ -94,7 +94,7 @@ public class DefaultExpressionErrorTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test_time_state() {
+	public void testTimeState() {
 		Assert.assertEquals(
 			DefaultExpressionError.TIME_STATE.getError(List.of("itemtype"), "itemtype"),
 			"The default expression of 'itemtype' does not have distinct time states. [pattern: itemtype]"
