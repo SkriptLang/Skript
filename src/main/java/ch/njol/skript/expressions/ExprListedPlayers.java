@@ -11,21 +11,23 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Listed Players")
+@Name("Tablisted Players")
 @Description({
 	"The displayed players in the tablist for selected players.",
 	"Delete changer will remove all the online players.",
 	"Reset changer will reset the tablist to a default state viewing all the players again."
 })
 @Examples("tablist players of player")
-@Since("INSERT VERSION")
 @RequiredPlugins("Paper 1.20.1+")
+@Since("INSERT VERSION")
+@Keywords("tablist")
 public class ExprListedPlayers extends SimplePropertyExpression<Player, Player[]> {
 
 	static {
