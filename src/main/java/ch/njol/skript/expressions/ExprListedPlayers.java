@@ -28,7 +28,7 @@ public class ExprListedPlayers extends SimpleExpression<Player> {
 
 	static {
 		if (Skript.methodExists(Player.class, "isListed", Player.class)) {
-			Skript.registerExpression(ExprListedPlayers.class, Player.class, ExpressionType.SIMPLE, "[tab]list[ed] players of %players%");
+			Skript.registerExpression(ExprListedPlayers.class, Player.class, ExpressionType.SIMPLE, "[the] [tab]list[ed] players of %players%");
 		}
 	}
 
