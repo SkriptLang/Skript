@@ -522,25 +522,30 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	@Override
 	public Iterator<ItemStack> containerIterator() {
 		return new Iterator<ItemStack>() {
-			@SuppressWarnings("null")
-			Iterator<ItemData> iter = types.iterator();
+
+			final Iterator<ItemData> iter = types.iterator();
+			ItemStack nextItem = null;
 
 			@Override
 			public boolean hasNext() {
-				return iter.hasNext();
+				while (nextItem == null && iter.hasNext()) {
+					ItemData data = iter.next();
+					ItemStack is = data.getStack();
+					if (is != null) {
+						nextItem = is.clone();
+						nextItem.setAmount(getAmount());
+					}
+				}
+				return nextItem != null;
 			}
 
 			@Override
 			public ItemStack next() {
-				ItemStack is = null;
-				while (is == null) {
-					if (!hasNext())
-						throw new NoSuchElementException();
-					is = iter.next().getStack();
-				}
-				is = is.clone();
-				is.setAmount(getAmount());
-				return is;
+				if (!hasNext())
+					throw new NoSuchElementException();
+				ItemStack result = nextItem;
+				nextItem = null;
+				return result;
 			}
 
 			@Override
@@ -557,17 +562,10 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public Iterable<ItemStack> getAll() {
 		if (!isAll()) {
-			final ItemStack i = getRandom();
-			if (i == null)
-				return EmptyIterable.get();
-			return new SingleItemIterable<>(i);
+			ItemStack i = getRandom();
+			return (i == null) ? EmptyIterable.get() : new SingleItemIterable<>(i);
 		}
-		return new Iterable<ItemStack>() {
-			@Override
-			public Iterator<ItemStack> iterator() {
-				return containerIterator();
-			}
-		};
+		return this::containerIterator;
 	}
 
 	/**
