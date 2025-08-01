@@ -32,7 +32,7 @@ public class ExprListedPlayers extends SimplePropertyExpression<Player, Player[]
 
 	static {
 		if (Skript.methodExists(Player.class, "isListed", Player.class)) {
-			registerDefault(ExprListedPlayers.class, Player[].class, "[the] [tab]list[ed] players", "players");
+			registerDefault(ExprListedPlayers.class, Player[].class, "[the] (tablist[ed]|listed) players", "players");
 		}
 	}
 
@@ -77,14 +77,16 @@ public class ExprListedPlayers extends SimplePropertyExpression<Player, Player[]
 				assert recipients != null;
 				for (Player viewer : viewers) {
 					for (Player player : recipients) {
-						viewer.listPlayer(player);
+						if (viewer.canSee(player)) {
+							viewer.listPlayer(player);
+						}
 					}
 				}
 				break;
 			case RESET:
 				for (Player viewer : viewers) {
 					for (Player player : Bukkit.getOnlinePlayers()) {
-						if (!viewer.isListed(player)) {
+						if (!viewer.isListed(player) && viewer.canSee(player)) {
 							viewer.listPlayer(player);
 						}
 					}
