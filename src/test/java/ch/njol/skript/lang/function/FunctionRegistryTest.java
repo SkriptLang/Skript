@@ -9,6 +9,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import static org.junit.Assert.*;
 

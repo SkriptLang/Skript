@@ -17,6 +17,8 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.function.DefaultFunction;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
@@ -232,13 +234,15 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
 				//noinspection unchecked
-				Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
+				Expression<?> e = parameters[i].getConvertedExpression(p.type());
 				if (e == null) {
 					if (first) {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
 							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
-							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + p.type + "."
+							String type = Classes.toString(getClassInfo(p.type()));
+
+							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
 								+ " Please note that storing the value in a variable and then using that variable as parameter may suppress this error, but it still won't work.");
 						}
@@ -276,6 +280,27 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return true;
 	}
 
+	/**
+	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
+	 *
+	 * @param cls The class.
+	 * @param <T> The type of class.
+	 * @return The non-array {@link ClassInfo} of {@code cls}.
+	 */
+	private static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
+		ClassInfo<T> classInfo;
+		if (cls.isArray()) {
+			//noinspection unchecked
+			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
+		} else {
+			classInfo = Classes.getExactClassInfo(cls);
+		}
+		if (classInfo == null) {
+			throw new IllegalArgumentException("No type found for " + cls.getSimpleName());
+		}
+		return classInfo;
+	}
+
 	// attempt to get the types of the parameters for this function reference
 	private void parseParameters() {
 		if (parameterTypes != null) {
@@ -290,7 +315,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	}
 
 	/**
-	 * Attempts to get this function's signature.
+	 * Attempts to geoopst this function's signature.
 	 */
 	private Signature<?> getRegisteredSignature() {
 		parseParameters();
@@ -366,10 +391,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Prepare parameter values for calling
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
-			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).keyed);
+			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).modifiers().contains(Modifier.KEYED));
 		} else { // Use parameters in normal way
 			for (int i = 0; i < parameters.length; i++)
-				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).keyed);
+				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).modifiers().contains(Modifier.KEYED));
 		}
 
 		// Execute the function
