@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import java.util.Arrays;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -12,39 +14,30 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Listed Players")
-@Description("The displayed players in the tablist for selected players.")
+@Description({
+	"The displayed players in the tablist for selected players.",
+	"Delete changer will remove all the online players.",
+	"Reset changer will reset the tablist to a default state viewing all the players again."
+})
 @Examples("tablist players of player")
 @Since("INSERT VERSION")
 @RequiredPlugins("Paper 1.20.1+")
-public class ExprListedPlayers extends SimpleExpression<Player> {
+public class ExprListedPlayers extends SimplePropertyExpression<Player, Player[]> {
 
 	static {
 		if (Skript.methodExists(Player.class, "isListed", Player.class)) {
-			Skript.registerExpression(ExprListedPlayers.class, Player.class, ExpressionType.SIMPLE, "[the] [tab]list[ed] players of %players%");
+			registerDefault(ExprListedPlayers.class, Player[].class, "[the] [tab]list[ed] players", "players");
 		}
 	}
 
-	private Expression<Player> viewers;
-
 	@Override
-	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		viewers = (Expression<Player>) exprs[0];
-		return true;
-	}
-
-	@Override
-	protected Player[] get(Event event) {
+	public Player[] convert(Player viewer) {
 		return Bukkit.getOnlinePlayers().stream()
-				.filter(player -> viewers.check(event, viewer -> viewer.isListed(player)))
+				.filter(player -> viewer.isListed(player))
 				.toArray(Player[]::new);
 	}
 
@@ -56,8 +49,11 @@ public class ExprListedPlayers extends SimpleExpression<Player> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Player[] recipients = (Player[]) delta;
-		Player[] viewers = this.viewers.getArray(event);
+		Player[] viewers = getExpr().getArray(event);
 		switch (mode) {
+			case DELETE:
+				recipients = Bukkit.getOnlinePlayers().toArray(Player[]::new);
+				// $fallthrough
 			case REMOVE:
 				for (Player viewer : viewers) {
 					for (Player player : recipients) {
@@ -65,6 +61,16 @@ public class ExprListedPlayers extends SimpleExpression<Player> {
 					}
 				}
 				break;
+			case SET:
+				for (Player viewer : viewers) {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						if (Arrays.stream(recipients).noneMatch(recipient -> recipient.equals(player))) {
+							// If the player is not in the recipients, unlist them
+							viewer.unlistPlayer(player);
+						}
+					}
+				}
+				// $fallthrough
 			case ADD:
 				assert recipients != null;
 				for (Player viewer : viewers) {
@@ -73,20 +79,16 @@ public class ExprListedPlayers extends SimpleExpression<Player> {
 					}
 				}
 				break;
-			case SET:
-				change(event, delta, ChangeMode.DELETE);
-				change(event, delta, ChangeMode.ADD);
-				break;
-			case REMOVE_ALL:
 			case RESET:
-			case DELETE:
 				for (Player viewer : viewers) {
-					Bukkit.getOnlinePlayers().forEach(player -> {
+					for (Player player : Bukkit.getOnlinePlayers()) {
 						if (!viewer.isListed(player)) {
 							viewer.listPlayer(player);
 						}
-					});
+					}
 				}
+				break;
+			default:
 				break;
 		}
 	}
@@ -97,13 +99,13 @@ public class ExprListedPlayers extends SimpleExpression<Player> {
 	}
 
 	@Override
-	public Class<Player> getReturnType() {
-		return Player.class;
+	public Class<? extends Player[]> getReturnType() {
+		return Player[].class;
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "tablisted players of " + viewers.toString(event, debug);
+	protected String getPropertyName() {
+		return "tablisted players";
 	}
 
 }
