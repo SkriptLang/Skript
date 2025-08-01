@@ -7,7 +7,7 @@ test "vector between locations":
 
 	set {_loc3} to location(10,10,10)
 	set {_vec2} to vector between {_loc1} and {_loc3}
-	assert {_vec2} is vector(10,10,10) with "vector between locations2 (expected %vector(10,10,10)%, got %{_vec2}%)"
+	assert {_vec2} is vector(10,10,10) with "vector between locations 1 and 3 (expected %vector(10,10,10)%, got %{_vec2}%)"
 
 	set {_vec3} to vector between {_loc1} and {_loc1}
 	assert {_vec3} is vector(0,0,0) with "vector between same locations failed (expected %vector(0,0,0)%, got %{_vec3}%)"
