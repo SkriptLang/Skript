@@ -108,7 +108,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		Signature<?> sign = getRegisteredSignature();
 
 		if (sign == null)
-			return true;
+			return false;
 
 		// Not enough parameters
 		return parameters.length >= sign.getMinParameters();
