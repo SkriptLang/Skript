@@ -10,7 +10,7 @@ parse:
 			return unknown
 
 function empty():
-	stop
+	exit
 
 test "literal multiple infos warning":
 	parse:
