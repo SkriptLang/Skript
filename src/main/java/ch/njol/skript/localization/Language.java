@@ -5,10 +5,9 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Version;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.localization.Localizer;
-import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
