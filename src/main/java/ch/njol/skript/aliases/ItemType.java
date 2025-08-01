@@ -1,27 +1,12 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.aliases;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Unit;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
@@ -37,10 +22,8 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Tag;
+import com.google.common.collect.Iterators;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -50,29 +33,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.RandomAccess;
-import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
-public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
+public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
+	AnyNamed, AnyAmount {
+
+	private static final boolean IS_RUNNING_1_21 = Skript.isRunningMinecraft(1, 21);
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -200,9 +180,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #ItemType(BlockData)} instead
+	 * @deprecated Use {@link #ItemType(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	public ItemType(BlockState blockState) {
 		this(blockState.getBlockData());
 	}
@@ -294,9 +274,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #isOfType(BlockData)} instead
+	 * @deprecated Use {@link #isOfType(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	public boolean isOfType(@Nullable BlockState blockState) {
 		return blockState != null && isOfType(blockState.getBlockData());
 	}
@@ -391,24 +371,75 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public boolean setBlock(Block block, boolean applyPhysics) {
 		for (int i = random.nextInt(types.size()); i < types.size(); i++) {
-			ItemData d = types.get(i);
-			Material blockType = ItemUtils.asBlock(d.type);
+			ItemData data = types.get(i);
+			Material blockType = ItemUtils.asBlock(data.type);
+
 			if (blockType == null) // Ignore items which cannot be placed
 				continue;
-			if (BlockUtils.set(block, blockType, d.getBlockValues(), applyPhysics)) {
-				ItemMeta itemMeta = getItemMeta();
-				if (itemMeta instanceof SkullMeta) {
-					OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
-					if (offlinePlayer == null)
-						continue;
-					Skull skull = (Skull) block.getState();
+
+			if (!BlockUtils.set(block, blockType, data.getBlockValues(), applyPhysics))
+				continue;
+
+			ItemMeta itemMeta = getItemMeta();
+
+			if (itemMeta instanceof SkullMeta skullMeta) {
+				OfflinePlayer offlinePlayer = skullMeta.getOwningPlayer();
+				if (offlinePlayer == null)
+					continue;
+				Skull skull = (Skull) block.getState();
+				if (offlinePlayer.getName() != null) {
 					skull.setOwningPlayer(offlinePlayer);
-					skull.update(false, applyPhysics);
+				} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
+					//noinspection deprecation
+					skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
+				} else {
+					//noinspection deprecation
+					skull.setOwner("");
 				}
-				return true;
+				skull.update(false, applyPhysics);
 			}
+
+			// https://github.com/SkriptLang/Skript/issues/7735
+			// No method exists to copy general BlockStateMeta data to a block, so we have to do it manually for now
+			copyContainerState(block, itemMeta);
+
+			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Copies the container state from the item meta to the block state
+	 * @param block The block to copy the state to
+	 * @param itemMeta The item meta to copy the state from
+	 */
+	private void copyContainerState(@NotNull Block block, @NotNull ItemMeta itemMeta) {
+		// ensure the item has a block state
+		if (!(itemMeta instanceof BlockStateMeta blockStateMeta) || !blockStateMeta.hasBlockState())
+			return;
+
+		// only care about container -> container copying
+		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer)
+				|| !(block.getState() instanceof org.bukkit.block.Container blockContainer))
+			return;
+
+		// copy inventory from item to block
+		copyInventories(itemContainer.getSnapshotInventory(), blockContainer.getSnapshotInventory());
+		blockContainer.update();
+	}
+
+	/**
+	 * Copies the contents of one inventory to another, maintaining slot positions and making clones.
+	 * @param from The inventory to copy from
+	 * @param to The inventory to copy to
+	 */
+	private void copyInventories(@NotNull Inventory from, @NotNull Inventory to) {
+		for (int i = 0; i < from.getSize(); i++) {
+			ItemStack item = from.getItem(i);
+			if (item != null) {
+				to.setItem(i, item.clone());
+			}
+		}
 	}
 
 	/**
@@ -491,25 +522,30 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	@Override
 	public Iterator<ItemStack> containerIterator() {
 		return new Iterator<ItemStack>() {
-			@SuppressWarnings("null")
-			Iterator<ItemData> iter = types.iterator();
+
+			final Iterator<ItemData> iter = types.iterator();
+			ItemStack nextItem = null;
 
 			@Override
 			public boolean hasNext() {
-				return iter.hasNext();
+				while (nextItem == null && iter.hasNext()) {
+					ItemData data = iter.next();
+					ItemStack is = data.getStack();
+					if (is != null) {
+						nextItem = is.clone();
+						nextItem.setAmount(getAmount());
+					}
+				}
+				return nextItem != null;
 			}
 
 			@Override
 			public ItemStack next() {
-				ItemStack is = null;
-				while (is == null) {
-					if (!hasNext())
-						throw new NoSuchElementException();
-					is = iter.next().getStack();
-				}
-				is = is.clone();
-				is.setAmount(getAmount());
-				return is;
+				if (!hasNext())
+					throw new NoSuchElementException();
+				ItemStack result = nextItem;
+				nextItem = null;
+				return result;
 			}
 
 			@Override
@@ -526,17 +562,34 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public Iterable<ItemStack> getAll() {
 		if (!isAll()) {
-			final ItemStack i = getRandom();
-			if (i == null)
-				return EmptyIterable.get();
-			return new SingleItemIterable<>(i);
+			ItemStack i = getRandom();
+			return (i == null) ? EmptyIterable.get() : new SingleItemIterable<>(i);
 		}
-		return new Iterable<ItemStack>() {
-			@Override
-			public Iterator<ItemStack> iterator() {
-				return containerIterator();
+		return this::containerIterator;
+	}
+
+	/**
+	 * Determines whether this ItemType satisfies the given predicate.
+	 * If {@link #isAll()} is true, this will return true if the predicate is satisfied by all ItemDatas.
+	 * If {@link #isAll()} is false, this will return true if the predicate is satisfied by any ItemData.
+	 * @param predicate A predicate to test items against
+	 * @return Whether this ItemType satisfies the predicate
+	 */
+	public boolean satisfies(Predicate<ItemStack> predicate) {
+		if (isAll()) {
+			for (Iterator<ItemStack> it = containerIterator(); it.hasNext(); ) {
+				ItemStack stack = it.next();
+				if (!predicate.test(stack))
+					return false;
 			}
-		};
+			return true;
+		}
+		for (Iterator<ItemStack> it = containerIterator(); it.hasNext(); ) {
+			ItemStack stack = it.next();
+			if (predicate.test(stack))
+				return true;
+		}
+		return false;
 	}
 
 	@Nullable
@@ -659,20 +712,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * Gets copy of storage contents, i.e. ignores armor and off hand. This is due to Spigot 1.9
-	 * added armor slots, and off hand to default inventory index.
-	 * @param invi Inventory
+	 * Gets copy of storage contents, i.e. ignores armor and off hand.
+	 * This method simply calls {@link Inventory#getStorageContents()} and clones the items contained within the array.
+	 * @param inventory The inventory to obtain contents from.
 	 * @return Copied storage contents
 	 */
-	public static ItemStack[] getStorageContents(final Inventory invi) {
-		if (invi instanceof PlayerInventory) {
-			ItemStack[] buf = invi.getContents();
-			ItemStack[] tBuf = new ItemStack[36];
-			for (int i = 0; i < 36; i++)
-				if (buf[i] != null)
-					tBuf[i] = buf[i].clone();
-			return tBuf;
-		} else return getCopiedContents(invi);
+	public static ItemStack[] getStorageContents(Inventory inventory) {
+		ItemStack[] buf = inventory.getStorageContents();
+		for (int i = 0; i < buf.length; i++) {
+			if (buf[i] != null)
+				buf[i] = buf[i].clone();
+		}
+		return buf;
 	}
 
 	/**
@@ -918,33 +969,46 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	/**
 	 * Tries to add this ItemType to the given inventory. Does not call updateInventory for players.
 	 *
-	 * @param invi
+	 * @param inventory The inventory to add this the {@link ItemStack}(s) represented by this ItemType to.
 	 * @return Whether everything could be added to the inventory
 	 */
-	public boolean addTo(final Inventory invi) {
-		// important: don't use inventory.add() - it ignores max stack sizes
-		ItemStack[] buf = invi.getContents();
+	public boolean addTo(Inventory inventory) {
+		// TODO remove this when applicable
+		// On newer versions, such as 1.21.6, this legacy method of manually rewriting inventory content arrays risks
+		//  accidental item deletion and fails to respect properties such as stack size.
+		// Thus, we switch to use the API methods. However, these API methods do not work properly on older versions
+		//  such as 1.20.6. For those versions, we continue to use this legacy method.
+		// See https://github.com/SkriptLang/Skript/pull/7986
+		if (!IS_RUNNING_1_21) {
+			// important: don't use inventory.add() - it ignores max stack sizes
+			ItemStack[] buf = inventory.getContents();
 
-		ItemStack[] tBuf = buf.clone();
-		if (invi instanceof PlayerInventory) {
-			buf = new ItemStack[36];
-			for(int i = 0; i < 36; ++i) {
-				buf[i] = tBuf[i];
+			ItemStack[] tBuf = buf.clone();
+			if (inventory instanceof PlayerInventory) {
+				buf = new ItemStack[36];
+				for(int i = 0; i < 36; ++i) {
+					buf[i] = tBuf[i];
+				}
 			}
-		}
 
-		final boolean b = addTo(buf);
+			final boolean b = addTo(buf);
 
-		if (invi instanceof PlayerInventory) {
-			buf = Arrays.copyOf(buf, tBuf.length);
-			for (int i = tBuf.length - 5; i < tBuf.length; ++i) {
-				buf[i] = tBuf[i];
+			if (inventory instanceof PlayerInventory) {
+				buf = Arrays.copyOf(buf, tBuf.length);
+				for (int i = tBuf.length - 5; i < tBuf.length; ++i) {
+					buf[i] = tBuf[i];
+				}
 			}
-		}
 
-		assert buf != null;
-		invi.setContents(buf);
-		return b;
+			assert buf != null;
+			inventory.setContents(buf);
+			return b;
+		}
+		if (!isAll()) {
+			ItemStack random = getItem().getRandom();
+			return random == null || inventory.addItem(random).isEmpty();
+		}
+		return inventory.addItem(Iterators.toArray(getItem().getAll().iterator(), ItemStack.class)).isEmpty();
 	}
 
 	private static boolean addTo(@Nullable ItemStack is, ItemStack[] buf) {
@@ -1214,9 +1278,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	/**
 	 * Gets all enchantments of this item.
 	 * @return Enchantments.
-	 * @deprecated Use {@link ItemType#getEnchantmentTypes()}
+	 * @deprecated Use {@link ItemType#getEnchantmentTypes()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public Map<Enchantment,Integer> getEnchantments() {
 		if (globalMeta == null)
@@ -1231,13 +1295,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	/**
 	 * Adds enchantments to this item type.
 	 * @param enchantments Enchantments.
-	 * @deprecated Use {@link ItemType#addEnchantments(EnchantmentType...)}
+	 * @deprecated Use {@link ItemType#addEnchantments(EnchantmentType...)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public void addEnchantments(Map<Enchantment,Integer> enchantments) {
 		if (globalMeta == null)
 			globalMeta = ItemData.itemFactory.getItemMeta(Material.STONE);
-		for (Map.Entry<Enchantment,Integer> entry : enchantments.entrySet()) {
+		for (Entry<Enchantment,Integer> entry : enchantments.entrySet()) {
 			assert globalMeta != null;
 			globalMeta.addEnchant(entry.getKey(), entry.getValue(), true);
 		}
@@ -1314,23 +1378,111 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * Checks whether this item type contains all the given enchantments.
+	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
+	 * @param enchantments The enchantments to be checked.
+	 * @deprecated Use {@link #hasEnchantmentsOrBetter(EnchantmentType...)}
+	 */
+	@Deprecated(since="2.12")
+	public boolean hasEnchantments(EnchantmentType... enchantments) {
+		return hasEnchantmentsOrBetter(true, enchantments);
+	}
+
+	/**
 	 * Checks whether this item type contains the given enchantments.
-	 * Also checks the enchantment level.
+	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
+	 * @param all Whether to check all enchantments or any enchantment.
+	 * @param enchantments The enchantments to be checked.
+	 * @deprecated Use {@link #hasEnchantmentsOrBetter(boolean, EnchantmentType...)}
+	 */
+	@Deprecated(since="2.12")
+	public boolean hasEnchantments(boolean all, EnchantmentType... enchantments) {
+		return hasEnchantmentsOrBetter(all, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains all the given enchantments.
+	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
 	 * @param enchantments The enchantments to be checked.
 	 */
-	public boolean hasEnchantments(EnchantmentType... enchantments) {
+	public boolean hasEnchantmentsOrBetter(EnchantmentType... enchantments) {
+		return hasEnchantmentsOrBetter(true, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains the given enchantments.
+	 * Also checks the enchantment level, where any level equal or lesser than the item's level is accepted.
+	 * @param all Whether to check all enchantments or any enchantment.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasEnchantmentsOrBetter(boolean all, EnchantmentType... enchantments) {
+		return hasEnchantments((itemLevel, typeLevel) -> itemLevel >= typeLevel, all, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains all the given enchantments.
+	 * Also checks the enchantment level, where any level equal or greater than the item's level is accepted.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasEnchantmentsOrWorse(EnchantmentType... enchantments) {
+		return hasEnchantmentsOrWorse(true, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains the given enchantments.
+	 * Also checks the enchantment level, where any level equal or greater than the item's level is accepted.
+	 * @param all Whether to check all enchantments or any enchantment.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasEnchantmentsOrWorse(boolean all, EnchantmentType... enchantments) {
+		return hasEnchantments((itemLevel, typeLevel) -> itemLevel <= typeLevel, all, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains all the given enchantments with the given level.
+	 * EnchantmentTypes that do not specify a level match any level.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasExactEnchantments(EnchantmentType... enchantments) {
+		return hasExactEnchantments(true, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains the given enchantments with the given level.
+	 * EnchantmentTypes that do not specify a level match any level.
+	 * @param all Whether to check all enchantments or any enchantment.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	public boolean hasExactEnchantments(boolean all, EnchantmentType... enchantments) {
+		return hasEnchantments(Integer::equals, all, enchantments);
+	}
+
+	/**
+	 * Checks whether this item type contains the given enchantments.
+	 * Also checks the enchantment level, with behavior depending on the {@code exact} parameter.
+	 * @param levelMatchingCondition A predicate used to tell whether the item's level (first param) matches a type's level (second param).
+	 *                               Types with no specified level will always match, regardless of this predicate.
+	 * @param all Whether to check all enchantments or any enchantment.
+	 * @param enchantments The enchantments to be checked.
+	 */
+	private boolean hasEnchantments(BiPredicate<@NotNull Integer, @NotNull Integer> levelMatchingCondition, boolean all, EnchantmentType... enchantments) {
 		if (!hasEnchantments())
 			return false;
 		ItemMeta meta = getItemMeta();
 		for (EnchantmentType enchantment : enchantments) {
 			Enchantment type = enchantment.getType();
 			assert type != null; // Bukkit working different than we expect
-			if (!meta.hasEnchant(type))
+			if (!meta.hasEnchant(type) && all)
 				return false;
-			if (enchantment.getInternalLevel() != -1 && meta.getEnchantLevel(type) < enchantment.getLevel())
+			if (enchantment.getInternalLevel() == -1 || levelMatchingCondition.test(meta.getEnchantLevel(type), enchantment.getLevel())) {
+				if (!all)
+					return true;
+			} else if (all) {
 				return false;
+			}
 		}
-		return true;
+		return all;
+
 	}
 
 	/**
@@ -1419,6 +1571,33 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * @return All Materials this ItemType represents.
+	 */
+	public Material[] getMaterials() {
+		Set<Material> materials = new HashSet<>();
+		for (ItemData data : types) {
+			materials.add(data.getType());
+		}
+		return materials.toArray(new Material[0]);
+  }
+
+  /**
+	 * @return A random block material this ItemType represents.
+	 * @throws IllegalStateException If {@link #hasBlock()} is false.
+	 */
+	public Material getBlockMaterial() {
+		List<ItemData> blockItemDatas = new ArrayList<>();
+		for (ItemData d : types) {
+			if (d.type.isBlock())
+				blockItemDatas.add(d);
+		}
+		if (blockItemDatas.isEmpty())
+			throw new IllegalStateException("This ItemType does not represent a material. " +
+					"ItemType#hasBlock() should return true before invoking this method.");
+		return blockItemDatas.get(random.nextInt(blockItemDatas.size())).getType();
+	}
+
+	/**
 	 * Returns a base item type of this. Essentially, this calls
 	 * {@link ItemData#aliasCopy()} on all datas and creates a new type
 	 * containing the results.
@@ -1431,4 +1610,38 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 		return copy;
 	}
+
+	@Override
+	public @Nullable String name() {
+		ItemMeta meta = this.getItemMeta();
+		return meta.hasDisplayName() ? meta.getDisplayName() : null;
+	}
+
+	@Override
+	public boolean supportsNameChange() {
+		return true;
+	}
+
+	@Override
+	public void setName(String name) {
+		ItemMeta meta = this.getItemMeta();
+		meta.setDisplayName(name);
+		this.setItemMeta(meta);
+	}
+
+	@Override
+	public @NotNull Number amount() {
+		return this.getAmount();
+	}
+
+	@Override
+	public boolean supportsAmountChange() {
+		return true;
+	}
+
+	@Override
+	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+		this.setAmount(amount != null ? amount.intValue() : 0);
+	}
+
 }

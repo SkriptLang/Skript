@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -34,7 +16,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -47,8 +29,7 @@ import static java.lang.Math.min;
 public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		if (Skript.classExists("org.bukkit.block.data.type.RespawnAnchor"))
-			register(ExprCharges.class, Integer.class, "[:max[imum]] charge[s]", "blocks");
+		register(ExprCharges.class, Integer.class, "[:max[imum]] charge[s]", "blocks");
 	}
 
 	private boolean maxCharges;
@@ -63,10 +44,10 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	@Override
 	public Integer convert(Block block) {
 		BlockData blockData = block.getBlockData();
-		if (blockData instanceof RespawnAnchor) {
+		if (blockData instanceof RespawnAnchor respawnAnchor) {
 			if (maxCharges)
-				return ((RespawnAnchor) blockData).getMaximumCharges();
-			return ((RespawnAnchor) blockData).getCharges();
+				return respawnAnchor.getMaximumCharges();
+			return respawnAnchor.getCharges();
 		}
 		return null;
 	}
@@ -74,15 +55,10 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case REMOVE:
-			case ADD:
-			case SET:
-			case RESET:
-			case DELETE:
-				return CollectionUtils.array(Number.class);
-		}
-		return null;
+		return switch (mode) {
+			case REMOVE, ADD, SET, RESET, DELETE -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -91,20 +67,19 @@ public class ExprCharges extends SimplePropertyExpression<Block, Integer> {
 		int charges = delta != null ? ((Number) delta[0]).intValue() : 0;
 
 		for (Block block : getExpr().getArray(event)) {
-			if (block.getBlockData() instanceof RespawnAnchor) {
-				RespawnAnchor anchor = (RespawnAnchor) block.getBlockData();
+			if (block.getBlockData() instanceof RespawnAnchor respawnAnchor) {
 				switch (mode) {
 					case REMOVE:
-						charge = anchor.getCharges() - charges;
+						charge = respawnAnchor.getCharges() - charges;
 						break;
 					case ADD:
-						charge = anchor.getCharges() + charges;
+						charge = respawnAnchor.getCharges() + charges;
 						break;
 					case SET:
 						charge = charges;
 				}
-				anchor.setCharges(min(max(charge, 0), 4));
-				block.setBlockData(anchor);
+				respawnAnchor.setCharges(min(max(charge, 0), 4));
+				block.setBlockData(respawnAnchor);
 			}
 		}
 	}

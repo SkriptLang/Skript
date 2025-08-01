@@ -1,27 +1,9 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -46,8 +28,8 @@ import ch.njol.util.Kleenean;
 public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	static {
 		Skript.registerExpression(ExprPotionEffect.class, PotionEffect.class, ExpressionType.COMBINED,
-			"[new] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]",
-			"[new] ambient potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]");
+			"[a] [new] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]",
+			"[a] [new] ambient potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]");
 	}
 	
 	@SuppressWarnings("null")
@@ -84,8 +66,9 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 		int ticks = 15 * 20; // 15 second default potion length
 		if (this.timespan != null) {
 			Timespan timespan = this.timespan.getSingle(e);
-			if (timespan != null)
-				ticks = (int) timespan.getTicks();
+			if (timespan != null) {
+				ticks = timespan.isInfinite() ? PotionEffect.INFINITE_DURATION : (int) timespan.getAs(Timespan.TimePeriod.TICK);
+			}
 		}
 		return new PotionEffect[]{new PotionEffect(potionEffectType, ticks, tier, ambient, particles)};
 	}

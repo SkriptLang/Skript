@@ -1,28 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util.slot;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.registrations.Classes;
@@ -35,8 +17,7 @@ public class CursorSlot extends Slot {
 	/**
 	 * Represents the cursor as it was used in an InventoryClickEvent.
 	 */
-	@Nullable
-	private final ItemStack eventItemStack;
+	private final @Nullable ItemStack eventItemStack;
 	private final Player player;
 
 	public CursorSlot(Player player) {
@@ -60,8 +41,7 @@ public class CursorSlot extends Slot {
 	}
 
 	@Override
-	@Nullable
-	public ItemStack getItem() {
+	public @Nullable ItemStack getItem() {
 		if (eventItemStack != null)
 			return eventItemStack;
 		return player.getItemOnCursor();
@@ -89,10 +69,9 @@ public class CursorSlot extends Slot {
 
 	@Override
 	public boolean isSameSlot(Slot slot) {
-		if (!(slot instanceof CursorSlot))
-			return false;
-		CursorSlot cursor = (CursorSlot) slot;
-		return cursor.getPlayer().equals(this.player) && cursor.isInventoryClick() == isInventoryClick();
+		return slot instanceof CursorSlot cursorSlot
+			&& cursorSlot.getPlayer().equals(this.player)
+			&& cursorSlot.isInventoryClick() == isInventoryClick();
 	}
 
 	@Override

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
@@ -30,7 +12,7 @@ import ch.njol.util.Math2;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -42,7 +24,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
 	static {
 		Skript.registerEvent("*At Time", EvtAtTime.class, ScheduledEvent.class, "at %time% [in %worlds%]")
-				.description("An event that occurs at a given <a href='./classes.html#time'>minecraft time</a> in every world or only in specific worlds.")
+				.description("An event that occurs at a given <a href='#time'>minecraft time</a> in every world or only in specific worlds.")
 				.examples("at 18:00", "at 7am in \"world\"")
 				.since("1.3.4");
 	}

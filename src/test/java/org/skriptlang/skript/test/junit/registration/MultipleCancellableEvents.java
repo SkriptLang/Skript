@@ -31,7 +31,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Multiple Cancel Events")
 @Description("Test registration to ensure that the 'some events cannot be cancelled' error works.")

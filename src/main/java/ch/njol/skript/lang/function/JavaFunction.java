@@ -1,32 +1,15 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Contract;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 public abstract class JavaFunction<T> extends Function<T> {
-	
+
+	private @NotNull String @Nullable [] returnedKeys;
+
 	public JavaFunction(Signature<T> sign) {
 		super(sign);
 	}
@@ -35,18 +18,48 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this(name, parameters, returnType, single, null);
 	}
 
-	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
-		this(new Signature<>("none", name, parameters, false, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
+	@ApiStatus.Internal
+	JavaFunction(String script, String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
+		this(script, name, parameters, returnType, single, true, null);
 	}
-	
+
+	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
+		this(null, name, parameters, returnType, single, false, contract);
+	}
+
+	@ApiStatus.Internal
+	JavaFunction(String script, String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local, @Nullable Contract contract) {
+		this(new Signature<>(script, name, parameters, local, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
+	}
+
 	@Override
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+
+	@Override
+	public @NotNull String @Nullable [] returnedKeys() {
+		return returnedKeys;
+	}
+
+	/**
+	 * Sets the keys that will be returned by this function.
+	 * <br>
+	 * Note: The length of the keys array must match the number of return values.
+	 *
+	 * @param keys An array of keys to be returned by the function. Can be null.
+	 * @throws IllegalStateException If the function is returns a single value.
+	 */
+	public void setReturnedKeys(@NotNull String @Nullable [] keys) {
+		if (isSingle())
+			throw new IllegalStateException("Cannot return keys for a single return function");
+		assert this.returnedKeys == null;
+		this.returnedKeys = keys;
+	}
 
 	private String @Nullable [] description = null;
 	private String @Nullable [] examples = null;
 	private String @Nullable [] keywords;
 	private @Nullable String since = null;
-	
+
 	/**
 	 * Only used for Skript's documentation.
 	 *
@@ -57,7 +70,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this.description = description;
 		return this;
 	}
-	
+
 	/**
 	 * Only used for Skript's documentation.
 	 *
@@ -80,7 +93,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this.keywords = keywords;
 		return this;
 	}
-	
+
 	/**
 	 * Only used for Skript's documentation.
 	 *
@@ -110,6 +123,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 	@Override
 	public boolean resetReturnValue() {
+		returnedKeys = null;
 		return true;
 	}
 

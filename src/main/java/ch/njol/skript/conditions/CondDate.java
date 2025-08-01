@@ -1,25 +1,7 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -37,7 +19,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Time")
-@Description("Tests whether a given <a href='classes.html#date'>real time</a> was more or less than some <a href='classes.html#timespan'>time span</a> ago.")
+@Description("Tests whether a given <a href='#date'>real time</a> was more or less than some <a href='#timespan'>time span</a> ago.")
 @Examples({"command /command-with-cooldown:",
 		"	trigger:",
 		"		{command::%player's uuid%::last-usage} was less than a minute ago:",
@@ -73,7 +55,7 @@ public class CondDate extends Condition {
 		final long now = System.currentTimeMillis();
 		return date.check(e,
 				date -> delta.check(e,
-						timespan -> now - date.getTimestamp() >= timespan.getMilliSeconds()
+						timespan -> now - date.getTime() >= timespan.getAs(Timespan.TimePeriod.MILLISECOND)
 				), isNegated());
 	}
 	

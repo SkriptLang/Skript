@@ -1,0 +1,19 @@
+test "love time":
+	spawn pig at spawn of world "world"
+	set {_pig} to last spawned pig
+
+	assert love time of {_pig} is 0 seconds with "love time wasn't 0 seconds by default"
+
+	set love time of {_pig} to 10 seconds
+	assert love time of {_pig} is 10 seconds with "love time wasn't set to 10 seconds"
+
+	add 10 seconds to love time of {_pig}
+	assert love time of {_pig} is 20 seconds with "love time wasn't increased by 10 seconds"
+
+	remove 1 minute from love time of {_pig}
+	assert love time of {_pig} is 0 seconds with "love time wasn't decreased by 1 minute"
+
+	reset love time of {_pig}
+	assert love time of {_pig} is 0 seconds with "love time wasn't reset"
+
+	delete all pigs

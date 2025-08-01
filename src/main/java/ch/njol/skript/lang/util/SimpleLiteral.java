@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.util;
 
 import ch.njol.skript.classes.Changer;
@@ -29,7 +11,6 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.NonNullIterator;
@@ -39,6 +20,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 /**
  * Represents a literal, i.e. a static value like a number or a string.
@@ -52,37 +34,41 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private final boolean isDefault;
 	private final boolean and;
 
-	private @Nullable UnparsedLiteral source = null;
+	protected final Expression<?> source;
 
+	/**
+	 * The data of the literal. May not be null or contain null, but may be empty.
+	 */
 	protected transient T[] data;
 
 	public SimpleLiteral(T[] data, Class<T> type, boolean and) {
-		assert data != null && data.length != 0;
+		this(data, type, and, null);
+	}
+
+	public SimpleLiteral(T[] data, Class<T> type, boolean and, @Nullable Expression<?> source) {
+		assert data != null;
 		assert type != null;
 		this.data = data;
 		this.type = type;
-		this.and = data.length == 1 || and;
+		this.and = data.length <= 1 || and;
 		this.isDefault = false;
+		this.source = source == null ? this : source;
 	}
 
 	public SimpleLiteral(T data, boolean isDefault) {
 		this(data, isDefault, null);
 	}
 
-	@SuppressWarnings("unchecked")
-	public SimpleLiteral(T data, boolean isDefault, @Nullable UnparsedLiteral source) {
+	public SimpleLiteral(T data, boolean isDefault, @Nullable Expression<?> source) {
 		assert data != null;
+		//noinspection unchecked
 		this.data = (T[]) Array.newInstance(data.getClass(), 1);
 		this.data[0] = data;
+		//noinspection unchecked
 		type = (Class<T>) data.getClass();
 		and = true;
 		this.isDefault = isDefault;
-		this.source = source;
-	}
-
-	public SimpleLiteral(T[] data, Class<T> to, boolean and, @Nullable UnparsedLiteral source) {
-		this(data, to, and);
-		this.source = source;
+		this.source = source == null ? this : source;
 	}
 
 	@Override
@@ -159,7 +145,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 
 	@Override
 	public boolean isSingle() {
-		return !getAnd() || data.length == 1;
+		return !getAnd() || data.length <= 1;
 	}
 
 	@Override
@@ -168,12 +154,12 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return SimpleExpression.check(data, checker, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
+	public boolean check(Event event, Predicate<? super T> checker) {
 		return SimpleExpression.check(data, checker, false, getAnd());
 	}
 
@@ -217,7 +203,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 
 	@Override
 	public NonNullIterator<T> iterator(final Event event) {
-		return new NonNullIterator<T>() {
+		return new NonNullIterator<>() {
 			private int i = 0;
 
 			@Override
@@ -237,8 +223,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 
 	@Override
 	public Expression<?> getSource() {
-		final UnparsedLiteral source = this.source;
-		return source == null ? this : source;
+		return source;
 	}
 
 	@Override

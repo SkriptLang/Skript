@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.arithmetic;
 
 import ch.njol.skript.Skript;
@@ -30,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.function.Supplier;
@@ -72,7 +55,7 @@ public final class Arithmetics {
 		getOperations_i(operator).add(new OperationInfo<>(leftClass, rightClass, returnType, operation));
 	}
 
-	private static boolean exactOperationExists(Operator operator, Class<?> leftClass, Class<?> rightClass) {
+	public static boolean exactOperationExists(Operator operator, Class<?> leftClass, Class<?> rightClass) {
 		for (OperationInfo<?, ?, ?> info : getOperations_i(operator)) {
 			if (info.getLeft() == leftClass && info.getRight() == rightClass)
 				return true;
@@ -98,6 +81,47 @@ public final class Arithmetics {
 	public static <T> List<OperationInfo<T, ?, ?>> getOperations(Operator operator, Class<T> type) {
 		return (List) getOperations(operator).stream()
 			.filter(info -> info.getLeft().isAssignableFrom(type))
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns all valid operations from {@code operator} and {@code leftClass}.
+	 * Unlike {@link #getOperations(Operator, Class)}, this method considers Converters.
+	 * @param operator The operator for the desired operations
+	 * @param leftClass Class representing the desired left-hand argument type
+	 * @return A list containing all valid operations from {@code operator} and {@code leftClass}.
+	 * @param <L> The type of the left-hand argument
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static <L> List<OperationInfo<L, ?, ?>> lookupLeftOperations(Operator operator, Class<L> leftClass) {
+		return (List) getOperations(operator).stream()
+			.map(info -> {
+				if (info.getLeft().isAssignableFrom(leftClass)) {
+					return info;
+				}
+				return info.getConverted(leftClass, info.getRight(), info.getReturnType());
+			})
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns all valid operations from {@code operator} and {@code rightClass}.
+	 * @param operator The operator for the desired operations
+	 * @param rightClass Class representing the desired right-hand argument type
+	 * @return A list containing all valid operations from {@code operator} and {@code rightClass}.
+	 * @param <R> The type of the right-hand argument
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static <R> List<OperationInfo<?, R, ?>> lookupRightOperations(Operator operator, Class<R> rightClass) {
+		return (List) getOperations(operator).stream()
+			.map(info -> {
+				if (info.getRight().isAssignableFrom(rightClass)) {
+					return info;
+				}
+				return info.getConverted(info.getLeft(), rightClass, info.getReturnType());
+			})
+			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
 	}
 
@@ -188,7 +212,7 @@ public final class Arithmetics {
 		differences.put(type, new DifferenceInfo<>(type, returnType, operation));
 	}
 
-	private static boolean exactDifferenceExists(Class<?> type) {
+	public static boolean exactDifferenceExists(Class<?> type) {
 		return differences.containsKey(type);
 	}
 

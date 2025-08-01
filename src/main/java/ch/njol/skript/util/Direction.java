@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import ch.njol.skript.lang.Expression;
@@ -36,8 +18,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
@@ -347,7 +329,8 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 //		return "" + relative + ":" + (relative ? pitch + "," + yaw + "," + length : mod[0] + "," + mod[1] + "," + mod[2]);
-	@Deprecated
+
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public static Direction deserialize(final String s) {
 		final String[] split = s.split(":");
@@ -437,7 +420,37 @@ public class Direction implements YggdrasilRobustSerializable {
 			@Override
 			public Expression<? extends Location> simplify() {
 				if (dirs instanceof Literal && dirs.isSingle() && Direction.ZERO.equals(((Literal<?>) dirs).getSingle())) {
-					return locs;
+					return new SimpleExpression<>() {
+						@Override
+						public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+							throw new UnsupportedOperationException();
+						}
+
+						@Override
+						protected Location @Nullable [] get(Event event) {
+							return locs.getAll(event);
+						}
+
+						@Override
+						public boolean getAnd() {
+							return locs.getAnd();
+						}
+
+						@Override
+						public boolean isSingle() {
+							return locs.isSingle();
+						}
+
+						@Override
+						public Class<? extends Location> getReturnType() {
+							return Location.class;
+						}
+
+						@Override
+						public String toString(@Nullable Event event, boolean debug) {
+							return "at " + locs.toString(event, debug);
+						}
+					};
 				}
 				return this;
 			}
@@ -445,7 +458,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean incompatibleField(@NonNull final Field f, @NonNull final FieldContext value) throws StreamCorruptedException {
+	public boolean incompatibleField(@NotNull final Field f, @NotNull final FieldContext value) throws StreamCorruptedException {
 		return false;
 	}
 	
@@ -466,7 +479,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean excessiveField(@NonNull final FieldContext field) throws StreamCorruptedException {
+	public boolean excessiveField(@NotNull final FieldContext field) throws StreamCorruptedException {
 		if (field.getID().equals("mod")) {
 			final double[] mod = field.getObject(double[].class);
 			if (mod == null)
@@ -492,7 +505,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean missingField(@NonNull final Field field) throws StreamCorruptedException {
+	public boolean missingField(@NotNull final Field field) throws StreamCorruptedException {
 		if (!field.getName().equals("relative"))
 			return true;
 		return false;

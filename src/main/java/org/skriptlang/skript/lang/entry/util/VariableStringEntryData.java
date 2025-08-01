@@ -1,30 +1,9 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.entry.util;
 
 import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import ch.njol.skript.util.StringMode;
-import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 
 /**
  * A type of {@link KeyValueEntryData} designed to parse its value as a {@link VariableString}.
@@ -58,8 +37,7 @@ public class VariableStringEntryData extends KeyValueEntryData<VariableString> {
 	}
 
 	@Override
-	@Nullable
-	protected VariableString getValue(String value) {
+	protected @Nullable VariableString getValue(String value) {
 		// Double up quotations outside of expressions
 		if (stringMode != StringMode.VARIABLE_NAME)
 			value = VariableString.quote(value);

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
@@ -51,31 +33,43 @@ public final class Parameter<T> {
 	 * then the valid variable names may not necessarily match this string in casing.
 	 */
 	final String name;
-	
+
 	/**
 	 * Type of the parameter.
 	 */
 	final ClassInfo<T> type;
-	
+
 	/**
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
 	final @Nullable Expression<? extends T> def;
-	
+
 	/**
 	 * Whether this parameter takes one or many values.
 	 */
 	final boolean single;
-	
-	@SuppressWarnings("null")
+
+	/**
+	 * Whether this parameter takes in key-value pairs.
+	 * <br>
+	 * If this is true, a {@link ch.njol.skript.lang.KeyedValue} array containing key-value pairs will be passed to
+	 * {@link Function#execute(FunctionEvent, Object[][])} rather than a value-only object array.
+	 */
+	final boolean keyed;
+
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
+		this(name, type, single, def, false);
+	}
+
+	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
 		this.name = name;
 		this.type = type;
 		this.def = def;
 		this.single = single;
+		this.keyed = keyed;
 	}
-	
+
 	/**
 	 * Get the Type of this parameter.
 	 * @return Type of the parameter
@@ -93,7 +87,7 @@ public final class Parameter<T> {
 		Expression<? extends T> d = null;
 		if (def != null) {
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
-			
+
 			// Parse the default value expression
 			try {
 				//noinspection unchecked
@@ -107,7 +101,7 @@ public final class Parameter<T> {
 				log.stop();
 			}
 		}
-		return new Parameter<>(name, type, single, d);
+		return new Parameter<>(name, type, single, d, !single);
 	}
 
 	/**
@@ -171,7 +165,7 @@ public final class Parameter<T> {
 		}
 		return params;
 	}
-	
+
 	/**
 	 * Get the name of this parameter.
 	 * <p>Will be used as name for the local variable that contains value of it inside function.</p>
@@ -180,7 +174,7 @@ public final class Parameter<T> {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Get the Expression that will be used to provide the default value of this parameter when the function is called.
 	 * @return Expression that will provide default value of this parameter
@@ -188,7 +182,7 @@ public final class Parameter<T> {
 	public @Nullable Expression<? extends T> getDefaultExpression() {
 		return def;
 	}
-	
+
 	/**
 	 * Get whether this parameter takes one or many values.
 	 * @return True if this parameter takes one value, false otherwise
@@ -196,10 +190,14 @@ public final class Parameter<T> {
 	public boolean isSingleValue() {
 		return single;
 	}
-	
+
 	@Override
 	public String toString() {
-		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, true) : "");
+		return toString(Skript.debug());
 	}
-	
+
+	public String toString(boolean debug) {
+		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, debug) : "");
+	}
+
 }

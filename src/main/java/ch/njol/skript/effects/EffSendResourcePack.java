@@ -1,26 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -42,7 +24,7 @@ import ch.njol.util.StringUtils;
 		"The hash must be SHA-1, you can get SHA-1 hash of your resource pack using ",
 		"<a href=\"https://emn178.github.io/online-tools/sha1_checksum.html\">this online tool</a>.",
 		"",
-		"The <a href='events.html#resource_pack_request_action'>resource pack request action</a> can be used to check ",
+		"The <a href='#resource_pack_request_action'>resource pack request action</a> can be used to check ",
 		"status of the sent resource pack request."})
 @Examples({"on join:",
 		"	send the resource pack from \"URL\" with hash \"hash\" to the player"})

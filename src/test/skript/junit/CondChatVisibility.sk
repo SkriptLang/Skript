@@ -1,0 +1,18 @@
+test "CondChatVisibilityJUnit" when running JUnit:
+	set {_tests::1} to "chat visibility is only commands"
+	set {_tests::2} to "no chat filtering"
+	set {_tests::3} to "can see chat colours"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.conditions.CondChatVisibilityTest" completes {_tests::*}
+
+on join:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.conditions.CondChatVisibilityTest"
+	junit test is {_test}
+
+	if player can only see commands:
+		complete objective "chat visibility is only commands" for {_test}
+
+	if player doesn't have chat filtering enabled:
+		complete objective "no chat filtering" for {_test}
+
+	if player can see chat colours:
+		complete objective "can see chat colours" for {_test}

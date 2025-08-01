@@ -1,26 +1,9 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.util.ColorRGB;
 import org.bukkit.FireworkEffect;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -36,7 +19,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Firework Effect")
-@Description("Represents a 'firework effect' which can be used in the <a href='effects.html#EffFireworkLaunch'>launch firework</a> effect.")
+@Description("Represents a 'firework effect' which can be used in the <a href='#EffFireworkLaunch'>launch firework</a> effect.")
 @Examples({"launch flickering trailing burst firework colored blue and green at player",
 	"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
 	"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1"})
@@ -86,11 +69,19 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 			return null;
 		FireworkEffect.Builder builder = FireworkEffect.builder().with(type);
 		
-		for (Color colour : color.getArray(e))
-			builder.withColor(colour.asBukkitColor());
+		for (Color colour : color.getArray(e)) {
+			if (colour instanceof ColorRGB)
+				builder.withColor(colour.asBukkitColor());
+			else
+				builder.withColor(colour.asDyeColor().getFireworkColor());
+		}
 		if (hasFade)
-			for (Color colour : fade.getArray(e))
-				builder.withFade(colour.asBukkitColor());
+			for (Color colour : fade.getArray(e)) {
+				if (colour instanceof ColorRGB)
+					builder.withFade(colour.asBukkitColor());
+				else
+					builder.withFade(colour.asDyeColor().getFireworkColor());
+			}
 		
 		builder.flicker(flicker);
 		builder.trail(trail);

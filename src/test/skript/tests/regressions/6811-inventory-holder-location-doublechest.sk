@@ -1,5 +1,5 @@
 test "inventory holder location double chest":
-	set {_b::1} to the block at spawn of world "world"
+	set {_b::1} to the test-block
 	set {_b::2} to the block north of {_b::1}
 	set {_prev::1} to type of block at {_b::1}
 	set {_prev::2} to type of block at {_b::2}

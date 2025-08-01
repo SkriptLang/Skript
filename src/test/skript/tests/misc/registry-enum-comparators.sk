@@ -1,0 +1,24 @@
+test "registry and enum comparators":
+	# We're using loops because that is when Skript appears to hate comparing things
+	# Example errors when Skript doesn't have explicit comparators:
+	#  'Can't compare a biome with a biome'
+	#  'Can't compare a attribute type with a attribute type'
+
+
+	# Compare registry entries
+	loop all biomes:
+		if loop-value = plains:
+			assert loop-value = plains with "Should be able to compare biomes"
+
+	loop all attribute types:
+		if loop-value = generic movement speed:
+			assert loop-value = generic movement speed with "Should be able to compare attribute types"
+
+	# Compare enum entries
+	loop all teleport causes:
+		if loop-value = ender pearl:
+			assert loop-value = ender pearl with "Should be able to compare teleport causes"
+
+	loop all spawn reasons:
+		if loop-value = jockey:
+			assert loop-value = jockey with "Should be able to compare spawn reasons"

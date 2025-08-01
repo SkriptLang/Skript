@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
@@ -24,16 +6,18 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Locale;
 
 @Name("Timespan Details")
-@Description("Retrieve specific information of a <a href=\"/classes.html#timespan\">timespan</a> such as hours/minutes/etc.")
+@Description("Retrieve specific information of a <a href=\"/#timespan\">timespan</a> such as hours/minutes/etc.")
 @Examples({
 	"set {_t} to difference between now and {Payouts::players::%uuid of player%::last-date}",
 	"send \"It has been %days of {_t}% day(s) since last payout.\""
@@ -57,12 +41,19 @@ public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long
 	@Override
 	@Nullable
 	public Long convert(Timespan time) {
-		return time.getMilliSeconds() / type.getTime();
+		return time.getAs(Timespan.TimePeriod.MILLISECOND) / type.getTime();
 	}
 
 	@Override
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
+	}
+
+	@Override
+	public Expression<? extends Long> simplify() {
+		if (getExpr() instanceof Literal<? extends Timespan>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

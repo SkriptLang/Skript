@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
@@ -43,7 +25,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.bukkit.util.VoxelShape;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -358,6 +340,21 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	public boolean breakNaturally(@NotNull ItemStack tool, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
+		if (newState != null) {
+			return false;
+		} else {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					block.breakNaturally(tool, triggerEffect, dropExperience, forceEffect);
+				}
+			});
+			return true;
+		}
+	}
+
+	@Override
 	public void tick() {
 		block.tick();
 	}
@@ -456,6 +453,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public BlockSoundGroup getSoundGroup() {
 		return block.getSoundGroup();
 	}
@@ -466,6 +464,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public String getTranslationKey() {
 		return block.getTranslationKey();
 	}
@@ -481,6 +480,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public boolean isValidTool(@NotNull ItemStack itemStack) {
 		return block.isValidTool(itemStack);
 	}
@@ -488,6 +488,11 @@ public class DelayedChangeBlock implements Block {
 	@Override
 	public float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
 		return block.getDestroySpeed(itemStack, considerEnchants);
+	}
+
+	@Override
+	public boolean isSuffocating() {
+		return block.isSuffocating();
 	}
 
 	@Override
@@ -507,6 +512,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public @NotNull String translationKey() {
 		return block.getTranslationKey();
 	}

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.aliases;
 
 import ch.njol.skript.Skript;
@@ -86,9 +68,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
 	 *
-	 * @deprecated before 1.13 is no longer supported
+	 * @deprecated before 1.13 is no longer supported.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static final boolean itemDataValues = false;
 	
 	/**
@@ -197,9 +179,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 
 	/**
-	 * @deprecated Use {@link ItemData#ItemData(BlockData)} instead
+	 * @deprecated Use {@link ItemData#ItemData(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	public ItemData(BlockState blockState) {
 		this(blockState.getBlockData());
 	}
@@ -582,7 +564,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		Fields fields = new Fields(this); // ItemStack is transient, will be ignored
-		fields.putPrimitive("id", type.ordinal());
+		fields.putObject("key", type.getKey().toString());
 		fields.putObject("meta", stack != null ? stack.getItemMeta() : null);
 		return fields;
 	}
@@ -591,7 +573,16 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-		this.type = materials[fields.getAndRemovePrimitive("id", int.class)];
+		if (fields.hasField("key")) {
+			String key = fields.getAndRemoveObject("key", String.class);
+			if (key == null)
+				throw new StreamCorruptedException("Material key is null");
+			this.type = Material.matchMaterial(key);
+		} else {
+			// attempt back compat deserialization, though using ordinals is not reliable
+			this.type = materials[fields.getAndRemovePrimitive("id", int.class)];
+		}
+
 		ItemMeta meta = fields.getAndRemoveObject("meta", ItemMeta.class);
 
 		// Initialize ItemStack
@@ -625,7 +616,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 					data.itemFlags |= ItemFlags.CHANGED_TAGS;
 				data.stack.setItemMeta(meta);
 			}
-			ItemUtils.setDamage(data.stack, 0); // Set to undamaged
+			if (ItemUtils.getDamage(stack) > 0) // https://github.com/SkriptLang/Skript/issues/7687
+				ItemUtils.setDamage(data.stack, 0); // Set to undamaged iff item is damaged
 		}
 		data.type = type;
 		data.blockValues = blockValues;

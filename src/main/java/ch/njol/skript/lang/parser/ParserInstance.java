@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.parser;
 
 import ch.njol.skript.ScriptLoader;
@@ -29,8 +11,10 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -39,15 +23,10 @@ import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public final class ParserInstance implements Experimented {
@@ -81,8 +60,12 @@ public final class ParserInstance implements Experimented {
 	 */
 	@ApiStatus.Internal
 	public void setActive(Script script) {
-		this.isActive = true;
 		reset(); // just to be safe
+
+		// Needs to be explicitly marked as it will be false from the 'reset' call
+		this.hintManager.setActive(true);
+
+		this.isActive = true; // we want it to be active for script events
 		setCurrentScript(script);
 	}
 
@@ -107,6 +90,7 @@ public final class ParserInstance implements Experimented {
 		this.currentSections = new ArrayList<>();
 		this.hasDelayBefore = Kleenean.FALSE;
 		this.node = null;
+		this.hintManager = new HintManager(this.hintManager.isActive());
 		dataMap.clear();
 	}
 
@@ -130,12 +114,18 @@ public final class ParserInstance implements Experimented {
 		);
 
 		// "Script" events
-		if (previous != null)
-			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
-		if (currentScript != null)
-			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onActive(previous));
+		if (previous != null) { // 'previous' is becoming inactive
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+			previous.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+		}
+		if (currentScript != null) { // 'currentScript' is becoming active
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+			currentScript.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+		}
 	}
 
 	/**
@@ -240,6 +230,8 @@ public final class ParserInstance implements Experimented {
 	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
 	 */
 	public boolean isCurrentEvent(Class<? extends Event> event) {
+		if (currentEvents == null)
+			return false;
 		for (Class<? extends Event> currentEvent : currentEvents) {
 			// check that current event is same or child of event we want
 			if (event.isAssignableFrom(currentEvent))
@@ -316,6 +308,68 @@ public final class ParserInstance implements Experimented {
 				list.add((T) triggerSection);
 		}
 		return list;
+	}
+
+	/**
+	 * Returns the sections from the current section (inclusive) until the specified section (exclusive).
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSectionsUntil(Section1)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param section The section to stop at. (exclusive)
+	 * @return A list of sections from the current section (inclusive) until the specified section (exclusive).
+	 */
+	public List<TriggerSection> getSectionsUntil(TriggerSection section) {
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section) + 1, currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections up to the specified number of levels from the current section.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSections(2)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @return A list of sections up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		return new ArrayList<>(currentSections.subList(Math.max(currentSections.size() - levels, 0), currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections to the specified number of levels from the current section.
+	 * Only counting sections of the specified type.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ LoopSection2
+	 *       └ Section3
+	 *           └ LoopSection4} (we are here)</pre>
+	 * And we call {@code getSections(2, LoopSection.class)}, the result will be {@code [LoopSection2, Section3, LoopSection4]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @param type The class type of the sections to count.
+	 * @return A list of sections of the specified type up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels, Class<? extends TriggerSection> type) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		List<? extends TriggerSection> sections = getCurrentSections(type);
+		if (sections.isEmpty())
+			return new ArrayList<>();
+		TriggerSection section = sections.get(Math.max(sections.size() - levels, 0));
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section), currentSections.size()));
 	}
 
 	/**
@@ -409,17 +463,30 @@ public final class ParserInstance implements Experimented {
 		return indentation;
 	}
 
+	// Parsing stack
+
+	private final ParsingStack parsingStack = new ParsingStack();
+
+	/**
+	 * Gets the current parsing stack.
+	 * <p>
+	 * Although the stack can be modified, doing so is not recommended.
+	 */
+	public ParsingStack getParsingStack() {
+		return parsingStack;
+	}
+
 	// Experiments API
 
 	@Override
 	public boolean hasExperiment(String featureName) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), featureName);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), featureName);
 	}
 
 
 	@Override
 	public boolean hasExperiment(Experiment experiment) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), experiment);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), experiment);
 	}
 
 	/**
@@ -451,14 +518,44 @@ public final class ParserInstance implements Experimented {
 	 * This is safe to retain during runtime (e.g. to defer a check) but will
 	 * not see changes, such as if a script subsequently 'uses' another experiment.
 	 *
-	 * @return A snapshot of the current experiment flags in use
+	 * @return A snapshot of the current experiment flags in use,
+	 *  or an empty experiment set if not {@link #isActive()}.
 	 */
 	public Experimented experimentSnapshot() {
+		if (!this.isActive())
+			return new ExperimentSet();
 		Script script = this.getCurrentScript();
 		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
 		if (set == null)
 			return new ExperimentSet();
 		return new ExperimentSet(set);
+	}
+
+	/**
+	 * Get the {@link ExperimentSet} of the current {@link Script}
+	 * @return Experiment set of {@link #getCurrentScript()},
+	 *  or an empty experiment set if not {@link #isActive()}.
+	 */
+	public ExperimentSet getExperimentSet() {
+		if (!this.isActive())
+			return new ExperimentSet();
+		Script script = this.getCurrentScript();
+		ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return new ExperimentSet();
+		return set;
+	}
+
+	// Type Hints
+
+	private HintManager hintManager = new HintManager(true);
+
+	/**
+	 * @return The local variable type hint manager for the active parsing process.
+	 */
+	@ApiStatus.Experimental
+	public HintManager getHintManager() {
+		return hintManager;
 	}
 
 	// ParserInstance Data API
@@ -483,9 +580,9 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptEvent}.
+		 * @deprecated See {@link ScriptLoader.LoaderEvent} instead.
 		 */
-		@Deprecated
+		@Deprecated(since = "2.11.0", forRemoval = true)
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
 		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
@@ -516,7 +613,7 @@ public final class ParserInstance implements Experimented {
 	 * or null (after {@code false} has been asserted) if the given data class isn't registered.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends Data> T getData(Class<T> dataClass) {
+	public @NotNull <T extends Data> T getData(Class<T> dataClass) {
 		if (dataMap.containsKey(dataClass)) {
 			return (T) dataMap.get(dataClass);
 		} else if (dataRegister.containsKey(dataClass)) {
@@ -528,16 +625,38 @@ public final class ParserInstance implements Experimented {
 		return null;
 	}
 
-	private List<? extends Data> getDataInstances() {
+	private @NotNull List<? extends Data> getDataInstances() {
 		// List<? extends Data> gave errors, so using this instead
 		List<Data> dataList = new ArrayList<>();
 		for (Class<? extends Data> dataClass : dataRegister.keySet()) {
 			// This will include all registered data, even if not already initiated
 			Data data = getData(dataClass);
-			if (data != null)
-				dataList.add(data);
+			dataList.add(data);
 		}
 		return dataList;
+	}
+
+	/**
+	 * Called when a {@link Script} is made active or inactive in a {@link ParserInstance}.
+	 * This event will trigger <b>after</b> the change in activity has occurred.
+	 * @see #isActive()
+	 */
+	@FunctionalInterface
+	public interface ScriptActivityChangeEvent extends ScriptLoader.LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance where the activity change occurred.
+		 * @param script The Script this event was registered for.
+		 * @param active Whether <code>script</code> became active or inactive within <code>parser</code>.
+		 * @param other The Script that was made active or inactive.
+		 *  Whether it was made active or inactive is the negation of the <code>active</code>.
+		 *  That is to say, if <code>script</code> became active, then <code>other</code> became inactive.
+		 *  Null if <code>parser</code> was inactive (meaning no script became inactive)
+		 *   or became inactive (meaning no script became active).
+		 */
+		void onActivityChange(ParserInstance parser, Script script, boolean active, @Nullable Script other);
+
 	}
 
 	// Backup API
@@ -549,7 +668,7 @@ public final class ParserInstance implements Experimented {
 	 *  That is, the contents of any collections will remain the same, but there is no guarantee that
 	 *  the contents themselves will remain unchanged.
 	 * @see #backup()
-	 * @see #restoreBackup(Backup) 
+	 * @see #restoreBackup(Backup)
 	 */
 	public static class Backup {
 
@@ -559,6 +678,7 @@ public final class ParserInstance implements Experimented {
 		private final Class<? extends Event> @Nullable [] currentEvents;
 		private final List<TriggerSection> currentSections;
 		private final Kleenean hasDelayBefore;
+		private final HintManager hintManager;
 		private final Map<Class<? extends Data>, Data> dataMap;
 
 		private Backup(ParserInstance parser) {
@@ -571,16 +691,18 @@ public final class ParserInstance implements Experimented {
 				: null;
 			this.currentSections = new ArrayList<>(parser.currentSections);
 			this.hasDelayBefore = parser.hasDelayBefore;
+			this.hintManager = parser.hintManager;
 			this.dataMap = new HashMap<>(parser.dataMap);
 		}
 
 		private void apply(ParserInstance parser) {
-			parser.setCurrentScript(currentScript);
+			parser.setCurrentScript(this.currentScript);
 			parser.currentStructure = this.currentStructure;
 			parser.currentEventName = this.currentEventName;
 			parser.currentEvents = this.currentEvents;
 			parser.currentSections = this.currentSections;
 			parser.hasDelayBefore = this.hasDelayBefore;
+			parser.hintManager = this.hintManager;
 			parser.dataMap.clear();
 			parser.dataMap.putAll(this.dataMap);
 		}
@@ -611,10 +733,10 @@ public final class ParserInstance implements Experimented {
 	// Deprecated API
 
 	/**
-	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained.
+	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained. 
 	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);
@@ -625,36 +747,36 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
-	 * @deprecated Use {@link #getCurrentStructure()}
+	 * @deprecated Use {@link #getCurrentStructure()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
-		if (structure instanceof SkriptEvent)
-			return (SkriptEvent) structure;
+		if (structure instanceof SkriptEvent event)
+			return event;
 		return null;
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)}.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
-		setCurrentStructure(currentSkriptEvent);
+		this.setCurrentStructure(currentSkriptEvent);
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null'.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null' instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void deleteCurrentSkriptEvent() {
-		setCurrentStructure(null);
+		this.setCurrentStructure(null);
 	}
 
 	/**
 	 * @deprecated Addons should no longer be modifying this.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentScript(@Nullable Config currentScript) {
 		if (currentScript == null)
 			return;

@@ -64,6 +64,8 @@ With the exception of contacting our own resources (e.g. to check for updates) c
 ## Licensing
 
 Code contributed must be licensed under GPLv3, by **you**.
+Some contributors may choose to release their code under the MIT License.
+Further information can be found within [LICENSING.md](LICENSING.md).
 We expect that any code you contribute is either owned by you or you have explicit permission to provide and license it to us.
 
 Licenses do not need to be printed in individual files (or packages) unless the licence applying to the code in
@@ -97,6 +99,7 @@ If we need to remove or alter contributed code due to a licensing issue we will 
 	- The exception to this is breaking up conditional statements (e.g. `if (x || y)`) where the
     condition starts may be aligned
 * Each class begins with an empty line
+* Each Java file ends with an empty line
 * No squeezing of multiple lines of code on a single line
 * Separate method declarations with empty lines
   	- Empty line after last method in a class is *not* required
@@ -313,3 +316,14 @@ The exceptions are `Material.AIR`, which is a good way to represent "nothing"
 and `Material.STONE` which can be used to get a dummy `ItemMeta`.
 
 Prefer to avoid referencing the Biome enum directly, since it has changed between versons in the past.
+
+### Deprecating
+
+When deprecating a Java element (such as a class, method, or constructor):
+
+1. Replace all internal usages of the deprecated element within the Skript codebase.
+2. Add a Javadoc `@deprecated` tag that states the recommended alternative.
+3. Annotate the element with `@Deprecated(since = "INSERT VERSION", forRemoval = true)` to indicate it is scheduled for removal and what feature version it was deprecated.
+
+Deprecation PRs are typically merged for a feature release, so the PR should target `dev/feature` branch.
+Deprecated elements may be removed three feature releases after the version they were deprecated in.

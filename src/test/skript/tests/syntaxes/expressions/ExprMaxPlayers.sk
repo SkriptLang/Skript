@@ -1,4 +1,4 @@
-test "max players" when running minecraft "1.16.5":
+test "max players":
 	set real max players count to 5
 	assert real max players count is 5 with "setting max players failed"
 	add 3 to real max players

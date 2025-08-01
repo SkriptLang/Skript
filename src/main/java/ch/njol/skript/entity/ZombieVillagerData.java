@@ -1,90 +1,53 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Villager.Profession;
-import org.bukkit.entity.ZombieVillager;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Villager.Profession;
+import org.bukkit.entity.ZombieVillager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class ZombieVillagerData extends EntityData<ZombieVillager> {
 
-	private static final boolean PROFESSION_UPDATE = Skript.isRunningMinecraft(1, 14);
 	private static final List<Profession> professions;
 
 	static {
-		if (PROFESSION_UPDATE) {
-			EntityData.register(ZombieVillagerData.class, "zombie villager", ZombieVillager.class, 0,
-				"zombie villager", "zombie armorer", "zombie butcher", "zombie cartographer", "zombie cleric", "zombie farmer", "zombie fisherman",
-				"zombie fletcher", "zombie leatherworker", "zombie librarian", "zombie mason", "zombie nitwit", "zombie shepherd", "zombie toolsmith", "zombie weaponsmith");
-			professions = Arrays.asList(Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
-				Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
-				Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
-				Profession.WEAPONSMITH);
-		} else {
-			EntityData.register(ZombieVillagerData.class, "zombie villager", ZombieVillager.class, 0,
-					"zombie villager", "zombie farmer", "zombie librarian", "zombie priest", "zombie blacksmith", "zombie butcher", "zombie nitwit");
-			try {
-				professions = Arrays.asList((Profession[]) MethodHandles.lookup().findStatic(Profession.class, "values", MethodType.methodType(Profession[].class)).invoke());
-			} catch (Throwable e) {
-				throw new RuntimeException("Failed to load legacy villager profession support", e);
-			}
-		}
+		EntityData.register(ZombieVillagerData.class, "zombie villager", ZombieVillager.class, 0,
+			"zombie villager", "zombie normal", "zombie armorer", "zombie butcher", "zombie cartographer",
+			"zombie cleric", "zombie farmer", "zombie fisherman", "zombie fletcher", "zombie leatherworker",
+			"zombie librarian", "zombie mason", "zombie nitwit", "zombie shepherd", "zombie toolsmith", "zombie weaponsmith");
+		professions = Arrays.asList(Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
+			Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
+			Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
+			Profession.WEAPONSMITH);
 	}
 
-	// prevent IncompatibleClassChangeError due to Enum->Interface change
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private Villager.Profession profession = PROFESSION_UPDATE ? Profession.NONE
-			: (Profession) Enum.valueOf((Class) Profession.class, "NORMAL");
+	private @Nullable Profession profession = null;
 	
 	public ZombieVillagerData() {}
 	
-	public ZombieVillagerData(Profession prof) {
-		profession = prof;
-		super.matchedPattern = professions.indexOf(prof);
+	public ZombieVillagerData(@Nullable Profession profession) {
+		this.profession = profession;
+		super.matchedPattern = profession != null ? professions.indexOf(profession) + 1 : 0;
 	}
 
-	@SuppressWarnings("null")
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		profession = professions.get(matchedPattern);
+	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+		if (matchedPattern > 0)
+			profession = professions.get(matchedPattern - 1);
 		return true;
 	}
 	
 	@SuppressWarnings("null")
 	@Override
-	protected boolean init(final @Nullable Class<? extends ZombieVillager> c, final @Nullable ZombieVillager e) {
-		if (e == null)
-			return true;
-		profession = e.getVillagerProfession();
-		
+	protected boolean init(@Nullable Class<? extends ZombieVillager> zombieClass, @Nullable ZombieVillager zombieVillager) {
+		profession = zombieVillager == null ? null : zombieVillager.getVillagerProfession();
 		return true;
 	}
 	
@@ -99,16 +62,17 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 		
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	public void set(final ZombieVillager e) {
-		e.setVillagerProfession(profession);
+	public void set(ZombieVillager zombieVillager) {
+		Profession prof = profession == null ? CollectionUtils.getRandom(professions) : profession;
+		assert prof != null;
+		zombieVillager.setVillagerProfession(prof);
 	}
 	
 	@Override
-	protected boolean match(final ZombieVillager e) {
-		return e.getVillagerProfession() == profession;
+	protected boolean match(ZombieVillager zombieVillager) {
+		return profession == null || profession == zombieVillager.getVillagerProfession();
 	}
 	
 	@Override
@@ -117,10 +81,10 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	}
 	
 	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof ZombieVillagerData))
+	protected boolean equals_i(EntityData<?> obj) {
+		if (!(obj instanceof ZombieVillagerData zombieVillagerData))
 			return false;
-		return ((ZombieVillagerData) obj).profession == profession;
+		return profession == null || profession.equals(zombieVillagerData.profession);
 	}
 	
 	@Override
@@ -129,14 +93,15 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	}
 	
 	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		if (e instanceof ZombieVillagerData)
-			return Objects.equals(((ZombieVillagerData) e).profession, profession);
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (entityData instanceof ZombieVillagerData zombieVillagerData)
+			return profession == null || profession.equals(zombieVillagerData.profession);
 		return false;
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new ZombieVillagerData(profession);
 	}
+
 }

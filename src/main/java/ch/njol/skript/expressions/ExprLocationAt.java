@@ -1,27 +1,9 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -40,7 +22,7 @@ import ch.njol.util.Kleenean;
  * @author Peter Güttinger
  */
 @Name("Location At")
-@Description("Allows to create a <a href='./classes.html#location'>location</a> from three coordinates and a world.")
+@Description("Allows to create a <a href='#location'>location</a> from three coordinates and a world.")
 @Examples({"set {_loc} to the location at arg-1, arg-2, arg-3 of the world arg-4",
 		"distance between the player and the location (0, 0, 0) is less than 200"})
 @Since("2.0")

@@ -1,0 +1,7 @@
+test "exact item chest":
+	set {_old} to block data of test-block
+	set test-block to a chest
+	add a diamond to inventory of test-block
+	set {_item} to exact item of test-block
+	assert items in inventory of {_item} is a diamond with "BlockState data of block should carry over to exact item"
+	set block data of test-block to {_old}

@@ -1,42 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.structures;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptData;
-import org.skriptlang.skript.lang.structure.Structure;
-
-import com.google.common.collect.ImmutableList;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -54,10 +16,23 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Task;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Queues;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptData;
+import org.skriptlang.skript.lang.structure.Structure;
+
+import java.util.*;
 
 @Name("Variables")
 @Description({
@@ -85,7 +60,16 @@ public class StructVariables extends Structure {
 
 	public static class DefaultVariables implements ScriptData {
 
-		private final Deque<Map<String, Class<?>[]>> hints = new ArrayDeque<>();
+		/*
+		 * Performance/Risk Notice:
+		 * In the event that an element is pushed to the deque on one thread, causing it to grow, a second thread
+		 *  waiting to access the dequeue may not see the correct deque or pointers (the backing array is not volatile),
+		 *  causing issues such as a loss of data or attempting to write beyond the array's capacity.
+		 * It is unlikely for the array to ever grow from its default capacity (16), as this would require extreme
+		 *  nesting of variables (e.g. {a::%{b::%{c::<and so on>}%}%} (given the current usage of enter/exit scope)
+		 * While thread-safe deque implementations are available, this setup has been chosen for performance.
+		 */
+		private final Deque<Map<String, Class<?>[]>> hints = Queues.synchronizedDeque(new ArrayDeque<>());
 		private final List<NonNullPair<String, Object>> variables;
 		private boolean loaded;
 
@@ -99,9 +83,10 @@ public class StructVariables extends Structure {
 			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint.
 				return;
 			// This important empty check ensures that the variable type hint came from a defined DefaultVariable.
-			if (this.hints.isEmpty())
+			Map<String, Class<?>[]> map = this.hints.peekFirst();
+			if (map == null)
 				return;
-			this.hints.getFirst().put(variable, hints);
+			map.put(variable, hints);
 		}
 
 		public void enterScope() {
@@ -119,12 +104,13 @@ public class StructVariables extends Structure {
 		 * @param variable The variable string of a variable.
 		 * @return type hints of a variable if found otherwise null.
 		 */
-		@Nullable
-		public Class<?>[] get(String variable) {
-			for (Map<String, Class<?>[]> map : hints) {
-				Class<?>[] hints = map.get(variable);
-				if (hints != null && hints.length > 0)
-					return hints;
+		public Class<?> @Nullable [] get(String variable) {
+			synchronized (hints) { // must manually synchronize for iterators
+				for (Map<String, Class<?>[]> map : hints) {
+					Class<?>[] hints = map.get(variable);
+					if (hints != null && hints.length > 0)
+						return hints;
+				}
 			}
 			return null;
 		}
@@ -251,12 +237,15 @@ public class StructVariables extends Structure {
 		} else if (data.isLoaded()) {
 			return true;
 		}
-		for (NonNullPair<String, Object> pair : data.getVariables()) {
-			String name = pair.getKey();
-			if (Variables.getVariable(name, null, false) != null)
-				continue;
-			Variables.setVariable(name, pair.getValue(), null, false);
-		}
+		Task.callSync(() -> {
+			for (NonNullPair<String, Object> pair : data.getVariables()) {
+				String name = pair.getKey();
+				if (Variables.getVariable(name, null, false) != null)
+					continue;
+				Variables.setVariable(name, pair.getValue(), null, false);
+			}
+			return null;
+		});
 		data.loaded = true;
 		return true;
 	}

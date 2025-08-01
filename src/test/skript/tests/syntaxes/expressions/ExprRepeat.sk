@@ -43,7 +43,7 @@ test "repeat expression":
 	then:
 		assert false is true with "ExprRepeat Multi - 1) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
 
-	set {_strings::*} to "aa", "b"
+	set {_strings::*} to "aa" and "b"
 	set {_strings::*} to {_strings::*} repeated {_repeat} times
 	if any:
 		{_strings::1} is not "aaaaaa"
@@ -51,7 +51,7 @@ test "repeat expression":
 	then:
 		assert false is true with "ExprRepeat Multi - 2) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
 
-	set {_strings::*} to "aa", "b"
+	set {_strings::*} to "aa" and "b"
 	set {_strings::*} to {_strings::*} repeated 3 times
 	if any:
 		{_strings::1} is not "aaaaaa"
@@ -59,7 +59,7 @@ test "repeat expression":
 	then:
 		assert false is true with "ExprRepeat Multi - 3) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
 
-	set {_strings::*} to "aa", "b" repeated {_repeat} times
+	set {_strings::*} to "aa" and "b" repeated {_repeat} times
 	if any:
 		{_strings::1} is not "aaaaaa"
 		{_strings::2} is not "bbb"

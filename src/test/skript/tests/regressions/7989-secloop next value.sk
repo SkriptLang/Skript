@@ -1,0 +1,10 @@
+local function loop():
+	loop 4 times:
+		assert previous loop-value is not set with "Previous loop-value should not be set"
+		assert loop-value is 1 with "Current loop-value should be 1"
+		assert next loop-value is 2 with "Next loop-value should be 2"
+		stop
+
+test "secloop next value":
+	loop 4 times:
+		loop()

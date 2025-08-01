@@ -16,9 +16,6 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
 package ch.njol.skript.bukkitutil.block;
 
-import org.eclipse.jdt.annotation.DefaultLocation;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 
