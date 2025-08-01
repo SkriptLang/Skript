@@ -95,47 +95,50 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		selectedState = loopStates[matchedPattern];
 		name = parser.expr;
-		String s = "" + parser.regexes.get(0).group();
-		int i = -1;
-		Matcher m = LOOP_PATTERN.matcher(s);
+		String loopOf = parser.regexes.get(0).group();
+		int expectedDepth = -1;
+		Matcher m = LOOP_PATTERN.matcher(loopOf);
 		if (m.matches()) {
-			s = "" + m.group(1);
-			i = Utils.parseInt("" + m.group(2));
+			loopOf = m.group(1);
+			expectedDepth = Utils.parseInt(m.group(2));
 		}
 
-		if ("counter".equalsIgnoreCase(s) || "iteration".equalsIgnoreCase(s)) // ExprLoopIteration - in case of classinfo conflicts
+		if ("counter".equalsIgnoreCase(loopOf) || "iteration".equalsIgnoreCase(loopOf)) // ExprLoopIteration - in case of classinfo conflicts
 			return false;
 
-		Class<?> c = Classes.getClassFromUserInput(s);
-		int j = 1;
+		Class<?> expectedClass = Classes.getClassFromUserInput(loopOf);
+		int candidateDepth = 1;
 		SecLoop loop = null;
 
-		for (SecLoop l : getParser().getCurrentSections(SecLoop.class)) {
-			if ((c != null && l.getLoopedExpression().canReturn(c)) || "value".equalsIgnoreCase(s) || l.getLoopedExpression().isLoopOf(s)) {
-				if (j < i) {
-					j++;
+		for (SecLoop candidate : getParser().getCurrentSections(SecLoop.class)) {
+			if ((expectedClass != null && expectedClass.isAssignableFrom(candidate.getLoopedExpression().getReturnType()))
+				|| "value".equalsIgnoreCase(loopOf)
+				|| candidate.getLoopedExpression().isLoopOf(loopOf)
+			) {
+				if (candidateDepth < expectedDepth) {
+					candidateDepth++;
 					continue;
 				}
 				if (loop != null) {
-					Skript.error("There are multiple loops that match loop-" + s + ". Use loop-" + s + "-1/2/3/etc. to specify which loop's value you want.");
+					Skript.error("There are multiple loops that match loop-" + loopOf + ". Use loop-" + loopOf + "-1/2/3/etc. to specify which loop's value you want.");
 					return false;
 				}
-				loop = l;
-				if (j == i)
+				loop = candidate;
+				if (candidateDepth == expectedDepth)
 					break;
 			}
 		}
 		if (loop == null) {
-			Skript.error("There's no loop that matches 'loop-" + s + "'");
+			Skript.error("There's no loop that matches 'loop-" + loopOf + "'");
 			return false;
 		}
 		if (selectedState == LoopState.NEXT && !loop.supportsPeeking()) {
-			Skript.error("The expression '" + loop.getExpression().toString() + "' does not allow the usage of 'next loop-" + s + "'.");
+			Skript.error("The expression '" + loop.getExpression().toString() + "' does not allow the usage of 'next loop-" + loopOf + "'.");
 			return false;
 		}
 		if (loop.isKeyedLoop()) {
 			isKeyedLoop = true;
-			if (((KeyProviderExpression<?>) loop.getLoopedExpression()).isIndexLoop(s))
+			if (((KeyProviderExpression<?>) loop.getLoopedExpression()).isIndexLoop(loopOf))
 				isIndex = true;
 		}
 		this.loop = loop;
