@@ -51,11 +51,13 @@ dependencies {
 }
 
 checkstyle {
+	group = 'help'
 	configFile = new File("checkstyle.xml")
 	sourceSets = [] // disables checkstyle after build task
 }
 
 task checkAliases {
+	group = 'skript'
 	description 'Checks for the existence of the aliases.'
 	doLast {
 		def aliasFolder = project.file('skript-aliases')
