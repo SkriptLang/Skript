@@ -28,15 +28,12 @@ import ch.njol.util.coll.CollectionUtils;
 	"Reset changer will reset the tablist to a default state viewing all the players again."
 })
 @Examples("tablist players of player")
-@RequiredPlugins("Paper 1.20.1+")
 @Since("INSERT VERSION")
 @Keywords("tablist")
-public class ExprListedPlayers extends PropertyExpression<Player, Player> {
+public class ExprTablistedPlayers extends PropertyExpression<Player, Player> {
 
 	static {
-		if (Skript.methodExists(Player.class, "isListed", Player.class)) {
-			registerDefault(ExprListedPlayers.class, Player.class, "[the] (tablist[ed]|listed) players", "players");
-		}
+		registerDefault(ExprTablistedPlayers.class, Player.class, "[the] (tablist[ed]|listed) players", "players");
 	}
 
 	@Override
