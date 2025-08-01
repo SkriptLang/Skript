@@ -110,7 +110,9 @@ public class MinecartData extends EntityData<Minecart> {
 
 	@Override
 	protected boolean equals_i(EntityData<?> obj) {
-		return obj instanceof MinecartData minecartData && type == minecartData.type;
+		return obj instanceof MinecartData minecartData &&
+			isSupertype == minecartData.isSupertype &&
+			type == minecartData.type;
 	}
 
 	@Override
