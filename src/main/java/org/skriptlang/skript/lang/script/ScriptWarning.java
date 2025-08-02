@@ -46,7 +46,7 @@ public enum ScriptWarning {
 	/**
 	 * Suppressible because an event structure can contain multiple events, and some may be cancellable and others not.
 	 */
-	EVENT_CANNOT_BE_CANCELLED("event cannot be cancelled", "event cannot be cancelled");
+	EVENT_CANNOT_BE_CANCELLED("event cannot be cancelled");
 
 	private final String warningName;
 	private final String pattern;
