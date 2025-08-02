@@ -41,7 +41,12 @@ public enum ScriptWarning {
 	/**
 	 * The code cannot be reached due to a previous statement stopping further execution
 	 */
-	UNREACHABLE_CODE("unreachable code");
+	UNREACHABLE_CODE("unreachable code"),
+	
+	/**
+	 * Suppressible because an event structure can contain multiple events, and some may be cancellable and others not.
+	 */
+	EVENT_CANNOT_BE_CANCELLED("event cannot be cancelled");
 
 	private final String warningName;
 	private final String pattern;
