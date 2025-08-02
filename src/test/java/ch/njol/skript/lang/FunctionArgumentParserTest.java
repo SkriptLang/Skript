@@ -42,4 +42,11 @@ public class FunctionArgumentParserTest {
 		assertEquals(new Argument<>(ArgumentType.NAMED, "1list", "({forza, real}, 2)"), arguments[3]);
 	}
 
+	@Test
+	public void testSingleNamedList() {
+		Argument<String>[] arguments = new FunctionReferenceArgumentParser("1: (2, 3, 4)").getArguments();
+
+		assertEquals(new Argument<>(ArgumentType.NAMED, "1", "2, 3, 4"), arguments[0]);
+	}
+
 }
