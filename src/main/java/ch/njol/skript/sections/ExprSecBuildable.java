@@ -6,6 +6,10 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -23,6 +27,20 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.ArrayList;
 import java.util.List;
 
+@Name("Buildable")
+@Description("Build an object")
+@Example("""
+	# Internally, 'chest inventory' is an InventoryType, but can be used to build as an Inventory
+	set {_gui} to a buildable chest inventory:
+		set slot 0 to a buildable diamond:
+			set lore to "Custom Item"
+	""")
+@Example("""
+	set {_gui} to a chest inventory named "Shop" with 6 rows:
+		set slot 0 to a buildable nether star:
+			set name to "Ranks"
+	""")
+@Since("INSERT VERSION")
 public class ExprSecBuildable extends SectionExpression<Object> implements ExpressionProvider {
 
 	static {
@@ -131,7 +149,7 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 				convertable = canConvert(literal.getReturnType(), returnType);
 				object = convert(object);
 			} else {
-				for (Class<?> possible : this.expr.possibleReturnTypes()) {
+				for (Class<?> possible : expr.possibleReturnTypes()) {
 					if (canConvert(possible, returnType)) {
 						convertable = true;
 						break;
