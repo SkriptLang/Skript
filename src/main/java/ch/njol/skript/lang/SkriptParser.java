@@ -1072,6 +1072,16 @@ public class SkriptParser {
 		}
 	}
 
+	/**
+	 * Attempts to parse {@link SkriptParser#expr} as a function reference.
+	 *
+	 * @param <T> The return type of the function.
+	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
+	 */
+	public <T> FunctionReference<T> parseFunctionReference() {
+		return new FunctionParser(context, flags).parseFunctionReference(expr);
+	}
+
 	private record FunctionParser(ParseContext context, int flags) {
 
 		private final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
