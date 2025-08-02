@@ -9,10 +9,10 @@ test "EntryContainerTest" when running JUnit:
 test entry container:
 	has entry:
 		complete objective "has entry" for {@test}
-	has multiple entry:
+	has multiple entries:
 		set {entry-container-test::call-count} to 0
 		add 1 to {entry-container-test::call-count}
-	has multiple entry:
+	has multiple entries:
 		add 1 to {entry-container-test::call-count}
 		if {entry-container-test::call-count} is 2:
 			complete objective "has multiple entry" for {@test}
