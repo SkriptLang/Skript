@@ -58,6 +58,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -1083,7 +1084,8 @@ public class SkriptParser {
 
 	private record FunctionParser(ParseContext context, int flags) {
 
-		private final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
+		private final static Pattern FUNCTION_CALL_PATTERN =
+			Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");
 
 		/**
 		 * Attempts to parse {@link SkriptParser#expr} as a function reference.
@@ -1092,18 +1094,24 @@ public class SkriptParser {
 		 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 		 */
 		<T> FunctionReference<T> parseFunctionReference(String expr) {
-			if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
+			if (context != ParseContext.DEFAULT && context != ParseContext.EVENT) {
 				return null;
+			}
 
 			try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
+				if (!expr.endsWith(")")) {
+					log.printLog();
+					return null;
+				}
+
 				Matcher matcher = FUNCTION_CALL_PATTERN.matcher(expr);
 				if (!matcher.matches()) {
 					log.printLog();
 					return null;
 				}
 
-				String functionName = matcher.group(1);
-				String args = matcher.group(2);
+				String functionName = matcher.group("name");
+				String args = matcher.group("args");
 
 				// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
 				// See https://github.com/SkriptLang/Skript/issues/1532
@@ -1225,8 +1233,14 @@ public class SkriptParser {
 				Class<?> target = parameter.type().componentType();
 				Class<?>[] targets = new Class<?>[]{target};
 
+				// join all args to a single arg
+				String joined = Arrays.stream(arguments).map(FunctionReference.Argument::value)
+					.collect(Collectors.joining(", "));
+				FunctionReference.Argument<String> argument = new FunctionReference.Argument<>(ArgumentType.NAMED, parameter.name(), joined);
+				FunctionReference.Argument<String>[] array = CollectionUtils.array(argument);
+
 				//noinspection DuplicatedCode
-				FunctionArgumentParseResult result = parseFunctionArguments(arguments, targets);
+				FunctionArgumentParseResult result = parseFunctionArguments(array, targets);
 
 				if (result.type() == FunctionArgumentParseResultType.LIST_ERROR) {
 					return null;

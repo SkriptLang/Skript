@@ -7,6 +7,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.FunctionArguments;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
+
 public abstract class JavaFunction<T> extends Function<T> {
 
 	private @NotNull String @Nullable [] returnedKeys;
@@ -37,8 +41,28 @@ public abstract class JavaFunction<T> extends Function<T> {
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
 
 	@Override
-	public T execute(FunctionEvent<?> event, FunctionArguments arguments) {
-		throw new IllegalStateException("Java functions should not implement #execute(FunctionEvent, FunctionArguments)");
+	public final T execute(FunctionEvent<?> event, FunctionArguments arguments) {
+		List<org.skriptlang.skript.lang.function.Parameter<?>> parameters = getSignature().parameters().values().stream().toList();
+
+		Object[][] params = new Object[parameters.size()][];
+		for (int i = 0; i < parameters.size(); i++) {
+			Object object = arguments.get(parameters.get(i).name());
+			if (object instanceof Object[] os) {
+				params[i] = os;
+			} else {
+				params[i] = new Object[] { object };
+			}
+		}
+
+		T[] execute = execute(event, params);
+		if (execute == null || execute.length == 0) {
+			return null;
+		} else if (isSingle()) {
+			return execute[0];
+		} else {
+			//noinspection unchecked
+			return (T) execute;
+		}
 	}
 
 	@Override

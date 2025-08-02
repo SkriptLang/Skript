@@ -3,6 +3,7 @@ package org.skriptlang.skript.lang.function;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Collections;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
  */
 public final class FunctionArguments {
 
-    private final @Unmodifiable @NotNull Map<String, Object> arguments;
+    private final @UnmodifiableView @NotNull Map<String, Object> arguments;
 
     public FunctionArguments(@NotNull Map<String, Object> arguments) {
         Preconditions.checkNotNull(arguments, "arguments cannot be null");

@@ -2,8 +2,6 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
-import ch.njol.skript.lang.KeyedValue;
-import ch.njol.skript.lang.KeyedValue.UnzippedKeyValues;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
@@ -16,7 +14,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProviderExpression<T> {
 
@@ -99,7 +99,15 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
 
-		if (Converters.converterExists(function.signature().getReturnType().getC(), to))
+		Class<?> returns = function.signature().returnType();
+		Class<?> converterType;
+		if (returns.isArray()) {
+			converterType = returns.componentType();
+		} else {
+			converterType = returns;
+		}
+
+		if (Converters.converterExists(converterType, to))
 			return new ExprFunctionCall<>(function, to);
 		return null;
 	}

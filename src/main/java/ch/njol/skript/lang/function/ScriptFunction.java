@@ -106,7 +106,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 		trigger.execute(event);
 
-		if (getReturnType() == null || returnValues == null) {
+		if (getReturnType() == null || returnValues == null || returnValues.length == 0) {
 			return null;
 		}
 

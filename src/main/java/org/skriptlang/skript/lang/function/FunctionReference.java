@@ -50,64 +50,62 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return True if this is a valid function reference, false if not.
 	 */
 	public boolean validate() {
-		if (function() == null) {
-			return false;
+		if (cachedArguments != null || signature == null) {
+			return true;
 		}
 
-		if (cachedArguments == null && signature != null) {
-			cachedArguments = new LinkedHashMap<>();
+		cachedArguments = new LinkedHashMap<>();
 
-			// get the target params of the function
-			LinkedHashMap<String, Parameter<?>> targetParameters = signature.parameters();
+		// get the target params of the function
+		LinkedHashMap<String, Parameter<?>> targetParameters = signature.parameters();
 
-			for (Argument<Expression<?>> argument : arguments) {
-				Parameter<?> target;
-				if (argument.type == ArgumentType.NAMED) {
-					target = targetParameters.get(argument.name);
-				} else {
-					Entry<String, Parameter<?>> first = targetParameters.firstEntry();
+		for (Argument<Expression<?>> argument : arguments) {
+			Parameter<?> target;
+			if (argument.type == ArgumentType.NAMED) {
+				target = targetParameters.get(argument.name);
+			} else {
+				Entry<String, Parameter<?>> first = targetParameters.firstEntry();
 
-					if (first == null) {
-						return false;
-					}
-
-					target = first.getValue();
-				}
-
-				// tried to find target, but it was already taken, so
-				// the user is mixing named and positional arguments out of order
-				if (target == null) {
-					Skript.error("Mixing named and positional arguments is not allowed unless the order of the arguments matches the order of the parameters.");
+				if (first == null) {
 					return false;
 				}
 
-				// try to parse value in the argument
-
-				Class<?> conversionTarget;
-				if (target.type().isArray()) {
-					conversionTarget = target.type().componentType();
-				} else {
-					conversionTarget = target.type();
-				}
-
-				//noinspection unchecked
-				Expression<?> converted = argument.value.getConvertedExpression(conversionTarget);
-
-				// failed to parse value
-				if (converted == null) {
-					if (LiteralUtils.hasUnparsedLiteral(argument.value)) {
-						Skript.error("Can't understand this expression: %s".formatted(argument.value));
-					} else {
-						Skript.error("Type mismatch for argument '%s' in function '%s'. Expected: %s, got %s."
-							.formatted(target.name(), name, argument.value.getReturnType(), target.type()));
-					}
-					return false;
-				}
-
-				// all good
-				cachedArguments.put(target.name(), new ArgInfo(converted, target.type()));
-				targetParameters.remove(target.name());
+				target = first.getValue();
 			}
+
+			// tried to find target, but it was already taken, so
+			// the user is mixing named and positional arguments out of order
+			if (target == null) {
+				Skript.error("Mixing named and positional arguments is not allowed unless the order of the arguments matches the order of the parameters.");
+				return false;
+			}
+
+			// try to parse value in the argument
+
+			Class<?> conversionTarget;
+			if (target.type().isArray()) {
+				conversionTarget = target.type().componentType();
+			} else {
+				conversionTarget = target.type();
+			}
+
+			//noinspection unchecked
+			Expression<?> converted = argument.value.getConvertedExpression(conversionTarget);
+
+			// failed to parse value
+			if (converted == null) {
+				if (LiteralUtils.hasUnparsedLiteral(argument.value)) {
+					Skript.error("Can't understand this expression: %s".formatted(argument.value));
+				} else {
+					Skript.error("Type mismatch for argument '%s' in function '%s'. Expected: %s, got %s."
+						.formatted(target.name(), name, argument.value.getReturnType(), target.type()));
+				}
+				return false;
+			}
+
+			// all good
+			cachedArguments.put(target.name(), new ArgInfo(converted, target.type()));
+			targetParameters.remove(target.name());
 		}
 
 		return true;
