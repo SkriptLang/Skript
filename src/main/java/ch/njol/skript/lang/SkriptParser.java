@@ -431,7 +431,7 @@ public class SkriptParser {
 				FunctionReference<T> functionReference = new FunctionParser(context, flags).parseFunctionReference(expr);
 				if (functionReference != null) {
 					log.printLog();
-					return new ExprFunctionCall<>(functionReference);
+					return new ExprFunctionCall<>(functionReference, types);
 				} else if (log.hasError()) {
 					log.printError();
 					return null;
@@ -614,7 +614,7 @@ public class SkriptParser {
 					}
 
 					log.printLog();
-					return new ExprFunctionCall<>(functionReference);
+					return new ExprFunctionCall<>(functionReference, types);
 				} else if (log.hasError()) {
 					log.printError();
 					return null;

@@ -25,21 +25,22 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	private final Class<T> returnType;
 	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
-	public ExprFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<T> function) {
-		//noinspection unchecked
-		this(function, (Class<? extends T>[]) CollectionUtils.array(Object.class));
-	}
-
 	@SuppressWarnings("unchecked")
 	public ExprFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<?> function, Class<? extends T>[] expectedReturnTypes) {
 		this.function = function;
 
-		Class<?> functionReturnType = function.signature().getReturnType().getC();
-		assert  functionReturnType != null;
-		if (CollectionUtils.containsSuperclass(expectedReturnTypes, functionReturnType)) {
+		Class<?> returnType;
+		Class<?> functionReturnType = function.signature().returnType();
+		if (functionReturnType.isArray()) {
+			returnType = functionReturnType.componentType();
+		} else {
+			returnType = functionReturnType;
+		}
+
+		if (CollectionUtils.containsSuperclass(expectedReturnTypes, returnType)) {
 			// Function returns expected type already
-			this.returnTypes = new Class[] {functionReturnType};
-			this.returnType = (Class<T>) functionReturnType;
+			this.returnTypes = new Class[] {returnType};
+			this.returnType = (Class<T>) returnType;
 		} else {
 			// Return value needs to be converted
 			this.returnTypes = expectedReturnTypes;
