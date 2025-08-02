@@ -430,8 +430,7 @@ public class SkriptParser {
 				FunctionReference<T> functionReference = new FunctionParser(context, flags).parseFunctionReference(expr);
 				if (functionReference != null) {
 					log.printLog();
-					//noinspection rawtypes
-					return new ExprFunctionCall(functionReference);
+					return new ExprFunctionCall<>(functionReference);
 				} else if (log.hasError()) {
 					log.printError();
 					return null;

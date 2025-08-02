@@ -102,7 +102,7 @@ final class FunctionReferenceArgumentParser {
 		}
 
 		if (inString && c == '"'
-				&& index < args.length() && args.charAt(index + 1) != '"') {
+				&& index < args.length() - 1 && args.charAt(index + 1) != '"') {
 			nesting--;
 			inString = false;
 			nextExpr();

@@ -46,7 +46,7 @@ public class FunctionArgumentParserTest {
 	public void testSingleNamedList() {
 		Argument<String>[] arguments = new FunctionReferenceArgumentParser("1: (2, 3, 4)").getArguments();
 
-		assertEquals(new Argument<>(ArgumentType.NAMED, "1", "2, 3, 4"), arguments[0]);
+		assertEquals(new Argument<>(ArgumentType.NAMED, "1", "(2, 3, 4)"), arguments[0]);
 	}
 
 	@Test

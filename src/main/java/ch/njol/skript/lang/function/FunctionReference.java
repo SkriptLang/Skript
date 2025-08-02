@@ -19,6 +19,8 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.function.Parameter;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
@@ -193,7 +195,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		// Validate parameter count
-		singleListParam = sign.getMaxParameters() == 1 && !sign.getParameter(0).single;
+		singleListParam = sign.getMaxParameters() == 1 && !sign.parameters().firstEntry().getValue().single();
 		if (!singleListParam) { // Check that parameter count is within allowed range
 			// Too many parameters
 			if (parameters.length > sign.getMaxParameters()) {
@@ -230,17 +232,24 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		// Check parameter types
 		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
+			Parameter<?> parameter = sign.parameters().values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0])[singleListParam ? 0 : i];
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
+				Class<?> target;
+				if (parameter.type().isArray()) {
+					target = parameter.type().componentType();
+				} else {
+					target = parameter.type();
+				}
+
 				//noinspection unchecked
-				Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
-				if (e == null) {
+				Expression<?> expr = parameters[i].getConvertedExpression(target);
+				if (expr == null) {
 					if (first) {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
 							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
-							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + p.type + "."
+							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + parameter.type() + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
 								+ " Please note that storing the value in a variable and then using that variable as parameter may suppress this error, but it still won't work.");
 						}
@@ -250,7 +259,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						function = previousFunction;
 					}
 					return false;
-				} else if (p.single && !e.isSingle()) {
+				} else if (parameter.single() && !expr.isSingle()) {
 					if (first) {
 						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
 							+ "but a single argument was expected");
@@ -261,7 +270,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 					}
 					return false;
 				}
-				parameters[i] = e;
+				parameters[i] = expr;
 			} finally {
 				log.printLog();
 			}
@@ -368,10 +377,14 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Prepare parameter values for calling
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
-			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).keyed);
+			params[0] = evaluateSingleListParameter(parameters, event, function.getSignature().parameters()
+				.firstEntry().getValue().modifiers().contains(Modifier.KEYED));
 		} else { // Use parameters in normal way
+			org.skriptlang.skript.lang.function.Parameter<?>[] values = function.getSignature().parameters()
+				.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
+
 			for (int i = 0; i < parameters.length; i++)
-				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).keyed);
+				params[i] = evaluateParameter(parameters[i], event, values[i].modifiers().contains(Modifier.KEYED));
 		}
 
 		// Execute the function

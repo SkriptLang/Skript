@@ -5,6 +5,7 @@ import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.FunctionArguments;
 
 /**
  * A {@link JavaFunction} which doesn't make use of

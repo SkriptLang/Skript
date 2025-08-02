@@ -7,12 +7,10 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructFunction;
-import ch.njol.skript.util.Utils;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;
@@ -92,7 +90,7 @@ public abstract class Functions {
 				return null; // Probably duplicate signature; reported before
 		}
 
-		Parameter<?>[] params = signature.parameters;
+		Parameter<?>[] params = signature.parameters().values().toArray(new Parameter<?>[0]);
 		ClassInfo<?> c = signature.returnType;
 
 		if (Skript.debug() || node.debug())
@@ -130,14 +128,14 @@ public abstract class Functions {
 	 */
 	public static @Nullable Signature<?> registerSignature(Signature<?> signature) {
 		Retrieval<Signature<?>> existing;
-		Parameter<?>[] parameters = signature.parameters;
+		Parameter<?>[] parameters = signature.parameters().values().toArray(new Parameter<?>[0]);
 
-		if (parameters.length == 1 && !parameters[0].isSingleValue()) {
-			existing = FunctionRegistry.getRegistry().getSignature(signature.script, signature.getName(), parameters[0].type.getC().arrayType());
+		if (parameters.length == 1 && !parameters[0].single()) {
+			existing = FunctionRegistry.getRegistry().getSignature(signature.script, signature.getName(), parameters[0].type());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
-				types[i] = parameters[i].type.getC();
+				types[i] = parameters[i].type();
 			}
 
 			existing = FunctionRegistry.getRegistry().getSignature(signature.script, signature.getName(), types);

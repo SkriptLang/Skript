@@ -48,7 +48,7 @@ public abstract class Function<T> {
 	 * @deprecated Use {@link Signature#parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Parameter<?>[] getParameters() {
+	public org.skriptlang.skript.lang.function.Parameter<?>[] getParameters() {
 		return sign.getParameters();
 	}
 
@@ -56,7 +56,7 @@ public abstract class Function<T> {
 	 * @deprecated Use {@link Signature#getParameter(String)}} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Parameter<?> getParameter(int index) {
+	public org.skriptlang.skript.lang.function.Parameter<?> getParameter(int index) {
 		return sign.getParameter(index);
 	}
 

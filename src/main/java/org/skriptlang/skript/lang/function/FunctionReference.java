@@ -174,7 +174,7 @@ public final class FunctionReference<T> implements Debuggable {
 	 */
 	public record Argument<T>(
 		ArgumentType type,
-		@Nullable String name,
+		String name,
 		T value
 	) {
 

@@ -20,19 +20,21 @@ import java.util.*;
 
 public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProviderExpression<T> {
 
-	private final FunctionReference<?> function;
+	private final org.skriptlang.skript.lang.function.FunctionReference<?> function;
 	private final Class<? extends T>[] returnTypes;
 	private final Class<T> returnType;
 	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
-	public ExprFunctionCall(FunctionReference<T> function) {
-		this(function, function.returnTypes);
+	public ExprFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<T> function) {
+		//noinspection unchecked
+		this(function, (Class<? extends T>[]) CollectionUtils.array(Object.class));
 	}
 
 	@SuppressWarnings("unchecked")
-	public ExprFunctionCall(FunctionReference<?> function, Class<? extends T>[] expectedReturnTypes) {
+	public ExprFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<?> function, Class<? extends T>[] expectedReturnTypes) {
 		this.function = function;
-		Class<?> functionReturnType = function.getReturnType();
+
+		Class<?> functionReturnType = function.signature().getReturnType().getC();
 		assert  functionReturnType != null;
 		if (CollectionUtils.containsSuperclass(expectedReturnTypes, functionReturnType)) {
 			// Function returns expected type already
@@ -47,9 +49,15 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 
 	@Override
 	protected T @Nullable [] get(Event event) {
-		Object[] values = function.execute(event);
-		String[] keys = function.returnedKeys();
-		function.resetReturnValue();
+		Object[] values;
+		if (function.signature().isSingle()) {
+			values = new Object[] { function.execute(event) };
+		} else {
+			values = (Object[]) function.execute(event);
+		}
+
+		String[] keys = function.function().returnedKeys();
+		function.function().resetReturnValue();
 
 		//noinspection unchecked
 		T[] convertedValues = (T[]) Array.newInstance(returnType, values != null ? values.length : 0);
@@ -90,15 +98,15 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
-		assert function.getReturnType() != null;
-		if (Converters.converterExists(function.getReturnType(), to))
+
+		if (Converters.converterExists(function.signature().getReturnType().getC(), to))
 			return new ExprFunctionCall<>(function, to);
 		return null;
 	}
 
 	@Override
 	public boolean isSingle() {
-		return function.isSingle();
+		return function.signature().isSingle();
 	}
 
 	@Override

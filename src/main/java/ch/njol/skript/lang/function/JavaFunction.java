@@ -5,6 +5,7 @@ import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.FunctionArguments;
 
 public abstract class JavaFunction<T> extends Function<T> {
 
@@ -34,6 +35,11 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 	@Override
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+
+	@Override
+	public T execute(FunctionEvent<?> event, FunctionArguments arguments) {
+		throw new IllegalStateException("Java functions should not implement #execute(FunctionEvent, FunctionArguments)");
+	}
 
 	@Override
 	public @NotNull String @Nullable [] returnedKeys() {

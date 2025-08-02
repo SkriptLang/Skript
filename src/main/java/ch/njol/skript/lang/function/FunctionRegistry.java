@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
@@ -665,22 +666,17 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		static FunctionIdentifier of(@NotNull Signature<?> signature) {
 			Preconditions.checkNotNull(signature, "signature cannot be null");
 
-			Parameter<?>[] signatureParams = signature.parameters;
+			org.skriptlang.skript.lang.function.Parameter<?>[] signatureParams = signature.parameters().values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
 			Class<?>[] parameters = new Class[signatureParams.length];
 
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
-				Parameter<?> param = signatureParams[i];
-				if (param.def != null) {
+				org.skriptlang.skript.lang.function.Parameter<?> param = signatureParams[i];
+				if (param.modifiers().contains(Modifier.OPTIONAL)) {
 					optionalArgs++;
 				}
 
-				Class<?> type = param.getType().getC();
-				if (param.isSingleValue()) {
-					parameters[i] = type;
-				} else {
-					parameters[i] = type.arrayType();
-				}
+				parameters[i] = param.type();
 			}
 
 			return new FunctionIdentifier(signature.getName(), signature.isLocal(),
