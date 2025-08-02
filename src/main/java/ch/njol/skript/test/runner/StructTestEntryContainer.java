@@ -36,7 +36,7 @@ public class StructTestEntryContainer extends Structure {
 	) {
 		assert entryContainer != null;
 		this.entryContainer = entryContainer;
-		if (entryContainer.hasEntry("has entry") && entryContainer.hasEntry("has multiple entry")) {
+		if (entryContainer.hasEntry("has entry") && entryContainer.hasEntry("has multiple entries")) {
 			return true;
 		}
 		assert false;
@@ -52,7 +52,7 @@ public class StructTestEntryContainer extends Structure {
 		trigger.execute(new SkriptTestEvent());
 
 		List<SectionNode> multipleSections = entryContainer.getAll(
-			"has multiple entry", SectionNode.class, false
+			"has multiple entries", SectionNode.class, false
 		);
 		for (SectionNode multipleSection : multipleSections) {
 			triggerItems = ScriptLoader.loadItems(multipleSection);
