@@ -2,36 +2,35 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.StringUtils;
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.WeakHashMap;
+import java.util.*;
 
 /**
  * Function signature: name, parameter types and a return type.
  */
 public class Signature<T> {
-	
+
 	/**
 	 * Name of the script that the function is inside.
 	 */
 	final @Nullable String script;
-	
+
 	/**
 	 * Name of function this refers to.
 	 */
 	final String name; // Stored for hashCode
-	
+
 	/**
 	 * Parameters taken by this function, in order.
 	 */
-	final Parameter<?>[] parameters;
+	private final LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters;
 
 	/**
 	 * Whether this function is only accessible in the script it was declared in
@@ -44,13 +43,13 @@ public class Signature<T> {
 	 * to Skript's type system.
 	 */
 	final @Nullable ClassInfo<T> returnType;
-	
+
 	/**
 	 * Whether this function returns a single value, or multiple ones.
 	 * Unspecified and unused when {@link #returnType} is null.
 	 */
 	final boolean single;
-	
+
 	/**
 	 * References (function calls) to function with this signature.
 	 */
@@ -69,6 +68,24 @@ public class Signature<T> {
 	public Signature(String script,
 					 String name,
 					 Parameter<?>[] parameters, boolean local,
+					 @Nullable ClassInfo<T> returnType,
+					 boolean single,
+					 @Nullable String originClassPath,
+					 @Nullable Contract contract) {
+		this(script, name, initParameters(parameters), local, returnType, single, originClassPath, contract);
+	}
+
+	private static LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> initParameters(Parameter<?>[] params) {
+		LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> map = new LinkedHashMap<>();
+		for (Parameter<?> parameter : params) {
+			map.put(parameter.name(), parameter);
+		}
+		return map;
+	}
+
+	public Signature(String script,
+					 String name,
+					 LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
 					 boolean single,
 					 @Nullable String originClassPath,
@@ -97,29 +114,42 @@ public class Signature<T> {
 	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
 		this(script, name, parameters, local, returnType, single, null);
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
-	@SuppressWarnings("null")
-	public Parameter<?> getParameter(int index) {
-		return parameters[index];
+
+	/**
+	 * @deprecated Use {@link #getParameter(String)}} or {@link #parameters()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public org.skriptlang.skript.lang.function.Parameter<?> getParameter(int index) {
+		return parameters.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0])[index];
 	}
 
-	public org.skriptlang.skript.lang.function.Parameter<?>[] parameters() {
-		return parameters;
+	/**
+	 * @return A {@link SequencedCollection} containing all parameters.
+	 */
+	public @NotNull LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters() {
+		return new LinkedHashMap<>(parameters);
 	}
 
-	public Parameter<?> getParameter(String name) {
-		return Arrays.stream(parameters)
-			.filter(it -> it.name().equals(name))
-			.findAny()
-			.orElse(null);
+	/**
+	 * @param name The parameter name.
+	 * @return The parameter with the specified name, or null if none is found.
+	 */
+	public org.skriptlang.skript.lang.function.Parameter<?> getParameter(@NotNull String name) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+
+		return parameters.get(name);
 	}
-	
-	public Parameter<?>[] getParameters() {
-		return parameters;
+
+	/**
+	 * @deprecated Use {@link #parameters()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public org.skriptlang.skript.lang.function.Parameter<?>[] getParameters() {
+		return parameters.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
 	}
 
 	public boolean isLocal() {
@@ -129,7 +159,7 @@ public class Signature<T> {
 	public @Nullable ClassInfo<T> getReturnType() {
 		return returnType;
 	}
-	
+
 	public boolean isSingle() {
 		return single;
 	}
@@ -145,26 +175,34 @@ public class Signature<T> {
 	/**
 	 * Gets maximum number of parameters that the function described by this
 	 * signature is able to take.
+	 *
 	 * @return Maximum number of parameters.
 	 */
 	public int getMaxParameters() {
-		return parameters.length;
+		return parameters.size();
 	}
-	
+
 	/**
 	 * Gets minimum number of parameters that the function described by this
 	 * signature is able to take. Parameters that have default values and do
 	 * not have any parameters that are mandatory after them, are optional.
+	 *
 	 * @return Minimum number of parameters required.
 	 */
 	public int getMinParameters() {
-		for (int i = parameters.length - 1; i >= 0; i--) {
-			if (!parameters[i].modifiers().contains(Modifier.OPTIONAL))
+		List<org.skriptlang.skript.lang.function.Parameter<?>> params = new LinkedList<>(parameters.values());
+
+		int i = parameters.size() - 1;
+		for (org.skriptlang.skript.lang.function.Parameter<?> parameter : params.reversed()) {
+			if (!parameter.modifiers().contains(Modifier.OPTIONAL)) {
 				return i + 1;
+			}
+			i--;
 		}
+
 		return 0; // No-args function
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return name.hashCode();
@@ -182,14 +220,9 @@ public class Signature<T> {
 			signatureBuilder.append("local ");
 		signatureBuilder.append(name);
 
-		signatureBuilder.append('(');
-		int lastParameterIndex = parameters.length - 1;
-		for (int i = 0; i < parameters.length; i++) {
-			signatureBuilder.append(parameters[i].toString(debug));
-			if (i != lastParameterIndex)
-				signatureBuilder.append(", ");
-		}
-		signatureBuilder.append(')');
+		signatureBuilder.append('(')
+			.append(StringUtils.join(parameters.values(), ", "))
+			.append(')');
 
 		if (includeReturnType && returnType != null) {
 			signatureBuilder.append(" :: ");

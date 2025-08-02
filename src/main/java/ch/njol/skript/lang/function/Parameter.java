@@ -278,7 +278,12 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 
 	@Override
 	public @NotNull Class<T> type() {
-		return type.getC();
+		if (isSingleValue()) {
+			return type.getC();
+		} else {
+			//noinspection unchecked
+			return (Class<T>) type.getC().arrayType();
+		}
 	}
 
 	@Override

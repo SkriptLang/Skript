@@ -8,10 +8,13 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.function.FunctionArguments;
+import org.skriptlang.skript.lang.function.Parameter;
+
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
@@ -21,14 +24,6 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	private T @Nullable [] returnValues;
 	private String @Nullable [] returnKeys;
 
-	/**
-	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)} instead.
-	 */
-	@Deprecated(since = "2.9.0", forRemoval = true)
-	public ScriptFunction(Signature<T> sign, Script script, SectionNode node) {
-		this(sign, node);
-	}
-
 	public ScriptFunction(Signature<T> sign, SectionNode node) {
 		super(sign);
 
@@ -36,12 +31,20 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		HintManager hintManager = ParserInstance.get().getHintManager();
 		try {
 			hintManager.enterScope(false);
-			for (Parameter<?> parameter : sign.getParameters()) {
-				String hintName = parameter.getName();
-				if (!parameter.isSingleValue()) {
+			for (org.skriptlang.skript.lang.function.Parameter<?> parameter : sign.parameters().values()) {
+				String hintName = parameter.name();
+				if (!parameter.single()) {
 					hintName += Variable.SEPARATOR + "*";
 				}
-				hintManager.set(hintName, parameter.getType().getC());
+
+				Class<?> hintType;
+				if (parameter.type().isArray()) {
+					hintType = parameter.type().componentType();
+				} else {
+					hintType = parameter.type();
+				}
+
+				hintManager.set(hintName, hintType);
 			}
 			trigger = loadReturnableTrigger(node, "function " + sign.getName(), new SimpleEvent());
 		} finally {
@@ -55,18 +58,23 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
 	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
-		Parameter<?>[] parameters = getSignature().getParameters();
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = parameters[i];
+		LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters = getSignature().parameters();
+
+		int i = 0;
+		for (Entry<String, org.skriptlang.skript.lang.function.Parameter<?>> entry : parameters.entrySet()) {
+			String name = entry.getKey();
+			org.skriptlang.skript.lang.function.Parameter<?> parameter = entry.getValue();
+
 			Object[] val = params[i];
-			if (parameter.single && val.length > 0) {
-				Variables.setVariable(parameter.name, val[0], event, true);
+			if (parameter.single() && val.length > 0) {
+				Variables.setVariable(name, val[0], event, true);
 			} else {
 				for (Object value : val) {
 					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
-					Variables.setVariable(parameter.name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+					Variables.setVariable(name + "::" + keyedValue.key(), keyedValue.value(), event, true);
 				}
 			}
+			i++;
 		}
 
 		trigger.execute(event);
@@ -75,19 +83,44 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public @NotNull String @Nullable [] returnedKeys() {
-		return returnKeys;
+	public T execute(FunctionEvent<?> event, FunctionArguments arguments) {
+		LinkedHashMap<String, Parameter<?>> parameters = getSignature().parameters();
+
+		for (String name : arguments.names()) {
+			Parameter<?> parameter = parameters.get(name);
+			Object value = arguments.get(name);
+
+			if (value == null) {
+				continue;
+			}
+
+			if (parameter.single()) {
+				Variables.setVariable(name, value, event, true);
+			} else {
+				for (Object o : (Object[]) value) {
+					KeyedValue<?> keyedValue = (KeyedValue<?>) o;
+					Variables.setVariable(name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+				}
+			}
+		}
+
+		trigger.execute(event);
+
+		if (getReturnType() == null || returnValues == null) {
+			return null;
+		}
+
+		if (isSingle()) {
+			return returnValues[0];
+		} else {
+			//noinspection unchecked
+			return (T) returnValues;
+		}
 	}
 
-	/**
-	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)} instead.
-	 */
-	@Deprecated(since = "2.9.0", forRemoval = true)
-	@ApiStatus.Internal
-	public final void setReturnValue(@Nullable T[] values) {
-		assert !returnValueSet;
-		returnValueSet = true;
-		this.returnValues = values;
+	@Override
+	public @NotNull String @Nullable [] returnedKeys() {
+		return returnKeys;
 	}
 
 	@Override
