@@ -22,6 +22,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @deprecated Use {@link org.skriptlang.skript.lang.function.ScriptParameter}
+ * or {@link org.skriptlang.skript.lang.function.DefaultParameter} instead.
+ */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public final class Parameter<T> implements org.skriptlang.skript.lang.function.Parameter<T> {
 
 	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
@@ -43,12 +48,12 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
-	final @Nullable Expression<? extends T> def;
+	private final @Nullable Expression<? extends T> def;
 
 	/**
 	 * Whether this parameter takes one or many values.
 	 */
-	final boolean single;
+	private final boolean single;
 
 	private final Set<Modifier> modifiers;
 

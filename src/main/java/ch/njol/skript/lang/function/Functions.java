@@ -7,8 +7,10 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructFunction;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
@@ -82,7 +84,7 @@ public abstract class Functions {
 	 * @return Script function, or null if something went wrong.
 	 */
 	public static @Nullable Function<?> loadFunction(Script script, SectionNode node, Signature<?> signature) {
-		String name = signature.name;
+		String name = signature.getName();
 		Namespace namespace = getScriptNamespace(script.getConfig().getFileName());
 		if (namespace == null) {
 			namespace = globalFunctions.get(name);
@@ -91,15 +93,23 @@ public abstract class Functions {
 		}
 
 		Parameter<?>[] params = signature.parameters().values().toArray(new Parameter<?>[0]);
-		ClassInfo<?> c = signature.returnType;
 
-		if (Skript.debug() || node.debug())
-			Skript.debug((signature.local ? "local " : "") + "function " + name + "(" + StringUtils.join(params, ", ") + ")"
+		if (Skript.debug() || node.debug()) {
+			Class<?> returnType = signature.returnType();
+			ClassInfo<?> c;
+			if (returnType.isArray()) {
+				c = Classes.getExactClassInfo(returnType.componentType());
+			} else {
+				c = Classes.getExactClassInfo(returnType);
+			}
+
+			Skript.debug((signature.isLocal() ? "local " : "") + "function " + name + "(" + StringUtils.join(params, ", ") + ")"
 				+ (c != null ? " :: " + (signature.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
+		}
 
 		Function<?> function = new ScriptFunction<>(signature, node);
 
-		if (namespace.getFunction(signature.name) == null) {
+		if (namespace.getFunction(signature.getName()) == null) {
 			namespace.addFunction(function);
 		}
 
@@ -131,14 +141,14 @@ public abstract class Functions {
 		Parameter<?>[] parameters = signature.parameters().values().toArray(new Parameter<?>[0]);
 
 		if (parameters.length == 1 && !parameters[0].single()) {
-			existing = FunctionRegistry.getRegistry().getSignature(signature.script, signature.getName(), parameters[0].type());
+			existing = FunctionRegistry.getRegistry().getSignature(signature.script(), signature.getName(), parameters[0].type());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
 				types[i] = parameters[i].type();
 			}
 
-			existing = FunctionRegistry.getRegistry().getSignature(signature.script, signature.getName(), types);
+			existing = FunctionRegistry.getRegistry().getSignature(signature.script(), signature.getName(), types);
 		}
 
 		// if this function has already been registered, only allow it if one function is local and one is global.
@@ -152,8 +162,8 @@ public abstract class Functions {
 				error.append("Function ");
 			}
 			error.append("'%s' with the same argument types already exists".formatted(signature.getName()));
-			if (existing.retrieved().script != null) {
-				error.append(" in script '%s'.".formatted(existing.retrieved().script));
+			if (existing.retrieved().script() != null) {
+				error.append(" in script '%s'.".formatted(existing.retrieved().script()));
 			} else {
 				error.append(".");
 			}
@@ -163,21 +173,21 @@ public abstract class Functions {
 			return null;
 		}
 
-		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.script);
+		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.script());
 		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
-		if (namespace.getSignature(signature.name) == null) {
+		if (namespace.getSignature(signature.getName()) == null) {
 			namespace.addSignature(signature);
 		}
-		if (!signature.local)
-			globalFunctions.put(signature.name, namespace);
+		if (!signature.isLocal())
+			globalFunctions.put(signature.getName(), namespace);
 
-		if (signature.local) {
-			FunctionRegistry.getRegistry().register(signature.script, signature);
+		if (signature.isLocal()) {
+			FunctionRegistry.getRegistry().register(signature.script(), signature);
 		} else {
 			FunctionRegistry.getRegistry().register(null, signature);
 		}
 
-		Skript.debug("Registered function signature: " + signature.name);
+		Skript.debug("Registered function signature: " + signature.getName());
 
 		return signature;
 	}
@@ -342,7 +352,7 @@ public abstract class Functions {
 		while (namespaceIterator.hasNext()) {
 			Namespace namespace = namespaceIterator.next();
 			if (namespace.removeSignature(signature)) {
-				if (!signature.local)
+				if (!signature.isLocal())
 					globalFunctions.remove(signature.getName());
 
 				// remove the namespace if it is empty
@@ -354,7 +364,7 @@ public abstract class Functions {
 		}
 
 		for (FunctionReference<?> ref : signature.calls) {
-			if (signature.script != null && !signature.script.equals(ref.script))
+			if (signature.script() != null && !signature.script().equals(ref.script))
 				toValidate.add(ref);
 		}
 	}

@@ -17,6 +17,7 @@ import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.function.Parameter;
@@ -163,8 +164,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Validate that return types are what caller expects they are
 		Class<? extends T>[] returnTypes = this.returnTypes;
 		if (returnTypes != null) {
-			ClassInfo<?> rt = sign.returnType;
-			if (rt == null) {
+			Class<?> rt = sign.returnType();
+			if (rt == Void.class) {
 				if (first) {
 					Skript.error("The function '" + stringified + "' doesn't return any value.");
 				} else {
@@ -174,9 +175,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				}
 				return false;
 			}
-			if (!Converters.converterExists(rt.getC(), returnTypes)) {
+
+			if (!Converters.converterExists(rt, returnTypes)) {
 				if (first) {
-					Skript.error("The returned value of the function '" + stringified + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
+					Skript.error("The returned value of the function '" + stringified + "', " + rt + ", is " + SkriptParser.notOfType(returnTypes) + ".");
 				} else {
 					Skript.error("The function '" + stringified + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
@@ -185,8 +187,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				return false;
 			}
 			if (first) {
-				single = sign.single;
-			} else if (single && !sign.single) {
+				single = sign.isSingle();
+			} else if (single && !sign.isSingle()) {
 				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
@@ -461,8 +463,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		if (signature == null)
 			throw new SkriptAPIException("Signature of function is null when return type is asked!");
 
-		ClassInfo<? extends T> ret = signature.returnType;
-		return ret == null ? null : ret.getC();
+		Class<? extends T> ret = signature.returnType();
+		return ret == Void.class ? null : ret;
 	}
 
 	/**

@@ -45,7 +45,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
+		@Nullable File file = ScriptLoader.getScriptFromName(signature.script());
 		this.source = file != null ? ScriptLoader.getScript(file) : null;
 	}
 
@@ -70,7 +70,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
+			@Nullable File file = ScriptLoader.getScriptFromName(signature.script());
 			this.source = file != null ? ScriptLoader.getScript(file) : null;
 		} else {
 			this.signature = null;
@@ -91,8 +91,8 @@ public class DynamicFunctionReference<Result>
 	public boolean isSingle(Expression<?>... arguments) {
 		if (!resolved)
 			return true;
-		return signature.contract != null
-				? signature.contract.isSingle(arguments)
+		return signature.getContract() != null
+				? signature.getContract().isSingle(arguments)
 				: signature.isSingle();
 	}
 
@@ -100,8 +100,8 @@ public class DynamicFunctionReference<Result>
 	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
 		if (!resolved)
 			return Object.class;
-		if (signature.contract != null)
-			return signature.contract.getReturnType(arguments);
+		if (signature.getContract() != null)
+			return signature.getContract().getReturnType(arguments);
 		Function<? extends Result> function = this.function.get();
 		if (function != null && function.getReturnType() != null)
 			return function.getReturnType().getC();

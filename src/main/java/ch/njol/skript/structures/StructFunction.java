@@ -20,7 +20,6 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Utils.PluralResult;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +56,7 @@ public class StructFunction extends Structure {
 	public static final Priority PRIORITY = new Priority(400);
 
 	private static final Pattern SIGNATURE_PATTERN =
-			Pattern.compile("^(?:local )?function (" + Functions.functionNamePattern + ")\\((.*?)\\)(?:\\s*(?:::| returns )\\s*(.+))?$");
+		Pattern.compile("^(?:local )?function (" + Functions.functionNamePattern + ")\\((.*?)\\)(?:\\s*(?:::| returns )\\s*(.+))?$");
 	private static final AtomicBoolean VALIDATE_FUNCTIONS = new AtomicBoolean();
 
 	static {
@@ -151,38 +150,46 @@ public class StructFunction extends Structure {
 
 		/**
 		 * Parses the signature from the given arguments.
-		 * @param script Script file name (<b>might</b> be used for some checks).
-		 * @param name The name of the function.
-		 * @param args The parameters of the function. See {@link ch.njol.skript.lang.function.Parameter#parse(String)}
-		 * @param returnType The return type of the function
-		 * @param local If the signature of function is local.
+		 *
+		 * @param script  Script file name (<b>might</b> be used for some checks).
+		 * @param name    The name of the function.
+		 * @param args    The parameters of the function.
+		 * @param returns The return type of the function
+		 * @param local   If the signature of function is local.
 		 * @return Parsed signature or null if something went wrong.
 		 * @see Functions#registerSignature(Signature)
 		 */
-		public static @Nullable Signature<?> parse(String script, String name, String args, @Nullable String returnType, boolean local) {
+		public static @Nullable Signature<?> parse(String script, String name, String args, @Nullable String returns, boolean local) {
 			LinkedHashMap<String, Parameter<?>> parameters = parseParameters(args);
 			if (parameters == null)
 				return null;
 
 			// Parse return type if one exists
+			Class<?> returnType;
 			ClassInfo<?> returnClass;
-			boolean singleReturn;
-			if (returnType == null) {
-				returnClass = null;
-				singleReturn = false; // Ignored, nothing is returned
+
+			if (returns == null) {
+				returnType = Void.class;
 			} else {
-				returnClass = Classes.getClassInfoFromUserInput(returnType);
-				NonNullPair<String, Boolean> p = Utils.getEnglishPlural(returnType);
-				singleReturn = !p.getSecond();
+				returnClass = Classes.getClassInfoFromUserInput(returns);
+				PluralResult result = Utils.isPlural(returns);
+
 				if (returnClass == null)
-					returnClass = Classes.getClassInfoFromUserInput(p.getFirst());
+					returnClass = Classes.getClassInfoFromUserInput(result.updated());
+
 				if (returnClass == null) {
-					Skript.error("Cannot recognise the type '" + returnType + "'");
+					Skript.error("Cannot recognise the type '" + returns + "'");
 					return null;
 				}
+
+				if (result.plural()) {
+					returnType = returnClass.getC().arrayType();
+				} else {
+					returnType = returnClass.getC();
+				}
 			}
-			//noinspection unchecked
-			return new Signature<>(script, name, parameters, local, (ClassInfo<Object>) returnClass, singleReturn, null, null);
+
+			return new Signature<>(script, name, parameters, local, returnType, null);
 		}
 
 		private final static Pattern SCRIPT_PARAMETER_PATTERN =
