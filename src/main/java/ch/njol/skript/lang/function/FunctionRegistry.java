@@ -472,16 +472,20 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				&& candidate.args.length == 1
 				&& candidate.args[0].isArray()) {
 				// if a function has single list value param, check all types
-
 				// make sure all types in the passed array are valid for the array parameter
 				Class<?> arrayType = candidate.args[0].componentType();
 				for (Class<?> arrayArg : provided.args) {
+					if (arrayArg.isArray()) {
+						arrayArg = arrayArg.componentType();
+					}
+
 					if (!Converters.converterExists(arrayType, arrayArg)) {
 						continue candidates;
 					}
 				}
 
-				return Set.of(candidate);
+				candidates.add(candidate);
+				continue;
 			}
 
 			// if argument counts are not possible, skip

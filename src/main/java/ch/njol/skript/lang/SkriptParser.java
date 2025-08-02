@@ -1196,7 +1196,7 @@ public class SkriptParser {
 						targets[i] = parameter.type();
 					}
 
-					remaining.remove(argument.name());
+					remaining.remove(parameter.name());
 				}
 
 				//noinspection DuplicatedCode
@@ -1207,7 +1207,8 @@ public class SkriptParser {
 				}
 
 				if (result.type() == FunctionArgumentParseResultType.OK) {
-					FunctionReference<T> reference = new FunctionReference<>(namespace, name, result.parsed());
+					//noinspection unchecked
+					FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
 					if (!reference.validate()) {
 						continue;
@@ -1232,7 +1233,8 @@ public class SkriptParser {
 				}
 
 				if (result.type() == FunctionArgumentParseResultType.OK) {
-					FunctionReference<T> reference = new FunctionReference<>(namespace, name, result.parsed());
+					//noinspection unchecked
+					FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
 					if (!reference.validate()) {
 						continue;

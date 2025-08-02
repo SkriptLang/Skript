@@ -1,0 +1,34 @@
+local function nfa(a: int, b: int, c: int) :: int:
+	return {_a} + {_b} - {_c}
+
+local function nfa(a: string, b: string) :: int:
+	return 3
+
+test "named function arguments":
+	assert nfa(8, 2, 3) = 7
+
+	assert nfa(a: 8, 2, 3) = 7
+	assert nfa(a: 8, b: 2, 3) = 7
+	assert nfa(a: 8, b: 2, c: 3) = 7
+
+	assert nfa(c: 3, a: 8, b: 2) = 7
+	assert nfa(c: 3, b: 2, a: 8) = 7
+	assert nfa(a: 8, c: 3, b: 2) = 7
+
+	assert nfa(8, c: 3, b: 2) = 7
+	assert nfa(a: 8, b: 2, 3) = 7
+	assert nfa(8, b: 2, c: 3) = 7
+
+	parse:
+		assert nfa(c: 3, 2, a: 8) = 7
+	assert last parse logs contain "Mixing named and positional arguments is not allowed"
+
+	parse:
+		assert nfa(c: 3, a: 8, 2) = 7
+	assert last parse logs contain "Mixing named and positional arguments is not allowed"
+
+	parse:
+		assert nfa(b: 2, 3, a: 8) = 7
+	assert last parse logs contain "Mixing named and positional arguments is not allowed"
+
+	assert nfa("gonna be, gonna be, ""'golden'""", "fire %{_, }%") = 3

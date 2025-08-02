@@ -4,8 +4,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.*;
+import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
+import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.util.LiteralUtils;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
@@ -16,41 +20,45 @@ public final class FunctionReference<T> implements Debuggable {
 
 	private final String namespace;
 	private final String name;
+	private final Signature<T> signature;
 	private final Argument<Expression<?>>[] arguments;
 
 	private Function<T> cachedFunction;
-	private Signature<T> cachedSignature;
 	private LinkedHashMap<String, ArgInfo> cachedArguments;
 
 	private record ArgInfo(Expression<?> expression, Class<?> type) {
 
 	}
 
-	public FunctionReference(String namespace, String name, Argument<Expression<?>>[] arguments) {
+	public FunctionReference(@Nullable String namespace,
+							 @NotNull String name,
+							 @NotNull Signature<T> signature,
+							 @NotNull Argument<Expression<?>>[] arguments) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+		Preconditions.checkNotNull(signature, "signature cannot be null");
+		Preconditions.checkNotNull(arguments, "arguments cannot be null");
+
 		this.namespace = namespace;
 		this.name = name;
+		this.signature = signature;
 		this.arguments = arguments;
 	}
 
+	/**
+	 * Validates this function reference.
+	 *
+	 * @return True if this is a valid function reference, false if not.
+	 */
 	public boolean validate() {
-		if (cachedSignature == null) {
-			//noinspection unchecked
-			cachedSignature = (Signature<T>) Functions.getSignature(name, namespace);
+		if (function() == null) {
+			return false;
 		}
 
-		if (cachedFunction == null) {
-			//noinspection unchecked
-			cachedFunction = (Function<T>) Functions.getFunction(name, namespace);
-		}
-
-		if (cachedArguments == null && cachedSignature != null) {
+		if (cachedArguments == null && signature != null) {
 			cachedArguments = new LinkedHashMap<>();
 
 			// get the target params of the function
-			LinkedHashMap<String, Parameter<?>> targetParameters = new LinkedHashMap<>();
-			for (Parameter<?> parameter : cachedSignature.parameters().values()) {
-				targetParameters.put(parameter.name(), parameter);
-			}
+			LinkedHashMap<String, Parameter<?>> targetParameters = signature.parameters();
 
 			for (Argument<Expression<?>> argument : arguments) {
 				Parameter<?> target;
@@ -59,12 +67,18 @@ public final class FunctionReference<T> implements Debuggable {
 				} else {
 					Entry<String, Parameter<?>> first = targetParameters.firstEntry();
 
-					// argument mismatch or array
 					if (first == null) {
-
+						return false;
 					}
 
 					target = first.getValue();
+				}
+
+				// tried to find target, but it was already taken, so
+				// the user is mixing named and positional arguments out of order
+				if (target == null) {
+					Skript.error("Mixing named and positional arguments is not allowed unless the order of the arguments matches the order of the parameters.");
+					return false;
 				}
 
 				// try to parse value in the argument
@@ -101,7 +115,7 @@ public final class FunctionReference<T> implements Debuggable {
 
 	public T execute(Event event) {
 		if (!validate()) {
-			Skript.error("Epic function fail");
+			Skript.error("Failed to verify function %s before execution.", name);
 			return null;
 		}
 
@@ -114,37 +128,50 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		});
 
-		Function<? extends T> function = function();
+		Function<T> function = function();
 		return function.execute(new FunctionEvent<>(function), new FunctionArguments(args));
 	}
 
 	public Function<T> function() {
 		if (cachedFunction == null) {
-			//noinspection unchecked
-			cachedFunction = (Function<T>) Functions.getFunction(name, namespace);
+			Class<?>[] parameters = signature.parameters().values().stream().map(Parameter::type).toArray(Class[]::new);
+
+			Retrieval<Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
+
+			if (retrieval.result() == RetrievalResult.EXACT) {
+				//noinspection unchecked
+				cachedFunction = (Function<T>) retrieval.retrieved();
+			}
 		}
 
 		return cachedFunction;
 	}
 
+	/**
+	 * @return The signature belonging to this reference.
+	 */
 	public Signature<T> signature() {
-		if (cachedFunction == null) {
-			//noinspection unchecked
-			cachedSignature = (Signature<T>) Functions.getSignature(name, namespace);
-		}
-
-		return cachedSignature;
+		return signature;
 	}
 
+	/**
+	 * @return The namespace that this reference is in.
+	 */
 	public String namespace() {
 		return namespace;
 	}
 
-	public String name() {
+	/**
+	 * @return The name of the function being referenced.
+	 */
+	public @NotNull String name() {
 		return name;
 	}
 
-	public Argument<Expression<?>>[] arguments() {
+	/**
+	 * @return The passed arguments.
+	 */
+	public @NotNull Argument<Expression<?>>[] arguments() {
 		return arguments;
 	}
 
