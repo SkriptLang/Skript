@@ -115,7 +115,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 
 	@Override
 	public boolean isSingle() {
-		return function.signature().isSingle();
+		return function.single();
 	}
 
 	@Override

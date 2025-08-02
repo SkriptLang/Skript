@@ -605,7 +605,7 @@ public class SkriptParser {
 				FunctionReference<?> functionReference = new FunctionParser(context, flags).parseFunctionReference(expr);
 				if (functionReference != null) {
 
-					if (onlySingular && !functionReference.signature().isSingle()) {
+					if (onlySingular && !functionReference.single()) {
 						Skript.error("'" + expr + "' can only be a single "
 							+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
 							+ ", not more.");

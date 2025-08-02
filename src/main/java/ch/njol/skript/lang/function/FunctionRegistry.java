@@ -497,6 +497,13 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			// if the types of the provided arguments do not match the candidate arguments, skip
 			for (int i = 0; i < provided.args.length; i++) {
 				// allows single passed values to still match array type in candidate (e.g. clamp)
+				Class<?> providedType;
+				if (provided.args[i].isArray()) {
+					providedType = provided.args[i].componentType();
+				} else {
+					providedType = provided.args[i];
+				}
+
 				Class<?> candidateType;
 				if (candidate.args[i].isArray()) {
 					candidateType = candidate.args[i].componentType();
@@ -504,7 +511,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 					candidateType = candidate.args[i];
 				}
 
-				if (!Converters.converterExists(provided.args[i], candidateType)) {
+				if (!Converters.converterExists(providedType, candidateType)) {
 					continue candidates;
 				}
 			}

@@ -1,11 +1,13 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.FunctionArguments;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,9 +48,15 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 		Object[][] params = new Object[parameters.size()][];
 		for (int i = 0; i < parameters.size(); i++) {
-			Object object = arguments.get(parameters.get(i).name());
+			org.skriptlang.skript.lang.function.Parameter<?> parameter = parameters.get(i);
+			Object object = arguments.get(parameter.name());
+
 			if (object instanceof Object[] os) {
-				params[i] = os;
+				if (parameter.modifiers().contains(Modifier.KEYED)) {
+					params[i] = convertToKeyed(os);
+				} else {
+					params[i] = os;
+				}
 			} else {
 				params[i] = new Object[] { object };
 			}
@@ -63,6 +71,18 @@ public abstract class JavaFunction<T> extends Function<T> {
 			//noinspection unchecked
 			return (T) execute;
 		}
+	}
+
+	private static KeyedValue<Object> @Nullable [] convertToKeyed(Object[] values) {
+		if (values == null || values.length == 0)
+			//noinspection unchecked
+			return new KeyedValue[0];
+
+		if (values instanceof KeyedValue[])
+			//noinspection unchecked
+			return (KeyedValue<Object>[]) values;
+
+		return KeyedValue.zip(values, null);
 	}
 
 	@Override
