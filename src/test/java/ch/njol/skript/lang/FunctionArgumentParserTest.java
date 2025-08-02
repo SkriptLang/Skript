@@ -1,0 +1,45 @@
+package ch.njol.skript.lang;
+
+import org.junit.Test;
+import org.skriptlang.skript.lang.function.FunctionReference.Argument;
+import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
+
+import static org.junit.Assert.assertEquals;
+
+public class FunctionArgumentParserTest {
+
+	@Test
+	public void testUnnamedArgs() {
+		Argument<String>[] arguments = new FunctionReferenceArgumentParser("1, 2, \"hey:, gi:rl\", ({forza, real::*}, {_x::2}, 2)").getArguments();
+
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "1"), arguments[0]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "2"), arguments[1]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "\"hey:, gi:rl\""), arguments[2]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "({forza, real::*}, {_x::2}, 2)"), arguments[3]);
+
+		arguments = new FunctionReferenceArgumentParser("1, 2, \"hey, girl\", ({forza, real}, 2)").getArguments();
+
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "1"), arguments[0]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "2"), arguments[1]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "\"hey, girl\""), arguments[2]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "({forza, real}, 2)"), arguments[3]);
+	}
+
+	@Test
+	public void testNamedArgs() {
+		Argument<String>[] arguments = new FunctionReferenceArgumentParser("a_rg: 1, 2, womp: \"hey:, gi:rl\", list: ({forza, real::*}, {_x::2}, 2)").getArguments();
+
+		assertEquals(new Argument<>(ArgumentType.NAMED, "a_rg", "1"), arguments[0]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "2"), arguments[1]);
+		assertEquals(new Argument<>(ArgumentType.NAMED, "womp", "\"hey:, gi:rl\""), arguments[2]);
+		assertEquals(new Argument<>(ArgumentType.NAMED, "list", "({forza, real::*}, {_x::2}, 2)"), arguments[3]);
+
+		arguments = new FunctionReferenceArgumentParser("2: 1, 2, 3_60: \"hey, girl\", 1list: ({forza, real}, 2)").getArguments();
+
+		assertEquals(new Argument<>(ArgumentType.NAMED, "2", "1"), arguments[0]);
+		assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "2"), arguments[1]);
+		assertEquals(new Argument<>(ArgumentType.NAMED, "3_60", "\"hey, girl\""), arguments[2]);
+		assertEquals(new Argument<>(ArgumentType.NAMED, "1list", "({forza, real}, 2)"), arguments[3]);
+	}
+
+}

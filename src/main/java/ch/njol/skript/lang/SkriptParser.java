@@ -11,7 +11,6 @@ import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.function.ExprFunctionCall;
-import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
@@ -44,6 +43,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.function.FunctionReference;
+import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -1096,9 +1097,8 @@ public class SkriptParser {
 				return null;
 			}
 
-			String functionName = "" + matcher.group(1);
+			String functionName = matcher.group(1);
 			String args = matcher.group(2);
-			Expression<?>[] params;
 
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
 			// See https://github.com/SkriptLang/Skript/issues/1532
@@ -1114,38 +1114,39 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			final SkriptParser skriptParser = new SkriptParser(args, flags | PARSE_LITERALS, context);
-			params = this.getFunctionArguments(() -> skriptParser.suppressMissingAndOrWarnings().parseExpression(Object.class), args, unaryArgument);
-			if (params == null) {
-				log.printError();
-				return null;
-			}
 
-			ParserInstance parser = getParser();
-			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
-			FunctionReference<T> functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+			FunctionReference.Argument<String>[] arguments = new FunctionReferenceArgumentParser(args).getArguments();
+			//noinspection unchecked
+			FunctionReference.Argument<Expression<?>>[] parsed = (FunctionReference.Argument<Expression<?>>[])
+				new FunctionReference.Argument[arguments.length];
 
-			attempt_list_parse:
-			if (unaryArgument.get() && !functionReference.validateParameterArity(true)) {
-				try (ParseLogHandler ignored = SkriptLogger.startParseLogHandler()) {
-					SkriptParser alternative = new SkriptParser(args, flags | PARSE_LITERALS, context);
-					params = this.getFunctionArguments(() -> alternative.suppressMissingAndOrWarnings()
-						.parseExpressionList(ignored, Object.class), args, unaryArgument);
-					ignored.clear();
-					if (params == null)
-						break attempt_list_parse;
+			for (int i = 0; i < arguments.length; i++) {
+				FunctionReference.Argument<String> argument = arguments[i];
+
+				SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
+
+				Expression<?> expression = parser.parseExpression(Object.class);
+
+				if (expression instanceof ExpressionList<?> list && !list.getAnd()) {
+					Skript.error("Function arguments must be separated by commas and optionally an 'and', but not an 'or'."
+						+ " Put the 'or' into a second set of parentheses if you want to make it a single parameter, e.g. 'give(player, (sword or axe))'");
+					return null;
 				}
-				functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+
+				parsed[i] = new FunctionReference.Argument<>(argument.type() == ArgumentType.UNNAMED ? ArgumentType.UNNAMED : ArgumentType.NAMED,
+					argument.name(), expression);
 			}
 
-			if (!functionReference.validateFunction(true)) {
+			String namespace = getParser().getCurrentScript().getConfig().getFileName();
+
+			FunctionReference<T> reference = new FunctionReference<>(namespace, functionName, parsed);
+
+			if (!reference.validate()) {
 				log.printError();
 				return null;
 			}
-			log.printLog();
-			return functionReference;
+
+			return reference;
 		}
 	}
 
