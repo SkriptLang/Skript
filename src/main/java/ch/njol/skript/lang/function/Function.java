@@ -8,8 +8,12 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.FunctionArguments;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.lang.function.ScriptParameter;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 
 /**
  * Functions can be called using arguments.
@@ -40,13 +44,20 @@ public abstract class Function<T> {
 		return sign.getName();
 	}
 
+	/**
+	 * @deprecated Use {@link Signature#parameters()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Parameter<?>[] getParameters() {
 		return sign.getParameters();
 	}
 
-	@SuppressWarnings("null")
+	/**
+	 * @deprecated Use {@link Signature#getParameter(String)}} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Parameter<?> getParameter(int index) {
-		return getParameters()[index];
+		return sign.getParameter(index);
 	}
 
 	public boolean isSingle() {
@@ -75,26 +86,27 @@ public abstract class Function<T> {
 			Bukkit.getPluginManager().callEvent(event);
 
 		// Parameters taken by the function.
-		Parameter<?>[] parameters = sign.getParameters();
+		LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters = sign.parameters();
 
-		if (params.length > parameters.length) {
+		if (params.length > parameters.size()) {
 			// Too many parameters, should have failed to parse
 			assert false : params.length;
 			return null;
 		}
 
 		// If given less that max amount of parameters, pad remaining with nulls
-		Object[][] parameterValues = params.length < parameters.length ? Arrays.copyOf(params, parameters.length) : params;
+		Object[][] parameterValues = params.length < parameters.size() ? Arrays.copyOf(params, parameters.size()) : params;
 
+		int i = 0;
 		// Execute parameters or default value expressions
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = parameters[i];
-			Object[] parameterValue = parameter.keyed ? convertToKeyed(parameterValues[i]) : parameterValues[i];
-			if (parameterValue == null) { // Go for default value
-				assert parameter.def != null; // Should've been parse error
-				Object[] defaultValue = parameter.def.getArray(event);
-				if (parameter.keyed && KeyProviderExpression.areKeysRecommended(parameter.def)) {
-					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
+		for (org.skriptlang.skript.lang.function.Parameter<?> parameter : parameters.values()) {
+			Object[] parameterValue = parameter.modifiers().contains(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
+
+			if (parameterValue == null && parameter instanceof ScriptParameter<?> sp) { // Go for default value
+				assert sp.defaultValue() != null; // Should've been parse error
+				Object[] defaultValue = sp.defaultValue().getArray(event);
+				if (parameter.modifiers().contains(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(sp.defaultValue())) {
+					String[] keys = ((KeyProviderExpression<?>) sp.defaultValue()).getArrayKeys(event);
 					parameterValue = KeyedValue.zip(defaultValue, keys);
 				} else {
 					parameterValue = defaultValue;
@@ -110,6 +122,7 @@ public abstract class Function<T> {
 			if (!executeWithNulls && parameterValue.length == 0)
 				return null;
 			parameterValues[i] = parameterValue;
+			i++;
 		}
 
 		// Execute function contents
@@ -147,7 +160,10 @@ public abstract class Function<T> {
 	 * you need to manually handle default values.
 	 * @return Function return value(s).
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+
+	public abstract T execute(FunctionEvent<?> event, FunctionArguments arguments);
 
 	/**
 	 * @return The keys of the values returned by this function, or null if no keys are returned.
