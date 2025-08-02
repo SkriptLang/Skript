@@ -8,6 +8,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.structures.StructFunction;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
@@ -113,41 +114,12 @@ public abstract class Functions {
 		return function;
 	}
 
-
 	/**
-	 * Parses the signature from the given arguments.
-	 * @param script Script file name (<b>might</b> be used for some checks).
-	 * @param name The name of the function.
-	 * @param args The parameters of the function. See {@link Parameter#parse(String)}
-	 * @param returnType The return type of the function
-	 * @param local If the signature of function is local.
-	 * @return Parsed signature or null if something went wrong.
-	 * @see Functions#registerSignature(Signature)
+	 * @deprecated Use {@link StructFunction.FunctionParser#parse(String, String, String, String, boolean)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable Signature<?> parseSignature(String script, String name, String args, @Nullable String returnType, boolean local) {
-		List<Parameter<?>> parameters = Parameter.parse(args);
-		if (parameters == null)
-			return null;
-
-		// Parse return type if one exists
-		ClassInfo<?> returnClass;
-		boolean singleReturn;
-		if (returnType == null) {
-			returnClass = null;
-			singleReturn = false; // Ignored, nothing is returned
-		} else {
-			returnClass = Classes.getClassInfoFromUserInput(returnType);
-			NonNullPair<String, Boolean> p = Utils.getEnglishPlural(returnType);
-			singleReturn = !p.getSecond();
-			if (returnClass == null)
-				returnClass = Classes.getClassInfoFromUserInput(p.getFirst());
-			if (returnClass == null) {
-				Skript.error("Cannot recognise the type '" + returnType + "'");
-				return null;
-			}
-		}
-		//noinspection unchecked
-		return new Signature<>(script, name, parameters.toArray(new Parameter[0]), local, (ClassInfo<Object>) returnClass, singleReturn, null);
+		return StructFunction.FunctionParser.parse(script, name, args, returnType, local);
 	}
 
 	/**

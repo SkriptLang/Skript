@@ -128,6 +128,10 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 		return type;
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.lang.function.ScriptParameter#parse(String, Class, String)}} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> @Nullable Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
 		if (!Variable.isValidVariableName(name, true, false)) {
 			Skript.error("A parameter's name must be a valid variable name.");
@@ -164,11 +168,9 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * Parses function parameters from a string. The string should look something like this:
-	 * <pre>"something: string, something else: number = 12"</pre>
-	 * @param args The string to parse.
-	 * @return The parsed parameters
+	 * @deprecated Use {@link ch.njol.skript.structures.StructFunction.FunctionParser#parse(String, String, String, String, boolean)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable List<Parameter<?>> parse(String args) {
 		List<Parameter<?>> params = new ArrayList<>();
 		boolean caseInsensitive = SkriptConfig.caseInsensitiveVariables.value();
