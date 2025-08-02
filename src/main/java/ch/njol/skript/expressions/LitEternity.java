@@ -15,7 +15,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("An Eternity")
-@Description({"Represents a timespan with an infinite duration. " +
+@Description({
+	"Represents a timespan with an infinite duration. " +
 	"An eternity is also created when arithmetic results in a timespan larger than about 292 million years.",
 	"Infinite timespans generally follow the rules of infinity, where most math operations do nothing. " +
 	"However, operations that would return NaN with numbers will instead return a timespan of 0 seconds.",
