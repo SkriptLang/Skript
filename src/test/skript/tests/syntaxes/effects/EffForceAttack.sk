@@ -1,0 +1,63 @@
+
+test "force attack":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	make {_attacker} attack {_victim}
+	assert the health of {_victim} < {_max} with "Victim should have taken damage"
+	assert the last damage of {_victim} is 1.5 with "Damage taken should be 1.5"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
+
+test "entity damage entity by amount":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	make {_attacker} damage {_victim} by 5
+	assert the health of {_victim} < {_max} with "Victim should have taken damage"
+	assert the last damage of {_victim} is 5 with "Damage taken should be 5"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
+
+using error catching
+
+test "entity damage entity by negative":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	catch errors:
+		make {_attacker} damage {_victim} by -2
+	set {_error} to "Cannot damage an entity by 0 or less. Consider healing instead."
+	assert last caught errors is {_error} with "Damaging by negative value did not throw error"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
+
+test "entity damage entity by infinity/NaN":
+	spawn a zombie at test-location:
+		set {_attacker} to entity
+	spawn a pig at test-location:
+		set {_victim} to entity
+
+	set {_max} to the max health of {_victim}
+	make {_attacker} damage {_victim} by infinity value
+	assert the health of {_victim} is {_max} with "Victim's health should be max - infinity value"
+	assert the last damage of {_victim} is 0 with "Victim should not have taken damage - infinity value"
+
+	make {_attacker} damage {_victim} by NaN value
+	assert the health of {_victim} is {_max} with "Victim's health should be max - NaN value"
+	assert the last damage of {_victim} is 0 with "Victim should not have taken damage - NaN value"
+
+	clear entity within {_attacker}
+	clear entity within {_victim}
