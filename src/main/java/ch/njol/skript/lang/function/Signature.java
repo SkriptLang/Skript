@@ -83,7 +83,7 @@ public class Signature<T> {
 		return map;
 	}
 
-	public Signature(String script,
+	public Signature(@Nullable String script,
 					 String name,
 					 LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
