@@ -4,8 +4,11 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.WeakHashMap;
@@ -103,6 +106,17 @@ public class Signature<T> {
 	public Parameter<?> getParameter(int index) {
 		return parameters[index];
 	}
+
+	public org.skriptlang.skript.lang.function.Parameter<?>[] parameters() {
+		return parameters;
+	}
+
+	public Parameter<?> getParameter(String name) {
+		return Arrays.stream(parameters)
+			.filter(it -> it.name().equals(name))
+			.findAny()
+			.orElse(null);
+	}
 	
 	public Parameter<?>[] getParameters() {
 		return parameters;
@@ -145,7 +159,7 @@ public class Signature<T> {
 	 */
 	public int getMinParameters() {
 		for (int i = parameters.length - 1; i >= 0; i--) {
-			if (parameters[i].def == null)
+			if (!parameters[i].modifiers().contains(Modifier.OPTIONAL))
 				return i + 1;
 		}
 		return 0; // No-args function
