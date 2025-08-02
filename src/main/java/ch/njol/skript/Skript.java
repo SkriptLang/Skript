@@ -641,7 +641,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					exception(e, "Could not load aliases concurrently");
 				}
 
-				if (TestMode.ENABLED || TestMode.JUNIT) {
+				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
 					tainted = true;
 					try {
