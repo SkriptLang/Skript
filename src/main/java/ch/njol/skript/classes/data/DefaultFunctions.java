@@ -369,7 +369,12 @@ public class DefaultFunctions {
 						return null;
 				}
 
-				World world = params[3].length == 1 ? (World) params[3][0] : Bukkit.getWorlds().get(0); // fallback to main world of server
+				World world;
+				if (params[3].length == 1 && params[3][0] != null) {
+					world = (World) params[3][0];
+				} else {
+					world = Bukkit.getWorlds().get(0);
+				}
 
 				return new Location[] {new Location(world,
 					((Number) params[0][0]).doubleValue(), ((Number) params[1][0]).doubleValue(), ((Number) params[2][0]).doubleValue(),

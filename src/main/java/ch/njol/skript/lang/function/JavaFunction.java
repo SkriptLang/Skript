@@ -50,12 +50,8 @@ public abstract class JavaFunction<T> extends Function<T> {
 			Parameter<?> parameter = (Parameter<?>) parameters.get(i);
 			Object object = arguments.get(parameter.name());
 
-			if (object instanceof Object[] os) {
-				if (parameter.modifiers().contains(Modifier.KEYED)) {
-					params[i] = convertToKeyed(os);
-				} else {
-					params[i] = os;
-				}
+			if (object != null && object.getClass().isArray()) {
+				params[i] = (Object[]) object;
 			} else if (object == null) {
 				Expression<?> defaultExpression = parameter.getDefaultExpression();
 
@@ -82,18 +78,6 @@ public abstract class JavaFunction<T> extends Function<T> {
 			//noinspection unchecked
 			return (T) execute;
 		}
-	}
-
-	private static KeyedValue<Object> @Nullable [] convertToKeyed(Object[] values) {
-		if (values == null || values.length == 0)
-			//noinspection unchecked
-			return new KeyedValue[0];
-
-		if (values instanceof KeyedValue[])
-			//noinspection unchecked
-			return (KeyedValue<Object>[]) values;
-
-		return KeyedValue.zip(values, null);
 	}
 
 	@Override
