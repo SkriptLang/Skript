@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.FunctionArguments;
+import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import org.skriptlang.skript.lang.function.ScriptParameter;
 
@@ -102,11 +103,11 @@ public abstract class Function<T> {
 		for (org.skriptlang.skript.lang.function.Parameter<?> parameter : parameters.values()) {
 			Object[] parameterValue = parameter.modifiers().contains(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
-			if (parameterValue == null && parameter instanceof ScriptParameter<?> sp) { // Go for default value
-				assert sp.defaultValue() != null; // Should've been parse error
-				Object[] defaultValue = sp.defaultValue().getArray(event);
-				if (parameter.modifiers().contains(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(sp.defaultValue())) {
-					String[] keys = ((KeyProviderExpression<?>) sp.defaultValue()).getArrayKeys(event);
+			if (parameterValue == null && parameter instanceof ch.njol.skript.lang.function.Parameter<?> p) { // Go for default value
+				assert p.getDefaultExpression() != null; // Should've been parse error
+				Object[] defaultValue = p.getDefaultExpression().getArray(event);
+				if (parameter.modifiers().contains(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(p.getDefaultExpression())) {
+					String[] keys = ((KeyProviderExpression<?>) p.getDefaultExpression()).getArrayKeys(event);
 					parameterValue = KeyedValue.zip(defaultValue, keys);
 				} else {
 					parameterValue = defaultValue;
@@ -119,7 +120,7 @@ public abstract class Function<T> {
 			 * really have a concept of nulls, it was changed. The config
 			 * option may be removed in future.
 			 */
-			if (!executeWithNulls && parameterValue.length == 0)
+			if (!executeWithNulls && parameterValue != null && parameterValue.length == 0)
 				return null;
 			parameterValues[i] = parameterValue;
 			i++;

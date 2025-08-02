@@ -1,6 +1,7 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
@@ -9,9 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.FunctionArguments;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 public abstract class JavaFunction<T> extends Function<T> {
 
@@ -48,7 +47,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 		Object[][] params = new Object[parameters.size()][];
 		for (int i = 0; i < parameters.size(); i++) {
-			org.skriptlang.skript.lang.function.Parameter<?> parameter = parameters.get(i);
+			Parameter<?> parameter = (Parameter<?>) parameters.get(i);
 			Object object = arguments.get(parameter.name());
 
 			if (object instanceof Object[] os) {
@@ -56,6 +55,18 @@ public abstract class JavaFunction<T> extends Function<T> {
 					params[i] = convertToKeyed(os);
 				} else {
 					params[i] = os;
+				}
+			} else if (object == null) {
+				Expression<?> defaultExpression = parameter.getDefaultExpression();
+
+				if (defaultExpression == null) {
+					return null;
+				}
+
+				if (parameter.single()) {
+					params[i] = new Object[] { defaultExpression.getSingle(event) };
+				} else {
+					params[i] = defaultExpression.getArray(event);
 				}
 			} else {
 				params[i] = new Object[] { object };
