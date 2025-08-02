@@ -49,4 +49,11 @@ public class FunctionArgumentParserTest {
 		assertEquals(new Argument<>(ArgumentType.NAMED, "1", "2, 3, 4"), arguments[0]);
 	}
 
+	@Test
+	public void testStringEscape() {
+		Argument<String>[] arguments = new FunctionReferenceArgumentParser("1: \"hello \"\" %{x,y::%player's car, or not!%::*} there\"\"\"").getArguments();
+
+		assertEquals(new Argument<>(ArgumentType.NAMED, "1", "\"hello \"\" %{x,y::%player's car, or not!%::*} there\"\"\""), arguments[0]);
+	}
+
 }
