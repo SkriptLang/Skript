@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
@@ -367,6 +368,45 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
+	 * Generates a JsonArray with all data for each {@link Experiment}.
+	 *
+	 * @return a JsonArray containing the documentation JsonObjects for each experiment
+	 */
+	private static JsonArray generateExperiments() {
+		JsonArray array = new JsonArray();
+
+		for (Experiment experiment : Skript.experiments().registered()) {
+			JsonObject object = new JsonObject();
+
+			object.addProperty("id", experiment.codeName());
+
+			if (experiment.displayName().isEmpty()) {
+				object.addProperty("name", (String) null);
+			} else {
+				object.addProperty("name", experiment.displayName());
+			}
+
+			JsonArray description = new JsonArray();
+			for (String part : experiment.description().split("\\n")) {
+				description.add(part);
+			}
+
+			if (experiment.description().isEmpty()) {
+				object.add("description", null);
+			} else {
+				object.add("description", description);
+			}
+
+			object.addProperty("pattern", experiment.pattern().toString());
+			object.addProperty("phase", experiment.phase().name().toLowerCase(Locale.ENGLISH));
+
+			array.add(object);
+		}
+
+		return array;
+	}
+
+	/**
 	 * Cleans the provided patterns
 	 *
 	 * @param strings the patterns to clean
@@ -415,6 +455,8 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("sections", generateSyntaxElementArray(Skript.getSections().iterator()));
 
 		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
+
+		jsonDocs.add("experiments", generateExperiments());
 
 		saveDocs(outputDir.toPath().resolve("docs.json"), jsonDocs);
 	}
