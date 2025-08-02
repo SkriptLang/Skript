@@ -2,24 +2,14 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
-import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.log.RedirectingLogHandler;
-import ch.njol.skript.log.RetainingLogHandler;
-import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.util.Utils;
-import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +26,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Name("Enable/Disable/Unload/Reload Script")
