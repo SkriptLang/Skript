@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Parses the arguments of a function reference.
  */
-final class FunctionReferenceArgumentParser {
+final class FunctionArgumentParser {
 
 	/**
 	 * The input string.
@@ -32,7 +32,7 @@ final class FunctionReferenceArgumentParser {
 	 *
 	 * @param args The input string.
 	 */
-	public FunctionReferenceArgumentParser(String args) {
+	public FunctionArgumentParser(String args) {
 		this.args = args;
 
 		parse();
