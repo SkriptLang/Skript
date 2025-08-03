@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class SectionValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
 
-	private static final Map<Class<? extends SyntaxElement>, Class<?>[]> SECTION_VALUES =  new HashMap<>();
+	private static final Map<Class<? extends SyntaxElement>, Class<?>[]> SECTION_VALUES = new HashMap<>();
 
 	/**
 	 * Register the types of classes {@code elementClass} can be returned as.
@@ -113,7 +113,7 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 			Section section = sectionSkriptEvent.getSection();
 			SyntaxElement syntaxElement;
 			if (section instanceof ExpressionSection exprSec) {
-                syntaxElement = exprSec.getAsExpression();
+				syntaxElement = exprSec.getAsExpression();
 			} else {
 				syntaxElement = section;
 			}

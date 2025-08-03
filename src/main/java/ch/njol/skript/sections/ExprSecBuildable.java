@@ -175,8 +175,8 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 		trigger = SectionUtils.loadLinkedCode(name, (beforeLoading, afterLoading) ->
 			loadCode(node, name, beforeLoading, afterLoading, SectionEvent.class)
 		);
-        return trigger != null;
-    }
+		return trigger != null;
+	}
 
 	private String getClassInfoName() {
 		return getClassInfoName(returnType);
@@ -239,7 +239,7 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 			sectionEvent.change(event, new Object[]{object}, ChangeMode.SET);
 		}
 
-		Variables.withLocalVariables(event, sectionEvent, () ->  TriggerItem.walk(trigger, sectionEvent));
+		Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
 		return new Object[] {sectionEvent.getSingle(event)};
 	}
 

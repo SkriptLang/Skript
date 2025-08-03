@@ -70,7 +70,7 @@ public class SectionEvent<T> extends Event implements Expression<T> {
 	@Override
 	public T[] getArray(Event event) {
 		//noinspection unchecked
-		T[] valueArray =  (T[]) Array.newInstance(type, 1);
+		T[] valueArray = (T[]) Array.newInstance(type, 1);
 		valueArray[0] = object;
 		return valueArray;
 	}
