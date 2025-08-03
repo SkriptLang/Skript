@@ -115,7 +115,7 @@ public record FunctionParser(ParseContext context, int flags) {
 
 		// first, sort into types
 		for (Signature<?> option : options) {
-			if (option.parameters().size() == 1 && !option.parameters().firstEntry().getValue().single()) {
+			if (option.parameters().size() == 1 && !option.parameters().entrySet().iterator().next().getValue().single()) {
 				lists.add(option);
 			} else {
 				exacts.add(option);
@@ -263,7 +263,7 @@ public record FunctionParser(ParseContext context, int flags) {
 		Set<FunctionReference<T>> references = new HashSet<>();
 
 		for (Signature<?> signature : signatures) {
-			Parameter<?> parameter = signature.parameters().firstEntry().getValue();
+			Parameter<?> parameter = signature.parameters().entrySet().iterator().next().getValue();
 
 			Class<?> target = parameter.type().componentType();
 			Class<?>[] targets = new Class<?>[]{target};

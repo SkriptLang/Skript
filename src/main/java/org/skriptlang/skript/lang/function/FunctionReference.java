@@ -80,7 +80,7 @@ public final class FunctionReference<T> implements Debuggable {
 				if (argument.type == ArgumentType.NAMED) {
 					target = targetParameters.get(argument.name);
 				} else {
-					Entry<String, Parameter<?>> first = targetParameters.firstEntry();
+					Entry<String, Parameter<?>> first = targetParameters.entrySet().iterator().next();
 
 					if (first == null) {
 						return false;
@@ -109,7 +109,7 @@ public final class FunctionReference<T> implements Debuggable {
 					return false;
 				}
 
-				if (mix && !targetParameters.firstEntry().getKey().equals(target.name())) {
+				if (mix && !targetParameters.entrySet().iterator().next().getKey().equals(target.name())) {
 					Skript.error("Mixing named and positional arguments is not allowed unless " +
 						"the order of the arguments matches the order of the parameters.");
 					return false;

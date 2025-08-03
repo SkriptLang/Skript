@@ -6,13 +6,10 @@ import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.FunctionArguments;
-import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
-import org.skriptlang.skript.lang.function.ScriptParameter;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

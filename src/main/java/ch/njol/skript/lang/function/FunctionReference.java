@@ -197,7 +197,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		// Validate parameter count
-		singleListParam = sign.getMaxParameters() == 1 && !sign.parameters().firstEntry().getValue().single();
+		singleListParam = sign.getMaxParameters() == 1 && !sign.parameters().entrySet().iterator().next().getValue().single();
 		if (!singleListParam) { // Check that parameter count is within allowed range
 			// Too many parameters
 			if (parameters.length > sign.getMaxParameters()) {
@@ -386,7 +386,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
 			params[0] = evaluateSingleListParameter(parameters, event, function.getSignature().parameters()
-				.firstEntry().getValue().modifiers().contains(Modifier.KEYED));
+				.entrySet().iterator().next().getValue().modifiers().contains(Modifier.KEYED));
 		} else { // Use parameters in normal way
 			org.skriptlang.skript.lang.function.Parameter<?>[] values = function.getSignature().parameters()
 				.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
