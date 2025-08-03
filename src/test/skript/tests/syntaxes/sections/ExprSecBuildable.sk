@@ -43,7 +43,10 @@ test "buildable parse errors":
 	parse:
 		set {_test} to a buildable fall:
 			broadcast "filler"
-	assert last parse logs is "The provided object can reference multiple types. Which none can be builded upon." with "Parse error was not printed"
+	if running below minecraft "1.20.0":
+		assert last parse logs is "A damage cause cannot be builded upon." with "Parse error was not printed"
+	else:
+		assert last parse logs is "The provided object can reference multiple types. Which none can be builded upon." with "Parse error was not printed"
 
 	parse:
 		set {_test} to a buildable fall (damage type):
@@ -56,7 +59,7 @@ test "buildable parse errors":
 	assert last parse logs is "A damage type cannot be builded upon." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable inventory of fall:
+		set {_test} to a buildable inventory of unknown:
 			broadcast "filler"
 	assert last parse logs is "The provided expression 'fall' cannot be builded as an inventory." with "Parse error was not printed"
 
