@@ -11,10 +11,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class EffFunctionCall extends Effect {
 
-	private final org.skriptlang.skript.lang.function.FunctionReference<?> function;
+	private final org.skriptlang.skript.lang.function.FunctionReference<?> reference;
 
-	public EffFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<?> function) {
-		this.function = function;
+	public EffFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<?> reference) {
+		this.reference = reference;
 	}
 
 	public static EffFunctionCall parse(final String line) {
@@ -26,14 +26,14 @@ public class EffFunctionCall extends Effect {
 
 	@Override
 	protected void execute(final Event event) {
-		function.execute(event);
-		if (function.function() != null)
-			function.function().resetReturnValue(); // Function might have return value that we're ignoring
+		reference.execute(event);
+		if (reference.function() != null)
+			reference.function().resetReturnValue(); // Function might have return value that we're ignoring
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return function.toString(event, debug);
+		return reference.toString(event, debug);
 	}
 
 	@Override

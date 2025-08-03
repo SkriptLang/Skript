@@ -37,7 +37,7 @@ public interface Parameter<T> {
 
 	/**
 	 * Represents a modifier that can be applied to a parameter
-	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}}.
+	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}.
 	 */
 	interface Modifier {
 
