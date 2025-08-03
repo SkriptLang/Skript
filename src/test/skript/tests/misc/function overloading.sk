@@ -13,7 +13,7 @@ test "function overloading with 1 parameter":
 	parse:
 		overloaded1({_x})
 
-	assert first element of last parse logs contains "Skript cannot determine which function named 'overloaded1' to call."
+	assert first element of last parse logs contains "Cannot determine which function named overloaded1 to call"
 
 	set {_x} to 1
 
@@ -62,4 +62,4 @@ parse:
 
 test "function overloading with different return types":
 	assert size of {FunctionOverloading3::parse::*} = 1
-	assert {FunctionOverloading3::parse::1} contains "Function 'overloaded3' with the same argument types already exists in script"
+	assert {FunctionOverloading3::parse::1} contains "Function overloaded3 with the same argument types already exists in script"
