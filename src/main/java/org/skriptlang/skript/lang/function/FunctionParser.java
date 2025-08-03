@@ -87,6 +87,8 @@ public record FunctionParser(ParseContext context, int flags) {
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
 	private <T> FunctionReference<T> parseFunctionReference(String name, String args, ParseLogHandler log) {
+		FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
+
 		String namespace;
 		if (ParserInstance.get().isActive()) {
 			namespace = ParserInstance.get().getCurrentScript().getConfig().getFileName();
@@ -98,7 +100,7 @@ public record FunctionParser(ParseContext context, int flags) {
 		Set<Signature<?>> options = FunctionRegistry.getRegistry().getSignatures(namespace, name);
 
 		if (options.isEmpty()) {
-			doesNotExist(name, new FunctionArgumentParser(args).getArguments());
+			doesNotExist(name, arguments);
 			log.printError();
 			return null;
 		}
@@ -119,8 +121,6 @@ public record FunctionParser(ParseContext context, int flags) {
 				exacts.add(option);
 			}
 		}
-
-		FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
 
 		// second, try to match any exact functions
 		Set<FunctionReference<T>> exactReferences = getExactReferences(namespace, name, exacts, arguments, log);
