@@ -56,14 +56,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.MatchResult;
@@ -1152,6 +1145,7 @@ public class SkriptParser {
 		return new FunctionParser(context, flags).parseFunctionReference(expr);
 	}
 
+	//<editor-fold desc="Function parsing">
 	private record FunctionParser(ParseContext context, int flags) {
 
 		private final static Pattern FUNCTION_CALL_PATTERN =
@@ -1234,8 +1228,6 @@ public class SkriptParser {
 			// all signatures with only single list params
 			Set<Signature<?>> singleLists = new HashSet<>();
 
-			Set<FunctionReference<T>> references = new HashSet<>();
-
 			// first, sort into types
 			for (Signature<?> option : options) {
 				if (option.parameters().size() == 1 && !option.parameters().firstEntry().getValue().single()) {
@@ -1244,6 +1236,10 @@ public class SkriptParser {
 					exacts.add(option);
 				}
 			}
+
+			// the references gathered
+			Set<FunctionReference<T>> exactReferences = new HashSet<>();
+			Set<FunctionReference<T>> listReferences = new HashSet<>();
 
 			// second, try to match any exact functions
 			exact:
@@ -1302,7 +1298,7 @@ public class SkriptParser {
 						continue;
 					}
 
-					references.add(reference);
+					exactReferences.add(reference);
 				}
 			}
 
@@ -1336,18 +1332,25 @@ public class SkriptParser {
 						continue;
 					}
 
-					references.add(reference);
+					listReferences.add(reference);
 				}
 			}
 
-			if (references.isEmpty()) {
+			// if we found an exact one, return first to avoid conflict with list references
+			if (exactReferences.size() == 1) {
+				return exactReferences.stream().findAny().orElse(null);
+			}
+
+			exactReferences.addAll(listReferences);
+
+			if (exactReferences.isEmpty()) {
 				doesNotExist(name, arguments);
 				log.printError();
 				return null;
-			} else if (references.size() == 1) {
-				return references.stream().findAny().orElse(null);
+			} else if (exactReferences.size() == 1) {
+				return exactReferences.stream().findAny().orElse(null);
 			} else {
-				ambiguousError(name, references);
+				ambiguousError(name, exactReferences);
 				log.printError();
 				return null;
 			}
@@ -1473,6 +1476,7 @@ public class SkriptParser {
 			return new FunctionArgumentParseResult(FunctionArgumentParseResultType.OK, parsed);
 		}
 	}
+	//</editor-fold>
 
 	/**
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)

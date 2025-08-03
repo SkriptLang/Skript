@@ -144,11 +144,7 @@ public abstract class Functions {
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
-				if (parameters[i].isSingleValue()) {
-					types[i] = parameters[i].type.getC();
-				} else {
-					types[i] = parameters[i].type.getC().arrayType();
-				}
+				types[i] = parameters[i].type();
 			}
 
 			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), types);
