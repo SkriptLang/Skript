@@ -379,31 +379,24 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
-		ImmutableSet.Builder<Signature<?>> setBuilder = ImmutableSet.builder();
-
-		// obtain all global functions of "name"
-		Namespace globalNamespace = namespaces.get(GLOBAL_NAMESPACE);
-		Set<FunctionIdentifier> globalIdentifiers = globalNamespace.identifiers.get(name);
-		if (globalIdentifiers != null) {
-			for (FunctionIdentifier identifier : globalIdentifiers) {
-				setBuilder.add(globalNamespace.signatures.get(identifier));
-			}
-		}
+		Map<FunctionIdentifier, Signature<?>> total = new HashMap<>();
 
 		// obtain all local functions of "name"
 		if (namespace != null) {
-			Namespace localNamespace = namespaces.get(new NamespaceIdentifier(namespace));
-			if (localNamespace != null) {
-				Set<FunctionIdentifier> localIdentifiers = localNamespace.identifiers.get(name);
-				if (localIdentifiers != null) {
-					for (FunctionIdentifier identifier : localIdentifiers) {
-						setBuilder.add(localNamespace.signatures.get(identifier));
-					}
-				}
+			Namespace local = namespaces.getOrDefault(new NamespaceIdentifier(namespace), new Namespace());
+
+			for (FunctionIdentifier identifier : local.identifiers.getOrDefault(name, Collections.emptySet())) {
+				total.putIfAbsent(identifier, local.signatures.get(identifier));
 			}
 		}
 
-		return setBuilder.build();
+		// obtain all global functions of "name"
+		Namespace global = namespaces.getOrDefault(GLOBAL_NAMESPACE, new Namespace());
+		for (FunctionIdentifier identifier : global.identifiers.getOrDefault(name, Collections.emptySet())) {
+			total.putIfAbsent(identifier, global.signatures.get(identifier));
+		}
+
+		return Set.copyOf(total.values());
 	}
 
 	/**
@@ -696,7 +689,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(name, local, Arrays.hashCode(args));
+			return Objects.hash(name, Arrays.hashCode(args));
 		}
 
 		@Override
@@ -710,10 +703,6 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			}
 
 			if (args.length != other.args.length) {
-				return false;
-			}
-
-			if (local != other.local) {
 				return false;
 			}
 
