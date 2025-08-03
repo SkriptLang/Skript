@@ -2,12 +2,12 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.FunctionReference;
@@ -246,7 +246,7 @@ public class Signature<T> {
 		List<org.skriptlang.skript.lang.function.Parameter<?>> params = new LinkedList<>(parameters.values());
 
 		int i = parameters.size() - 1;
-		for (org.skriptlang.skript.lang.function.Parameter<?> parameter : params.reversed()) {
+		for (org.skriptlang.skript.lang.function.Parameter<?> parameter : Lists.reverse(params)) {
 			if (!parameter.modifiers().contains(Modifier.OPTIONAL)) {
 				return i + 1;
 			}

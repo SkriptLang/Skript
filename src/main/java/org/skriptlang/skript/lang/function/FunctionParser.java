@@ -196,7 +196,7 @@ public record FunctionParser(ParseContext context, int flags) {
 				if (argument.type() == ArgumentType.NAMED) {
 					parameter = signature.getParameter(argument.name());
 				} else {
-					parameter = signature.getParameter(remaining.getFirst());
+					parameter = signature.getParameter(remaining.iterator().next());
 				}
 
 				if (parameter == null) {
