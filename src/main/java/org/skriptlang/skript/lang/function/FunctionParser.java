@@ -298,6 +298,13 @@ public record FunctionParser(ParseContext context, int flags) {
 		return references;
 	}
 
+	/**
+	 * Prints the error for when multiple function references have been matched.
+	 *
+	 * @param name The function name.
+	 * @param references The possible references.
+	 * @param <T> The return types of the references.
+	 */
 	private <T> void ambiguousError(String name, Set<FunctionReference<T>> references) {
 		List<String> parts = new ArrayList<>();
 
@@ -323,6 +330,12 @@ public record FunctionParser(ParseContext context, int flags) {
 			name, StringUtils.join(parts, ", ", " or "));
 	}
 
+	/**
+	 * Prints the error for when a function does not exist.
+	 *
+	 * @param name The function name.
+	 * @param arguments The passed arguments to the function call.
+	 */
 	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments) {
 		StringJoiner joiner = new StringJoiner(", ");
 
