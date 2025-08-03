@@ -5,15 +5,13 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprBlockSound.SoundType;
 import ch.njol.skript.expressions.ExprKeyed;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.function.Function;
-import ch.njol.skript.lang.function.FunctionEvent;
-import ch.njol.skript.lang.function.FunctionRegistry;
+import ch.njol.skript.lang.function.*;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
-import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import com.google.common.base.Preconditions;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -186,7 +184,12 @@ public final class FunctionReference<T> implements Debuggable {
 		});
 
 		Function<T> function = function();
-		return function.execute(new FunctionEvent<>(function), new FunctionArguments(args));
+		FunctionEvent<T> fnEvent = new FunctionEvent<>(function);
+
+		if (Functions.callFunctionEvents)
+			Bukkit.getPluginManager().callEvent(fnEvent);
+
+		return function.execute(fnEvent, new FunctionArguments(args));
 	}
 
 	private KeyedValue<?>[] evaluateKeyed(Expression<?> expression, Event event) {

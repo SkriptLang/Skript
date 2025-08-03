@@ -169,7 +169,7 @@ public class StructFunction extends Structure {
 			ClassInfo<?> returnClass;
 
 			if (returns == null) {
-				returnType = Void.class;
+				returnType = null;
 			} else {
 				returnClass = Classes.getClassInfoFromUserInput(returns);
 				PluralResult result = Utils.isPlural(returns);

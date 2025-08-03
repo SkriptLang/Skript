@@ -6,6 +6,7 @@ import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.FunctionArguments;
@@ -74,7 +75,7 @@ public abstract class Function<T> {
 	}
 
 	/**
-	 * @return The return type of this signature. Returns {@code Void.class} for no return type.
+	 * @return The return type of this signature. Returns null for no return type.
 	 */
 	public Class<T> returnType() {
 		return sign.returnType();
@@ -83,12 +84,9 @@ public abstract class Function<T> {
 	// FIXME what happens with a delay in a function?
 
 	/**
-	 * Executes this function with given parameter.
-	 * @param params Function parameters. Must contain at least
-	 * {@link Signature#getMinParameters()} elements and at most
-	 * {@link Signature#getMaxParameters()} elements.
-	 * @return The result(s) of this function
+	 * @deprecated Use {@link #execute(FunctionEvent, FunctionArguments)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public final T @Nullable [] execute(Object[][] params) {
 		FunctionEvent<? extends T> event = new FunctionEvent<>(this);
 
@@ -175,6 +173,13 @@ public abstract class Function<T> {
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
 
+	/**
+	 * Executes this function with the given parameters.
+	 *
+	 * @param event The event that is associated with this function execution.
+	 * @param arguments The arguments to execute the function with.
+	 * @return The return value.
+	 */
 	public abstract T execute(FunctionEvent<?> event, FunctionArguments arguments);
 
 	/**

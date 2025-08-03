@@ -72,7 +72,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 		T[] execute = execute(event, params);
 		if (execute == null || execute.length == 0) {
 			return null;
-		} else if (isSingle()) {
+		} else if (execute.length == 1) {
 			return execute[0];
 		} else {
 			//noinspection unchecked

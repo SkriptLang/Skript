@@ -51,7 +51,7 @@ public abstract class Functions {
 	 */
 	private static final Map<String, Namespace> globalFunctions = new HashMap<>();
 
-	static boolean callFunctionEvents = false;
+	public static boolean callFunctionEvents = false;
 
 	/**
 	 * Registers a function written in Java.

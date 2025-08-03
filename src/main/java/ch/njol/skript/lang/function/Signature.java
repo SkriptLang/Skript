@@ -183,6 +183,10 @@ public class Signature<T> {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable ClassInfo<T> getReturnType() {
+		if (returnType == null) {
+			return null;
+		}
+
 		if (returnType.isArray()) {
 			//noinspection unchecked
 			return (ClassInfo<T>) Classes.getExactClassInfo(returnType.componentType());
@@ -192,7 +196,7 @@ public class Signature<T> {
 	}
 
 	/**
-	 * @return The return type of this signature. Returns {@code Void.class} for no return type.
+	 * @return The return type of this signature. Returns null for no return type.
 	 */
 	public Class<T> returnType() {
 		return returnType;
