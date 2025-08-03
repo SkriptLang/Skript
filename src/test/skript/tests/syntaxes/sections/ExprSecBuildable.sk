@@ -59,7 +59,7 @@ test "buildable parse errors":
 	assert last parse logs is "A damage type cannot be builded upon." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable inventory of unknown:
+		set {_test} to a buildable inventory of fall:
 			broadcast "filler"
 	assert last parse logs is "The provided expression 'fall' cannot be builded as an inventory." with "Parse error was not printed"
 
