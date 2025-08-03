@@ -1,6 +1,10 @@
-package ch.njol.skript.lang;
+package org.skriptlang.skript.lang.function;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -10,10 +14,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
-import org.skriptlang.skript.lang.function.FunctionReference;
 import org.skriptlang.skript.lang.function.FunctionReference.Argument;
 import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
-import org.skriptlang.skript.lang.function.Parameter;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
  * @param context The context of parsing.
  * @param flags   The active parsing flags.
  */
-record FunctionParser(ParseContext context, int flags) {
+public record FunctionParser(ParseContext context, int flags) {
 
 	private final static Pattern FUNCTION_CALL_PATTERN =
 		Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");
@@ -37,7 +39,7 @@ record FunctionParser(ParseContext context, int flags) {
 	 * @param <T> The return type of the function.
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
-	<T> FunctionReference<T> parseFunctionReference(String expr) {
+	public <T> FunctionReference<T> parseFunctionReference(String expr) {
 		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT) {
 			return null;
 		}
@@ -85,8 +87,6 @@ record FunctionParser(ParseContext context, int flags) {
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
 	private <T> FunctionReference<T> parseFunctionReference(String name, String args, ParseLogHandler log) {
-		FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
-
 		String namespace;
 		if (ParserInstance.get().isActive()) {
 			namespace = ParserInstance.get().getCurrentScript().getConfig().getFileName();
@@ -98,14 +98,17 @@ record FunctionParser(ParseContext context, int flags) {
 		Set<Signature<?>> options = FunctionRegistry.getRegistry().getSignatures(namespace, name);
 
 		if (options.isEmpty()) {
-			doesNotExist(name, arguments);
+			doesNotExist(name, new FunctionArgumentParser(args).getArguments());
 			log.printError();
 			return null;
 		}
 
-		// all signatures that have no single list params
+		// all signatures that have no single list param
+		// example: function add(x: int, y: int)
 		Set<Signature<?>> exacts = new HashSet<>();
 		// all signatures with only single list params
+		// these are functions that accept any number of arguments given a specific type
+		// example: function sum(ns: numbers)
 		Set<Signature<?>> lists = new HashSet<>();
 
 		// first, sort into types
@@ -117,21 +120,23 @@ record FunctionParser(ParseContext context, int flags) {
 			}
 		}
 
+		FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
+
 		// second, try to match any exact functions
 		Set<FunctionReference<T>> exactReferences = getExactReferences(namespace, name, exacts, arguments, log);
 		if (exactReferences == null) { // a list error, so quit parsing
 			return null;
 		}
 
+		// if we found an exact one, return first to avoid conflict with list references
+		if (exactReferences.size() == 1) {
+			return exactReferences.stream().findAny().orElse(null);
+		}
+
 		// last, find single list functions
 		Set<FunctionReference<T>> listReferences = getListReferences(namespace, name, lists, arguments, log);
 		if (listReferences == null) { // a list error, so quit parsing
 			return null;
-		}
-
-		// if we found an exact one, return first to avoid conflict with list references
-		if (exactReferences.size() == 1) {
-			return exactReferences.stream().findAny().orElse(null);
 		}
 
 		exactReferences.addAll(listReferences);
@@ -168,7 +173,7 @@ record FunctionParser(ParseContext context, int flags) {
 	) {
 		Set<FunctionReference<T>> exactReferences = new HashSet<>();
 
-		exact:
+		signatures:
 		for (Signature<?> signature : signatures) {
 			// if arguments arent possible, skip
 			if (arguments.length > signature.getMaxParameters() || arguments.length < signature.getMinParameters()) {
@@ -195,7 +200,7 @@ record FunctionParser(ParseContext context, int flags) {
 				}
 
 				if (parameter == null) {
-					continue exact;
+					continue signatures;
 				}
 
 				if (parameter.type().isArray()) {
@@ -247,6 +252,14 @@ record FunctionParser(ParseContext context, int flags) {
 		Set<Signature<?>> signatures, Argument<String>[] arguments,
 		ParseLogHandler log
 	) {
+		for (Argument<String> argument : arguments) {
+			if (argument.type() == ArgumentType.NAMED) {
+				doesNotExist(name, arguments);
+				log.printError();
+				return null;
+			}
+		}
+
 		Set<FunctionReference<T>> references = new HashSet<>();
 
 		for (Signature<?> signature : signatures) {
@@ -323,10 +336,17 @@ record FunctionParser(ParseContext context, int flags) {
 				continue;
 			}
 
-			if (expression.isSingle()) {
-				joiner.add(Classes.getSuperClassInfo(expression.getReturnType()).getName().getSingular());
+			String argumentName;
+			if (argument.type() == ArgumentType.NAMED) {
+				argumentName = argument.name() + ": ";
 			} else {
-				joiner.add(Classes.getSuperClassInfo(expression.getReturnType()).getName().getPlural());
+				argumentName = "";
+			}
+
+			if (expression.isSingle()) {
+				joiner.add(argumentName + Classes.getSuperClassInfo(expression.getReturnType()).getName().getSingular());
+			} else {
+				joiner.add(argumentName + Classes.getSuperClassInfo(expression.getReturnType()).getName().getPlural());
 			}
 		}
 

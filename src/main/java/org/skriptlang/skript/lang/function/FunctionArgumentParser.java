@@ -1,4 +1,4 @@
-package ch.njol.skript.lang;
+package org.skriptlang.skript.lang.function;
 
 import org.skriptlang.skript.lang.function.FunctionReference.Argument;
 import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
