@@ -11,7 +11,9 @@ import ch.njol.util.Kleenean;
 import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -57,6 +59,13 @@ public class MultiDefaultExpression<T> extends WrapperExpression<T> implements D
 		this.expressions = expressions;
 		single = !type.isArray();
 		componentType = single ? type : type.getComponentType();
+	}
+
+	/**
+	 * Retrieves all the {@link DefaultExpression}s that are to be tested.
+	 */
+	public @Unmodifiable Set<DefaultExpression<T>> getExpressions() {
+		return Collections.unmodifiableSet(expressions);
 	}
 
 	@Override

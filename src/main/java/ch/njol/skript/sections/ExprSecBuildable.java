@@ -10,7 +10,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.MultiDefaultExpression;
 import ch.njol.skript.expressions.base.SectionExpression;
+import ch.njol.skript.expressions.base.SectionValueExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SectionUtils;
@@ -200,8 +202,22 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 			return false;
 		} else if (BuildableRegistry.isDisallowed(classInfo.getC())) {
 			return false;
+		} else {
+			DefaultExpression<?> defaultExpression = classInfo.getDefaultExpression();
+			if (defaultExpression instanceof MultiDefaultExpression<?> multiDefaultExpression) {
+				boolean hasSectionValue = false;
+				for (DefaultExpression<?> expression : multiDefaultExpression.getExpressions()) {
+					if (expression instanceof SectionValueExpression<?>) {
+						hasSectionValue = true;
+						break;
+					}
+				}
+				return hasSectionValue;
+			} else if (defaultExpression instanceof SectionValueExpression<?>) {
+				return true;
+			}
 		}
-		return true;
+		return false;
 	}
 
 	private boolean canConvert(Class<?> from, Class<?> to) {
