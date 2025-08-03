@@ -20,6 +20,11 @@ import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import java.util.*;
 import java.util.Map.Entry;
 
+/**
+ * A reference to a {@link Function<T>} found in a script.
+ *
+ * @param <T> The return type of this reference.
+ */
 public final class FunctionReference<T> implements Debuggable {
 
 	private final String namespace;
@@ -114,9 +119,17 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		}
 
+		signature.calls().add(this);
+
 		return true;
 	}
 
+	/**
+	 * Executes the function referred to by this reference.
+	 *
+	 * @param event The event to use for execution.
+	 * @return The return value of the function.
+	 */
 	public T execute(Event event) {
 		if (!validate()) {
 			Skript.error("Failed to verify function %s before execution.", name);
@@ -193,6 +206,9 @@ public final class FunctionReference<T> implements Debuggable {
 		return KeyedValue.zip(values, null);
 	}
 
+	/**
+	 * @return The function referred to by this reference.
+	 */
 	public Function<T> function() {
 		if (cachedFunction == null) {
 			Class<?>[] parameters = signature.parameters().values().stream().map(Parameter::type).toArray(Class[]::new);

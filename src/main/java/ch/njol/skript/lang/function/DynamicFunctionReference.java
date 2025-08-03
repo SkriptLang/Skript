@@ -45,7 +45,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = ScriptLoader.getScriptFromName(signature.script());
+		@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
 		this.source = file != null ? ScriptLoader.getScript(file) : null;
 	}
 
@@ -70,7 +70,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = ScriptLoader.getScriptFromName(signature.script());
+			@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
 			this.source = file != null ? ScriptLoader.getScript(file) : null;
 		} else {
 			this.signature = null;

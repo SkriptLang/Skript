@@ -9,6 +9,7 @@ import ch.njol.util.StringUtils;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.function.FunctionReference;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import java.util.*;
@@ -21,7 +22,7 @@ public class Signature<T> {
 	/**
 	 * Name of the script that the function is inside.
 	 */
-	private final @Nullable String script;
+	private final @Nullable String namespace;
 
 	/**
 	 * Name of function this refers to.
@@ -46,14 +47,14 @@ public class Signature<T> {
 	/**
 	 * References (function calls) to function with this signature.
 	 */
-	final Collection<FunctionReference<?>> calls;
+	private final Collection<FunctionReference<?>> calls;
 
 	/**
 	 * An overriding contract for this function (e.g. to base its return on its arguments).
 	 */
 	private final @Nullable Contract contract;
 
-	public Signature(@Nullable String script,
+	public Signature(@Nullable String namespace,
 					 @NotNull String name,
 					 @NotNull LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters,
 					 boolean local,
@@ -63,7 +64,7 @@ public class Signature<T> {
 		Preconditions.checkNotNull(parameters, "parameters cannot be null");
 		Preconditions.checkNotNull(returnType, "returnType cannot be null");
 
-		this.script = script;
+		this.namespace = namespace;
 		this.name = name;
 		this.parameters = parameters;
 		this.local = local;
@@ -74,17 +75,17 @@ public class Signature<T> {
 	}
 
 	/**
-	 * @deprecated Use {@link Signature(String, String, LinkedHashMap, )}
+	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Signature(String script,
+	public Signature(String namespace,
 					 String name,
 					 Parameter<?>[] parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
 					 boolean single,
 					 @Nullable String originClassPath,
 					 @Nullable Contract contract) {
-		this(script, name, initParameters(parameters), local, initReturnType(returnType, single), contract);
+		this(namespace, name, initParameters(parameters), local, initReturnType(returnType, single), contract);
 	}
 
 	private static <T> Class<T> initReturnType(ClassInfo<T> classInfo, boolean single) {
@@ -110,32 +111,40 @@ public class Signature<T> {
 	}
 
 	/**
-	 * @deprecated Use {@link Signature(String, String, LinkedHashMap, )}
+	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Signature(String script,
+	public Signature(String namespace,
 					 String name,
 					 Parameter<?>[] parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
 					 boolean single,
 					 @Nullable String originClassPath) {
-		this(script, name, parameters, local, returnType, single, originClassPath, null);
+		this(namespace, name, parameters, local, returnType, single, originClassPath, null);
 	}
 
 	/**
-	 * @deprecated Use {@link Signature(String, String, LinkedHashMap, )}
+	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
-		this(script, name, parameters, local, returnType, single, null);
+	public Signature(String namespace, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
+		this(namespace, name, parameters, local, returnType, single, null);
 	}
 
 	/**
-	 * @deprecated Use {@link #getParameter(String)}} or {@link #parameters()} instead.
+	 * @deprecated Use {@link #getParameter(String)} or {@link #parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public org.skriptlang.skript.lang.function.Parameter<?> getParameter(int index) {
 		return parameters.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0])[index];
+	}
+
+	/**
+	 * @deprecated Use {@link #parameters()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public org.skriptlang.skript.lang.function.Parameter<?>[] getParameters() {
+		return parameters.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
 	}
 
 	/**
@@ -155,14 +164,6 @@ public class Signature<T> {
 		return parameters.get(name);
 	}
 
-	/**
-	 * @deprecated Use {@link #parameters()} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public org.skriptlang.skript.lang.function.Parameter<?>[] getParameters() {
-		return parameters.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -171,8 +172,11 @@ public class Signature<T> {
 		return local;
 	}
 
-	String script() {
-		return script;
+	/**
+	 * @return The namespace of this signature.
+	 */
+	String namespace() {
+		return namespace;
 	}
 
 	/**
@@ -188,6 +192,9 @@ public class Signature<T> {
 		}
 	}
 
+	/**
+	 * @return The return type of this signature. Returns {@code Void.class} for no return type.
+	 */
 	public @NotNull Class<T> returnType() {
 		return returnType;
 	}
@@ -206,6 +213,10 @@ public class Signature<T> {
 
 	public @Nullable Contract getContract() {
 		return contract;
+	}
+
+	public Collection<FunctionReference<?>> calls() {
+		return calls;
 	}
 
 	/**

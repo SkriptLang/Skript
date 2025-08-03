@@ -18,12 +18,15 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.function.FunctionReference.Argument;
+import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
 import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @deprecated Use {@link org.skriptlang.skript.lang.function.FunctionReference} instead.
@@ -279,7 +282,13 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		//noinspection unchecked
 		signature = (Signature<? extends T>) sign;
-		sign.calls.add(this);
+
+		//noinspection unchecked
+		Argument<Expression<?>>[] stream = (Argument<Expression<?>>[]) Arrays.stream(parameters)
+			.map(it -> new Argument<>(ArgumentType.UNNAMED, null, it))
+			.toArray(Argument[]::new);
+
+		sign.calls().add(new org.skriptlang.skript.lang.function.FunctionReference<>(script, functionName, signature, stream));
 
 		Contract contract = sign.getContract();
 		if (contract != null)

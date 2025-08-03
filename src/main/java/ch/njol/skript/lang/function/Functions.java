@@ -10,7 +10,6 @@ import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructFunction;
 import ch.njol.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
@@ -141,14 +140,14 @@ public abstract class Functions {
 		Parameter<?>[] parameters = signature.parameters().values().toArray(new Parameter<?>[0]);
 
 		if (parameters.length == 1 && !parameters[0].single()) {
-			existing = FunctionRegistry.getRegistry().getSignature(signature.script(), signature.getName(), parameters[0].type());
+			existing = FunctionRegistry.getRegistry().getSignature(signature.namespace(), signature.getName(), parameters[0].type());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
 				types[i] = parameters[i].type();
 			}
 
-			existing = FunctionRegistry.getRegistry().getSignature(signature.script(), signature.getName(), types);
+			existing = FunctionRegistry.getRegistry().getSignature(signature.namespace(), signature.getName(), types);
 		}
 
 		// if this function has already been registered, only allow it if one function is local and one is global.
@@ -162,8 +161,8 @@ public abstract class Functions {
 				error.append("Function ");
 			}
 			error.append("'%s' with the same argument types already exists".formatted(signature.getName()));
-			if (existing.retrieved().script() != null) {
-				error.append(" in script '%s'.".formatted(existing.retrieved().script()));
+			if (existing.retrieved().namespace() != null) {
+				error.append(" in script '%s'.".formatted(existing.retrieved().namespace()));
 			} else {
 				error.append(".");
 			}
@@ -173,7 +172,7 @@ public abstract class Functions {
 			return null;
 		}
 
-		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.script());
+		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.namespace());
 		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
 		if (namespace.getSignature(signature.getName()) == null) {
 			namespace.addSignature(signature);
@@ -182,7 +181,7 @@ public abstract class Functions {
 			globalFunctions.put(signature.getName(), namespace);
 
 		if (signature.isLocal()) {
-			FunctionRegistry.getRegistry().register(signature.script(), signature);
+			FunctionRegistry.getRegistry().register(signature.namespace(), signature);
 		} else {
 			FunctionRegistry.getRegistry().register(null, signature);
 		}
@@ -320,7 +319,7 @@ public abstract class Functions {
 		return namespaces.get(new Namespace.Key(Namespace.Origin.SCRIPT, script));
 	}
 
-	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
+	private final static Collection<org.skriptlang.skript.lang.function.FunctionReference<?>> toValidate = new ArrayList<>();
 
 	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static int clearFunctions(String script) {
@@ -336,8 +335,8 @@ public abstract class Functions {
 		// Queue references to signatures we have for revalidation
 		// Can't validate here, because other scripts might be loaded soon
 		for (Signature<?> sign : namespace.getSignatures()) {
-			for (FunctionReference<?> ref : sign.calls) {
-				if (!script.equals(ref.script)) {
+			for (org.skriptlang.skript.lang.function.FunctionReference<?> ref : sign.calls()) {
+				if (!script.equals(ref.namespace())) {
 					toValidate.add(ref);
 				}
 			}
@@ -363,15 +362,15 @@ public abstract class Functions {
 			}
 		}
 
-		for (FunctionReference<?> ref : signature.calls) {
-			if (signature.script() != null && !signature.script().equals(ref.script))
+		for (org.skriptlang.skript.lang.function.FunctionReference<?> ref : signature.calls()) {
+			if (signature.namespace() != null && !signature.namespace().equals(ref.namespace()))
 				toValidate.add(ref);
 		}
 	}
 
 	public static void validateFunctions() {
-		for (FunctionReference<?> c : toValidate)
-			c.validateFunction(false);
+		for (org.skriptlang.skript.lang.function.FunctionReference<?> c : toValidate)
+			c.validate();
 		toValidate.clear();
 	}
 

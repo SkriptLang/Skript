@@ -565,7 +565,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 
 		Namespace namespace;
 		if (signature.isLocal()) {
-			namespace = namespaces.get(new NamespaceIdentifier(signature.script()));
+			namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
 		} else {
 			namespace = namespaces.get(GLOBAL_NAMESPACE);
 		}
