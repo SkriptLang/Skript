@@ -2,6 +2,7 @@ package org.skriptlang.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.ExprBlockSound.SoundType;
 import ch.njol.skript.expressions.ExprKeyed;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Function;
@@ -20,6 +21,7 @@ import org.skriptlang.skript.lang.function.Parameter.Modifier;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * A reference to a {@link Function<T>} found in a script.
@@ -67,6 +69,11 @@ public final class FunctionReference<T> implements Debuggable {
 		if (cachedArguments == null) {
 			cachedArguments = new LinkedHashMap<>();
 
+			// mixing arguments is only allowed when the order of arguments matches param order
+			boolean mix = Arrays.stream(arguments)
+				.map(it -> it.type)
+				.collect(Collectors.toSet()).size() == ArgumentType.values().length;
+
 			// get the target params of the function
 			LinkedHashMap<String, Parameter<?>> targetParameters = signature.parameters();
 
@@ -101,6 +108,12 @@ public final class FunctionReference<T> implements Debuggable {
 
 				// failed to parse value
 				if (!validateArgument(target, argument.value, converted)) {
+					return false;
+				}
+
+				if (mix && !targetParameters.firstEntry().getKey().equals(target.name())) {
+					Skript.error("Mixing named and positional arguments is not allowed unless " +
+						"the order of the arguments matches the order of the parameters.");
 					return false;
 				}
 
