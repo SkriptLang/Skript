@@ -2,6 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
@@ -58,11 +59,10 @@ public class Signature<T> {
 					 @NotNull String name,
 					 @NotNull LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters,
 					 boolean local,
-					 @NotNull Class<T> returnType,
+					 @Nullable Class<T> returnType,
 					 @Nullable Contract contract) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(parameters, "parameters cannot be null");
-		Preconditions.checkNotNull(returnType, "returnType cannot be null");
 
 		this.namespace = namespace;
 		this.name = name;
@@ -90,8 +90,7 @@ public class Signature<T> {
 
 	private static <T> Class<T> initReturnType(ClassInfo<T> classInfo, boolean single) {
 		if (classInfo == null) {
-			//noinspection unchecked
-			return (Class<T>) Void.class;
+			return null;
 		}
 
 		if (single) {
@@ -195,10 +194,13 @@ public class Signature<T> {
 	/**
 	 * @return The return type of this signature. Returns {@code Void.class} for no return type.
 	 */
-	public @NotNull Class<T> returnType() {
+	public Class<T> returnType() {
 		return returnType;
 	}
 
+	/**
+	 * @return Whether this signature returns a single or multiple values.
+	 */
 	public boolean isSingle() {
 		return !returnType.isArray();
 	}

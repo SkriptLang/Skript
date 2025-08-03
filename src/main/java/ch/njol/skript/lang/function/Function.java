@@ -65,8 +65,19 @@ public abstract class Function<T> {
 		return sign.isSingle();
 	}
 
+	/**
+	 * @deprecated Use {@link #returnType()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable ClassInfo<T> getReturnType() {
 		return sign.getReturnType();
+	}
+
+	/**
+	 * @return The return type of this signature. Returns {@code Void.class} for no return type.
+	 */
+	public Class<T> returnType() {
+		return sign.returnType();
 	}
 
 	// FIXME what happens with a delay in a function?

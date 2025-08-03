@@ -97,16 +97,23 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			if (parameter.single()) {
 				Variables.setVariable(name, value, event, true);
 			} else {
-				for (Object o : (Object[]) value) {
-					KeyedValue<?> keyedValue = (KeyedValue<?>) o;
-					Variables.setVariable(name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+				if (value instanceof KeyedValue<?>[] keyedValues) {
+					for (KeyedValue<?> keyedValue : keyedValues) {
+						Variables.setVariable(name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+					}
+				} else {
+					int i = 0;
+					for (Object o : (Object[]) value) {
+						Variables.setVariable(name + "::" + i, o, event, true);
+						i++;
+					}
 				}
 			}
 		}
 
 		trigger.execute(event);
 
-		if (getReturnType() == null || returnValues == null || returnValues.length == 0) {
+		if (returnType() == null || returnValues == null || returnValues.length == 0) {
 			return null;
 		}
 
@@ -147,7 +154,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	@Override
 	public final @Nullable Class<? extends T> returnValueType() {
-		return getReturnType() != null ? getReturnType().getC() : null;
+		return returnType();
 	}
 
 }

@@ -165,7 +165,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		Class<? extends T>[] returnTypes = this.returnTypes;
 		if (returnTypes != null) {
 			Class<?> rt = sign.returnType();
-			if (rt == Void.class) {
+			if (rt == null) {
 				if (first) {
 					Skript.error("The function '" + stringified + "' doesn't return any value.");
 				} else {
@@ -469,8 +469,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		if (signature == null)
 			throw new SkriptAPIException("Signature of function is null when return type is asked!");
 
-		Class<? extends T> ret = signature.returnType();
-		return ret == Void.class ? null : ret;
+		return signature.returnType();
 	}
 
 	/**
