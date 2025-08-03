@@ -140,14 +140,18 @@ public abstract class Functions {
 		Parameter<?>[] parameters = signature.parameters().values().toArray(new Parameter<?>[0]);
 
 		if (parameters.length == 1 && !parameters[0].single()) {
-			existing = FunctionRegistry.getRegistry().getSignature(signature.namespace(), signature.getName(), parameters[0].type());
+			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), parameters[0].type());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
-				types[i] = parameters[i].type();
+				if (parameters[i].isSingleValue()) {
+					types[i] = parameters[i].type.getC();
+				} else {
+					types[i] = parameters[i].type.getC().arrayType();
+				}
 			}
 
-			existing = FunctionRegistry.getRegistry().getSignature(signature.namespace(), signature.getName(), types);
+			existing = FunctionRegistry.getRegistry().getExactSignature(signature.namespace(), signature.getName(), types);
 		}
 
 		// if this function has already been registered, only allow it if one function is local and one is global.
