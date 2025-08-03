@@ -13,6 +13,12 @@ import java.util.Set;
 public record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
 	implements Parameter<T> {
 
+	public DefaultParameter {
+		if (!type().isArray() && modifiers.contains(Modifier.KEYED)) {
+			throw new IllegalStateException("keyed parameter cannot be single");
+		}
+	}
+
 	public DefaultParameter(String name, Class<T> type, Modifier... modifiers) {
 		this(name, type, Set.of(modifiers));
 	}

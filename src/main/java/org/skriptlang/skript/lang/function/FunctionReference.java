@@ -174,7 +174,7 @@ public final class FunctionReference<T> implements Debuggable {
 		LinkedHashMap<String, Object> args = new LinkedHashMap<>();
 		cachedArguments.forEach((k, v) -> {
 			if (!v.type().isArray()) {
-				args.put(k, v.expression.getSingle(event));
+				args.put(k, v.expression().getSingle(event));
 			} else {
 				if (v.modifiers().contains(Modifier.KEYED)) {
 					args.put(k, convertToKeyed(v.expression().getArray(event)));
@@ -186,47 +186,6 @@ public final class FunctionReference<T> implements Debuggable {
 
 		Function<T> function = function();
 		return function.execute(new FunctionEvent<>(function), new FunctionArguments(args));
-	}
-
-	private Object[] evaluateSingleListParameter(Expression<?>[] parameters, Event event) {
-		List<Object> values = new ArrayList<>();
-		Set<String> keys = new LinkedHashSet<>();
-		int keyIndex = 1;
-		for (Expression<?> parameter : parameters) {
-			Object[] valuesArray = parameter.getArray(event);
-			String[] keysArray = KeyProviderExpression.areKeysRecommended(parameter)
-				? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
-				: null;
-
-			// Don't allow mutating across function boundary; same hack is applied to variables
-			for (Object value : valuesArray)
-				values.add(Classes.clone(value));
-
-			if (keysArray != null) {
-				keys.addAll(Arrays.asList(keysArray));
-				continue;
-			}
-
-			for (int i = 0; i < valuesArray.length; i++) {
-				while (keys.contains(String.valueOf(keyIndex)))
-					keyIndex++;
-				keys.add(String.valueOf(keyIndex++));
-			}
-		}
-		return KeyedValue.zip(values.toArray(), keys.toArray(new String[0]));
-	}
-
-	private Object evaluateParameter(Expression<?> parameter, Event event) {
-		Object[] values = parameter.getArray(event);
-
-		// Don't allow mutating across function boundary; same hack is applied to variables
-		for (int i = 0; i < values.length; i++)
-			values[i] = Classes.clone(values[i]);
-
-		String[] keys = KeyProviderExpression.areKeysRecommended(parameter)
-			? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
-			: null;
-		return KeyedValue.zip(values, keys);
 	}
 
 	private static KeyedValue<Object> @Nullable [] convertToKeyed(Object[] values) {

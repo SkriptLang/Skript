@@ -1813,7 +1813,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see String#formatted(Object...)
 	 */
 	public static void error(String message, Object... objects) {
-		System.out.printf((message) + "%n", objects);
 		error(message.formatted(objects));
 	}
 
