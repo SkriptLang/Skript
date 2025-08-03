@@ -26,8 +26,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Reference to a {@link Function Skript function}.
+ * @deprecated Use {@link org.skriptlang.skript.lang.function.FunctionReference} instead.
  */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 	private static final String AMBIGUOUS_ERROR =
