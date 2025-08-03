@@ -39,14 +39,11 @@ test "stacked buildables":
 	assert name of slot 0 of {_gui} is "TESTING-NAME-STACKED" with "Name of item was not set"
 	assert lore of slot 0 of {_gui} is "TESTING-LORE-STACKED" with "Lore of item was not set"
 
-test "buildable parse errors":
+test "buildable parse errors" when running minecraft "1.20.0":
 	parse:
 		set {_test} to a buildable fall:
 			broadcast "filler"
-	if running below minecraft "1.20.0":
-		assert last parse logs is "A damage cause cannot be builded upon." with "Parse error was not printed"
-	else:
-		assert last parse logs is "The provided object can reference multiple types. Which none can be builded upon." with "Parse error was not printed"
+	assert last parse logs is "The provided object can reference multiple types. Which none can be builded upon." with "Parse error was not printed"
 
 	parse:
 		set {_test} to a buildable fall (damage type):
