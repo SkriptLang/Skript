@@ -100,7 +100,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 		List<String> patterns = new ArrayList<>();
 		patterns.addAll(Arrays.asList(getDefaultPatterns("name[s]", "offlineplayers/entities/nameds/inventories")));
-		patterns.addAll(Arrays.asList(getDefaultPatterns("(display|nick|chat|custom)[ ]name[s]", "offlineplayers/entities/nameds/inventories")));
+		patterns.addAll(Arrays.asList(getPatterns("(display|nick|chat|custom)[ ]name[s]", "offlineplayers/entities/nameds/inventories")));
 		patterns.addAll(Arrays.asList(getPatterns("(player|tab)[ ]list name[s]", "players")));
 
 		Skript.registerExpression(ExprName.class, String.class, ExpressionType.COMBINED, patterns.toArray(new String[0]));

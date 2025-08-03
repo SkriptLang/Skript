@@ -247,17 +247,25 @@ public class SkriptParser {
 								types = parseResult.source.getElements(TypePatternElement.class);;
 							ExprInfo exprInfo = types.get(i).getExprInfo();
 							if (!exprInfo.isOptional) {
-								List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
-								DefaultExpression<?> matchedExpr = null;
-								for (DefaultExpression<?> expr : exprs) {
-									if (expr.init()) {
-										matchedExpr = expr;
-										break;
+								ParseLogHandler defaultLog = SkriptLogger.startParseLogHandler();
+								try {
+									List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
+									DefaultExpression<?> matchedExpr = null;
+									for (DefaultExpression<?> expr : exprs) {
+										if (expr.init()) {
+											matchedExpr = expr;
+											break;
+										}
 									}
+									if (matchedExpr == null) {
+										defaultLog.printLog();
+										continue patternsLoop;
+									}
+									defaultLog.clear();
+									parseResult.exprs[i] = matchedExpr;
+								} finally {
+									defaultLog.stop();
 								}
-								if (matchedExpr == null)
-									continue patternsLoop;
-								parseResult.exprs[i] = matchedExpr;
 							}
 						}
 					}

@@ -14,9 +14,7 @@ import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SectionUtils;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -28,7 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Name("Buildable")
-@Description("Build an object")
+@Description("""
+	Provide an object to builded upon in the section removing the necessity of including "of %object%" for expressions.
+	Only objects that can contain data can be used to be builded upon. (i.e. itemtypes, itemstacks, inventories)
+	Objects that 
+	""")
 @Example("""
 	# Internally, 'chest inventory' is an InventoryType, but can be used to build as an Inventory
 	set {_gui} to a buildable chest inventory:
@@ -54,62 +56,60 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 	private Class<?> returnType;
 	private @Nullable Object object;
 	private Trigger trigger;
-	private SectionableExpression<?> sectionableExpression;
+	private SectionEvent<?> sectionEvent;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		assert node != null;
 		Object object = null;
 		if (matchedPattern <= 1) {
-			expr = exprs[0];
-			if (expr instanceof Literal<?> literal) {
-				if (literal instanceof UnparsedLiteral unparsedLiteral) {
-					List<ClassInfo<?>> parseableInfos = unparsedLiteral.getPossibleInfos();
-					if (parseableInfos == null || parseableInfos.isEmpty()) {
-						literal = (Literal<?>) LiteralUtils.defendExpression(unparsedLiteral);
-					} else {
-						List<ClassInfo<?>> possible = new ArrayList<>();
-						for (ClassInfo<?> info : parseableInfos) {
-							if (info instanceof EnumClassInfo<?> || info instanceof RegistryClassInfo<?>) {
-								if (!BuildableRegistry.isRegistered(info.getC()))
-									continue;
-							}
-							possible.add(info);
-						}
-						if (possible.isEmpty()) {
-							Skript.error("The provided object can reference multiple types. Which none can be builded upon.");
-							return false;
-						} else if (possible.size() >= 2) {
-							String codeName = possible.get(0).getCodeName();
-							Skript.error("The provided object can reference multiple types. Consider specifying the object with '" +
-								expr + " (" + codeName + ")' or using 'buildable " + codeName + " of " + expr + "'.");
-							return false;
-						}
-						returnType = possible.get(0).getC();
-						SimpleLiteral<?> reparsed = unparsedLiteral.reparse(returnType);
-						assert reparsed != null;
-						literal = reparsed;
-					}
+			expr = handleLiteral(exprs[0]);
+			if (expr == null)
+				return false;
+			if (expr instanceof UnparsedLiteral unparsedLiteral) {
+				List<ClassInfo<?>> parseableInfos = unparsedLiteral.getPossibleInfos();
+				assert parseableInfos != null;
+				List<ClassInfo<?>> possible = new ArrayList<>();
+				for (ClassInfo<?> info : parseableInfos) {
+					if (!canBuild(info))
+						continue;
+					possible.add(info);
 				}
+				if (possible.isEmpty()) {
+					Skript.error("The provided object can reference multiple types. Which none can be builded upon.");
+					return false;
+				} else if (possible.size() >= 2) {
+					String codeName = possible.get(0).getCodeName();
+					Skript.error("The provided object can reference multiple types. Consider specifying the object with '" +
+						expr.toString(null, false) + " (" + codeName + ")' or using 'buildable " + codeName +
+						" of " + expr.toString(null, false) + "'.");
+					return false;
+				}
+				returnType = possible.get(0).getC();
+				Literal<?> literal = unparsedLiteral.getConvertedExpression(returnType);
+				if (literal == null)
+					return false;
 				expr = literal;
+				object = literal.getSingle();
+			} else if (expr instanceof Literal<?> literal) {
 				object = literal.getSingle();
 				returnType = literal.getReturnType();
 			} else {
 				Class<?>[] possible = expr.possibleReturnTypes();
 				if (possible.length >= 2) {
 					Skript.error("The provided expression can reference multiple types. Consider using " +
-						"'buildable " + Classes.toString(possible[0]) + " of " + expr + "'.");
+						"'buildable " + getClassInfoName(possible[0]) + " of " + expr.toString(null, false) + "'.");
 					return false;
 				} else if (possible.length == 1 && possible[0].equals(Object.class)) {
 					Skript.error("The provided expression can reference multiple types. Consider using " +
-						"'buildable %*classinfo% of " + expr + "'.");
+						"'buildable %*classinfo% of " + expr.toString(null, false) + "'.");
 					return false;
 				}
 				returnType = possible[0];
 			}
 			if (!canBuild()) {
 				if (!BuildableRegistry.isRegistered(returnType)) {
-					Skript.error(Utils.A(Classes.toString(returnType)) + " cannot be builded upon.");
+					Skript.error(Utils.A(getClassInfoName()) + " cannot be builded upon.");
 					return false;
 				} else {
 					returnType = BuildableRegistry.getConvertedClass(returnType);
@@ -120,29 +120,28 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 			//noinspection unchecked
 			classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
 			returnType = classInfo.getC();
-			expr = exprs[1];
+			expr = handleLiteral(exprs[1]);
+			if (expr == null)
+				return false;
 
 			if (!canBuild()) {
 				if (!BuildableRegistry.isRegistered(returnType)) {
-					Skript.error(Utils.A(Classes.toString(returnType)) + " cannot be builded upon.");
+					Skript.error(Utils.A(getClassInfoName()) + " cannot be builded upon.");
 				} else {
 					Class<?> buildAs = BuildableRegistry.getConvertedClass(returnType);
-					Skript.error(Utils.A(Classes.toString(returnType)) + " cannot be builded upon. " +
-						"But can be builded as " + Utils.a(Classes.toString(buildAs)) + ". ");
+					Skript.error(Utils.A(getClassInfoName()) + " cannot be builded upon. " +
+						"But can be builded as " + Utils.a(getClassInfoName(buildAs)) + ".");
 				}
 				return false;
 			}
 
 			boolean convertable = false;
 			if (expr instanceof UnparsedLiteral unparsedLiteral) {
-				SimpleLiteral<?> reparsed = unparsedLiteral.reparse(returnType);
-				if (reparsed != null) {
-					object = reparsed.getSingle();
-					expr = reparsed;
+				Literal<?> converted = unparsedLiteral.getConvertedExpression(returnType);
+				if (converted != null) {
+					object = converted.getSingle();
+					expr = converted;
 					convertable = true;
-				} else {
-					Skript.error(expr + " cannot be converted into " + Utils.a(classInfo.getCodeName()));
-					return false;
 				}
 			} else if (expr instanceof Literal<?> literal) {
 				object = literal.getSingle();
@@ -157,7 +156,8 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 				}
 			}
 			if (!convertable) {
-				Skript.error(expr + " can not be builded as a '" + Classes.toString(returnType) + "'.");
+				Skript.error("The provided expression " + expr.toString(null, false) + " cannot be builded as " +
+					Utils.a(getClassInfoName()) + ".");
 				return false;
 			}
 		}
@@ -165,11 +165,11 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 		String name;
 		if (object != null) {
 			name = "buildable " + Classes.toString(object);
-			sectionableExpression = new SectionableExpression<>(returnType, object);
+			sectionEvent = new SectionEvent<>(returnType, object);
 			this.object = object;
 		} else {
 			name = "buildable " + Classes.toString(returnType);
-			sectionableExpression = new SectionableExpression<>(returnType);
+			sectionEvent = new SectionEvent<>(returnType);
 		}
 
 		trigger = SectionUtils.loadLinkedCode(name, (beforeLoading, afterLoading) ->
@@ -178,11 +178,27 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
         return trigger != null;
     }
 
+	private String getClassInfoName() {
+		return getClassInfoName(returnType);
+	}
+
+	private String getClassInfoName(Class<?> type) {
+		ClassInfo<?> info = Classes.getSuperClassInfo(type);
+		assert info != null;
+		return info.getName().toString();
+	}
+
 	private boolean canBuild() {
 		ClassInfo<?> classInfo = this.classInfo;
 		if (classInfo == null)
 			classInfo = Classes.getSuperClassInfo(returnType);
+		return canBuild(classInfo);
+	}
+
+	private boolean canBuild(ClassInfo<?> classInfo) {
 		if (classInfo instanceof EnumClassInfo<?> || classInfo instanceof RegistryClassInfo<?>) {
+			return false;
+		} else if (BuildableRegistry.isDisallowed(classInfo.getC())) {
 			return false;
 		}
 		return true;
@@ -190,7 +206,18 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 
 	private boolean canConvert(Class<?> from, Class<?> to) {
 		return to.isAssignableFrom(from)
+			|| BuildableRegistry.getConvertedClass(from) == to
 			|| Converters.converterExists(from, to);
+	}
+
+	private @Nullable Expression<?> handleLiteral(Expression<?> expr) {
+		if (expr instanceof UnparsedLiteral unparsedLiteral) {
+			List<ClassInfo<?>> infos = unparsedLiteral.getPossibleInfos();
+			if (infos == null || infos.isEmpty() || infos.size() == 1)
+				return unparsedLiteral.getConvertedExpression(Object.class);
+			return unparsedLiteral;
+		}
+		return expr;
 	}
 
 	@Override
@@ -205,16 +232,15 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 			if (classInfo != null) {
 				object = convert(object);
 				if (object == null) {
-					error(Utils.A(expr.toString(event, false)) + " can not be builded as " + Utils.a(classInfo.getCodeName()));
+					error(Utils.A(expr.toString(event, false)) + " cannot be builded as " + Utils.a(classInfo.getCodeName()));
 					return null;
 				}
 			}
-			sectionableExpression.change(event, new Object[]{object}, ChangeMode.SET);
+			sectionEvent.change(event, new Object[]{object}, ChangeMode.SET);
 		}
-		SectionEvent<?> sectionEvent = new SectionEvent<>(object);
 
-		Variables.withLocalVariables(event, sectionEvent, () ->  TriggerItem.walk(trigger, event));
-		return new Object[] {sectionableExpression.getSingle(event)};
+		Variables.withLocalVariables(event, sectionEvent, () ->  TriggerItem.walk(trigger, sectionEvent));
+		return new Object[] {sectionEvent.getSingle(event)};
 	}
 
 	private @Nullable Object convert(Object object) {
@@ -245,7 +271,7 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 
 	@Override
 	public Expression<?> getProvidedExpression() {
-		return sectionableExpression;
+		return sectionEvent;
 	}
 
 	@Override

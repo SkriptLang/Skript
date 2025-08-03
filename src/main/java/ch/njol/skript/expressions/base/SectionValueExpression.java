@@ -3,7 +3,6 @@ package ch.njol.skript.expressions.base;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.EffectSection;
@@ -22,6 +21,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -85,7 +85,6 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 	private final Class<?> componentType;
 	private final boolean single;
 	private @Nullable Changer<? super T> changer;
-	private @Nullable Expression<T> wrappedExpression = null;
 
 	private SectionValueExpression(Class<? extends T> type, @Nullable Changer<? super T> changer) {
 		this.type = type;
@@ -119,9 +118,9 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 				syntaxElement = section;
 			}
 
+			Expression<?> sectionExpression = null;
 			if (syntaxElement instanceof ExpressionProvider provider) {
-				//noinspection unchecked
-				wrappedExpression = (Expression<T>) provider.getProvidedExpression();
+				sectionExpression = provider.getProvidedExpression();
 			}
 
 			Class<?>[] values = SECTION_VALUES.get(syntaxElement.getClass());
@@ -132,8 +131,8 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 			}
 
 			for (Class<?> value : values) {
-				if (wrappedExpression != null) {
-					if (!wrappedExpression.canReturn(componentType))
+				if (sectionExpression != null) {
+					if (!sectionExpression.canReturn(componentType))
 						continue;
 				} else if (!value.equals(Object.class) && !componentType.isAssignableFrom(value)) {
 					continue;
@@ -157,8 +156,6 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 
 	@Override
 	protected T @Nullable [] get(Event event) {
-		if (wrappedExpression != null)
-			return wrappedExpression.getArray(event);
 		T value = getValue(event);
 		if (value == null)
 			//noinspection unchecked
@@ -180,32 +177,22 @@ public class SectionValueExpression<T> extends SimpleExpression<T> implements De
 	private @Nullable T getValue(Event event) {
 		if (!(event instanceof SectionEvent<?> sectionEvent))
 			return null;
-		if (wrappedExpression != null)
-			return wrappedExpression.getSingle(event);
 		//noinspection unchecked
 		return (T) sectionEvent.getObject();
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (wrappedExpression != null)
-			return wrappedExpression.acceptChange(mode);
-		if (changer == null) {
-			//noinspection unchecked
-			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
-		}
-		return changer == null ? null : changer.acceptChange(mode);
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(componentType);
+		return null;
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (wrappedExpression != null) {
-			wrappedExpression.change(event, delta, mode);
-			return;
+		if (event instanceof SectionEvent<?> sectionEvent) {
+			sectionEvent.change(event, delta, mode);
 		}
-		if (changer == null)
-			throw new SkriptAPIException("The changer can not be null");
-		ChangerUtils.change(changer, getArray(event), delta, mode);
 	}
 
 	@Override

@@ -109,6 +109,11 @@ public class MultiDefaultExpression<T> extends WrapperExpression<T> implements D
 	}
 
 	@Override
+	public Expression<? extends T> simplify() {
+		return this;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return getExpr().toString(event, debug);
 	}

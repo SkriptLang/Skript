@@ -7,7 +7,9 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +19,7 @@ import java.util.Map;
 public class BuildableRegistry {
 
 	private static final Map<Class<?>, BuildableIdentifier> registry = new HashMap<>();
+	private static final List<Class<?>> disallowed = new ArrayList<>();
 
 	/**
 	 * Register {@code from} to be builded as {@code to} using {@code converter}.
@@ -25,14 +28,31 @@ public class BuildableRegistry {
 	 * @param to The {@link Class} it can be used to build as.
 	 * @param converter The {@link Converter} to convert {@code from} to {@code to}.
 	 * @throws SkriptAPIException If {@code from} is already registered to another class.
+	 * @throws SkriptAPIException If {@code from} is already disallowed.
 	 */
 	public static <F, T> void registerBuildable(Class<F> from, Class<T> to, Converter<F, T> converter) {
 		BuildableIdentifier identifier = new BuildableIdentifier(to, converter);
 		if (registry.containsKey(from)) {
 			throw new SkriptAPIException("A buildable of '" + Classes.toString(from) + "' is already registered to '" +
 				Classes.toString(registry.get(from).to) + "'.");
+		} else if (disallowed.contains(from)) {
+			throw new SkriptAPIException("Unable to register '" + Classes.toString(from) + "' as it has already been disallowed.");
 		}
 		registry.put(from, identifier);
+	}
+
+	/**
+	 * Disallow {@link Class}es from being builded upon.
+	 *
+	 * @param types The {@link Class}es to disallow.
+	 * @throws SkriptAPIException If any of {@code types} is already registered.
+	 */
+	public static void registerDisallowed(Class<?>... types) {
+		for (Class<?> type : types) {
+			if (registry.containsKey(type))
+				throw new SkriptAPIException("Unable to disallow '" + Classes.toString(type) + "' as it is already registered.");
+			disallowed.add(type);
+		}
 	}
 
 	/**
@@ -43,6 +63,30 @@ public class BuildableRegistry {
 	 */
 	public static <F> boolean isRegistered(Class<F> from) {
 		return registry.containsKey(from);
+	}
+
+	/**
+	 * Check if {@code type} is disallowed exactly.
+	 *
+	 * @param type The {@link Class} to check.
+	 * @return {@code true} if it's disallowed, otherwise {@code false}.
+	 */
+	public static boolean isExactDisallowed(Class<?> type) {
+		return disallowed.contains(type);
+	}
+
+	/**
+	 * Check if {@code type} or super type is disallowed.
+	 *
+	 * @param type The {@link Class} to check.
+	 * @return {@code true} if it's disallowed, otherwise {@code false}.
+	 */
+	public static boolean isDisallowed(Class<?> type) {
+		for (Class<?> clazz : disallowed) {
+			if (clazz.isAssignableFrom(type))
+				return true;
+		}
+		return false;
 	}
 
 	/**

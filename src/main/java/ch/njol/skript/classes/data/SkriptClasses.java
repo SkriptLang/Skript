@@ -947,6 +947,7 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{thing}'s name")
 				.since("2.10")
+				.defaultExpression(SectionValueExpression.simple(AnyNamed.class))
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
