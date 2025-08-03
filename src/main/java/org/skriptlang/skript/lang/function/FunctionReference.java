@@ -1,6 +1,7 @@
 package org.skriptlang.skript.lang.function;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprKeyed;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Function;
@@ -83,15 +84,11 @@ public final class FunctionReference<T> implements Debuggable {
 					target = first.getValue();
 				}
 
-				// tried to find target, but it was already taken, so
-				// the user is mixing named and positional arguments out of order
 				if (target == null) {
-					Skript.error("Mixing named and positional arguments is not allowed unless the order of the arguments matches the order of the parameters.");
 					return false;
 				}
 
 				// try to parse value in the argument
-
 				Class<?> conversionTarget;
 				if (target.type().isArray()) {
 					conversionTarget = target.type().componentType();
@@ -103,13 +100,7 @@ public final class FunctionReference<T> implements Debuggable {
 				Expression<?> converted = argument.value.getConvertedExpression(conversionTarget);
 
 				// failed to parse value
-				if (converted == null) {
-					if (LiteralUtils.hasUnparsedLiteral(argument.value)) {
-						Skript.error("Can't understand this expression: %s".formatted(argument.value));
-					} else {
-						Skript.error("Type mismatch for argument '%s' in function '%s'. Expected: %s, got %s."
-							.formatted(target.name(), name, argument.value.getReturnType(), target.type()));
-					}
+				if (!validateArgument(target, argument.value, converted)) {
 					return false;
 				}
 
@@ -122,6 +113,37 @@ public final class FunctionReference<T> implements Debuggable {
 		signature.calls().add(this);
 
 		return true;
+	}
+
+	private boolean validateArgument(Parameter<?> target, Expression<?> original, Expression<?> converted) {
+		if (converted == null) {
+			if (LiteralUtils.hasUnparsedLiteral(original)) {
+				Skript.error("Can't understand this expression: %s", original);
+			} else {
+				Skript.error("Expected type %s for argument '%s', but %s is of type %s.",
+					getName(target.type(), target.single()), target.name(), original, getName(original.getReturnType(), original.isSingle()));
+			}
+			return false;
+		}
+
+		if (target.single() && !converted.isSingle()) {
+			Skript.error("Expected type %s for argument '%s', but %s is of type %s.",
+				getName(target.type(), target.single()), target.name(), converted, getName(converted.getReturnType(), converted.isSingle()));
+			return false;
+		}
+
+		return true;
+	}
+
+	private String getName(Class<?> clazz, boolean single) {
+		if (single) {
+			return Classes.getSuperClassInfo(clazz).getName().getSingular();
+		} else {
+			if (clazz.isArray()) {
+				return Classes.getSuperClassInfo(clazz.componentType()).getName().getPlural();
+			}
+			return Classes.getSuperClassInfo(clazz).getName().getPlural();
+		}
 	}
 
 	/**

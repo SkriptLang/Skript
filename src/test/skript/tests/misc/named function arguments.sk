@@ -19,16 +19,8 @@ test "named function arguments":
 	assert nfa(a: 8, b: 2, 3) = 7
 	assert nfa(8, b: 2, c: 3) = 7
 
-	parse:
-		assert nfa(c: 3, 2, a: 8) = 7
-	assert last parse logs contain "Mixing named and positional arguments is not allowed"
-
-	parse:
-		assert nfa(c: 3, a: 8, 2) = 7
-	assert last parse logs contain "Mixing named and positional arguments is not allowed"
-
-	parse:
-		assert nfa(b: 2, 3, a: 8) = 7
-	assert last parse logs contain "Mixing named and positional arguments is not allowed"
+	assert nfa(c: 3, 2, a: 8) = 7
+	assert nfa(c: 3, a: 8, 2) = 7
+	assert nfa(b: 2, 3, a: 8) = 7
 
 	assert nfa("gonna be, gonna be, ""'golden'""", "fire %{_, }%") = 3

@@ -10,7 +10,9 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.function.*;
+import ch.njol.skript.lang.function.ExprFunctionCall;
+import ch.njol.skript.lang.function.FunctionRegistry;
+import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -29,6 +31,7 @@ import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.patterns.TypePatternElement;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
@@ -1128,7 +1131,7 @@ public class SkriptParser {
 					return null;
 				}
 
-				return parseFunctionReference(functionName, args);
+				return parseFunctionReference(functionName, args, log);
 			}
 		}
 
@@ -1140,7 +1143,7 @@ public class SkriptParser {
 		 * @param <T>  The return type of the function.
 		 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 		 */
-		private <T> FunctionReference<T> parseFunctionReference(String name, String args) {
+		private <T> FunctionReference<T> parseFunctionReference(String name, String args, ParseLogHandler log) {
 			FunctionReference.Argument<String>[] arguments = new FunctionReferenceArgumentParser(args).getArguments();
 
 			String namespace;
@@ -1153,10 +1156,18 @@ public class SkriptParser {
 			// try to find a matching signature to get which types to parse args with
 			Set<Signature<?>> options = FunctionRegistry.getRegistry().getSignatures(namespace, name);
 
+			if (options.isEmpty()) {
+				doesNotExist(name, arguments);
+				log.printError();
+				return null;
+			}
+
 			// all signatures that have no single list params
 			Set<Signature<?>> exacts = new HashSet<>();
 			// all signatures with only single list params
 			Set<Signature<?>> singleLists = new HashSet<>();
+
+			Set<FunctionReference<T>> references = new HashSet<>();
 
 			// first, sort into types
 			for (Signature<?> option : options) {
@@ -1211,6 +1222,7 @@ public class SkriptParser {
 				FunctionArgumentParseResult result = parseFunctionArguments(arguments, targets);
 
 				if (result.type() == FunctionArgumentParseResultType.LIST_ERROR) {
+					log.printError();
 					return null;
 				}
 
@@ -1219,10 +1231,11 @@ public class SkriptParser {
 					FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
 					if (!reference.validate()) {
+						log.printError();
 						continue;
 					}
 
-					return reference;
+					references.add(reference);
 				}
 			}
 
@@ -1243,6 +1256,7 @@ public class SkriptParser {
 				FunctionArgumentParseResult result = parseFunctionArguments(array, targets);
 
 				if (result.type() == FunctionArgumentParseResultType.LIST_ERROR) {
+					log.printError();
 					return null;
 				}
 
@@ -1251,14 +1265,73 @@ public class SkriptParser {
 					FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
 					if (!reference.validate()) {
+						log.printError();
 						continue;
 					}
 
-					return reference;
+					references.add(reference);
 				}
 			}
 
-			return null;
+			if (references.isEmpty()) {
+				doesNotExist(name, arguments);
+				log.printError();
+				return null;
+			} else if (references.size() == 1) {
+				return references.stream().findAny().orElse(null);
+			} else {
+				ambiguousError(name, references);
+				log.printError();
+				return null;
+			}
+		}
+
+		private <T> void ambiguousError(String name, Set<FunctionReference<T>> references) {
+			List<String> parts = new ArrayList<>();
+
+			for (FunctionReference<T> reference : references) {
+				String builder = reference.name() +
+					"(" +
+					reference.signature().parameters().values().stream()
+						.map(it -> {
+							if (it.type().isArray()) {
+								return Classes.getSuperClassInfo(it.type().componentType()).getName().getPlural();
+							} else {
+								return Classes.getSuperClassInfo(it.type()).getName().getSingular();
+							}
+						})
+						.collect(Collectors.joining(", ")) +
+					")";
+
+				parts.add(builder);
+			}
+
+			Skript.error("Cannot determine which function named %s to call: %s. " +
+				"Try clarifying the type of the arguments using the 'value within' expression.",
+				name, StringUtils.join(parts, ", ", " or "));
+		}
+
+		private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments) {
+			StringJoiner joiner = new StringJoiner(", ");
+
+			for (FunctionReference.Argument<String> argument : arguments) {
+				SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
+
+				Expression<?> expression = LiteralUtils.defendExpression(parser.parseExpression(Object.class));
+
+				if (expression == null) {
+					joiner.add("?");
+					continue;
+				}
+
+				if (expression.isSingle()) {
+					joiner.add(Classes.getSuperClassInfo(expression.getReturnType()).getName().getSingular());
+				} else {
+					joiner.add(Classes.getSuperClassInfo(expression.getReturnType()).getName().getPlural());
+				}
+			}
+
+			Skript.error("The function %s(%s) does not exist.", name, joiner);
 		}
 
 		/**

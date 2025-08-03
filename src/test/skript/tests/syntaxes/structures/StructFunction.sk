@@ -45,7 +45,7 @@ test "function structure type hints":
 	set {_number} to true
 	parse:
 		type_hint_argument_test({_number})
-	assert the first element of the last parse logs is set # contains "The function 'type_hint_argument_test(boolean)' does not exist." (NEEDS FIXING)
+	assert the first element of the last parse logs contains "The function type_hint_argument_test(boolean (yes/no)) does not exist."
 
 local function literal_test(x: entity type):
 	stop
@@ -54,3 +54,19 @@ test "literal type parsing":
 	parse:
 		literal_test(firework)
 	assert last parse logs is not set
+
+local function argument_test(x: int, y: int):
+	stop
+
+test "function structure arguments":
+	parse:
+		argument_test(1)
+	assert last parse logs contain "The function argument_test(integer) does not exist"
+
+	parse:
+		argument_test(1, 2)
+	assert last parse logs are not set
+
+	parse:
+		argument_test(1, 2, 3)
+	assert last parse logs contain "The function argument_test(integer, integer, integer) does not exist"
