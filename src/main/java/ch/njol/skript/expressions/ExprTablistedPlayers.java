@@ -25,7 +25,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"Delete changer will remove all the online players.",
 	"Reset changer will reset the tablist to a default state viewing all the players again."
 })
-@Examples("tablist players of player")
+@Example("tablist players of player")
 @Since("INSERT VERSION")
 @Keywords("tablist")
 public class ExprTablistedPlayers extends PropertyExpression<Player, Player> {
