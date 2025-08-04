@@ -20,19 +20,19 @@ test "named function arguments":
 
 	parse:
 		assert nfa(8, c: 3, b: 2) = 7
-	assert first element of last parse logs contains "Mixing named and positional arguments is not allowed"
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
 
 	parse:
 		assert nfa(c: 3, 2, a: 8) = 7
-	assert first element of last parse logs contains "Mixing named and positional arguments is not allowed"
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
 
 	parse:
 		assert nfa(c: 3, a: 8, 2) = 7
-	assert first element of last parse logs contains "Mixing named and positional arguments is not allowed"
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
 
 	parse:
 		assert nfa(b: 2, 3, a: 8) = 7
-	assert first element of last parse logs contains "Mixing named and positional arguments is not allowed"
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
 
 	assert nfa("gonna be, gonna be, ""'golden'""", "fire %{_, }%") = 3
 
@@ -70,4 +70,4 @@ test "named function arguments with single list params":
 
 	parse:
 		nfa_incorrect_list(ns: 1, ns: 2, ns: 3)
-	assert first element of last parse logs contains "A value has already been assigned to parameter ns"
+	assert first element of last parse logs contains "A value has already been assigned to parameter ns."

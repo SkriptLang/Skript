@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -95,7 +96,7 @@ public record FunctionParser(ParseContext context, int flags) {
 			if (argument.type() == ArgumentType.NAMED) {
 				boolean added = named.add(argument.name());
 				if (!added) {
-					Skript.error("A value has already been assigned to parameter %s", argument.name());
+					Skript.error(Language.get("functions.already assigned value to parameter"), argument.name());
 					log.printError();
 					return null;
 				}
@@ -352,8 +353,7 @@ public record FunctionParser(ParseContext context, int flags) {
 			parts.add(builder);
 		}
 
-		Skript.error("Cannot determine which function named %s to call: %s. " +
-				"Try clarifying the type of the arguments using the 'value within' expression.",
+		Skript.error(Language.get("functions.ambiguous function call"),
 			name, StringUtils.join(parts, ", ", " or "));
 	}
 
@@ -454,8 +454,7 @@ public record FunctionParser(ParseContext context, int flags) {
 			}
 
 			if (expression instanceof ExpressionList<?> list && !list.getAnd()) {
-				Skript.error("Function arguments must be separated by commas and optionally an 'and', but not an 'or'."
-					+ " Put the 'or' into a second set of parentheses if you want to make it a single parameter, e.g. 'give(player, (sword or axe))'");
+				Skript.error(Language.get("functions.or in arguments"));
 				return new FunctionArgumentParseResult(FunctionArgumentParseResultType.LIST_ERROR, null);
 			}
 

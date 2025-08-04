@@ -8,6 +8,7 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.*;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
+import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import com.google.common.base.Preconditions;
@@ -110,8 +111,7 @@ public final class FunctionReference<T> implements Debuggable {
 				}
 
 				if (mix && !targetParameters.entrySet().iterator().next().getKey().equals(target.name())) {
-					Skript.error("Mixing named and positional arguments is not allowed unless " +
-						"the order of the arguments matches the order of the parameters.");
+					Skript.error(Language.get("functions.mixing named and unnamed arguments"));
 					return false;
 				}
 
