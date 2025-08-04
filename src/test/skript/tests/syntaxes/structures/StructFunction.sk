@@ -50,12 +50,26 @@ test "function structure type hints":
 local function literal_test(x: entity type):
 	stop
 
+local function literal_test_projectile(x: entity):
+	stop
+
 test "literal type parsing":
 	parse:
 		literal_test(firework)
-	assert last parse logs is not set
+	assert last parse logs are not set
+
+	spawn an arrow at test-location:
+		set {_entity} to entity
+		parse:
+			literal_test_projectile(projectile)
+
+	assert last parse logs are not set
+	clear entity within {_entity}
 
 local function argument_test(x: int, y: int):
+	stop
+
+local function argument_test_list(xs: ints):
 	stop
 
 test "function structure arguments":
@@ -70,3 +84,11 @@ test "function structure arguments":
 	parse:
 		argument_test(1, 2, 3)
 	assert last parse logs contain "The function argument_test(integer, integer, integer) does not exist"
+
+	parse:
+		argument_test_list((1, 2, 3))
+	assert last parse logs are not set
+
+	parse:
+		argument_test_list(1, (2, 3))
+	assert last parse logs contain "The function argument_test_list(integer, integers) does not exist"

@@ -36,11 +36,38 @@ test "named function arguments":
 
 	assert nfa("gonna be, gonna be, ""'golden'""", "fire %{_, }%") = 3
 
+	parse:
+		nfa(a: 1, b: 2, d: 2)
+	assert first element of last parse logs contains "The function nfa(a: integer, b: integer, d: integer) does not exist"
+
+	parse:
+		nfa(a: 1, a: 2, c: 2)
+	assert first element of last parse logs contains "A value has already been assigned to parameter a"
+
 local function nfa_incorrect_list(ns: numbers):
-    stop
+	stop
 
-test "named function arguments with incorrect arguments":
-    parse:
-        nfa_incorrect_list(ns: 1, n: 2, 3)
+test "named function arguments with single list params":
+	parse:
+		nfa_incorrect_list(ns: (1, 2, 3))
+	assert last parse logs are not set
 
-    assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integer, n: integer, integer) does not exist"
+	parse:
+		nfa_incorrect_list(ns: 1, n: 2, 3)
+	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integer, n: integer, integer) does not exist"
+
+	parse:
+		nfa_incorrect_list(wrong: (1, 2, 3))
+	assert first element of last parse logs contains "The function nfa_incorrect_list(wrong: integers) does not exist"
+
+	parse:
+		nfa_incorrect_list(ns: (1, (2, 3)))
+	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integers) does not exist"
+
+	parse:
+		nfa_incorrect_list(ns: 1, 2, 3)
+	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integer, integer, integer) does not exist"
+
+	parse:
+		nfa_incorrect_list(ns: 1, ns: 2, ns: 3)
+	assert first element of last parse logs contains "A value has already been assigned to parameter ns"

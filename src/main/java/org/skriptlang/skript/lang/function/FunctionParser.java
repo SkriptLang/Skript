@@ -89,6 +89,19 @@ public record FunctionParser(ParseContext context, int flags) {
 	private <T> FunctionReference<T> parseFunctionReference(String name, String args, ParseLogHandler log) {
 		FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
 
+		// avoid assigning values to a parameter multiple times
+		Set<String> named = new HashSet<>();
+		for (Argument<String> argument : arguments) {
+			if (argument.type() == ArgumentType.NAMED) {
+				boolean added = named.add(argument.name());
+				if (!added) {
+					Skript.error("A value has already been assigned to parameter %s", argument.name());
+					log.printError();
+					return null;
+				}
+			}
+		}
+
 		String namespace;
 		if (ParserInstance.get().isActive()) {
 			namespace = ParserInstance.get().getCurrentScript().getConfig().getFileName();
@@ -123,8 +136,9 @@ public record FunctionParser(ParseContext context, int flags) {
 		}
 
 		// second, try to match any exact functions
-		Set<FunctionReference<T>> exactReferences = getExactReferences(namespace, name, exacts, arguments, log);
+		Set<FunctionReference<T>> exactReferences = getExactReferences(namespace, name, exacts, arguments);
 		if (exactReferences == null) { // a list error, so quit parsing
+			log.printError();
 			return null;
 		}
 
@@ -134,8 +148,9 @@ public record FunctionParser(ParseContext context, int flags) {
 		}
 
 		// last, find single list functions
-		Set<FunctionReference<T>> listReferences = getListReferences(namespace, name, lists, arguments, log);
+		Set<FunctionReference<T>> listReferences = getListReferences(namespace, name, lists, arguments);
 		if (listReferences == null) { // a list error, so quit parsing
+			log.printError();
 			return null;
 		}
 
@@ -162,14 +177,12 @@ public record FunctionParser(ParseContext context, int flags) {
 	 * @param name       The name of the function.
 	 * @param signatures The possible signatures.
 	 * @param arguments  The passed arguments.
-	 * @param log        The logger instance.
 	 * @param <T>        The return type of the references.
 	 * @return All possible exact {@link FunctionReference FunctionReferences}.
 	 */
 	private <T> Set<FunctionReference<T>> getExactReferences(
 		String namespace, String name,
-		Set<Signature<?>> signatures, Argument<String>[] arguments,
-		ParseLogHandler log
+		Set<Signature<?>> signatures, Argument<String>[] arguments
 	) {
 		Set<FunctionReference<T>> exactReferences = new HashSet<>();
 
@@ -189,7 +202,7 @@ public record FunctionParser(ParseContext context, int flags) {
 				Argument<String> argument = arguments[i];
 
 				if (remaining.isEmpty()) {
-					continue;
+					break;
 				}
 
 				Parameter<?> parameter;
@@ -216,7 +229,6 @@ public record FunctionParser(ParseContext context, int flags) {
 			FunctionArgumentParseResult result = parseFunctionArguments(arguments, targets);
 
 			if (result.type() == FunctionArgumentParseResultType.LIST_ERROR) {
-				log.printError();
 				return null;
 			}
 
@@ -225,7 +237,6 @@ public record FunctionParser(ParseContext context, int flags) {
 				FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
 				if (!reference.validate()) {
-					log.printError();
 					continue;
 				}
 
@@ -243,30 +254,38 @@ public record FunctionParser(ParseContext context, int flags) {
 	 * @param name       The name of the function.
 	 * @param signatures The possible signatures.
 	 * @param arguments  The passed arguments.
-	 * @param log        The logger instance.
 	 * @param <T>        The return type of the references.
 	 * @return All possible {@link FunctionReference FunctionReferences} which contain a single list parameter.
 	 */
 	private <T> Set<FunctionReference<T>> getListReferences(
 		String namespace, String name,
-		Set<Signature<?>> signatures, Argument<String>[] arguments,
-		ParseLogHandler log
+		Set<Signature<?>> signatures, Argument<String>[] arguments
 	) {
-		for (Argument<String> argument : arguments) {
-			if (argument.type() == ArgumentType.NAMED) {
-				doesNotExist(name, arguments);
-				log.printError();
-				return null;
+		// disallow naming any arguments other than the first
+		if (arguments.length > 1) {
+			for (Argument<String> argument : arguments) {
+				if (argument.type() == ArgumentType.NAMED) {
+					doesNotExist(name, arguments);
+					return null;
+				}
 			}
 		}
 
 		Set<FunctionReference<T>> references = new HashSet<>();
 
+		signatures:
 		for (Signature<?> signature : signatures) {
 			Parameter<?> parameter = signature.parameters().entrySet().iterator().next().getValue();
 
 			Class<?> target = parameter.type().componentType();
 			Class<?>[] targets = new Class<?>[]{target};
+
+			if (arguments.length == 1 && arguments[0].type() == ArgumentType.NAMED) {
+				if (!arguments[0].name().equals(parameter.name())) {
+					doesNotExist(name, arguments);
+					continue;
+				}
+			}
 
 			// join all args to a single arg
 			String joined = Arrays.stream(arguments).map(Argument::value)
@@ -278,16 +297,24 @@ public record FunctionParser(ParseContext context, int flags) {
 			FunctionArgumentParseResult result = parseFunctionArguments(array, targets);
 
 			if (result.type() == FunctionArgumentParseResultType.LIST_ERROR) {
-				log.printError();
 				return null;
 			}
 
 			if (result.type() == FunctionArgumentParseResultType.OK) {
+				// avoid allowing lists inside lists
+				if (result.parsed.length == 1 && result.parsed[0].value() instanceof ExpressionList<?> list) {
+					for (Expression<?> expression : list.getExpressions()) {
+						if (expression instanceof ExpressionList<?>) {
+							doesNotExist(name, arguments);
+							continue signatures;
+						}
+					}
+				}
+
 				//noinspection unchecked
 				FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
 				if (!reference.validate()) {
-					log.printError();
 					continue;
 				}
 
