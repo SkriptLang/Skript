@@ -21,9 +21,9 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Tablisted Players")
 @Description({
-	"The displayed players in the tablist for selected players.",
-	"Delete changer will remove all the online players.",
-	"Reset changer will reset the tablist to a default state viewing all the players again."
+	"The players shown in the tab lists of the specified players.",
+	"`delete` will remove all the online players from the tab list.",
+	"`reset` will reset the tab list to the default state, which makes all players visible again."
 })
 @Example("tablist players of player")
 @Since("INSERT VERSION")
