@@ -15,7 +15,6 @@ import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.expressions.base.SectionValueExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -293,17 +292,6 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 	@Override
 	public Expression<?> getProvidedExpression() {
 		return sectionEvent;
-	}
-
-	@Override
-	public Expression<?> simplify() {
-		if (!(expr instanceof Literal<?>) || object == null)
-			return this;
-		for (TriggerItem item : triggerItems) {
-			if (!(item instanceof Expression<?> exprItem) || !(exprItem.simplify() instanceof Literal<?>))
-				return this;
-		}
-		return SimplifiedLiteral.fromExpression(this);
 	}
 
 	@Override
