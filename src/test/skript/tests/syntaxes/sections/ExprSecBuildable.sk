@@ -1,27 +1,27 @@
 
 test "buildable chest inventory type":
-	set {_gui} to a buildable chest inventory:
+	set {_gui} to a custom chest inventory:
 		set slot 0 to a diamond
 	assert {_gui} is set with "Inventory should not be null"
 	assert {_gui} is a chest inventory with "Inventory should be a chest inventory"
 	assert slot 0 of {_gui} is a diamond with "Slot 0 of inventory should be a diamond"
 
 test "buildable inventory":
-	set {_gui} to a buildable chest inventory named "TEST-INVENTORY" with 6 rows:
+	set {_gui} to a custom chest inventory named "TEST-INVENTORY" with 6 rows:
 		set slot 0 to a diamond
 	assert {_gui} is set with "Inventory should not be null"
 	assert {_gui} is a chest inventory with "Inventory should be a chest inventory"
 	assert slot 0 of {_gui} is a diamond with "Slot 0 of inventory should be a diamond"
 
 test "buildable inventory type as inventory":
-	set {_gui} to a buildable inventory of hopper inventory:
+	set {_gui} to a custom inventory of hopper inventory:
 		set slot 0 to a diamond
 	assert {_gui} is set with "Inventory should not be null"
 	assert {_gui} is a hopper inventory with "Inventory should be a hopper inventory"
 	assert slot 0 of {_gui} is a diamond with "Slot 0 of inventory should be a diamond"
 
 test "buildable item type":
-	set {_item} to a buildable diamond:
+	set {_item} to a custom diamond:
 		set name to "TESTING-NAME"
 		set lore to "TESTING-LORE"
 	assert {_item} is set with "Item should not be null"
@@ -29,8 +29,8 @@ test "buildable item type":
 	assert lore of {_item} is "TESTING-LORE" with "Lore of item was not set"
 
 test "stacked buildables":
-	set {_gui} to a buildable chest inventory:
-		set slot 0 to a buildable diamond:
+	set {_gui} to a custom chest inventory:
+		set slot 0 to a custom diamond:
 			set name to "TESTING-NAME-STACKED"
 			set lore to "TESTING-LORE-STACKED"
 	assert {_gui} is set with "Inventory should not be null"
@@ -41,42 +41,42 @@ test "stacked buildables":
 
 test "buildable parse errors" when running minecraft "1.20.0":
 	parse:
-		set {_test} to a buildable fall:
+		set {_test} to a custom fall:
 			broadcast "filler"
 	assert last parse logs is "The provided object can reference multiple types. Which none can be builded upon." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable fall (damage type):
+		set {_test} to a custom fall (damage type):
 			broadcast "filler"
 	assert last parse logs is "A damage type cannot be builded upon." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable damage type of fall:
+		set {_test} to a custom damage type of fall:
 			broadcast "filler"
 	assert last parse logs is "A damage type cannot be builded upon." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable inventory of fall:
+		set {_test} to a custom inventory of fall:
 			broadcast "filler"
 	assert last parse logs is "The provided expression 'fall' cannot be builded as an inventory." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable inventory type of chest inventory:
+		set {_test} to a custom inventory type of chest inventory:
 			broadcast "filler"
 	assert last parse logs is "An inventory type cannot be builded upon. But can be builded as an inventory." with "Parse error was not printed"
 
 test "buildable disallowed":
 	parse:
-		set {_test} to a buildable last spawned entity:
+		set {_test} to a custom last spawned entity:
 			broadcast "filler"
 	assert last parse logs is "An entity cannot be builded upon." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable cow:
+		set {_test} to a custom cow:
 			broadcast "filler"
 	assert last parse logs is "An entity type cannot be builded upon." with "Parse error was not printed"
 
 	parse:
-		set {_test} to a buildable (2 cows):
+		set {_test} to a custom (2 cows):
 			broadcast "filler"
 	assert last parse logs is "An entity type cannot be builded upon." with "Parse error was not printed"

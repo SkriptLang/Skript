@@ -1,13 +1,10 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.NoDoc;
-import ch.njol.skript.expressions.base.SectionValueExpression;
 import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -23,16 +20,7 @@ public class ExprSectionExpression extends WrapperExpression<Object> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		Class<?> objectClass = Object.class;
-		if (matchedPattern == 0) {
-			//noinspection unchecked
-			ClassInfo<?> classInfo = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
-			objectClass = classInfo.getC();
-		}
-
-		SectionValueExpression<?> sectionValue = SectionValueExpression.simple(objectClass);
-		setExpr(sectionValue);
-		return sectionValue.init();
+		return false;
 	}
 
 	@Override

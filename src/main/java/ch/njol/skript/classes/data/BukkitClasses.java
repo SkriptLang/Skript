@@ -17,7 +17,6 @@ import ch.njol.skript.entity.PigData.PigVariantDummy;
 import ch.njol.skript.entity.WolfData.WolfVariantDummy;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.expressions.base.MultiDefaultExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
@@ -554,7 +553,7 @@ public class BukkitClasses {
 				.usage("")
 				.examples("")
 				.since("1.0")
-				.defaultExpression(MultiDefaultExpression.all(Inventory.class))
+				.defaultExpression(new EventValueExpression<>(Inventory.class))
 				.parser(new Parser<Inventory>() {
 					@Override
 					@Nullable
@@ -1509,7 +1508,7 @@ public class BukkitClasses {
 					return toString(border, 0);
 				}
 			})
-			.defaultExpression(MultiDefaultExpression.all(WorldBorder.class)));
+			.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
 
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 			.user("banner ?patterns?")

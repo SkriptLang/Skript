@@ -6,17 +6,10 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.AnyInfo;
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.classes.YggdrasilSerializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.expressions.base.SectionValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -224,9 +217,7 @@ public class SkriptClasses {
 					}
 				})
 				.cloner(ItemType::clone)
-				.serializer(new YggdrasilSerializer<>())
-				.defaultExpression(SectionValueExpression.simple(ItemType.class))
-		);
+				.serializer(new YggdrasilSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Time.class, "time")
 				.user("times?")
@@ -947,7 +938,6 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{thing}'s name")
 				.since("2.10")
-				.defaultExpression(SectionValueExpression.simple(AnyNamed.class))
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
