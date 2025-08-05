@@ -15,6 +15,7 @@ import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.expressions.base.SectionValueExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -49,8 +50,10 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 
 	static {
 		Skript.registerExpression(ExprSecBuildable.class, Object.class, ExpressionType.SIMPLE,
-			"[a] buildable %object%", "%object% builder",
-			"[a] buildable %*classinfo% (of|from) %object%");
+			"[a] (buildable|custom) %object%",
+			"%object% (builder|with)",
+			"[a] (buildable|custom) %*classinfo% (of|from) %object%",
+			"%*classinfo% (of|from) ");
 	}
 
 	private @Nullable ClassInfo<?> classInfo;
@@ -59,10 +62,12 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 	private @Nullable Object object;
 	private Trigger trigger;
 	private SectionEvent<?> sectionEvent;
+	private List<TriggerItem> triggerItems;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		assert node != null;
+		this.triggerItems = triggerItems;
 		Object object = null;
 		if (matchedPattern <= 1) {
 			expr = handleLiteral(exprs[0]);
@@ -288,6 +293,17 @@ public class ExprSecBuildable extends SectionExpression<Object> implements Expre
 	@Override
 	public Expression<?> getProvidedExpression() {
 		return sectionEvent;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (!(expr instanceof Literal<?>) || object == null)
+			return this;
+		for (TriggerItem item : triggerItems) {
+			if (!(item instanceof Expression<?> exprItem) || !(exprItem.simplify() instanceof Literal<?>))
+				return this;
+		}
+		return SimplifiedLiteral.fromExpression(this);
 	}
 
 	@Override
