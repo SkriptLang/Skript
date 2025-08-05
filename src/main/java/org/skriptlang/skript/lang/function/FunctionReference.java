@@ -200,14 +200,14 @@ public final class FunctionReference<T> implements Debuggable {
 	}
 
 	private KeyedValue<?>[] evaluateSingleListParameter(Expression<?>[] parameters, Event event) {
-        List<Object> values = new ArrayList<>();
+		List<Object> values = new ArrayList<>();
 		Set<String> keys = new LinkedHashSet<>();
 		int keyIndex = 1;
 		for (Expression<?> parameter : parameters) {
 			Object[] valuesArray = parameter.getArray(event);
 			String[] keysArray = KeyProviderExpression.areKeysRecommended(parameter)
-					? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
-					: null;
+				? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
+				: null;
 
 			// Don't allow mutating across function boundary; same hack is applied to variables
 			for (Object value : valuesArray)
@@ -234,9 +234,9 @@ public final class FunctionReference<T> implements Debuggable {
 		for (int i = 0; i < values.length; i++)
 			values[i] = Classes.clone(values[i]);
 
-        String[] keys = KeyProviderExpression.areKeysRecommended(parameter)
-				? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
-				: null;
+		String[] keys = KeyProviderExpression.areKeysRecommended(parameter)
+			? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
+			: null;
 		return KeyedValue.zip(values, keys);
 	}
 

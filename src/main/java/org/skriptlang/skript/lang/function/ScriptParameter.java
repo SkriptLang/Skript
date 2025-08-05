@@ -18,11 +18,11 @@ import java.util.Set;
 /**
  * A parameter for a {@link DefaultFunction}.
  *
- * @param name The name.
- * @param type The type's class.
- * @param modifiers The modifiers.
+ * @param name         The name.
+ * @param type         The type's class.
+ * @param modifiers    The modifiers.
  * @param defaultValue The default value, or null if there is no default value.
- * @param <T> The type.
+ * @param <T>          The type.
  */
 public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modifiers, Expression<?> defaultValue)
 	implements Parameter<T> {
@@ -40,7 +40,7 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 	 *
 	 * @param name The name.
 	 * @param type The class of the parameter.
-	 * @param def The default value, if present.
+	 * @param def  The default value, if present.
 	 * @return A parsed parameter {@link ScriptParameter}, or null if parsing failed.
 	 */
 	public static Parameter<?> parse(@NotNull String name, @NotNull Class<?> type, @Nullable String def) {
@@ -56,7 +56,7 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 		if (def != null) {
 			Class<?> target;
 			if (type.isArray()) {
-                target = type.componentType();
+				target = type.componentType();
 			} else {
 				target = type;
 			}

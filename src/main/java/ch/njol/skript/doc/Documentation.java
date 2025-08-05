@@ -376,8 +376,8 @@ public class Documentation {
 				since);
 	}
 
-	private static void insertFunction(final PrintWriter pw, final JavaFunction<?> func) {
-		final StringBuilder params = new StringBuilder();
+	private static void insertFunction(PrintWriter pw, JavaFunction<?> func) {
+		StringBuilder params = new StringBuilder();
 		for (Parameter<?> p : func.getSignature().parameters().values()) {
 			if (!params.isEmpty())
 				params.append(", ");

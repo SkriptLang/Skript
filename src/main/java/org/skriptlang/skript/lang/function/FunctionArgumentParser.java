@@ -172,7 +172,7 @@ final class FunctionArgumentParser {
 		}
 
 		if (inString && c == '"'
-				&& index < args.length() - 1 && args.charAt(index + 1) != '"') { // allow double string char in strings
+			&& index < args.length() - 1 && args.charAt(index + 1) != '"') { // allow double string char in strings
 			nesting--;
 			inString = false;
 			nextExpr();

@@ -45,7 +45,8 @@ public interface Parameter<T> {
 		 * @return A new Modifier instance to be used as a custom flag.
 		 */
 		static Modifier of() {
-			return new Modifier() { };
+			return new Modifier() {
+			};
 		}
 
 		/**
