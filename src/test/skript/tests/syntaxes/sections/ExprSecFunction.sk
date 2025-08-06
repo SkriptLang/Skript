@@ -1,0 +1,34 @@
+local function esf(x: int):: int:
+	return 1
+
+#local function esf(x: string):: int:
+#	return 2
+
+#local function esf(x: ints):: int:
+#	return 3
+
+local function esf_two(x: int, y: int):: int:
+	return 4
+
+test "function section":
+	set {_x} to function esf with arguments:
+		x set to 1
+	assert {_x} = 1
+
+	#set {_x} to function esf with arguments:
+	#	x set to "hey"
+	#assert {_x} = 2
+
+	#set {_x} to function esf with arguments:
+	#	x set to 1 and 2
+	#assert {_x} = 3
+
+	parse:
+		function esf with arguments:
+			x set to firework
+	assert first element of last parse logs is set
+
+	#parse:
+	#	function esf with arguments:
+	#		x set to {_y}
+	#assert first element of last parse logs is set

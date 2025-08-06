@@ -1,7 +1,6 @@
 package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
@@ -15,14 +14,16 @@ import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.function.Parameter;
+import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class ExprSecFunction extends SectionExpression<Object> {
     }
 
     private Function<?> function;
-    private final LinkedHashMap<String, Expression<?>> arguments = new LinkedHashMap<>();
+    private LinkedHashMap<String, Expression<?>> arguments = null;
 
     @Override
     public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result,
@@ -67,6 +68,7 @@ public class ExprSecFunction extends SectionExpression<Object> {
             return false;
         }
 
+        LinkedHashMap<String, String> args = new LinkedHashMap<>();
         for (Node n : node) {
             if (!(n instanceof SimpleNode) || n.getKey() == null) {
                 Skript.error("Invalid argument declaration for a function section: ", n.getKey());
@@ -79,18 +81,7 @@ public class ExprSecFunction extends SectionExpression<Object> {
                 return false;
             }
 
-            String parameterName = matcher.group("name");
-            String value = matcher.group("value");
-
-            Expression<?> expression = new SkriptParser(value, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT)
-                    .parseExpression(Object.class);
-
-            if (expression == null) {
-                Skript.error("Invalid argument in argument declaration for a function section: ", value);
-                return false;
-            }
-
-            arguments.put(parameterName, expression);
+            args.put(matcher.group("name"), matcher.group("value"));
         }
 
         String namespace = ParserInstance.get().getCurrentScript().getConfig().getFileName();
@@ -101,45 +92,97 @@ public class ExprSecFunction extends SectionExpression<Object> {
             return false;
         }
 
-        Class<?>[] types = arguments.values().stream().map(Expression::getReturnType).toArray(Class<?>[]::new);
+        // todo use FunctionParser
+        function = findFunction(namespace, name, args);
 
-        Retrieval<Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, types);
-        if (retrieval.result() == RetrievalResult.NOT_REGISTERED) {
-            Skript.error("The function %s() does not exist.".formatted(name));
+        if (function == null || arguments == null || arguments.isEmpty()) {
+            doesNotExist(name, args);
             return false;
-        } else if (retrieval.result() == RetrievalResult.AMBIGUOUS) {
-            List<String> conflicts = new ArrayList<>();
-            for (Class<?>[] classes : retrieval.conflictingArgs()) {
-                conflicts.add("%s(%s)".formatted(name, Arrays.stream(classes)
-                        .map(Classes::getExactClassInfo)
-                        .filter(Objects::nonNull)
-                        .map(ClassInfo::getCodeName)
-                        .collect(Collectors.joining(", "))));
-            }
-
-            Skript.error(AMBIGUOUS_ERROR.formatted(name, StringUtils.join(conflicts, ",", " and ")));
-            return false;
-        }
-
-        function = retrieval.retrieved();
-
-        LinkedHashMap<String, Parameter<?>> parameters = Arrays.stream(function.getParameters()).collect(Collectors.toMap(
-                Parameter::getName,
-                p -> p,
-                (a, b) -> b,
-                LinkedHashMap::new
-        ));
-
-        for (String key : arguments.keySet()) {
-            arguments.computeIfPresent(key, (s, expression) -> {
-                Class<?> c = parameters.get(s).getType().getC();
-
-                //noinspection unchecked
-                return expression.getConvertedExpression(c);
-            });
         }
 
         return true;
+    }
+
+    /**
+     * Attempts to find the function to execute given the arguments.
+     *
+     * @param namespace The current script.
+     * @param name The name of the function.
+     * @param args The passed arguments.
+     * @return The function given the arguments, or null if no function is found.
+     */
+    private Function<?> findFunction(String namespace, String name, LinkedHashMap<String, String> args) {
+        signatures:
+        for (Signature<?> signature : FunctionRegistry.getRegistry().getSignatures(namespace, name)) {
+            LinkedHashMap<String, Expression<?>> arguments = new LinkedHashMap<>();
+
+            LinkedHashMap<String, Parameter<?>> parameters = Arrays.stream(signature.getParameters())
+                    .collect(Collectors.toMap(Parameter::getName, p -> p, (a, b) -> b, LinkedHashMap::new));
+            for (Entry<String, String> entry : args.entrySet()) {
+                Parameter<?> parameter = parameters.get(entry.getKey());
+
+                if (parameter == null) {
+                    continue signatures;
+                }
+
+                //noinspection unchecked
+                Expression<?> expression = new SkriptParser(entry.getValue(), SkriptParser.ALL_FLAGS, ParseContext.DEFAULT)
+                        .parseExpression(parameter.getType().getC());
+
+                if (expression == null) {
+                    continue signatures;
+                }
+
+                arguments.put(entry.getKey(), expression);
+            }
+
+            Class<?>[] signatureArgs = Arrays.stream(signature.getParameters())
+                    .map(it -> {
+                        if (it.isSingleValue()) {
+                            return it.getType().getC();
+                        } else {
+                            return it.getType().getC().arrayType();
+                        }
+                    })
+                    .toArray(Class<?>[]::new);
+
+            Retrieval<Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, signatureArgs);
+            if (retrieval.result() == RetrievalResult.EXACT) {
+                this.arguments = arguments;
+                return retrieval.retrieved();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Prints the error for when a function does not exist.
+     *
+     * @param name      The function name.
+     * @param arguments The passed arguments to the function call.
+     */
+    private void doesNotExist(String name, LinkedHashMap<String, String> arguments) {
+        StringJoiner joiner = new StringJoiner(", ");
+
+        for (Map.Entry<String, String> entry : arguments.entrySet()) {
+            SkriptParser parser = new SkriptParser(entry.getValue(), SkriptParser.ALL_FLAGS, ParseContext.DEFAULT);
+
+            Expression<?> expression = LiteralUtils.defendExpression(parser.parseExpression(Object.class));
+
+            if (expression == null) {
+                joiner.add("?");
+                continue;
+            }
+
+            if (expression.isSingle()) {
+                joiner.add(entry.getKey() + ": " + Classes.getSuperClassInfo(expression.getReturnType()).getName().getSingular());
+            } else {
+                joiner.add(entry.getKey() + ": " + Classes.getSuperClassInfo(expression.getReturnType()).getName().getPlural());
+            }
+        }
+
+        Skript.error("The function %s(%s) does not exist.", name, joiner);
     }
 
     @Override
