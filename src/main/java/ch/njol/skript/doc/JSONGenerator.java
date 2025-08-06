@@ -50,23 +50,23 @@ public class JSONGenerator extends DocumentationGenerator {
 		.create();
 
 	/**
-	 * Creates a {@link JSONGenerator} for the specified addon.
+	 * Creates a {@link JSONGenerator} for the specified source.
 	 *
-	 * @param addon The addon.
+	 * @param source The addon to use as source.
 	 * @return The created {@link JSONGenerator}.
 	 */
-	public static JSONGenerator of(@NotNull SkriptAddon addon) {
-		return new JSONGenerator(addon);
+	public static JSONGenerator of(@NotNull SkriptAddon source) {
+		return new JSONGenerator(source);
 	}
 
-	private final @NotNull SkriptAddon addon;
+	private final @NotNull SkriptAddon source;
 
-	private JSONGenerator(@NotNull SkriptAddon addon) {
+	private JSONGenerator(@NotNull SkriptAddon source) {
 		super(new File(""), new File(""));
 
-		Preconditions.checkNotNull(addon, "addon cannot be null");
+		Preconditions.checkNotNull(source, "addon cannot be null");
 
-		this.addon = addon;
+		this.source = source;
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
-		addon = Skript.getAddonInstance();
+		source = Skript.getAddonInstance();
 	}
 
 	/**
@@ -430,7 +430,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param function the JavaFunction to get the return type of
 	 * @return the JsonObject representing the return type of the JavaFunction
 	 */
-	private static JsonObject getFunctionReturnType(JavaFunction<?> function) {
+	private static JsonArray getFunctionReturnType(JavaFunction<?> function) {
+		JsonArray array = new JsonArray();
 		JsonObject object = new JsonObject();
 
 		ClassInfo<?> returnType = function.getReturnType();
@@ -440,7 +441,9 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		object.addProperty("id", DocumentationIdProvider.getId(returnType));
 		object.addProperty("name", Objects.requireNonNullElse(returnType.getDocName(), returnType.getCodeName()));
-		return object;
+
+		array.add(object);
+		return array;
 	}
 
 	/**
@@ -480,21 +483,20 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonObject jsonDocs = new JsonObject();
 
 		jsonDocs.add("version", getVersion());
-		jsonDocs.add("addon", getAddon());
-		jsonDocs.add("conditions", generateSyntaxElementArray(addon.syntaxRegistry().syntaxes(SyntaxRegistry.CONDITION)));
-		jsonDocs.add("effects", generateSyntaxElementArray(addon.syntaxRegistry().syntaxes(SyntaxRegistry.EFFECT)));
-		jsonDocs.add("expressions", generateSyntaxElementArray(addon.syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION)));
-		jsonDocs.add("events", generateStructureElementArray(addon.syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT)));
+		jsonDocs.add("source", getSource());
+		jsonDocs.add("conditions", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.CONDITION)));
+		jsonDocs.add("effects", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.EFFECT)));
+		jsonDocs.add("expressions", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION)));
+		jsonDocs.add("events", generateStructureElementArray(source.syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
 
-		Stream<DefaultSyntaxInfos.Structure<?>> structuresExcludingEvents = addon.syntaxRegistry()
+		Stream<DefaultSyntaxInfos.Structure<?>> structuresExcludingEvents = source.syntaxRegistry()
 			.syntaxes(SyntaxRegistry.STRUCTURE)
 			.stream()
 			.filter(structureInfo -> !(structureInfo instanceof BukkitSyntaxInfos.Event<?>));
 
 		jsonDocs.add("structures", generateStructureElementArray(structuresExcludingEvents.toList()));
-		jsonDocs.add("sections", generateSyntaxElementArray(addon.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
-
+		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
 
 		Files.writeString(output, GSON.toJson(jsonDocs));
@@ -505,11 +507,11 @@ public class JSONGenerator extends DocumentationGenerator {
 	 *
 	 * @return The json object representing the addon.
 	 */
-	private JsonObject getAddon() {
+	private JsonObject getSource() {
 		JsonObject object = new JsonObject();
 
-		object.addProperty("name", this.addon.name());
-		object.addProperty("version", this.addon.version.toString());
+		object.addProperty("name", this.source.name());
+		object.addProperty("version", this.source.version.toString());
 
 		return object;
 	}
