@@ -15,6 +15,7 @@ import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +42,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * The pattern for a valid function name.
 	 * Functions must start with a letter or underscore and can only contain letters, numbers, and underscores.
 	 */
-	final static String FUNCTION_NAME_PATTERN = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*";
+	final static Pattern FUNCTION_NAME_PATTERN = Pattern.compile("[A-z_][A-z_0-9]*");
 
 	/**
 	 * The namespace for registered global functions.
@@ -150,7 +151,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		Skript.debug("Registering function '%s'", function.getName());
 
 		String name = function.getName();
-		if (!name.matches(FUNCTION_NAME_PATTERN)) {
+		if (!FUNCTION_NAME_PATTERN.matcher(name).matches()) {
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
 		}
 
