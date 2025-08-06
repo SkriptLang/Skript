@@ -17,7 +17,6 @@ public class DefaultBuildables {
 
 		// DISALLOW
 		BuildableRegistry.registerDisallowed(Entity.class, EntityData.class, EntityType.class);
-		BuildableRegistry.registerDisallowed(DamageSource.class);
 	}
 
 }
