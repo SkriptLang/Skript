@@ -75,21 +75,22 @@ public record FunctionParser(ParseContext context, int flags) {
 				return null;
 			}
 
-			return parseFunctionReference(functionName, args, log);
+			FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
+			return parseFunctionReference(functionName, arguments, log);
 		}
 	}
 
 	/**
 	 * Attempts to parse a function reference.
 	 *
-	 * @param name The function name.
-	 * @param args The passed arguments as a string to the function.
-	 * @param <T>  The return type of the function.
+	 * @param name      The function name.
+	 * @param arguments The passed arguments to the function as an array of {@link Argument Arguments},
+	 *                  usually parsed with a {@link FunctionArgumentParser}.
+	 * @param log       The log handler.
+	 * @param <T>       The return type of the function.
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
-	private <T> FunctionReference<T> parseFunctionReference(String name, String args, ParseLogHandler log) {
-		FunctionReference.Argument<String>[] arguments = new FunctionArgumentParser(args).getArguments();
-
+	public <T> FunctionReference<T> parseFunctionReference(String name, FunctionReference.Argument<String>[] arguments, ParseLogHandler log) {
 		// avoid assigning values to a parameter multiple times
 		Set<String> named = new HashSet<>();
 		for (Argument<String> argument : arguments) {
