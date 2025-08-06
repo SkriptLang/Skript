@@ -4,21 +4,20 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
-import org.jetbrains.annotations.UnmodifiableView;
+import org.jetbrains.annotations.*;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * A registry for functions.
  */
-final class FunctionRegistry implements Registry<Function<?>> {
+@ApiStatus.Internal
+public final class FunctionRegistry implements Registry<Function<?>> {
 
 	private static FunctionRegistry registry;
 
@@ -38,7 +37,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * The pattern for a valid function name.
 	 * Functions must start with a letter or underscore and can only contain letters, numbers, and underscores.
 	 */
-	final static String FUNCTION_NAME_PATTERN = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*";
+	final static Pattern FUNCTION_NAME_PATTERN = Pattern.compile("[A-z_][A-z_0-9]*");
 
 	/**
 	 * The namespace for registered global functions.
@@ -147,7 +146,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 		Skript.debug("Registering function '%s'", function.getName());
 
 		String name = function.getName();
-		if (!name.matches(FUNCTION_NAME_PATTERN)) {
+		if (!FUNCTION_NAME_PATTERN.matcher(name).matches()) {
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
 		}
 
@@ -211,7 +210,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * The result of attempting to retrieve a function.
 	 * Depending on the type, a {@link Retrieval} will feature different data.
 	 */
-	enum RetrievalResult {
+	public enum RetrievalResult {
 
 		/**
 		 * The specified function or signature has not been registered.
@@ -257,7 +256,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param retrieved       The function or signature that was found if {@code result} is {@code EXACT}.
 	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
 	 */
-	record Retrieval<T>(
+	public record Retrieval<T>(
 		@NotNull RetrievalResult result,
 		T retrieved,
 		Class<?>[][] conflictingArgs
