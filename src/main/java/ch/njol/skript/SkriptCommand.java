@@ -386,8 +386,9 @@ public class SkriptCommand implements CommandExecutor {
 				outputDir.mkdirs();
 
 				Skript.info(sender, "Generating docs...");
-				JSONGenerator jsonGenerator = new JSONGenerator(templateDir, outputDir);
-				jsonGenerator.generate();
+
+				JSONGenerator.of(Skript.instance())
+					.generate(outputDir.toPath().resolve("docs.json"));
 
 				if (!templateDir.exists()) {
 					Skript.info(sender, "JSON-only documentation generated!");

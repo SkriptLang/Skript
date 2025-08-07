@@ -2,31 +2,36 @@ package ch.njol.skript.doc;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
 import ch.njol.skript.util.Version;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Generates JSON docs
@@ -36,7 +41,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * The current version of the JSON generator
 	 */
-	public static final Version JSON_VERSION = new Version(1, 1);
+	public static final Version JSON_VERSION = new Version(2, 0);
 
 	private static final Gson GSON = new GsonBuilder()
 		.disableHtmlEscaping()
@@ -44,8 +49,34 @@ public class JSONGenerator extends DocumentationGenerator {
 		.serializeNulls()
 		.create();
 
+	/**
+	 * Creates a {@link JSONGenerator} for the specified source.
+	 *
+	 * @param source The addon to use as source.
+	 * @return The created {@link JSONGenerator}.
+	 */
+	@Contract("_ -> new")
+	public static JSONGenerator of(@NotNull SkriptAddon source) {
+		return new JSONGenerator(source);
+	}
+
+	private final @NotNull SkriptAddon source;
+
+	private JSONGenerator(@NotNull SkriptAddon source) {
+		super(new File(""), new File(""));
+
+		Preconditions.checkNotNull(source, "addon cannot be null");
+
+		this.source = source;
+	}
+
+	/**
+	 * @deprecated Use {@link #of(SkriptAddon)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
+		source = Skript.instance();
 	}
 
 	/**
@@ -80,8 +111,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param syntaxInfo the syntax info element to generate the documentation object of
 	 * @return the JsonObject representing the documentation of the provided syntax element
 	 */
-	private static JsonObject generatedAnnotatedElement(SyntaxElementInfo<?> syntaxInfo) {
-		Class<?> syntaxClass = syntaxInfo.getElementClass();
+	private static JsonObject generatedAnnotatedElement(SyntaxInfo<?> syntaxInfo) {
+		Class<?> syntaxClass = syntaxInfo.type();
 		Name name = syntaxClass.getAnnotation(Name.class);
 		if (name == null || syntaxClass.getAnnotation(NoDoc.class) != null)
 			return null;
@@ -99,7 +130,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		Description description = syntaxClass.getAnnotation(Description.class);
 		syntaxJsonObject.add("description", description == null ? null : convertToJsonArray(description.value()));
 
-		syntaxJsonObject.add("patterns", cleanPatterns(syntaxInfo.getPatterns()));
+		syntaxJsonObject.add("patterns", cleanPatterns(syntaxInfo.patterns().toArray(new String[0])));
 
 		if (syntaxClass.isAnnotationPresent(Examples.class)) {
 			@NotNull Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
@@ -117,8 +148,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("examples", null);
 		}
 
-		Events events = syntaxClass.getAnnotation(Events.class);
-		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
+		syntaxJsonObject.add("events", getAnnotatedEvents(syntaxClass.getAnnotation(Events.class)));
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
 		syntaxJsonObject.add("requirements", requirements == null ? null : convertToJsonArray(requirements.value()));
@@ -126,7 +156,55 @@ public class JSONGenerator extends DocumentationGenerator {
 		Keywords keywords = syntaxClass.getAnnotation(Keywords.class);
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
+		if (syntaxInfo instanceof DefaultSyntaxInfos.Expression<?, ?> expression) {
+			syntaxJsonObject.add("returns", getExpressionReturnTypes(expression));
+		}
+
 		return syntaxJsonObject;
+	}
+
+	/**
+	 * Returns the formatted events based on the {@link Events} annotation.
+	 *
+	 * @param events The events annotation.
+	 * @return A json array with the formatted events value, or null if there is no annotation.
+	 */
+	private static @Nullable JsonArray getAnnotatedEvents(Events events) {
+		if (events == null || events.value() == null) {
+			return null;
+		}
+
+		JsonArray array = new JsonArray();
+
+		for (String event : events.value()) {
+			JsonObject object = new JsonObject();
+
+			object.addProperty("id", event);
+			object.addProperty("name", event);
+
+			array.add(object);
+		}
+
+		return array;
+	}
+
+	/**
+	 * Gets an {@link DefaultSyntaxInfos.Expression}'s return type.
+	 *
+	 * @param expression The expression class.
+	 * @return An object with the return type.
+	 */
+	private static @Nullable JsonObject getExpressionReturnTypes(DefaultSyntaxInfos.Expression<?, ?> expression) {
+		ClassInfo<?> exact = Classes.getExactClassInfo(expression.returnType());
+
+		if (exact == null) {
+			return null;
+		}
+
+		JsonObject object = new JsonObject();
+		object.addProperty("id", exact.getCodeName());
+		object.addProperty("name", exact.getName().getSingular());
+		return object;
 	}
 
 	/**
@@ -135,19 +213,19 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param info the event to generate the documentation object for
 	 * @return a documentation JsonObject for the event
 	 */
-	private static JsonObject generateEventElement(SkriptEventInfo<?> info) {
+	private static JsonObject generateEventElement(BukkitSyntaxInfos.Event<?> info) {
 		JsonObject syntaxJsonObject = new JsonObject();
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(info));
-		syntaxJsonObject.addProperty("name", info.getName());
+		syntaxJsonObject.addProperty("name", info.name());
 		syntaxJsonObject.addProperty("cancellable", isCancellable(info));
 
-		syntaxJsonObject.add("since", convertToJsonArray(info.getSince()));
-		syntaxJsonObject.add("patterns", cleanPatterns(info.getPatterns()));
-		syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
-		syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
-		syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
+		syntaxJsonObject.add("since", convertToJsonArray(info.since().toArray(new String[0])));
+		syntaxJsonObject.add("patterns", cleanPatterns(info.patterns().toArray(new String[0])));
+		syntaxJsonObject.add("description", convertToJsonArray(info.description().toArray(new String[0])));
+		syntaxJsonObject.add("requirements", convertToJsonArray(info.requiredPlugins().toArray(new String[0])));
+		syntaxJsonObject.add("examples", convertToJsonArray(info.examples().toArray(new String[0])));
 		syntaxJsonObject.add("eventValues", getEventValues(info));
-		syntaxJsonObject.add("keywords", convertToJsonArray(info.getKeywords()));
+		syntaxJsonObject.add("keywords", convertToJsonArray(info.keywords().toArray(new String[0])));
 
 		return syntaxJsonObject;
 	}
@@ -158,11 +236,11 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param info the event to generate the event values of
 	 * @return a JsonArray containing the documentation JsonObjects for each event value
 	 */
-	private static JsonArray getEventValues(SkriptEventInfo<?> info) {
+	private static JsonArray getEventValues(BukkitSyntaxInfos.Event<?> info) {
 		Set<JsonObject> eventValues = new HashSet<>();
 
 		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
-		for (Class<? extends Event> supportedEvent : info.events) {
+		for (Class<? extends Event> supportedEvent : info.events()) {
 			for (Class<? extends Event> event : allEventValues.keySet()) {
 				if (!event.isAssignableFrom(supportedEvent)) {
 					continue;
@@ -227,9 +305,9 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param info the event to check
 	 * @return true if the event is cancellable, false otherwise
 	 */
-	private static boolean isCancellable(SkriptEventInfo<?> info) {
+	private static boolean isCancellable(BukkitSyntaxInfos.Event<?> info) {
 		boolean cancellable = false;
-		for (Class<? extends Event> event : info.events) {
+		for (Class<? extends Event> event : info.events()) {
 			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
 				cancellable = true;
 				break;
@@ -245,10 +323,10 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param infos the structures to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each structure
 	 */
-	private static <T extends StructureInfo<? extends Structure>> JsonArray generateStructureElementArray(Iterator<T> infos) {
+	private static <T extends SyntaxInfo<? extends Structure>> JsonArray generateStructureElementArray(Collection<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
-		infos.forEachRemaining(info -> {
-			if (info instanceof SkriptEventInfo<?> eventInfo) {
+		infos.forEach(info -> {
+			if (info instanceof BukkitSyntaxInfos.Event<?> eventInfo) {
 				syntaxArray.add(generateEventElement(eventInfo));
 			} else {
 				JsonObject structureElementJsonObject = generatedAnnotatedElement(info);
@@ -265,9 +343,9 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param infos the syntax elements to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each syntax element
 	 */
-	private static <T extends SyntaxElementInfo<? extends SyntaxElement>> JsonArray generateSyntaxElementArray(Iterator<T> infos) {
+	private static <T extends SyntaxInfo<? extends SyntaxElement>> JsonArray generateSyntaxElementArray(Collection<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
-		infos.forEachRemaining(info -> {
+		infos.forEach(info -> {
 			JsonObject syntaxJsonObject = generatedAnnotatedElement(info);
 			if (syntaxJsonObject != null)
 				syntaxArray.add(syntaxJsonObject);
@@ -325,7 +403,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
 		functionJsonObject.addProperty("name", function.getName());
 		functionJsonObject.addProperty("since", function.getSince());
-		functionJsonObject.add("returnType", getReturnType(function));
+		functionJsonObject.add("returns", getFunctionReturnType(function));
 
 		functionJsonObject.add("description", convertToJsonArray(function.getDescription()));
 		functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
@@ -341,7 +419,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param function the JavaFunction to get the return type of
 	 * @return the JsonObject representing the return type of the JavaFunction
 	 */
-	private static JsonObject getReturnType(JavaFunction<?> function) {
+	private static JsonObject getFunctionReturnType(JavaFunction<?> function) {
 		JsonObject object = new JsonObject();
 
 		ClassInfo<?> returnType = function.getReturnType();
@@ -351,6 +429,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		object.addProperty("id", DocumentationIdProvider.getId(returnType));
 		object.addProperty("name", Objects.requireNonNullElse(returnType.getDocName(), returnType.getCodeName()));
+
 		return object;
 	}
 
@@ -383,40 +462,59 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
-	 * Writes the documentation JsonObject to an output path
+	 * Generates the json documentation for this addon at the specified path.
 	 *
-	 * @param outputPath the path to write the documentation to
-	 * @param jsonDocs   the documentation JsonObject
+	 * @param path The output path.
 	 */
-	private void saveDocs(Path outputPath, JsonObject jsonDocs) {
-		try {
-			Files.writeString(outputPath, GSON.toJson(jsonDocs));
-		} catch (IOException exception) {
-			//noinspection ThrowableNotThrown
-			Skript.exception(exception, "An error occurred while trying to generate JSON documentation");
-		}
-	}
+	public void generate(@NotNull Path path) throws IOException {
+		Preconditions.checkNotNull(path, "path cannot be null");
 
-	@Override
-	public void generate() {
 		JsonObject jsonDocs = new JsonObject();
 
-		jsonDocs.addProperty("skriptVersion", Skript.getVersion().toString());
 		jsonDocs.add("version", getVersion());
-		jsonDocs.add("conditions", generateSyntaxElementArray(Skript.getConditions().iterator()));
-		jsonDocs.add("effects", generateSyntaxElementArray(Skript.getEffects().iterator()));
-		jsonDocs.add("expressions", generateSyntaxElementArray(Skript.getExpressions()));
-		jsonDocs.add("events", generateStructureElementArray(Skript.getEvents().iterator()));
-		jsonDocs.add("classes", generateClassInfoArray(Classes.getClassInfos().iterator()));
-
-		Stream<StructureInfo<? extends Structure>> structuresExcludingEvents = Skript.getStructures().stream()
-			.filter(structureInfo -> !(structureInfo instanceof SkriptEventInfo));
-		jsonDocs.add("structures", generateStructureElementArray(structuresExcludingEvents.iterator()));
-		jsonDocs.add("sections", generateSyntaxElementArray(Skript.getSections().iterator()));
-
+		jsonDocs.add("source", getSource());
+		jsonDocs.add("conditions", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.CONDITION)));
+		jsonDocs.add("effects", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.EFFECT)));
+		jsonDocs.add("expressions", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION)));
+		jsonDocs.add("events", generateStructureElementArray(source.syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT)));
+		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
+		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
+		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
 		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
 
-		saveDocs(outputDir.toPath().resolve("docs.json"), jsonDocs);
+		Files.writeString(path, GSON.toJson(jsonDocs));
+	}
+
+	/**
+	 * Gets the json object representing the addon.
+	 *
+	 * @return The json object representing the addon.
+	 */
+	private JsonObject getSource() {
+		JsonObject object = new JsonObject();
+
+		object.addProperty("name", source.name());
+		try {
+			JavaPlugin plugin = JavaPlugin.getProvidingPlugin(source.source());
+			object.addProperty("version", plugin.getDescription().getVersion());
+		} catch (Exception ex) {
+			object.add("version", null);
+		}
+
+		return object;
+	}
+
+	/**
+	 * @deprecated Use {@link #generate(Path)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Override
+	public void generate() {
+		try {
+			generate(outputDir.toPath());
+		} catch (IOException ex) {
+			Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
+		}
 	}
 
 }
