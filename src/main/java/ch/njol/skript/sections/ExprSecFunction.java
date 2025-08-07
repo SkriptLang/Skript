@@ -5,7 +5,9 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -32,12 +34,18 @@ import java.util.stream.Collectors;
 @Description("""
         Runs a function with the specified arguments.
         """)
+@Example("""
+	local function multiply(x: number, y: number) returns number:
+		return {_x} * {_y}
+	
+	set {_x} to function multiply with arguments:
+		x as 2
+		y as 3
+	
+	broadcast "%{_x}%" # returns 6
+	""")
+@Since("INSERT VERSION")
 public class ExprSecFunction extends SectionExpression<Object> {
-
-    private static final String AMBIGUOUS_ERROR =
-            "Skript cannot determine which function named '%s' to call. " +
-                    "The following functions were matched: %s. " +
-                    "Try clarifying the type of the arguments using the 'value within' expression.";
 
     /**
      * The pattern for a valid function name.
@@ -48,10 +56,10 @@ public class ExprSecFunction extends SectionExpression<Object> {
     /**
      * The pattern for an argument that can be passed in the children of this section.
      */
-    private static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?<name>%s) set to (?<value>.+)".formatted(FUNCTION_NAME_PATTERN.toString()));
+    private static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?:(?:the )?argument )?(?<name>%s) set to (?<value>.+)".formatted(FUNCTION_NAME_PATTERN.toString()));
 
     static {
-        Skript.registerExpression(ExprSecFunction.class, Object.class, ExpressionType.SIMPLE, "function <.+> with argument[s]");
+        Skript.registerExpression(ExprSecFunction.class, Object.class, ExpressionType.SIMPLE, "[the] function <.+> with [the] arg[ument][s]");
     }
 
     private Function<?> function;
@@ -60,11 +68,10 @@ public class ExprSecFunction extends SectionExpression<Object> {
     @Override
     public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result,
                         @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
-        if (node == null) {
-            Skript.error("A section must follow this expression.");
-            return false;
-        } else if (node.isEmpty()) {
-            Skript.error("A function section must contain code.");
+		assert node != null;
+
+        if (node.isEmpty()) {
+            Skript.error("A function section must contain arguments.");
             return false;
         }
 
@@ -88,7 +95,7 @@ public class ExprSecFunction extends SectionExpression<Object> {
         String name = result.regexes.get(0).group();
 
         if (!FUNCTION_NAME_PATTERN.matcher(name).matches()) {
-            Skript.error("The function %s() does not exist.".formatted(name));
+            Skript.error("The function %s does not exist.", name);
             return false;
         }
 
@@ -99,6 +106,11 @@ public class ExprSecFunction extends SectionExpression<Object> {
             doesNotExist(name, args);
             return false;
         }
+
+		if (function.getReturnType() == null) {
+			Skript.error("The function %s does not return anything.", name);
+			return false;
+		}
 
         return true;
     }
@@ -129,7 +141,7 @@ public class ExprSecFunction extends SectionExpression<Object> {
                 Expression<?> expression = new SkriptParser(entry.getValue(), SkriptParser.ALL_FLAGS, ParseContext.DEFAULT)
                         .parseExpression(parameter.getType().getC());
 
-                if (expression == null) {
+                if (expression == null || LiteralUtils.hasUnparsedLiteral(expression)) {
                     continue signatures;
                 }
 
@@ -170,8 +182,8 @@ public class ExprSecFunction extends SectionExpression<Object> {
 
             Expression<?> expression = LiteralUtils.defendExpression(parser.parseExpression(Object.class));
 
-            if (expression == null) {
-                joiner.add("?");
+            if (expression == null || LiteralUtils.hasUnparsedLiteral(expression)) {
+                joiner.add(entry.getKey() + ": ?");
                 continue;
             }
 
@@ -187,14 +199,28 @@ public class ExprSecFunction extends SectionExpression<Object> {
 
     @Override
     protected Object @Nullable [] get(Event event) {
-        Object[][] args = new Object[arguments.size()][];
+		if (function == null) {
+			return null;
+		}
+
+        Object[][] args = new Object[function.getParameters().length][];
         int i = 0;
-        for (Expression<?> value : arguments.values()) {
-            args[i] = value.getArray(event);
+        for (Parameter<?> value : function.getParameters()) {
+			Expression<?> expression = arguments.get(value.getName());
+
+			if (expression == null) {
+				return null;
+			}
+
+			args[i] = expression.getArray(event);
             i++;
         }
 
-        return function.execute(args);
+        try {
+			return function.execute(args);
+		} finally {
+			function.resetReturnValue();
+		}
     }
 
     @Override

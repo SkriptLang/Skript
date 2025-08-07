@@ -10,6 +10,9 @@ local function esf(x: int):: int:
 local function esf_two(x: int, y: int):: int:
 	return 4
 
+local function esf_void(x: int):
+	stop
+
 test "function section":
 	set {_x} to function esf with arguments:
 		x set to 1
@@ -24,11 +27,31 @@ test "function section":
 	#assert {_x} = 3
 
 	parse:
-		function esf with arguments:
+		set {_x} to function esf with arguments:
 			x set to firework
-	assert first element of last parse logs is set
+	assert first element of last parse logs contains "The function esf(x: item type) does not exist"
 
 	#parse:
-	#	function esf with arguments:
+	#	set {_x} to function esf with arguments:
 	#		x set to {_y}
 	#assert first element of last parse logs is set
+
+	parse:
+		set {_x} to function esf with arguments:
+			x set to agadsfg
+	assert first element of last parse logs contains "The function esf(x: ?) does not exist"
+
+	set {_x} to function esf_two with arguments:
+		x set to 1
+		y set to 2
+	assert {_x} = 4
+
+	set {_x} to function esf_two with arguments:
+		y set to 2
+		x set to 1
+	assert {_x} = 4
+
+	parse:
+		set {_x} to function esf_void with arguments:
+			x set to 1
+	assert first element of last parse logs contains "The function esf_void does not return anything"
