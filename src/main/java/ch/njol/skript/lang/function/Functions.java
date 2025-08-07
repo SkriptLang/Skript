@@ -12,6 +12,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;
@@ -53,11 +54,33 @@ public abstract class Functions {
 
 	static boolean callFunctionEvents = false;
 
+
 	/**
-	 * Registers a function written in Java.
+	 * Registers a {@link DefaultFunction}.
 	 *
-	 * @return The passed function
+	 * @param function The function to register.
+	 * @return The registered function.
 	 */
+	public static DefaultFunction<?> register(DefaultFunction<?> function) {
+		Skript.checkAcceptRegistrations();
+
+		String name = function.getName();
+		if (!name.matches(functionNamePattern))
+			throw new SkriptAPIException("Invalid function name '%s'".formatted(name));
+
+		javaNamespace.addSignature(function.getSignature());
+		javaNamespace.addFunction(function);
+		globalFunctions.put(function.getName(), javaNamespace);
+
+		FunctionRegistry.getRegistry().register(null, function);
+
+		return function;
+	}
+
+	/**
+	 * @deprecated Use {@link DefaultFunction#register()} or {@link #register(DefaultFunction)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static JavaFunction<?> registerFunction(JavaFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 		String name = function.getName();
@@ -161,14 +184,14 @@ public abstract class Functions {
 		Parameter<?>[] parameters = signature.parameters;
 
 		if (parameters.length == 1 && !parameters[0].isSingleValue()) {
-			existing = FunctionRegistry.getRegistry().getExactSignature(signature.script, signature.getName(), parameters[0].type.getC().arrayType());
+			existing = FunctionRegistry.getRegistry().getExactSignature(signature.script, signature.getName(), parameters[0].type().arrayType());
 		} else {
 			Class<?>[] types = new Class<?>[parameters.length];
 			for (int i = 0; i < parameters.length; i++) {
 				if (parameters[i].isSingleValue()) {
-					types[i] = parameters[i].type.getC();
+					types[i] = parameters[i].type();
 				} else {
-					types[i] = parameters[i].type.getC().arrayType();
+					types[i] = parameters[i].type().arrayType();
 				}
 			}
 
@@ -412,10 +435,23 @@ public abstract class Functions {
 		toValidate.clear();
 	}
 
+	/**
+	 * @deprecated Use {@link #getDefaultFunctions()} instead.
+	 */
 	@SuppressWarnings({"unchecked"})
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static Collection<JavaFunction<?>> getJavaFunctions() {
 		// We know there are only Java functions in that namespace
 		return (Collection<JavaFunction<?>>) (Object) javaNamespace.getFunctions();
+	}
+
+	/**
+	 * Returns all functions registered using Java.
+	 *
+	 * @return All {@link JavaFunction} or {@link DefaultFunction} functions.
+	 */
+	public static Collection<Function<?>> getDefaultFunctions() {
+		return javaNamespace.getFunctions();
 	}
 
 	/**

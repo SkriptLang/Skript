@@ -2,9 +2,11 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -63,7 +65,7 @@ public class Signature<T> {
 	 */
 	final @Nullable Contract contract;
 
-	public Signature(String script,
+	public Signature(@Nullable String script,
 					 String name,
 					 Parameter<?>[] parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
@@ -82,6 +84,66 @@ public class Signature<T> {
 		calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
 
+	/**
+	 * Creates a new signature.
+	 *
+	 * @param script The script of this signature.
+	 * @param name The name of the function.
+	 * @param parameters The parameters.
+	 * @param returnType The return type class.
+	 * @param contract A {@link Contract} that may belong to this signature.
+	 */
+	public Signature(@Nullable String script,
+					 String name,
+					 org.skriptlang.skript.common.function.Parameter<?>[] parameters,
+					 @Nullable Class<T> returnType,
+					 boolean single,
+					 @Nullable Contract contract) {
+		this.parameters = new Parameter[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			org.skriptlang.skript.common.function.Parameter<?> parameter = parameters[i];
+			this.parameters[i] = new Parameter<>(parameter.name(),
+				getClassInfo(parameter.type()), parameter.single(),
+				null,
+				parameter.modifiers().toArray(new Modifier[0]));
+		}
+
+		this.script = script;
+		this.name = name;
+		this.local = script != null;
+		if (returnType != null) {
+			this.returnType = getClassInfo(returnType);
+		} else {
+			this.returnType = null;
+		}
+		this.single = single;
+		this.contract = contract;
+		this.originClassPath = "";
+
+		calls = Collections.newSetFromMap(new WeakHashMap<>());
+	}
+
+	/**
+	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
+	 *
+	 * @param cls The class.
+	 * @param <T> The type of class.
+	 * @return The non-array {@link ClassInfo} of {@code cls}.
+	 */
+	private static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
+		ClassInfo<T> classInfo;
+		if (cls.isArray()) {
+			//noinspection unchecked
+			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
+		} else {
+			classInfo = Classes.getExactClassInfo(cls);
+		}
+		if (classInfo == null) {
+			throw new IllegalArgumentException("No type found for " + cls.getSimpleName());
+		}
+		return classInfo;
+	}
+
 	public Signature(String script,
 					 String name,
 					 Parameter<?>[] parameters, boolean local,
@@ -94,7 +156,7 @@ public class Signature<T> {
 	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
 		this(script, name, parameters, local, returnType, single, null);
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -120,6 +182,10 @@ public class Signature<T> {
 		return single;
 	}
 
+	/**
+	 * @deprecated Unused and unsafe.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public String getOriginClassPath() {
 		return originClassPath;
 	}
@@ -145,7 +211,7 @@ public class Signature<T> {
 	 */
 	public int getMinParameters() {
 		for (int i = parameters.length - 1; i >= 0; i--) {
-			if (parameters[i].def == null)
+			if (!parameters[i].isOptional())
 				return i + 1;
 		}
 		return 0; // No-args function
