@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprMaxDurability.class, Integer.class, "max[imum] (durabilit(y|ies)|damage)", "itemtypes/itemstacks/slots");
+		registerDefault(ExprMaxDurability.class, Integer.class, "max[imum] (durabilit(y|ies)|damage)", "itemtypes/itemstacks/slots");
 	}
 
 	@Override

@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBookTitle extends SimplePropertyExpression<ItemType, String> {
 	
 	static {
-		register(ExprBookTitle.class, String.class, "book (name|title)", "itemtypes");
+		registerDefault(ExprBookTitle.class, String.class, "book (name|title)", "itemtypes");
 	}
 	
 	@Nullable

@@ -1,16 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -29,6 +18,16 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Name("Book Pages")
 @Description({
@@ -50,9 +49,9 @@ public class ExprBookPages extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprBookPages.class, String.class, ExpressionType.PROPERTY,
-				"[all [[of] the]|the] [book] (pages|content) of %itemtypes/itemstacks%",
+				"[all [[of] the]|the] [book] (pages|content) [of %itemtypes/itemstacks%]",
 				"%itemtypes/itemstacks%'[s] [book] (pages|content)",
-				"[book] page %number% of %itemtypes/itemstacks%",
+				"[book] page %number% [of %itemtypes/itemstacks%]",
 				"%itemtypes/itemstacks%'[s] [book] page %number%"
 		);
 		if (Skript.isRunningMinecraft(1, 16) && Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER)

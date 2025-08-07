@@ -36,7 +36,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprMaxStack.class, Integer.class, "max[imum] stack[[ ]size]", "itemtypes/inventories");
+		registerDefault(ExprMaxStack.class, Integer.class, "max[imum] stack[[ ]size]", "itemtypes/inventories");
 	}
 
 	private static final boolean CHANGEABLE_ITEM_STACK_SIZE = Skript.methodExists(ItemMeta.class, "setMaxStackSize", Integer.class);

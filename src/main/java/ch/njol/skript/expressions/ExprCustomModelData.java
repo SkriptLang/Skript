@@ -50,12 +50,12 @@ public class ExprCustomModelData extends PropertyExpression<ItemType, Object> {
 	static {
 		if (USE_NEW_CMD) {
 			List<String> patterns = new ArrayList<>();
-			patterns.addAll(Arrays.asList(PropertyExpression.getPatterns("[custom] model data", "itemtypes")));
-			patterns.addAll(Arrays.asList(PropertyExpression.getPatterns("[custom] model data (1:floats|2:flags|3:strings|4:colo[u]rs)", "itemtype")));
-			patterns.addAll(Arrays.asList(PropertyExpression.getPatterns("(5:(complete|full)) [custom] model data", "itemtype")));
+			patterns.addAll(Arrays.asList(PropertyExpression.getDefaultPatterns("[custom] model data", "itemtypes")));
+			patterns.addAll(Arrays.asList(PropertyExpression.getDefaultPatterns("[custom] model data (1:floats|2:flags|3:strings|4:colo[u]rs)", "itemtype")));
+			patterns.addAll(Arrays.asList(PropertyExpression.getDefaultPatterns("(5:(complete|full)) [custom] model data", "itemtype")));
 			Skript.registerExpression(ExprCustomModelData.class, Object.class, ExpressionType.PROPERTY, patterns.toArray(String[]::new));
 		} else {
-			register(ExprCustomModelData.class, Object.class, "[custom] model data", "itemtypes");
+			registerDefault(ExprCustomModelData.class, Object.class, "[custom] model data", "itemtypes");
 		}
 	}
 

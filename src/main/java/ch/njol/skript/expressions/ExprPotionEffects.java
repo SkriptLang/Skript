@@ -1,14 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -22,6 +13,14 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Potion Effects")
 @Description({"Represents the active potion effects of entities and itemtypes.",
@@ -38,7 +37,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprPotionEffects extends SimpleExpression<PotionEffect> {
 	
 	static {
-		PropertyExpression.register(ExprPotionEffects.class, PotionEffect.class,
+		PropertyExpression.registerDefault(ExprPotionEffects.class, PotionEffect.class,
 			"[(all [[of] the]|the)] [active] potion effects", "livingentities/itemtypes");
 	}
 	

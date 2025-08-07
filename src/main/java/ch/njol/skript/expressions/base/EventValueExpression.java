@@ -163,18 +163,42 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		Skript.registerExpression(expression, type, ExpressionType.EVENT, patterns);
 	}
 
+	/**
+	 * Get a {@link Builder} for {@link EventValueExpression}.
+	 *
+	 * @param type The class that this event value represents.
+	 * @return {@link Builder}.
+	 */
+	public static <T> Builder<T> builder(Class<? extends T> type) {
+		return new Builder<>(type);
+	}
+
+	/**
+	 * Get a simple {@link EventValueExpression}.
+	 *
+	 * @param type The class that this event value represents.
+	 * @return {@link EventValueExpression}.
+	 */
+	public static <T> EventValueExpression<T> simple(Class<? extends T> type) {
+		//noinspection unchecked
+		return (EventValueExpression<T>) builder(type).build();
+	}
+
 	private final Map<Class<? extends Event>, Converter<?, ? extends T>> converters = new HashMap<>();
 	private final Map<Class<? extends Event>, EventConverter<Event, T>> eventConverters = new HashMap<>();
 
 	private final Class<?> componentType;
 	private final Class<? extends T> type;
 
-	@Nullable
-	private Changer<? super T> changer;
+	private @Nullable Changer<? super T> changer;
 	private final boolean single;
 	private final boolean exact;
 	private boolean isDelayed;
 
+	/**
+	 * @deprecated Use {@link #simple(Class)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public EventValueExpression(Class<? extends T> type) {
 		this(type, null);
 	}
@@ -184,16 +208,42 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 *
 	 * @param type The class that this event value represents.
 	 * @param exact If false, the event value can be a subclass or a converted event value.
+	 * @deprecated Use {@link #builder(Class)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public EventValueExpression(Class<? extends T> type, boolean exact) {
 		this(type, null, exact);
 	}
 
+	/**
+	 * @deprecated Use {@link #builder(Class)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public EventValueExpression(Class<? extends T> type, @Nullable Changer<? super T> changer) {
 		this(type, changer, false);
 	}
 
+	/**
+	 * @deprecated Use {@link #builder(Class)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public EventValueExpression(Class<? extends T> type, @Nullable Changer<? super T> changer, boolean exact) {
+		assert type != null;
+		this.type = type;
+		this.exact = exact;
+		this.changer = changer;
+		single = !type.isArray();
+		componentType = single ? type : type.getComponentType();
+	}
+
+	/**
+	 * Construct an event value expression.
+	 *
+	 * @param type The class that this event value represents.
+	 * @param exact If false, the event value can be a subclass or a converted event value.
+	 * @param changer The {@link Changer} that should be used for {@link #acceptChange(ChangeMode)} and {@link #change(Event, Object[], ChangeMode)}.
+	 */
+	private EventValueExpression(Class<? extends T> type, boolean exact, @Nullable Changer<? super T> changer) {
 		assert type != null;
 		this.type = type;
 		this.exact = exact;
@@ -258,35 +308,38 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 
 	@Override
-	@Nullable
-	@SuppressWarnings("unchecked")
-	protected T[] get(Event event) {
+	protected T @Nullable [] get(Event event) {
 		T value = getValue(event);
-		if (value == null)
+		if (value == null) {
+			//noinspection unchecked
 			return (T[]) Array.newInstance(componentType, 0);
+		}
 		if (single) {
+			//noinspection unchecked
 			T[] one = (T[]) Array.newInstance(type, 1);
 			one[0] = value;
 			return one;
 		}
+		//noinspection unchecked
 		T[] dataArray = (T[]) value;
+		//noinspection unchecked
 		T[] array = (T[]) Array.newInstance(componentType, dataArray.length);
 		System.arraycopy(dataArray, 0, array, 0, array.length);
 		return array;
 	}
 
-	@Nullable
-	@SuppressWarnings("unchecked")
-	private <E extends Event> T getValue(E event) {
+	private <E extends Event> @Nullable T getValue(E event) {
 		if (converters.containsKey(event.getClass())) {
-			final Converter<? super E, ? extends T> g = (Converter<? super E, ? extends T>) converters.get(event.getClass());
-			return g == null ? null : g.convert(event);
+			//noinspection unchecked
+			Converter<? super E, ? extends T> converter = (Converter<? super E, ? extends T>) converters.get(event.getClass());
+			return converter == null ? null : converter.convert(event);
 		}
 
-		for (final Entry<Class<? extends Event>, Converter<?, ? extends T>> p : converters.entrySet()) {
-			if (p.getKey().isAssignableFrom(event.getClass())) {
-				converters.put(event.getClass(), p.getValue());
-				return p.getValue() == null ? null : ((Converter<? super E, ? extends T>) p.getValue()).convert(event);
+		for (Entry<Class<? extends Event>, Converter<?, ? extends T>> entry : converters.entrySet()) {
+			if (entry.getKey().isAssignableFrom(event.getClass())) {
+				converters.put(event.getClass(), entry.getValue());
+				//noinspection unchecked
+				return entry.getValue() == null ? null : ((Converter<? super E, ? extends T>) entry.getValue()).convert(event);
 			}
 		}
 
@@ -296,9 +349,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 
 	@Override
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET && !eventConverters.isEmpty()) {
 			if (isDelayed) {
 				Skript.error("Event values cannot be changed after the event has already passed.");
@@ -306,20 +357,24 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			}
 			return CollectionUtils.array(type);
 		}
-		if (changer == null)
+		if (changer == null) {
+			//noinspection unchecked
 			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
+		}
 		return changer == null ? null : changer.acceptChange(mode);
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
 			EventConverter<Event, T> converter = eventConverters.get(event.getClass());
 			if (converter != null) {
 				if (!type.isArray() && delta != null) {
-					converter.set(event, (T)delta[0]);
+					//noinspection unchecked
+					converter.set(event, (T) delta[0]);
 				} else {
-					converter.set(event, (T)delta);
+					//noinspection unchecked
+					converter.set(event, (T) delta);
 				}
 				return;
 			}
@@ -370,8 +425,8 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Class<? extends T> getReturnType() {
+		//noinspection unchecked
 		return (Class<? extends T>) componentType;
 	}
 
@@ -380,6 +435,57 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		if (!debug || event == null)
 			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
 		return Classes.getDebugMessage(getValue(event));
+	}
+
+	/**
+	 * Builder class used to build a {@link EventValueExpression}.
+	 */
+	public static class Builder<T> {
+
+		private final Class<? extends T> type;
+		private boolean exact = false;
+		private Changer<? super T> changer = null;
+
+		/**
+		 * Construct a new {@link Builder} for {@link EventValueExpression}.
+		 * @param type The class that this event value represents.
+		 */
+		private Builder(Class<? extends T> type) {
+			this.type = type;
+		}
+
+		/**
+		 * Whether conversions are allowed to get an instance of {@link #type}.
+		 *
+		 * @param exact If false, the event value can be a subclass or a converted event value.
+		 * @return {@code this}.
+		 */
+		public Builder<T> exact(boolean exact) {
+			this.exact = exact;
+			return this;
+		}
+
+		/**
+		 * Provide a custom {@link Changer} for {@link #type}.
+		 * <p>
+		 *     If {@code null}, will attempt to use the default changer attached to the {@link ClassInfo} for {@link #type}.
+		 * </p>
+		 *
+		 * @param changer The {@link Changer} that should be used for {@link #acceptChange(ChangeMode)} and {@link #change(Event, Object[], ChangeMode)}.
+		 * @return {@code this}.
+		 */
+		public Builder<T> changer(Changer<? super T> changer) {
+			this.changer = changer;
+			return this;
+		}
+
+		/**
+		 * @return Finalized {@link EventValueExpression}.
+		 */
+		public EventValueExpression<T> build() {
+			return new EventValueExpression<>(type, exact, changer);
+		}
+
 	}
 
 }

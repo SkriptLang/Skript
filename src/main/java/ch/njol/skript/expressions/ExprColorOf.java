@@ -55,7 +55,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		String types = "blocks/itemtypes/entities/fireworkeffects";
 		if (Skript.isRunningMinecraft(1, 19, 4))
 			types += "/displays";
-		register(ExprColorOf.class, Color.class, "colo[u]r[s]", types);
+		registerDefault(ExprColorOf.class, Color.class, "colo[u]r[s]", types);
 	}
 
 	@Override
