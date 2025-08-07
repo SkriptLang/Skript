@@ -4,7 +4,7 @@ local function esf(x: int):: int:
 #local function esf(x: string):: int:
 #	return 2
 
-#local function esf(x: ints):: int:
+#local function esf(x: objects):: int:
 #	return 3
 
 local function esf_two(x: int, y: int):: int:
@@ -26,15 +26,24 @@ test "function section":
 	#	x set to 1 and 2
 	#assert {_x} = 3
 
-	parse:
-		set {_x} to function esf with arguments:
-			x set to firework
-	assert first element of last parse logs contains "The function esf(x: item type) does not exist"
+	#set {_x} to function esf with arguments:
+	#	x set to 1, 2, 3, {_a}, {_b::*}
+	#assert {_x} = 3
 
 	#parse:
 	#	set {_x} to function esf with arguments:
 	#		x set to {_y}
 	#assert first element of last parse logs is set
+
+	set {_y} to 3
+	set {_x} to function esf with arguments:
+		x set to {_y}
+	assert {_x} = 1
+
+	parse:
+		set {_x} to function esf with arguments:
+			x set to firework
+	assert first element of last parse logs contains "The function esf(x: item type) does not exist"
 
 	parse:
 		set {_x} to function esf with arguments:
