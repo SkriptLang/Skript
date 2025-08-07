@@ -39,6 +39,28 @@ test "stacked buildables":
 	assert name of slot 0 of {_gui} is "TESTING-NAME-STACKED" with "Name of item was not set"
 	assert lore of slot 0 of {_gui} is "TESTING-LORE-STACKED" with "Lore of item was not set"
 
+test "stacked buildables - section value":
+	set {_gui} to a custom chest inventory:
+		set slot 0 of section-value to a custom diamond:
+			set name of section-value to "TESTING-NAME-STACKED"
+			set lore of section-value to "TESTING-LORE-STACKED"
+	assert {_gui} is set with "Inventory should not be null"
+	assert {_gui} is a chest inventory with "Inventory should be a chest inventory"
+	assert slot 0 of {_gui} is a diamond with "Slot 0 of inventory should be a diamond"
+	assert name of slot 0 of {_gui} is "TESTING-NAME-STACKED" with "Name of item was not set"
+	assert lore of slot 0 of {_gui} is "TESTING-LORE-STACKED" with "Lore of item was not set"
+
+test "stacked buildables - section typed":
+	set {_gui} to a custom chest inventory:
+		set slot 0 of section-inventory to a custom diamond:
+			set name of section-itemtype to "TESTING-NAME-STACKED"
+			set lore of section-itemtype to "TESTING-LORE-STACKED"
+	assert {_gui} is set with "Inventory should not be null"
+	assert {_gui} is a chest inventory with "Inventory should be a chest inventory"
+	assert slot 0 of {_gui} is a diamond with "Slot 0 of inventory should be a diamond"
+	assert name of slot 0 of {_gui} is "TESTING-NAME-STACKED" with "Name of item was not set"
+	assert lore of slot 0 of {_gui} is "TESTING-LORE-STACKED" with "Lore of item was not set"
+
 test "buildable parse errors" when running minecraft "1.20.0":
 	parse:
 		set {_test} to a custom fall:

@@ -15,7 +15,6 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.util.SectionUtils;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.Variables;
@@ -27,10 +26,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.function.Predicate;
 
 @Name("Buildable")
 @Description("""
@@ -50,7 +46,7 @@ import java.util.function.Predicate;
 			set name to "Ranks"
 	""")
 @Since("INSERT VERSION")
-public class ExprSecBuildable<T> extends SectionExpression<T> {
+public class ExprSecBuildable<T> extends SectionExpression<T> implements SectionValueProvider {
 
 	static {
 		//noinspection unchecked
@@ -253,7 +249,7 @@ public class ExprSecBuildable<T> extends SectionExpression<T> {
 			this.object = object;
 		}
 
-		SectionEvent<?> sectionEvent = new SectionEvent<>(this.getAsSection(), object);
+		SectionEvent<?> sectionEvent = new SectionEvent<>(this);
 		Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
 		//noinspection unchecked
 		return (T[]) new Object[] {object};
@@ -268,6 +264,11 @@ public class ExprSecBuildable<T> extends SectionExpression<T> {
 		if (converted != null)
 			return converted;
 		return Converters.convert(object, returnType);
+	}
+
+	@Override
+	public Expression<?> getSectionValue() {
+		return buildableExpression;
 	}
 
 	@Override
@@ -298,49 +299,29 @@ public class ExprSecBuildable<T> extends SectionExpression<T> {
 		return builder.toString();
 	}
 
-	private static class BuildableExpression<T> implements DefaultExpression<T> {
+	private static class BuildableExpression<T> extends SectionValueExpression<ExprSecBuildable<T>, T> {
 
 		private final ExprSecBuildable<T> exprSec;
-		private final Class<T> type;
 
-		public BuildableExpression(ExprSecBuildable<T> exprSec) {
+		private BuildableExpression(ExprSecBuildable<T> exprSec) {
+			//noinspection unchecked
+			super(exprSec, (Class<T>) exprSec.returnType);
 			this.exprSec = exprSec;
-			type = exprSec.getReturnType();
 		}
 
 		@Override
-		public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-			return true;
-		}
-
-		@Override
-		public boolean init() {
-			return true;
-		}
-
-		@Override
-		public @Nullable T getSingle(Event event) {
+		protected T @Nullable [] get(Event event) {
 			//noinspection unchecked
-			return (T) exprSec.object;
-		}
-
-		@Override
-		public T[] getArray(Event event) {
+			T[] array = (T[]) Array.newInstance(exprSec.returnType, 1);
 			//noinspection unchecked
-			T[] valueArray = (T[]) Array.newInstance(type, 1);
-			valueArray[0] = getSingle(event);
-			return valueArray;
-		}
-
-		@Override
-		public T[] getAll(Event event) {
-			return getArray(event);
+			array[0] = (T) exprSec.object;
+			return array;
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			if (mode == ChangeMode.SET)
-				return CollectionUtils.array(type);
+				return CollectionUtils.array(getReturnType());
 			return null;
 		}
 
@@ -348,66 +329,6 @@ public class ExprSecBuildable<T> extends SectionExpression<T> {
 		public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 			assert delta != null;
 			exprSec.object = delta[0];
-		}
-
-		@Override
-		public boolean isDefault() {
-			return true;
-		}
-
-		@Override
-		public boolean isSingle() {
-			return true;
-		}
-
-		@Override
-		public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
-			return SimpleExpression.check(getAll(event), checker, negated, getAnd());
-		}
-
-		@Override
-		public boolean check(Event event, Predicate<? super T> checker) {
-			return SimpleExpression.check(getAll(event), checker, false, getAnd());
-		}
-
-		@Override
-		public @Nullable <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
-			return null;
-		}
-
-		@Override
-		public Class<? extends T> getReturnType() {
-			return type;
-		}
-
-		@Override
-		public boolean getAnd() {
-			return false;
-		}
-
-		@Override
-		public boolean setTime(int time) {
-			return false;
-		}
-
-		@Override
-		public int getTime() {
-			return 0;
-		}
-
-		@Override
-		public Expression<?> getSource() {
-			return this;
-		}
-
-		@Override
-		public @Nullable Iterator<? extends T> iterator(Event event) {
-			return Arrays.stream(getArray(event)).iterator();
-		}
-
-		@Override
-		public boolean isLoopOf(String input) {
-			return false;
 		}
 
 		@Override

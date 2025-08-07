@@ -15,27 +15,16 @@ import org.jetbrains.annotations.NotNull;
  * </p>
  * @param <T> The typed object.
  */
-public class SectionEvent<T> extends Event {
+public class SectionEvent<T extends SyntaxElement & SectionValueProvider> extends Event {
 
-	private final Class<T> type;
-	private T object;
+	private final T element;
 
-	public SectionEvent(Class<T> type) {
-		this.type = type;
+	public SectionEvent(T element) {
+		this.element = element;
 	}
 
-	public SectionEvent(Section section, T object) {
-		this(section, object.getClass(), object);
-	}
-
-	public SectionEvent(Section section, Class<?> type, T object) {
-		//noinspection unchecked
-		this.type = (Class<T>) type;
-		this.object = object;
-	}
-
-	public T getObject() {
-		return object;
+	public T getElement() {
+		return element;
 	}
 
 	@Override
