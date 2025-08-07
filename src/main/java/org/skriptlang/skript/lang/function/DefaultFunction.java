@@ -54,6 +54,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		return new Builder<>(source, name, returnType);
 	}
 
+	private final SkriptAddon source;
 	private final Parameter<?>[] parameters;
 	private final Function<FunctionArguments, T> execute;
 
@@ -63,6 +64,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	private final String[] keywords;
 
 	private DefaultFunction(
+		SkriptAddon source,
 		String name, Parameter<?>[] parameters,
 		Class<T> returnType, boolean single,
 		@Nullable ch.njol.skript.util.Contract contract, Function<FunctionArguments, T> execute,
@@ -70,11 +72,13 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	) {
 		super(new Signature<>(null, name, parameters, returnType, single, contract));
 
+		Preconditions.checkNotNull(source, "source cannot be null");
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(parameters, "parameters cannot be null");
 		Preconditions.checkNotNull(returnType, "return type cannot be null");
 		Preconditions.checkNotNull(execute, "execute cannot be null");
 
+		this.source = source;
 		this.parameters = parameters;
 		this.execute = execute;
 		this.description = description;
@@ -182,6 +186,13 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		Functions.register(this);
 
 		return this;
+	}
+
+	/**
+	 * @return The addon this function was registered for.
+	 */
+	public SkriptAddon source() {
+		return source;
 	}
 
 	public static class Builder<T> {
@@ -315,8 +326,8 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
-			return new DefaultFunction<>(name, parameters.values().toArray(new Parameter[0]), returnType,
-				!returnType.isArray(), contract, execute, description, since, examples, keywords);
+			return new DefaultFunction<>(source, name, parameters.values().toArray(new Parameter[0]),
+				returnType, !returnType.isArray(), contract, execute, description, since, examples, keywords);
 		}
 
 	}
