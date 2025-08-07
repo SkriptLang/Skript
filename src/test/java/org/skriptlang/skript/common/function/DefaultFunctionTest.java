@@ -32,9 +32,9 @@ public class DefaultFunctionTest {
 		assertEquals("test", built.getName());
 		assertEquals(String.class, built.getReturnType().getC());
 		assertTrue(built.isSingle());
-		assertArrayEquals(new String[]{}, built.description());
-		assertArrayEquals(new String[]{}, built.since());
-		assertArrayEquals(new String[]{}, built.keywords());
+		assertArrayEquals(new String[]{}, built.description().toArray(new String[0]));
+		assertArrayEquals(new String[]{}, built.since().toArray(new String[0]));
+		assertArrayEquals(new String[]{}, built.keywords().toArray(new String[0]));
 
 		Parameter<?>[] parameters = built.getParameters();
 
@@ -54,9 +54,9 @@ public class DefaultFunctionTest {
 		assertEquals("test", built.getName());
 		assertEquals(Object.class, built.getReturnType().getC());
 		assertFalse(built.isSingle());
-		assertArrayEquals(new String[]{"x", "y"}, built.description());
-		assertArrayEquals(new String[]{"1", "2"}, built.since());
-		assertArrayEquals(new String[]{"x", "y"}, built.keywords());
+		assertArrayEquals(new String[]{"x", "y"}, built.description().toArray(new String[0]));
+		assertArrayEquals(new String[]{"1", "2"}, built.since().toArray(new String[0]));
+		assertArrayEquals(new String[]{"x", "y"}, built.keywords().toArray(new String[0]));
 
 		Parameter<?>[] parameters = built.getParameters();
 

@@ -12,10 +12,7 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -84,10 +81,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		this.source = source;
 		this.parameters = parameters;
 		this.execute = execute;
-		this.description = List.of(description);
-		this.since = List.of(since);
-		this.examples = List.of(examples);
-		this.keywords = List.of(keywords);
+		this.description = description != null ? List.of(description) : Collections.emptyList();
+		this.since = since != null ? List.of(since) : Collections.emptyList();
+		this.examples = examples != null ? List.of(examples) : Collections.emptyList();
+		this.keywords = keywords != null ? List.of(keywords) : Collections.emptyList();
 	}
 
 	@Override
