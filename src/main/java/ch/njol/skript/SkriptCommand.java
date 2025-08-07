@@ -387,7 +387,7 @@ public class SkriptCommand implements CommandExecutor {
 
 				Skript.info(sender, "Generating docs...");
 
-				JSONGenerator.of(Skript.getAddonInstance())
+				JSONGenerator.of(Skript.instance())
 					.generate(outputDir.toPath().resolve("docs.json"));
 
 				if (!templateDir.exists()) {
