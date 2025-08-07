@@ -514,7 +514,8 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 					}
 				}
 
-				return Set.of(candidate);
+				candidates.add(candidate);
+				continue;
 			}
 
 			// if argument counts are not possible, skip
