@@ -7,11 +7,14 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -58,10 +61,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	private final Parameter<?>[] parameters;
 	private final Function<FunctionArguments, T> execute;
 
-	private final String[] description;
-	private final String[] since;
-	private final String[] examples;
-	private final String[] keywords;
+	private final Collection<String> description;
+	private final Collection<String> since;
+	private final Collection<String> examples;
+	private final Collection<String> keywords;
 
 	private DefaultFunction(
 		SkriptAddon source,
@@ -81,10 +84,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		this.source = source;
 		this.parameters = parameters;
 		this.execute = execute;
-		this.description = description;
-		this.since = since;
-		this.examples = examples;
-		this.keywords = keywords;
+		this.description = List.of(description);
+		this.since = List.of(since);
+		this.examples = List.of(examples);
+		this.keywords = List.of(keywords);
 	}
 
 	@Override
@@ -145,7 +148,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The description.
 	 */
-	public @NotNull String @NotNull [] description() {
+	public @Unmodifiable @NotNull Collection<String> description() {
 		return description;
 	}
 
@@ -154,7 +157,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The version history.
 	 */
-	public @NotNull String @NotNull [] since() {
+	public @Unmodifiable @NotNull Collection<String> since() {
 		return since;
 	}
 
@@ -163,7 +166,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The examples.
 	 */
-	public @NotNull String @NotNull [] examples() {
+	public @Unmodifiable @NotNull Collection<String> examples() {
 		return examples;
 	}
 
@@ -172,7 +175,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	 *
 	 * @return The keywords.
 	 */
-	public @NotNull String @NotNull [] keywords() {
+	public @Unmodifiable @NotNull Collection<String> keywords() {
 		return keywords;
 	}
 
@@ -191,7 +194,7 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 	/**
 	 * @return The addon this function was registered for.
 	 */
-	public SkriptAddon source() {
+	public @NotNull SkriptAddon source() {
 		return source;
 	}
 

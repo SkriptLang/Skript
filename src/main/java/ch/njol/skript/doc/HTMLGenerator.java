@@ -809,14 +809,14 @@ public class HTMLGenerator extends DocumentationGenerator {
 	}
 
 	private String generateFunction(String descTemp, Function<?> info) {
-		String desc = "";
+		String desc;
 
 		String[] typeSince, typeDescription, typeExamples, typeKeywords;
 		if (info instanceof DefaultFunction<?> defaultFunction) {
-			typeSince = defaultFunction.since();
-			typeDescription = defaultFunction.description();
-			typeExamples = defaultFunction.examples();
-			typeKeywords = defaultFunction.keywords();
+			typeSince = defaultFunction.since().toArray(new String[0]);
+			typeDescription = defaultFunction.description().toArray(new String[0]);
+			typeExamples = defaultFunction.examples().toArray(new String[0]);
+			typeKeywords = defaultFunction.keywords().toArray(new String[0]);
 		} else if (info instanceof JavaFunction<?> javaFunction) {
 			typeSince = javaFunction.getSince() != null ? javaFunction.getSince().split("\n") : null;
 			typeDescription = javaFunction.getDescription();

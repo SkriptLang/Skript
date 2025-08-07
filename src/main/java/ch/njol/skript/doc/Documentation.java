@@ -380,9 +380,9 @@ public class Documentation {
 	private static void insertFunction(PrintWriter pw, ch.njol.skript.lang.function.Function<?> func) {
 		String[] typeSince, typeDescription, typeExamples;
 		if (func instanceof DefaultFunction<?> defaultFunction) {
-			typeSince = defaultFunction.since();
-			typeDescription = defaultFunction.description();
-			typeExamples = defaultFunction.examples();
+			typeSince = defaultFunction.since().toArray(new String[0]);
+			typeDescription = defaultFunction.description().toArray(new String[0]);
+			typeExamples = defaultFunction.examples().toArray(new String[0]);
 		} else if (func instanceof JavaFunction<?> javaFunction) {
 			typeSince = javaFunction.getSince() != null ? javaFunction.getSince().split("\n") : null;
 			typeDescription = javaFunction.getDescription();

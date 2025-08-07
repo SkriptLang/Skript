@@ -26,8 +26,7 @@ public interface Parameter<T> {
 	/**
 	 * @return All modifiers belonging to this parameter.
 	 */
-	@Unmodifiable
-	@NotNull Set<Modifier> modifiers();
+	@Unmodifiable @NotNull Set<Modifier> modifiers();
 
 	/**
 	 * Returns whether this parameter has the specified modifier.
