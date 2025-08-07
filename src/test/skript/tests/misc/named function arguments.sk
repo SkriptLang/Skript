@@ -18,6 +18,13 @@ test "named function arguments":
 	assert nfa(a: 8, b: 2, 3) = 7
 	assert nfa(8, b: 2, c: 3) = 7
 
+	set {_x} to 8
+	assert nfa(a: {_x}, b: 2, 3) = 7
+
+	parse:
+		assert nfa(a: 8, c: adghadhaherta, b: 2) = 7
+	assert first element of last parse logs contains "The function nfa(a: integer, c: ?, b: integer) does not exist"
+
 	parse:
 		assert nfa(8, c: 3, b: 2) = 7
 	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
@@ -39,6 +46,10 @@ test "named function arguments":
 	parse:
 		nfa(a: 1, b: 2, d: 2)
 	assert first element of last parse logs contains "The function nfa(a: integer, b: integer, d: integer) does not exist"
+
+	parse:
+		nfa(a: 1, d: 2, b: 2)
+	assert first element of last parse logs contains "The function nfa(a: integer, d: integer, b: integer) does not exist"
 
 	parse:
 		nfa(a: 1, a: 2, c: 2)

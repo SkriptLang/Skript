@@ -372,16 +372,16 @@ public record FunctionParser(ParseContext context, int flags) {
 
 			Expression<?> expression = LiteralUtils.defendExpression(parser.parseExpression(Object.class));
 
-			if (expression == null) {
-				joiner.add("?");
-				continue;
-			}
-
 			String argumentName;
 			if (argument.type() == ArgumentType.NAMED) {
 				argumentName = argument.name() + ": ";
 			} else {
 				argumentName = "";
+			}
+
+			if (expression == null || LiteralUtils.hasUnparsedLiteral(expression)) {
+				joiner.add(argumentName + "?");
+				continue;
 			}
 
 			if (expression.isSingle()) {
