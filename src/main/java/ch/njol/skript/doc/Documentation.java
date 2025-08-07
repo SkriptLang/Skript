@@ -6,7 +6,7 @@ import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
-import org.skriptlang.skript.lang.function.DefaultFunction;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;

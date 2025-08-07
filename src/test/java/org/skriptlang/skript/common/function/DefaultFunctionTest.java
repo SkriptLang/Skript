@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -6,13 +6,15 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.Parameter;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import static org.junit.Assert.*;
 
 public class DefaultFunctionTest {
 
-	private static final SkriptAddon SKRIPT = Skript.getAddonInstance();
+	private static final SkriptAddon SKRIPT = Skript.instance();
 
 	@Test
 	public void testStrings() {

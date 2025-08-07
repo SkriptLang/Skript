@@ -6,8 +6,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.DefaultFunction;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -96,13 +95,13 @@ public class Signature<T> {
 	 */
 	public Signature(@Nullable String script,
 					 String name,
-					 org.skriptlang.skript.lang.function.Parameter<?>[] parameters,
+					 org.skriptlang.skript.common.function.Parameter<?>[] parameters,
 					 @Nullable Class<T> returnType,
 					 boolean single,
 					 @Nullable Contract contract) {
 		this.parameters = new Parameter[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
-			org.skriptlang.skript.lang.function.Parameter<?> parameter = parameters[i];
+			org.skriptlang.skript.common.function.Parameter<?> parameter = parameters[i];
 			this.parameters[i] = new Parameter<>(parameter.name(),
 				getClassInfo(parameter.type()), parameter.single(),
 				null,

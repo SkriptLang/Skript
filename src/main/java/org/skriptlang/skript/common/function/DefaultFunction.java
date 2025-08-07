@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
@@ -94,10 +94,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 		int length = Math.min(parameters.length, params.length);
 		for (int i = 0; i < length; i++) {
 			Object[] arg = params[i];
-			org.skriptlang.skript.lang.function.Parameter<?> parameter = parameters[i];
+			Parameter<?> parameter = parameters[i];
 
 			if (arg == null || arg.length == 0) {
-				if (parameter.modifiers().contains(Modifier.OPTIONAL)) {
+				if (parameter.hasModifier(Modifier.OPTIONAL)) {
 					continue;
 				} else {
 					return null;
@@ -204,7 +204,10 @@ public final class DefaultFunction<T> extends ch.njol.skript.lang.function.Funct
 
 		private ch.njol.skript.util.Contract contract = null;
 
-		private String[] description, since, examples, keywords;
+		private String[] description;
+		private String[] since;
+		private String[] examples;
+		private String[] keywords;
 
 		private Builder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
 			Preconditions.checkNotNull(source, "source cannot be null");

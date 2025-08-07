@@ -16,8 +16,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.lang.function.DefaultFunction;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
@@ -314,7 +313,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	}
 
 	/**
-	 * Attempts to geoopst this function's signature.
+	 * Attempts to get this function's signature.
 	 */
 	private Signature<?> getRegisteredSignature() {
 		parseParameters();
@@ -389,10 +388,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Prepare parameter values for calling
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
-			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).modifiers().contains(Modifier.KEYED));
+			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).hasModifier(Modifier.KEYED));
 		} else { // Use parameters in normal way
 			for (int i = 0; i < parameters.length; i++)
-				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).modifiers().contains(Modifier.KEYED));
+				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).hasModifier(Modifier.KEYED));
 		}
 
 		// Execute the function

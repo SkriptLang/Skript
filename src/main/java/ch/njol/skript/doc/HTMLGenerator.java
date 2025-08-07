@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.lang.function.DefaultFunction;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.io.File;

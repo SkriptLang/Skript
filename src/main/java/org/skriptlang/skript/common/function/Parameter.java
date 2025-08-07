@@ -1,6 +1,6 @@
-package org.skriptlang.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
-import org.skriptlang.skript.lang.function.DefaultFunction.Builder;
+import org.skriptlang.skript.common.function.DefaultFunction.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -30,6 +30,15 @@ public interface Parameter<T> {
 	@NotNull Set<Modifier> modifiers();
 
 	/**
+	 * Returns whether this parameter has the specified modifier.
+	 * @param modifier The modifier.
+	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
+	 */
+	default boolean hasModifier(Modifier modifier) {
+		return modifiers().contains(modifier);
+	}
+
+	/**
 	 * @return Whether this parameter is for single values.
 	 */
 	default boolean single() {
@@ -56,6 +65,9 @@ public interface Parameter<T> {
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
+		 *
+		 * @see ch.njol.skript.lang.KeyProviderExpression
+		 * @see ch.njol.skript.lang.KeyReceiverExpression
 		 */
 		Modifier KEYED = of();
 

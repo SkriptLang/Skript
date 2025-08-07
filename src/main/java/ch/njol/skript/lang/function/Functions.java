@@ -12,7 +12,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.DefaultFunction;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;

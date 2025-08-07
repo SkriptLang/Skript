@@ -17,13 +17,14 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.lang.function.DefaultFunction;
+import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.ScriptParameter;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class Parameter<T> implements org.skriptlang.skript.lang.function.Parameter<T> {
+public final class Parameter<T> implements org.skriptlang.skript.common.function.Parameter<T> {
 
 	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
 
@@ -54,7 +55,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	private final Set<Modifier> modifiers;
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * @deprecated Use {@link ScriptParameter}
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
@@ -64,7 +65,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * @deprecated Use {@link ScriptParameter}
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
@@ -85,7 +86,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * @deprecated Use {@link ScriptParameter}
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
@@ -130,9 +131,8 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * @deprecated Use {@link #type()} instead.
+	 * @return The type of this parameter as a {@link ClassInfo}.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> getType() {
 		return type;
 	}
