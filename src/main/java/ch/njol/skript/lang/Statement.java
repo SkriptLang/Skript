@@ -51,9 +51,23 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.STATEMENT).iterator();
 			Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
 			if (node != null) {
+				var wrappedIterator = new Iterator<>() {
+					@Override
+					public boolean hasNext() {
+						return iterator.hasNext();
+					}
+
+					@Override
+					public org.skriptlang.skript.registration.SyntaxInfo<? extends Statement> next() {
+						// it is possible that the section would have been claimed during the attempt to parse the previous info
+						// as a result, we need to "unclaim" it
+						sectionContext.owner = null;
+						return iterator.next();
+					}
+				};
 				statement = sectionContext.modify(node, items, () -> {
 						//noinspection unchecked,rawtypes
-						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) iterator, defaultError);
+						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) wrappedIterator, defaultError);
 						if (parsed != null && !sectionContext.claimed()) {
 							Skript.error("The line '" + input + "' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it.");
 							return null;

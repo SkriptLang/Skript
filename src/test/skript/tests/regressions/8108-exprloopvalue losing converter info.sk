@@ -1,0 +1,23 @@
+###
+this test converts an itemtype to itemstack, which is not AnyNamed.
+If the loop value loses its converter info, it will not be
+able to use the name of loop-value expression.
+This is due to the returned value being ItemStack, and failing
+the instanceof AnyNamed check.
+
+If the loop value retains its converter info, it will be able to
+convert to AnyNamed and use the name of loop-value expression.
+###
+
+
+test "expr loop value loses converter info":
+	set {_item::*} to asItemStack(phantom membrane named "Test")
+	loop {_item::*}:
+		# these should always pass
+		assert loop-value is a phantom membrane with "loop-value is not a phantom membrane"
+		assert loop-value is a phantom membrane named "Test" with "loop-value is not a phantom membrane named 'Test'"
+		# the critical assert
+		assert name of loop-value is "Test" with "name of loop-value is not 'Test'. ExprLoopValue may have lost converter info"
+
+local function asItemStack(i: item) :: item:
+    return {_i}
