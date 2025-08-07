@@ -379,7 +379,7 @@ public record FunctionParser(ParseContext context, int flags) {
 				argumentName = "";
 			}
 
-			if (expression == null || LiteralUtils.hasUnparsedLiteral(expression)) {
+			if (LiteralUtils.canInitSafely(expression)) {
 				joiner.add(argumentName + "?");
 				continue;
 			}
