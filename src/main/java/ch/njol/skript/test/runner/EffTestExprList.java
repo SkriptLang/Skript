@@ -10,10 +10,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @NoDoc
-public class EffExprListTest extends Effect {
+public class EffTestExprList extends Effect {
 
 	static {
-		Skript.registerEffect(EffExprListTest.class, "test expr list %number/booleans%");
+		Skript.registerEffect(EffTestExprList.class, "test expr list %number/booleans%");
 	}
 
 	@Override
