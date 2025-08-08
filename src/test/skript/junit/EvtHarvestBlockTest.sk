@@ -2,9 +2,9 @@ options:
 	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtHarvestBlockTest"
 
 test "EvtHarvestBlock" when running junit:
-	set {_tests::*} to "event plain - called", "event plain - player", "event plain - block", "event plain - equipment"
+	set {_tests::*} to "event plain - called", "event plain - player", "event plain - block" and "event plain - equipment"
 	add "event plain - drops" to {_tests::*}
-	add "event typed - called", "event typed - player", "event typed - block", "event typed - equipment" to {_tests::*}
+	add "event typed - called", "event typed - player", "event typed - block" and "event typed - equipment" to {_tests::*}
 	add "event typed - drops" to {_tests::*}
 
 	ensure {@test} completes {_tests::*}
