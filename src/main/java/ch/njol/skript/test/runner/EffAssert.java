@@ -25,9 +25,9 @@ public class EffAssert extends Effect {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffAssert.class,
-				"assert <.+> [(1:to fail)] with [error] %string%",
-				"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
-				"assert <.+> [(1:to fail)]");
+				"assert [that] <.+> [(1:to fail)] with [error] %string%",
+				"assert [that] <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
+				"assert [that] <.+> [(1:to fail)]");
 	}
 
 	private @Nullable Condition condition;
