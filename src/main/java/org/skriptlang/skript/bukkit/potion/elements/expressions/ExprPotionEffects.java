@@ -31,8 +31,8 @@ import java.util.List;
 @Name("Potion Effects of Entity/Item")
 @Description({
 	"An expression to obtain the active or hidden potion effects of an entity or item.",
-	"When an entity is affected by a potion effect but already has a weaker version of that effect type, the weaker version becomes hidden." +
-			" If the weaker version has a longer duration, it returns after the stronger version expires.",
+	"When an entity is affected by a potion effect but already has a weaker version of that effect type, the weaker version becomes hidden. " +
+			"If the weaker version has a longer duration, it returns after the stronger version expires.",
 	"NOTE: Hidden effects are not able to be changed.",
 	"NOTE: Clearing the base potion effects of a potion item is not possible. If you wish to do so, just set the item to a water bottle.",
 })

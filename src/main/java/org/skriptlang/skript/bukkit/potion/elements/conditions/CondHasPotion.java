@@ -23,8 +23,8 @@ import org.jetbrains.annotations.Nullable;
 	"Checks whether an entity has a potion effect with certain properties.",
 	"An entity is considered having a potion effect if it has a potion effect with at least the specified properties.",
 	"For example, if an entity has an 'ambient speed 5' effect, they would be considered as having 'speed 5'.",
-	"For exact comparisons, consider using the <a href='./expressions.html#ExprPotionEffect'>Potion Effect of Entity/Item</a>" +
-			" expression in an 'is' comparison."
+	"For exact comparisons, consider using the <a href='./expressions.html#ExprPotionEffect'>Potion Effect of Entity/Item</a> " +
+			"expression in an 'is' comparison."
 })
 @Example("""
 	if the player has a potion effect of speed:
