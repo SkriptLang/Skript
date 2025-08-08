@@ -999,13 +999,12 @@ public final class SkriptParser {
 
 		// early check whether this can be parsed as an 'or' list
 		// if it cannot, and the output is expected to be single, we can return early
-		if (exprInfo != null && !exprInfo.isPlural[0] && !OR_PATTERN.matcher(expr).find()) {
+		if (exprInfo != null && !Booleans.contains(exprInfo.isPlural, true) && !OR_PATTERN.matcher(expr).find()) {
 			log.printError();
 			return null;
 		}
 
 		List<Expression<?>> parsedExpressions = new ArrayList<>();
-		Expression<?> parsedExpression;
 		boolean isLiteralList = true;
 		Kleenean and = Kleenean.UNKNOWN;
 		// given "a, b, c" try "a, ab, ac" when starting with "a"
@@ -1021,6 +1020,7 @@ public final class SkriptParser {
 
 				// allow parsing as a list only if subExpr is wrapped with parentheses
 				SkriptParser parser = new SkriptParser(this, subExpr);
+				Expression<?> parsedExpression;
 				if (subExpr.startsWith("(") && subExpr.endsWith(")") && next(subExpr, 0, context) == subExpr.length()) {
 					if (orderedExprInfo != null) {
 						int infoIndex = parsedExpressions.size();
@@ -1076,18 +1076,63 @@ public final class SkriptParser {
 			return null;
 		}
 
-		// if this could be an 'and' list, and the expected list should be an 'or' list, fail
-		if (exprInfo != null && !exprInfo.isPlural[0] && !and.isFalse()) {
-			// List cannot be used in place of a single value here
-			log.printError();
-			return null;
+		// determine return types
+		Class<?>[] returnTypes;
+		Class<?> superReturnType;
+		if (parsedExpressions.size() == 1) {
+			returnTypes = null;
+			superReturnType = parsedExpressions.get(0).getReturnType();
+		} else {
+			returnTypes = new Class[parsedExpressions.size()];
+			for (int i = 0; i < parsedExpressions.size(); i++) {
+				returnTypes[i] = parsedExpressions.get(i).getReturnType();
+			}
+			superReturnType = Classes.getSuperClassInfo(returnTypes).getC();
+		}
+
+		// this could be an 'and' list, and the expected list should be an 'or' list
+		if (exprInfo != null && !and.isFalse()) {
+			boolean canBePlural = false;
+
+			// quick check for direct super type match
+			for (int typeIndex = 0; typeIndex < exprInfo.classes.length; typeIndex++) {
+				if (exprInfo.isPlural[typeIndex] && exprInfo.classes[typeIndex].getC().isAssignableFrom(superReturnType)) {
+					canBePlural = true;
+					break;
+				}
+			}
+
+			// long check against return types for each expression
+			if (!canBePlural) {
+				for (var parsedExpression : parsedExpressions) { // ensure each expression is of a plural type
+					canBePlural = false; // reset for each iteration
+					for (int typeIndex = 0; typeIndex < exprInfo.classes.length; typeIndex++) {
+						if (!exprInfo.isPlural[typeIndex]) {
+							continue;
+						}
+						if (parsedExpression.canReturn(exprInfo.classes[typeIndex].getC())) {
+							canBePlural = true;
+							break;
+						}
+					}
+					if (!canBePlural) { // expression could not return a plural type
+						break;
+					}
+				}
+			}
+
+			if (!canBePlural) {
+				// List cannot be used in place of a single value here
+				log.printError();
+				return null;
+			}
+		}
+
+		if (returnTypes == null) { // only parsed one expression out of the pieces
+			return parsedExpressions.get(0);
 		}
 
 		log.printLog(false);
-
-		if (parsedExpressions.size() == 1) {
-			return parsedExpressions.get(0);
-		}
 
 		if (and.isUnknown() && !suppressMissingAndOrWarnings) {
 			ParserInstance parser = getParser();
@@ -1095,12 +1140,6 @@ public final class SkriptParser {
 				Skript.warning(MISSING_AND_OR + ": " + expr);
 			}
 		}
-
-		Class<?>[] returnTypes = new Class[parsedExpressions.size()];
-		for (int i = 0; i < parsedExpressions.size(); i++) {
-			returnTypes[i] = parsedExpressions.get(i).getReturnType();
-		}
-		Class<?> superReturnType = Classes.getSuperClassInfo(returnTypes).getC();
 
 		if (isLiteralList) {
 			//noinspection SuspiciousToArrayCall
