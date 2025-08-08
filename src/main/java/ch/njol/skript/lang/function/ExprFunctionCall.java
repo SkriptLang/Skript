@@ -11,6 +11,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.FunctionReference;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
@@ -20,13 +21,13 @@ import java.util.WeakHashMap;
 
 public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProviderExpression<T> {
 
-	private final org.skriptlang.skript.lang.function.FunctionReference<?> reference;
+	private final FunctionReference<?> reference;
 	private final Class<? extends T>[] returnTypes;
 	private final Class<T> returnType;
 	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
 	@SuppressWarnings("unchecked")
-	public ExprFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<?> reference, Class<? extends T>[] expectedReturnTypes) {
+	public ExprFunctionCall(FunctionReference<?> reference, Class<? extends T>[] expectedReturnTypes) {
 		this.reference = reference;
 
 		Class<?> returnType;

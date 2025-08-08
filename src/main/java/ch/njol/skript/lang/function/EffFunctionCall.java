@@ -8,17 +8,18 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.FunctionReference;
 
 public class EffFunctionCall extends Effect {
 
-	private final org.skriptlang.skript.lang.function.FunctionReference<?> reference;
+	private final FunctionReference<?> reference;
 
-	public EffFunctionCall(org.skriptlang.skript.lang.function.FunctionReference<?> reference) {
+	public EffFunctionCall(FunctionReference<?> reference) {
 		this.reference = reference;
 	}
 
 	public static EffFunctionCall parse(final String line) {
-		org.skriptlang.skript.lang.function.FunctionReference<?> function = new SkriptParser(line, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseFunctionReference();
+		FunctionReference<?> function = new SkriptParser(line, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseFunctionReference();
 		if (function != null)
 			return new EffFunctionCall(function);
 		return null;

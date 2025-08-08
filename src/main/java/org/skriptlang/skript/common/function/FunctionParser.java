@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
@@ -15,8 +15,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
-import org.skriptlang.skript.lang.function.FunctionReference.Argument;
-import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
+import org.skriptlang.skript.common.function.FunctionReference.Argument;
+import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 
 import java.util.*;
 import java.util.regex.Matcher;

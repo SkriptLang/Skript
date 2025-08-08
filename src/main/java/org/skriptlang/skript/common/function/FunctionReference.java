@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
@@ -16,7 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.*;
 import java.util.Map.Entry;

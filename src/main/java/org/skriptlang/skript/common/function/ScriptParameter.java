@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;

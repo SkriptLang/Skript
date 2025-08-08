@@ -10,8 +10,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.FunctionReference;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.FunctionReference;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.*;
 
@@ -33,7 +33,7 @@ public class Signature<T> {
 	/**
 	 * Parameters taken by this function, in order.
 	 */
-	private final LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters;
+	private final LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters;
 
 	/**
 	 * Whether this function is only accessible in the script it was declared in
@@ -57,7 +57,7 @@ public class Signature<T> {
 
 	public Signature(@Nullable String namespace,
 					 @NotNull String name,
-					 @NotNull LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters,
+					 @NotNull LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters,
 					 boolean local,
 					 @Nullable Class<T> returnType,
 					 @Nullable Contract contract) {
@@ -101,8 +101,8 @@ public class Signature<T> {
 		}
 	}
 
-	private static LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> initParameters(Parameter<?>[] params) {
-		LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> map = new LinkedHashMap<>();
+	private static LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> initParameters(Parameter<?>[] params) {
+		LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> map = new LinkedHashMap<>();
 		for (Parameter<?> parameter : params) {
 			map.put(parameter.name(), parameter);
 		}
@@ -134,22 +134,22 @@ public class Signature<T> {
 	 * @deprecated Use {@link #getParameter(String)} or {@link #parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public org.skriptlang.skript.lang.function.Parameter<?> getParameter(int index) {
-		return parameters.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0])[index];
+	public org.skriptlang.skript.common.function.Parameter<?> getParameter(int index) {
+		return parameters.values().toArray(new org.skriptlang.skript.common.function.Parameter<?>[0])[index];
 	}
 
 	/**
 	 * @deprecated Use {@link #parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public org.skriptlang.skript.lang.function.Parameter<?>[] getParameters() {
-		return parameters.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
+	public org.skriptlang.skript.common.function.Parameter<?>[] getParameters() {
+		return parameters.values().toArray(new org.skriptlang.skript.common.function.Parameter<?>[0]);
 	}
 
 	/**
 	 * @return A {@link SequencedCollection} containing all parameters.
 	 */
-	public @NotNull LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters() {
+	public @NotNull LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters() {
 		return new LinkedHashMap<>(parameters);
 	}
 
@@ -157,7 +157,7 @@ public class Signature<T> {
 	 * @param name The parameter name.
 	 * @return The parameter with the specified name, or null if none is found.
 	 */
-	public org.skriptlang.skript.lang.function.Parameter<?> getParameter(@NotNull String name) {
+	public org.skriptlang.skript.common.function.Parameter<?> getParameter(@NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
 		return parameters.get(name);
@@ -243,10 +243,10 @@ public class Signature<T> {
 	 * @return Minimum number of parameters required.
 	 */
 	public int getMinParameters() {
-		List<org.skriptlang.skript.lang.function.Parameter<?>> params = new LinkedList<>(parameters.values());
+		List<org.skriptlang.skript.common.function.Parameter<?>> params = new LinkedList<>(parameters.values());
 
 		int i = parameters.size() - 1;
-		for (org.skriptlang.skript.lang.function.Parameter<?> parameter : Lists.reverse(params)) {
+		for (org.skriptlang.skript.common.function.Parameter<?> parameter : Lists.reverse(params)) {
 			if (!parameter.modifiers().contains(Modifier.OPTIONAL)) {
 				return i + 1;
 			}

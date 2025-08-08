@@ -1,6 +1,5 @@
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -10,8 +9,8 @@ import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.FunctionArguments;
-import org.skriptlang.skript.lang.function.Parameter;
+import org.skriptlang.skript.common.function.FunctionArguments;
+import org.skriptlang.skript.common.function.Parameter;
 
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -31,7 +30,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		HintManager hintManager = ParserInstance.get().getHintManager();
 		try {
 			hintManager.enterScope(false);
-			for (org.skriptlang.skript.lang.function.Parameter<?> parameter : sign.parameters().values()) {
+			for (Parameter<?> parameter : sign.parameters().values()) {
 				String hintName = parameter.name();
 				if (!parameter.single()) {
 					hintName += Variable.SEPARATOR + "*";
@@ -58,12 +57,12 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
 	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
-		LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters = getSignature().parameters();
+		LinkedHashMap<String, Parameter<?>> parameters = getSignature().parameters();
 
 		int i = 0;
-		for (Entry<String, org.skriptlang.skript.lang.function.Parameter<?>> entry : parameters.entrySet()) {
+		for (Entry<String, Parameter<?>> entry : parameters.entrySet()) {
 			String name = entry.getKey();
-			org.skriptlang.skript.lang.function.Parameter<?> parameter = entry.getValue();
+			Parameter<?> parameter = entry.getValue();
 
 			Object[] val = params[i];
 			if (parameter.single() && val.length > 0) {

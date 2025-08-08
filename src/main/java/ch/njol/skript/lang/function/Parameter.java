@@ -17,17 +17,19 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.DefaultParameter;
+import org.skriptlang.skript.common.function.ScriptParameter;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @deprecated Use {@link org.skriptlang.skript.lang.function.ScriptParameter}
- * or {@link org.skriptlang.skript.lang.function.DefaultParameter} instead.
+ * @deprecated Use {@link ScriptParameter}
+ * or {@link DefaultParameter} instead.
  */
 @Deprecated(forRemoval = true, since = "INSERT VERSION")
-public final class Parameter<T> implements org.skriptlang.skript.lang.function.Parameter<T> {
+public final class Parameter<T> implements org.skriptlang.skript.common.function.Parameter<T> {
 
 	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
 
@@ -58,7 +60,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	private final Set<Modifier> modifiers;
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
@@ -68,7 +70,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
@@ -89,7 +91,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.lang.function.Parameter}
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
@@ -134,7 +136,7 @@ public final class Parameter<T> implements org.skriptlang.skript.lang.function.P
 	}
 
 	/**
-	 * @deprecated Use {@link org.skriptlang.skript.lang.function.ScriptParameter#parse(String, Class, String)}} instead.
+	 * @deprecated Use {@link ScriptParameter#parse(String, Class, String)}} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> @Nullable Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {

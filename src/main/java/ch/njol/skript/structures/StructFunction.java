@@ -24,8 +24,8 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.function.Parameter;
-import org.skriptlang.skript.lang.function.ScriptParameter;
+import org.skriptlang.skript.common.function.Parameter;
+import org.skriptlang.skript.common.function.ScriptParameter;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.LinkedHashMap;

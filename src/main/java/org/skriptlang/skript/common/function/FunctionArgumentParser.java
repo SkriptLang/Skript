@@ -1,7 +1,7 @@
-package org.skriptlang.skript.lang.function;
+package org.skriptlang.skript.common.function;
 
-import org.skriptlang.skript.lang.function.FunctionReference.Argument;
-import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
+import org.skriptlang.skript.common.function.FunctionReference.Argument;
+import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 
 import java.util.ArrayList;
 import java.util.List;

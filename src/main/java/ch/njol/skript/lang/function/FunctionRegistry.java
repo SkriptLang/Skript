@@ -9,8 +9,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
@@ -713,12 +714,12 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		static FunctionIdentifier of(@NotNull Signature<?> signature) {
 			Preconditions.checkNotNull(signature, "signature cannot be null");
 
-			org.skriptlang.skript.lang.function.Parameter<?>[] signatureParams = signature.parameters().values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
+			Parameter<?>[] signatureParams = signature.parameters().values().toArray(new Parameter<?>[0]);
 			Class<?>[] parameters = new Class[signatureParams.length];
 
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
-				org.skriptlang.skript.lang.function.Parameter<?> param = signatureParams[i];
+				Parameter<?> param = signatureParams[i];
 				if (param.modifiers().contains(Modifier.OPTIONAL)) {
 					optionalArgs++;
 				}

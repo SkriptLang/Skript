@@ -7,8 +7,8 @@ import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.FunctionArguments;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.FunctionArguments;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 	@Override
 	public final T execute(FunctionEvent<?> event, FunctionArguments arguments) {
-		List<org.skriptlang.skript.lang.function.Parameter<?>> parameters = getSignature().parameters().values().stream().toList();
+		List<org.skriptlang.skript.common.function.Parameter<?>> parameters = getSignature().parameters().values().stream().toList();
 
 		Object[][] params = new Object[parameters.size()][];
 		for (int i = 0; i < parameters.size(); i++) {

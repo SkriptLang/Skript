@@ -16,10 +16,10 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.lang.function.FunctionReference.Argument;
-import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
-import org.skriptlang.skript.lang.function.Parameter;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.FunctionReference.Argument;
+import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
+import org.skriptlang.skript.common.function.Parameter;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @deprecated Use {@link org.skriptlang.skript.lang.function.FunctionReference} instead.
+ * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionReference} instead.
  */
 @Deprecated(forRemoval = true, since = "INSERT VERSION")
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
@@ -234,7 +234,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		// Check parameter types
 		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = sign.parameters().values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0])[singleListParam ? 0 : i];
+			Parameter<?> parameter = sign.parameters().values().toArray(new Parameter<?>[0])[singleListParam ? 0 : i];
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
 				Class<?> target;
@@ -286,7 +286,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			.map(it -> new Argument<>(ArgumentType.UNNAMED, null, it))
 			.toArray(Argument[]::new);
 
-		sign.calls().add(new org.skriptlang.skript.lang.function.FunctionReference<>(script, functionName, signature, stream));
+		sign.calls().add(new org.skriptlang.skript.common.function.FunctionReference<>(script, functionName, signature, stream));
 
 		Contract contract = sign.getContract();
 		if (contract != null)
@@ -388,8 +388,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			params[0] = evaluateSingleListParameter(parameters, event, function.getSignature().parameters()
 				.entrySet().iterator().next().getValue().modifiers().contains(Modifier.KEYED));
 		} else { // Use parameters in normal way
-			org.skriptlang.skript.lang.function.Parameter<?>[] values = function.getSignature().parameters()
-				.values().toArray(new org.skriptlang.skript.lang.function.Parameter<?>[0]);
+			Parameter<?>[] values = function.getSignature().parameters()
+				.values().toArray(new Parameter<?>[0]);
 
 			for (int i = 0; i < parameters.length; i++)
 				params[i] = evaluateParameter(parameters[i], event, values[i].modifiers().contains(Modifier.KEYED));

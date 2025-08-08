@@ -16,7 +16,7 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.IteratorIterable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.Parameter;
+import org.skriptlang.skript.common.function.Parameter;
 
 import java.io.*;
 import java.util.ArrayList;

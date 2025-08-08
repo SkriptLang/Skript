@@ -8,8 +8,8 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.FunctionArguments;
-import org.skriptlang.skript.lang.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.FunctionArguments;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -47,7 +47,7 @@ public abstract class Function<T> {
 	 * @deprecated Use {@link Signature#parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public org.skriptlang.skript.lang.function.Parameter<?>[] getParameters() {
+	public org.skriptlang.skript.common.function.Parameter<?>[] getParameters() {
 		return sign.getParameters();
 	}
 
@@ -55,7 +55,7 @@ public abstract class Function<T> {
 	 * @deprecated Use {@link Signature#getParameter(String)}} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public org.skriptlang.skript.lang.function.Parameter<?> getParameter(int index) {
+	public org.skriptlang.skript.common.function.Parameter<?> getParameter(int index) {
 		return sign.getParameter(index);
 	}
 
@@ -93,7 +93,7 @@ public abstract class Function<T> {
 			Bukkit.getPluginManager().callEvent(event);
 
 		// Parameters taken by the function.
-		LinkedHashMap<String, org.skriptlang.skript.lang.function.Parameter<?>> parameters = sign.parameters();
+		LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters = sign.parameters();
 
 		if (params.length > parameters.size()) {
 			// Too many parameters, should have failed to parse
@@ -106,7 +106,7 @@ public abstract class Function<T> {
 
 		int i = 0;
 		// Execute parameters or default value expressions
-		for (org.skriptlang.skript.lang.function.Parameter<?> parameter : parameters.values()) {
+		for (org.skriptlang.skript.common.function.Parameter<?> parameter : parameters.values()) {
 			Object[] parameterValue = parameter.modifiers().contains(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
 			if (parameterValue == null && parameter instanceof ch.njol.skript.lang.function.Parameter<?> p) { // Go for default value

@@ -11,7 +11,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructFunction;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.function.Parameter;
+import org.skriptlang.skript.common.function.FunctionReference;
+import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;
@@ -319,7 +320,7 @@ public abstract class Functions {
 		return namespaces.get(new Namespace.Key(Namespace.Origin.SCRIPT, script));
 	}
 
-	private final static Collection<org.skriptlang.skript.lang.function.FunctionReference<?>> toValidate = new ArrayList<>();
+	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
 
 	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static int clearFunctions(String script) {
@@ -335,7 +336,7 @@ public abstract class Functions {
 		// Queue references to signatures we have for revalidation
 		// Can't validate here, because other scripts might be loaded soon
 		for (Signature<?> sign : namespace.getSignatures()) {
-			for (org.skriptlang.skript.lang.function.FunctionReference<?> ref : sign.calls()) {
+			for (FunctionReference<?> ref : sign.calls()) {
 				if (!script.equals(ref.namespace())) {
 					toValidate.add(ref);
 				}
@@ -362,14 +363,14 @@ public abstract class Functions {
 			}
 		}
 
-		for (org.skriptlang.skript.lang.function.FunctionReference<?> ref : signature.calls()) {
+		for (FunctionReference<?> ref : signature.calls()) {
 			if (signature.namespace() != null && !signature.namespace().equals(ref.namespace()))
 				toValidate.add(ref);
 		}
 	}
 
 	public static void validateFunctions() {
-		for (org.skriptlang.skript.lang.function.FunctionReference<?> c : toValidate)
+		for (FunctionReference<?> c : toValidate)
 			c.validate();
 		toValidate.clear();
 	}

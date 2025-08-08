@@ -1,8 +1,9 @@
 package org.skriptlang.skript.lang.function;
 
 import org.junit.Test;
-import org.skriptlang.skript.lang.function.FunctionReference.Argument;
-import org.skriptlang.skript.lang.function.FunctionReference.ArgumentType;
+import org.skriptlang.skript.common.function.FunctionArgumentParser;
+import org.skriptlang.skript.common.function.FunctionReference.Argument;
+import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 
 import static org.junit.Assert.assertEquals;
 

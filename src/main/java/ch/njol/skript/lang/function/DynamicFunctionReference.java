@@ -10,7 +10,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.skript.lang.function.Parameter;
+import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
 import org.skriptlang.skript.util.Validated;
