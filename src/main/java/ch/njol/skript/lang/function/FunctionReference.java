@@ -6,6 +6,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -23,6 +24,7 @@ import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionReference} instead.

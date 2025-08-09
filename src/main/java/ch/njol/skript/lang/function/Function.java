@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 /**
  * Functions can be called using arguments.
  */
-public abstract class Function<T> implements org.skriptlang.skript.common.function.Function<T> {
+public abstract class Function<T> {
 
 	/**
 	 * Execute functions even when some parameters are not present.
@@ -36,11 +36,6 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	 * @return A function signature.
 	 */
 	public Signature<T> getSignature() {
-		return sign;
-	}
-
-	@Override
-	public org.skriptlang.skript.common.function.@NotNull Signature<T> signature() {
 		return sign;
 	}
 
@@ -74,6 +69,13 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable ClassInfo<T> getReturnType() {
 		return sign.getReturnType();
+	}
+
+	/**
+	 * @return The return type of this signature. Returns null for no return type.
+	 */
+	public Class<T> returnType() {
+		return sign.returnType();
 	}
 
 	// FIXME what happens with a delay in a function?
@@ -167,6 +169,15 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+
+	/**
+	 * Executes this function with the given parameters.
+	 *
+	 * @param event The event that is associated with this function execution.
+	 * @param arguments The arguments to execute the function with.
+	 * @return The return value.
+	 */
+	public abstract T execute(FunctionEvent<?> event, FunctionArguments arguments);
 
 	/**
 	 * @return The keys of the values returned by this function, or null if no keys are returned.

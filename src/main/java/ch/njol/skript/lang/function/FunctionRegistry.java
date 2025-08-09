@@ -4,13 +4,14 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.Parameter;
-import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.*;

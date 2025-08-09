@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public record FunctionParser(ParseContext context, int flags) {
 
 	private final static Pattern FUNCTION_CALL_PATTERN =
-		Pattern.compile("(?<name>[A-z_][A-z_0-9]*)\\((?<args>.*)\\)");
+		Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");
 
 	/**
 	 * Attempts to parse {@code expr} as a function reference.
