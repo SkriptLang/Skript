@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.chat;
 
 import ch.njol.skript.registrations.Classes;
+import ch.njol.util.StringUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class ChatComponentHandler {
 
@@ -132,6 +135,8 @@ public final class ChatComponentHandler {
 		return parse(message, true);
 	}
 
+	private static final Pattern COLOR_PATTERN = Pattern.compile("<([a-zA-Z]+ [a-zA-Z]+)>");
+
 	/**
 	 * Parses a string using one of the MiniMessage parsers.
 	 * @param message The message to parse.
@@ -145,19 +150,29 @@ public final class ChatComponentHandler {
 			return Component.empty();
 		}
 
+		// TODO improve...
+		// replace spaces with underscores for simple tags
+		realMessage = StringUtils.replaceAll(Matcher.quoteReplacement(realMessage), COLOR_PATTERN, matcher -> {
+			String mappedTag = matcher.group(1).replace(" ", "_");
+			if (SIMPLE_PLACEHOLDERS.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
+				return "<" + mappedTag + ">";
+			}
+			return matcher.group();
+		});
+		assert realMessage != null;
+
 		// legacy compatibility, transform color codes into tags
 		if (realMessage.contains("&") || realMessage.contains("§")) {
 			StringBuilder reconstructedMessage = new StringBuilder();
 			char[] messageChars = realMessage.toCharArray();
-			int length = messageChars.length;
-			for (int i = 0; i < length; i++) {
+			for (int i = 0; i < messageChars.length; i++) {
 				char current = messageChars[i];
 				if (current == '§') {
 					current = '&';
 				}
-				char next = (i + 1 != length) ? messageChars[i + 1] : ' ';
+				char next = (i + 1 != messageChars.length) ? messageChars[i + 1] : ' ';
 				boolean isCode = current == '&';
-				if (isCode && next == 'x') { // Try to parse as hex -> &x&1&2&3&4&5&6
+				if (isCode && next == 'x' && i + 13 <= messageChars.length) { // Try to parse as hex -> &x&1&2&3&4&5&6
 					reconstructedMessage.append("<#");
 					for (int i2 = i + 3; i2 < i + 14; i2 += 2) { // Isolate the specific numbers
 						reconstructedMessage.append(messageChars[i2]);
