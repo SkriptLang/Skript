@@ -1,13 +1,10 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.util.Contract;
-import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 public interface Signature<T> {
@@ -59,24 +56,6 @@ public interface Signature<T> {
 	 */
 	default boolean single() {
 		return !returnType().isArray();
-	}
-
-	default int maxParameters() {
-		return parameters().size();
-	}
-
-	default int minParameters() {
-		List<Parameter<?>> params = new LinkedList<>(parameters().values());
-
-		int i = parameters().size() - 1;
-		for (Parameter<?> parameter : Lists.reverse(params)) {
-			if (!parameter.modifiers().contains(Parameter.Modifier.OPTIONAL)) {
-				return i + 1;
-			}
-			i--;
-		}
-
-		return 0; // No-args function
 	}
 
 	/**

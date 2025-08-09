@@ -6,6 +6,7 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.function.FunctionRegistry;
+import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
@@ -190,7 +191,7 @@ public record FunctionParser(ParseContext context, int flags) {
 		signatures:
 		for (Signature<?> signature : signatures) {
 			// if arguments arent possible, skip
-			if (arguments.length > signature.maxParameters() || arguments.length < signature.minParameters()) {
+			if (arguments.length > signature.getMaxParameters() || arguments.length < signature.getMinParameters()) {
 				continue;
 			}
 
@@ -208,9 +209,9 @@ public record FunctionParser(ParseContext context, int flags) {
 
 				Parameter<?> parameter;
 				if (argument.type() == ArgumentType.NAMED) {
-					parameter = signature.parameters().get(argument.name());
+					parameter = signature.getParameter(argument.name());
 				} else {
-					parameter = signature.parameters().get(remaining.iterator().next());
+					parameter = signature.getParameter(remaining.iterator().next());
 				}
 
 				if (parameter == null) {
