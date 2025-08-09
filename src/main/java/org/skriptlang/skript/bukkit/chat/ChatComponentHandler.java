@@ -10,6 +10,7 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
@@ -252,7 +253,7 @@ public final class ChatComponentHandler {
 	 * @return The legacy string.
 	 */
 	public static String toLegacyString(Component component) {
-		return parser.serialize(component);
+		return LegacyComponentSerializer.legacySection().serialize(component);
 	}
 
 	private ChatComponentHandler() {}
