@@ -10,15 +10,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.FunctionReference;
-import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.*;
 
 /**
  * Function signature: name, parameter types and a return type.
  */
-public class Signature<T> {
+public class Signature<T> implements org.skriptlang.skript.common.function.Signature<T> {
 
 	/**
 	 * Name of the script that the function is inside.
@@ -36,9 +36,9 @@ public class Signature<T> {
 	private final LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters;
 
 	/**
-	 * Whether this function is only accessible in the script it was declared in
+	 * The modifiers for this signature.
 	 */
-	private final boolean local;
+	private final Set<Modifier> modifiers;
 
 	/**
 	 * The return type.
@@ -58,7 +58,7 @@ public class Signature<T> {
 	public Signature(@Nullable String namespace,
 					 @NotNull String name,
 					 @NotNull LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters,
-					 boolean local,
+					 @NotNull Set<Modifier> modifiers,
 					 @Nullable Class<T> returnType,
 					 @Nullable Contract contract) {
 		Preconditions.checkNotNull(name, "name cannot be null");
@@ -67,7 +67,7 @@ public class Signature<T> {
 		this.namespace = namespace;
 		this.name = name;
 		this.parameters = parameters;
-		this.local = local;
+		this.modifiers = Collections.unmodifiableSet(modifiers);
 		this.returnType = returnType;
 		this.contract = contract;
 
@@ -75,7 +75,7 @@ public class Signature<T> {
 	}
 
 	/**
-	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
+	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, Set, Class, Contract)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Signature(String namespace,
@@ -85,7 +85,7 @@ public class Signature<T> {
 					 boolean single,
 					 @Nullable String originClassPath,
 					 @Nullable Contract contract) {
-		this(namespace, name, initParameters(parameters), local, initReturnType(returnType, single), contract);
+		this(namespace, name, initParameters(parameters), local ? Set.of(Modifier.LOCAL) : Set.of(), initReturnType(returnType, single), contract);
 	}
 
 	private static <T> Class<T> initReturnType(ClassInfo<T> classInfo, boolean single) {
@@ -110,7 +110,7 @@ public class Signature<T> {
 	}
 
 	/**
-	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
+	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, Set, Class, Contract)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Signature(String namespace,
@@ -123,7 +123,7 @@ public class Signature<T> {
 	}
 
 	/**
-	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
+	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, Set, Class, Contract)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Signature(String namespace, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
@@ -149,8 +149,14 @@ public class Signature<T> {
 	/**
 	 * @return A {@link SequencedCollection} containing all parameters.
 	 */
+	@Override
 	public @NotNull LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters() {
 		return new LinkedHashMap<>(parameters);
+	}
+
+	@Override
+	public Contract contract() {
+		return contract;
 	}
 
 	/**
@@ -168,20 +174,22 @@ public class Signature<T> {
 	}
 
 	public boolean isLocal() {
-		return local;
+		return hasModifier(Modifier.LOCAL);
 	}
 
-	/**
-	 * @return The namespace of this signature.
-	 */
-	String namespace() {
+	@Override
+	public @NotNull String name() {
+		return name;
+	}
+
+	@Override
+	public String namespace() {
 		return namespace;
 	}
 
 	/**
-	 * @deprecated Use {@link #returnType()} instead.
+	 * @return The {@link ClassInfo} representing the return type.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable ClassInfo<T> getReturnType() {
 		if (returnType == null) {
 			return null;
@@ -195,11 +203,14 @@ public class Signature<T> {
 		}
 	}
 
-	/**
-	 * @return The return type of this signature. Returns null for no return type.
-	 */
+	@Override
 	public Class<T> returnType() {
 		return returnType;
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Set<Modifier> modifiers() {
+		return modifiers;
 	}
 
 	/**
@@ -247,7 +258,7 @@ public class Signature<T> {
 
 		int i = parameters.size() - 1;
 		for (org.skriptlang.skript.common.function.Parameter<?> parameter : Lists.reverse(params)) {
-			if (!parameter.modifiers().contains(Modifier.OPTIONAL)) {
+			if (!parameter.modifiers().contains(org.skriptlang.skript.common.function.Parameter.Modifier.OPTIONAL)) {
 				return i + 1;
 			}
 			i--;
@@ -269,7 +280,7 @@ public class Signature<T> {
 	public String toString(boolean includeReturnType, boolean debug) {
 		StringBuilder signatureBuilder = new StringBuilder();
 
-		if (local)
+		if (hasModifier(Modifier.LOCAL))
 			signatureBuilder.append("local ");
 		signatureBuilder.append(name);
 

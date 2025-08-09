@@ -1,13 +1,11 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.expressions.ExprBlockSound.SoundType;
-import ch.njol.skript.expressions.ExprKeyed;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.function.*;
+import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
+import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
@@ -74,7 +72,7 @@ public final class FunctionReference<T> implements Debuggable {
 				.collect(Collectors.toSet()).size() == ArgumentType.values().length;
 
 			// get the target params of the function
-			LinkedHashMap<String, Parameter<?>> targetParameters = signature.parameters();
+			LinkedHashMap<String, Parameter<?>> targetParameters = new LinkedHashMap<>(signature.parameters());
 
 			for (Argument<Expression<?>> argument : arguments) {
 				Parameter<?> target;
@@ -186,8 +184,12 @@ public final class FunctionReference<T> implements Debuggable {
 		Function<T> function = function();
 		FunctionEvent<T> fnEvent = new FunctionEvent<>(function);
 
-		if (Functions.callFunctionEvents)
+		if (Functions.callFunctionEvents) {
+			if (function instanceof ch.njol.skript.lang.function.Function<T> f) {
+				Bukkit.getPluginManager().callEvent(new ch.njol.skript.lang.function.FunctionEvent<>(f));
+			}
 			Bukkit.getPluginManager().callEvent(fnEvent);
+		}
 
 		return function.execute(fnEvent, new FunctionArguments(args));
 	}
@@ -290,14 +292,14 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return Whether this reference returns a single or multiple values.
 	 */
 	public boolean single() {
-		if (signature.getContract() != null) {
+		if (signature.contract() != null) {
 			Expression<?>[] args = Arrays.stream(arguments)
 				.map(it -> it.value)
 				.toArray(Expression[]::new);
 
-			return signature.getContract().isSingle(args);
+			return signature.contract().isSingle(args);
 		} else {
-			return signature.isSingle();
+			return signature.single();
 		}
 	}
 

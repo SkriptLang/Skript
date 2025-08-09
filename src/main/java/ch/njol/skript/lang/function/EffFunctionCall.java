@@ -18,7 +18,7 @@ public class EffFunctionCall extends Effect {
 		this.reference = reference;
 	}
 
-	public static EffFunctionCall parse(final String line) {
+	public static EffFunctionCall parse(String line) {
 		FunctionReference<?> function = new SkriptParser(line, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseFunctionReference();
 		if (function != null)
 			return new EffFunctionCall(function);
@@ -26,7 +26,7 @@ public class EffFunctionCall extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event event) {
+	protected void execute(Event event) {
 		reference.execute(event);
 		if (reference.function() != null)
 			reference.function().resetReturnValue(); // Function might have return value that we're ignoring

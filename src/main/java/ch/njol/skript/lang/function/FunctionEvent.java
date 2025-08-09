@@ -3,6 +3,10 @@ package ch.njol.skript.lang.function;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+/**
+ * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionEvent} instead.
+ */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public final class FunctionEvent<T> extends Event {
 	
 	// Bukkit stuff
