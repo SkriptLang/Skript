@@ -9,7 +9,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.chat.elements.EffActionBar;
@@ -17,6 +16,10 @@ import org.skriptlang.skript.bukkit.chat.elements.EffBroadcast;
 import org.skriptlang.skript.bukkit.chat.elements.EffMessage;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatModule implements AddonModule {
 
@@ -87,9 +90,14 @@ public class ChatModule implements AddonModule {
 
 		ChatComponentHandler.registerPlaceholder("underline", Tag.styling(TextDecoration.UNDERLINED));
 
+		Pattern unicodePattern = Pattern.compile("[0-9a-f]{4,}");
 		ChatComponentHandler.registerResolver(TagResolver.resolver("unicode", (argumentQueue, context) -> {
-			String unicode = argumentQueue.popOr("A unicode tag must have an argument of the unicode").value();
-			return Tag.selfClosingInserting(Component.text(StringEscapeUtils.unescapeJava("\\" + unicode)));
+			String argument = argumentQueue.popOr("A unicode tag must have an argument of the unicode").value();
+			Matcher matcher = unicodePattern.matcher(argument.toLowerCase(Locale.ENGLISH));
+			if (!matcher.matches())
+				throw context.newException("Invalid unicode tag");
+			String unicode = Character.toString(Integer.parseInt(matcher.group(), 16));
+			return Tag.selfClosingInserting(Component.text(unicode));
 		}));
 
 		// register syntax
