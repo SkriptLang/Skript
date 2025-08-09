@@ -22,13 +22,11 @@ import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EmptyStacktraceException;
 import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
 import com.google.common.base.Preconditions;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -46,6 +44,7 @@ import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.lang.reflect.Constructor;
@@ -78,6 +77,7 @@ public class ScriptCommand implements TabExecutor {
 	private List<String> activeAliases;
 	private String permission;
 	private final VariableString permissionMessage;
+	private final Expression<? extends Component> permissionMessageComponent;
 	private final String description;
 	private final String prefix;
 	@Nullable
@@ -167,6 +167,7 @@ public class ScriptCommand implements TabExecutor {
 		} else {
 			this.permissionMessage = permissionMessage;
 		}
+		this.permissionMessageComponent = this.permissionMessage.getConvertedExpression(Component.class);
 
 		if (prefix != null) {
 			for (char c : prefix.toCharArray()) {
@@ -199,7 +200,7 @@ public class ScriptCommand implements TabExecutor {
 		this.aliases = aliases;
 		activeAliases = new ArrayList<>(aliases);
 
-		this.description = Utils.replaceEnglishChatStyles(description);
+		this.description = ChatComponentHandler.toLegacyString(description, false);
 		this.usage = usage;
 
 		this.executableBy = executableBy;
@@ -363,13 +364,9 @@ public class ScriptCommand implements TabExecutor {
 
 	public boolean checkPermissions(CommandSender sender, Event event) {
 		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-			if (sender instanceof Player) {
-				List<MessageComponent> components =
-					permissionMessage.getMessageComponents(event);
-				((Player) sender).spigot().sendMessage(BungeeConverter.convert(components));
-			} else {
-				sender.sendMessage(permissionMessage.getSingle(event));
-			}
+			Component message = permissionMessageComponent.getSingle(event);
+			assert message != null;
+			sender.sendMessage(message);
 			return false;
 		}
 		return true;

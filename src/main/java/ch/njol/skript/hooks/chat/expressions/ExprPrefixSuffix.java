@@ -10,7 +10,6 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -46,7 +45,7 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	
 	@Override
 	public String convert(Player player) {
-		return Utils.replaceChatStyles(prefix ? VaultHook.chat.getPlayerPrefix(player) : VaultHook.chat.getPlayerSuffix(player));
+		return prefix ? VaultHook.chat.getPlayerPrefix(player) : VaultHook.chat.getPlayerSuffix(player);
 	}
 
 	@Override

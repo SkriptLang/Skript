@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -23,12 +21,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
 
 @Name("Book Pages")
 @Description({
@@ -46,8 +41,6 @@ import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 @Since("2.2-dev31, 2.7 (changers)")
 public class ExprBookPages extends SimpleExpression<String> {
 
-	private static BungeeComponentSerializer serializer;
-
 	static {
 		Skript.registerExpression(ExprBookPages.class, String.class, ExpressionType.PROPERTY,
 				"[all [[of] the]|the] [book] (pages|content) of %itemtypes/itemstacks%",
@@ -55,8 +48,6 @@ public class ExprBookPages extends SimpleExpression<String> {
 				"[book] page %number% of %itemtypes/itemstacks%",
 				"%itemtypes/itemstacks%'[s] [book] page %number%"
 		);
-		if (Skript.isRunningMinecraft(1, 16) && Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER)
-			serializer = BungeeComponentSerializer.get();
 	}
 
 	private Expression<?> items;
@@ -204,18 +195,11 @@ public class ExprBookPages extends SimpleExpression<String> {
 				default:
 					break;
 			}
-			if (serializer != null) {
-				if (!bookMeta.hasTitle() && bookMeta.hasDisplayName())
-					bookMeta.title(bookMeta.displayName());
-				List<Component> components = pages.stream()
-						.map(ChatMessages::parseToArray)
-						.map(BungeeConverter::convert)
-						.map(serializer::deserialize)
-						.collect(Collectors.toList());
-				bookMeta.pages(components);
-			} else {
-				bookMeta.setPages(pages);
-			}
+
+			bookMeta.pages(pages.stream()
+				.map(bookPage -> ChatComponentHandler.parse(bookPage, false))
+				.toList());
+
 			// If the title and author of the bookMeta are not set, Minecraft will not update the BookMeta, as it deems the book "not signed".
 			if (!bookMeta.hasTitle()) {
 				String title = bookMeta.hasDisplayName() ? bookMeta.getDisplayName() : "Written Book";

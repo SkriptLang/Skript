@@ -5,7 +5,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Chat codes; includes color codes (<a href="https://wiki.vg/Chat#Colors">reference</a>)
  * and also, some formatting codes (mostly <a href="https://wiki.vg/Chat">this</a>)
+ * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public interface ChatCode {
 	
 	/**

@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.chat.elements;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -10,52 +10,55 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.ImmutableSet;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Message")
-@Description({
-	"Sends a message to a player (or other thing capable of receiving a message, such as the console)",
-	"Only styles written in given string or in <a href=#ExprColored>formatted expressions</a> will be parsed.",
+import java.util.Set;
+
+@Name("Broadcast")
+@Description("Broadcasts a message to the server.")
+@Examples({
+	"broadcast \"Welcome %player% to the server!\"",
+	"broadcast \"Woah! It's a message!\""
 })
-@Example("message \"A wild %player% appeared!\"")
-@Example("message \"This message is a distraction. Mwahaha!\"")
-@Example("send \"Your kill streak is %{kill streak::%uuid of player%}%.\" to player")
-@Example("""
-	if the targeted entity exists:
-		message "You're currently looking at a %type of the targeted entity%!"
-	""")
-@Since("1.0, 2.2-dev26 (advanced features), 2.6 (sending objects)")
-public class EffMessage extends Effect {
+@Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting)")
+public class EffBroadcast extends Effect {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
-		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffMessage.class)
-			.supplier(EffMessage::new)
-			.addPattern("(message|send [message[s]]) %objects% [to %commandsenders%]")
+		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffBroadcast.class)
+			.supplier(EffBroadcast::new)
+			.addPattern("broadcast %objects% [(to|in) %-worlds%]")
 			.build());
 	}
 
 	private Expression<?> messages;
-	private Expression<CommandSender> recipients;
+	private @Nullable Expression<World> worlds;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		messages = LiteralUtils.defendExpression(expressions[0]);
-		recipients = LiteralUtils.defendExpression(expressions[1]);
-		if (!LiteralUtils.canInitSafely(messages, recipients)) {
+		if (!LiteralUtils.canInitSafely(messages)) {
 			return false;
 		}
-
 		//noinspection unchecked
 		var componentMessages = expressions[0].getConvertedExpression(Component.class);
 		if (componentMessages != null) {
 			messages = componentMessages;
+		}
+
+		if (expressions[1] != null) {
+			worlds = LiteralUtils.defendExpression(expressions[1]);
+			return LiteralUtils.canInitSafely(worlds);
 		}
 
 		return true;
@@ -73,18 +76,33 @@ public class EffMessage extends Effect {
 			}
 		}
 
-		Audience audience = Audience.audience(recipients.getArray(event));
+		// determine recipients
+		ImmutableSet.Builder<CommandSender> recipientsBuilder = ImmutableSet.builder();
+		if (worlds == null) {
+			recipientsBuilder.addAll(Bukkit.getOnlinePlayers());
+			recipientsBuilder.add(Bukkit.getConsoleSender());
+		} else {
+			for (World world : worlds.getArray(event)) {
+				recipientsBuilder.addAll(world.getPlayers());
+			}
+		}
+		Set<CommandSender> recipients = recipientsBuilder.build();
+
+		Audience audience = Audience.audience(recipients);
+		boolean isAsync = !Bukkit.isPrimaryThread();
 		for (Component component : components) {
-			audience.sendMessage(component);
+			if (new BroadcastMessageEvent(isAsync, component, recipients).callEvent()) {
+				audience.sendMessage(component);
+			}
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("message", messages);
-		if (recipients != null) {
-			builder.append("to", recipients);
+		builder.append("broadcast", messages);
+		if (worlds != null) {
+			builder.append("in", worlds);
 		}
 		return builder.toString();
 	}

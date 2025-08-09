@@ -50,7 +50,6 @@ import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
@@ -91,6 +90,7 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
+import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
 import org.skriptlang.skript.bukkit.chat.ChatModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
@@ -825,8 +825,9 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+					player.sendMessage(ChatComponentHandler.parse(
+						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
+						false));
 				}
 			};
 		}
@@ -2070,7 +2071,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + info));
+		sender.sendMessage(ChatComponentHandler.parse(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2079,7 +2080,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(ChatComponentHandler.parse(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2093,11 +2094,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(info));
+		sender.sendMessage(ChatComponentHandler.parse(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + ChatColor.DARK_RED + error));
+		sender.sendMessage(ChatComponentHandler.parse(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**

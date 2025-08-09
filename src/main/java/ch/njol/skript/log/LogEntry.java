@@ -132,9 +132,9 @@ public class LogEntry {
 		}
 
 		// Replace configured messages chat styles without user variables
-		String lineInfoMsg = replaceNewline(Utils.replaceEnglishChatStyles(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue()));
-		String detailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue()));
-		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
+		String lineInfoMsg = replaceNewline(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue());
+		String detailsMsg = replaceNewline(details.getValue() == null ? details.key : details.getValue());
+		String lineDetailsMsg = replaceNewline(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue());
 
 		if (node == null)
 			return String.format(detailsMsg.replaceAll("^\\s+", ""), message); // Remove line beginning spaces

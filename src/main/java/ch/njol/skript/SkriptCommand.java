@@ -86,7 +86,7 @@ public class SkriptCommand implements CommandExecutor {
 
 		// Log reloading message
 		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
-		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
+		logHandler.log(new LogEntry(Level.INFO, text), sender);
 	}
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
@@ -99,10 +99,10 @@ public class SkriptCommand implements CommandExecutor {
 		String message;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
-			logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(message)));
+			logHandler.log(new LogEntry(Level.INFO, message));
 		} else {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
-			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(message)));
+			logHandler.log(new LogEntry(Level.SEVERE, message));
 		}
 	}
 

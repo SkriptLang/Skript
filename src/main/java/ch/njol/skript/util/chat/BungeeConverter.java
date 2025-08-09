@@ -12,14 +12,17 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 
 /**
- * Converts Skript's chat components into Bungee's BaseComponents which Spigot
- * supports, too.
+ * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class BungeeConverter {
 
 	private static boolean HAS_FONT_SUPPORT = Skript.methodExists(BaseComponent.class, "setFont", String.class);
 
-	@SuppressWarnings("null")
+	/**
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static BaseComponent convert(MessageComponent origin) {
 		BaseComponent base;
 		if (origin.translation != null) {
@@ -54,11 +57,18 @@ public class BungeeConverter {
 		return base;
 	}
 
+	/**
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static BaseComponent[] convert(List<MessageComponent> origins) {
 		return convert(origins.toArray(new MessageComponent[0]));
 	}
 
-	@SuppressWarnings("null") // For origins[i] access
+	/**
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static BaseComponent[] convert(MessageComponent[] origins) {
 		BaseComponent[] bases = new BaseComponent[origins.length];
 		for (int i = 0; i < origins.length; i++) {

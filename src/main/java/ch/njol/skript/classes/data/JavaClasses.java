@@ -247,7 +247,7 @@ public class JavaClasses {
 							case SCRIPT:
 							case EVENT:
 								if (VariableString.isQuotedCorrectly(s, true))
-									return Utils.replaceChatStyles("" + s.substring(1, s.length() - 1).replace("\"\"", "\""));
+									return s.substring(1, s.length() - 1).replace("\"\"", "\"");
 								return null;
 							case COMMAND:
 							case PARSE:

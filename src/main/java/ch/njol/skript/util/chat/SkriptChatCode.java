@@ -7,7 +7,9 @@ import ch.njol.skript.util.chat.MessageComponent.HoverEvent;
 
 /**
  * Chat codes that come with Skript by default.
+ * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public enum SkriptChatCode implements ChatCode {
 	
 	reset {

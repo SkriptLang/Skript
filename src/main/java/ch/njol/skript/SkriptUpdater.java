@@ -13,8 +13,7 @@ import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
 import ch.njol.skript.update.Updater;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
+import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
 
 /**
  * Skript's update checker.
@@ -80,8 +79,9 @@ public class SkriptUpdater extends Updater {
 					UpdateManifest update = getUpdateManifest();
 					assert update != null; // Because we just checked that one is available
 					Skript.info(sender, "" + m_update_available.toString(update.id, Skript.getVersion()));
-					sender.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-							"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+					sender.sendMessage(ChatComponentHandler.parse(
+						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
+						false));
 					break;
 				case UNKNOWN:
 					if (isEnabled()) {
@@ -130,14 +130,14 @@ public class SkriptUpdater extends Updater {
 							if (issue.length() > 0) {
 								// TODO get issue tracker URL from manifest or something
 								processed = processed.replace("#" + issue,
-										"<aqua><u><link:https://github.com/SkriptLang/Skript/issues/"
+										"<aqua><underlined><click:open_url:https://github.com/SkriptLang/Skript/issues/"
 										+ issue + ">#" + issue + "<r>");
 							}
 						}
 						line = processed;
 						
 						assert line != null;
-						sender.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(line)));
+						sender.sendMessage(ChatComponentHandler.parse(line, false));
 					}
 				}
 			}

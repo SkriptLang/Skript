@@ -12,8 +12,11 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.chat.elements.EffActionBar;
+import org.skriptlang.skript.bukkit.chat.elements.EffBroadcast;
 import org.skriptlang.skript.bukkit.chat.elements.EffMessage;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class ChatModule implements AddonModule {
 
@@ -90,7 +93,10 @@ public class ChatModule implements AddonModule {
 		}));
 
 		// register syntax
-		EffMessage.register(addon.syntaxRegistry());
+		SyntaxRegistry syntaxRegistry = addon.syntaxRegistry();
+		EffActionBar.register(syntaxRegistry);
+		EffBroadcast.register(syntaxRegistry);
+		EffMessage.register(syntaxRegistry);
 	}
 
 }

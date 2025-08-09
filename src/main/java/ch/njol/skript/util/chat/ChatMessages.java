@@ -23,7 +23,9 @@ import java.util.regex.Pattern;
 
 /**
  * Handles parsing chat messages.
+ * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ChatMessages {
 	
 	/**

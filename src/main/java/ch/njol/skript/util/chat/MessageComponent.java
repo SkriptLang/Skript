@@ -15,7 +15,9 @@ import net.md_5.bungee.api.ChatColor;
 /**
  * Component for chat messages. This can be serialized with GSON and then
  * sent to client.
+ * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class MessageComponent {
 	
 	public String text = "";

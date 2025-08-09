@@ -567,8 +567,11 @@ public abstract class Utils {
 		});
 	}
 
-	@Nullable
-	public static String getChatStyle(final String s) {
+	/**
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public static @Nullable String getChatStyle(final String s) {
 		SkriptColor color = SkriptColor.fromName(s);
 
 		if (color != null)
@@ -577,11 +580,9 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Replaces &lt;chat styles&gt; in the message
-	 *
-	 * @param message
-	 * @return message with localised chat styles converted to Minecraft's format
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @NotNull String replaceChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
@@ -590,13 +591,9 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the
-	 * language of colour codes is not well defined while the language is
-	 * changing, and for some hardcoded messages.
-	 *
-	 * @param message
-	 * @return message with english chat styles converted to Minecraft's format
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @NotNull String replaceEnglishChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
@@ -606,6 +603,10 @@ public abstract class Utils {
 
 	private final static Pattern STYLE_PATTERN = Pattern.compile("<([^<>]+)>");
 
+	/**
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	private static @NotNull String replaceChatStyle(String message) {
 		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), STYLE_PATTERN, matcher -> {
 			SkriptColor color = SkriptColor.fromName(matcher.group(1));
@@ -641,11 +642,9 @@ public abstract class Utils {
 	private static final Pattern UNICODE_PATTERN = Pattern.compile("(?i)u(?:nicode)?:(?<code>[0-9a-f]{4,})");
 
 	/**
-	 * Tries to extract a Unicode character from the given string.
-	 *
-	 * @param string The string.
-	 * @return The Unicode character, or null if it could not be parsed.
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @Nullable String parseUnicode(String string) {
 		Matcher matcher = UNICODE_PATTERN.matcher(string);
 		if (!matcher.matches())
@@ -661,11 +660,9 @@ public abstract class Utils {
 	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}(?<code>[0-9a-f]{6})");
 
 	/**
-	 * Tries to get a {@link ChatColor} from the given string.
-	 *
-	 * @param string The string code to parse.
-	 * @return The ChatColor, or null if it couldn't be parsed.
+	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @Nullable ChatColor parseHexColor(String string) {
 		Matcher matcher = HEX_PATTERN.matcher(string);
 		if (!matcher.matches())
