@@ -8,8 +8,10 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.Function;
 import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
@@ -85,14 +87,14 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 */
 	public void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
-		if (signature.isLocal() && namespace == null) {
+		if (signature.hasModifier(Signature.Modifier.LOCAL) && namespace == null) {
 			throw new IllegalArgumentException("Cannot register a local signature in the global namespace");
 		}
-		if (!signature.isLocal() && namespace != null) {
+		if (!signature.hasModifier(Signature.Modifier.LOCAL) && namespace != null) {
 			throw new IllegalArgumentException("Cannot register a global signature in a local namespace");
 		}
 
-		Skript.debug("Registering signature '%s'", signature.getName());
+		Skript.debug("Registering signature '%s'", signature.name());
 
 		// namespace
 		NamespaceIdentifier namespaceId;
@@ -112,13 +114,13 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			Set<FunctionIdentifier> identifiersWithName = ns.identifiers.computeIfAbsent(identifier.name, s -> new HashSet<>());
 			boolean exists = identifiersWithName.add(identifier);
 			if (!exists) {
-				alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+				alreadyRegisteredError(signature.name(), identifier, namespaceId);
 			}
 		}
 
 		Signature<?> existing = ns.signatures.putIfAbsent(identifier, signature);
 		if (existing != null) {
-			alreadyRegisteredError(signature.getName(), identifier, namespaceId);
+			alreadyRegisteredError(signature.name(), identifier, namespaceId);
 		}
 	}
 
@@ -142,15 +144,15 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 */
 	public void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function cannot be null");
-		if (function.getSignature().isLocal() && namespace == null) {
+		if (function.signature().hasModifier(Signature.Modifier.LOCAL) && namespace == null) {
 			throw new IllegalArgumentException("Cannot register a local function in the global namespace");
 		}
-		if (!function.getSignature().isLocal() && namespace != null) {
+		if (!function.signature().hasModifier(Signature.Modifier.LOCAL) && namespace != null) {
 			throw new IllegalArgumentException("Cannot register a global function in a local namespace");
 		}
-		Skript.debug("Registering function '%s'", function.getName());
+		Skript.debug("Registering function '%s'", function.signature().name());
 
-		String name = function.getName();
+		String name = function.signature().name();
 		if (!FUNCTION_NAME_PATTERN.matcher(name).matches()) {
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
 		}
@@ -163,9 +165,9 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			namespaceId = GLOBAL_NAMESPACE;
 		}
 
-		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
+		FunctionIdentifier identifier = FunctionIdentifier.of(function.signature());
 		if (!signatureExists(namespaceId, identifier)) {
-			register(namespace, function.getSignature());
+			register(namespace, function.signature());
 		}
 
 		Namespace ns = namespaces.computeIfAbsent(namespaceId, n -> new Namespace());
@@ -402,6 +404,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	/**
 	 * Gets every signature with the name {@code name}.
 	 * This includes global functions and, if {@code namespace} is not null, functions under that namespace (if valid).
+	 *
 	 * @param namespace The additional namespace to obtain signatures from.
 	 *                  Usually represents the path of the script this function is registered in.
 	 * @param name      The name of the signature(s) to obtain.
@@ -435,8 +438,8 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 *
 	 * @param namespace The namespace to get the function from.
 	 * @param provided  The provided identifier of the function.
-	 * @param exact When false, will convert arguments to different types to attempt to find a match.
-	 *              When true, will not convert arguments.
+	 * @param exact     When false, will convert arguments to different types to attempt to find a match.
+	 *                  When true, will not convert arguments.
 	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
 	 * in the specified namespace.
 	 */
@@ -482,8 +485,8 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 *
 	 * @param provided The provided function.
 	 * @param existing The existing functions with the same name.
-	 * @param exact When false, will convert arguments to different types to attempt to find a match.
-	 *              When true, will not convert arguments.
+	 * @param exact    When false, will convert arguments to different types to attempt to find a match.
+	 *                 When true, will not convert arguments.
 	 * @return An unmodifiable list of candidates for the provided function.
 	 */
 	private static @Unmodifiable @NotNull Set<FunctionIdentifier> candidates(
@@ -507,7 +510,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 					if (arrayArg.isArray()) {
 						arrayArg = arrayArg.componentType();
 					}
-          
+
 					if (!Converters.converterExists(arrayArg, arrayType)) {
 						continue candidates;
 					}
@@ -596,11 +599,11 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	public void remove(@NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature cannot be null");
 
-		String name = signature.getName();
+		String name = signature.name();
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		Namespace namespace;
-		if (signature.isLocal()) {
+		if (signature.hasModifier(Signature.Modifier.LOCAL)) {
 			namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
 		} else {
 			namespace = namespaces.get(GLOBAL_NAMESPACE);
@@ -726,7 +729,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				parameters[i] = param.type();
 			}
 
-			return new FunctionIdentifier(signature.getName(), signature.isLocal(),
+			return new FunctionIdentifier(signature.name(), signature.hasModifier(Signature.Modifier.LOCAL),
 				parameters.length - optionalArgs, parameters);
 		}
 

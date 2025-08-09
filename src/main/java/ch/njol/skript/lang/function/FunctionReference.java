@@ -19,6 +19,7 @@ import org.skriptlang.skript.common.function.FunctionReference.Argument;
 import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Signature;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
@@ -286,7 +287,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		sign.calls().add(new org.skriptlang.skript.common.function.FunctionReference<>(script, functionName, signature, stream));
 
-		Contract contract = sign.getContract();
+		Contract contract = sign.contract();
 		if (contract != null)
 			this.contract = contract;
 
