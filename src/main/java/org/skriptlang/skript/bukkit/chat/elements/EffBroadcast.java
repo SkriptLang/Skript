@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.chat.elements;
 
 import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -27,11 +28,13 @@ import java.util.Set;
 
 @Name("Broadcast")
 @Description("Broadcasts a message to the server.")
-@Examples({
-	"broadcast \"Welcome %player% to the server!\"",
-	"broadcast \"Woah! It's a message!\""
+@Example("broadcast \"Welcome %player% to the server!\"")
+@Example("broadcast \"Woah! It's a message!\"")
+@Since({
+	"1.0",
+	"2.6 (support for broadcasting anything)",
+	"2.6.1 (using advanced formatting)"
 })
-@Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting)")
 public class EffBroadcast extends Effect {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {

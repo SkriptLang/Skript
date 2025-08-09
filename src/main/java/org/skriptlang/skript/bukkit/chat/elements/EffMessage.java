@@ -31,7 +31,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	if the targeted entity exists:
 		message "You're currently looking at a %type of the targeted entity%!"
 	""")
-@Since("1.0, 2.2-dev26 (advanced features), 2.6 (sending objects)")
+@Since({
+	"1.0",
+	"2.2-dev26 (advanced features)",
+	"2.6 (support for sending anything)"
+})
 public class EffMessage extends Effect {
 
 	public static void register(SyntaxRegistry syntaxRegistry) {
