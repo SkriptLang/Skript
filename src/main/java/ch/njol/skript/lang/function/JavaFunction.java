@@ -1,10 +1,16 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.FunctionArguments;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
+
+import java.util.List;
 
 public abstract class JavaFunction<T> extends Function<T> {
 
@@ -34,6 +40,45 @@ public abstract class JavaFunction<T> extends Function<T> {
 
 	@Override
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+
+	@Override
+	public final T execute(FunctionEvent<?> event, FunctionArguments arguments) {
+		List<org.skriptlang.skript.common.function.Parameter<?>> parameters = getSignature().parameters().values().stream().toList();
+
+		Object[][] params = new Object[parameters.size()][];
+		for (int i = 0; i < parameters.size(); i++) {
+			Parameter<?> parameter = (Parameter<?>) parameters.get(i);
+			Object object = arguments.get(parameter.name());
+
+			if (object != null && object.getClass().isArray()) {
+				params[i] = (Object[]) object;
+			} else if (object == null) {
+				Expression<?> defaultExpression = parameter.getDefaultExpression();
+
+				if (defaultExpression == null) {
+					return null;
+				}
+
+				if (parameter.single()) {
+					params[i] = new Object[] { defaultExpression.getSingle(event) };
+				} else {
+					params[i] = defaultExpression.getArray(event);
+				}
+			} else {
+				params[i] = new Object[] { object };
+			}
+		}
+
+		T[] execute = execute(event, params);
+		if (execute == null || execute.length == 0) {
+			return null;
+		} else if (execute.length == 1) {
+			return execute[0];
+		} else {
+			//noinspection unchecked
+			return (T) execute;
+		}
+	}
 
 	@Override
 	public @NotNull String @Nullable [] returnedKeys() {

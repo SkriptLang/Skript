@@ -14,15 +14,22 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.DefaultParameter;
+import org.skriptlang.skript.common.function.ScriptParameter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class Parameter<T> {
+/**
+ * @deprecated Use {@link ScriptParameter}
+ * or {@link DefaultParameter} instead.
+ */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
+public final class Parameter<T> implements org.skriptlang.skript.common.function.Parameter<T> {
 
 	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
 
@@ -32,52 +39,106 @@ public final class Parameter<T> {
 	 * If {@link SkriptConfig#caseInsensitiveVariables} is {@code true},
 	 * then the valid variable names may not necessarily match this string in casing.
 	 */
-	final String name;
+	private final String name;
 
 	/**
 	 * Type of the parameter.
 	 */
-	final ClassInfo<T> type;
+	private final ClassInfo<T> type;
 
 	/**
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
-	final @Nullable Expression<? extends T> def;
+	private final @Nullable Expression<? extends T> def;
 
 	/**
 	 * Whether this parameter takes one or many values.
 	 */
-	final boolean single;
+	private final boolean single;
+
+	private final Set<Modifier> modifiers;
 
 	/**
-	 * Whether this parameter takes in key-value pairs.
-	 * <br>
-	 * If this is true, a {@link ch.njol.skript.lang.KeyedValue} array containing key-value pairs will be passed to
-	 * {@link Function#execute(FunctionEvent, Object[][])} rather than a value-only object array.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
-	final boolean keyed;
-
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
 		this(name, type, single, def, false);
 	}
 
+	/**
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
 		this.name = name;
 		this.type = type;
 		this.def = def;
 		this.single = single;
-		this.keyed = keyed;
+		this.modifiers = new HashSet<>();
+
+		if (def != null) {
+			modifiers.add(Modifier.OPTIONAL);
+		}
+		if (keyed) {
+			modifiers.add(Modifier.KEYED);
+		}
 	}
 
 	/**
-	 * Get the Type of this parameter.
-	 * @return Type of the parameter
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed, boolean optional) {
+		this.name = name;
+		this.type = type;
+		this.def = def;
+		this.single = single;
+		this.modifiers = new HashSet<>();
+
+		if (optional) {
+			modifiers.add(Modifier.OPTIONAL);
+		}
+		if (keyed) {
+			modifiers.add(Modifier.KEYED);
+		}
+	}
+
+	/**
+	 * Constructs a new parameter for script functions.
+	 *
+	 * @param name The name.
+	 * @param type The type of the parameter.
+	 * @param single Whether the parameter is single.
+	 * @param def The default value.
+	 */
+	Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, Modifier... modifiers) {
+		this.name = name;
+		this.type = type;
+		this.def = def;
+		this.single = single;
+		this.modifiers = Set.of(modifiers);
+	}
+
+	/**
+	 * @deprecated Use {@link #type()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> getType() {
 		return type;
 	}
 
+	/**
+	 * @deprecated Use {@link ScriptParameter#parse(String, Class, String)}} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> @Nullable Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
 		if (!Variable.isValidVariableName(name, true, false)) {
 			Skript.error("A parameter's name must be a valid variable name.");
@@ -101,15 +162,22 @@ public final class Parameter<T> {
 				log.stop();
 			}
 		}
-		return new Parameter<>(name, type, single, d, !single);
+
+		Set<Modifier> modifiers = new HashSet<>();
+		if (d != null) {
+			modifiers.add(Modifier.OPTIONAL);
+		}
+		if (!single) {
+			modifiers.add(Modifier.KEYED);
+		}
+
+		return new Parameter<>(name, type, single, d, modifiers.toArray(new Modifier[0]));
 	}
 
 	/**
-	 * Parses function parameters from a string. The string should look something like this:
-	 * <pre>"something: string, something else: number = 12"</pre>
-	 * @param args The string to parse.
-	 * @return The parsed parameters
+	 * @deprecated Use {@link ch.njol.skript.structures.StructFunction.FunctionParser#parse(String, String, String, String, boolean)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable List<Parameter<?>> parse(String args) {
 		List<Parameter<?>> params = new ArrayList<>();
 		boolean caseInsensitive = SkriptConfig.caseInsensitiveVariables.value();
@@ -167,10 +235,9 @@ public final class Parameter<T> {
 	}
 
 	/**
-	 * Get the name of this parameter.
-	 * <p>Will be used as name for the local variable that contains value of it inside function.</p>
-	 * @return Name of this parameter
+	 * @deprecated Use {@link #name()} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public String getName() {
 		return name;
 	}
@@ -192,12 +259,45 @@ public final class Parameter<T> {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Parameter<?> parameter)) {
+			return false;
+		}
+
+		return modifiers.equals(parameter.modifiers)
+			&& single == parameter.single
+			&& name.equals(parameter.name)
+			&& type.equals(parameter.type)
+			&& Objects.equals(def, parameter.def);
+	}
+
+	@Override
 	public String toString() {
 		return toString(Skript.debug());
 	}
 
 	public String toString(boolean debug) {
 		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, debug) : "");
+	}
+
+	@Override
+	public @NotNull String name() {
+		return name;
+	}
+
+	@Override
+	public @NotNull Class<T> type() {
+		if (isSingleValue()) {
+			return type.getC();
+		} else {
+			//noinspection unchecked
+			return (Class<T>) type.getC().arrayType();
+		}
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Set<Modifier> modifiers() {
+		return Collections.unmodifiableSet(modifiers);
 	}
 
 }
