@@ -236,21 +236,12 @@ variable changes until save: 1000
 
 # ==== Runtime Errors ====
 runtime errors:
-	# Frames are the duration over which runtime errors will be collected before being sent off to console.
-	# If you find runtime errors to be annoying or clogging your console, you should first fix them!
-	# You can also lengthen this duration to reduce the amount of individual errors printed to console.
-	frame duration: 1 second
 
 	# -- Errors --
 	# This controls the maximum number of individual errors that will be printed per frame.
 	# If more errors occur, they will be hidden and the frame will simply display that x number of
 	# errors occurred but were hidden this frame.
 	total errors per frame: 8
-
-	# This controls the maximum number of errors a single line can print per frame. This is used to prevent
-	# line from clogging up the frame, like if a syntax was in a 10 iteration loop and errored every time.
-	# It's best to keep this rather low.
-	errors from one line per frame: 2
 
 	# If a line prints more than this many errors in a single frame, it will be put in timeout. This means
 	# any additional errors it creates during the timeout duration will be hidden, rather than printed.

@@ -412,7 +412,7 @@ public class SkriptConfig {
 			SkriptConfig.mainConfig = mainConfig;
 
 			String configVersion = mainConfig.getValue(version.key);
-			if (configVersion == null || Skript.getVersion().compareTo(new Version(configVersion)) != 0) {
+			if (true) {
 				if (!mainConfig.getMainNode().isValid()) {
 					Skript.error("Your config is outdated, but cannot be updated because it contains errors.");
 					return;
@@ -431,7 +431,7 @@ public class SkriptConfig {
 					mainConfig.save(configFile);
 					SkriptConfig.mainConfig = mainConfig;
 
-					if (updated) {
+					if (true) {
 						Skript.info("Your configuration has been updated to the latest version. " +
 							"A backup of your old config file has been created as " + backup.getName());
 					} else {

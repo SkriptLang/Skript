@@ -1,13 +1,10 @@
 package ch.njol.skript.config;
 
-import java.util.Arrays;
-import java.util.Map.Entry;
-import java.util.Objects;
-
 import ch.njol.skript.lang.util.common.AnyValued;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.Map.Entry;
 
 /**
  * @author Peter Güttinger
@@ -18,6 +15,11 @@ public class EntryNode extends Node implements Entry<String, String>, AnyValued<
 
 	public EntryNode(final String key, final String value, final String comment, final SectionNode parent, final int lineNum) {
 		super(key, comment, parent, lineNum);
+		this.value = value;
+	}
+
+	EntryNode(String key, String value, String comment, String[] comments, SectionNode parent, int lineNum) {
+		super(key, comment, comments, parent, lineNum);
 		this.value = value;
 	}
 
@@ -74,22 +76,6 @@ public class EntryNode extends Node implements Entry<String, String>, AnyValued<
 	@Override
 	public @Nullable Node get(String step) {
 		return null;
-	}
-
-	@Override
-	public boolean equals(Object object) {
-		if (!(object instanceof EntryNode other))
-			return false;
-
-		// ignores comment as changing the comment would create
-		// a new node which may change the value, leading to
-		// unexpected config changes for the user
-		return Arrays.equals(this.getPathSteps(), other.getPathSteps());
-	}
-
-	@Override
-	public int hashCode() {
-		return Arrays.hashCode(this.getPathSteps());
 	}
 
 }

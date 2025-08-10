@@ -11,6 +11,7 @@ import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,10 +24,14 @@ import java.util.regex.Pattern;
  */
 public class SectionNode extends Node implements Iterable<Node> {
 
-	private final ArrayList<Node> nodes = new ArrayList<>();
+	private final List<Node> nodes = new ArrayList<>();
 
 	public SectionNode(final String key, final String comment, final SectionNode parent, final int lineNum) {
 		super(key, comment, parent, lineNum);
+	}
+
+	SectionNode(String key, String comment, String[] comments, SectionNode parent, int lineNum) {
+		super(key, comment, comments, parent, lineNum);
 	}
 
 	SectionNode(final Config c) {
@@ -250,144 +255,23 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return true;
 	}
 
-	static SectionNode load(final Config c, final ConfigReader r) throws IOException {
-		return new SectionNode(c).load_i(r);
+	static SectionNode load(Config c, ConfigReader r) throws IOException {
+		return new NodeParser(new SectionNode(c), r).parse().node();
 	}
 
-	static SectionNode load(final String name, final String comment, final SectionNode parent, final ConfigReader r) throws IOException {
-		parent.config.level++;
-		final SectionNode node = new SectionNode(name, comment, parent, r.getLineNum()).load_i(r);
-		SkriptLogger.setNode(parent);
-		parent.config.level--;
-		return node;
-	}
+	private static Node getEntry(SectionNode node, String keyAndValue, String comment, String[] comments, int lineNum, String separator) {
+		int x = keyAndValue.indexOf(separator);
 
-	private static String readableWhitespace(final String s) {
-		if (s.matches(" +"))
-			return s.length() + " space" + (s.length() == 1 ? "" : "s");
-		if (s.matches("\t+"))
-			return s.length() + " tab" + (s.length() == 1 ? "" : "s");
-		return "'" + s.replace("\t", "->").replace(' ', '_').replaceAll("\\s", "?") + "' [-> = tab, _ = space, ? = other whitespace]";
-	}
-
-	private static final Pattern fullLinePattern = Pattern.compile("([^#]|##)*#-#(\\s.*)?");
-
-	private SectionNode load_i(final ConfigReader r) throws IOException {
-		boolean indentationSet = false;
-		String fullLine;
-		AtomicBoolean inBlockComment = new AtomicBoolean(false);
-		int blockCommentStartLine = -1;
-		while ((fullLine = r.readLine()) != null) {
-			SkriptLogger.setNode(this);
-
-			if (!inBlockComment.get()) // this will be updated for the last time at the start of the comment
-				blockCommentStartLine = this.getLine();
-			final NonNullPair<String, String> line = Node.splitLine(fullLine, inBlockComment);
-			String value = line.getFirst();
-			final String comment = line.getSecond();
-
-			final SectionNode parent = this.parent;
-			if (!indentationSet && parent != null && parent.parent == null && !value.isEmpty() && !value.matches("\\s*") && !value.matches("\\S.*")) {
-				final String s = value.replaceFirst("\\S.*$", "");
-				assert !s.isEmpty() : fullLine;
-				if (s.matches(" +") || s.matches("\t+")) {
-					config.setIndentation(s);
-					indentationSet = true;
-				} else {
-					nodes.add(new InvalidNode(value, comment, this, r.getLineNum()));
-					Skript.error("indentation error: indent must only consist of either spaces or tabs, but not mixed (found " + readableWhitespace(s) + ")");
-					continue;
-				}
-			}
-			if (!value.matches("\\s*") && !value.matches("^(" + config.getIndentation() + "){" + config.level + "}\\S.*")) {
-				if (value.matches("^(" + config.getIndentation() + "){" + config.level + "}\\s.*") || !value.matches("^(" + config.getIndentation() + ")*\\S.*")) {
-					nodes.add(new InvalidNode(value, comment, this, r.getLineNum()));
-					final String s = "" + value.replaceFirst("\\S.*$", "");
-					Skript.error("indentation error: expected " + config.level * config.getIndentation().length() + " " + config.getIndentationName() + (config.level * config.getIndentation().length() == 1 ? "" : "s") + ", but found " + readableWhitespace(s));
-					continue;
-				} else {
-					if (parent != null && !config.allowEmptySections && isEmpty()) {
-						Skript.warning("Empty configuration section! You might want to indent one or more of the subsequent lines to make them belong to this section" +
-							" or remove the colon at the end of the line if you don't want this line to start a section.");
-					}
-					r.reset();
-					return this;
-				}
-			}
-
-			value = value.trim();
-
-			if (value.isEmpty()) { // entire line is a comment or empty
-				nodes.add(new VoidNode(value, comment, this, r.getLineNum()));
-				continue;
-			}
-
-//			if (line.startsWith("!") && line.indexOf('[') != -1 && line.endsWith("]")) {
-//				final String option = line.substring(1, line.indexOf('['));
-//				final String value = line.substring(line.indexOf('[') + 1, line.length() - 1);
-//				if (value.isEmpty()) {
-//					nodes.add(new InvalidNode(this, r));
-//					Skript.error("parse options must not be empty");
-//					continue;
-//				} else if (option.equalsIgnoreCase("separator")) {
-//					if (config.simple) {
-//						Skript.warning("scripts don't have a separator");
-//						continue;
-//					}
-//					config.separator = value;
-//				} else {
-//					final Node n = new InvalidNode(this, r);
-//					SkriptLogger.setNode(n);
-//					nodes.add(n);
-//					Skript.error("unknown parse option '" + option + "'");
-//					continue;
-//				}
-//				nodes.add(new ParseOptionNode(line.substring(0, line.indexOf('[')), this, r));
-//				continue;
-//			}
-
-			if (value.endsWith(":") && (config.simple
-				|| value.indexOf(config.separator) == -1
-				|| config.separator.endsWith(":") && value.indexOf(config.separator) == value.length() - config.separator.length()
-			)) {
-				boolean matches = false;
-				try {
-					matches = fullLine.contains("#") && fullLinePattern.matcher(fullLine).matches();
-				} catch (StackOverflowError e) { // Probably a very long line
-					Node.handleNodeStackOverflow(e, fullLine);
-				}
-				if (!matches) {
-					nodes.add(SectionNode.load("" + value.substring(0, value.length() - 1), comment, this, r));
-					continue;
-				}
-			}
-
-			if (config.simple) {
-				nodes.add(new SimpleNode(value, comment, r.getLineNum(), this));
-			} else {
-				nodes.add(getEntry(value, comment, r.getLineNum(), config.separator));
-			}
-
-		}
-		if (inBlockComment.get()) {
-			Skript.error("A block comment (###) was opened on line " + blockCommentStartLine + " but never closed.");
-		}
-		SkriptLogger.setNode(parent);
-
-		return this;
-	}
-
-	private Node getEntry(final String keyAndValue, final String comment, final int lineNum, final String separator) {
-		final int x = keyAndValue.indexOf(separator);
 		if (x == -1) {
-			final InvalidNode in = new InvalidNode(keyAndValue, comment, this, lineNum);
+			InvalidNode in = new InvalidNode(keyAndValue, comment, comments, node, lineNum);
 			EntryValidator.notAnEntryError(in, separator);
-			SkriptLogger.setNode(this);
+			SkriptLogger.setNode(node);
 			return in;
 		}
-		final String key = "" + keyAndValue.substring(0, x).trim();
-		final String value = "" + keyAndValue.substring(x + separator.length()).trim();
-		return new EntryNode(key, value, comment, this, lineNum);
+
+		String key = keyAndValue.substring(0, x).trim();
+		String value = keyAndValue.substring(x + separator.length()).trim();
+		return new EntryNode(key, value, comment, comments, node, lineNum);
 	}
 
 	/**
@@ -419,7 +303,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 				continue;
 			final String key = n.key;
 			if (key != null)
-				nodes.set(i, getEntry(key, n.comment, n.lineNum, separator));
+				nodes.set(i, getEntry(this, key, n.comment, new String[0], n.lineNum, separator));
 			else
 				assert false;
 		}
@@ -431,6 +315,21 @@ public class SectionNode extends Node implements Iterable<Node> {
 			super.save(w);
 		for (final Node node : nodes)
 			node.save(w);
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> getAsStrings() {
+		List<String> strings = new LinkedList<>();
+
+		if (parent != null) {
+			strings.addAll(super.getAsStrings());
+		}
+
+		for (Node node : this) {
+			strings.addAll(node.getAsStrings());
+		}
+
+		return Collections.unmodifiableCollection(strings);
 	}
 
 	@Override
@@ -551,6 +450,132 @@ public class SectionNode extends Node implements Iterable<Node> {
 			node = sectionNode.get(s);
 		}
 		return node;
+	}
+
+	private static final class NodeParser {
+
+		private record ParseResult(SectionNode node, List<String> remainingComments) {}
+
+		private static final Pattern FULL_LINE_PATTERN = Pattern.compile("([^#]|##)*#-#(\\s.*)?");
+
+		private final SectionNode node;
+		private final ConfigReader reader;
+
+		private NodeParser(SectionNode node, ConfigReader reader) {
+			this.node = node;
+			this.reader = reader;
+		}
+
+		private static ParseResult parse(String name, String comment, String[] comments, SectionNode parent, ConfigReader reader) throws IOException {
+			parent.config.level++;
+			ParseResult node = new NodeParser(new SectionNode(name, comment, comments, parent, reader.getLineNum()), reader).parse();
+			SkriptLogger.setNode(parent);
+			parent.config.level--;
+			return node;
+		}
+
+		private ParseResult parse() throws IOException {
+			boolean indentationSet = false;
+			String fullLine;
+			AtomicBoolean inBlockComment = new AtomicBoolean(false);
+			int blockCommentStartLine = -1;
+
+			List<String> comments = new LinkedList<>();
+			while ((fullLine = reader.readLine()) != null) {
+				SkriptLogger.setNode(node);
+
+				if (!inBlockComment.get()) // this will be updated for the last time at the start of the comment
+					blockCommentStartLine = node.getLine();
+
+				NonNullPair<String, String> line = Node.splitLine(fullLine, inBlockComment);
+				String value = line.getFirst();
+				String comment = line.getSecond();
+
+				SectionNode parent = node.parent;
+				Config config = node.config;
+				List<Node> nodes = node.nodes;
+				if (!indentationSet && parent != null && parent.parent == null && !value.isEmpty() && !value.matches("\\s*") && !value.matches("\\S.*")) {
+					String s = value.replaceFirst("\\S.*$", "");
+					assert !s.isEmpty() : fullLine;
+					if (s.matches(" +") || s.matches("\t+")) {
+						config.setIndentation(s);
+						indentationSet = true;
+					} else {
+						nodes.add(new InvalidNode(value, comment, comments.toArray(new String[0]), node, reader.getLineNum()));
+						Skript.error("Indentation error: indent must only consist of either spaces or tabs, but not mixed (found " + readableWhitespace(s) + ")");
+						comments.clear();
+						continue;
+					}
+				}
+
+				if (!value.matches("\\s*") && !value.matches("^(" + config.getIndentation() + "){" + config.level + "}\\S.*")) {
+					if (value.matches("^(" + config.getIndentation() + "){" + config.level + "}\\s.*") || !value.matches("^(" + config.getIndentation() + ")*\\S.*")) {
+						nodes.add(new InvalidNode(value, comment, comments.toArray(new String[0]), node, reader.getLineNum()));
+						String s = value.replaceFirst("\\S.*$", "");
+						Skript.error("Indentation error: expected " + config.level * config.getIndentation().length() + " " + config.getIndentationName() + (config.level * config.getIndentation().length() == 1 ? "" : "s") + ", but found " + readableWhitespace(s));
+						comments.clear();
+						continue;
+					} else {
+						if (parent != null && !config.allowEmptySections && node.isEmpty()) {
+							Skript.warning("Empty configuration section! You might want to indent one or more of the subsequent lines to make them belong to this section" +
+								" or remove the colon at the end of the line if you don't want this line to start a section.");
+						}
+						reader.reset();
+						return new ParseResult(node, comments);
+					}
+				}
+
+				value = value.trim();
+
+				if (value.isEmpty()) { // entire line is a comment or empty
+					comments.add(comment.trim());
+					nodes.add(new VoidNode(value, comment, node, reader.getLineNum()));
+					continue;
+				}
+
+				if (value.endsWith(":") && (config.simple
+					|| !value.contains(config.separator)
+					|| config.separator.endsWith(":") && value.indexOf(config.separator) == value.length() - config.separator.length()
+				)) {
+					boolean matches = false;
+					try {
+						matches = fullLine.contains("#") && FULL_LINE_PATTERN.matcher(fullLine).matches();
+					} catch (StackOverflowError e) { // Probably a very long line
+						Node.handleNodeStackOverflow(e, fullLine);
+					}
+					if (!matches) {
+						ParseResult result = parse(value.substring(0, value.length() - 1), comment, comments.toArray(new String[0]), node, reader);
+						nodes.add(result.node());
+						comments.clear();
+						comments.addAll(result.remainingComments());
+						continue;
+					}
+				}
+
+				if (config.simple) {
+					nodes.add(new SimpleNode(value, comment, comments.toArray(new String[0]), node, reader.getLineNum()));
+				} else {
+					nodes.add(getEntry(node, value, comment, comments.toArray(new String[0]), reader.getLineNum(), config.separator));
+				}
+
+				comments.clear();
+			}
+			if (inBlockComment.get()) {
+				Skript.error("A block comment (###) was opened on line " + blockCommentStartLine + " but never closed.");
+			}
+			SkriptLogger.setNode(node.parent);
+
+			return new ParseResult(node, comments);
+		}
+
+		private static String readableWhitespace(String s) {
+			if (s.matches(" +"))
+				return s.length() + " space" + (s.length() == 1 ? "" : "s");
+			if (s.matches("\t+"))
+				return s.length() + " tab" + (s.length() == 1 ? "" : "s");
+			return "'" + s.replace("\t", "->").replace(' ', '_').replaceAll("\\s", "?") + "' [-> = tab, _ = space, ? = other whitespace]";
+		}
+
 	}
 
 }

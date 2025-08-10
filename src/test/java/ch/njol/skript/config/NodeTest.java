@@ -14,7 +14,7 @@ public class NodeTest {
 
 	@Test
 	public void testGetPathSteps() {
-		Config newer = getConfig("new-config");
+		Config newer = getConfig("reference");
 
 		Node node = newer.getNodeAt("a", "b", "c");
 
@@ -24,8 +24,8 @@ public class NodeTest {
 
 	@Test
 	public void testIsValid() {
-		Config valid = getConfig("new-config");
-		Config invalid = getConfig("invalid-config");
+		Config valid = getConfig("reference");
+		Config invalid = getConfig("test-invalid");
 
 		assertTrue(valid.getMainNode().isValid());
 		assertFalse(invalid.getMainNode().isValid());
@@ -62,6 +62,8 @@ public class NodeTest {
 
 	private Config getConfig(String name) {
 		try (InputStream resource = getClass().getResourceAsStream("/" + name + ".sk")) {
+			assertNotNull(resource);
+
 			return new Config(resource, name + ".sk", false, false, ":");
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

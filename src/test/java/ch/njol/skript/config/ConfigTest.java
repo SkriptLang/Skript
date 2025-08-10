@@ -4,23 +4,33 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class ConfigTest {
 
 	@Test
-	public void testUpdateNodes() {
-		Config old = getConfig("old-config");
-		Config newer = getConfig("new-config");
+	public void testNodes() {
+		Config reference = getConfig("reference");
 
-		boolean updated = old.updateNodes(newer);
+		Node node = reference.getNodeAt("a", "g");
+
+		assertNotNull(node);
+		assertEquals(node.comments(), List.of("# Comment f", "# Comment f'", ""));
+	}
+
+	@Test
+	public void testUpdateNodes() {
+		Config old = getConfig("test-update");
+		Config reference = getConfig("reference");
+
+		boolean updated = old.updateNodes(reference);
 
 		assertTrue("updateNodes did not update any nodes", updated);
 
-		Set<Node> newNodes = Config.discoverNodes(newer.getMainNode());
-		Set<Node> updatedNodes = Config.discoverNodes(old.getMainNode());
+		List<Node> newNodes = Config.discoverNodes(reference.getMainNode());
+		List<Node> updatedNodes = Config.discoverNodes(old.getMainNode());
 
 		for (Node node : newNodes) {
 			assertTrue("Node " + node + " was not updated", updatedNodes.contains(node));
@@ -51,7 +61,7 @@ public class ConfigTest {
 	}
 
 	private Config getConfig(String name) {
-		try (InputStream resource = getClass().getResourceAsStream("/" + name + ".sk")) {
+		try (InputStream resource = getClass().getResourceAsStream("/config/unit/" + name + ".sk")) {
 			return new Config(resource, name + ".sk", false, false, ":");
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);

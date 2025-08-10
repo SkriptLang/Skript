@@ -7,6 +7,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.util.Validated;
 
 import java.io.PrintWriter;
@@ -19,6 +20,16 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 	protected String key;
 
 	protected String comment = "";
+
+	/**
+	 * An array of all comments that are associated with this node.
+	 */
+	protected String[] comments = new String[0];
+
+	@Unmodifiable
+	public @NotNull Collection<String> comments() {
+		return List.of(comments);
+	}
 
 	protected final int lineNum;
 
@@ -59,6 +70,18 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		this.lineNum = lineNum;
 		this.parent = parent;
 		config = parent.getConfig();
+		SkriptLogger.setNode(this);
+	}
+
+	Node(@Nullable String key, @NotNull String comment, @NotNull String @NotNull [] comments, SectionNode parent, int lineNum) {
+		this.key = key;
+		this.debug = comment.equals("#DEBUG#");
+		this.comment = comment;
+		this.comments = comments;
+		this.lineNum = lineNum;
+		this.parent = parent;
+		this.config = parent.getConfig();
+
 		SkriptLogger.setNode(this);
 	}
 
@@ -268,6 +291,26 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 	 */
 	abstract String save_i();
 
+	/**
+	 * @return This node as a collection of lines.
+	 */
+	public @Unmodifiable @NotNull Collection<String> getAsStrings() {
+		String[] strings = new String[comments.length + 1];
+
+		for (int i = 0; i < comments.length; i++) {
+			if (comments[i].isEmpty()) { // dont indent for empty lines
+				strings[i] = "";
+			} else {
+				strings[i] = getIndentation() + comments[i];
+			}
+		}
+		strings[comments.length] = getIndentation()
+			+ escapeUnquotedHashtags(save_i())
+			+ (comment.isEmpty() ? "" : " " + comment);
+
+		return List.of(strings);
+	}
+
 	public final String save() {
 		return getIndentation() + escapeUnquotedHashtags(save_i()) + comment;
 	}
@@ -336,59 +379,6 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		return this instanceof VoidNode;// || this instanceof ParseOptionNode;
 	}
 
-//	/**
-//	 * get a node via path:to:the:node. relative paths are possible by starting with a ':'; a double colon '::' will go up a node.<br/>
-//	 * selecting the n-th node can be done with #n.
-//	 *
-//	 * @param path
-//	 * @return the node at the given path or null if the path is invalid
-//	 */
-//	public Node getNode(final String path) {
-//		return getNode(path, false);
-//	}
-//
-//	public Node getNode(String path, final boolean create) {
-//		Node n;
-//		if (path.startsWith(":")) {
-//			path = path.substring(1);
-//			n = this;
-//		} else {
-//			n = config.getMainNode();
-//		}
-//		for (final String s : path.split(":")) {
-//			if (s.isEmpty()) {
-//				n = n.getParent();
-//				if (n == null) {
-//					n = config.getMainNode();
-//				}
-//				continue;
-//			}
-//			if (!(n instanceof SectionNode)) {
-//				return null;
-//			}
-//			if (s.startsWith("#")) {
-//				int i = -1;
-//				try {
-//					i = Integer.parseInt(s.substring(1));
-//				} catch (final NumberFormatException e) {
-//					return null;
-//				}
-//				if (i <= 0 || i > ((SectionNode) n).getNodeList().size())
-//					return null;
-//				n = ((SectionNode) n).getNodeList().get(i - 1);
-//			} else {
-//				final Node oldn = n;
-//				n = ((SectionNode) n).get(s);
-//				if (n == null) {
-//					if (!create)
-//						return null;
-//					((SectionNode) oldn).getNodeList().add(n = new SectionNode(s, (SectionNode) oldn, "", -1));
-//				}
-//			}
-//		}
-//		return n;
-//	}
-
 	/**
 	 * returns information about this node which looks like the following:<br/>
 	 * <code>node value #including comments (config.sk, line xyz)</code>
@@ -432,7 +422,6 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 	public @NotNull Node getCurrentNode() {
 		return this;
 	}
-
 
 	/**
 	 * @return The index of this node relative to the other children of this node's parent,
@@ -496,13 +485,11 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		if (!(object instanceof Node other))
 			return false;
 
-		return Arrays.equals(this.getPathSteps(), other.getPathSteps()) // for entry/section nodes
-			&& Objects.equals(comment, other.comment); // for void nodes
-	}
+		if (!Objects.equals(key, other.key)) {
+			return false;
+		}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(Arrays.hashCode(this.getPathSteps()), comment);
+		return Arrays.equals(getPathSteps(), other.getPathSteps());
 	}
 
 }
