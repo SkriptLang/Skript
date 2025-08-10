@@ -20,7 +20,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
- * @author Peter Güttinger
+ * A node which can be a parent of other nodes.
+ *
+ * <p>
+ * A general overview of node structure is as follows.
+ * <pre><code>
+ * section node:
+ * 	entry node: true
+ * 	simple node
+ * </code></pre>
+ * </p>
  */
 public class SectionNode extends Node implements Iterable<Node> {
 
@@ -82,8 +91,8 @@ public class SectionNode extends Node implements Iterable<Node> {
 	/**
 	 * Inserts {@code node} into this section at the specified position.
 	 *
-	 * @param node  The node to insert
 	 * @param index The index, between 0 and {@link #size()} (inclusive), at which to insert the node
+	 * @param node  The node to insert
 	 */
 	public void add(int index, @NotNull Node node) {
 		Preconditions.checkArgument(index >= 0 && index <= size(), "index out of bounds: %s", index);
@@ -94,7 +103,15 @@ public class SectionNode extends Node implements Iterable<Node> {
 		getNodeMap().put(node);
 	}
 
+	/**
+	 * Inserts {@code node} into this section at the specified position, where
+	 * the position is determined by non-void nodes.
+	 *
+	 * @param index The index.
+	 * @param node The node to insert.
+	 */
 	void addRelative(int index, @NotNull Node node) {
+		Preconditions.checkNotNull(node, "node cannot be null");
 		Preconditions.checkArgument(index >= 0 && index <= relativeSize(), "index out of bounds: %s", index);
 
 		int count = 0;
@@ -155,7 +172,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 
 	/**
 	 * Gets the node at the specified index. May be null.
-	 * The index includes all nodes, including void nodes.
+	 * The index includes only non-void nodes.
 	 *
 	 * @param index The index of the node to get
 	 * @return The node at the specified index. May be null.
@@ -335,6 +352,10 @@ public class SectionNode extends Node implements Iterable<Node> {
 		}
 	}
 
+	/**
+	 * @deprecated Use {@link #getAsStrings()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	@Override
 	public void save(final PrintWriter w) {
 		if (parent != null)
@@ -478,8 +499,17 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return node;
 	}
 
+	/**
+	 * Class for parsing section nodes.
+	 */
 	private static final class NodeParser {
 
+		/**
+		 * A result from parsing a node.
+		 *
+		 * @param node The parsed node.
+		 * @param remainingComments The remaining comments that belong to the next node.
+		 */
 		private record ParseResult(SectionNode node, List<String> remainingComments) {}
 
 		private static final Pattern FULL_LINE_PATTERN = Pattern.compile("([^#]|##)*#-#(\\s.*)?");
@@ -492,6 +522,17 @@ public class SectionNode extends Node implements Iterable<Node> {
 			this.reader = reader;
 		}
 
+		/**
+		 * Parses a new section node.
+		 *
+		 * @param name The key.
+		 * @param comment The inline comment.
+		 * @param comments The associated comments.
+		 * @param parent The parent node.
+		 * @param reader The current reader.
+		 * @return A {@link ParseResult} with the node and the remaining comments.
+		 * @throws IOException On failure to read the current line.
+		 */
 		private static ParseResult parse(String name, String comment, String[] comments, SectionNode parent, ConfigReader reader) throws IOException {
 			parent.config.level++;
 			ParseResult node = new NodeParser(new SectionNode(name, comment, comments, parent, reader.getLineNum()), reader).parse();
@@ -500,6 +541,12 @@ public class SectionNode extends Node implements Iterable<Node> {
 			return node;
 		}
 
+		/**
+		 * Attempts to parse the remaining lines in {@code reader} as a section node.
+		 *
+		 * @return A {@link ParseResult} with the node and the remaining comments.
+		 * @throws IOException On failure to read the current line.
+		 */
 		private ParseResult parse() throws IOException {
 			boolean indentationSet = false;
 			String fullLine;
@@ -528,17 +575,18 @@ public class SectionNode extends Node implements Iterable<Node> {
 						indentationSet = true;
 					} else {
 						nodes.add(new InvalidNode(value, comment, comments.toArray(new String[0]), node, reader.getLineNum()));
-						Skript.error("Indentation error: indent must only consist of either spaces or tabs, but not mixed (found " + readableWhitespace(s) + ")");
+						Skript.error("Indentation error: indent must only consist of either spaces or tabs, but not mixed (found " + readableIndentation(s) + ")");
 						comments.clear();
 						continue;
 					}
 				}
 
+				// check indentation
 				if (!value.matches("\\s*") && !value.matches("^(" + config.getIndentation() + "){" + config.level + "}\\S.*")) {
 					if (value.matches("^(" + config.getIndentation() + "){" + config.level + "}\\s.*") || !value.matches("^(" + config.getIndentation() + ")*\\S.*")) {
 						nodes.add(new InvalidNode(value, comment, comments.toArray(new String[0]), node, reader.getLineNum()));
 						String s = value.replaceFirst("\\S.*$", "");
-						Skript.error("Indentation error: expected " + config.level * config.getIndentation().length() + " " + config.getIndentationName() + (config.level * config.getIndentation().length() == 1 ? "" : "s") + ", but found " + readableWhitespace(s));
+						Skript.error("Indentation error: expected " + config.level * config.getIndentation().length() + " " + config.getIndentationName() + (config.level * config.getIndentation().length() == 1 ? "" : "s") + ", but found " + readableIndentation(s));
 						comments.clear();
 						continue;
 					} else {
@@ -553,12 +601,14 @@ public class SectionNode extends Node implements Iterable<Node> {
 
 				value = value.trim();
 
-				if (value.isEmpty()) { // entire line is a comment or empty
+				// entire line is a comment or empty
+				if (value.isEmpty()) {
 					comments.add(comment.trim());
 					nodes.add(new VoidNode(value, comment, node, reader.getLineNum()));
 					continue;
 				}
 
+				// parse section nodes
 				if (value.endsWith(":") && (config.simple
 					|| !value.contains(config.separator)
 					|| config.separator.endsWith(":") && value.indexOf(config.separator) == value.length() - config.separator.length()
@@ -594,12 +644,22 @@ public class SectionNode extends Node implements Iterable<Node> {
 			return new ParseResult(node, comments);
 		}
 
-		private static String readableWhitespace(String s) {
-			if (s.matches(" +"))
-				return s.length() + " space" + (s.length() == 1 ? "" : "s");
-			if (s.matches("\t+"))
-				return s.length() + " tab" + (s.length() == 1 ? "" : "s");
-			return "'" + s.replace("\t", "->").replace(' ', '_').replaceAll("\\s", "?") + "' [-> = tab, _ = space, ? = other whitespace]";
+		/**
+		 * Returns a string which turns the indentation of {@code str} into a readable format.
+		 * @param str The string.
+		 * @return A readable way of getting the indentation of {@code str}.
+		 */
+		private static String readableIndentation(String str) {
+			if (str.matches(" +"))
+				return str.length() + " space" + (str.length() == 1 ? "" : "str");
+
+			if (str.matches("\t+"))
+				return str.length() + " tab" + (str.length() == 1 ? "" : "str");
+
+			return "'" + str.replace("\t", "->")
+				.replace(' ', '_')
+				.replaceAll("\\s", "?")
+				+ "' [-> = tab, _ = space, ? = other whitespace]";
 		}
 
 	}

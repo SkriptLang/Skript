@@ -14,6 +14,9 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * The parent class of all nodes.
+ */
 public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 
 	@Nullable
@@ -292,7 +295,7 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 	abstract String save_i();
 
 	/**
-	 * @return This node as a collection of lines.
+	 * @return This node and its comments as a collection of lines.
 	 */
 	public @Unmodifiable @NotNull Collection<String> getAsStrings() {
 		String[] strings = new String[comments.length + 1];
@@ -315,6 +318,10 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		return getIndentation() + escapeUnquotedHashtags(save_i()) + comment;
 	}
 
+	/**
+	 * @deprecated Use {@link #getAsStrings()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public void save(final PrintWriter w) {
 		w.println(save());
 	}

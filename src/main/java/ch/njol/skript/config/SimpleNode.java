@@ -4,6 +4,15 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents any node that isn't invalid or a section in a simple config.
+ *
+ * <p>
+ * A general overview of node structure is as follows.
+ * <pre><code>
+ * section node:
+ * 	entry node: true
+ * 	simple node
+ * </code></pre>
+ * </p>
  */
 public class SimpleNode extends Node {
 

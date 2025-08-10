@@ -7,7 +7,16 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.Map.Entry;
 
 /**
- * @author Peter Güttinger
+ * A node which holds a value.
+ *
+ * <p>
+ * A general overview of node structure is as follows.
+ * <pre><code>
+ * section node:
+ * 	entry node: true
+ * 	simple node
+ * </code></pre>
+ * </p>
  */
 public class EntryNode extends Node implements Entry<String, String>, AnyValued<String> {
 
