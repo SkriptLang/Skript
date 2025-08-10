@@ -63,7 +63,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	private final @NotNull SkriptAddon source;
 
 	private JSONGenerator(@NotNull SkriptAddon source) {
-		super(new File(""), new File(""));
+		super(Documentation.getDocsTemplateDirectory(), Documentation.getDocsOutputDirectory());
 
 		Preconditions.checkNotNull(source, "addon cannot be null");
 
