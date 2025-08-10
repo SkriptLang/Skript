@@ -275,7 +275,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 				// there's already something at the node we want to add the new node
 
 				Skript.debug("Adding node %s to %s at index %s", node, parent, index);
-				parent.add(index, node);
+				parent.addRelative(index, node);
 			} else {
 				// there's nothing at the index we want to add the new node
 

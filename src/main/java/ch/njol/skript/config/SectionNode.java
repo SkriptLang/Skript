@@ -98,16 +98,18 @@ public class SectionNode extends Node implements Iterable<Node> {
 		Preconditions.checkArgument(index >= 0 && index <= relativeSize(), "index out of bounds: %s", index);
 
 		int count = 0;
+		int nodeCount = 0;
 
 		for (Node n : nodes) {
-			if (count == index) {
+			if (index == 0 || nodeCount == index) {
 				break;
 			}
 
+			count++;
 			if (n.isVoid()) { // skip counting void nodes
 				continue;
 			}
-			count++;
+			nodeCount++;
 		}
 
 		nodes.add(count, node);
