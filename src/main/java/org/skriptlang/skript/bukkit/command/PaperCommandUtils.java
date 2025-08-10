@@ -1,4 +1,4 @@
-package ch.njol.skript.command.brigadier;
+package org.skriptlang.skript.bukkit.command;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.VariableString;
@@ -7,8 +7,8 @@ import ch.njol.skript.localization.Message;
 import com.mojang.brigadier.context.CommandContext;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -31,12 +31,12 @@ public final class PaperCommandUtils {
 	 * @param <S> command source
 	 */
 	@SuppressWarnings("unchecked")
-	public static <S extends CommandSender> void sendPermissionMessage(CommandContext<S> context,
+	public static <S extends SkriptCommandSender> void sendPermissionMessage(CommandContext<S> context,
 			VariableString permissionMessage) {
 		if (permissionMessage == null)
 			permissionMessage = VariableString.newInstance(Language.get("commands.no permission message"));
 		assert permissionMessage != null;
-		BrigadierCommandEvent event = new BrigadierCommandEvent((CommandContext<CommandSender>) context);
+		BrigadierCommandEvent event = new BrigadierCommandEvent((CommandContext<SkriptCommandSender>) context);
 		String formatted = permissionMessage.getSingle(event);
 		if (formatted != null)
 			context.getSource().sendMessage(formatted);
@@ -51,7 +51,7 @@ public final class PaperCommandUtils {
 	 * @param context context
 	 * @param <S> command source
 	 */
-	public static <S extends CommandSender> void sendInvalidExecutorMessage(CommandContext<S> context) {
+	public static <S extends SkriptCommandSender> void sendInvalidExecutorMessage(CommandContext<S> context) {
 		context.getSource().sendMessage(INVALID_EXECUTOR_MESSAGE.toString());
 	}
 

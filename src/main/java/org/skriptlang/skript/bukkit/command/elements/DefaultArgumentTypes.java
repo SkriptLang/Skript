@@ -1,8 +1,9 @@
-package ch.njol.skript.command.brigadier;
+package org.skriptlang.skript.bukkit.command.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -29,7 +30,7 @@ public class DefaultArgumentTypes {
 
 		static {
 			Skript.registerArgumentType(DefaultArgumentTypes.String.class,
-				"[single] (word|string)", "[quotable|quoted] string", "greedy string");
+				"[single] (word|string)", "(quotable|quoted) string", "greedy string");
 		}
 
 		@Override
@@ -52,7 +53,10 @@ public class DefaultArgumentTypes {
 
 		static {
 			Skript.registerArgumentType(DefaultArgumentTypes.Integer.class,
-				"integer [from %-integer% [to %-integer%]]");
+				"integer greater than [equal:or equal to] %integer%",
+				"integer less than [equal:or equal to] %integer%",
+				"integer between %integer% and %integer%"
+			);
 		}
 
 		@Override
@@ -60,10 +64,25 @@ public class DefaultArgumentTypes {
 				SkriptParser.ParseResult parseResult) {
 			int min = java.lang.Integer.MIN_VALUE;
 			int max = java.lang.Integer.MAX_VALUE;
-			if (expressions[0] != null)
-				min = (int) expressions[0].getSingle(null);
-			if (expressions[1] != null)
-				max = (int) expressions[1].getSingle(null);
+
+			switch (matchedPattern) {
+				case 0 -> {
+					min = (int) expressions[0].getSingle(ContextlessEvent.get());
+					if (!parseResult.hasTag("equal"))
+						min++;
+				}
+				case 1 -> {
+					max = (int) expressions[0].getSingle(ContextlessEvent.get());
+					if (!parseResult.hasTag("equal"))
+						max--;
+				}
+				case 2 -> {
+					int first = (int) expressions[0].getSingle(ContextlessEvent.get());
+					int second = (int) expressions[1].getSingle(ContextlessEvent.get());
+					min = Math.min(first, second);
+					max = Math.max(first, second);
+				}
+			}
 			return IntegerArgumentType.integer(min, max);
 		}
 

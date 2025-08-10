@@ -1,6 +1,6 @@
 package org.skriptlang.skript.brigadier;
 
-import ch.njol.skript.command.brigadier.PaperCommandUtils;
+import org.skriptlang.skript.bukkit.command.PaperCommandUtils;
 import ch.njol.skript.lang.VariableString;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.RedirectModifier;
@@ -10,12 +10,12 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.command.CommandCooldown;
 import org.skriptlang.skript.lang.command.CommandSourceType;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  *
  * @param <S> command source
  */
-public sealed abstract class SkriptCommandNode<S extends CommandSender, N extends CommandNode<S>> extends CommandNode<S>
+public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N extends CommandNode<S>> extends CommandNode<S>
 	permits ArgumentSkriptCommandNode, LiteralSkriptCommandNode {
 
 	private final @Nullable String permission;
@@ -105,7 +105,7 @@ public sealed abstract class SkriptCommandNode<S extends CommandSender, N extend
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <S extends CommandSender> ArgumentBuilder<S, ?> flatToBuilder(CommandNode<S> node) {
+	private static <S extends SkriptCommandSender> ArgumentBuilder<S, ?> flatToBuilder(CommandNode<S> node) {
 		ArgumentBuilder<S, ?> builder;
 		if (node instanceof LiteralCommandNode<?> lcn) {
 			builder = LiteralArgumentBuilder.literal(lcn.getLiteral());
@@ -142,7 +142,7 @@ public sealed abstract class SkriptCommandNode<S extends CommandSender, N extend
 	 * @param <F> skript command node to flat
 	 */
 	@SuppressWarnings("unchecked")
-	static <S extends CommandSender, B extends ArgumentBuilder<S, B>,
+	static <S extends SkriptCommandSender, B extends ArgumentBuilder<S, B>,
 			F extends SkriptCommandNode<S, ?>> void flat(B builder, F node) {
 		builder.requires(sender -> {
 			if (!node.getRequirement().test(sender))
@@ -196,7 +196,7 @@ public sealed abstract class SkriptCommandNode<S extends CommandSender, N extend
 	 * @param <Built> the SkriptCommandNode that is being built
 	 * @param <T> this builder
 	 */
-	public sealed abstract static class Builder<S extends CommandSender, N extends CommandNode<S>,
+	public sealed abstract static class Builder<S extends SkriptCommandSender, N extends CommandNode<S>,
 			Built extends SkriptCommandNode<S, N>, T extends Builder<S, N, Built, T>>
 			extends ArgumentBuilder<S, T> permits ArgumentSkriptCommandNode.Builder, LiteralSkriptCommandNode.Builder {
 

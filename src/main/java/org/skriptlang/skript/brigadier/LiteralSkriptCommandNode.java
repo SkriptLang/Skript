@@ -12,10 +12,10 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.command.CommandCooldown;
 import org.skriptlang.skript.lang.command.CommandSourceType;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +27,7 @@ import java.util.function.Predicate;
  * @param <S> command sender type
  * @see Builder#literal(String)
  */
-public non-sealed class LiteralSkriptCommandNode<S extends CommandSender>
+public non-sealed class LiteralSkriptCommandNode<S extends SkriptCommandSender>
 	extends SkriptCommandNode<S, LiteralCommandNode<S>> {
 
 	private final LiteralCommandNode<S> wrapped;
@@ -119,7 +119,7 @@ public non-sealed class LiteralSkriptCommandNode<S extends CommandSender>
 	 *
 	 * @param <S> command sender type
 	 */
-	public static non-sealed class Builder<S extends CommandSender>
+	public static non-sealed class Builder<S extends SkriptCommandSender>
 		extends SkriptCommandNode.Builder<S, LiteralCommandNode<S>, LiteralSkriptCommandNode<S>, Builder<S>> {
 
 		/**
@@ -129,7 +129,7 @@ public non-sealed class LiteralSkriptCommandNode<S extends CommandSender>
 		 * @return builder
 		 * @param <S> command sender type
 		 */
-		public static <S extends CommandSender> Builder<S> literal(String name) {
+		public static <S extends SkriptCommandSender> Builder<S> literal(String name) {
 			return new Builder<>(name);
 		}
 

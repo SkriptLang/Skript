@@ -2,8 +2,10 @@ package org.skriptlang.skript.lang.command;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.command.brigadier.BrigadierCommandEvent;
-import ch.njol.skript.command.brigadier.BrigadierSuggestionsEvent;
+import ch.njol.skript.command.CommandUsage;
+import org.skriptlang.skript.brigadier.SkriptSuggestionProvider;
+import org.skriptlang.skript.bukkit.command.BrigadierCommandEvent;
+import org.skriptlang.skript.bukkit.command.BrigadierSuggestionsEvent;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -11,14 +13,12 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.util.chat.ChatMessages;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.brigadier.ArgumentSkriptCommandNode;
 import org.skriptlang.skript.brigadier.RootSkriptCommandNode;
 import org.skriptlang.skript.brigadier.SkriptCommandNode;
-import org.skriptlang.skript.brigadier.SkriptSuggestionProvider;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 
 import java.util.Arrays;
@@ -60,8 +60,8 @@ public final class CommandUtils {
 	 *  sub command entries (either another sub command entry or the root command)
 	 * @return created skript command node or null if the creation failed
 	 */
-	public static @Nullable SkriptCommandNode<CommandSender, ?> createCommandNode(CommandHandler<CommandSender> handler,
-			SubCommandEntryData.Parsed subCommandData, SkriptCommandNode.Builder<CommandSender, ?, ?, ?> parent) {
+	public static @Nullable SkriptCommandNode<SkriptCommandSender, ?> createCommandNode(CommandHandler<SkriptCommandSender> handler,
+			SubCommandEntryData.Parsed subCommandData, SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> parent) {
 		Preconditions.checkNotNull(parent, "Sub-command entry data always have a parent command node");
 		if (subCommandData.entryContainer() == null || subCommandData.arguments() == null)
 			return null;
@@ -80,15 +80,15 @@ public final class CommandUtils {
 	 * @param arguments arguments
 	 * @return created skript command node or null if the creation failed
 	 */
-	public static @Nullable SkriptCommandNode<CommandSender, ?> createCommandNode(CommandHandler<CommandSender> handler,
-			EntryContainer entryContainer, @Nullable SkriptCommandNode.Builder<CommandSender, ?, ?, ?> parent,
+	public static @Nullable SkriptCommandNode<SkriptCommandSender, ?> createCommandNode(CommandHandler<SkriptCommandSender> handler,
+			EntryContainer entryContainer, @Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> parent,
 			List<CommandArgument> arguments) {
 		if (arguments.isEmpty()) {
 			Skript.error("Command nodes can not be empty; arguments are missing");
 			return null;
 		}
 
-		List<SkriptCommandNode.Builder<CommandSender, ?, ?, ?>> builders = new LinkedList<>();
+		List<SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?>> builders = new LinkedList<>();
 		for (int i = 0; i < arguments.size(); i++) {
 			var builder = arguments.get(i).emptyBuilder();
 			// first we copy parent properties
@@ -106,14 +106,14 @@ public final class CommandUtils {
 			previous.then(current);
 		}
 
-		SkriptCommandNode<CommandSender, ?> firstNode = builders.get(0).build();
+		SkriptCommandNode<SkriptCommandSender, ?> firstNode = builders.get(0).build();
 		if (parent != null)
 			parent.then(firstNode);
 		return firstNode;
 	}
 
-	private static void copyParentProperties(SkriptCommandNode.Builder<CommandSender, ?, ?, ?> builder,
-			@Nullable SkriptCommandNode.Builder<CommandSender, ?, ?, ?> parent) {
+	private static void copyParentProperties(SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> builder,
+			@Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> parent) {
 		if (parent == null) return;
 		builder.permission(parent.getPermission());
 		builder.permissionMessage(parent.getPermissionMessage());
@@ -131,8 +131,8 @@ public final class CommandUtils {
 	 *  definition, e.g. for this command '/foo bar world', 'world' is the last node
 	 * @return false if the provided data are not compatible with given handler, else true
 	 */
-	public static boolean setCommandNodeProperties(CommandHandler<CommandSender> handler,
-			EntryContainer entryContainer, SkriptCommandNode.Builder<CommandSender, ?, ?, ?> builder,
+	public static boolean setCommandNodeProperties(CommandHandler<SkriptCommandSender> handler,
+			EntryContainer entryContainer, SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> builder,
 			boolean last) {
 
 		// root command properties
@@ -142,8 +142,10 @@ public final class CommandUtils {
 					false));
 			}
 			if (entryContainer.hasEntry(StructGeneralCommand.USAGE_KEY)) {
-				rootBuilder.usage(entryContainer.getOptional(StructGeneralCommand.USAGE_KEY, VariableString.class,
-					false));
+				VariableString usage = entryContainer.getOptional(StructGeneralCommand.USAGE_KEY, VariableString.class,
+					false);
+				// brigadier commands get too complex to create meaningful usage, default to '/literal'
+				rootBuilder.usage(new CommandUsage(usage, "/" + rootBuilder.getLiteral()));
 			}
 			if (entryContainer.hasEntry(StructGeneralCommand.ALIASES_KEY)) {
 				//noinspection unchecked
@@ -217,7 +219,7 @@ public final class CommandUtils {
 			trigger.setLineNumber(suggestionsNode.getLine());
 			parser.restoreBackup(parserBackup);
 
-			SkriptSuggestionProvider<CommandSender> suggestionProvider = ctx -> {
+			SkriptSuggestionProvider<SkriptCommandSender> suggestionProvider = ctx -> {
 				BrigadierSuggestionsEvent event = new BrigadierSuggestionsEvent(ctx);
 				runTriggerOnMainThread(trigger, event);
 				// the chat message parsing can be done async
@@ -227,7 +229,7 @@ public final class CommandUtils {
 			};
 
 			//noinspection unchecked
-			((ArgumentSkriptCommandNode.Builder<CommandSender, ?>) builder).suggests(suggestionProvider);
+			((ArgumentSkriptCommandNode.Builder<SkriptCommandSender, ?>) builder).suggests(suggestionProvider);
 		}
 
 		if (entryContainer.hasEntry(SubCommandEntryData.TRIGGER_KEY)) {

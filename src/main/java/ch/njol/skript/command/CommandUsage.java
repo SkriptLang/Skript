@@ -7,20 +7,12 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Holds info about the usage of a command.
- * TODO: replace with record when java 17
+ *
+ * @param usage a dynamic usage message that can contain expressions
+ * @param defaultUsage a fallback usage message that can be used in non-event environments
+ *                     like when registering the Bukkit command
  */
-public class CommandUsage {
-
-	/**
-	 * A dynamic usage message that can contain expressions.
-	 */
-	private final VariableString usage;
-
-	/**
-	 * A fallback usage message that can be used in non-event environments,
-	 * like when registering the Bukkit command.
-	 */
-	private final String defaultUsage;
+public record CommandUsage(VariableString usage, String defaultUsage) {
 
 	/**
 	 * @param usage The dynamic usage message, can contain expressions.

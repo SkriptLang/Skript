@@ -12,7 +12,7 @@ import ch.njol.skript.classes.data.DefaultOperations;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
-import ch.njol.skript.command.brigadier.BrigadierModule;
+import org.skriptlang.skript.bukkit.command.BrigadierModule;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;

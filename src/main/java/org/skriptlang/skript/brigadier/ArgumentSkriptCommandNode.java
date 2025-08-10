@@ -14,11 +14,11 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.command.CommandCooldown;
 import org.skriptlang.skript.lang.command.CommandSourceType;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +30,7 @@ import java.util.function.Predicate;
  * @param <S> command sender type
  * @see ArgumentSkriptCommandNode.Builder#argument(String, ArgumentType)
  */
-public non-sealed class ArgumentSkriptCommandNode<S extends CommandSender, T>
+public non-sealed class ArgumentSkriptCommandNode<S extends SkriptCommandSender, T>
 	extends SkriptCommandNode<S, ArgumentCommandNode<S, T>> {
 
 	private final ArgumentCommandNode<S, T> wrapped;
@@ -127,7 +127,7 @@ public non-sealed class ArgumentSkriptCommandNode<S extends CommandSender, T>
 	 * @param <S> command sender type
 	 * @param <T> argument type
 	 */
-	public static non-sealed class Builder<S extends CommandSender, T>
+	public static non-sealed class Builder<S extends SkriptCommandSender, T>
 		extends SkriptCommandNode.Builder<S, ArgumentCommandNode<S, T>,
 		ArgumentSkriptCommandNode<S, T>, Builder<S, T>> {
 
@@ -140,7 +140,7 @@ public non-sealed class ArgumentSkriptCommandNode<S extends CommandSender, T>
 		 * @param <S> command sender type
 		 * @param <T> argument type
 		 */
-		public static <S extends CommandSender, T> Builder<S, T> argument(String name, ArgumentType<T> type) {
+		public static <S extends SkriptCommandSender, T> Builder<S, T> argument(String name, ArgumentType<T> type) {
 			return new Builder<>(name, type);
 		}
 

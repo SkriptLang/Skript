@@ -1,11 +1,12 @@
-package ch.njol.skript.command.brigadier;
+package org.skriptlang.skript.bukkit.command.elements;
 
 import ch.njol.skript.Skript;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.command.PaperCommandHandler;
 import org.skriptlang.skript.lang.command.CommandHandler;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 import org.skriptlang.skript.lang.command.StructGeneralCommand;
 
 /**
@@ -13,7 +14,7 @@ import org.skriptlang.skript.lang.command.StructGeneralCommand;
  */
 public class StructBrigadierCommand extends StructGeneralCommand {
 
-	private static final BrigadierCommandHandler HANDLER = new BrigadierCommandHandler();
+	private static final PaperCommandHandler HANDLER = new PaperCommandHandler();
 
 	static {
 		StructGeneralCommand.registerCommandStructure(StructBrigadierCommand.class, "brigadier");
@@ -21,8 +22,9 @@ public class StructBrigadierCommand extends StructGeneralCommand {
 	}
 
 	@Override
-	public CommandHandler<CommandSender> getHandler() {
-		return HANDLER;
+	@SuppressWarnings("unchecked")
+	public CommandHandler<SkriptCommandSender> getHandler() {
+		return (CommandHandler<SkriptCommandSender>) (CommandHandler<?>) HANDLER;
 	}
 
 	@Override

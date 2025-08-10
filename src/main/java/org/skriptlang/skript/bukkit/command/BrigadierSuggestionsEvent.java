@@ -1,9 +1,9 @@
-package ch.njol.skript.command.brigadier;
+package org.skriptlang.skript.bukkit.command;
 
 import com.mojang.brigadier.context.CommandContext;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class BrigadierSuggestionsEvent extends BrigadierCommandEvent {
 
 	private final List<String> suggestions = new ArrayList<>();
 
-	public BrigadierSuggestionsEvent(CommandContext<CommandSender> context) {
+	public BrigadierSuggestionsEvent(CommandContext<SkriptCommandSender> context) {
 		super(context);
 	}
 

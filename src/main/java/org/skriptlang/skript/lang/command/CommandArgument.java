@@ -1,7 +1,6 @@
 package org.skriptlang.skript.lang.command;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import org.bukkit.command.CommandSender;
 import org.skriptlang.skript.brigadier.ArgumentSkriptCommandNode;
 import org.skriptlang.skript.brigadier.LiteralSkriptCommandNode;
 import org.skriptlang.skript.brigadier.RootSkriptCommandNode;
@@ -18,7 +17,7 @@ public sealed interface CommandArgument {
 	 *
 	 * @return empty builder for this command argument
 	 */
-	SkriptCommandNode.Builder<CommandSender, ?, ?, ?> emptyBuilder();
+	SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> emptyBuilder();
 
 	/**
 	 * Represents a literal.
@@ -27,7 +26,7 @@ public sealed interface CommandArgument {
 	 */
 	record Literal(String literal) implements CommandArgument {
 		@Override
-		public LiteralSkriptCommandNode.Builder<CommandSender> emptyBuilder() {
+		public LiteralSkriptCommandNode.Builder<SkriptCommandSender> emptyBuilder() {
 			return LiteralSkriptCommandNode.Builder.literal(literal);
 		}
 	}
@@ -46,7 +45,7 @@ public sealed interface CommandArgument {
 		}
 
 		@Override
-		public ArgumentSkriptCommandNode.Builder<CommandSender, T> emptyBuilder() {
+		public ArgumentSkriptCommandNode.Builder<SkriptCommandSender, T> emptyBuilder() {
 			return ArgumentSkriptCommandNode.Builder.argument(name, type);
 		}
 
@@ -61,7 +60,7 @@ public sealed interface CommandArgument {
 	record Root(String namespace, String label) implements CommandArgument {
 
 		@Override
-		public RootSkriptCommandNode.Builder<CommandSender> emptyBuilder() {
+		public RootSkriptCommandNode.Builder<SkriptCommandSender> emptyBuilder() {
 			return RootSkriptCommandNode.Builder.root(namespace, label);
 		}
 

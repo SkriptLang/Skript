@@ -1,6 +1,5 @@
 package org.skriptlang.skript.lang.command;
 
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -14,7 +13,7 @@ import java.util.Set;
  *
  * @param <S> command source
  */
-public interface CommandHandler<S extends CommandSender> {
+public interface CommandHandler<S extends SkriptCommandSender> {
 
 	/**
 	 * Registers a new command.

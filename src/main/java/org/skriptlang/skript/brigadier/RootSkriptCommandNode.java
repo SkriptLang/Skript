@@ -1,14 +1,15 @@
 package org.skriptlang.skript.brigadier;
 
+import ch.njol.skript.command.CommandUsage;
 import ch.njol.skript.lang.VariableString;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.RedirectModifier;
 import com.mojang.brigadier.tree.CommandNode;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.command.CommandCooldown;
 import org.skriptlang.skript.lang.command.CommandSourceType;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -25,14 +26,14 @@ import java.util.function.Predicate;
  *
  * @param <S> command source type
  */
-public class RootSkriptCommandNode<S extends CommandSender> extends LiteralSkriptCommandNode<S> {
+public class RootSkriptCommandNode<S extends SkriptCommandSender> extends LiteralSkriptCommandNode<S> {
 
 	private final String namespace;
 	private final @Nullable String description;
-	private final @Nullable VariableString usage; // TODO this should be ch.njol.skript.command.CommandUsage
+	private final @Nullable CommandUsage usage;
 	private final @Unmodifiable Set<String> aliases = new LinkedHashSet<>();
 
-	protected RootSkriptCommandNode(String namespace, @Nullable String description, @Nullable VariableString usage,
+	protected RootSkriptCommandNode(String namespace, @Nullable String description, @Nullable CommandUsage usage,
 			@Nullable Collection<String> aliases, String literal, @Nullable Command<S> command,
 			@Nullable Predicate<S> requirement, @Nullable CommandNode<S> redirect,
 			@Nullable RedirectModifier<S> modifier, boolean forks, @Nullable String permission,
@@ -64,7 +65,7 @@ public class RootSkriptCommandNode<S extends CommandSender> extends LiteralSkrip
 	/**
 	 * @return usage
 	 */
-	public @Nullable VariableString getUsage() {
+	public @Nullable CommandUsage getUsage() {
 		return usage;
 	}
 
@@ -75,7 +76,7 @@ public class RootSkriptCommandNode<S extends CommandSender> extends LiteralSkrip
 		return aliases;
 	}
 
-	public static class Builder<S extends CommandSender> extends LiteralSkriptCommandNode.Builder<S> {
+	public static class Builder<S extends SkriptCommandSender> extends LiteralSkriptCommandNode.Builder<S> {
 
 		/**
 		 * Creates new builder for root skript command node with given namespace and name.
@@ -85,14 +86,14 @@ public class RootSkriptCommandNode<S extends CommandSender> extends LiteralSkrip
 		 * @return builder
 		 * @param <S> command sender type
 		 */
-		public static <S extends CommandSender> Builder<S> root(String namespace,
+		public static <S extends SkriptCommandSender> Builder<S> root(String namespace,
 				String name) {
 			return new Builder<>(namespace, name);
 		}
 
 		private final String namespace;
 		private @Nullable String description;
-		private @Nullable VariableString usage;
+		private @Nullable CommandUsage usage;
 		private @Nullable Set<String> aliases = new LinkedHashSet<>();
 
 		protected Builder(String namespace, String literal) {
@@ -127,7 +128,7 @@ public class RootSkriptCommandNode<S extends CommandSender> extends LiteralSkrip
 		 * @param usage new usage for command being built
 		 * @return this
 		 */
-		public Builder<S> usage(VariableString usage) {
+		public Builder<S> usage(CommandUsage usage) {
 			this.usage = usage;
 			return this;
 		}
@@ -135,7 +136,7 @@ public class RootSkriptCommandNode<S extends CommandSender> extends LiteralSkrip
 		/**
 		 * @return usage
 		 */
-		public @Nullable VariableString getUsage() {
+		public @Nullable CommandUsage getUsage() {
 			return usage;
 		}
 

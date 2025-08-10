@@ -1,4 +1,4 @@
-package ch.njol.skript.command.brigadier;
+package org.skriptlang.skript.bukkit.command;
 
 import ch.njol.skript.Skript;
 import com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent;
@@ -38,13 +38,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class BrigadierCommandHandler implements CommandHandler<CommandSender>, Listener {
+/**
+ * Command Handler implementation for Paper environment.
+ */
+public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>, Listener {
 
-	private final Map<String, RootSkriptCommandNode<CommandSender>> commands = new ConcurrentHashMap<>();
-	private @Nullable CommandDispatcher<CommandSender> dispatcher;
+	private final Map<String, RootSkriptCommandNode<BukkitCommandSender>> commands = new ConcurrentHashMap<>();
+	private @Nullable CommandDispatcher<BukkitCommandSender> dispatcher;
 
 	@Override
-	public synchronized boolean registerCommand(RootSkriptCommandNode<CommandSender> command) {
+	public synchronized boolean registerCommand(RootSkriptCommandNode<BukkitCommandSender> command) {
 		if (commands.containsKey(command.getLiteral())) {
 			Skript.error("Command " + command.getLiteral() + " is already registered");
 			return false;
@@ -53,32 +56,34 @@ public class BrigadierCommandHandler implements CommandHandler<CommandSender>, L
 		// TODO proper registration with aliases and help page
 		Bukkit.getCommandMap().getKnownCommands().put(command.getLiteral(), new WrappedBrigadierCommand(command));
 		dispatcher = null; // reset dispatcher
-		Bukkit.getScheduler().runTaskLater(Skript.getInstance(), PaperCommandUtils::syncCommands, 1);
+		if (Skript.getInstance().isEnabled())
+			Bukkit.getScheduler().runTaskLater(Skript.getInstance(), PaperCommandUtils::syncCommands, 1);
 		return true;
 	}
 
 	@Override
-	public synchronized boolean unregisterCommand(RootSkriptCommandNode<CommandSender> command) {
+	public synchronized boolean unregisterCommand(RootSkriptCommandNode<BukkitCommandSender> command) {
 		boolean result = commands.remove(command.getLiteral(), command);
 		if (!result) return false;
 		Bukkit.getCommandMap().getKnownCommands().remove(command.getLiteral());
 		dispatcher = null; // reset dispatcher
-		Bukkit.getScheduler().runTaskLater(Skript.getInstance(), PaperCommandUtils::syncCommands, 1);
+		if (Skript.getInstance().isEnabled())
+			Bukkit.getScheduler().runTaskLater(Skript.getInstance(), PaperCommandUtils::syncCommands, 1);
 		return true;
 	}
 
 	@Override
-	public @Nullable RootSkriptCommandNode<CommandSender> getCommand(String label) {
+	public @Nullable RootSkriptCommandNode<BukkitCommandSender> getCommand(String label) {
 		return commands.get(label);
 	}
 
 	@Override
-	public @UnmodifiableView Map<String, RootSkriptCommandNode<CommandSender>> getAllCommands() {
+	public @UnmodifiableView Map<String, RootSkriptCommandNode<BukkitCommandSender>> getAllCommands() {
 		return Collections.unmodifiableMap(commands);
 	}
 
 	@Override
-	public boolean dispatchCommand(CommandSender source, String input) {
+	public boolean dispatchCommand(BukkitCommandSender source, String input) {
 		if (dispatcher == null) {
 			dispatcher = new CommandDispatcher<>();
 			commands.values().forEach(cmd -> dispatcher.register(cmd.flatToBuilder()));
@@ -98,10 +103,15 @@ public class BrigadierCommandHandler implements CommandHandler<CommandSender>, L
 	@Override
 	public @Unmodifiable Set<CommandSourceType> supportedTypes() {
 		return Set.of(
-			CommandSourceType.typed(Player.class, "player", "the player", "players", "the players"),
-			CommandSourceType.typed(ConsoleCommandSender.class, "console", "the console", "server", "the server"),
-			CommandSourceType.typed(BlockCommandSender.class, "block", "blocks"),
-			CommandSourceType.typed(Entity.class, "entity", "entities")
+			CommandSourceType.simple(BukkitCommandSender.class, sender -> sender.wrapped() instanceof Player,
+				"player", "the player", "players", "the players"),
+			CommandSourceType.simple(BukkitCommandSender.class,
+				sender -> sender.wrapped() instanceof ConsoleCommandSender,
+				"console", "the console", "server", "the server"),
+			CommandSourceType.simple(BukkitCommandSender.class, sender -> sender.wrapped() instanceof BlockCommandSender,
+				"block", "blocks", "command block", "command blocks"),
+			CommandSourceType.simple(BukkitCommandSender.class, sender -> sender.wrapped() instanceof Entity,
+				"entity", "entities")
 		);
 	}
 
@@ -137,7 +147,7 @@ public class BrigadierCommandHandler implements CommandHandler<CommandSender>, L
 				throw Skript.exception(exception, "Failed to access the node children field");
 		}
 
-		for (RootSkriptCommandNode<CommandSender> node : commands.values()) {
+		for (RootSkriptCommandNode<BukkitCommandSender> node : commands.values()) {
 			CommandNode<CommandSourceStack> paperCompatible = convertToClientsidePaper(node.flat());
 			bukkitNodeRemover.accept(paperCompatible);
 			rootNode.addChild(paperCompatible);
@@ -154,9 +164,9 @@ public class BrigadierCommandHandler implements CommandHandler<CommandSender>, L
 	 */
 	// TODO convert paper argument types to NMS argument types
 	// TODO filter out commands with requirements player does not meet (mirrors vanilla behaviour)
-	private CommandNode<CommandSourceStack> convertToClientsidePaper(CommandNode<CommandSender> node) {
+	private CommandNode<CommandSourceStack> convertToClientsidePaper(CommandNode<BukkitCommandSender> node) {
 		ArgumentBuilder<CommandSourceStack, ?> builder;
-		if (node instanceof LiteralCommandNode<CommandSender> lcn) {
+		if (node instanceof LiteralCommandNode<BukkitCommandSender> lcn) {
 			builder = LiteralArgumentBuilder.literal(lcn.getLiteral());
 		} else if (node instanceof ArgumentCommandNode<?,?> acn) {
 			builder = RequiredArgumentBuilder.argument(acn.getName(), acn.getType());
@@ -165,7 +175,7 @@ public class BrigadierCommandHandler implements CommandHandler<CommandSender>, L
 				+ "are supported");
 		}
 		if (node.getRequirement() != null)
-			builder.requires(stack -> node.getRequirement().test(new WrappedCommandSourceStack(stack)));
+			builder.requires(stack -> true);
 		if (node.getRedirect() != null)
 			builder.forward(convertToClientsidePaper(node.getRedirect()), ctx -> Collections.emptyList(), node.isFork());
 		if (node.getCommand() != null)
@@ -176,14 +186,15 @@ public class BrigadierCommandHandler implements CommandHandler<CommandSender>, L
 
 	private class WrappedBrigadierCommand extends Command {
 
-		protected WrappedBrigadierCommand(RootSkriptCommandNode<CommandSender> node) {
+		protected WrappedBrigadierCommand(RootSkriptCommandNode<BukkitCommandSender> node) {
 			super(node.getName(), node.getDescription() != null ? node.getDescription() : "",
 				"" /* TODO usage */, new ArrayList<>(node.getAliases()));
 		}
 
 		@Override
 		public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String @NotNull [] args) {
-			return BrigadierCommandHandler.this.dispatchCommand(sender, getName() + " " + String.join(" ", args));
+			return PaperCommandHandler.this.dispatchCommand(new BukkitCommandSender(sender),
+				getName() + " " + String.join(" ", args));
 		}
 
 	}

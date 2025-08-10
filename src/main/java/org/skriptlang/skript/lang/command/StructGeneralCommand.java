@@ -5,7 +5,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import com.google.common.base.Preconditions;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.brigadier.RootSkriptCommandNode;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -99,14 +98,14 @@ public abstract class StructGeneralCommand extends Structure {
 	}
 
 	protected EntryContainer entryContainer;
-	protected RootSkriptCommandNode<CommandSender> commandNode;
+	protected RootSkriptCommandNode<SkriptCommandSender> commandNode;
 
 	/**
 	 * Command handler used for the registration and creation of the commands.
 	 *
 	 * @return command handler
 	 */
-	public abstract CommandHandler<CommandSender> getHandler();
+	public abstract CommandHandler<SkriptCommandSender> getHandler();
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult,
@@ -135,7 +134,7 @@ public abstract class StructGeneralCommand extends Structure {
 		rootArguments.addAll(arguments);
 
 		//noinspection unchecked
-		commandNode = (RootSkriptCommandNode<CommandSender>) CommandUtils.createCommandNode(getHandler(),
+		commandNode = (RootSkriptCommandNode<SkriptCommandSender>) CommandUtils.createCommandNode(getHandler(),
 			entryContainer, null, rootArguments);
 		return commandNode != null;
 	}

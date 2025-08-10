@@ -12,7 +12,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.command.CommandSender;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
  * @param <S> command source
  */
 @FunctionalInterface
-public interface SkriptSuggestionProvider<S extends CommandSender> extends SuggestionProvider<S> {
+public interface SkriptSuggestionProvider<S extends SkriptCommandSender> extends SuggestionProvider<S> {
 
 	@Override
 	default CompletableFuture<Suggestions> getSuggestions(CommandContext<S> commandContext,
