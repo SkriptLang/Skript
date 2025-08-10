@@ -357,8 +357,15 @@ public class Direction implements YggdrasilRobustSerializable {
 			}
 		}
 	}
-	
-	public static Expression<Location> combine(final Expression<? extends Direction> dirs, final Expression<? extends Location> locs) {
+
+	/*
+	 * Combines direction and location expressions.
+	 * Useful for syntaxes to allow Skripters to have more control over their locations.
+	 */
+	public static @Nullable Expression<Location> combine(final Expression<? extends Direction> dirs, final Expression<? extends Location> locs) {
+		if (dirs == null || locs == null)
+			return null;
+
 		return new SimpleExpression<Location>() {
 			@SuppressWarnings("null")
 			@Override
