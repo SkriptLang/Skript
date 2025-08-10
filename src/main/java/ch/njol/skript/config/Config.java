@@ -262,7 +262,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 			assert parent != null;
 
 			int index = node.getIndex();
-			if (index >= parent.size()) {
+			if (index >= parent.relativeSize()) {
 				// in case we have some user-added comments or something goes wrong, to ensure index is within bounds
 
 				Skript.debug("Adding node %s to %s (size mismatch)", node, parent);

@@ -63,13 +63,16 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return nodes.size();
 	}
 
+	int relativeSize() {
+		return (int) nodes.stream().filter(it -> !it.isVoid()).count();
+	}
+
 	/**
 	 * Adds the given node at the end of this section.
 	 *
 	 * @param n
 	 */
 	public void add(final Node n) {
-		n.remove();
 		nodes.add(n);
 		n.parent = this;
 		n.config = config;
@@ -85,8 +88,29 @@ public class SectionNode extends Node implements Iterable<Node> {
 	public void add(int index, @NotNull Node node) {
 		Preconditions.checkArgument(index >= 0 && index <= size(), "index out of bounds: %s", index);
 
-		node.remove();
 		nodes.add(index, node);
+		node.parent = this;
+		node.config = config;
+		getNodeMap().put(node);
+	}
+
+	void addRelative(int index, @NotNull Node node) {
+		Preconditions.checkArgument(index >= 0 && index <= relativeSize(), "index out of bounds: %s", index);
+
+		int count = 0;
+
+		for (Node n : nodes) {
+			if (count == index) {
+				break;
+			}
+
+			if (n.isVoid()) { // skip counting void nodes
+				continue;
+			}
+			count++;
+		}
+
+		nodes.add(count, node);
 		node.parent = this;
 		node.config = config;
 		getNodeMap().put(node);
@@ -137,7 +161,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	 */
 	@Nullable Node getAt(int index) {
 		Preconditions.checkArgument(index >= 0 && index < size(), "index out of bounds: %s", index);
-		return nodes.get(index);
+		return nodes.stream().filter(it -> !it.isVoid()).toList().get(index);
 	}
 
 	/**

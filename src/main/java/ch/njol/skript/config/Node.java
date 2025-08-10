@@ -425,15 +425,14 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 
 	/**
 	 * @return The index of this node relative to the other children of this node's parent,
-	 * or -1 if this node does not have a parent. The index includes counted void nodes.
+	 * or -1 if this node does not have a parent.
 	 */
 	int getIndex() {
 		if (parent == null)
 			return -1;
 
 		int index = 0;
-		for (Iterator<Node> iterator = parent.fullIterator(); iterator.hasNext(); ) {
-			Node node = iterator.next();
+		for (Node node : parent) {
 			if (node == this)
 				return index;
 

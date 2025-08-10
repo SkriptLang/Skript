@@ -61,7 +61,7 @@ public class NodeTest {
 	}
 
 	private Config getConfig(String name) {
-		try (InputStream resource = getClass().getResourceAsStream("/" + name + ".sk")) {
+		try (InputStream resource = getClass().getResourceAsStream("/config/unit/" + name + ".sk")) {
 			assertNotNull(resource);
 
 			return new Config(resource, name + ".sk", false, false, ":");

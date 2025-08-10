@@ -39,23 +39,7 @@ public class SkriptConfigTest {
 
 		assertTrue(old.updateNodes(ref));
 
-		SectionNode refNode = (SectionNode) ref.getNodeAt("runtime errors");
-		SectionNode oldNode = (SectionNode) old.getNodeAt("runtime errors");
-
-		assertNotNull(refNode);
-		assertNotNull(oldNode);
-
-		assertEquals(refNode.getKey(), oldNode.getKey());
-		Iterator<Node> refIterator = refNode.iterator();
-		Iterator<Node> oldIterator = oldNode.iterator();
-
-		while (refIterator.hasNext() && oldIterator.hasNext()) {
-			assertEquals(refIterator.next(), oldIterator.next());
-		}
-		assertTrue(!refIterator.hasNext() && !oldIterator.hasNext());
-
-		assertEquals(refNode.comments(), oldNode.comments());
-		assertEquals(refNode.getIndex(), oldNode.getIndex());
+		runTests(ref, old, "runtime errors");
 	}
 
 	@Test
@@ -65,14 +49,27 @@ public class SkriptConfigTest {
 
 		assertTrue(old.updateNodes(ref));
 
-		Node refRuntimeErrors = ref.getNodeAt("runtime errors");
-		Node oldRuntimeErrors = old.getNodeAt("runtime errors");
+		runTests(ref, old, "runtime errors");
+	}
 
-		assertNotNull(refRuntimeErrors);
-		assertNotNull(oldRuntimeErrors);
+	@Test
+	public void testSectionSectionMissing() {
+		Config ref = getConfig("reference");
+		Config old = getConfig("test-section-section-missing");
 
-		runTests(refRuntimeErrors, oldRuntimeErrors, "frame duration");
-		runTests(refRuntimeErrors, oldRuntimeErrors, "errors from one line per frame");
+		assertTrue(old.updateNodes(ref));
+
+		runTests(ref, old, "disable hooks");
+	}
+
+	@Test
+	public void testSectionInSectionMissing() {
+		Config ref = getConfig("reference");
+		Config old = getConfig("test-section-in-section-missing");
+
+		assertTrue(old.updateNodes(ref));
+
+		runTests(ref, old, "disable hooks");
 	}
 
 	private static void runTests(Config ref, Config old, String name) {
@@ -80,16 +77,29 @@ public class SkriptConfigTest {
 	}
 
 	private static void runTests(Node ref, Node old, String name) {
-		EntryNode refNode = (EntryNode) ref.getNodeAt(name);
-		EntryNode oldNode = (EntryNode) old.getNodeAt(name);
+		Node refNode = ref.getNodeAt(name);
+		Node oldNode = old.getNodeAt(name);
 
 		assertNotNull(refNode);
 		assertNotNull(oldNode);
 
-		assertEquals(refNode.getKey(), oldNode.getKey());
-		assertEquals(refNode.value(), oldNode.value());
-		assertEquals(refNode.comments(), oldNode.comments());
-		assertEquals(refNode.getIndex(), oldNode.getIndex());
+		runTest(refNode, oldNode);
+	}
+
+	private static void runTest(Node ref, Node old) {
+		assertEquals(ref.getKey(), old.getKey());
+		if (ref instanceof EntryNode refEntry && old instanceof EntryNode oldEntry) {
+			assertEquals(refEntry.value(), oldEntry.value());
+		}
+		assertEquals(ref.comments(), old.comments());
+		assertEquals(ref.getIndex(), old.getIndex());
+
+		Iterator<Node> refIterator = ref.iterator();
+		Iterator<Node> oldIterator = old.iterator();
+		while (refIterator.hasNext() && oldIterator.hasNext()) {
+			runTest(refIterator.next(), oldIterator.next());
+		}
+		assertTrue(!refIterator.hasNext() && !oldIterator.hasNext());
 	}
 
 	private Config getConfig(String name) {
