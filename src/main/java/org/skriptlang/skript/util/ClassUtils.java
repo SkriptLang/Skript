@@ -26,7 +26,7 @@ public final class ClassUtils {
 	private static final Map<Class<?>, Supplier<?>> instanceSuppliers = new ConcurrentHashMap<>();
 
 	/**
-	 * Creates supplier for given class if its nullary constructor exists.
+	 * Creates a supplier for the given class if its nullary constructor exists.
 	 *
 	 * @param type class to create the supplier for
 	 * @return supplier for the instances of given class, using its nullary constructor
