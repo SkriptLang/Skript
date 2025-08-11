@@ -55,8 +55,30 @@ public class StructFunction extends Structure {
 
 	public static final Priority PRIORITY = new Priority(400);
 
+	/**
+	 * Represents a function signature pattern.
+	 * <p>
+	 * <b>Name</b>
+	 * The name may start with any Unicode alphabetic character or an underscore.
+	 * Any character following it should be any Unicode alphabetic character, an underscore, or a number.
+	 * </p>
+	 * <p>
+	 * <b>Args</b>
+	 * The arguments that can be passed to this function.
+	 * </p>
+	 * <p>
+	 * <b>Returns</b>
+	 * The type that this function returns, if any.
+	 * Acceptable return type prefixes are as follows.
+	 * <ul>
+	 *     <li>{@code ->}</li>
+	 *     <li>{@code ::}</li>
+	 *     <li>{@code returns}</li>
+	 * </ul>
+	 * </p>
+	 */
 	private static final Pattern SIGNATURE_PATTERN =
-		Pattern.compile("^(?:local )?function (" + Functions.functionNamePattern + ")\\((.*?)\\)(?:\\s*(?:::| returns )\\s*(.+))?$");
+		Pattern.compile("^(?:local )?function (?<name>" + Functions.functionNamePattern + ")\\((?<args>.*?)\\)(?:\\s*(?:->|::| returns )\\s*(?<returns>.+))?$");
 	private static final AtomicBoolean VALIDATE_FUNCTIONS = new AtomicBoolean();
 
 	static {
@@ -96,7 +118,7 @@ public class StructFunction extends Structure {
 		getParser().setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
 		signature = FunctionParser.parse(
 			getParser().getCurrentScript().getConfig().getFileName(),
-			matcher.group(1), matcher.group(2), matcher.group(3), local
+			matcher.group("name"), matcher.group("args"), matcher.group("returns"), local
 		);
 		getParser().deleteCurrentEvent();
 
