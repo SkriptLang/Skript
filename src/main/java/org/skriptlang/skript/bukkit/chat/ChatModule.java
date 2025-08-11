@@ -57,38 +57,38 @@ public class ChatModule implements AddonModule {
 	@Override
 	public void load(SkriptAddon addon) {
 		// register Skript's legacy color tags for compatibility
-		ChatComponentHandler.registerPlaceholder("dark_cyan", Tag.styling(NamedTextColor.DARK_AQUA), true);
-		ChatComponentHandler.registerPlaceholder("dark_turquoise", Tag.styling(NamedTextColor.DARK_AQUA), true);
-		ChatComponentHandler.registerPlaceholder("cyan", Tag.styling(NamedTextColor.DARK_AQUA), true);
+		ChatComponentHandler.registerResettingPlaceholder("dark_cyan", Tag.styling(NamedTextColor.DARK_AQUA), true);
+		ChatComponentHandler.registerResettingPlaceholder("dark_turquoise", Tag.styling(NamedTextColor.DARK_AQUA), true);
+		ChatComponentHandler.registerResettingPlaceholder("cyan", Tag.styling(NamedTextColor.DARK_AQUA), true);
 
-		ChatComponentHandler.registerPlaceholder("purple", Tag.styling(NamedTextColor.DARK_PURPLE), true);
+		ChatComponentHandler.registerResettingPlaceholder("purple", Tag.styling(NamedTextColor.DARK_PURPLE), true);
 
-		ChatComponentHandler.registerPlaceholder("dark_yellow", Tag.styling(NamedTextColor.GOLD), true);
-		ChatComponentHandler.registerPlaceholder("orange", Tag.styling(NamedTextColor.GOLD), true);
+		ChatComponentHandler.registerResettingPlaceholder("dark_yellow", Tag.styling(NamedTextColor.GOLD), true);
+		ChatComponentHandler.registerResettingPlaceholder("orange", Tag.styling(NamedTextColor.GOLD), true);
 
-		ChatComponentHandler.registerPlaceholder("light_grey", Tag.styling(NamedTextColor.GRAY), true);
-		ChatComponentHandler.registerPlaceholder("light_gray", Tag.styling(NamedTextColor.GRAY), true);
-		ChatComponentHandler.registerPlaceholder("silver", Tag.styling(NamedTextColor.GRAY), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_grey", Tag.styling(NamedTextColor.GRAY), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_gray", Tag.styling(NamedTextColor.GRAY), true);
+		ChatComponentHandler.registerResettingPlaceholder("silver", Tag.styling(NamedTextColor.GRAY), true);
 
-		ChatComponentHandler.registerPlaceholder("dark_silver", Tag.styling(NamedTextColor.DARK_GRAY), true);
+		ChatComponentHandler.registerResettingPlaceholder("dark_silver", Tag.styling(NamedTextColor.DARK_GRAY), true);
 
-		ChatComponentHandler.registerPlaceholder("light_blue", Tag.styling(NamedTextColor.BLUE), true);
-		ChatComponentHandler.registerPlaceholder("indigo", Tag.styling(NamedTextColor.BLUE), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_blue", Tag.styling(NamedTextColor.BLUE), true);
+		ChatComponentHandler.registerResettingPlaceholder("indigo", Tag.styling(NamedTextColor.BLUE), true);
 
-		ChatComponentHandler.registerPlaceholder("light_green", Tag.styling(NamedTextColor.GREEN), true);
-		ChatComponentHandler.registerPlaceholder("lime_green", Tag.styling(NamedTextColor.GREEN), true);
-		ChatComponentHandler.registerPlaceholder("lime", Tag.styling(NamedTextColor.GREEN), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_green", Tag.styling(NamedTextColor.GREEN), true);
+		ChatComponentHandler.registerResettingPlaceholder("lime_green", Tag.styling(NamedTextColor.GREEN), true);
+		ChatComponentHandler.registerResettingPlaceholder("lime", Tag.styling(NamedTextColor.GREEN), true);
 
-		ChatComponentHandler.registerPlaceholder("light_cyan", Tag.styling(NamedTextColor.AQUA), true);
-		ChatComponentHandler.registerPlaceholder("light_aqua", Tag.styling(NamedTextColor.AQUA), true);
-		ChatComponentHandler.registerPlaceholder("turquoise", Tag.styling(NamedTextColor.AQUA), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_cyan", Tag.styling(NamedTextColor.AQUA), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_aqua", Tag.styling(NamedTextColor.AQUA), true);
+		ChatComponentHandler.registerResettingPlaceholder("turquoise", Tag.styling(NamedTextColor.AQUA), true);
 
-		ChatComponentHandler.registerPlaceholder("light_red", Tag.styling(NamedTextColor.RED), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_red", Tag.styling(NamedTextColor.RED), true);
 
-		ChatComponentHandler.registerPlaceholder("pink", Tag.styling(NamedTextColor.LIGHT_PURPLE), true);
-		ChatComponentHandler.registerPlaceholder("magenta", Tag.styling(NamedTextColor.LIGHT_PURPLE), true);
+		ChatComponentHandler.registerResettingPlaceholder("pink", Tag.styling(NamedTextColor.LIGHT_PURPLE), true);
+		ChatComponentHandler.registerResettingPlaceholder("magenta", Tag.styling(NamedTextColor.LIGHT_PURPLE), true);
 
-		ChatComponentHandler.registerPlaceholder("light_yellow", Tag.styling(NamedTextColor.YELLOW), true);
+		ChatComponentHandler.registerResettingPlaceholder("light_yellow", Tag.styling(NamedTextColor.YELLOW), true);
 
 		ChatComponentHandler.registerPlaceholder("magic", Tag.styling(TextDecoration.OBFUSCATED), true);
 

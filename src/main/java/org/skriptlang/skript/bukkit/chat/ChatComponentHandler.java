@@ -3,6 +3,8 @@ package org.skriptlang.skript.bukkit.chat;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.ParsingException;
@@ -25,11 +27,67 @@ import java.util.regex.Pattern;
 
 public final class ChatComponentHandler {
 
-	private record SkriptTag(Tag tag, boolean safe) { }
+	private record SkriptTag(Tag tag, boolean safe, boolean reset) { }
 	private record SkriptTagResolver(TagResolver resolver, boolean safe) { }
+
+	/**
+	 * Describes how this parser should handle potential links (outside of formatting tags).
+	 */
+	public enum LinkParseMode {
+
+		/**
+		 * Parses nothing automatically as a link.
+		 */
+		DISABLED(null),
+
+		/**
+		 * Parses everything that starts with {@code http(s)://} as a link.
+		 */
+		STRICT(TextReplacementConfig.builder()
+			.match(Pattern.compile("https?://[-\\w.]+\\.\\w{2,}(?:/\\S*)?"))
+			.replacement(url -> url.clickEvent(ClickEvent.openUrl(url.content())))
+			.build()),
+
+		/**
+		 * Parses everything with {@code .} as a link.
+		 */
+		LENIENT(TextReplacementConfig.builder()
+			.match(Pattern.compile("(?:https?://)?[-\\w.]+\\.\\w{2,}(?:/\\S*)?"))
+			.replacement(url -> url.clickEvent(ClickEvent.openUrl(url.content())))
+			.build());
+
+		private final TextReplacementConfig textReplacementConfig;
+
+		LinkParseMode(TextReplacementConfig textReplacementConfig) {
+			this.textReplacementConfig = textReplacementConfig;
+		}
+
+		public TextReplacementConfig textReplacementConfig() {
+			return textReplacementConfig;
+		}
+	}
 
 	private static final Map<String, SkriptTag> SIMPLE_PLACEHOLDERS = new HashMap<>();
 	private static final List<SkriptTagResolver> RESOLVERS = new ArrayList<>();
+
+	private static LinkParseMode linkParseMode = LinkParseMode.DISABLED;
+	private static boolean colorsCauseReset = false;
+
+	public static LinkParseMode linkParseMode() {
+		return linkParseMode;
+	}
+
+	public static void linkParseMode(LinkParseMode linkParseMode) {
+		ChatComponentHandler.linkParseMode = linkParseMode;
+	}
+
+	public static boolean colorsCauseReset() {
+		return colorsCauseReset;
+	}
+
+	public static void colorsCauseReset(boolean colorsCauseReset) {
+		ChatComponentHandler.colorsCauseReset = colorsCauseReset;
+	}
 
 	/**
 	 * Registers a simple key-value placeholder with Skript's message parsers.
@@ -38,7 +96,18 @@ public final class ChatComponentHandler {
 	 * @param safe Whether the placeholder can be used in the safe parser.
 	 */
 	public static void registerPlaceholder(String name, Tag result, boolean safe) {
-		SIMPLE_PLACEHOLDERS.put(name, new SkriptTag(result, safe));
+		SIMPLE_PLACEHOLDERS.put(name, new SkriptTag(result, safe, false));
+	}
+
+	/**
+	 * Registers a simple key-value placeholder with Skript's message parsers.
+	 * The registered placeholder will instruct the parser to reset existing formatting before applying the tag.
+	 * @param name The name/key of the placeholder.
+	 * @param result The result/value of the placeholder.
+	 * @param safe Whether the placeholder can be used in the safe parser.
+	 */
+	public static void registerResettingPlaceholder(String name, Tag result, boolean safe) {
+		SIMPLE_PLACEHOLDERS.put(name, new SkriptTag(result, safe, true));
 	}
 
 	/**
@@ -68,37 +137,79 @@ public final class ChatComponentHandler {
 		RESOLVERS.remove(new SkriptTagResolver(resolver, true));
 	}
 
-	private static TagResolver createSkriptTagResolver(boolean safe) {
+	private static TagResolver createSkriptTagResolver(boolean safe, TagResolver builtInResolver) {
 		return new TagResolver() {
+
+			private static final String RESET_KEY = "skript_reset_";
+
 			@Override
 			public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException {
+				if (colorsCauseReset) {
+					/*
+					 * to preserve this config option's functionality, we use a preprocessing tag that prepends a "<reset>"
+					 *  tag behind all color tags
+					 * however, to ensure that we don't recurse (prepend again), a unique-enough key is prepended to
+					 *  the color tag name.
+					 * then, during the primary parsing stage, when these tags are encountered, the key is removed
+					 *  and the tag is parsed as normal.
+					 */
+					if (name.startsWith(RESET_KEY)) {
+						name = name.substring(RESET_KEY.length());
+					} else {
+						SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
+						if ((simple != null && simple.reset && (!safe || simple.safe)) || StandardTags.color().has(name)) {
+							return Tag.preProcessParsed("<reset><" + RESET_KEY + name + ">");
+						}
+					}
+				}
+
+				// attempt built in resolver
+				if (builtInResolver.has(name)) {
+					return builtInResolver.resolve(name, arguments, ctx);
+				}
+
+				// attempt our simple placeholders
 				SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
 				if (simple != null) {
 					return !safe || simple.safe ? simple.tag : null;
 				}
+
+				// attempt our custom resolvers
 				for (SkriptTagResolver skriptResolver : RESOLVERS) {
-					if (safe && !skriptResolver.safe) {
+					if ((safe && !skriptResolver.safe) || !skriptResolver.resolver.has(name)) {
 						continue;
 					}
-					Tag resolved = skriptResolver.resolver.resolve(name, arguments, ctx);
-					if (resolved != null) {
-						return resolved;
-					}
+					return skriptResolver.resolver.resolve(name, arguments, ctx);
 				}
+
 				return null;
 			}
 
 			@Override
 			public boolean has(@NotNull String name) {
+				if (colorsCauseReset && name.startsWith(RESET_KEY)) {
+					// this allows this prefix for non-color tags, but that isn't a big deal
+					name = name.substring(RESET_KEY.length());
+				}
+
+				// check built-in resolver
+				if (builtInResolver.has(name)) {
+					return true;
+				}
+
+				// check our simple placeholders
 				SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
 				if (simple != null) {
 					return !safe || simple.safe;
 				}
+
+				// check our custom resolvers
 				for (SkriptTagResolver skriptResolver : RESOLVERS) {
 					if ((!safe || skriptResolver.safe) && skriptResolver.resolver.has(name)) {
 						return true;
 					}
 				}
+
 				return false;
 			}
 		};
@@ -108,8 +219,7 @@ public final class ChatComponentHandler {
 	private static final MiniMessage parser = MiniMessage.builder()
 		.strict(false)
 		.tags(TagResolver.builder()
-			.resolver(StandardTags.defaults())
-			.resolver(createSkriptTagResolver(false))
+			.resolver(createSkriptTagResolver(false, StandardTags.defaults()))
 			.build())
 		.build();
 
@@ -117,11 +227,11 @@ public final class ChatComponentHandler {
 	private static final MiniMessage safeParser = MiniMessage.builder()
 		.strict(false)
 		.tags(TagResolver.builder()
-			.resolvers(StandardTags.color(), StandardTags.decorations(), StandardTags.font(),
+			.resolver(createSkriptTagResolver(true, TagResolver.resolver(
+				StandardTags.color(), StandardTags.decorations(), StandardTags.font(),
 				StandardTags.gradient(), StandardTags.rainbow(), StandardTags.newline(),
 				StandardTags.reset(), StandardTags.transition(), StandardTags.pride(),
-				StandardTags.shadowColor())
-			.resolver(createSkriptTagResolver(true))
+				StandardTags.shadowColor())))
 			.build())
 		.build();
 
@@ -195,7 +305,11 @@ public final class ChatComponentHandler {
 			realMessage = reconstructedMessage.toString();
 		}
 
-		return safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		Component component = safe ? safeParser.deserialize(realMessage) : parser.deserialize(realMessage);
+		if (linkParseMode != LinkParseMode.DISABLED) {
+			component = component.replaceText(linkParseMode.textReplacementConfig);
+		}
+		return component;
 	}
 
 	/**
