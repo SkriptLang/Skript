@@ -3,14 +3,18 @@ package ch.njol.skript.lang;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import ch.njol.skript.SkriptAPIException;
+import org.skriptlang.skript.util.ClassUtils;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * @param <E> the syntax element this info is for
@@ -21,22 +25,20 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 	public final Class<E> elementClass;
 	public final String[] patterns;
 	public final String originClassPath;
+	private Supplier<E> instanceSupplier;
+
+	public SyntaxElementInfo(String[] patterns, Class<E> elementClass, String originClassPath) {
+		this(patterns, elementClass, originClassPath, null);
+	}
   
-	public SyntaxElementInfo(String[] patterns, Class<E> elementClass, String originClassPath) throws IllegalArgumentException {
+	public SyntaxElementInfo(String[] patterns, Class<E> elementClass, String originClassPath,
+			@Nullable Supplier<E> instanceSupplier) throws IllegalArgumentException {
 		if (Modifier.isAbstract(elementClass.getModifiers()))
 			throw new SkriptAPIException("Class " + elementClass.getName() + " is abstract");
-    
 		this.patterns = patterns;
 		this.elementClass = elementClass;
 		this.originClassPath = originClassPath;
-		try {
-			elementClass.getConstructor();
-		} catch (final NoSuchMethodException e) {
-			// throwing an Exception throws an (empty) ExceptionInInitializerError instead, thus an Error is used
-			throw new Error(elementClass + " does not have a public nullary constructor", e);
-		} catch (final SecurityException e) {
-			throw new IllegalStateException("Skript cannot run properly because a security manager is blocking it!");
-		}
+		this.instanceSupplier = instanceSupplier;
 	}
 
 	/**
@@ -63,11 +65,28 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 		return originClassPath;
 	}
 
+	/**
+	 * Creates new instance of the syntax element of this syntax element info.
+	 *
+	 * @return new syntax element instance
+	 */
+	public E instance() {
+		if (instanceSupplier == null) {
+			try {
+				instanceSupplier = ClassUtils.instanceSupplier(getElementClass());
+			} catch (Throwable throwable) {
+				throw new RuntimeException(throwable);
+			}
+		}
+		return instanceSupplier.get();
+	}
+
 	@Contract("_ -> new")
 	@ApiStatus.Experimental
 	@SuppressWarnings("unchecked")
 	public static <I extends SyntaxElementInfo<E>, E extends SyntaxElement> I fromModern(SyntaxInfo<? extends E> info) {
-		if (info instanceof BukkitSyntaxInfos.Event<?> event) {
+		if (info instanceof BukkitSyntaxInfos.Event<?>) {
+			BukkitSyntaxInfos.Event<SkriptEvent> event = (BukkitSyntaxInfos.Event<SkriptEvent>) info;
 			// We must first go back to the raw input
 			String rawName = event.name().startsWith("On ")
 					? event.name().substring(3)
@@ -75,7 +94,8 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 			SkriptEventInfo<?> eventInfo = new SkriptEventInfo<>(
 					rawName, event.patterns().toArray(new String[0]),
 					event.type(), event.origin().name(),
-					(Class<? extends Event>[]) event.events().toArray(new Class<?>[0]));
+					(Class<? extends Event>[]) event.events().toArray(new Class<?>[0]),
+					event::instance);
 			String since = event.since();
 			if (since != null)
 				eventInfo.since(since);
@@ -87,24 +107,24 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 					.examples(event.examples().toArray(new String[0]))
 					.keywords(event.keywords().toArray(new String[0]))
 					.requiredPlugins(event.requiredPlugins().toArray(new String[0]));
-
 			return (I) eventInfo;
-		} else if (info instanceof SyntaxInfo.Structure<?> structure) {
+		} else if (info instanceof SyntaxInfo.Structure<?>) {
+			SyntaxInfo.Structure<Structure> structure = (SyntaxInfo.Structure<Structure>) info;
 			return (I) new StructureInfo<>(structure.patterns().toArray(new String[0]), structure.type(),
-					structure.origin().name(), structure.entryValidator(), structure.nodeType());
+					structure.origin().name(), structure.entryValidator(), structure.nodeType(), structure::instance);
 		} else if (info instanceof SyntaxInfo.Expression<?, ?> expression) {
 			return (I) fromModernExpression(expression);
 		}
-
-		return (I) new SyntaxElementInfo<>(info.patterns().toArray(new String[0]), info.type(), info.origin().name());
+		return (I) new SyntaxElementInfo<>(info.patterns().toArray(new String[0]), (Class<E>) info.type(),
+			info.origin().name(), info::instance);
 	}
-	
+
 	@Contract("_ -> new")
 	@ApiStatus.Experimental
 	private static <E extends Expression<R>, R> ExpressionInfo<E, R> fromModernExpression(SyntaxInfo.Expression<E, R> info) {
 		return new ExpressionInfo<>(
 				info.patterns().toArray(new String[0]), info.returnType(),
-				info.type(), info.origin().name(), ExpressionType.fromModern(info.priority())
+				info.type(), info.origin().name(), ExpressionType.fromModern(info.priority()), info::instance
 		);
 	}
 

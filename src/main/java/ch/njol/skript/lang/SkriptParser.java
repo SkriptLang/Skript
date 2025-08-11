@@ -188,64 +188,61 @@ public class SkriptParser {
 				SyntaxElementInfo<? extends T> info = source.next();
 				patternsLoop: for (int patternIndex = 0; patternIndex < info.patterns.length; patternIndex++) {
 					log.clear();
+					String pattern = info.patterns[patternIndex];
+					assert pattern != null;
+					ParseResult parseResult;
 					try {
-						String pattern = info.patterns[patternIndex];
-						assert pattern != null;
-						ParseResult parseResult;
+						parseResult = parse_i(pattern);
+					} catch (MalformedPatternException e) {
+						String message = "pattern compiling exception, element class: " + info.getElementClass().getName();
 						try {
-							parseResult = parse_i(pattern);
-						} catch (MalformedPatternException e) {
-							String message = "pattern compiling exception, element class: " + info.getElementClass().getName();
-							try {
-								JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.getElementClass());
-								message += " (provided by " + providingPlugin.getName() + ")";
-							} catch (IllegalArgumentException | IllegalStateException ignored) {}
-							throw new RuntimeException(message, e);
+							JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.getElementClass());
+							message += " (provided by " + providingPlugin.getName() + ")";
+						} catch (IllegalArgumentException | IllegalStateException ignored) {}
+						throw new RuntimeException(message, e);
 
-						}
-						if (parseResult != null) {
-							assert parseResult.source != null; // parse results from parse_i have a source
-							List<TypePatternElement> types = null;
-							for (int i = 0; i < parseResult.exprs.length; i++) {
-								if (parseResult.exprs[i] == null) {
-									if (types == null)
-										types = parseResult.source.getElements(TypePatternElement.class);;
-									ExprInfo exprInfo = types.get(i).getExprInfo();
-									if (!exprInfo.isOptional) {
-										DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
-										if (!expr.init())
-											continue patternsLoop;
-										parseResult.exprs[i] = expr;
-									}
+					}
+					if (parseResult != null) {
+						assert parseResult.source != null; // parse results from parse_i have a source
+						List<TypePatternElement> types = null;
+						for (int i = 0; i < parseResult.exprs.length; i++) {
+							if (parseResult.exprs[i] == null) {
+								if (types == null)
+									types = parseResult.source.getElements(TypePatternElement.class);;
+								ExprInfo exprInfo = types.get(i).getExprInfo();
+								if (!exprInfo.isOptional) {
+									DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
+									if (!expr.init())
+										continue patternsLoop;
+									parseResult.exprs[i] = expr;
 								}
 							}
-							T element = info.getElementClass().newInstance();
+						}
 
-							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
-								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-								if (!getParser().isCurrentEvent(supportedEvents)) {
-									Iterator<String> iterator = Arrays.stream(supportedEvents)
-										.map(it -> "the " + it.getSimpleName()
-											.replaceAll("([A-Z])", " $1")
-											.toLowerCase()
-											.trim())
-										.iterator();
+						T element = info.instance();
 
-									String events = StringUtils.join(iterator, ", ", " or ");
+						if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+							Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+							if (!getParser().isCurrentEvent(supportedEvents)) {
+								Iterator<String> iterator = Arrays.stream(supportedEvents)
+									.map(it -> "the " + it.getSimpleName()
+										.replaceAll("([A-Z])", " $1")
+										.toLowerCase()
+										.trim())
+									.iterator();
 
-									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
-									continue;
-								}
-							}
+								String events = StringUtils.join(iterator, ", ", " or ");
 
-							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
-							if (success) {
-								log.printLog();
-								return element;
+								Skript.error("'" + parseResult.expr + "' can only be used in " + events);
+								continue;
 							}
 						}
-					} catch (InstantiationException | IllegalAccessException e) {
-						assert false;
+
+						boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+						if (success) {
+							log.printLog();
+							return element;
+						}
 					}
 				}
 			}

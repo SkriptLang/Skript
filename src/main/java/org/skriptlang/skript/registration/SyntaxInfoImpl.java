@@ -20,7 +20,8 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 
 	private final SyntaxOrigin origin;
 	private final Class<T> type;
-	private final @Nullable Supplier<T> supplier;
+	private @Nullable Supplier<T> supplier;
+	private final boolean providedSupplier;
 	private final Collection<String> patterns;
 	private final Priority priority;
 
@@ -37,6 +38,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		this.origin = origin;
 		this.type = type;
 		this.supplier = supplier;
+		providedSupplier = supplier != null;
 		this.patterns = ImmutableList.copyOf(patterns);
 		this.priority = priority;
 	}
@@ -45,7 +47,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	public Builder<? extends Builder<?, T>, T> toBuilder() {
 		var builder = new BuilderImpl<>(type);
 		builder.origin(origin);
-		if (supplier != null) {
+		if (providedSupplier) {
 			builder.supplier(supplier);
 		}
 		builder.addPatterns(patterns);
@@ -65,11 +67,14 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 
 	@Override
 	public T instance() {
-		try {
-			return supplier == null ? type.getDeclaredConstructor().newInstance() : supplier.get();
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
+		if (supplier == null) {
+			try {
+				supplier = ClassUtils.instanceSupplier(type);
+			} catch (Throwable throwable) {
+				throw new RuntimeException(throwable);
+			}
 		}
+		return supplier.get();
 	}
 
 	@Override

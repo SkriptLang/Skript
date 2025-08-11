@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Supplier;
 
 public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> permits ModernSkriptEventInfo {
 
@@ -32,15 +33,22 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 	private final String id;
 
+	public SkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath,
+			Class<? extends Event>[] events) {
+		this(name, patterns, eventClass, originClassPath, events, null);
+	}
+
 	/**
 	 * @param name Capitalised name of the event without leading "On" which is added automatically (Start the name with an asterisk to prevent this).
 	 * @param patterns The Skript patterns to use for this event
 	 * @param eventClass The SkriptEvent's class
 	 * @param originClassPath The class path for the origin of this event.
 	 * @param events The Bukkit-Events this SkriptEvent listens to
+	 * @param supplier supplier ofr the syntax info instance
 	 */
-	public SkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
-		super(patterns, eventClass, originClassPath);
+	public SkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath,
+			Class<? extends Event>[] events, @Nullable Supplier<E> supplier) {
+		super(patterns, eventClass, originClassPath, supplier);
 		for (int i = 0; i < events.length; i++) {
 			for (int j = i + 1; j < events.length; j++) {
 				if (events[i].isAssignableFrom(events[j]) || events[j].isAssignableFrom(events[i])) {
