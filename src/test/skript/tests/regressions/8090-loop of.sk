@@ -1,0 +1,10 @@
+parse:
+	results: {8090::*}
+	code:
+		on join:
+			loop all players:
+				loop {_l::*}:
+					broadcast loop-player
+
+test "loose loop of matching":
+	assert {8090::*} is not set with "loop-player within a player loop and var loop should not error."

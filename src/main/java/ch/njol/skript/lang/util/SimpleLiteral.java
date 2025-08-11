@@ -46,12 +46,16 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	public SimpleLiteral(T[] data, Class<T> type, boolean and, @Nullable Expression<?> source) {
+		this(data, type, and, false, source);
+	}
+
+	public SimpleLiteral(T[] data, Class<T> type, boolean and, boolean isDefault, @Nullable Expression<?> source) {
 		assert data != null;
 		assert type != null;
 		this.data = data;
 		this.type = type;
 		this.and = data.length <= 1 || and;
-		this.isDefault = false;
+		this.isDefault = isDefault;
 		this.source = source == null ? this : source;
 	}
 
