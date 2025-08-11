@@ -69,7 +69,6 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 	}
 
 	@Override
-	@Nullable
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
 			if (isDefault() && getParser().isCurrentEvent(VehicleExitEvent.class, EntityDismountEvent.class)) {
