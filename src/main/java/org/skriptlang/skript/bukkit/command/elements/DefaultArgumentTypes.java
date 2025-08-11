@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.command.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.ContextlessEvent;
@@ -9,7 +8,10 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.command.ArgumentTypeElement;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
 
 /**
  * Default Argument Types provided by Skript.
@@ -28,9 +30,15 @@ public class DefaultArgumentTypes {
 	 */
 	public static final class String extends ArgumentTypeElement.Simple<java.lang.String> {
 
-		static {
-			Skript.registerArgumentType(DefaultArgumentTypes.String.class,
-				"[single] (word|string)", "(quotable|quoted) string", "greedy string");
+		public static void load(SkriptAddon addon) {
+			addon.syntaxRegistry().register(ArgumentTypeElement.REGISTRY_KEY,
+				SyntaxInfo.builder(DefaultArgumentTypes.Integer.class)
+					.addPatterns("[single] (word|string)",
+						"(quotable|quoted) string",
+						"greedy string")
+					.supplier(DefaultArgumentTypes.Integer::new)
+					.origin(SyntaxOrigin.of(addon))
+					.build());
 		}
 
 		@Override
@@ -51,12 +59,15 @@ public class DefaultArgumentTypes {
 	 */
 	public static final class Integer extends ArgumentTypeElement.Simple<java.lang.Integer> {
 
-		static {
-			Skript.registerArgumentType(DefaultArgumentTypes.Integer.class,
-				"integer greater than [equal:or equal to] %integer%",
-				"integer less than [equal:or equal to] %integer%",
-				"integer between %integer% and %integer%"
-			);
+		public static void load(SkriptAddon addon) {
+			addon.syntaxRegistry().register(ArgumentTypeElement.REGISTRY_KEY,
+				SyntaxInfo.builder(DefaultArgumentTypes.Integer.class)
+					.addPatterns("integer greater than [equal:or equal to] %integer%",
+						"integer less than [equal:or equal to] %integer%",
+						"integer between %integer% and %integer%")
+					.supplier(DefaultArgumentTypes.Integer::new)
+					.origin(SyntaxOrigin.of(addon))
+					.build());
 		}
 
 		@Override

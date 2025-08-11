@@ -1738,22 +1738,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 	}
 
-	/**
-	 * Registers a new argument type.
-	 *
-	 * @param argumentClass class of the argument type
-	 * @param patterns patterns
-	 * @param <E> argument type
-	 */
-	public static <E extends ArgumentTypeElement<?>> void registerArgumentType(Class<E> argumentClass, String... patterns) {
-		checkAcceptRegistrations();
-		skript.syntaxRegistry().register(ArgumentTypeElement.REGISTRY_KEY, SyntaxInfo.builder(argumentClass)
-			.origin(getSyntaxOrigin(argumentClass))
-			.addPatterns(patterns)
-			.build()
-		);
-	}
-
 	// ================ LOGGING ================
 
 	public static boolean logNormal() {
