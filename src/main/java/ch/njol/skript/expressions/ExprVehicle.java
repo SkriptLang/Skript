@@ -70,7 +70,7 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
 			if (isDefault() && getParser().isCurrentEvent(VehicleExitEvent.class, EntityDismountEvent.class)) {
 				Skript.error("Setting the vehicle during a dismount/exit vehicle event will create an infinite mounting loop.");
