@@ -4,6 +4,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Patterns;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Pig;
@@ -14,44 +16,44 @@ import java.util.Objects;
 
 public class PigData extends EntityData<Pig> {
 
-	public enum SaddleState {
-		NOT_SADDLED, UNKNOWN, SADDLED
-	}
-
-	private static final SaddleState[] SADDLE_STATES = SaddleState.values();
 	private static final boolean VARIANTS_ENABLED;
-	private static final Object[] variants;
+	private static final Object[] VARIANTS;
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
+		{"pig", Kleenean.UNKNOWN},
+		{"saddled pig", Kleenean.TRUE},
+		{"unsaddled pig", Kleenean.FALSE}
+	});
 
 	static {
-		EntityData.register(PigData.class, "pig", Pig.class, 1, "unsaddled pig", "pig", "saddled pig");
+		EntityData.register(PigData.class, "pig", Pig.class, 0, PATTERNS.getPatterns());
 		if (Skript.classExists("org.bukkit.entity.Pig$Variant")) {
 			VARIANTS_ENABLED = true;
-			variants = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);
+			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);
 		} else {
 			VARIANTS_ENABLED = false;
-			variants = null;
+			VARIANTS = null;
 		}
 	}
 	
-	private SaddleState saddled = SaddleState.UNKNOWN;
+	private Kleenean saddled = Kleenean.UNKNOWN;
 	private @Nullable Object variant = null;
 
 	public PigData() {}
 
 	// TODO: When safe, 'variant' should have the type changed to 'Pig.Variant'
-	public PigData(SaddleState saddled, @Nullable Object variant) {
-		this.saddled = saddled;
+	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
+		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		saddled = SADDLE_STATES[matchedPattern];
+		saddled = PATTERNS.getInfo(matchedPattern);
 		if (VARIANTS_ENABLED) {
 			Literal<?> expr = null;
-			if (exprs[0] != null) { // pig
+			if (exprs[0] != null) { // pig, saddled pig, unsaddled pig
 				expr = exprs[0];
-			} else if (exprs[1] != null) { // piglet
+			} else if (exprs.length >= 2 && exprs[1] != null) { // piglet
 				expr = exprs[1];
 			}
 			if (expr != null) {
@@ -64,33 +66,29 @@ public class PigData extends EntityData<Pig> {
 	
 	@Override
 	protected boolean init(@Nullable Class<? extends Pig> entityClass, @Nullable Pig pig) {
-		saddled = SaddleState.UNKNOWN;
+		saddled = Kleenean.UNKNOWN;
 		if (pig != null) {
-			saddled = pig.hasSaddle() ? SaddleState.SADDLED : SaddleState.NOT_SADDLED;
+			saddled = Kleenean.get(pig.hasSaddle());
 			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
 		}
 		return true;
 	}
-
-	@Override
-	protected boolean deserialize(String string) {
-		return true;
-	}
 	
 	@Override
 	public void set(Pig pig) {
-		pig.setSaddle(saddled == SaddleState.SADDLED);
+		pig.setSaddle(saddled.isTrue());
 		if (VARIANTS_ENABLED) {
-			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
+			Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(VARIANTS);
 			pig.setVariant((Pig.Variant) finalVariant);
 		}
 	}
 	
 	@Override
 	protected boolean match(Pig pig) {
-		return (saddled == SaddleState.UNKNOWN || (pig.hasSaddle() ? SaddleState.SADDLED : SaddleState.NOT_SADDLED) == saddled)
-			&& (variant == null || variant == pig.getVariant());
+		if (!saddled.isUnknown() && saddled != Kleenean.get(pig.hasSaddle()))
+			return false;
+		return variant == null || variant == pig.getVariant();
 	}
 	
 	@Override
@@ -116,7 +114,7 @@ public class PigData extends EntityData<Pig> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof PigData other))
 			return false;
-		if (saddled != SaddleState.UNKNOWN && saddled != other.saddled)
+		if (!saddled.isUnknown() && saddled != other.saddled)
 			return false;
 		return variant == null || variant == other.variant;
 	}

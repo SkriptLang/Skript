@@ -1,13 +1,5 @@
 package ch.njol.skript.lang;
 
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-import java.util.function.Predicate;
-import java.util.function.Function;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -15,11 +7,6 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import com.google.common.collect.Iterators;
-import org.apache.commons.lang3.ArrayUtils;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.OperationInfo;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -34,23 +21,34 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.util.coll.iterator.SingleItemIterator;
+import com.google.common.collect.Iterators;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.OperationInfo;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
 	public final static String LOCAL_VARIABLE_TOKEN = "_";
+	public static final String EPHEMERAL_VARIABLE_TOKEN = "-";
 	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*'};
 
 	/**
@@ -67,13 +65,14 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	private final Class<? extends T>[] types;
 
 	private final boolean local;
+	private final boolean ephemeral;
 	private final boolean list;
 
 	private final @Nullable Variable<?> source;
 	private final Map<Event, String[]> cache = new WeakHashMap<>();
 
 	@SuppressWarnings("unchecked")
-	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean list, @Nullable Variable<?> source) {
+	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean ephemeral, boolean list, @Nullable Variable<?> source) {
 		assert types.length > 0;
 
 		assert name.isSimple() || name.getMode() == StringMode.VARIABLE_NAME;
@@ -83,6 +82,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		this.script = parser.isActive() ? parser.getCurrentScript() : null;
 
 		this.local = local;
+		this.ephemeral = ephemeral;
 		this.list = list;
 
 		this.name = name;
@@ -160,10 +160,14 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	/**
-	 * Prints errors
+	 * Creates a new variable instance with the given name and types. Prints errors.
+	 * @param name The raw name of the variable.
+	 * @param types The types this variable is expected to be.
+	 * @return A new variable instance, or null if the name is invalid or the variable could not be created.
+	 * @param <T> The supertype the variable is expected to be.
 	 */
 	public static <T> @Nullable Variable<T> newInstance(String name, Class<? extends T>[] types) {
-		name = "" + name.trim();
+		name = name.trim();
 		if (!isValidVariableName(name, true, true))
 			return null;
 		VariableString variableString = VariableString.newInstance(
@@ -172,17 +176,28 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			return null;
 
 		boolean isLocal = name.startsWith(LOCAL_VARIABLE_TOKEN);
+		boolean isEphemeral = name.startsWith(EPHEMERAL_VARIABLE_TOKEN);
 		boolean isPlural = name.endsWith(SEPARATOR + "*");
 
 		ParserInstance parser = ParserInstance.get();
 		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
+
+		// check for 'starting with expression' warning
 		if (currentScript != null
 			&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
-			&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
-			&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
-			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
-				"You could prefix it with the script's name: " +
-				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
+			&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)) {
+
+			String strippedName = name;
+			if (isLocal) {
+				strippedName = strippedName.substring(LOCAL_VARIABLE_TOKEN.length());
+			} else if (isEphemeral) {
+				strippedName = strippedName.substring(EPHEMERAL_VARIABLE_TOKEN.length());
+			}
+			if (strippedName.startsWith("%")) {
+				Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
+					"You could prefix it with the script's name: " +
+					"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
+			}
 		}
 
 		// Check for local variable type hints
@@ -191,7 +206,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			if (!hints.isEmpty()) { // Type hint(s) available
 				if (types[0] == Object.class) { // Object is generic, so we initialize with the hints instead
 					//noinspection unchecked
-					return new Variable<>(variableString, hints.toArray(new Class[0]), true, isPlural, null);
+					return new Variable<>(variableString, hints.toArray(new Class[0]), true, isEphemeral, isPlural, null);
 				}
 
 				List<Class<? extends T>> potentialTypes = new ArrayList<>();
@@ -205,7 +220,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				}
 				if (!potentialTypes.isEmpty()) { // Hint matches, use variable with exactly correct type
 					//noinspection unchecked
-					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isPlural, null);
+					return new Variable<>(variableString, potentialTypes.toArray(Class[]::new), true, isEphemeral, isPlural, null);
 				}
 
 				// Hint exists and does NOT match any types requested
@@ -223,7 +238,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			}
 		}
 
-		return new Variable<>(variableString, types, isLocal, isPlural, null);
+		return new Variable<>(variableString, types, isLocal, isEphemeral, isPlural, null);
 	}
 
 	@Override
@@ -231,10 +246,23 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @return Whether this variable is a local variable, i.e. starts with {@link #LOCAL_VARIABLE_TOKEN}.
+	 */
 	public boolean isLocal() {
 		return local;
 	}
 
+	/**
+	 * @return Whether this variable is an ephemeral variable, i.e. starts with {@link #EPHEMERAL_VARIABLE_TOKEN}.
+	 */
+	public boolean isEphemeral() {
+		return ephemeral;
+	}
+
+	/**
+	 * @return Whether this variable is a list variable, i.e. ends with {@link #SEPARATOR + "*"}.
+	 */
 	public boolean isList() {
 		return list;
 	}
@@ -296,7 +324,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		if (!converterExists) {
 			return null;
 		}
-		return new Variable<>(name, to, local, list, this);
+		return new Variable<>(name, to, local, ephemeral, list, this);
 	}
 
 	/**
