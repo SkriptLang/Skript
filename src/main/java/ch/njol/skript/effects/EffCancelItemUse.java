@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public class EffCancelItemUse extends Effect {
 
 	static {
+		// TODO - remove this when Spigot support is dropped
 		if (Skript.methodExists(LivingEntity.class, "clearActiveItem"))
 			Skript.registerEffect(EffCancelItemUse.class,
 					"(cancel|interrupt) [the] us[ag]e of %livingentities%'[s] [active|current] item"

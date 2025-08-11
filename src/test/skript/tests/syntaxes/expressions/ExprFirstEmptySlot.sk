@@ -1,0 +1,18 @@
+test "first empty slot":
+	set {_inv} to a chest inventory with 3 rows
+	assert the index of the first empty slot in {_inv} is 0 with "First empty slot in empty inventory should be 0"
+	set slot 0 of {_inv} to a stone
+	assert the index of the first empty slot in {_inv} is 1 with "First empty slot in inventory should be 1"
+	set slot 3 of {_inv} to a stone
+	assert the index of the first empty slot in {_inv} is 1 with "First empty slot in inventory should be 1"
+	set slot 1 of {_inv} to a stone
+	assert the index of the first empty slot in {_inv} is 2 with "First empty slot in inventory should be 2"
+
+	set first empty slot of {_inv} to diamond sword
+	assert slot 2 of {_inv} is a diamond sword with "First empty slot should be set to diamond sword"
+	assert the index of the first empty slot in {_inv} is 4 with "First empty slot in inventory should be 4"
+
+	set {_inv2} to a hopper inventory named "Test Hopper"
+	set the first empty slots in {_inv2} and {_inv} to diamond sword
+	assert slot 0 of {_inv2} is a diamond sword with "First empty slot in hopper inventory should be set to diamond sword"
+	assert slot 4 of {_inv} is a diamond sword with "First empty slot in chest inventory should be set to diamond sword"

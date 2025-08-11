@@ -1,20 +1,11 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
@@ -23,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.TagOrigin;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +43,7 @@ import java.util.List;
 @Since("2.10")
 @RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
-public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeErrorProducer {
+public class ExprTag extends SimpleExpression<Tag> {
 
 	static {
 		Skript.registerExpression(ExprTag.class, Tag.class, ExpressionType.COMBINED,
@@ -65,8 +55,6 @@ public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeError
 	private TagOrigin origin;
 	private boolean datapackOnly;
 
-	private Node node;
-
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
@@ -74,7 +62,6 @@ public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeError
 		types = TagType.fromParseMark(parseResult.mark);
 		origin = TagOrigin.fromParseTags(parseResult.tags);
 		datapackOnly = origin == TagOrigin.BUKKIT && parseResult.hasTag("datapack");
-		node = getParser().getNode();
 		return true;
 	}
 
@@ -143,21 +130,9 @@ public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeError
 	}
 
 	@Override
-	public Node getNode() {
-		return node;
-	}
-
-	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String registry = types.length > 1 ? "" : " " + types[0].toString();
 		return origin.toString(datapackOnly) + registry + " tag " + names.toString(event, debug);
-	}
-
-	@Override
-	public Expression<? extends Tag> simplify() {
-		if (names instanceof Literal<String>)
-			return new SimpleLiteral<>(getArray(ContextlessEvent.get()), Tag.class, true);
-		return super.simplify();
 	}
 
 }

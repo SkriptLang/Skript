@@ -2,9 +2,7 @@ package ch.njol.skript.classes.data;
 
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Math2;
 import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
@@ -91,37 +89,31 @@ public class DefaultOperations {
 		});
 
 		// Timespan - Timespan
-		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(Math2.addClamped(left.getAs(TimePeriod.MILLISECOND), right.getAs(TimePeriod.MILLISECOND))));
-		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, (left, right) -> new Timespan(Math.max(0, left.getAs(TimePeriod.MILLISECOND) - right.getAs(TimePeriod.MILLISECOND))));
-		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getAs(TimePeriod.MILLISECOND) - right.getAs(TimePeriod.MILLISECOND))));
+		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, Timespan::add);
+		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, Timespan::subtract);
+		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Timespan.class, Number.class, Timespan::divide);
+		Arithmetics.registerDifference(Timespan.class, Timespan::difference);
 		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
 
 		// Timespan - Number
 		// Number - Timespan
 		Arithmetics.registerOperation(Operator.MULTIPLICATION, Timespan.class, Number.class, (left, right) -> {
 			double scalar = right.doubleValue();
-			if (scalar < 0 || !Double.isFinite(scalar))
+			if (scalar < 0 || Double.isNaN(scalar))
 				return null;
-			double value = left.getAs(TimePeriod.MILLISECOND) * scalar;
-			return new Timespan((long) Math.min(value, Long.MAX_VALUE));
+			return left.multiply(scalar);
 		}, (left, right) -> {
 			double scalar = left.doubleValue();
-			if (scalar < 0 || !Double.isFinite(scalar))
+			if (scalar < 0 || Double.isNaN(scalar))
 				return null;
-			double value = right.getAs(TimePeriod.MILLISECOND) * scalar;
-			return new Timespan((long) Math.min(value, Long.MAX_VALUE));
+			return right.multiply(scalar);
 		});
 		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Number.class, (left, right) -> {
 			double scalar = right.doubleValue();
-			if (scalar <= 0 || !Double.isFinite(scalar))
+			if (scalar < 0 || Double.isNaN(scalar))
 				return null;
-			double value = left.getAs(TimePeriod.MILLISECOND) / scalar;
-			return new Timespan((long) Math.min(value, Long.MAX_VALUE));
+			return left.divide(scalar);
 		});
-
-		// Timespan / Timespan = Number
-		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Timespan.class, Number.class,
-				(left, right) -> left.getAs(TimePeriod.MILLISECOND) / (double) right.getAs(TimePeriod.MILLISECOND));
 
 		// Date - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Date.class, Timespan.class, Date::plus);

@@ -1,0 +1,8 @@
+test "broadcast evaluates vstrings twice":
+	broadcast "%func()%"
+	assert {7718::calls} is 1 with "Called func() more than once"
+	delete {7718::calls}
+
+function func() returns string:
+	add 1 to {7718::calls}
+	return "7718 broadcast regression test"

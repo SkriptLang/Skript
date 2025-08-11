@@ -84,9 +84,8 @@ public class ItemFrameData extends EntityData<ItemFrame> {
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
-		if (!(entityData instanceof ItemFrameData))
+		if (!(entityData instanceof ItemFrameData itemFrameData))
 			return false;
-		ItemFrameData itemFrameData = (ItemFrameData) entityData;
 		if (type != null)
 			return itemFrameData.type != null && type.equals(itemFrameData.type) && rotation == itemFrameData.rotation;
 		return true;

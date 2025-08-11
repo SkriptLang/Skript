@@ -3,6 +3,7 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.function.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
@@ -58,10 +59,16 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
-				if (params[0][0] instanceof Long)
-					return new Long[] {(Long) params[0][0]};
+				if (params[0][0] instanceof Long longValue)
+					return new Long[] {longValue};
 				double value = ((Number) params[0][0]).doubleValue();
-				int placement = ((Number) params[1][0]).intValue();
+				if (!Double.isFinite(value))
+					return new Double[] {value};
+
+				double placementDouble = ((Number) params[1][0]).doubleValue();
+				if (!Double.isFinite(placementDouble) || placementDouble >= Integer.MAX_VALUE || placementDouble <= Integer.MIN_VALUE)
+					return new Double[] {Double.NaN};
+				int placement = (int) placementDouble;
 				if (placement == 0)
 					return new Long[] {Math2.round(value)};
 				if (placement >= 0) {
@@ -296,7 +303,7 @@ public class DefaultFunctions {
 			.since("2.2"));
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[] {
-					 new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+					 new Parameter<>("values", DefaultClasses.NUMBER, false, null, true),
 					 new Parameter<>("min", DefaultClasses.NUMBER, true, null),
 					 new Parameter<>("max", DefaultClasses.NUMBER, true, null)
 				 }, DefaultClasses.NUMBER, false, new Contract() {
@@ -313,7 +320,8 @@ public class DefaultFunctions {
 				 }) {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
-				Number[] values = (Number[]) params[0];
+				//noinspection unchecked
+				KeyedValue<Number>[] values = (KeyedValue<Number>[]) params[0];
 				Double[] clampedValues = new Double[values.length];
 				double min = ((Number) params[1][0]).doubleValue();
 				double max = ((Number) params[2][0]).doubleValue();
@@ -321,12 +329,13 @@ public class DefaultFunctions {
 				double trueMin = Math.min(min, max);
 				double trueMax = Math.max(min, max);
 				for (int i = 0; i < values.length; i++) {
-					double value = values[i].doubleValue();
+					double value = values[i].value().doubleValue();
 					clampedValues[i] = Math.max(Math.min(value, trueMax), trueMin);
 				}
+				setReturnedKeys(KeyedValue.unzip(values).keys().toArray(new String[0]));
 				return clampedValues;
 			}
-		}).description("Clamps one or more values between two numbers.")
+		}).description("Clamps one or more values between two numbers.", "This function retains indices")
 			.examples(
 					"clamp(5, 0, 10) = 5",
 					"clamp(5.5, 0, 5) = 5",
@@ -541,11 +550,15 @@ public class DefaultFunctions {
 				}
 				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
 			}
-		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.", "Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
-			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
+		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.",
+				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
+			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'",
+				"set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'",
+				"set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
 			.since("2.8.0");
 
 		{ // offline player function
+			// TODO - remove this when Spigot support is dropped
 			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
 
 			List<Parameter<?>> params = new ArrayList<>();
@@ -714,7 +727,7 @@ public class DefaultFunctions {
 			}
 			.description("Returns a UUID from the given string. The string must be in the format of a UUID.")
 			.examples("uuid(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
-			.since("INSERT VERSION")
+			.since("2.11")
 		);
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("mean", new Parameter[]{
@@ -744,7 +757,7 @@ public class DefaultFunctions {
 				"mean(0, 5, 10) = 5",
 				"mean(13, 97, 376, 709) = 298.75"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("median", new Parameter[]{
 			new Parameter<>("numbers", DefaultClasses.NUMBER, false, null)
@@ -794,7 +807,7 @@ public class DefaultFunctions {
 				"median(1, 2, 3, 4, 5, 6) = 3.5",
 				"median(0, 123, 456, 789) = 289.5"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<>("factorial", new Parameter[]{
 			new Parameter<>("number", DefaultClasses.NUMBER, true, null)
@@ -830,7 +843,7 @@ public class DefaultFunctions {
 				"factorial(5) = 5*4*3*2*1 = 120",
 				"factorial(171) = Infinity"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("root", new Parameter[]{
 			new Parameter<>("n", DefaultClasses.NUMBER, true, null),
@@ -856,7 +869,7 @@ public class DefaultFunctions {
 				"root(4, 16) = 2",
 				"root(-4, 16) = 0.5 # same as 16^(-1/4)"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("permutations", new Parameter[]{
 			new Parameter<>("options", DefaultClasses.NUMBER, true, null),
@@ -901,7 +914,7 @@ public class DefaultFunctions {
 				"permutations(10, 4) = 5040",
 				"permutations(size of {some list::*}, 2)"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("combinations", new Parameter[]{
 				new Parameter<>("options", DefaultClasses.NUMBER, true, null),
@@ -954,7 +967,7 @@ public class DefaultFunctions {
 				"combinations(5, 3) = 10",
 				"combinations(size of {some list::*}, 2)"
 			)
-			.since("INSERT VERSION");
+			.since("2.11");
 
 	}
 

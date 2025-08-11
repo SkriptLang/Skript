@@ -456,6 +456,10 @@ public class FlatFileStorage extends VariablesStorage {
 	 */
 	@SuppressWarnings("unchecked")
 	private void save(PrintWriter pw, String parent, TreeMap<String, Object> map) {
+		if (parent.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
+			// Skip ephemeral variables
+			return;
+
 		// Iterate over all children
 		for (Entry<String, Object> childEntry : map.entrySet()) {
 			Object childNode = childEntry.getValue();
@@ -470,6 +474,10 @@ public class FlatFileStorage extends VariablesStorage {
 			} else {
 				// Remove variable separator if needed
 				String name = childKey == null ? parent.substring(0, parent.length() - Variable.SEPARATOR.length()) : parent + childKey;
+
+				if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
+					// Skip ephemeral variables
+					continue;
 
 				try {
 					// Loop over storages to make sure this variable is ours to store
@@ -530,8 +538,17 @@ public class FlatFileStorage extends VariablesStorage {
 
 	/**
 	 * A regex pattern of a line in a CSV file.
+	 * <ul>
+	 * <li>{@code (?<=^|,)}: assert that the match is preceded by the start of the line or a comma</li>
+	 * <li>{@code (?:([^",]*)|"((?:[^"]+|"")*)")}: match either a quoted or unquoted value</li>
+	 * <ul>
+	 * 	<li>- {@code ([^",]*)}: match an unquoted value</li>
+	 * 	<li>- {@code "((?:[^"]+|"")*)"}: match a quoted value</li>
+	 * </ul>
+	 * <li>{@code (?:,|$)}: match either a comma or the end of the line</li>
+	 * </ul>
 	 */
-	private static final Pattern CSV_LINE_PATTERN = Pattern.compile("(?<=^|,)\\s*([^\",]*|\"([^\"]|\"\")*\")\\s*(,|$)");
+	private static final Pattern CSV_LINE_PATTERN = Pattern.compile("(?<=^|,)\\s*(?:([^\",]*)|\"((?:[^\"]+|\"\")*)\")\\s*(?:,|$)");
 
 	/**
 	 * Splits the given CSV line into its values.
@@ -550,14 +567,15 @@ public class FlatFileStorage extends VariablesStorage {
 
 		while (matcher.find()) {
 			if (lastEnd != matcher.start())
-				return null; // other stuff inbetween finds
+				return null; // other stuff in between finds
 
-			String value = matcher.group(1);
-			if (value.startsWith("\""))
-				// Unescape value
-				result.add(value.substring(1, value.length() - 1).replace("\"\"", "\""));
-			else
-				result.add(value.trim());
+			if (matcher.group(1) != null) {
+				// unquoted, leave as is
+				result.add(matcher.group(1).trim());
+			} else {
+				// quoted, remove quotes
+				result.add(matcher.group(2).replace("\"\"", "\""));
+			}
 
 			lastEnd = matcher.end();
 		}

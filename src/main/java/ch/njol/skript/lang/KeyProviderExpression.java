@@ -2,13 +2,16 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
 
 /**
  * Represents an expression that is able to return a set of keys linked to its values.
  * This can be used to return index-linked values to store in a list variable,
- * using the {@link ChangeMode#SET} {@link Changer}.
+ * using the {@link ChangeMode#SET} {@link Changer} or passed to a function argument.
  * An expression can provide a set of keys to use, rather than numerical indices.
  * <br/>
  * Index-linking is not (currently) used with other change modes.
@@ -18,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
  * <ul>
  *     <li>Neither {@link #getArrayKeys(Event)} nor {@link #getAllKeys(Event)} should ever be called without
  *     a corresponding {@link #getArray(Event)} or {@link #getAll(Event)} call.</li>
+ *     <li>{@link #getArrayKeys(Event)} and {@link #getAllKeys(Event)} should only be called iff {@link #canReturnKeys()}
+ *     returns {@code true}.</li>
  *     <li>A caller may ask only for values and does not have to invoke either {@link #getArrayKeys(Event)} or
  *     {@link #getAllKeys(Event)}.</li>
  *     <li>{@link #getArrayKeys(Event)} might be called after the corresponding {@link #getArray(Event)}</li>
@@ -64,6 +69,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see Expression
  * @see KeyReceiverExpression
+ * @see KeyedValue
  */
 public interface KeyProviderExpression<T> extends Expression<T> {
 
@@ -71,7 +77,8 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * A set of keys, matching the length and order of the immediately-previous
 	 * {@link #getArray(Event)} values array.
 	 * <br/>
-	 * This should <b>only</b> be called immediately after a {@link #getArray(Event)} invocation.
+	 * This should <b>only</b> be called immediately after a {@link #getArray(Event)} invocation,
+	 * and iff {@link #canReturnKeys()} returns {@code true}.
 	 * If it is called without a matching values request (or after a delay) then the behaviour
 	 * is undefined, in which case:
 	 * <ul>
@@ -83,6 +90,7 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * @param event The event context
 	 * @return A set of keys, of the same length as {@link #getArray(Event)}
 	 * @throws IllegalStateException If this was not called directly after a {@link #getArray(Event)} call
+	 * or if {@link #canReturnKeys()} returns {@code false}
 	 */
 	@NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException;
 
@@ -90,7 +98,8 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * A set of keys, matching the length and order of the immediately-previous
 	 * {@link #getAll(Event)} values array.
 	 * <br/>
-	 * This should <b>only</b> be called immediately after a {@link #getAll(Event)} invocation.
+	 * This should <b>only</b> be called immediately after a {@link #getAll(Event)} invocation,
+	 * and iff {@link #canReturnKeys()} returns {@code true}.
 	 * If it is called without a matching values request (or after a delay) then the behaviour
 	 * is undefined, in which case:
 	 * <ul>
@@ -102,9 +111,22 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * @param event The event context
 	 * @return A set of keys, of the same length as {@link #getAll(Event)}
 	 * @throws IllegalStateException If this was not called directly after a {@link #getAll(Event)} call
+	 * or if {@link #canReturnKeys()} returns {@code false}
 	 */
 	default @NotNull String @NotNull [] getAllKeys(Event event) {
 		return this.getArrayKeys(event);
+	}
+
+	/**
+	 * Returns an iterator over the keyed values of this expression.
+	 * <br/>
+	 * This should <b>only</b> be called iff {@link #canReturnKeys()} returns {@code true}.
+	 *
+	 * @param event The event context
+	 * @return An iterator over the key-value pairs of this expression
+	 */
+	default Iterator<KeyedValue<T>> keyedIterator(Event event) {
+		return new ArrayIterator<>(KeyedValue.zip(getArray(event), getArrayKeys(event)));
 	}
 
 	/**
@@ -116,13 +138,64 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	}
 
 	/**
-	 * While all keyed expressions <i>offer</i> their keys,
+	 * Returns whether this expression can return keys.
+	 * <br/>
+	 * If this returns false, then {@link #getArrayKeys(Event)} and {@link #getAllKeys(Event)} should never be called.
+	 *
+	 * @return Whether this expression can return keys
+	 */
+	default boolean canReturnKeys() {
+		return true;
+	}
+
+	/**
+	 * While all keyed expressions may <i>offer</i> their keys,
 	 * some may prefer that they are not used unless strictly required (e.g. variables).
 	 *
 	 * @return Whether the caller is recommended to ask for keys after asking for values
 	 */
 	default boolean areKeysRecommended() {
 		return true;
+	}
+
+	@Override
+	default boolean isLoopOf(String input) {
+		return canReturnKeys() && isIndexLoop(input);
+	}
+
+
+	/**
+	 * Checks whether the 'loop-...' expression should match this loop's index,
+	 * e.g. loop-index matches the index of a loop that iterates over a list variable.
+	 *
+	 * @param input the input to check
+	 * @return true if the input matches the index loop, false otherwise
+	 */
+	default boolean isIndexLoop(String input) {
+		return input.equalsIgnoreCase("index");
+	}
+
+	/**
+	 * Checks if the given expression can return keys.
+	 *
+	 * @param expression the expression to check
+	 * @return true if the expression can return keys, false otherwise
+	 * @see #canReturnKeys()
+	 */
+	static boolean canReturnKeys(Expression<?> expression) {
+		return expression instanceof KeyProviderExpression<?> provider && provider.canReturnKeys();
+	}
+
+	/**
+	 * Checks if the given expression can return keys and whether it is recommended to use them.
+	 *
+	 * @param expression the expression to check
+	 * @return true if the expression can return keys, and it is recommended to use them, false otherwise
+	 * @see #areKeysRecommended()
+	 * @see #canReturnKeys()
+	 */
+	static boolean areKeysRecommended(Expression<?> expression) {
+		return canReturnKeys(expression) && ((KeyProviderExpression<?>) expression).areKeysRecommended();
 	}
 
 }

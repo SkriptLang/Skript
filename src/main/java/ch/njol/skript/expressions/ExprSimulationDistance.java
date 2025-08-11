@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 	"clear the simulation distance of world \"world\""
 })
 @RequiredPlugins("Paper (change for players), Paper 1.21+ (change for worlds)")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprSimulationDistance extends SimplePropertyExpression<Object, Integer> {
 
 	private static final boolean SUPPORTS_PLAYER = Skript.methodExists(Player.class, "getSimulationDistance");

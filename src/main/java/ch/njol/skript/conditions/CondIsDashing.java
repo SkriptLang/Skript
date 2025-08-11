@@ -14,7 +14,7 @@ import org.bukkit.entity.LivingEntity;
 	"if last spawned camel is dashing:",
 		"\tkill last spawned camel"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondIsDashing extends PropertyCondition<LivingEntity> {
 
 	static {

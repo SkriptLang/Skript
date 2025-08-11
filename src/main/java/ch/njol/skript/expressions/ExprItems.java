@@ -27,7 +27,7 @@ import java.util.stream.StreamSupport;
 @Name("Items")
 @Description("Items or blocks of a specific type, useful for looping.")
 @Examples({
-		"loop items of type ore and log:",
+		"loop tag values of tag \"diamond_ores\" and tag values of tag \"oak_logs\":",
 		"\tblock contains loop-item",
 		"\tmessage \"Theres at least one %loop-item% in this block\"",
 		"drop all blocks at the player # drops one of every block at the player"

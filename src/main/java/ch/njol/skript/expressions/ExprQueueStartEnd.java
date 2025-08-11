@@ -8,10 +8,10 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import ch.njol.skript.registrations.experiments.QueueExperimentSyntax;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import java.util.Arrays;
 	broadcast the first element of {queue} # hello
 	# queue is now empty""")
 @Since("2.10 (experimental)")
-public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> {
+public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> implements QueueExperimentSyntax {
 
 	static {
 		register(ExprQueueStartEnd.class, Object.class, "(:start|end)", "queue");
@@ -42,8 +42,6 @@ public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Obj
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
-		if (!this.getParser().hasExperiment(Feature.QUEUES))
-			return false;
 		this.start = result.hasTag("start");
 		return super.init(expressions, pattern, delayed, result);
 	}

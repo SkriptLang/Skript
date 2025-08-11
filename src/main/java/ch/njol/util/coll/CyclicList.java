@@ -1,19 +1,18 @@
 package ch.njol.util.coll;
 
+import ch.njol.util.Math2;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.Collection;
-
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.util.Math2;
 
 /**
  * A list with fixed size that overrides the oldest elements when new elements are added and no more space is available.
  * 
  * @deprecated unused
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public final class CyclicList<E> extends AbstractList<E> {
 	
 	private final Object[] items;
