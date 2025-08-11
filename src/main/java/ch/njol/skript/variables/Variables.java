@@ -887,6 +887,8 @@ public class Variables {
 	 * @param value the value of the variable.
 	 */
 	private static void saveVariableChange(String name, @Nullable Object value) {
+		if (name.startsWith(Variable.EPHEMERAL_VARIABLE_TOKEN))
+			return;
 		saveQueue.add(serialize(name, value));
 	}
 

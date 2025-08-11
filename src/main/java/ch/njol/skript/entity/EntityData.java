@@ -6,18 +6,31 @@ import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.*;
+import ch.njol.skript.localization.Adjective;
+import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
+import ch.njol.skript.localization.LanguageChangeListener;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.RegionAccessor;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -33,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -44,22 +58,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * From the class header: "API methods which use this consumer will be remapped to Java's consumer at runtime, resulting in an error."
 	 * But in 1.13-1.16 the only way to use a consumer was World#spawn(Location, Class, org.bukkit.util.Consumer).
 	 */
-	@Nullable
-	protected static Method WORLD_1_13_CONSUMER_METHOD;
-	protected static final boolean WORLD_1_13_CONSUMER = Skript.methodExists(World.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
-
-	@Nullable
-	protected static Method WORLD_1_17_CONSUMER_METHOD;
+	protected static @Nullable Method WORLD_1_17_CONSUMER_METHOD;
 	protected static boolean WORLD_1_17_CONSUMER;
 
 	static {
 		try {
-			if (WORLD_1_13_CONSUMER) {
-				WORLD_1_13_CONSUMER_METHOD = World.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
-			} else if (Skript.classExists("org.bukkit.RegionAccessor")) {
-				if (WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class))
-					WORLD_1_17_CONSUMER_METHOD = RegionAccessor.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
-			}
+			if (WORLD_1_17_CONSUMER = Skript.methodExists(RegionAccessor.class, "spawn", Location.class, Class.class, org.bukkit.util.Consumer.class))
+				WORLD_1_17_CONSUMER_METHOD = RegionAccessor.class.getDeclaredMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
 		} catch (NoSuchMethodException | SecurityException ignored) { /* We already checked if the method exists */ }
 	}
 
@@ -77,10 +82,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	public static Serializer<EntityData> serializer = new Serializer<EntityData>() {
 		@Override
-		public Fields serialize(final EntityData o) throws NotSerializableException {
-			final Fields f = o.serialize();
-			f.putObject("codeName", o.info.codeName);
-			return f;
+		public Fields serialize(EntityData entityData) throws NotSerializableException {
+			Fields fields = entityData.serialize();
+			fields.putObject("codeName", entityData.info.codeName);
+			return fields;
 		}
 
 		@Override
@@ -89,25 +94,23 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 
 		@Override
-		public void deserialize(final EntityData o, final Fields f) throws StreamCorruptedException {
+		public void deserialize(EntityData entityData, Fields fields) throws StreamCorruptedException {
 			assert false;
 		}
 
 		@Override
-		protected EntityData deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
-			final String codeName = fields.getAndRemoveObject("codeName", String.class);
+		protected EntityData deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+			String codeName = fields.getAndRemoveObject("codeName", String.class);
 			if (codeName == null)
 				throw new StreamCorruptedException();
-			final EntityDataInfo<?> info = getInfo(codeName);
+			EntityDataInfo<?> info = getInfo(codeName);
 			if (info == null)
 				throw new StreamCorruptedException("Invalid EntityData code name " + codeName);
 			try {
-				final EntityData<?> d = info.getElementClass().newInstance();
-				d.deserialize(fields);
-				return d;
-			} catch (final InstantiationException e) {
-				Skript.exception(e);
-			} catch (final IllegalAccessException e) {
+				EntityData<?> entityData = info.getElementClass().newInstance();
+				entityData.deserialize(fields);
+				return entityData;
+			} catch (InstantiationException | IllegalAccessException e) {
 				Skript.exception(e);
 			}
 			throw new StreamCorruptedException();
@@ -116,25 +119,24 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 //		return getInfo((Class<? extends EntityData<?>>) d.getClass()).codeName + ":" + d.serialize();
 		@SuppressWarnings("null")
 		@Override
-		@Deprecated
-		@Nullable
-		public EntityData deserialize(final String s) {
-			final String[] split = s.split(":", 2);
+		@Deprecated(since = "2.3.0", forRemoval = true)
+		public @Nullable EntityData deserialize(String string) {
+			String[] split = string.split(":", 2);
 			if (split.length != 2)
 				return null;
-			final EntityDataInfo<?> i = getInfo(split[0]);
-			if (i == null)
+			EntityDataInfo<?> entityDataInfo = getInfo(split[0]);
+			if (entityDataInfo == null)
 				return null;
-			EntityData<?> d;
+			EntityData<?> entityData;
 			try {
-				d = i.getElementClass().newInstance();
-			} catch (final Exception e) {
-				Skript.exception(e, "Can't create an instance of " + i.getElementClass().getCanonicalName());
+				entityData = entityDataInfo.getElementClass().newInstance();
+			} catch (Exception e) {
+				Skript.exception(e, "Can't create an instance of " + entityDataInfo.getElementClass().getCanonicalName());
 				return null;
 			}
-			if (!d.deserialize(split[1]))
+			if (!entityData.deserialize(split[1]))
 				return null;
-			return d;
+			return entityData;
 		}
 
 		@Override
@@ -157,21 +159,20 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				.supplier(ALL_ENTITY_DATAS::iterator)
 				.parser(new Parser<EntityData>() {
 					@Override
-					public String toString(final EntityData d, final int flags) {
-						return d.toString(flags);
+					public String toString(EntityData entityData, int flags) {
+						return entityData.toString(flags);
 					}
 
 					@Override
-					@Nullable
-					public EntityData parse(final String s, final ParseContext context) {
-						return EntityData.parse(s);
+					public @Nullable EntityData parse(String string, ParseContext context) {
+						return EntityData.parse(string);
 					}
 
 					@Override
-					public String toVariableNameString(final EntityData o) {
-						return "entitydata:" + o.toString();
+					public String toVariableNameString(EntityData entityData) {
+						return "entitydata:" + entityData.toString();
 					}
-                }).serializer(serializer));
+				}).serializer(serializer));
 	}
 
 	public static void onRegistrationStop() {
@@ -193,15 +194,28 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final String codeName;
 		final String[] codeNames;
 		final int defaultName;
+		final @Nullable EntityType entityType;
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
 
-		public EntityDataInfo(final Class<T> dataClass, final String codeName, final String[] codeNames, final int defaultName, final Class<? extends Entity> entityClass) throws IllegalArgumentException {
+		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
+			this(dataClass, codeName, codeNames, defaultName, EntityUtils.toBukkitEntityType(entityClass), entityClass);
+		}
+
+		public EntityDataInfo(
+			Class<T> dataClass,
+			String codeName,
+			String[] codeNames,
+			int defaultName,
+			@Nullable EntityType entityType,
+			Class<? extends Entity> entityClass
+		) {
 			super(new String[codeNames.length], dataClass, dataClass.getName());
 			assert codeName != null && entityClass != null && codeNames.length > 0;
 			this.codeName = codeName;
 			this.codeNames = codeNames;
 			this.defaultName = defaultName;
+			this.entityType = entityType;
 			this.entityClass = entityClass;
 			this.names = new Noun[codeNames.length];
 			for (int i = 0; i < codeNames.length; i++) {
@@ -220,21 +234,17 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + codeName.hashCode();
-			return result;
+			return Objects.hashCode(codeName);
 		}
 
 		@Override
-		public boolean equals(final @Nullable Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj)
 				return true;
 			if (obj == null)
 				return false;
-			if (!(obj instanceof EntityDataInfo))
+			if (!(obj instanceof EntityDataInfo other))
 				return false;
-			final EntityDataInfo other = (EntityDataInfo) obj;
 			if (!codeName.equals(other.codeName))
 				return false;
 			assert Arrays.equals(codeNames, other.codeNames);
@@ -245,20 +255,33 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	}
 
-	public static <E extends Entity, T extends EntityData<E>> void register(final Class<T> dataClass, final String name, final Class<E> entityClass, final String codeName) throws IllegalArgumentException {
+	public static <E extends Entity, T extends EntityData<E>> void register(
+		Class<T> dataClass,
+		String name,
+		Class<E> entityClass,
+		String codeName
+	) throws IllegalArgumentException {
 		register(dataClass, name, entityClass, 0, codeName);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <E extends Entity, T extends EntityData<E>> void register(final Class<T> dataClass, final String name, final Class<E> entityClass, final int defaultName, final String... codeNames) throws IllegalArgumentException {
-		final EntityDataInfo<T> info = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityClass);
+	public static <E extends Entity, T extends EntityData<E>> void register(
+		Class<T> dataClass,
+		String name,
+		Class<E> entityClass,
+		int defaultName,
+		String... codeNames
+	) throws IllegalArgumentException {
+		EntityType entityType = EntityUtils.toBukkitEntityType(entityClass);
+		EntityDataInfo<T> entityDataInfo = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityType, entityClass);
 		for (int i = 0; i < infos.size(); i++) {
 			if (infos.get(i).entityClass.isAssignableFrom(entityClass)) {
-				infos.add(i, (EntityDataInfo<EntityData<?>>) info);
+				//noinspection unchecked
+				infos.add(i, (EntityDataInfo<EntityData<?>>) entityDataInfo);
 				return;
 			}
 		}
-		infos.add((EntityDataInfo<EntityData<?>>) info);
+		//noinspection unchecked
+		infos.add((EntityDataInfo<EntityData<?>>) entityDataInfo);
 	}
 
 	transient EntityDataInfo<?> info;
@@ -267,50 +290,109 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	private Kleenean baby = Kleenean.UNKNOWN;
 
 	public EntityData() {
-		for (final EntityDataInfo<?> i : infos) {
-			if (getClass() == i.getElementClass()) {
-				info = i;
-				matchedPattern = i.defaultName;
+		for (EntityDataInfo<?> info : infos) {
+			if (getClass() == info.getElementClass()) {
+				this.info = info;
+				matchedPattern = info.defaultName;
 				return;
 			}
 		}
 		throw new IllegalStateException();
 	}
 
-	@SuppressWarnings("null")
+	/**
+	 * Performs initial setup for this {@link EntityData} before passing control to the more specific {@link #init(Expression[], int, Kleenean, ParseResult)}.
+	 * <p>
+	 *     This method handles common behaviors such as tracking plurality (e.g. "a pig" vs "all pigs")
+	 *     and entity age (e.g. "baby zombie") based on the {@link ParseResult}'s marker value.
+	 * </p>
+	 *
+	 * {@inheritDoc}
+	 */
 	@Override
-	public final boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public final boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.matchedPattern = matchedPattern;
-		// plural bits (0x3): 0 = singular, 1 = plural, 2 = unknown
-		final int pluralBits = parseResult.mark & 0x3;
-		this.plural = pluralBits == 1 ? Kleenean.TRUE : pluralBits == 0 ? Kleenean.FALSE : Kleenean.UNKNOWN;
-		// age bits (0xC): 0 = unknown, 4 = baby, 8 = adult
-		final int ageBits = parseResult.mark & 0xC;
-		this.baby = ageBits == 4 ? Kleenean.TRUE : ageBits == 8 ? Kleenean.FALSE : Kleenean.UNKNOWN;
+		this.plural = parseResult.hasTag("unknown_plural") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("plural"));
+		this.baby = parseResult.hasTag("unknown_age") ? Kleenean.UNKNOWN : Kleenean.get(parseResult.hasTag("baby"));
 		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedPattern, parseResult);
 	}
 
-	protected abstract boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult);
+	/**
+	 * Initializes this {@link EntityData} from the matched pattern and its associated literals.
+	 * <p>
+	 *     This is used when parsing entity data from user-written patterns such as "a saddled pig".
+	 * </p>
+	 * @param exprs An array of {@link Literal} expressions from the matched pattern, in the order they appear.
+	 *              If an optional value was omitted by the user, it will still be present in the array
+	 *              with a value of {@code null}.
+	 * @param matchedPattern The index of the pattern which matched.
+	 * @param parseResult Additional information from the parser.
+	 * @return {@code true} if initialization was successful, otherwise {@code false}.
+	 */
+	protected abstract boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult);
 
 	/**
-	 * @param c An entity's class, e.g. Player
-	 * @param e An actual entity, or null to get an entity data for an entity class
-	 * @return Whether initialisation was successful
+	 * Initializes this {@link EntityData} from either an entity class or a specific {@link Entity}.
+	 * <p>
+	 *     Example usage:
+	 *     	<pre>
+	 *     	    <code>
+	 *     	        spawn a pig at location(0, 0, 0):
+	 *     	        	set {_entity} to event-entity
+	 *     	        spawn {_entity} at location(0, 0, 0)
+	 *     	    </code>
+	 *     	</pre>
+	 * </p>
+	 * @param entityClass An entity's class, e.g. Player
+	 * @param entity An actual entity, or null to get an entity data for an entity class
+	 * @return {@code true} if initialization was successful, otherwise {@code false}.
 	 */
-	protected abstract boolean init(@Nullable Class<? extends E> c, @Nullable E e);
+	protected abstract boolean init(@Nullable Class<? extends E> entityClass, @Nullable E entity);
 
+	/**
+	 * Applies this {@link EntityData} to a newly spawned {@link Entity}.
+	 * <p>
+	 *     This is used during entity spawning to set additional data, such as a saddled pig.
+	 * </p>
+	 * @param entity The spawned entity.
+	 */
 	public abstract void set(E entity);
 
+	/**
+	 * Determines whether the given {@link Entity} matches this {@link EntityData} data.
+	 * <p>
+	 *     For example:
+	 *     <pre>
+	 *         <code>
+	 *             spawn a pig at location(0, 0, 0):
+	 *             		set {_entity} to event-entity
+	 *             	if {_entity} is a pig:          # will pass
+	 *             	if {_entity} is a saddled pig:  # will not pass
+	 *         </code>
+	 *     </pre>
+	 * </p>
+	 * @param entity The {@link Entity} to match.
+	 * @return {@code true} if the entity matches, otherwise {@code false}.
+	 */
 	protected abstract boolean match(E entity);
 
+	/**
+	 * Returns the {@link Class} of the {@link Entity} that this {@link EntityData} represents or handles.
+	 *
+	 * @return The entity's {@link Class}, such as {@code Pig.class}.
+	 */
 	public abstract Class<? extends E> getType();
 
 	/**
-	 * Returns the super type of this entity data, e.g. 'wolf' for 'angry wolf'.
+	 * Returns a more general version of this {@link EntityData} with specific data removed.
+	 * <p>
+	 *     For example, calling this on {@code "a saddled pig"} would return {@code "a pig"}.
+	 *     This is typically used to obtain the base entity type without any modifiers or traits.
+	 * </p>
 	 *
-	 * @return The supertype of this entity data. Must not be null.
+	 * @return A generalized {@link EntityData} representing the base entity type.
 	 */
-	public abstract EntityData getSuperType();
+	public abstract @NotNull EntityData getSuperType();
 
 	@Override
 	public final String toString() {
@@ -322,30 +404,41 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return info.names[matchedPattern];
 	}
 
-	@Nullable
-	protected Adjective getAgeAdjective() {
+	protected @Nullable Adjective getAgeAdjective() {
 		return baby.isTrue() ? m_baby : baby.isFalse() ? m_adult : null;
 	}
 
 	@SuppressWarnings("null")
-	public String toString(final int flags) {
-		final Noun name = info.names[matchedPattern];
+	public String toString(int flags) {
+		Noun name = info.names[matchedPattern];
 		return baby.isTrue() ? m_baby.toString(name, flags) : baby.isFalse() ? m_adult.toString(name, flags) : name.toString(flags);
 	}
 
+	/**
+	 * @return {@link Kleenean} determining whether this {@link EntityData} is representing plurality.
+	 */
 	public Kleenean isPlural() {
 		return plural;
 	}
 
+	/**
+	 * @return {@link Kleenean} determining whether this {@link EntityData} is representing baby type.
+	 */
 	public Kleenean isBaby() {
 		return baby;
 	}
 
+	/**
+	 * Internal method used by {@link #hashCode()} to include subclass-specific fields in the hash calculation
+	 * for this {@link EntityData}.
+	 *
+	 * @return A hash code representing subclass-specific data.
+	 */
 	protected abstract int hashCode_i();
 
 	@Override
 	public final int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = prime * result + baby.hashCode();
 		result = prime * result + plural.hashCode();
@@ -355,17 +448,23 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return result;
 	}
 
+	/**
+	 * Internal helper for {@link #equals(Object)} to compare the specific data
+	 * of this {@link EntityData} with another.
+	 *
+	 * @param obj The {@link EntityData} to compare with.
+	 * @return {@code true} if the data is considered equal, otherwise {@code false}.
+	 */
 	protected abstract boolean equals_i(EntityData<?> obj);
 
 	@Override
-	public final boolean equals(final @Nullable Object obj) {
+	public final boolean equals(@Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof EntityData))
+		if (!(obj instanceof EntityData other))
 			return false;
-		final EntityData other = (EntityData) obj;
 		if (baby != other.baby)
 			return false;
 		if (plural != other.plural)
@@ -377,19 +476,31 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return equals_i(other);
 	}
 
-	public static EntityDataInfo<?> getInfo(final Class<? extends EntityData<?>> c) {
-		for (final EntityDataInfo<?> i : infos) {
-			if (i.getElementClass() == c)
-				return i;
+	/**
+	 * Retrieves the {@link EntityDataInfo} registered for the given {@code entityDataClass}.
+	 *
+	 * @param entityDataClass The {@link EntityData} class to look up.
+	 * @return The corresponding {@link EntityDataInfo} instance.
+	 * @throws SkriptAPIException if the class has not been registered.
+	 */
+	public static EntityDataInfo<?> getInfo(Class<? extends EntityData<?>> entityDataClass) {
+		for (EntityDataInfo<?> info : infos) {
+			if (info.getElementClass() == entityDataClass)
+				return info;
 		}
-		throw new SkriptAPIException("Unregistered EntityData class " + c.getName());
+		throw new SkriptAPIException("Unregistered EntityData class " + entityDataClass.getName());
 	}
 
-	@Nullable
-	public static EntityDataInfo<?> getInfo(final String codeName) {
-		for (final EntityDataInfo<?> i : infos) {
-			if (i.codeName.equals(codeName))
-				return i;
+	/**
+	 * Retrieves the {@link EntityDataInfo} associated with the given {@code codeName}.
+	 *
+	 * @param codeName The code name used to register the entity data.
+	 * @return The corresponding {@link EntityDataInfo}, or {@code null} if not found.
+	 */
+	public static @Nullable EntityDataInfo<?> getInfo(String codeName) {
+		for (EntityDataInfo<?> info : infos) {
+			if (info.codeName.equals(codeName))
+				return info;
 		}
 		return null;
 	}
@@ -397,26 +508,24 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	/**
 	 * Prints errors.
 	 *
-	 * @param s String with optional indefinite article at the beginning
+	 * @param string String with optional indefinite article at the beginning
 	 * @return The parsed entity data
 	 */
 	@SuppressWarnings("null")
-	@Nullable
-	public static EntityData<?> parse(String s) {
+	public static @Nullable EntityData<?> parse(String string) {
 		Iterator<EntityDataInfo<EntityData<?>>> it = new ArrayList<>(infos).iterator();
-		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(s), it, null);
+		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(string), it, null);
 	}
 
 	/**
 	 * Prints errors.
 	 *
-	 * @param s
+	 * @param string
 	 * @return The parsed entity data
 	 */
-	@Nullable
-	public static EntityData<?> parseWithoutIndefiniteArticle(String s) {
+	public static @Nullable EntityData<?> parseWithoutIndefiniteArticle(String string) {
 		Iterator<EntityDataInfo<EntityData<?>>> it = new ArrayList<>(infos).iterator();
-		return SkriptParser.parseStatic(s, it, null);
+		return SkriptParser.parseStatic(string, it, null);
 	}
 
 	private E apply(E entity) {
@@ -430,23 +539,25 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	/**
-	 * Check if this entity type can spawn.
-	 * <p>Some entity types may be restricted by experimental datapacks.</p>
+	 * Checks whether this entity type is allowed to spawn in the given {@link World}.
+	 * <p>
+	 *     Some entity types may be restricted from spawning due to experimental datapacks.
+	 * </p>
 	 *
-	 * @param world World to check if entity can spawn in
-	 * @return True if entity can spawn else false
+	 * @param world The world to check spawning permissions in.
+	 * @return {@code true} if the entity can be spawned in the given world, or in general if world is {@code null}; otherwise {@code false}.
 	 */
-	@SuppressWarnings({"ConstantValue", "removal"})
+	@SuppressWarnings({"removal"})
 	public boolean canSpawn(@Nullable World world) {
 		if (world == null)
 			return false;
-		EntityType bukkitEntityType = EntityUtils.toBukkitEntityType(this);
+		EntityType bukkitEntityType = info.entityType != null ? info.entityType : EntityUtils.toBukkitEntityType(this);
 		if (bukkitEntityType == null)
 			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
 			// Check if the entity can actually be spawned
 			// Some entity types may be restricted by experimental datapacks
-            return bukkitEntityType.isEnabledByFeature(world) && bukkitEntityType.isSpawnable();
+			return bukkitEntityType.isEnabledByFeature(world) && bukkitEntityType.isSpawnable();
 		}
 		return bukkitEntityType.isSpawnable();
 	}
@@ -457,8 +568,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @return The Entity object that is spawned.
 	 */
-	@Nullable
-	public final E spawn(Location location) {
+	public final @Nullable E spawn(Location location) {
 		return spawn(location, (Consumer<E>) null);
 	}
 
@@ -473,10 +583,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
 	 */
-	@Nullable
-	@Deprecated
+	@Deprecated(since = "2.8.0", forRemoval = true)
 	@SuppressWarnings("deprecation")
-	public E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
+	public @Nullable E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
 		return spawn(location, (Consumer<E>) e -> consumer.accept(e));
 	}
 
@@ -488,8 +597,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
 	 */
-	@Nullable
-	public E spawn(Location location, @Nullable Consumer<E> consumer) {
+	public @Nullable E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
 		World world = location.getWorld();
 		if (!canSpawn(world))
@@ -502,13 +610,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	@SuppressWarnings("unchecked")
-	public E[] getAll(final World... worlds) {
+	public E[] getAll(World... worlds) {
 		assert worlds != null && worlds.length > 0 : Arrays.toString(worlds);
-		final List<E> list = new ArrayList<>();
-		for (final World w : worlds) {
-			for (final E e : w.getEntitiesByClass(getType()))
-				if (match(e))
-					list.add(e);
+		List<E> list = new ArrayList<>();
+		for (World world : worlds) {
+			for (E entity : world.getEntitiesByClass(getType())) {
+				if (match(entity))
+					list.add(entity);
+			}
 		}
 		return list.toArray((E[]) Array.newInstance(getType(), list.size()));
 	}
@@ -520,26 +629,26 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @return All entities of this type in the given worlds
 	 */
 	@SuppressWarnings({"null", "unchecked"})
-	public static <E extends Entity> E[] getAll(final EntityData<?>[] types, final Class<E> type, @Nullable World[] worlds) {
+	public static <E extends Entity> E[] getAll(EntityData<?>[] types, Class<E> type, World @Nullable [] worlds) {
 		assert types.length > 0;
 		if (type == Player.class) {
 			if (worlds == null)
 				return (E[]) Bukkit.getOnlinePlayers().toArray(new Player[0]);
 			List<Player> list = new ArrayList<>();
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (CollectionUtils.contains(worlds, p.getWorld()))
-					list.add(p);
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				if (CollectionUtils.contains(worlds, player.getWorld()))
+					list.add(player);
 			}
 			return (E[]) list.toArray(new Player[list.size()]);
 		}
-		final List<E> list = new ArrayList<>();
+		List<E> list = new ArrayList<>();
 		if (worlds == null)
 			worlds = Bukkit.getWorlds().toArray(new World[0]);
-		for (final World w : worlds) {
-			for (final E e : w.getEntitiesByClass(type)) {
-				for (final EntityData<?> t : types) {
-					if (t.isInstance(e)) {
-						list.add(e);
+		for (World world : worlds) {
+			for (E entity : world.getEntitiesByClass(type)) {
+				for (EntityData<?> entityData : types) {
+					if (entityData.isInstance(entity)) {
+						list.add(entity);
 						break;
 					}
 				}
@@ -549,13 +658,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <E extends Entity> E[] getAll(final EntityData<?>[] types, final Class<E> type, Chunk[] chunks) {
+	public static <E extends Entity> E[] getAll(EntityData<?>[] types, Class<E> type, Chunk[] chunks) {
 		assert types.length > 0;
-		final List<E> list = new ArrayList<>();
+		List<E> list = new ArrayList<>();
 		for (Chunk chunk : chunks) {
 			for (Entity entity : chunk.getEntities()) {
-				for (EntityData<?> t : types) {
-					if (t.isInstance(entity)) {
+				for (EntityData<?> entityData : types) {
+					if (entityData.isInstance(entity)) {
 						list.add(((E) entity));
 						break;
 					}
@@ -565,63 +674,112 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return list.toArray((E[]) Array.newInstance(type, list.size()));
 	}
 
-	private static <E extends Entity> EntityData<? super E> getData(final @Nullable Class<E> c, final @Nullable E e) {
-		assert c == null ^ e == null;
-		assert c == null || c.isInterface();
-		for (final EntityDataInfo<?> info : infos) {
-			if (info.entityClass != Entity.class && (e == null ? info.entityClass.isAssignableFrom(c) : info.entityClass.isInstance(e))) {
+	/**
+	 * Internally resolves and returns an {@link EntityData} instance that best represents either
+	 * a given {@link Entity} instance or its {@link Class}.
+	 * <p>
+	 *     Only one of {@code entityClass} or {@code entity} must be non-null.
+	 *     This method looks through all registered {@link EntityDataInfo}s and selects the closest matching one
+	 *     that successfully initializes from the provided input.
+	 * </p>
+	 *
+	 * @param entityClass The class of the entity to represent, or {@code null} if using an instance.
+	 * @param entity      The entity instance to represent, of {@code null} is using a class.
+	 * @return An appropriate {@link EntityData} representing the input class or entity.
+	 * 			If no registered data matches, a {@link SimpleEntityData} is returned as fallback.
+	 */
+	private static <E extends Entity> EntityData<? super E> getData(@Nullable Class<E> entityClass, @Nullable E entity) {
+		assert entityClass == null ^ entity == null;
+		assert entityClass == null || entityClass.isInterface();
+		EntityDataInfo<?> closestInfo = null;
+		EntityData<E> closestData = null;
+		for (EntityDataInfo<?> info : infos) {
+			if (info.entityClass == Entity.class)
+				continue;
+			if (entity == null ? info.entityClass.isAssignableFrom(entityClass) : info.entityClass.isInstance(entity)) {
+				EntityData<E> entityData = null;
 				try {
-					@SuppressWarnings("unchecked")
-					final EntityData<E> d = (EntityData<E>) info.getElementClass().newInstance();
-					if (d.init(c, e))
-						return d;
-				} catch (final Exception ex) {
-					throw Skript.exception(ex);
+					//noinspection unchecked
+					entityData = (EntityData<E>) info.getElementClass().newInstance();
+				} catch (Exception ignored) {}
+				if (entityData != null && entityData.init(entityClass, entity)) {
+					if (closestInfo == null || closestInfo.entityClass.isAssignableFrom(info.entityClass)) {
+						closestInfo = info;
+						closestData = entityData;
+					}
 				}
 			}
 		}
-		if (e != null) {
-			return new SimpleEntityData(e);
-		} else {
-			assert c != null;
-			return new SimpleEntityData(c);
+		if (closestInfo == null) {
+			if (entity != null)
+				return new SimpleEntityData(entity);
+			return new SimpleEntityData(entityClass);
 		}
+		return closestData;
+	};
+
+	/**
+	 * Creates an {@link EntityData} that represents the given entity class.
+	 *
+	 * @param entityClass The class of the entity (e.g. {@code Pig.class}).
+	 * @return An {@link EntityData} representing the provided class.
+	 */
+	public static <E extends Entity> EntityData<? super E> fromClass(Class<E> entityClass) {
+		return getData(entityClass, null);
 	}
 
-	public static <E extends Entity> EntityData<? super E> fromClass(final Class<E> c) {
-		return getData(c, null);
+	/**
+	 * Creates an {@link EntityData} that represents the given entity instance.
+	 *
+	 * @param entity The entity to represent.
+	 * @return An {@link EntityData} representing the provided entity.
+	 */
+	public static <E extends Entity> EntityData<? super E> fromEntity(E entity) {
+		return getData(null, entity);
 	}
 
-	public static <E extends Entity> EntityData<? super E> fromEntity(final E e) {
-		return getData(null, e);
+	public static String toString(Entity entity) {
+		return fromEntity(entity).getSuperType().toString();
 	}
 
-	public static String toString(final Entity e) {
-		return fromEntity(e).getSuperType().toString();
+	public static String toString(Class<? extends Entity> entityClass) {
+		return fromClass(entityClass).getSuperType().toString();
 	}
 
-	public static String toString(final Class<? extends Entity> c) {
-		return fromClass(c).getSuperType().toString();
+	public static String toString(Entity entity, int flags) {
+		return fromEntity(entity).getSuperType().toString(flags);
 	}
 
-	public static String toString(final Entity e, final int flags) {
-		return fromEntity(e).getSuperType().toString(flags);
-	}
-
-	public static String toString(final Class<? extends Entity> c, final int flags) {
-		return fromClass(c).getSuperType().toString(flags);
+	public static String toString(Class<? extends Entity> entityClass, int flags) {
+		return fromClass(entityClass).getSuperType().toString(flags);
 	}
 
 	@SuppressWarnings("unchecked")
-	public final boolean isInstance(final @Nullable Entity e) {
-		if (e == null)
+	public final boolean isInstance(@Nullable Entity entity) {
+		if (entity == null)
 			return false;
-		if (!baby.isUnknown() && EntityUtils.isAgeable(e) && EntityUtils.isAdult(e) != baby.isFalse())
+		if (!baby.isUnknown() && EntityUtils.isAgeable(entity) && EntityUtils.isAdult(entity) != baby.isFalse())
 			return false;
-		return getType().isInstance(e) && match((E) e);
+		return getType().isInstance(entity) && match((E) entity);
 	}
 
-	public abstract boolean isSupertypeOf(EntityData<?> e);
+	/**
+	 * Determines whether this {@link EntityData} is a supertype of the given {@code entityData}.
+	 * <p>
+	 *     This is used to check whether the current entity data represents a broader category than another.
+	 *     For example:
+	 *     <pre>
+	 *         <code>
+	 *             if a zombie is a monster:    # passes: "monster" is a supertype of "zombie"
+	 *             if a monster is a zombie:    # fails: "zombie" is not a supertype of "monster"
+	 *         </code>
+	 *     </pre>
+	 * </p>
+	 *
+	 * @param entityData The {@link EntityData} to compare against.
+	 * @return {@code true} if this is a supertype of the given entity data, otherwise {@code false}.
+	 */
+	public abstract boolean isSupertypeOf(EntityData<?> entityData);
 
 	@Override
 	public Fields serialize() throws NotSerializableException {
@@ -629,12 +787,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	@Override
-	public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
+	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
 		fields.setFields(this);
 	}
 
-	@Deprecated
-	protected boolean deserialize(final String s) {
+	@Deprecated(since = "2.3.0", forRemoval = true)
+	protected boolean deserialize(String string) {
 		return false;
 	}
 
@@ -652,16 +810,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			if (WORLD_1_17_CONSUMER) {
 				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type,
 					(org.bukkit.util.Consumer<E>) consumer::accept);
-			} else if (WORLD_1_13_CONSUMER) {
-				return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(world, location, type,
-					(org.bukkit.util.Consumer<E>) consumer::accept);
 			}
 		} catch (InvocationTargetException | IllegalAccessException e) {
 			if (Skript.testing())
 				Skript.exception(e, "Can't spawn " + type.getName());
 			return null;
-        }
-        return world.spawn(location, type, consumer);
+		}
+		return world.spawn(location, type, consumer);
 	}
 
 	/**

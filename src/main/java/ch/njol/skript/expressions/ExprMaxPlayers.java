@@ -21,7 +21,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Max Players")
-@Description({"The count of max players. This can be changed in a <a href='events.html#server_list_ping'>server list ping</a> event only.",
+@Description({"The count of max players. This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
 		"'real max players' returns the real count of max players of the server and can be modified on Paper 1.16 or later."})
 @Examples({"on server list ping:",
 		"	set the max players count to (online players count + 1)"})
@@ -36,6 +36,7 @@ public class ExprMaxPlayers extends SimpleExpression<Integer> {
 			);
 	}
 
+	// TODO - remove these fields when Spigot support is dropped
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 	private static final boolean SET_MAX_PLAYERS_EXISTS = Skript.methodExists(Server.class, "setMaxPlayers", int.class);
 

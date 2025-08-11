@@ -1,0 +1,36 @@
+test "old custom model data":
+	set {_item} to a diamond sword with model data 1
+	assert {_item} has custom model data with "false negative for model data"
+	clear custom model data of {_item}
+	assert {_item} doesn't have custom model data with "false positive for model data"
+
+test "new custom model data" when running minecraft "1.21.4":
+	set {_item} to a diamond sword
+
+	set full model data of {_item} to 1
+	assert {_item} has custom model data with "false negative for float model data"
+	assert {_item} has custom model data floats with "false negative for specifically float model data"
+	clear full model data of {_item}
+	assert {_item} doesn't have custom model data with "false positive for float model data"
+	assert {_item} doesn't have custom model data floats with "false positive for specifically float model data"
+
+	set full model data of {_item} to "1"
+	assert {_item} has custom model data with "false negative for string model data"
+	assert {_item} has custom model data strings with "false negative for specifically string model data"
+	clear full model data of {_item}
+	assert {_item} doesn't have custom model data with "false positive for string model data"
+	assert {_item} doesn't have custom model data strings with "false positive for specifically string model data"
+
+	set full model data of {_item} to true
+	assert {_item} has custom model data with "false negative for boolean model data"
+	assert {_item} has custom model data flags with "false negative for specifically boolean model data"
+	clear full model data of {_item}
+	assert {_item} doesn't have custom model data with "false positive for boolean model data"
+	assert {_item} doesn't have custom model data flags with "false positive for specifically boolean model data"
+
+	set full model data of {_item} to rgb(1,1,1)
+	assert {_item} has custom model data with "false negative for color model data"
+	assert {_item} has custom model data colors with "false negative for specifically color model data"
+	clear full model data of {_item}
+	assert {_item} doesn't have custom model data with "false positive for color model data"
+	assert {_item} doesn't have custom model data colors with "false positive for specifically color model data"

@@ -263,3 +263,25 @@ test "arithmetic return types":
 	# however, we can get more specific return types by returning the superclass of the return types of all Object-Number operations
 	set {_location} to location(0,10,0,"world")
 	assert (y-coordinate of {_location} - 4) is 6 with "y-coordinate of {_location} - 4 is not 6 (got '%y-coordinate of {_location} - 4%')"
+
+test "arithmetic type switcheroo":
+	# operation info swap test
+	set {_a} to 1
+	set {_b} to 1
+	loop 2 times:
+		set {_x} to {_a} * {_b}
+		assert {_x} is set with "Failed to get a result"
+		set {_b} to a random vector
+
+	# operation info trick test
+	set {_a} to "Hello"
+	loop 2 times:
+		set {_x} to {_a} + {_b}
+		set {_b} to 5
+
+local function arithmetic_xp() returns experience:
+	return 5 xp
+
+test "arithmetic parse time conversion":
+	set {_x} to arithmetic_xp() + 5
+	assert {_x} is 10 with "failed to calculate experience + number"

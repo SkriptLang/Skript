@@ -1,75 +1,116 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.function.Function;
+
 @Name("Push")
-@Description("Push entities around.")
-@Examples({"push the player upwards",
-		"push the victim downwards at speed 0.5"})
-@Since("1.4.6")
+@Description("Push entities in a given direction or towards a specific location.")
+@Example("push the player upwards")
+@Example("push the victim downwards at speed 0.5")
+@Example("push player towards player's target at speed 2")
+@Example("pull player along vector(1,1,1) at speed 1.5")
+@Since({"1.4.6", "2.12 (push towards)"})
 public class EffPush extends Effect {
+
 	static {
-		Skript.registerEffect(EffPush.class, "(push|thrust) %entities% %direction% [(at|with) (speed|velocity|force) %-number%]");
+		Skript.registerEffect(EffPush.class,
+			"(push|thrust) %entities% [along] %direction% [(at|with) [a] (speed|velocity|force) [of] %-number%]",
+			"(push|thrust|pull) %entities% (towards|away:away from) %location% [(at|with) [a] (speed|velocity|force) [of] %-number%]");
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<Entity> entities;
-	@SuppressWarnings("null")
-	private Expression<Direction> direction;
-	@Nullable
-	private Expression<Number> speed = null;
+	private @Nullable Expression<Direction> direction;
+	private @Nullable Expression<Location> target;
+	private boolean awayFrom = false;
+	private @Nullable Expression<Number> speed = null;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<Entity>) exprs[0];
-		direction = (Expression<Direction>) exprs[1];
+		if (matchedPattern == 0) {
+			direction = (Expression<Direction>) exprs[1];
+		} else {
+			target = (Expression<Location>) exprs[1];
+			awayFrom = parseResult.hasTag("away");
+		}
 		speed = (Expression<Number>) exprs[2];
 		return true;
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		final Direction d = direction.getSingle(e);
-		if (d == null)
+	protected void execute(Event event) {
+		Number speed = this.speed != null ? this.speed.getSingle(event) : null;
+		if (this.speed != null && speed == null)
 			return;
-		final Number v = speed != null ? speed.getSingle(e) : null;
-		if (speed != null && v == null)
-			return;
-		final Entity[] ents = entities.getArray(e);
-		for (final Entity en : ents) {
-			assert en != null;
-			final Vector mod = d.getDirection(en);
-			if (v != null)
-				mod.normalize().multiply(v.doubleValue());
-			if (!(Double.isFinite(mod.getX()) && Double.isFinite(mod.getY()) && Double.isFinite(mod.getZ()))) {
+
+		Function<Entity, Vector> getDirection;
+		if (this.direction != null) {
+			// push along
+			Direction direction = this.direction.getSingle(event);
+			if (direction == null)
+				return;
+			getDirection = direction::getDirection;
+		} else {
+			// push towards
+			assert this.target != null;
+			Location target = this.target.getSingle(event);
+			if (target == null)
+				return;
+			Vector targetVector = target.toVector();
+			getDirection = entity -> {
+					Vector direction = targetVector.subtract(entity.getLocation().toVector());
+					if (awayFrom)
+						direction.multiply(-1);
+					return direction;
+				};
+		}
+
+		Entity[] entities = this.entities.getArray(event);
+		for (Entity entity : entities) {
+			Vector pushDirection = getDirection.apply(entity);
+			if (speed != null)
+				pushDirection.normalize().multiply(speed.doubleValue());
+			if (!(Double.isFinite(pushDirection.getX()) && Double.isFinite(pushDirection.getY()) && Double.isFinite(pushDirection.getZ()))) {
 				// Some component of the mod vector is not finite, so just stop
 				return;
 			}
-			en.setVelocity(en.getVelocity().add(mod)); // REMIND add NoCheatPlus exception to players
+			entity.setVelocity(entity.getVelocity().add(pushDirection));
 		}
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "push " + entities.toString(e, debug) + " " + direction.toString(e, debug) + (speed != null ? " at speed " + speed.toString(e, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		var ssb = new SyntaxStringBuilder(event, debug).append("push", entities);
+		if (direction != null) {
+			ssb.append(direction);
+		} else {
+			assert target != null;
+			if (awayFrom) {
+				ssb.append("away from", target);
+			} else {
+				ssb.append("towards", target);
+			}
+		}
+		if (speed != null)
+			ssb.append("at a speed of", speed);
+		return ssb.toString();
 	}
 	
 }

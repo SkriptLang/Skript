@@ -4,18 +4,25 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Parser;
 import ch.njol.skript.command.Argument;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
+import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.DefaultValueData;
+import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.parser.ParsingStack;
+import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.ParseLogHandler;
@@ -30,15 +37,30 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.primitives.Booleans;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -63,6 +85,8 @@ public class SkriptParser {
 	public final static int PARSE_LITERALS = 2;
 	public final static int ALL_FLAGS = PARSE_EXPRESSIONS | PARSE_LITERALS;
 	private final int flags;
+
+	public final boolean doSimplification = SkriptConfig.simplifySyntaxesOnParse.value();
 
 	public final ParseContext context;
 
@@ -142,7 +166,7 @@ public class SkriptParser {
 	 * <p>
 	 * Can print an error.
 	 */
-	public static <T extends SyntaxElement> @Nullable T parse(String expr, Iterator<? extends SyntaxElementInfo<T>> source, @Nullable String defaultError) {
+	public static <T extends SyntaxElement> @Nullable T parse(String expr, Iterator<? extends SyntaxInfo<T>> source, @Nullable String defaultError) {
 		expr = "" + expr.trim();
 		if (expr.isEmpty()) {
 			Skript.error(defaultError);
@@ -159,11 +183,11 @@ public class SkriptParser {
 		}
 	}
 
-	public static <T extends SyntaxElement> @Nullable T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, @Nullable String defaultError) {
+	public static <T extends SyntaxElement> @Nullable T parseStatic(String expr, Iterator<? extends SyntaxInfo<? extends T>> source, @Nullable String defaultError) {
 		return parseStatic(expr, source, ParseContext.DEFAULT, defaultError);
 	}
 
-	public static <T extends SyntaxElement> @Nullable T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, ParseContext parseContext, @Nullable String defaultError) {
+	public static <T extends SyntaxElement> @Nullable T parseStatic(String expr, Iterator<? extends SyntaxInfo<? extends T>> source, ParseContext parseContext, @Nullable String defaultError) {
 		expr = expr.trim();
 		if (expr.isEmpty()) {
 			Skript.error(defaultError);
@@ -182,88 +206,208 @@ public class SkriptParser {
 		}
 	}
 
-	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxInfo<? extends T>> source) {
+		ParsingStack parsingStack = getParser().getParsingStack();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			while (source.hasNext()) {
-				SyntaxElementInfo<? extends T> info = source.next();
-				patternsLoop: for (int patternIndex = 0; patternIndex < info.patterns.length; patternIndex++) {
+				SyntaxInfo<? extends T> info = source.next();
+				int matchedPattern = -1; // will increment at the start of each iteration
+				patternsLoop: for (String pattern : info.patterns()) {
+					matchedPattern++;
 					log.clear();
-					String pattern = info.patterns[patternIndex];
-					assert pattern != null;
 					ParseResult parseResult;
+
 					try {
+						parsingStack.push(new ParsingStack.Element(info, matchedPattern));
 						parseResult = parse_i(pattern);
 					} catch (MalformedPatternException e) {
-						String message = "pattern compiling exception, element class: " + info.getElementClass().getName();
+						String message = "pattern compiling exception, element class: " + info.type().getName();
 						try {
-							JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.getElementClass());
+							JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.type());
 							message += " (provided by " + providingPlugin.getName() + ")";
-						} catch (IllegalArgumentException | IllegalStateException ignored) {}
+						} catch (IllegalArgumentException | IllegalStateException ignored) { }
 						throw new RuntimeException(message, e);
-
+					} catch (StackOverflowError e) {
+						// Parsing caused a stack overflow, possibly due to too long lines
+						throw new ParseStackOverflowException(e, new ParsingStack(parsingStack));
+					} finally {
+						// Recursive parsing call done, pop the element from the parsing stack
+						ParsingStack.Element stackElement = parsingStack.pop();
+						assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == matchedPattern;
 					}
-					if (parseResult != null) {
-						assert parseResult.source != null; // parse results from parse_i have a source
-						List<TypePatternElement> types = null;
-						for (int i = 0; i < parseResult.exprs.length; i++) {
-							if (parseResult.exprs[i] == null) {
-								if (types == null)
-									types = parseResult.source.getElements(TypePatternElement.class);;
-								ExprInfo exprInfo = types.get(i).getExprInfo();
-								if (!exprInfo.isOptional) {
-									DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
-									if (!expr.init())
-										continue patternsLoop;
-									parseResult.exprs[i] = expr;
+
+					if (parseResult == null)
+						continue;
+
+					assert parseResult.source != null; // parse results from parse_i have a source
+					List<TypePatternElement> types = null;
+					for (int i = 0; i < parseResult.exprs.length; i++) {
+						if (parseResult.exprs[i] == null) {
+							if (types == null)
+								types = parseResult.source.getElements(TypePatternElement.class);;
+							ExprInfo exprInfo = types.get(i).getExprInfo();
+							if (!exprInfo.isOptional) {
+								List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
+								DefaultExpression<?> matchedExpr = null;
+								for (DefaultExpression<?> expr : exprs) {
+									if (expr.init()) {
+										matchedExpr = expr;
+										break;
+									}
 								}
+								if (matchedExpr == null)
+									continue patternsLoop;
+								parseResult.exprs[i] = matchedExpr;
 							}
 						}
+					}
+					T element = info.instance();
 
-						T element = info.instance();
+					if (!checkRestrictedEvents(element, parseResult))
+						continue;
 
-						if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
-							Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-							if (!getParser().isCurrentEvent(supportedEvents)) {
-								Iterator<String> iterator = Arrays.stream(supportedEvents)
-									.map(it -> "the " + it.getSimpleName()
-										.replaceAll("([A-Z])", " $1")
-										.toLowerCase()
-										.trim())
-									.iterator();
+					if (!checkExperimentalSyntax(element))
+						continue;
 
-								String events = StringUtils.join(iterator, ", ", " or ");
-
-								Skript.error("'" + parseResult.expr + "' can only be used in " + events);
-								continue;
-							}
+					boolean success = element.preInit() && element.init(parseResult.exprs, matchedPattern, getParser().getHasDelayBefore(), parseResult);
+					if (success) {
+						// Check if any expressions are 'UnparsedLiterals' and if applicable for multiple info warning.
+						for (Expression<?> expr : parseResult.exprs) {
+							if (expr instanceof UnparsedLiteral unparsedLiteral && unparsedLiteral.multipleWarning())
+								break;
 						}
-
-						boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
-						if (success) {
-							log.printLog();
-							return element;
-						}
+						log.printLog();
+						if (doSimplification && element instanceof Simplifiable<?> simplifiable)
+							//noinspection unchecked
+							return (T) simplifiable.simplify();
+						return element;
 					}
 				}
 			}
+
+			// No successful syntax elements parsed, print errors and return
 			log.printError();
 			return null;
 		}
 	}
 
+	/**
+	 * Checks whether the given element is restricted to specific events, and if so, whether the current event is allowed.
+	 * Prints errors.
+	 * @param element The syntax element to check.
+	 * @param parseResult The parse result for error information.
+	 * @return True if the element is allowed in the current event, false otherwise.
+	 */
+	private static boolean checkRestrictedEvents(SyntaxElement element, ParseResult parseResult) {
+		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+			if (!getParser().isCurrentEvent(supportedEvents)) {
+				Skript.error("'" + parseResult.expr + "' can only be used in " + supportedEventsNames(supportedEvents));
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Returns a string with the names of the supported skript events for the given class array.
+	 * If no events are found, returns an empty string.
+	 * @param supportedEvents The array of supported event classes.
+	 * @return A string with the names of the supported skript events, or an empty string if none are found.
+	 */
+	private static @NotNull String supportedEventsNames(Class<? extends Event>[] supportedEvents) {
+		List<String> names = new ArrayList<>();
+
+		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
+			for (Class<? extends Event> eventClass : supportedEvents) {
+				for (Class<? extends Event> event : eventInfo.events) {
+					if (event.isAssignableFrom(eventClass)) {
+						names.add("the %s event".formatted(eventInfo.getName().toLowerCase()));
+					}
+				}
+			}
+		}
+
+		return StringUtils.join(names, ", ", " or ");
+	}
+
+	/**
+	 * Checks that {@code element} is an {@link ExperimentalSyntax} and, if so, ensures that its requirements are satisfied by the current {@link ExperimentSet}.
+	 * @param element The {@link SyntaxElement} to check.
+	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
+	 */
+	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
+		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
+			return true;
+		ExperimentSet experiments = getParser().getExperimentSet();
+		return experimentalSyntax.isSatisfiedBy(experiments);
+	}
+
+	/**
+	 * Returns the {@link DefaultExpression} from the first {@link ClassInfo} stored in {@code exprInfo}.
+	 *
+	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}.
+	 * @param pattern The pattern used to create {@link ExprInfo}.
+	 * @return {@link DefaultExpression}.
+	 * @throws SkriptAPIException If the {@link DefaultExpression} is not valid, produces an error message for the reasoning of failure.
+	 */
 	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
-		DefaultExpression<?> expr = exprInfo.classes[0].getDefaultExpression();
+		DefaultValueData data = getParser().getData(DefaultValueData.class);
+		ClassInfo<?> classInfo = exprInfo.classes[0];
+		DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
 		if (expr == null)
-			throw new SkriptAPIException("The class '" + exprInfo.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
-		if (!(expr instanceof Literal) && (exprInfo.flagMask & PARSE_EXPRESSIONS) == 0)
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a literal. Either allow null (with %-*" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
-		if (expr instanceof Literal && (exprInfo.flagMask & PARSE_LITERALS) == 0)
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is a literal. Either allow null (with %-~" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
-		if (!exprInfo.isPlural[0] && !expr.isSingle())
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' is not a single-element expression. Change your pattern to allow multiple elements or make the expression mandatory [pattern: " + pattern + "]");
-		if (exprInfo.time != 0 && !expr.setTime(exprInfo.time))
-			throw new SkriptAPIException("The default expression of '" + exprInfo.classes[0].getCodeName() + "' does not have distinct time states. [pattern: " + pattern + "]");
-		return expr;
+			expr = classInfo.getDefaultExpression();
+
+		DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, 0);
+		if (errorType == null) {
+			assert expr != null;
+			return expr;
+		}
+
+		throw new SkriptAPIException(errorType.getError(List.of(classInfo.getCodeName()), pattern));
+	}
+
+	/**
+	 * Returns all {@link DefaultExpression}s from all the {@link ClassInfo}s embedded in {@code exprInfo} that are valid.
+	 *
+	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}s.
+	 * @param pattern The pattern used to create {@link ExprInfo}.
+	 * @return All available {@link DefaultExpression}s.
+	 * @throws SkriptAPIException If no {@link DefaultExpression}s are valid, produces an error message for the reasoning of failure.
+	 */
+	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
+		if (exprInfo.classes.length == 1)
+			return new ArrayList<>(List.of(getDefaultExpression(exprInfo, pattern)));
+
+		DefaultValueData data = getParser().getData(DefaultValueData.class);
+
+		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);
+		List<DefaultExpression<?>> passed = new ArrayList<>();
+		for (int i = 0; i < exprInfo.classes.length; i++) {
+			ClassInfo<?> classInfo = exprInfo.classes[i];
+			DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
+			if (expr == null)
+				expr = classInfo.getDefaultExpression();
+
+			String codeName = classInfo.getCodeName();
+			DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, i);
+
+			if (errorType != null) {
+				failed.computeIfAbsent(errorType, list -> new ArrayList<>()).add(codeName);
+			} else {
+				passed.add(expr);
+			}
+		}
+
+		if (!passed.isEmpty())
+			return passed;
+
+		List<String> errors = new ArrayList<>();
+		for (Entry<DefaultExpressionError, List<String>> entry : failed.entrySet()) {
+			String error = entry.getKey().getError(entry.getValue(), pattern);
+			errors.add(error);
+		}
+		throw new SkriptAPIException(StringUtils.join(errors, "\n"));
 	}
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);
@@ -302,8 +446,18 @@ public class SkriptParser {
 		if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 			return VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 		} else {
+			var iterator = new CheckedIterator<>(Skript.instance().syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION).iterator(), info -> {
+				if (info == null || info.returnType() == Object.class)
+					return true;
+				for (Class<?> returnType : types) {
+					assert returnType != null;
+					if (Converters.converterExists(info.returnType(), returnType))
+						return true;
+				}
+				return false;
+			});
 			//noinspection unchecked,rawtypes
-			return (Expression<?>) parse(expr, (Iterator) Skript.getExpressions(types), null);
+			return (Expression<?>) parse(expr, (Iterator) iterator, null);
 		}
 	}
 
@@ -373,29 +527,12 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (types[0] == Object.class) {
-				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
-				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
-					log.printError();
-					return null;
-				}
-				log.clear();
-				LogEntry logError = log.getError();
-				return (Literal<? extends T>) new UnparsedLiteral(expr, logError != null && (error == null || logError.quality > error.quality) ? logError : error);
-			}
-			for (Class<? extends T> type : types) {
-				log.clear();
-				assert type != null;
-				T parsedObject = Classes.parse(expr, type, context);
-				if (parsedObject != null) {
-					log.printLog();
-					return new SimpleLiteral<>(parsedObject, false);
-				}
-			}
-			log.printError();
-			return null;
+			return parseAsLiteral(allowUnparsedLiteral, log, error, types);
 		}
 	}
+
+	private static final String INVALID_LSPEC_CHARS = "[^,():/\"'\\[\\]}{]";
+	private static final Pattern LITERAL_SPECIFICATION_PATTERN = Pattern.compile("(?<literal>" + INVALID_LSPEC_CHARS + "+) \\((?<classinfo>[\\w\\p{L} ]+)\\)");
 
 	private @Nullable Expression<?> parseSingleExpr(boolean allowUnparsedLiteral, @Nullable LogEntry error, ExprInfo exprInfo) {
 		if (expr.isEmpty()) // Empty expressions return nothing, obviously
@@ -455,7 +592,10 @@ public class SkriptParser {
 
 						// Plural/singular sanity check
 						if (hasSingular && !parsedVariable.isSingle()) {
-							Skript.error("'" + expr + "' can only accept a single value of any type, not more", ErrorQuality.SEMANTIC_ERROR);
+							Skript.error("'" + expr + "' can only be a single "
+								+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+								+ ", not more.");
+							log.printError();
 							return null;
 						}
 
@@ -488,9 +628,10 @@ public class SkriptParser {
 						// improper use in a script would result in an exception
 						if (((exprInfo.classes.length == 1 && !exprInfo.isPlural[0]) || Booleans.contains(exprInfo.isPlural, true))
 								&& !parsedVariable.isSingle()) {
-							Skript.error("'" + expr + "' can only accept a single "
+							Skript.error("'" + expr + "' can only be a single "
 									+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
-									+ ", not more", ErrorQuality.SEMANTIC_ERROR);
+									+ ", not more.");
+							log.printError();
 							return null;
 						}
 
@@ -505,6 +646,15 @@ public class SkriptParser {
 				// If it wasn't variable, do same for function call
 				FunctionReference<?> functionReference = parseFunction(types);
 				if (functionReference != null) {
+
+					if (onlySingular && !functionReference.isSingle()) {
+						Skript.error("'" + expr + "' can only be a single "
+							+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+							+ ", not more.");
+						log.printError();
+						return null;
+					}
+
 					log.printLog();
 					return new ExprFunctionCall<>(functionReference);
 				} else if (log.hasError()) {
@@ -528,8 +678,11 @@ public class SkriptParser {
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);
 								} else {
-									Skript.error("'" + expr + "' can only accept a single " + exprInfo.classes[i].getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
+									Skript.error("'" + expr + "' can only be a single "
+										+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+										+ ", not more.");
 								}
+								log.printError();
 								return null;
 							}
 
@@ -539,7 +692,10 @@ public class SkriptParser {
 					}
 
 					if (onlySingular && !parsedExpression.isSingle()) {
-						Skript.error("'" + expr + "' can only accept singular expressions, not plural", ErrorQuality.SEMANTIC_ERROR);
+						Skript.error("'" + expr + "' can only be a single "
+							+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
+							+ ", not more.");
+						log.printError();
 						return null;
 					}
 
@@ -560,38 +716,153 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
-			if (exprInfo.classes[0].getC() == Object.class) {
-				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
-				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
-					log.printError();
-					return null;
-				}
-				log.clear();
-				LogEntry logError = log.getError();
-				return new UnparsedLiteral(expr, logError != null && (error == null || logError.quality > error.quality) ? logError : error);
-			}
-			for (ClassInfo<?> classInfo : exprInfo.classes) {
-				log.clear();
-				assert classInfo.getC() != null;
-				Object parsedObject = Classes.parse(expr, classInfo.getC(), context);
-				if (parsedObject != null) {
+			return parseAsLiteral(allowUnparsedLiteral, log, error, nonNullTypes);
+		}
+	}
+
+	/**
+	 * Helper method for {@link #parseSingleExpr(boolean, LogEntry, Class[])} and {@link #parseSingleExpr(boolean, LogEntry, ExprInfo)}.
+	 * Attempts to parse {@link #expr} as a literal. Prints errors.
+	 *
+	 * @param allowUnparsedLiteral If {@code true}, will allow unparsed literals to be returned.
+	 * @param log The current {@link ParseLogHandler} to use for logging.
+	 * @param error A {@link LogEntry} containing a default error to be printed if failed to parse.
+	 * @param types The valid types to parse the literal as.
+	 * @return {@link Expression} of type {@code T} if successful, otherwise {@code null}.<br>
+	 * @param <T> The type of the literal to parse.<br>
+	 */
+	@SafeVarargs
+	private <T> @Nullable Expression<? extends T> parseAsLiteral(
+			boolean allowUnparsedLiteral,
+			ParseLogHandler log,
+			@Nullable LogEntry error,
+			Class<? extends T>... types
+	) {
+		if (expr.endsWith(")") && expr.contains("(")) {
+			Matcher classInfoMatcher = LITERAL_SPECIFICATION_PATTERN.matcher(expr);
+			if (classInfoMatcher.matches()) {
+				String literalString = classInfoMatcher.group("literal");
+				String unparsedClassInfo = Noun.stripDefiniteArticle(classInfoMatcher.group("classinfo"));
+				Expression<? extends T> result = parseSpecifiedLiteral(literalString, unparsedClassInfo, types);
+				if (result != null) {
 					log.printLog();
-					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
+					return result;
 				}
 			}
-			if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
-				for (ClassInfo<?> aClass : exprInfo.classes) {
-					if (!aClass.getC().isAssignableFrom(String.class))
-						continue;
-					VariableString string = VariableString.newInstance(expr.substring(1, expr.length() - 1));
-					if (string instanceof LiteralString)
-						return string;
-					break;
-				}
+		}
+		if (types.length == 1 && types[0] == Object.class) {
+			if (!allowUnparsedLiteral) {
+				log.printError();
+				return null;
 			}
+			//noinspection unchecked
+			return (Expression<? extends T>) getUnparsedLiteral(log, error);
+		}
+		boolean containsObjectClass = false;
+		for (Class<?> type : types) {
+			log.clear();
+			if (type == Object.class) {
+				// If 'Object.class' is an option, needs to be treated as previous behavior
+				// But we also want to be sure every other 'ClassInfo' is attempted to be parsed beforehand
+				containsObjectClass = true;
+				continue;
+			}
+			//noinspection unchecked
+			T parsedObject = (T) Classes.parse(expr, type, context);
+			if (parsedObject != null) {
+				log.printLog();
+				return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
+			}
+		}
+		if (allowUnparsedLiteral && containsObjectClass)
+			//noinspection unchecked
+			return (Expression<? extends T>) getUnparsedLiteral(log, error);
+		if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
+			for (Class<?> type : types) {
+				if (!type.isAssignableFrom(String.class))
+					continue;
+				VariableString string = VariableString.newInstance(expr.substring(1, expr.length() - 1));
+				if (string instanceof LiteralString)
+					//noinspection unchecked
+					return (Expression<? extends T>) string;
+				break;
+			}
+		}
+		log.printError();
+		return null;
+	}
+
+	/**
+	 * If {@link #expr} is a valid literal expression, will return {@link UnparsedLiteral}.
+	 * @param log The current {@link ParseLogHandler}.
+	 * @param error A {@link LogEntry} containing a default error to be printed if failed to retrieve.
+	 * @return {@link UnparsedLiteral} or {@code null}.
+	 */
+	private @Nullable UnparsedLiteral getUnparsedLiteral(
+		ParseLogHandler log,
+		@Nullable LogEntry error
+	)  {
+		// Do check if a literal with this name actually exists before returning an UnparsedLiteral
+		if (Classes.parseSimple(expr, Object.class, context) == null) {
 			log.printError();
 			return null;
 		}
+		log.clear();
+		LogEntry logError = log.getError();
+		return new UnparsedLiteral(expr, logError != null && (error == null || logError.quality > error.quality) ? logError : error);
+	}
+
+	/**
+	 * <p>
+	 *     With ambiguous literals being used in multiple {@link ClassInfo}s, users can specify which one they want
+	 *     in the format of 'literal (classinfo)'; Example: black (wolf variant)
+	 *     This checks to ensure the given 'classinfo' exists, is parseable, and is of the accepted types that is required.
+	 *     If so, the literal section of the input is parsed as the given classinfo and the result returned.
+	 * </p>
+	 * @param literalString A {@link String} representing a literal
+	 * @param unparsedClassInfo A {@link String} representing a class info
+	 * @param types An {@link Array} of the acceptable {@link Class}es
+	 * @return {@link SimpleLiteral} or {@code null} if any checks fail
+	 */
+	@SafeVarargs
+	private <T> @Nullable Expression<? extends T> parseSpecifiedLiteral(
+		String literalString,
+		String unparsedClassInfo,
+		Class<? extends T> ... types
+	) {
+		ClassInfo<?> classInfo = Classes.parse(unparsedClassInfo, ClassInfo.class, context);
+		if (classInfo == null) {
+			Skript.error("A " + unparsedClassInfo  + " is not a valid type.");
+			return null;
+		}
+		Parser<?> classInfoParser = classInfo.getParser();
+		if (classInfoParser == null || !classInfoParser.canParse(context)) {
+			Skript.error("A " + unparsedClassInfo  + " cannot be parsed.");
+			return null;
+		}
+		if (!checkAcceptedType(classInfo.getC(), types)) {
+			Skript.error(expr + " " + Language.get("is") + " " + notOfType(types));
+			return null;
+		}
+		//noinspection unchecked
+		T parsedObject = (T) classInfoParser.parse(literalString, context);
+		if (parsedObject != null)
+			return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(literalString));
+		return null;
+	}
+
+	/**
+	 * Check if the provided {@code clazz} is an accepted type from any class of {@code types}.
+	 * @param clazz The {@link Class} to check
+	 * @param types The {@link Class}es that are accepted
+	 * @return true if {@code clazz} is of a {@link Class} from {@code types}
+	 */
+	private boolean checkAcceptedType(Class<?> clazz, Class<?> ... types) {
+		for (Class<?> targetType : types) {
+			if (targetType.isAssignableFrom(clazz))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -920,20 +1191,22 @@ public class SkriptParser {
 			ParserInstance parser = getParser();
 			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 			FunctionReference<T> functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);//.toArray(new Expression[params.size()]));
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+
 			attempt_list_parse:
 			if (unaryArgument.get() && !functionReference.validateParameterArity(true)) {
 				try (ParseLogHandler ignored = SkriptLogger.startParseLogHandler()) {
 					SkriptParser alternative = new SkriptParser(args, flags | PARSE_LITERALS, context);
 					params = this.getFunctionArguments(() -> alternative.suppressMissingAndOrWarnings()
-								.parseExpressionList(ignored, Object.class), args, unaryArgument);
+						.parseExpressionList(ignored, Object.class), args, unaryArgument);
 					ignored.clear();
 					if (params == null)
 						break attempt_list_parse;
 				}
 				functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-						currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
+					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
 			}
+
 			if (!functionReference.validateFunction(true)) {
 				log.printError();
 				return null;
@@ -1410,18 +1683,23 @@ public class SkriptParser {
 		return ParserInstance.get();
 	}
 
+	// register default value data when the parser class is loaded.
+	static {
+		ParserInstance.registerData(DefaultValueData.class, DefaultValueData::new);
+	}
+
 	/**
 	 * @deprecated due to bad naming conventions,
-	 * use {@link #LIST_SPLIT_PATTERN} instead.
+	 * use {@link #LIST_SPLIT_PATTERN} instead. 
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public final static Pattern listSplitPattern = LIST_SPLIT_PATTERN;
 
 	/**
 	 * @deprecated due to bad naming conventions,
 	 * use {@link #WILDCARD} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.0", forRemoval = true)
 	public final static String wildcard = WILDCARD;
 
 }

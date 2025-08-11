@@ -339,6 +339,21 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public boolean breakNaturally(@NotNull ItemStack tool, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
+		if (delayChanges) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					state.getBlock().breakNaturally(tool, triggerEffect, dropExperience, forceEffect);
+				}
+			});
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	public void tick() {
 		state.getBlock().tick();
 	}
@@ -492,6 +507,11 @@ public class BlockStateBlock implements Block {
 	@Override
 	public @NotNull float getDestroySpeed(@NotNull ItemStack itemStack, boolean considerEnchants) {
 		return state.getBlock().getDestroySpeed(itemStack, considerEnchants);
+	}
+
+	@Override
+	public boolean isSuffocating() {
+		return state.getBlock().isSuffocating();
 	}
 
 	@Override

@@ -90,7 +90,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	/**
 	 * @deprecated Use {@link #add(int, Node)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public void insert(Node node, int index) {
 		add(index, node);
 	}

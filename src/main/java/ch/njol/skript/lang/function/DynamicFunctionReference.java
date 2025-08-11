@@ -56,12 +56,15 @@ public class DynamicFunctionReference<Result>
 		this.name = name;
 		Function<? extends Result> function;
 		if (source != null) {
+			// will return the first function found that matches name.
+			// TODO: add a way to specify param types
 			//noinspection unchecked
 			function = (Function<? extends Result>) Functions.getFunction(name, source.getConfig().getFileName());
 		} else {
 			//noinspection unchecked
 			function = (Function<? extends Result>) Functions.getFunction(name, null);
 		}
+
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);
 		if (resolved) {

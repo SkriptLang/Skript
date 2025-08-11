@@ -1,15 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.lang.VerboseAssert;
-
-import ch.njol.skript.log.ParseLogHandler;
-import org.bukkit.event.Event;
-import org.skriptlang.skript.lang.comparator.Comparator;
-import org.skriptlang.skript.lang.comparator.ComparatorInfo;
-import org.skriptlang.skript.lang.comparator.Comparators;
-import org.skriptlang.skript.lang.comparator.Relation;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
@@ -20,16 +10,23 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
+import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.ComparatorInfo;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.util.Cyclical;
 
 import java.util.function.Predicate;
@@ -39,7 +36,7 @@ import java.util.function.Predicate;
 		"but some values can also be compared using greater than/less than. In that case you can also test for whether an object is between two others.",
 		"Note: This is the only element where not all patterns are shown. It has actually another two sets of similar patters, " +
 				"but with <code>(was|were)</code> or <code>will be</code> instead of <code>(is|are)</code> respectively, " +
-				"which check different <a href='expressions.html#ExprTimeState'>time states</a> of the first expression."})
+				"which check different <a href='#ExprTimeState'>time states</a> of the first expression."})
 @Examples({"the clicked block is a stone slab or a double stone slab",
 		"time in the player's world is greater than 8:00",
 		"the creature is not an enderman or an ender dragon"})
@@ -228,7 +225,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 	 * form can be accessed.
 	 * @param <T> Wanted type.
 	 * @param type Wanted class of literal.
-	 * @param expr Expression we currently have.
+	 * @param expression Expression we currently have.
 	 * @return A literal value, or null if parsing failed.
 	 */
 	@Nullable
@@ -238,12 +235,8 @@ public class CondCompare extends Condition implements VerboseAssert {
 			source = expression.getSource();
 
 		// Try to get access to unparsed content of it
-		if (source instanceof UnparsedLiteral) {
-			String unparsed = ((UnparsedLiteral) source).getData();
-			T data = Classes.parse(unparsed, type, ParseContext.DEFAULT);
-			if (data != null) { // Success, let's make a literal of it
-				return new SimpleLiteral<>(data, false, new UnparsedLiteral(unparsed));
-			}
+		if (source instanceof UnparsedLiteral unparsedLiteral) {
+			return unparsedLiteral.reparse(type);
 		}
 		return null; // Context-sensitive parsing failed; can't really help it
 	}

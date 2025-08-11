@@ -9,6 +9,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Math;
 import org.joml.Quaternionf;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Rotation Axis/Angle")
 @Description({
@@ -94,6 +96,13 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 	@Override
 	public Class<?> getReturnType() {
 		return isAxis ? Vector.class : Float.class;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (getExpr() instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

@@ -15,6 +15,7 @@ test "for section":
 	delete {_value}
 
 	for {_key}, {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
@@ -27,6 +28,7 @@ test "for section":
 
 
 	for key {_key} and value {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
@@ -38,6 +40,7 @@ test "for section":
 	delete {_value}
 
 	for {_key} and {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
@@ -50,6 +53,7 @@ test "for section":
 
 	# 'loop' syntax alternative
 	loop {_key} and {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
@@ -59,3 +63,15 @@ test "for section":
 
 	delete {_key}
 	delete {_value}
+
+using local variable type hints
+
+test "for section type hints":
+	set {_list::*} to 1, 5, and 10
+	parse:
+		set {_value} to true
+		loop {_key} and {_value} in {_list::*}:
+			set {_x} to {_value} in lowercase
+	set {_o1} to "Expected variable '{_value}' to be a text, but it is an integer or boolean (yes/no)"
+	set {_o2} to "Expected variable '{_value}' to be a text, but it is a boolean (yes/no) or integer"
+	assert last parse logs is {_o1} or {_o2} with "SecFor type hints failed (%last parse logs%)"
