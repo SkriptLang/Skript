@@ -30,14 +30,15 @@ import org.bukkit.entity.Player;
 	"This can actually be any entity, e.g. spider jockeys are skeletons that ride on a spider, so the spider is the 'vehicle' of the skeleton.",
 	"See also: <a href='#ExprPassenger'>passenger</a>"
 })
-@Examples({
-	"set the vehicle of {game::players::*} to a saddled pig",
-	"give {game::players::*} a carrot on a stick",
-	"",
-	"on vehicle enter:",
-		"\tvehicle is a horse",
-		"\tadd 1 to {statistics::horseMounting::%uuid of player%}",
-})
+@Example("""
+	set the vehicle of {game::players::*} to a saddled pig
+	give {game::players::*} a carrot on a stick
+""")
+@Example("""
+	on vehicle enter:
+		vehicle is a horse
+		add 1 to {statistics::horseMounting::%uuid of player%}
+""")
 @Since("2.0")
 public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 
