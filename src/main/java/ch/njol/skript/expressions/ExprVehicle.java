@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
@@ -18,7 +17,10 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 
 import org.bukkit.entity.Player;
 
@@ -37,10 +39,18 @@ import org.bukkit.entity.Player;
 		"\tadd 1 to {statistics::horseMounting::%uuid of player%}",
 })
 @Since("2.0")
-public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
+public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 
 	static {
-		registerDefault(ExprVehicle.class, Entity.class, "vehicle[s]", "entities");
+		if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent"))
+			registerDefault(ExprVehicle.class, Entity.class, "vehicle[s]", "entities");
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr((Expression<Entity>) expressions[0]);
+		return true;
 	}
 
 	@Override
@@ -60,12 +70,6 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 			}
 			return entity.getVehicle();
 		});
-	}
-
-	@Override
-	@Nullable
-	public Entity convert(Entity entity) {
-		return entity.getVehicle();
 	}
 
 	@Override
@@ -97,8 +101,7 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 				return;
 			assert delta != null;
 			Object object = delta[0];
-			if (object instanceof Entity) {
-				Entity entity = (Entity) object;
+			if (object instanceof Entity entity) {
 				entity.eject();
 				for (Entity passenger : passengers) {
 					// Avoid infinity mounting
@@ -110,8 +113,7 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 					passenger.leaveVehicle();
 					entity.addPassenger(passenger);
 				}
-			} else if (object instanceof EntityData) {
-				EntityData<?> entityData = (EntityData<?>) object;
+			} else if (object instanceof EntityData entityData) {
 				VehicleExitEvent vehicleExitEvent = event instanceof VehicleExitEvent ? (VehicleExitEvent) event : null;
 				EntityDismountEvent entityDismountEvent = event instanceof EntityDismountEvent ? (EntityDismountEvent) event : null;
 				for (Entity passenger : passengers) {
@@ -144,8 +146,8 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "vehicle";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vehicle of " + getExpr().toString(event, debug);
 	}
 
 }
