@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ChatComponentHandler {
@@ -140,25 +139,36 @@ public final class ChatComponentHandler {
 	private static TagResolver createSkriptTagResolver(boolean safe, TagResolver builtInResolver) {
 		return new TagResolver() {
 
-			private static final String RESET_KEY = "skript_reset_";
+			private static final String RESET_KEY = "_skript_reset";
 
 			@Override
 			public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException {
 				if (colorsCauseReset) {
 					/*
+					 * yes, this is cursed... im sorry
 					 * to preserve this config option's functionality, we use a preprocessing tag that prepends a "<reset>"
 					 *  tag behind all color tags
-					 * however, to ensure that we don't recurse (prepend again), a unique-enough key is prepended to
+					 * however, to ensure that we don't recurse (prepend again), a unique-enough key is appended to
 					 *  the color tag name.
 					 * then, during the primary parsing stage, when these tags are encountered, the key is removed
 					 *  and the tag is parsed as normal.
 					 */
-					if (name.startsWith(RESET_KEY)) {
-						name = name.substring(RESET_KEY.length());
+					// TODO need to remove prefix applied to tags with invalid args: <color:bloop>
+					if (name.endsWith(RESET_KEY)) {
+						name = name.substring(0, name.length() - RESET_KEY.length());
 					} else {
 						SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
 						if ((simple != null && simple.reset && (!safe || simple.safe)) || StandardTags.color().has(name)) {
-							return Tag.preProcessParsed("<reset><" + RESET_KEY + name + ">");
+							StringBuilder tagBuilder = new StringBuilder();
+							tagBuilder.append("<reset><")
+								.append(name)
+								.append(RESET_KEY);
+							while (arguments.hasNext()) {
+								tagBuilder.append(":")
+									.append(arguments.pop().value());
+							}
+							tagBuilder.append(">");
+							return Tag.preProcessParsed(tagBuilder.toString());
 						}
 					}
 				}
@@ -187,9 +197,9 @@ public final class ChatComponentHandler {
 
 			@Override
 			public boolean has(@NotNull String name) {
-				if (colorsCauseReset && name.startsWith(RESET_KEY)) {
-					// this allows this prefix for non-color tags, but that isn't a big deal
-					name = name.substring(RESET_KEY.length());
+				if (colorsCauseReset && name.endsWith(RESET_KEY)) {
+					// this allows this suffix for non-color tags, but that isn't a big deal
+					name = name.substring(0, name.length() - RESET_KEY.length());
 				}
 
 				// check built-in resolver
@@ -263,7 +273,7 @@ public final class ChatComponentHandler {
 
 		// TODO improve...
 		// replace spaces with underscores for simple tags
-		realMessage = StringUtils.replaceAll(Matcher.quoteReplacement(realMessage), COLOR_PATTERN, matcher -> {
+		realMessage = StringUtils.replaceAll(realMessage, COLOR_PATTERN, matcher -> {
 			String mappedTag = matcher.group(1).replace(" ", "_");
 			if (SIMPLE_PLACEHOLDERS.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
 				return "<" + mappedTag + ">";
@@ -282,20 +292,20 @@ public final class ChatComponentHandler {
 					current = '&';
 				}
 				char next = (i + 1 != messageChars.length) ? messageChars[i + 1] : ' ';
-				boolean isCode = current == '&';
-				if (isCode && next == 'x' && i + 13 <= messageChars.length) { // Try to parse as hex -> &x&1&2&3&4&5&6
+				boolean isCode = current == '&' && (i == 0 || messageChars[i - 1] != '\\');
+				if (isCode && next == 'x' && i + 13 <= messageChars.length) { // try to parse as hex -> &x&1&2&3&4&5&6
 					reconstructedMessage.append("<#");
-					for (int i2 = i + 3; i2 < i + 14; i2 += 2) { // Isolate the specific numbers
+					for (int i2 = i + 3; i2 < i + 14; i2 += 2) { // isolate the specific numbers
 						reconstructedMessage.append(messageChars[i2]);
 					}
 					reconstructedMessage.append('>');
-					i += 13; // Skip to the end
+					i += 13; // skip to the end
 				} else if (isCode) {
 					ChatColor color = ChatColor.getByChar(next);
-					if (color != null) { // This is a valid code
+					if (color != null) { // this is a valid code
 						reconstructedMessage.append('<').append(color.asBungee().getName()).append('>');
-						i++; // Skip to the end
-					} else { // Not a valid color :(
+						i++; // skip to the end
+					} else { // not a valid color :(
 						reconstructedMessage.append(current);
 					}
 				} else {
@@ -323,10 +333,32 @@ public final class ChatComponentHandler {
 
 	/**
 	 * Escapes all tags known to Skript in the given string.
+	 * This method will also escape legacy color codes by prepending them with a backslash.
 	 * @param string The string to escape tags in.
 	 * @return The string with tags escaped.
 	 */
 	public static String escape(String string) {
+		// legacy compatibility, escape color codes
+		if (string.contains("&") || string.contains("§")) {
+			StringBuilder reconstructedString = new StringBuilder();
+			char[] messageChars = string.toCharArray();
+			for (int i = 0; i < messageChars.length; i++) {
+				char current = messageChars[i];
+				char next = (i + 1 != messageChars.length) ? messageChars[i + 1] : ' ';
+				boolean isCode = (current == '&' || current == '§') && (i == 0 || messageChars[i - 1] != '\\');
+				if (isCode && next == 'x' && i + 13 <= messageChars.length) { // assume hex -> &x&1&2&3&4&5&6
+					reconstructedString.append('\\');
+					for (int i2 = i; i2 < i + 14; i2++) { // append the rest of the hex code, don't escape these symbols
+						reconstructedString.append(messageChars[i2]);
+					}
+					i += 13; // skip to the end
+				} else if (isCode && ChatColor.getByChar(next) != null) {
+					reconstructedString.append('\\');
+				}
+				reconstructedString.append(current);
+			}
+			string = reconstructedString.toString();
+		}
 		return parser.escapeTags(string);
 	}
 
@@ -338,7 +370,7 @@ public final class ChatComponentHandler {
 	 * @return The stripped string.
 	 */
 	public static String stripFormatting(String string, boolean all) {
-		return stripFormatting(parse(string, !all));
+		return (all ? parser : safeParser).stripTags(string);
 	}
 
 	/**

@@ -4,9 +4,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.util.Utils;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
 
 import java.util.logging.Level;
 
@@ -137,7 +137,7 @@ public class LogEntry {
 		String lineDetailsMsg = replaceNewline(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue());
 
 		if (node == null)
-			return String.format(detailsMsg.replaceAll("^\\s+", ""), message); // Remove line beginning spaces
+			return String.format(detailsMsg.stripLeading(), message); // Remove line beginning spaces
 
 		Config c = node.getConfig();
 		String from = this.from;
@@ -147,8 +147,8 @@ public class LogEntry {
 
 		return
 			String.format(lineInfoMsg, node.getLine(), c.getFileName()) +
-			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
-			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
+			String.format(detailsMsg, ChatComponentHandler.escape(message.replaceAll("§", "&"))) + from +
+			String.format(lineDetailsMsg, ChatComponentHandler.escape(node.save().trim().replaceAll("§", "&")));
 	}
 
 	private String replaceNewline(String s) {
