@@ -49,7 +49,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 	 * @param eventClass The SkriptEvent's class
 	 * @param originClassPath The class path for the origin of this event.
 	 * @param events The Bukkit-Events this SkriptEvent listens to
-	 * @param supplier supplier ofr the syntax info instance
+	 * @param supplier supplier of the syntax info instance
 	 */
 	public SkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath,
 			Class<? extends Event>[] events, @Nullable Supplier<E> supplier) {
