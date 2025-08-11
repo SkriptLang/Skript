@@ -8,14 +8,13 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.chat.ChatComponentUtils;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -45,40 +44,24 @@ public class EffMessage extends Effect {
 			.build());
 	}
 
-	private Expression<?> messages;
+	private Expression<? extends Component> messages;
 	private Expression<CommandSender> recipients;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		messages = LiteralUtils.defendExpression(expressions[0]);
-		recipients = LiteralUtils.defendExpression(expressions[1]);
-		if (!LiteralUtils.canInitSafely(messages, recipients)) {
+		messages = ChatComponentUtils.asComponentExpression(expressions[0]);
+		if (messages == null) {
 			return false;
 		}
-
 		//noinspection unchecked
-		var componentMessages = expressions[0].getConvertedExpression(Component.class);
-		if (componentMessages != null) {
-			messages = componentMessages;
-		}
-
+		recipients = (Expression<CommandSender>) expressions[1];
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		Object[] messages = this.messages.getArray(event);
-		Component[] components = new Component[messages.length];
-		for (int i = 0; i < messages.length; i++) {
-			if (messages[i] instanceof Component) {
-				components[i] = (Component) messages[i];
-			} else {
-				components[i] = ChatComponentHandler.plain(messages[i]);
-			}
-		}
-
 		Audience audience = Audience.audience(recipients.getArray(event));
-		for (Component component : components) {
+		for (Component component : messages.getArray(event)) {
 			audience.sendMessage(component);
 		}
 	}

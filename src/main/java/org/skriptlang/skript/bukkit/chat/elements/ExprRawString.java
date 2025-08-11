@@ -22,6 +22,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.7")
 public class ExprRawString extends SimplePropertyExpression<String, String> {
 
+	private static final ConverterInfo<String, Component> RAW_STRING_CONVERTER =
+		new ConverterInfo<>(String.class, Component.class, Component::text, 0);
+
 	public static void register(SyntaxRegistry syntaxRegistry) {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprRawString.class, String.class)
 			.supplier(ExprRawString::new)
@@ -51,7 +54,7 @@ public class ExprRawString extends SimplePropertyExpression<String, String> {
 			if (Component.class.isAssignableFrom(clazz)) {
 				//noinspection unchecked
 				return (Expression<? extends R>) new ConvertedExpression<>(this, Component.class,
-					new ConverterInfo<>(String.class, Component.class, Component::text, 0));
+					RAW_STRING_CONVERTER);
 			}
 		}
 		return super.getConvertedExpression(to);

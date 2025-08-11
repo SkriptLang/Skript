@@ -161,6 +161,8 @@ public class ChatModule implements AddonModule {
 		EffActionBar.register(syntaxRegistry);
 		EffBroadcast.register(syntaxRegistry);
 		EffMessage.register(syntaxRegistry);
+		EffResetTitle.register(syntaxRegistry);
+		EffSendTitle.register(syntaxRegistry);
 		ExprColored.register(syntaxRegistry);
 		ExprRawString.register(syntaxRegistry);
 	}
