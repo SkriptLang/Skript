@@ -39,7 +39,7 @@ public final class ClassUtils {
 			return (Supplier<T>) cached;
 		Preconditions.checkArgument(
 			!Modifier.isAbstract(type.getModifiers()) && !Modifier.isInterface(type.getModifiers()),
-			"You can not create instance supplier for abstract classes");
+			"You cannot create instance suppliers for abstract classes");
 		Constructor<T> nullaryConstructor = type.getDeclaredConstructor();
 		MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(type, MethodHandles.lookup());
 		MethodHandle methodHandle = lookup.unreflectConstructor(nullaryConstructor);
