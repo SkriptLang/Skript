@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @param context The context of parsing.
  * @param flags   The active parsing flags.
  */
-public record FunctionParser(ParseContext context, int flags) {
+public record FunctionReferenceParser(ParseContext context, int flags) {
 
 	private final static Pattern FUNCTION_CALL_PATTERN =
 		Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");

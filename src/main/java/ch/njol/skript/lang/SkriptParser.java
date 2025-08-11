@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
-import org.skriptlang.skript.common.function.FunctionParser;
+import org.skriptlang.skript.common.function.FunctionReferenceParser;
 import org.skriptlang.skript.common.function.FunctionReference;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
@@ -1136,7 +1136,7 @@ public class SkriptParser {
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
 	public <T> FunctionReference<T> parseFunctionReference() {
-		return new FunctionParser(context, flags).parseFunctionReference(expr);
+		return new FunctionReferenceParser(context, flags).parseFunctionReference(expr);
 	}
 
 	/**
