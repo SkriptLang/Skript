@@ -42,6 +42,13 @@ public abstract class ArgumentTypeElement<T> implements SyntaxElement {
 	 */
 	public abstract ArgumentType<T> toBrigadier();
 
+	/**
+	 * Returns a short codename that is used as a placeholder for unnamed arguments of this type.
+	 *
+	 * @return code name for this argument type
+	 */
+	public abstract String codeName();
+
 	@Override
 	public @NotNull String getSyntaxTypeName() {
 		return "argument type";
@@ -73,7 +80,12 @@ public abstract class ArgumentTypeElement<T> implements SyntaxElement {
 	 */
 	public abstract static class Simple<T> extends ArgumentTypeElement<T> {
 
+		private final String codeName;
 		private ArgumentType<T> nativeType;
+
+		protected Simple(String codeName) {
+			this.codeName = codeName;
+		}
 
 		protected abstract @Nullable ArgumentType<T> get(Expression<?>[] expressions, int matchedPattern,
 				SkriptParser.ParseResult parseResult);
@@ -88,6 +100,11 @@ public abstract class ArgumentTypeElement<T> implements SyntaxElement {
 				SkriptParser.ParseResult parseResult) {
 			nativeType = get(expressions, matchedPattern, parseResult);
 			return nativeType != null;
+		}
+
+		@Override
+		public String codeName() {
+			return codeName;
 		}
 
 	}

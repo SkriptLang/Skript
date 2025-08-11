@@ -30,13 +30,17 @@ public class DefaultArgumentTypes {
 	 */
 	public static final class String extends ArgumentTypeElement.Simple<java.lang.String> {
 
+		private String() {
+			super("string");
+		}
+
 		public static void load(SkriptAddon addon) {
 			addon.syntaxRegistry().register(ArgumentTypeElement.REGISTRY_KEY,
-				SyntaxInfo.builder(DefaultArgumentTypes.Integer.class)
+				SyntaxInfo.builder(DefaultArgumentTypes.String.class)
 					.addPatterns("[single] (word|string)",
 						"(quotable|quoted) string",
 						"greedy string")
-					.supplier(DefaultArgumentTypes.Integer::new)
+					.supplier(DefaultArgumentTypes.String::new)
 					.origin(SyntaxOrigin.of(addon))
 					.build());
 		}
@@ -59,10 +63,16 @@ public class DefaultArgumentTypes {
 	 */
 	public static final class Integer extends ArgumentTypeElement.Simple<java.lang.Integer> {
 
+		private Integer() {
+			super("integer");
+		}
+
 		public static void load(SkriptAddon addon) {
 			addon.syntaxRegistry().register(ArgumentTypeElement.REGISTRY_KEY,
 				SyntaxInfo.builder(DefaultArgumentTypes.Integer.class)
-					.addPatterns("integer greater than [equal:or equal to] %integer%",
+					.addPatterns("integer",
+						"positive integer",
+						"integer greater than [equal:or equal to] %integer%",
 						"integer less than [equal:or equal to] %integer%",
 						"integer between %integer% and %integer%")
 					.supplier(DefaultArgumentTypes.Integer::new)
@@ -77,17 +87,19 @@ public class DefaultArgumentTypes {
 			int max = java.lang.Integer.MAX_VALUE;
 
 			switch (matchedPattern) {
-				case 0 -> {
+				// case 0 is regular integer
+				case 1 -> min = 0;
+				case 2 -> {
 					min = (int) expressions[0].getSingle(ContextlessEvent.get());
 					if (!parseResult.hasTag("equal"))
 						min++;
 				}
-				case 1 -> {
+				case 3 -> {
 					max = (int) expressions[0].getSingle(ContextlessEvent.get());
 					if (!parseResult.hasTag("equal"))
 						max--;
 				}
-				case 2 -> {
+				case 4 -> {
 					int first = (int) expressions[0].getSingle(ContextlessEvent.get());
 					int second = (int) expressions[1].getSingle(ContextlessEvent.get());
 					min = Math.min(first, second);
