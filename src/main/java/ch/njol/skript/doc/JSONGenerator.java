@@ -482,7 +482,12 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
 		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
 
-		Files.writeString(path, GSON.toJson(jsonDocs));
+		try {
+			Files.writeString(path, GSON.toJson(jsonDocs));
+		} catch (IOException ex) {
+			Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
+			throw new IOException(ex);
+		}
 	}
 
 	/**
