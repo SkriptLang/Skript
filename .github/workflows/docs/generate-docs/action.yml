@@ -53,7 +53,7 @@ runs:
         }
 
         get_skript_version_of_directory() {
-          jq '.source.version' docs.json
+          jq ".source.version" "$1/docs.json"
         }
 
         if [ -d "${DOCS_REPO_DIR}/docs/templates" ]
