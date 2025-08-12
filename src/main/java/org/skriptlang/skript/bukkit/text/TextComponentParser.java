@@ -414,6 +414,29 @@ public final class TextComponentParser {
 	}
 
 	/**
+	 * Converts a string into a formatted string.
+	 * This method is useful for ensuring the input string is properly formatted, as it will handle legacy formatting.
+	 * @param string The string to convert.
+	 * @param all Whether ALL (known) formatting/tags should be converted.
+	 *  If false, only safe tags like colors and decorations will be converted.
+	 * @return A formatted string.
+	 */
+	public String toString(String string, boolean all) {
+		return toString(parse(string, !all), all);
+	}
+
+	/**
+	 * Converts a component back into a formatted string.
+	 * @param component The component to convert.
+	 * @param all Whether ALL (known) formatting/tags should be converted.
+	 *  If false, only safe tags like colors and decorations will be converted.
+	 * @return A formatted string.
+	 */
+	public String toString(Component component, boolean all) {
+		return (all ? parser : safeParser).serialize(component);
+	}
+
+	/**
 	 * Converts a string into a legacy formatted string.
 	 * @param string The string to convert.
 	 * @param all Whether ALL formatting/tags should be converted to a legacy format.
