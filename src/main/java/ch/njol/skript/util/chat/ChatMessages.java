@@ -3,12 +3,12 @@ package ch.njol.skript.util.chat;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.util.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 /**
  * Handles parsing chat messages.
- * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+ * @deprecated See {@link TextComponentParser}.
  */
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ChatMessages {

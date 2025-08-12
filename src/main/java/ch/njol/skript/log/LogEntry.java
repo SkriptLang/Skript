@@ -6,7 +6,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.localization.ArgsMessage;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.util.logging.Level;
 
@@ -147,8 +147,8 @@ public class LogEntry {
 
 		return
 			String.format(lineInfoMsg, node.getLine(), c.getFileName()) +
-			String.format(detailsMsg, ChatComponentHandler.escape(message.replaceAll("§", "&"))) + from +
-			String.format(lineDetailsMsg, ChatComponentHandler.escape(node.save().trim().replaceAll("§", "&")));
+			String.format(detailsMsg, TextComponentParser.escape(message.replaceAll("§", "&"))) + from +
+			String.format(lineDetailsMsg, TextComponentParser.escape(node.save().trim().replaceAll("§", "&")));
 	}
 
 	private String replaceNewline(String s) {

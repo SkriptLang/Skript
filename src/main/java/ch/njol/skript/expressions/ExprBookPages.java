@@ -23,7 +23,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 @Name("Book Pages")
 @Description({
@@ -197,7 +197,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 			}
 
 			bookMeta.pages(pages.stream()
-				.map(bookPage -> ChatComponentHandler.parse(bookPage, false))
+				.map(bookPage -> TextComponentParser.parse(bookPage, false))
 				.toList());
 
 			// If the title and author of the bookMeta are not set, Minecraft will not update the BookMeta, as it deems the book "not signed".

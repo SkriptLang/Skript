@@ -19,7 +19,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 @Name("Enforce Whitelist")
 @Description({
@@ -43,7 +43,7 @@ public class EffEnforceWhitelist extends Effect {
 			YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
 			whitelistMessage = spigotYml.getString("messages.whitelist", whitelistMessage);
 		} catch (Exception ignored) {}
-		NOT_WHITELISTED_MESSAGE = ChatComponentHandler.parse(whitelistMessage);
+		NOT_WHITELISTED_MESSAGE = TextComponentParser.parse(whitelistMessage);
 
 		Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
 	}

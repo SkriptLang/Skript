@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.chat.elements;
+package org.skriptlang.skript.bukkit.text.elements;
 
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.lang.SyntaxStringBuilder;

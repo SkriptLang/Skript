@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.chat;
+package org.skriptlang.skript.bukkit.text;
 
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public final class ChatComponentHandler {
+public final class TextComponentParser {
 
 	private record SkriptTag(Tag tag, boolean safe, boolean reset) { }
 	private record SkriptTagResolver(TagResolver resolver, boolean safe) { }
@@ -79,7 +79,7 @@ public final class ChatComponentHandler {
 	}
 
 	public static void linkParseMode(LinkParseMode linkParseMode) {
-		ChatComponentHandler.linkParseMode = linkParseMode;
+		TextComponentParser.linkParseMode = linkParseMode;
 	}
 
 	public static boolean colorsCauseReset() {
@@ -87,7 +87,7 @@ public final class ChatComponentHandler {
 	}
 
 	public static void colorsCauseReset(boolean colorsCauseReset) {
-		ChatComponentHandler.colorsCauseReset = colorsCauseReset;
+		TextComponentParser.colorsCauseReset = colorsCauseReset;
 	}
 
 	/**
@@ -323,15 +323,6 @@ public final class ChatComponentHandler {
 	}
 
 	/**
-	 * Creates a plain text component from an object.
-	 * @param message The message to create a component from.
-	 * @return An unprocessed component from the given message.
-	 */
-	public static Component plain(Object message) {
-		return Component.text(message instanceof String ? (String) message : Classes.toString(message));
-	}
-
-	/**
 	 * Escapes all tags known to Skript in the given string.
 	 * This method will also escape legacy color codes by prepending them with a backslash.
 	 * @param string The string to escape tags in.
@@ -402,6 +393,6 @@ public final class ChatComponentHandler {
 		return LegacyComponentSerializer.legacySection().serialize(component);
 	}
 
-	private ChatComponentHandler() {}
+	private TextComponentParser() {}
 
 }

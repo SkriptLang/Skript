@@ -1,8 +1,7 @@
-package org.skriptlang.skript.bukkit.chat.elements;
+package org.skriptlang.skript.bukkit.text.elements;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -11,7 +10,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -59,12 +58,12 @@ public class ExprColored extends SimplePropertyExpression<String, Object> {
 	@Override
 	public Object convert(String string) {
 		if (isComponent) {
-			return ChatComponentHandler.parse(string, !isFormat);
+			return TextComponentParser.parse(string, !isFormat);
 		}
 		if (isColor) {
-			return ChatComponentHandler.toLegacyString(string, isFormat);
+			return TextComponentParser.toLegacyString(string, isFormat);
 		}
-		return ChatComponentHandler.stripFormatting(string, isFormat);
+		return TextComponentParser.stripFormatting(string, isFormat);
 	}
 
 	@Override

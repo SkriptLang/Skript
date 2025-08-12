@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.chat.elements;
+package org.skriptlang.skript.bukkit.text.elements;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -14,7 +14,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.chat.ChatComponentUtils;
+import org.skriptlang.skript.bukkit.text.TextComponentUtils;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -49,7 +49,7 @@ public class EffMessage extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		messages = ChatComponentUtils.asComponentExpression(expressions[0]);
+		messages = TextComponentUtils.asComponentExpression(expressions[0]);
 		if (messages == null) {
 			return false;
 		}

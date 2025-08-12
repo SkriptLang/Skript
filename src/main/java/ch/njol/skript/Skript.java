@@ -48,7 +48,6 @@ import ch.njol.skript.util.EmptyStacktraceException;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
@@ -90,8 +89,8 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
-import org.skriptlang.skript.bukkit.chat.ChatModule;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
+import org.skriptlang.skript.bukkit.text.TextModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
@@ -586,7 +585,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
-			skript.loadModules(new ChatModule(), new DamageSourceModule());
+			skript.loadModules(new TextModule(), new DamageSourceModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -825,7 +824,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.sendMessage(ChatComponentHandler.parse(
+					player.sendMessage(TextComponentParser.parse(
 						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
 						false));
 				}
@@ -2071,7 +2070,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(ChatComponentHandler.parse(getSkriptPrefix() + info));
+		sender.sendMessage(TextComponentParser.parse(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2080,7 +2079,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(ChatComponentHandler.parse(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(TextComponentParser.parse(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2094,11 +2093,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(ChatComponentHandler.parse(info));
+		sender.sendMessage(TextComponentParser.parse(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(ChatComponentHandler.parse(getSkriptPrefix() + "<dark_red>" + error));
+		sender.sendMessage(TextComponentParser.parse(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**

@@ -13,7 +13,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.LogHandler.LogResult;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * @author Peter Güttinger
@@ -193,10 +193,10 @@ public abstract class SkriptLogger {
 	public static void sendFormatted(CommandSender commandSender, String message) {
 		if (commandSender instanceof ConsoleCommandSender) {
 			for (String s : message.split("\n")) {
-				Bukkit.getConsoleSender().sendMessage(ChatComponentHandler.parse(s, false));
+				Bukkit.getConsoleSender().sendMessage(TextComponentParser.parse(s, false));
 			}
 		} else {
-			commandSender.sendMessage(ChatComponentHandler.parse(message, false));
+			commandSender.sendMessage(TextComponentParser.parse(message, false));
 		}
 	}
 

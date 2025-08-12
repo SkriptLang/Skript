@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.chat.elements;
+package org.skriptlang.skript.bukkit.text.elements;
 
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -7,7 +7,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 import net.kyori.adventure.title.TitlePart;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
-import org.skriptlang.skript.bukkit.chat.ChatComponentUtils;
+import org.skriptlang.skript.bukkit.text.TextComponentUtils;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -65,14 +64,14 @@ public class EffSendTitle extends Effect {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0) {
-			title = ChatComponentUtils.asComponentExpression(exprs[0]);
+			title = TextComponentUtils.asComponentExpression(exprs[0]);
 			if (title == null) {
 				return false;
 			}
 		}
 		Expression<?> subtitle = exprs[1 - matchedPattern];
 		if (subtitle != null) {
-			this.subtitle = ChatComponentUtils.asComponentExpression(subtitle);
+			this.subtitle = TextComponentUtils.asComponentExpression(subtitle);
 			if (this.subtitle == null) {
 				return false;
 			}

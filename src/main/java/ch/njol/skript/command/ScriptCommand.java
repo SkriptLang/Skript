@@ -44,7 +44,7 @@ import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.lang.reflect.Constructor;
@@ -200,7 +200,7 @@ public class ScriptCommand implements TabExecutor {
 		this.aliases = aliases;
 		activeAliases = new ArrayList<>(aliases);
 
-		this.description = ChatComponentHandler.toLegacyString(description, false);
+		this.description = TextComponentParser.toLegacyString(description, false);
 		this.usage = usage;
 
 		this.executableBy = executableBy;

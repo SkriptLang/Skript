@@ -1,7 +1,8 @@
-package org.skriptlang.skript.bukkit.chat;
+package org.skriptlang.skript.bukkit.text;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.util.ConvertedExpression;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
@@ -10,10 +11,19 @@ import org.skriptlang.skript.lang.converter.ConverterInfo;
 /**
  * Utilities for working with {@link Component}s.
  */
-public final class ChatComponentUtils {
+public final class TextComponentUtils {
 
 	private static final ConverterInfo<Object, Component> OBJECT_COMPONENT_CONVERTER =
-		new ConverterInfo<>(Object.class, Component.class, ChatComponentHandler::plain, 0);
+		new ConverterInfo<>(Object.class, Component.class, TextComponentUtils::plain, 0);
+
+	/**
+	 * Creates a plain text component from an object.
+	 * @param message The message to create a component from.
+	 * @return An unprocessed component from the given message.
+	 */
+	public static Component plain(Object message) {
+		return Component.text(message instanceof String ? (String) message : Classes.toString(message));
+	}
 
 	/**
 	 * Attempts to convert an expression into one that is guaranteed to return a component.
@@ -36,6 +46,6 @@ public final class ChatComponentUtils {
 		return new ConvertedExpression<>(expression, Component.class, OBJECT_COMPONENT_CONVERTER);
 	}
 
-	private ChatComponentUtils() { };
+	private TextComponentUtils() { };
 
 }

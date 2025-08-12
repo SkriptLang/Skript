@@ -38,8 +38,8 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 
 	static {
 		Skript.registerExpression(ExprChestInventory.class, Inventory.class, ExpressionType.COMBINED,
-				"[a] [new] chest inventory (named|with name) %chatcomponent% [with %-number% row[s]]",
-				"[a] [new] chest inventory with %number% row[s] [(named|with name) %-chatcomponent%]");
+				"[a] [new] chest inventory (named|with name) %textcomponent% [with %-number% row[s]]",
+				"[a] [new] chest inventory with %number% row[s] [(named|with name) %-textcomponent%]");
 	}
 
 	private static final Component DEFAULT_CHEST_TITLE = InventoryType.CHEST.defaultTitle();

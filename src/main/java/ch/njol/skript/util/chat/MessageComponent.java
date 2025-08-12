@@ -11,11 +11,12 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import net.md_5.bungee.api.ChatColor;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * Component for chat messages. This can be serialized with GSON and then
  * sent to client.
- * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+ * @deprecated See {@link TextComponentParser}.
  */
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class MessageComponent {

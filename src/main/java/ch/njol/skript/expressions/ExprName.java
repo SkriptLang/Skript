@@ -31,7 +31,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;
@@ -204,7 +204,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Inventory copy;
 				Component component = type.defaultTitle();
 				if (name != null) {
-					component = ChatComponentHandler.parse(name, false);
+					component = TextComponentParser.parse(name, false);
 				}
 				if (type == InventoryType.CHEST) {
 					copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), component);

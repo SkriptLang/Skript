@@ -10,9 +10,10 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
- * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+ * @deprecated See {@link TextComponentParser}.
  */
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class BungeeConverter {
@@ -20,7 +21,7 @@ public class BungeeConverter {
 	private static boolean HAS_FONT_SUPPORT = Skript.methodExists(BaseComponent.class, "setFont", String.class);
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static BaseComponent convert(MessageComponent origin) {
@@ -58,7 +59,7 @@ public class BungeeConverter {
 	}
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static BaseComponent[] convert(List<MessageComponent> origins) {
@@ -66,7 +67,7 @@ public class BungeeConverter {
 	}
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static BaseComponent[] convert(MessageComponent[] origins) {

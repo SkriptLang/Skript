@@ -22,6 +22,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -568,7 +569,7 @@ public abstract class Utils {
 	}
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @Nullable String getChatStyle(final String s) {
@@ -580,7 +581,7 @@ public abstract class Utils {
 	}
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @NotNull String replaceChatStyles(String message) {
@@ -591,7 +592,7 @@ public abstract class Utils {
 	}
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @NotNull String replaceEnglishChatStyles(String message) {
@@ -604,7 +605,7 @@ public abstract class Utils {
 	private final static Pattern STYLE_PATTERN = Pattern.compile("<([^<>]+)>");
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	private static @NotNull String replaceChatStyle(String message) {
@@ -642,7 +643,7 @@ public abstract class Utils {
 	private static final Pattern UNICODE_PATTERN = Pattern.compile("(?i)u(?:nicode)?:(?<code>[0-9a-f]{4,})");
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @Nullable String parseUnicode(String string) {
@@ -660,7 +661,7 @@ public abstract class Utils {
 	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}(?<code>[0-9a-f]{6})");
 
 	/**
-	 * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+	 * @deprecated See {@link TextComponentParser}.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static @Nullable ChatColor parseHexColor(String string) {

@@ -13,7 +13,7 @@ import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
 import ch.njol.skript.update.Updater;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * Skript's update checker.
@@ -79,7 +79,7 @@ public class SkriptUpdater extends Updater {
 					UpdateManifest update = getUpdateManifest();
 					assert update != null; // Because we just checked that one is available
 					Skript.info(sender, "" + m_update_available.toString(update.id, Skript.getVersion()));
-					sender.sendMessage(ChatComponentHandler.parse(
+					sender.sendMessage(TextComponentParser.parse(
 						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
 						false));
 					break;
@@ -137,7 +137,7 @@ public class SkriptUpdater extends Updater {
 						line = processed;
 						
 						assert line != null;
-						sender.sendMessage(ChatComponentHandler.parse(line, false));
+						sender.sendMessage(TextComponentParser.parse(line, false));
 					}
 				}
 			}

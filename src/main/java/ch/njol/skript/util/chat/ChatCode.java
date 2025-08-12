@@ -1,11 +1,12 @@
 package ch.njol.skript.util.chat;
 
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * Chat codes; includes color codes (<a href="https://wiki.vg/Chat#Colors">reference</a>)
  * and also, some formatting codes (mostly <a href="https://wiki.vg/Chat">this</a>)
- * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+ * @deprecated See {@link TextComponentParser}.
  */
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
 public interface ChatCode {

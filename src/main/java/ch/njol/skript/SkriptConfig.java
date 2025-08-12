@@ -24,8 +24,8 @@ import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler;
-import org.skriptlang.skript.bukkit.chat.ChatComponentHandler.LinkParseMode;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
+import org.skriptlang.skript.bukkit.text.TextComponentParser.LinkParseMode;
 import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
@@ -242,17 +242,17 @@ public class SkriptConfig {
 					switch (t) {
 						case "false":
 						case "disabled":
-							ChatComponentHandler.linkParseMode(LinkParseMode.DISABLED);
+							TextComponentParser.linkParseMode(LinkParseMode.DISABLED);
 							break;
 						case "true":
 						case "lenient":
-							ChatComponentHandler.linkParseMode(LinkParseMode.LENIENT);
+							TextComponentParser.linkParseMode(LinkParseMode.LENIENT);
 							break;
 						case "strict":
-							ChatComponentHandler.linkParseMode(LinkParseMode.STRICT);
+							TextComponentParser.linkParseMode(LinkParseMode.STRICT);
 							break;
 						default:
-							ChatComponentHandler.linkParseMode(LinkParseMode.DISABLED);
+							TextComponentParser.linkParseMode(LinkParseMode.DISABLED);
 							Skript.warning("Unknown link parse mode: " + t + ", please use disabled, strict or lenient");
 					}
 				} catch (Error e) {
@@ -269,7 +269,7 @@ public class SkriptConfig {
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {
 				try {
-					ChatComponentHandler.colorsCauseReset(t);
+					TextComponentParser.colorsCauseReset(t);
 				} catch (Error e) {
 					// Ignore it, we're on unsupported server platform and class loading failed
 				}

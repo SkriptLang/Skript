@@ -4,10 +4,11 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.util.chat.MessageComponent.ClickEvent;
 import ch.njol.skript.util.chat.MessageComponent.HoverEvent;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 /**
  * Chat codes that come with Skript by default.
- * @deprecated See {@link org.skriptlang.skript.bukkit.chat.ChatComponentHandler}.
+ * @deprecated See {@link TextComponentParser}.
  */
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
 public enum SkriptChatCode implements ChatCode {
