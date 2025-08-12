@@ -216,7 +216,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
 			sourceSets.main.runtimeClasspath
 		])
-		main = 'ch.njol.skript.test.platform.PlatformMain'
+		mainClass = 'ch.njol.skript.test.platform.PlatformMain'
 		args = [
 			'build/test_runners',
 			junit ? 'src/test/skript/junit' : 'src/test/skript/tests',
