@@ -8,7 +8,9 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.ParsingException;
+import net.kyori.adventure.text.minimessage.tag.ParserDirective;
 import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.TagPattern;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
@@ -136,33 +138,28 @@ public final class ChatComponentHandler {
 		RESOLVERS.remove(new SkriptTagResolver(resolver, true));
 	}
 
+	private static boolean wasLastReset;
+
 	private static TagResolver createSkriptTagResolver(boolean safe, TagResolver builtInResolver) {
 		return new TagResolver() {
 
-			private static final String RESET_KEY = "_skript_reset";
-
 			@Override
 			public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException {
+				Tag tag = resolve_i(name, arguments, ctx);
+				wasLastReset = tag == ParserDirective.RESET;
+				return tag;
+			}
+
+			public @Nullable Tag resolve_i(@TagPattern @NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException {
 				if (colorsCauseReset) {
-					/*
-					 * yes, this is cursed... im sorry
-					 * to preserve this config option's functionality, we use a preprocessing tag that prepends a "<reset>"
-					 *  tag behind all color tags
-					 * however, to ensure that we don't recurse (prepend again), a unique-enough key is appended to
-					 *  the color tag name.
-					 * then, during the primary parsing stage, when these tags are encountered, the key is removed
-					 *  and the tag is parsed as normal.
-					 */
-					// TODO need to remove prefix applied to tags with invalid args: <color:bloop>
-					if (name.endsWith(RESET_KEY)) {
-						name = name.substring(0, name.length() - RESET_KEY.length());
-					} else {
+					// for colors to cause a reset, we want to prepend a reset tag behind all color tags
+					// we track whether the last tag was a reset tag to determine if prepending is necessary
+					if (!wasLastReset) {
 						SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
 						if ((simple != null && simple.reset && (!safe || simple.safe)) || StandardTags.color().has(name)) {
 							StringBuilder tagBuilder = new StringBuilder();
 							tagBuilder.append("<reset><")
-								.append(name)
-								.append(RESET_KEY);
+								.append(name);
 							while (arguments.hasNext()) {
 								tagBuilder.append(":")
 									.append(arguments.pop().value());
@@ -197,11 +194,6 @@ public final class ChatComponentHandler {
 
 			@Override
 			public boolean has(@NotNull String name) {
-				if (colorsCauseReset && name.endsWith(RESET_KEY)) {
-					// this allows this suffix for non-color tags, but that isn't a big deal
-					name = name.substring(0, name.length() - RESET_KEY.length());
-				}
-
 				// check built-in resolver
 				if (builtInResolver.has(name)) {
 					return true;
@@ -228,6 +220,10 @@ public final class ChatComponentHandler {
 	// The normal parser will process any proper tags
 	private static final MiniMessage parser = MiniMessage.builder()
 		.strict(false)
+		.preProcessor(string -> {
+			wasLastReset = false;
+			return string;
+		})
 		.tags(TagResolver.builder()
 			.resolver(createSkriptTagResolver(false, StandardTags.defaults()))
 			.build())
@@ -236,6 +232,10 @@ public final class ChatComponentHandler {
 	// The safe parser only parses color/decoration/formatting related tags
 	private static final MiniMessage safeParser = MiniMessage.builder()
 		.strict(false)
+		.preProcessor(string -> {
+			wasLastReset = false;
+			return string;
+		})
 		.tags(TagResolver.builder()
 			.resolver(createSkriptTagResolver(true, TagResolver.resolver(
 				StandardTags.color(), StandardTags.decorations(), StandardTags.font(),
