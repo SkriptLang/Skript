@@ -23,10 +23,13 @@ public final class CommandArgumentParser {
 	}
 
 	private static final Pattern ARGUMENT_TOKENIZER_PATTERN =
-		Pattern.compile("<[^>]+>|\\S+");
+		Pattern.compile("<[^>]+>|\\([^)]+\\)|\\S+");
 
 	private static final Pattern TYPED_ARGUMENT_PARSER_PATTERN =
 		Pattern.compile("\\s*(?:([^:]+?):)?\\s*(.+?)\\s*");
+
+	private static final Pattern LITERAL_GROUP_PATTERN =
+		Pattern.compile("\\(([^)]+)\\)");
 
 	private static final ThreadLocal<Map<String, AtomicInteger>> ARG_COUNTERS = ThreadLocal.withInitial(HashMap::new);
 
@@ -68,12 +71,21 @@ public final class CommandArgumentParser {
 	/**
 	 * Parses a single argument token into a {@link CommandArgument} object.
 	 *
-	 * @param token a single token (e.g. "<name:type>" or "help").
+	 * @param token a single token (e.g. "<name:type>", "help", or "(first|second)").
 	 * @return The parsed CommandArgument
 	 */
 	private static CommandArgument parseToken(String token) {
 		if (token.startsWith("<") && token.endsWith(">")) {
 			return parseTypedArgument(token);
+		} else if (token.startsWith("(") && token.endsWith(")")) {
+			Matcher matcher = LITERAL_GROUP_PATTERN.matcher(token);
+			Preconditions.checkArgument(matcher.matches(), "Invalid literal group format: must be "
+				+ "'(literal1|literal2)', but got '" + token + "'");
+			String content = matcher.group(1);
+			List<String> literals = Arrays.asList(content.split("\\|"));
+			Preconditions.checkArgument(!literals.isEmpty() && literals.stream().noneMatch(String::isBlank),
+				"Literal group cannot contain blank or empty literals in '" + token + "'");
+			return new CommandArgument.Literal(literals);
 		} else {
 			return new CommandArgument.Literal(token);
 		}

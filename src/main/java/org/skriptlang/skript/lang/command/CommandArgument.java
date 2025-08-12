@@ -1,34 +1,56 @@
 package org.skriptlang.skript.lang.command;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.brigadier.ArgumentSkriptCommandNode;
 import org.skriptlang.skript.brigadier.LiteralSkriptCommandNode;
 import org.skriptlang.skript.brigadier.RootSkriptCommandNode;
 import org.skriptlang.skript.brigadier.SkriptCommandNode;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Represents a parsed command argument (from Skript code).
+ * <p>
+ * In case of literal command arguments, single argument can represent multiple command
+ * nodes, e.g. {@code (req|request)} is a single command argument but must be represented
+ * by two literal command nodes, 'req' and 'request'.
  */
 // TODO optional, possibly plural
 public sealed interface CommandArgument {
 
 	/**
-	 * Creates an empty builder from given command argument.
+	 * Creates an empty builders from given command argument.
+	 * <p>
+	 * In case of literal command arguments, single argument can represent multiple command
+	 * nodes, e.g. {@code (req|request)} is a single command argument but must be represented
+	 * by two literal command nodes, 'req' and 'request'.
 	 *
-	 * @return empty builder for this command argument
+	 * @return empty builders for this command argument
 	 */
-	SkriptCommandNode.Builder<SkriptCommandSender, ?> emptyBuilder();
+	List<? extends SkriptCommandNode.Builder<SkriptCommandSender, ?>> emptyBuilders();
 
 	/**
-	 * Represents a literal.
+	 * Represents a literal or a group of literals.
 	 *
-	 * @param literal literal
+	 * @param literals literals
 	 */
-	record Literal(String literal) implements CommandArgument {
-		@Override
-		public LiteralSkriptCommandNode.Builder<SkriptCommandSender> emptyBuilder() {
-			return LiteralSkriptCommandNode.Builder.literal(literal);
+	record Literal(@Unmodifiable List<String> literals) implements CommandArgument {
+
+		public Literal(String... literals) {
+			this(List.of(literals));
 		}
+
+		public Literal {
+			literals = Collections.unmodifiableList(literals);
+		}
+
+		@Override
+		public List<LiteralSkriptCommandNode.Builder<SkriptCommandSender>> emptyBuilders() {
+			return literals.stream().map(LiteralSkriptCommandNode.Builder::literal).toList();
+		}
+
 	}
 
 	/**
@@ -45,8 +67,8 @@ public sealed interface CommandArgument {
 		}
 
 		@Override
-		public ArgumentSkriptCommandNode.Builder<SkriptCommandSender, T> emptyBuilder() {
-			return ArgumentSkriptCommandNode.Builder.argument(name, type);
+		public List<ArgumentSkriptCommandNode.Builder<SkriptCommandSender, T>> emptyBuilders() {
+			return Collections.singletonList(ArgumentSkriptCommandNode.Builder.argument(name, type));
 		}
 
 	}
@@ -60,8 +82,8 @@ public sealed interface CommandArgument {
 	record Root(String namespace, String label) implements CommandArgument {
 
 		@Override
-		public RootSkriptCommandNode.Builder<SkriptCommandSender> emptyBuilder() {
-			return RootSkriptCommandNode.Builder.root(namespace, label);
+		public List<RootSkriptCommandNode.Builder<SkriptCommandSender>> emptyBuilders() {
+			return Collections.singletonList(RootSkriptCommandNode.Builder.root(namespace, label));
 		}
 
 	}

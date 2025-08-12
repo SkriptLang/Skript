@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.brigadier.RootSkriptCommandNode;
+import org.skriptlang.skript.brigadier.SkriptCommandNode;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
@@ -150,10 +151,14 @@ public abstract class StructGeneralCommand extends Structure {
 		rootArguments.addAll(arguments);
 
 		CommandArgumentParser.resetArgumentCounter();
-		//noinspection unchecked
-		commandNode = (RootSkriptCommandNode<SkriptCommandSender>) CommandUtils.createCommandNode(getHandler(),
+		// the created nodes should be a list of length 1 (the root skript command node) or empty
+		// if the creation failed
+		List<SkriptCommandNode<SkriptCommandSender>> createdNodes = CommandUtils.createCommandNode(getHandler(),
 			entryContainer, null, rootArguments);
-		return commandNode != null;
+		if (createdNodes.isEmpty())
+			return false;
+		commandNode = (RootSkriptCommandNode<SkriptCommandSender>) createdNodes.get(0);
+		return true;
 	}
 
 	@Override

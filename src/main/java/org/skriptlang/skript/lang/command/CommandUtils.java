@@ -22,6 +22,7 @@ import org.skriptlang.skript.brigadier.SkriptCommandNode;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -49,67 +50,72 @@ public final class CommandUtils {
 	}
 
 	/**
-	 * Creates a command node from a sub command entry data.
+	 * Creates a command nodes from a sub command entry data.
 	 * <p>
-	 * If parent is provided, the created node is added as its child.
-	 * Parent properties are also copied to the created node.
+	 * If parent is provided, the created nodes are added as its children.
+	 * Parent properties are also copied to the created nodes.
 	 *
 	 * @param handler command handler
 	 * @param subCommandData sub command entry data
 	 * @param parent parent command node (inherits command properties), this is always present for
 	 *  sub command entries (either another sub command entry or the root command)
-	 * @return created skript command node or null if the creation failed
+	 * @return created skript command nodes or empty list if the creation failed
 	 */
-	public static @Nullable SkriptCommandNode<SkriptCommandSender> createCommandNode(CommandHandler<SkriptCommandSender> handler,
-			SubCommandEntryData.Parsed subCommandData, SkriptCommandNode.Builder<SkriptCommandSender, ?> parent) {
+	public static List<SkriptCommandNode<SkriptCommandSender>> createCommandNode(
+			CommandHandler<SkriptCommandSender> handler, SubCommandEntryData.Parsed subCommandData,
+			SkriptCommandNode.Builder<SkriptCommandSender, ?> parent) {
 		Preconditions.checkNotNull(parent, "Sub-command entry data always have a parent command node");
 		if (subCommandData.entryContainer() == null || subCommandData.arguments() == null)
-			return null;
+			return Collections.emptyList();
 		return createCommandNode(handler, subCommandData.entryContainer(), parent, subCommandData.arguments());
 	}
 
 	/**
-	 * Creates a command node from an entry container and parsed command arguments.
+	 * Creates a command nodes from an entry container and parsed command arguments.
 	 * <p>
-	 * If parent is provided, the created node is added as its child.
-	 * Parent properties are also copied to the created node.
+	 * If parent is provided, the created nodes are added as its children.
+	 * Parent properties are also copied to the created nodes.
 	 *
 	 * @param handler command handler
 	 * @param entryContainer entry container
 	 * @param parent parent command node (inherits command properties)
 	 * @param arguments arguments
-	 * @return created skript command node or null if the creation failed
+	 * @return created skript command nodes or empty list if the creation failed
 	 */
-	public static @Nullable SkriptCommandNode<SkriptCommandSender> createCommandNode(CommandHandler<SkriptCommandSender> handler,
-			EntryContainer entryContainer, @Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?> parent,
-			List<CommandArgument> arguments) {
+	public static List<SkriptCommandNode<SkriptCommandSender>> createCommandNode(
+			CommandHandler<SkriptCommandSender> handler, EntryContainer entryContainer,
+			@Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?> parent, List<CommandArgument> arguments) {
 		if (arguments.isEmpty()) {
 			Skript.error("Command nodes can not be empty; arguments are missing");
-			return null;
+			return Collections.emptyList();
 		}
 
-		List<SkriptCommandNode.Builder<SkriptCommandSender, ?>> builders = new LinkedList<>();
+		// list of builder groups (lists), each representing nodes of one parsed command argument
+		List<List<? extends SkriptCommandNode.Builder<SkriptCommandSender, ?>>> builderGroups = new LinkedList<>();
+
 		for (int i = 0; i < arguments.size(); i++) {
-			var builder = arguments.get(i).emptyBuilder();
-			// first we copy parent properties
-			copyParentProperties(builder, parent);
-			// now we override them if they are present in the entry container for this node
-			if (!setCommandNodeProperties(handler, entryContainer, builder, i == arguments.size() - 1))
-				return null;
-			builders.add(builder);
+			var builders = arguments.get(i).emptyBuilders();
+			for (SkriptCommandNode.Builder<SkriptCommandSender, ?> builder : builders) {
+				// first we copy parent properties
+				copyParentProperties(builder, parent);
+				// now we override them if they are present in the entry container for this node
+				if (!setCommandNodeProperties(handler, entryContainer, builder, i == arguments.size() - 1))
+					return Collections.emptyList();
+			}
+			builderGroups.add(builders);
 		}
 
 		// now we prepared all builders, it is time to connect them together, from last to first one
-		for (int i = builders.size() - 1; i > 0; i--) {
-			var current = builders.get(i);
-			var previous = builders.get(i - 1);
-			previous.then(current);
+		for (int i = builderGroups.size() - 1; i > 0; i--) {
+			for (SkriptCommandNode.Builder<SkriptCommandSender, ?> previous : builderGroups.get(i - 1)) {
+				builderGroups.get(i).forEach(previous::then);
+			}
 		}
 
-		SkriptCommandNode<SkriptCommandSender> firstNode = builders.get(0).build();
+		var firstNodes = builderGroups.get(0).stream().map(SkriptCommandNode.Builder::build).toList();
 		if (parent != null)
-			parent.then(firstNode);
-		return firstNode;
+			firstNodes.forEach(parent::then);
+		return firstNodes;
 	}
 
 	private static void copyParentProperties(SkriptCommandNode.Builder<SkriptCommandSender, ?> builder,
@@ -250,7 +256,8 @@ public final class CommandUtils {
 			List<SubCommandEntryData.Parsed> subCommands = entryContainer.getAll(SubCommandEntryData.SUBCOMMAND_KEY,
 				SubCommandEntryData.Parsed.class, false);
 			for (SubCommandEntryData.Parsed subCommand : subCommands) {
-				createCommandNode(handler, subCommand, builder);
+				if (createCommandNode(handler, subCommand, builder).isEmpty())
+					return false;
 			}
 		}
 
