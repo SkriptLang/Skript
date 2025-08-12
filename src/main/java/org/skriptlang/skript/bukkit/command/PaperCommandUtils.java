@@ -5,6 +5,9 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.MessageComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.jetbrains.annotations.Nullable;
@@ -85,6 +88,49 @@ public final class PaperCommandUtils {
 		} catch (Throwable exception) {
 			throw Skript.exception(exception, "Failed to invoke the syncCommands method");
 		}
+	}
+
+	private static final @Nullable MessageComponentSerializer MESSAGE_COMPONENT_SERIALIZER;
+	private static final @Nullable MethodHandle TO_MESSAGE_HANDLE;
+
+	static {
+		MessageComponentSerializer messageComponentSerializer = null;
+		try {
+			messageComponentSerializer = MessageComponentSerializer.message();
+		} catch (Exception exception) {
+			// message serializer service is unavailable
+			try {
+				messageComponentSerializer = (MessageComponentSerializer)
+					Class.forName("io.papermc.paper.command.brigadier.MessageComponentSerializerImpl")
+					.getDeclaredConstructor().newInstance();
+			} catch (Exception ignored) { /* paper implementation is missing */ }
+		}
+		MESSAGE_COMPONENT_SERIALIZER = messageComponentSerializer;
+
+		MethodHandle toMessageHandle = null;
+		try {
+			Method method = Class.forName("io.papermc.paper.adventure.PaperAdventure")
+				.getDeclaredMethod("asVanilla", Component.class);
+			toMessageHandle = MethodHandles.lookup().unreflect(method);
+		} catch (Exception ignored) { /* paper does not have method to convert the component */ }
+		TO_MESSAGE_HANDLE = toMessageHandle;
+	}
+
+	/**
+	 * Converts adventure component to brigadier message.
+	 *
+	 * @param adventure adventure component
+	 * @return brigadier message
+	 */
+	public static com.mojang.brigadier.Message brigadierMessage(Component adventure) {
+		if (MESSAGE_COMPONENT_SERIALIZER != null)
+			return MESSAGE_COMPONENT_SERIALIZER.serialize(adventure);
+		if (TO_MESSAGE_HANDLE != null) {
+			try {
+				return (com.mojang.brigadier.Message) TO_MESSAGE_HANDLE.invokeExact(adventure);
+			} catch (Throwable ignored) { /* everything failed, rip */ }
+		}
+		return () -> PlainTextComponentSerializer.plainText().serialize(adventure);
 	}
 
 }

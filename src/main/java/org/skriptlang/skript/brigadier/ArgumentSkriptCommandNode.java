@@ -68,7 +68,7 @@ public non-sealed class ArgumentSkriptCommandNode<S extends SkriptCommandSender,
 	@Override
 	@SuppressWarnings("unchecked")
 	public RequiredArgumentBuilder<S, T> flatToBuilder() {
-		return (RequiredArgumentBuilder<S, T>) super.flatToBuilder();
+		return ((RequiredArgumentBuilder<S, T>) super.flatToBuilder()).suggests(getCustomSuggestions());
 	}
 
 	@Override

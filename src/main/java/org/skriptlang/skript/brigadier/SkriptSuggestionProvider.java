@@ -9,9 +9,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import io.papermc.paper.command.brigadier.MessageComponentSerializer;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.skriptlang.skript.bukkit.command.PaperCommandUtils;
 import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.List;
@@ -35,18 +36,19 @@ public interface SkriptSuggestionProvider<S extends SkriptCommandSender> extends
 		return getSuggestions(commandContext)
 			.thenApply(components -> {
 				for (MessageComponent component : components) {
-					Message tooltip;
+					Message tooltip = null;
 
 					if (component.hoverEvent != null
 						&& component.hoverEvent.action == MessageComponent.HoverEvent.Action.show_text) {
 						//noinspection deprecation
 						BaseComponent[] baseComponents = BungeeConverter
 							.convert(ChatMessages.parseToArray(component.hoverEvent.value));
-						tooltip = MessageComponentSerializer.message()
-							.serialize(BungeeComponentSerializer.get().deserialize(baseComponents));
-					} else {
-						tooltip = null;
+						Component adventure = BungeeComponentSerializer.get().deserialize(baseComponents);
+						tooltip = PaperCommandUtils.brigadierMessage(adventure);
 					}
+					// skip any blank components
+					if (component.text.isBlank())
+						continue;
 					suggestionsBuilder.suggest(component.text, tooltip);
 				}
 				return suggestionsBuilder.build();

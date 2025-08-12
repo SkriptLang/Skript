@@ -109,8 +109,10 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender> ex
 		ArgumentBuilder<S, ?> builder;
 		if (node instanceof LiteralCommandNode<?> lcn) {
 			builder = LiteralArgumentBuilder.literal(lcn.getLiteral());
-		} else if (node instanceof ArgumentCommandNode<?,?> acn) {
-			builder = RequiredArgumentBuilder.argument(acn.getName(), acn.getType());
+		} else if (node instanceof ArgumentCommandNode<?,?>) {
+			ArgumentCommandNode<S,Object> acn = (ArgumentCommandNode<S, Object>) node;
+			builder = RequiredArgumentBuilder.<S, Object>argument(acn.getName(), acn.getType())
+				.suggests(acn.getCustomSuggestions());
 		} else {
 			throw new IllegalStateException("Unsupported command node type; only native brigadier nodes are supported");
 		}

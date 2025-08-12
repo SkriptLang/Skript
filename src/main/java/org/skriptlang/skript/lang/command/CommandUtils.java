@@ -208,7 +208,8 @@ public final class CommandUtils {
 		// TODO cooldown
 
 		// suggestions, trigger and children are only considered for the last node
-		if (!last) return true;
+		if (!last)
+			return true;
 
 		if (entryContainer.hasEntry(SubCommandEntryData.SUGGESTIONS_KEY)) {
 			if (!(builder instanceof ArgumentSkriptCommandNode.Builder<?,?>)) {
