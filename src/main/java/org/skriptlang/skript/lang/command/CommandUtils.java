@@ -3,6 +3,8 @@ package org.skriptlang.skript.lang.command;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.CommandUsage;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import org.skriptlang.skript.brigadier.SkriptSuggestionProvider;
 import org.skriptlang.skript.bukkit.command.BrigadierCommandEvent;
 import org.skriptlang.skript.bukkit.command.BrigadierSuggestionsEvent;
@@ -21,17 +23,35 @@ import org.skriptlang.skript.brigadier.RootSkriptCommandNode;
 import org.skriptlang.skript.brigadier.SkriptCommandNode;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public final class CommandUtils {
 
+	/**
+	 * Table mapping entry container and entry keys (suggestions and trigger) to loaded triggers.
+	 * <p>
+	 * This is to ensure each trigger is loaded only once for command arguments composed of multiple
+	 * command nodes.
+	 *
+	 * @see CommandArgument
+	 */
+	private static final ThreadLocal<Table<EntryContainer, String, Trigger>> LOADED_TRIGGERS
+		= ThreadLocal.withInitial(HashBasedTable::create);
+
 	private CommandUtils() {
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Clears all loaded triggers.
+	 * <p>
+	 * This should be called after command nodes are created to
+	 * prevent storing further unused triggers.
+	 */
+	static void clearLoadedTriggers() {
+		LOADED_TRIGGERS.get().clear();
 	}
 
 	/**
@@ -216,14 +236,18 @@ public final class CommandUtils {
 				}
 			};
 
-			ParserInstance parser = ParserInstance.get();
-			ParserInstance.Backup parserBackup = parser.backup();
-			parser.reset();
-			parser.setCurrentEvent("command suggestions", BrigadierSuggestionsEvent.class);
-			Trigger trigger = suggestionsReturnHandler.loadReturnableTrigger(suggestionsNode,
-				"command suggestions", new SimpleEvent());
-			trigger.setLineNumber(suggestionsNode.getLine());
-			parser.restoreBackup(parserBackup);
+			Trigger trigger = LOADED_TRIGGERS.get().row(entryContainer).computeIfAbsent(
+				SubCommandEntryData.SUGGESTIONS_KEY, key -> {
+					ParserInstance parser = ParserInstance.get();
+					ParserInstance.Backup parserBackup = parser.backup();
+					parser.reset();
+					parser.setCurrentEvent("command suggestions", BrigadierSuggestionsEvent.class);
+					Trigger loaded = suggestionsReturnHandler.loadReturnableTrigger(suggestionsNode,
+						"command suggestions", new SimpleEvent());
+					loaded.setLineNumber(suggestionsNode.getLine());
+					parser.restoreBackup(parserBackup);
+					return loaded;
+				});
 
 			SkriptSuggestionProvider<SkriptCommandSender> suggestionProvider = ctx -> {
 				BrigadierSuggestionsEvent event = new BrigadierSuggestionsEvent(ctx);
@@ -239,16 +263,20 @@ public final class CommandUtils {
 		}
 
 		if (entryContainer.hasEntry(SubCommandEntryData.TRIGGER_KEY)) {
-			SectionNode triggerNode = entryContainer.get(SubCommandEntryData.TRIGGER_KEY, SectionNode.class,
-				false);
-			ParserInstance parser = ParserInstance.get();
-			ParserInstance.Backup parserBackup = parser.backup();
-			parser.reset();
-			parser.setCurrentEvent("command trigger", BrigadierCommandEvent.class);
-			Trigger trigger = new Trigger(ParserInstance.get().getCurrentScript(),
-				"command trigger", new SimpleEvent(), ScriptLoader.loadItems(triggerNode));
-			trigger.setLineNumber(triggerNode.getLine());
-			parser.restoreBackup(parserBackup);
+			Trigger trigger = LOADED_TRIGGERS.get().row(entryContainer).computeIfAbsent(
+				SubCommandEntryData.TRIGGER_KEY, key -> {
+					SectionNode triggerNode = entryContainer.get(SubCommandEntryData.TRIGGER_KEY, SectionNode.class,
+						false);
+					ParserInstance parser = ParserInstance.get();
+					ParserInstance.Backup parserBackup = parser.backup();
+					parser.reset();
+					parser.setCurrentEvent("command trigger", BrigadierCommandEvent.class);
+					Trigger loaded = new Trigger(ParserInstance.get().getCurrentScript(),
+						"command trigger", new SimpleEvent(), ScriptLoader.loadItems(triggerNode));
+					loaded.setLineNumber(triggerNode.getLine());
+					parser.restoreBackup(parserBackup);
+					return loaded;
+				});
 			builder.executes(ctx -> runTriggerOnMainThread(trigger, new BrigadierCommandEvent(ctx)) ? 1 : 0);
 		}
 

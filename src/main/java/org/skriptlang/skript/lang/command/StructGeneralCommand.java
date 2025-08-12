@@ -155,6 +155,7 @@ public abstract class StructGeneralCommand extends Structure {
 		// if the creation failed
 		List<SkriptCommandNode<SkriptCommandSender>> createdNodes = CommandUtils.createCommandNode(getHandler(),
 			entryContainer, null, rootArguments);
+		CommandUtils.clearLoadedTriggers();
 		if (createdNodes.isEmpty())
 			return false;
 		commandNode = (RootSkriptCommandNode<SkriptCommandSender>) createdNodes.get(0);
