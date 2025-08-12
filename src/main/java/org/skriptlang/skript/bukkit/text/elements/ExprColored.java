@@ -58,12 +58,12 @@ public class ExprColored extends SimplePropertyExpression<String, Object> {
 	@Override
 	public Object convert(String string) {
 		if (isComponent) {
-			return TextComponentParser.parse(string, !isFormat);
+			return TextComponentParser.instance().parse(string, !isFormat);
 		}
 		if (isColor) {
-			return TextComponentParser.toLegacyString(string, isFormat);
+			return TextComponentParser.instance().toLegacyString(string, isFormat);
 		}
-		return TextComponentParser.stripFormatting(string, isFormat);
+		return TextComponentParser.instance().stripFormatting(string, isFormat);
 	}
 
 	@Override

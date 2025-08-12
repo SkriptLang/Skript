@@ -43,7 +43,7 @@ public class EffEnforceWhitelist extends Effect {
 			YamlConfiguration spigotYml = YamlConfiguration.loadConfiguration(new File("spigot.yml"));
 			whitelistMessage = spigotYml.getString("messages.whitelist", whitelistMessage);
 		} catch (Exception ignored) {}
-		NOT_WHITELISTED_MESSAGE = TextComponentParser.parse(whitelistMessage);
+		NOT_WHITELISTED_MESSAGE = TextComponentParser.instance().parse(whitelistMessage);
 
 		Skript.registerEffect(EffEnforceWhitelist.class, "[:un]enforce [the] [server] white[ ]list");
 	}

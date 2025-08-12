@@ -200,7 +200,7 @@ public class ScriptCommand implements TabExecutor {
 		this.aliases = aliases;
 		activeAliases = new ArrayList<>(aliases);
 
-		this.description = TextComponentParser.toLegacyString(description, false);
+		this.description = TextComponentParser.instance().toLegacyString(description, false);
 		this.usage = usage;
 
 		this.executableBy = executableBy;

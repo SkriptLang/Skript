@@ -147,8 +147,8 @@ public class LogEntry {
 
 		return
 			String.format(lineInfoMsg, node.getLine(), c.getFileName()) +
-			String.format(detailsMsg, TextComponentParser.escape(message.replaceAll("§", "&"))) + from +
-			String.format(lineDetailsMsg, TextComponentParser.escape(node.save().trim().replaceAll("§", "&")));
+			String.format(detailsMsg, TextComponentParser.instance().escape(message.replaceAll("§", "&"))) + from +
+			String.format(lineDetailsMsg, TextComponentParser.instance().escape(node.save().trim().replaceAll("§", "&")));
 	}
 
 	private String replaceNewline(String s) {

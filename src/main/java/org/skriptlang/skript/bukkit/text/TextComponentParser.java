@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * Used for parsing {@link String}s as {@link Component}s.
+ */
 public final class TextComponentParser {
 
 	private record SkriptTag(Tag tag, boolean safe, boolean reset) { }
@@ -63,31 +66,70 @@ public final class TextComponentParser {
 			this.textReplacementConfig = textReplacementConfig;
 		}
 
+		/**
+		 * @return A text replacement configuration for formatting URLs within a {@link Component}.
+		 * @see Component#replaceText(TextReplacementConfig)
+		 */
 		public TextReplacementConfig textReplacementConfig() {
 			return textReplacementConfig;
 		}
 	}
 
-	private static final Map<String, SkriptTag> SIMPLE_PLACEHOLDERS = new HashMap<>();
-	private static final List<SkriptTagResolver> RESOLVERS = new ArrayList<>();
+	private static final TextComponentParser INSTANCE;
 
-	private static LinkParseMode linkParseMode = LinkParseMode.DISABLED;
-	private static boolean colorsCauseReset = false;
+	private static final Pattern COLOR_PATTERN = Pattern.compile("<([a-zA-Z]+ [a-zA-Z]+)>");
 
-	public static LinkParseMode linkParseMode() {
+	static {
+		INSTANCE = new TextComponentParser();
+	}
+
+	/**
+	 * @return The global parser instance used by Skript.
+	 */
+	public static TextComponentParser instance() {
+		return INSTANCE;
+	}
+
+	private TextComponentParser() {}
+
+	private final Map<String, SkriptTag> simplePlaceholders = new HashMap<>();
+	private final List<SkriptTagResolver> resolvers = new ArrayList<>();
+
+	private LinkParseMode linkParseMode = LinkParseMode.DISABLED;
+	private boolean colorsCauseReset = false;
+
+	/**
+	 * @return The link parse mode for this parser, which describes how potential links should be treated.
+	 */
+	public LinkParseMode linkParseMode() {
 		return linkParseMode;
 	}
 
-	public static void linkParseMode(LinkParseMode linkParseMode) {
-		TextComponentParser.linkParseMode = linkParseMode;
+	/**
+	 * Sets the link parse mode for this parser, which describes how potential links should be treated.
+	 * @param linkParseMode The link parse mode to use.
+	 */
+	public void linkParseMode(LinkParseMode linkParseMode) {
+		this.linkParseMode = linkParseMode;
 	}
 
-	public static boolean colorsCauseReset() {
+	/**
+	 * @return Whether color codes cause a reset of existing formatting.
+	 * Essentially, this setting controls whether all color tags should be prepended with a {@code <reset>} tag.
+	 * @see ParserDirective#RESET
+	 */
+	public boolean colorsCauseReset() {
 		return colorsCauseReset;
 	}
 
-	public static void colorsCauseReset(boolean colorsCauseReset) {
-		TextComponentParser.colorsCauseReset = colorsCauseReset;
+	/**
+	 * Sets whether color codes cause a reset of existing formatting.
+	 * Essentially, this setting controls whether all color tags should be prepended with a {@code <reset>} tag.
+	 * @param colorsCauseReset Whether color codes should cause a reset.
+	 * @see ParserDirective#RESET
+	 */
+	public void colorsCauseReset(boolean colorsCauseReset) {
+		this.colorsCauseReset = colorsCauseReset;
 	}
 
 	/**
@@ -96,8 +138,8 @@ public final class TextComponentParser {
 	 * @param result The result/value of the placeholder.
 	 * @param safe Whether the placeholder can be used in the safe parser.
 	 */
-	public static void registerPlaceholder(String name, Tag result, boolean safe) {
-		SIMPLE_PLACEHOLDERS.put(name, new SkriptTag(result, safe, false));
+	public void registerPlaceholder(String name, Tag result, boolean safe) {
+		simplePlaceholders.put(name, new SkriptTag(result, safe, false));
 	}
 
 	/**
@@ -107,16 +149,16 @@ public final class TextComponentParser {
 	 * @param result The result/value of the placeholder.
 	 * @param safe Whether the placeholder can be used in the safe parser.
 	 */
-	public static void registerResettingPlaceholder(String name, Tag result, boolean safe) {
-		SIMPLE_PLACEHOLDERS.put(name, new SkriptTag(result, safe, true));
+	public void registerResettingPlaceholder(String name, Tag result, boolean safe) {
+		simplePlaceholders.put(name, new SkriptTag(result, safe, true));
 	}
 
 	/**
 	 * Unregisters a simple key-value placeholder from Skript's message parsers.
 	 * @param tag The name of the placeholder to unregister.
 	 */
-	public static void unregisterPlaceholder(String tag) {
-		SIMPLE_PLACEHOLDERS.remove(tag);
+	public void unregisterPlaceholder(String tag) {
+		simplePlaceholders.remove(tag);
 	}
 
 	/**
@@ -124,23 +166,23 @@ public final class TextComponentParser {
 	 * @param resolver The TagResolver to register.
 	 * @param safe Whether the placeholder can be used in the safe parser.
 	 */
-	public static void registerResolver(TagResolver resolver, boolean safe) {
+	public void registerResolver(TagResolver resolver, boolean safe) {
 		unregisterResolver(resolver); // just to be safe
-		RESOLVERS.add(new SkriptTagResolver(resolver, safe));
+		resolvers.add(new SkriptTagResolver(resolver, safe));
 	}
 
 	/**
 	 * Unregisters a TagResolver from Skript's message parsers.
 	 * @param resolver The TagResolver to unregister.
 	 */
-	public static void unregisterResolver(TagResolver resolver) {
-		RESOLVERS.remove(new SkriptTagResolver(resolver, false));
-		RESOLVERS.remove(new SkriptTagResolver(resolver, true));
+	public void unregisterResolver(TagResolver resolver) {
+		resolvers.remove(new SkriptTagResolver(resolver, false));
+		resolvers.remove(new SkriptTagResolver(resolver, true));
 	}
 
-	private static boolean wasLastReset;
+	private boolean wasLastReset;
 
-	private static TagResolver createSkriptTagResolver(boolean safe, TagResolver builtInResolver) {
+	private TagResolver createSkriptTagResolver(boolean safe, TagResolver builtInResolver) {
 		return new TagResolver() {
 
 			@Override
@@ -155,7 +197,7 @@ public final class TextComponentParser {
 					// for colors to cause a reset, we want to prepend a reset tag behind all color tags
 					// we track whether the last tag was a reset tag to determine if prepending is necessary
 					if (!wasLastReset) {
-						SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
+						SkriptTag simple = simplePlaceholders.get(name);
 						if ((simple != null && simple.reset && (!safe || simple.safe)) || StandardTags.color().has(name)) {
 							StringBuilder tagBuilder = new StringBuilder();
 							tagBuilder.append("<reset><")
@@ -176,13 +218,13 @@ public final class TextComponentParser {
 				}
 
 				// attempt our simple placeholders
-				SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
+				SkriptTag simple = simplePlaceholders.get(name);
 				if (simple != null) {
 					return !safe || simple.safe ? simple.tag : null;
 				}
 
 				// attempt our custom resolvers
-				for (SkriptTagResolver skriptResolver : RESOLVERS) {
+				for (SkriptTagResolver skriptResolver : resolvers) {
 					if ((safe && !skriptResolver.safe) || !skriptResolver.resolver.has(name)) {
 						continue;
 					}
@@ -200,13 +242,13 @@ public final class TextComponentParser {
 				}
 
 				// check our simple placeholders
-				SkriptTag simple = SIMPLE_PLACEHOLDERS.get(name);
+				SkriptTag simple = simplePlaceholders.get(name);
 				if (simple != null) {
 					return !safe || simple.safe;
 				}
 
 				// check our custom resolvers
-				for (SkriptTagResolver skriptResolver : RESOLVERS) {
+				for (SkriptTagResolver skriptResolver : resolvers) {
 					if ((!safe || skriptResolver.safe) && skriptResolver.resolver.has(name)) {
 						return true;
 					}
@@ -218,7 +260,7 @@ public final class TextComponentParser {
 	}
 
 	// The normal parser will process any proper tags
-	private static final MiniMessage parser = MiniMessage.builder()
+	private final MiniMessage parser = MiniMessage.builder()
 		.strict(false)
 		.preProcessor(string -> {
 			wasLastReset = false;
@@ -230,7 +272,7 @@ public final class TextComponentParser {
 		.build();
 
 	// The safe parser only parses color/decoration/formatting related tags
-	private static final MiniMessage safeParser = MiniMessage.builder()
+	private final MiniMessage safeParser = MiniMessage.builder()
 		.strict(false)
 		.preProcessor(string -> {
 			wasLastReset = false;
@@ -246,25 +288,23 @@ public final class TextComponentParser {
 		.build();
 
 	/**
-	 * Parses a string using the safe MiniMessage parser.
+	 * Parses a string using the safe {@link MiniMessage} parser.
 	 * Only simple color/decoration/formatting related tags will be parsed.
 	 * @param message The message to parse.
-	 * @return An adventure component from the parsed message.
+	 * @return A component from the parsed message.
 	 * @see #parse(Object, boolean)
 	 */
-	public static Component parse(Object message) {
+	public Component parse(Object message) {
 		return parse(message, true);
 	}
 
-	private static final Pattern COLOR_PATTERN = Pattern.compile("<([a-zA-Z]+ [a-zA-Z]+)>");
-
 	/**
-	 * Parses a string using one of the MiniMessage parsers.
+	 * Parses a string using one of the {@link MiniMessage} parsers.
 	 * @param message The message to parse.
 	 * @param safe Whether only color/decoration/formatting related tags should be parsed.
-	 * @return An adventure component from the parsed message.
+	 * @return A component from the parsed message.
 	 */
-	public static Component parse(Object message, boolean safe) {
+	public Component parse(Object message, boolean safe) {
 		String realMessage = message instanceof String ? (String) message : Classes.toString(message);
 
 		if (realMessage.isEmpty()) {
@@ -275,7 +315,7 @@ public final class TextComponentParser {
 		// replace spaces with underscores for simple tags
 		realMessage = StringUtils.replaceAll(realMessage, COLOR_PATTERN, matcher -> {
 			String mappedTag = matcher.group(1).replace(" ", "_");
-			if (SIMPLE_PLACEHOLDERS.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
+			if (simplePlaceholders.containsKey(mappedTag) || StandardTags.color().has(mappedTag)) { // only replace if it makes a valid tag
 				return "<" + mappedTag + ">";
 			}
 			return matcher.group();
@@ -323,12 +363,12 @@ public final class TextComponentParser {
 	}
 
 	/**
-	 * Escapes all tags known to Skript in the given string.
+	 * Escapes all tags known to this parser in the given string.
 	 * This method will also escape legacy color codes by prepending them with a backslash.
 	 * @param string The string to escape tags in.
 	 * @return The string with tags escaped.
 	 */
-	public static String escape(String string) {
+	public String escape(String string) {
 		// legacy compatibility, escape color codes
 		if (string.contains("&") || string.contains("§")) {
 			StringBuilder reconstructedString = new StringBuilder();
@@ -360,7 +400,7 @@ public final class TextComponentParser {
 	 *  If false, only safe tags like colors and decorations will be stripped.
 	 * @return The stripped string.
 	 */
-	public static String stripFormatting(String string, boolean all) {
+	public String stripFormatting(String string, boolean all) {
 		return (all ? parser : safeParser).stripTags(string);
 	}
 
@@ -369,7 +409,7 @@ public final class TextComponentParser {
 	 * @param component The component to strip formatting from.
 	 * @return A stripped string from a component.
 	 */
-	public static String stripFormatting(Component component) {
+	public String stripFormatting(Component component) {
 		return PlainTextComponentSerializer.plainText().serialize(component);
 	}
 
@@ -380,7 +420,7 @@ public final class TextComponentParser {
 	 *  If false, only safe tags like colors and decorations will be converted.
 	 * @return The legacy string.
 	 */
-	public static String toLegacyString(String string, boolean all) {
+	public String toLegacyString(String string, boolean all) {
 		return toLegacyString(parse(string, !all));
 	}
 
@@ -389,10 +429,8 @@ public final class TextComponentParser {
 	 * @param component The component to convert.
 	 * @return The legacy string.
 	 */
-	public static String toLegacyString(Component component) {
+	public String toLegacyString(Component component) {
 		return LegacyComponentSerializer.legacySection().serialize(component);
 	}
-
-	private TextComponentParser() {}
 
 }

@@ -242,17 +242,17 @@ public class SkriptConfig {
 					switch (t) {
 						case "false":
 						case "disabled":
-							TextComponentParser.linkParseMode(LinkParseMode.DISABLED);
+							TextComponentParser.instance().linkParseMode(LinkParseMode.DISABLED);
 							break;
 						case "true":
 						case "lenient":
-							TextComponentParser.linkParseMode(LinkParseMode.LENIENT);
+							TextComponentParser.instance().linkParseMode(LinkParseMode.LENIENT);
 							break;
 						case "strict":
-							TextComponentParser.linkParseMode(LinkParseMode.STRICT);
+							TextComponentParser.instance().linkParseMode(LinkParseMode.STRICT);
 							break;
 						default:
-							TextComponentParser.linkParseMode(LinkParseMode.DISABLED);
+							TextComponentParser.instance().linkParseMode(LinkParseMode.DISABLED);
 							Skript.warning("Unknown link parse mode: " + t + ", please use disabled, strict or lenient");
 					}
 				} catch (Error e) {
@@ -269,7 +269,7 @@ public class SkriptConfig {
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {
 				try {
-					TextComponentParser.colorsCauseReset(t);
+					TextComponentParser.instance().colorsCauseReset(t);
 				} catch (Error e) {
 					// Ignore it, we're on unsupported server platform and class loading failed
 				}

@@ -204,7 +204,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Inventory copy;
 				Component component = type.defaultTitle();
 				if (name != null) {
-					component = TextComponentParser.parse(name, false);
+					component = TextComponentParser.instance().parse(name, false);
 				}
 				if (type == InventoryType.CHEST) {
 					copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), component);

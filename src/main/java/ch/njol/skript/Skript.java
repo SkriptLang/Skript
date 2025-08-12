@@ -585,7 +585,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
-			skript.loadModules(new TextModule(), new DamageSourceModule());
+			skript.loadModules(new DamageSourceModule(), new TextModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -824,7 +824,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.sendMessage(TextComponentParser.parse(
+					player.sendMessage(TextComponentParser.instance().parse(
 						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
 						false));
 				}
@@ -2051,7 +2051,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		logEx("Thread: " + (thread == null ? Thread.currentThread() : thread).getName());
 		logEx("Language: " + Language.getName());
-		logEx("Link parse mode: " + ChatMessages.linkParseMode);
+		logEx("Link parse mode: " + TextComponentParser.instance().linkParseMode());
 	}
 
 	static void logEx() {
@@ -2070,7 +2070,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(TextComponentParser.parse(getSkriptPrefix() + info));
+		sender.sendMessage(TextComponentParser.instance().parse(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2079,7 +2079,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(TextComponentParser.parse(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(TextComponentParser.instance().parse(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2093,11 +2093,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(TextComponentParser.parse(info));
+		sender.sendMessage(TextComponentParser.instance().parse(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(TextComponentParser.parse(getSkriptPrefix() + "<dark_red>" + error));
+		sender.sendMessage(TextComponentParser.instance().parse(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**

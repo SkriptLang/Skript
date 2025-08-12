@@ -197,7 +197,7 @@ public class ExprBookPages extends SimpleExpression<String> {
 			}
 
 			bookMeta.pages(pages.stream()
-				.map(bookPage -> TextComponentParser.parse(bookPage, false))
+				.map(bookPage -> TextComponentParser.instance().parse(bookPage, false))
 				.toList());
 
 			// If the title and author of the bookMeta are not set, Minecraft will not update the BookMeta, as it deems the book "not signed".
