@@ -27,8 +27,7 @@ import java.util.function.Predicate;
  * @param <S> command sender type
  * @see Builder#literal(String)
  */
-public non-sealed class LiteralSkriptCommandNode<S extends SkriptCommandSender>
-	extends SkriptCommandNode<S, LiteralCommandNode<S>> {
+public non-sealed class LiteralSkriptCommandNode<S extends SkriptCommandSender> extends SkriptCommandNode<S> {
 
 	private final LiteralCommandNode<S> wrapped;
 
@@ -120,7 +119,7 @@ public non-sealed class LiteralSkriptCommandNode<S extends SkriptCommandSender>
 	 * @param <S> command sender type
 	 */
 	public static non-sealed class Builder<S extends SkriptCommandSender>
-		extends SkriptCommandNode.Builder<S, LiteralCommandNode<S>, LiteralSkriptCommandNode<S>, Builder<S>> {
+		extends SkriptCommandNode.Builder<S, Builder<S>> {
 
 		/**
 		 * Creates new builder for literal skript command node with given name.

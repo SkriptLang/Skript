@@ -17,7 +17,7 @@ public sealed interface CommandArgument {
 	 *
 	 * @return empty builder for this command argument
 	 */
-	SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> emptyBuilder();
+	SkriptCommandNode.Builder<SkriptCommandSender, ?> emptyBuilder();
 
 	/**
 	 * Represents a literal.

@@ -30,8 +30,7 @@ import java.util.function.Predicate;
  * @param <S> command sender type
  * @see ArgumentSkriptCommandNode.Builder#argument(String, ArgumentType)
  */
-public non-sealed class ArgumentSkriptCommandNode<S extends SkriptCommandSender, T>
-	extends SkriptCommandNode<S, ArgumentCommandNode<S, T>> {
+public non-sealed class ArgumentSkriptCommandNode<S extends SkriptCommandSender, T> extends SkriptCommandNode<S> {
 
 	private final ArgumentCommandNode<S, T> wrapped;
 
@@ -128,8 +127,7 @@ public non-sealed class ArgumentSkriptCommandNode<S extends SkriptCommandSender,
 	 * @param <T> argument type
 	 */
 	public static non-sealed class Builder<S extends SkriptCommandSender, T>
-		extends SkriptCommandNode.Builder<S, ArgumentCommandNode<S, T>,
-		ArgumentSkriptCommandNode<S, T>, Builder<S, T>> {
+		extends SkriptCommandNode.Builder<S, Builder<S, T>> {
 
 		/**
 		 * Creates new builder for argument skript command node with given name and type.

@@ -60,8 +60,8 @@ public final class CommandUtils {
 	 *  sub command entries (either another sub command entry or the root command)
 	 * @return created skript command node or null if the creation failed
 	 */
-	public static @Nullable SkriptCommandNode<SkriptCommandSender, ?> createCommandNode(CommandHandler<SkriptCommandSender> handler,
-			SubCommandEntryData.Parsed subCommandData, SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> parent) {
+	public static @Nullable SkriptCommandNode<SkriptCommandSender> createCommandNode(CommandHandler<SkriptCommandSender> handler,
+			SubCommandEntryData.Parsed subCommandData, SkriptCommandNode.Builder<SkriptCommandSender, ?> parent) {
 		Preconditions.checkNotNull(parent, "Sub-command entry data always have a parent command node");
 		if (subCommandData.entryContainer() == null || subCommandData.arguments() == null)
 			return null;
@@ -80,15 +80,15 @@ public final class CommandUtils {
 	 * @param arguments arguments
 	 * @return created skript command node or null if the creation failed
 	 */
-	public static @Nullable SkriptCommandNode<SkriptCommandSender, ?> createCommandNode(CommandHandler<SkriptCommandSender> handler,
-			EntryContainer entryContainer, @Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> parent,
+	public static @Nullable SkriptCommandNode<SkriptCommandSender> createCommandNode(CommandHandler<SkriptCommandSender> handler,
+			EntryContainer entryContainer, @Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?> parent,
 			List<CommandArgument> arguments) {
 		if (arguments.isEmpty()) {
 			Skript.error("Command nodes can not be empty; arguments are missing");
 			return null;
 		}
 
-		List<SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?>> builders = new LinkedList<>();
+		List<SkriptCommandNode.Builder<SkriptCommandSender, ?>> builders = new LinkedList<>();
 		for (int i = 0; i < arguments.size(); i++) {
 			var builder = arguments.get(i).emptyBuilder();
 			// first we copy parent properties
@@ -106,14 +106,14 @@ public final class CommandUtils {
 			previous.then(current);
 		}
 
-		SkriptCommandNode<SkriptCommandSender, ?> firstNode = builders.get(0).build();
+		SkriptCommandNode<SkriptCommandSender> firstNode = builders.get(0).build();
 		if (parent != null)
 			parent.then(firstNode);
 		return firstNode;
 	}
 
-	private static void copyParentProperties(SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> builder,
-			@Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> parent) {
+	private static void copyParentProperties(SkriptCommandNode.Builder<SkriptCommandSender, ?> builder,
+			@Nullable SkriptCommandNode.Builder<SkriptCommandSender, ?> parent) {
 		if (parent == null) return;
 		builder.permission(parent.getPermission());
 		builder.permissionMessage(parent.getPermissionMessage());
@@ -132,7 +132,7 @@ public final class CommandUtils {
 	 * @return false if the provided data are not compatible with given handler, else true
 	 */
 	public static boolean setCommandNodeProperties(CommandHandler<SkriptCommandSender> handler,
-			EntryContainer entryContainer, SkriptCommandNode.Builder<SkriptCommandSender, ?, ?, ?> builder,
+			EntryContainer entryContainer, SkriptCommandNode.Builder<SkriptCommandSender, ?> builder,
 			boolean last) {
 
 		// root command properties

@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  *
  * @param <S> command source
  */
-public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N extends CommandNode<S>> extends CommandNode<S>
+public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender> extends CommandNode<S>
 	permits ArgumentSkriptCommandNode, LiteralSkriptCommandNode {
 
 	private final @Nullable String permission;
@@ -87,7 +87,7 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N 
 	 *
 	 * @return native brigadier node
 	 */
-	public abstract N flat();
+	public abstract CommandNode<S> flat();
 
 	/**
 	 * Creates native brigadier node builder from this node.
@@ -122,7 +122,7 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N 
 			builder.executes(node.getCommand());
 		for (CommandNode<S> child : node.getChildren()) {
 			CommandNode<S> nativeNode = child;
-			if (child instanceof SkriptCommandNode<?,?> scn)
+			if (child instanceof SkriptCommandNode<?> scn)
 				nativeNode = (CommandNode<S>) scn.flat();
 			builder.then(flatToBuilder(nativeNode));
 		}
@@ -143,7 +143,7 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N 
 	 */
 	@SuppressWarnings("unchecked")
 	static <S extends SkriptCommandSender, B extends ArgumentBuilder<S, B>,
-			F extends SkriptCommandNode<S, ?>> void flat(B builder, F node) {
+			F extends SkriptCommandNode<S>> void flat(B builder, F node) {
 		builder.requires(sender -> {
 			if (!node.getRequirement().test(sender))
 				return false;
@@ -156,7 +156,7 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N 
 		});
 
 		CommandNode<S> redirect = node.getRedirect();
-		if (redirect instanceof SkriptCommandNode<?,?> scn)
+		if (redirect instanceof SkriptCommandNode<?> scn)
 			redirect = (CommandNode<S>) scn.flat();
 		builder.forward(redirect, node.getRedirectModifier(), node.isFork());
 
@@ -180,7 +180,7 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N 
 		}
 
 		for (CommandNode<S> child : node.getChildren()) {
-			if (child instanceof SkriptCommandNode<?,?> scn) {
+			if (child instanceof SkriptCommandNode<?> scn) {
 				builder.then((CommandNode<S>) scn.flat());
 				continue;
 			}
@@ -192,12 +192,9 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N 
 	 * Represents builder of a SkriptCommandNode.
 	 *
 	 * @param <S> command sender type
-	 * @param <N> native brigadier command node of the SkriptCommandNode
-	 * @param <Built> the SkriptCommandNode that is being built
 	 * @param <T> this builder
 	 */
-	public sealed abstract static class Builder<S extends SkriptCommandSender, N extends CommandNode<S>,
-			Built extends SkriptCommandNode<S, N>, T extends Builder<S, N, Built, T>>
+	public sealed abstract static class Builder<S extends SkriptCommandSender, T extends Builder<S, T>>
 			extends ArgumentBuilder<S, T> permits ArgumentSkriptCommandNode.Builder, LiteralSkriptCommandNode.Builder {
 
 		private @Nullable String permission = null;
@@ -280,7 +277,7 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender, N 
 		 * @return new SkriptCommandNode from this builder
 		 */
 		@Contract(pure = true)
-		public abstract Built build();
+		public abstract SkriptCommandNode<S> build();
 
 	}
 
