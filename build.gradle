@@ -242,10 +242,6 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 		// Do first is used when throwing exceptions.
 		// This way it's not called when defining the task.
 		doFirst {
-			jvmArgs = [
-				'--add-opens=ALL-UNNAMED/ALL-UNNAMED=ALL-UNNAMED',
-				'--add-exports=ALL-UNNAMED/ALL-UNNAMED=ALL-UNNAMED'
-			]
 			if (!gradle.taskGraph.hasTask(":tasks") && !gradle.startParameter.dryRun && modifiers.contains(Modifiers.PROFILE)) {
 				if (!project.hasProperty('profiler'))
 					throw new MissingPropertyException('Add parameter -Pprofiler=<path to profiler>', 'profiler', String.class)
