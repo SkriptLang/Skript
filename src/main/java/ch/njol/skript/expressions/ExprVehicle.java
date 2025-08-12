@@ -20,6 +20,7 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 
 import org.bukkit.entity.Player;
@@ -55,21 +56,17 @@ public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 
 	@Override
 	protected Entity[] get(Event event, Entity[] source) {
-		return get(source, entity -> {
-			if (getTime() >= 0 && event instanceof VehicleEnterEvent vehicleEnterEvent && entity.equals(vehicleEnterEvent.getEntered())) {
-				return vehicleEnterEvent.getVehicle();
-			}
-			if (getTime() <= 0 && event instanceof VehicleExitEvent vehicleExitEvent && entity.equals(vehicleExitEvent.getExited())) {
-				return vehicleExitEvent.getVehicle();
-			}
-			if (getTime() >= 0 && event instanceof EntityMountEvent entityMountEvent && entity.equals(entityMountEvent.getEntity())) {
-				return entityMountEvent.getMount();
-			}
-			if (getTime() <= 0 && event instanceof EntityDismountEvent entityDismountEvent && entity.equals(entityDismountEvent.getEntity())) {
-				return entityDismountEvent.getDismounted();
-			}
-			return entity.getVehicle();
-		});
+		if (event instanceof EntityDismountEvent entityDismountEvent && getTime() != EventValues.TIME_FUTURE) {
+			return get(source, e -> e.equals(entityDismountEvent.getEntity()) ? entityDismountEvent.getDismounted() : e.getVehicle());
+		} else if (event instanceof VehicleEnterEvent vehicleEnterEvent && getTime() != EventValues.TIME_PAST) {
+			return get(source, e -> e.equals(vehicleEnterEvent.getEntered()) ? vehicleEnterEvent.getVehicle() : e.getVehicle());
+		} else if (event instanceof VehicleExitEvent vehicleExitEvent && getTime() != EventValues.TIME_FUTURE) {
+			return get(source, e -> e.equals(vehicleExitEvent.getExited()) ? vehicleExitEvent.getVehicle() : e.getVehicle());
+		} else if (event instanceof EntityMountEvent entityMountEvent && getTime() != EventValues.TIME_PAST) {
+			return get(source, e -> e.equals(entityMountEvent.getEntity()) ? entityMountEvent.getMount() : e.getVehicle());
+		} else {
+			return get(source, Entity::getVehicle);
+		}
 	}
 
 	@Override
