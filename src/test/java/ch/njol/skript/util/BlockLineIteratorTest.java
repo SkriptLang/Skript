@@ -2,12 +2,11 @@ package ch.njol.skript.util;
 
 import org.bukkit.Location;
 import org.joml.Vector3d;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BlockLineIteratorTest {
 
@@ -38,7 +37,7 @@ public class BlockLineIteratorTest {
 		var iterator = new BlockLineIterator(start, end);
 		iterator.step.mul(-1);
 		// step is now wrong way, so it should trigger overshoot protection
-		Assert.assertThrows(NoSuchElementException.class, iterator::next);
+		assertThrows(NoSuchElementException.class, iterator::next);
 	}
 
 }

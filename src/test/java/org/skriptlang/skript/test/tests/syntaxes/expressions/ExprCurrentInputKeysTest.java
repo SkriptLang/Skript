@@ -8,9 +8,9 @@ import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.entity.Player;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skriptlang.skript.bukkit.input.InputKey;
 import org.skriptlang.skript.test.utils.InputHelper;
 
@@ -25,7 +25,7 @@ public class ExprCurrentInputKeysTest extends SkriptJUnitTest {
 	private Player player;
 	private Expression<? extends InputKey> inputKeyExpression;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		if (!SUPPORTS_INPUT)
 			return;
@@ -39,7 +39,7 @@ public class ExprCurrentInputKeysTest extends SkriptJUnitTest {
 		if (!SUPPORTS_INPUT)
 			return;
 		if (inputKeyExpression == null)
-			Assert.fail("Input keys expression is null");
+			fail("Input keys expression is null");
 
 		ContextlessEvent event = ContextlessEvent.get();
 		Variables.setVariable("player", player, event, true);
@@ -47,7 +47,7 @@ public class ExprCurrentInputKeysTest extends SkriptJUnitTest {
 		EasyMock.expect(player.getCurrentInput()).andReturn(InputHelper.fromKeys(InputKey.FORWARD, InputKey.JUMP));
 		EasyMock.replay(player);
 		InputKey[] keys = inputKeyExpression.getArray(event);
-		Assert.assertArrayEquals(keys, new InputKey[]{InputKey.FORWARD, InputKey.JUMP});
+		assertArrayEquals(keys, new InputKey[]{InputKey.FORWARD, InputKey.JUMP});
 		EasyMock.verify(player);
 	}
 

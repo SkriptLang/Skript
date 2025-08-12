@@ -9,9 +9,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class EffSendEffConnectConflict7517Test extends SkriptJUnitTest {
 
@@ -20,7 +22,7 @@ public class EffSendEffConnectConflict7517Test extends SkriptJUnitTest {
 	private CommandSender sender;
 	private Effect sendEffect;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		sender = EasyMock.niceMock(CommandSender.class);
 		sendEffect = Effect.parse("send {_message} to {_sender}", null);
@@ -40,7 +42,7 @@ public class EffSendEffConnectConflict7517Test extends SkriptJUnitTest {
 
 		TriggerItem.walk(sendEffect, event);
 		EasyMock.verify(sender);
-		Assert.assertEquals(MESSAGE, messageCapture.getValue());
+		assertEquals(MESSAGE, messageCapture.getValue());
 	}
 
 }

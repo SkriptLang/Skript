@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.addon.BaseSkriptAddonTests;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SkriptTest extends BaseSkriptAddonTests {
 

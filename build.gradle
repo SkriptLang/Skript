@@ -12,6 +12,7 @@ plugins {
 
 configurations {
     testImplementation.extendsFrom testShadow
+    shadow.extendsFrom shadowAll
 }
 
 allprojects {
@@ -28,6 +29,8 @@ dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.8'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.1.0'
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.4.0'
+
+	shadow group: 'io.github.classgraph', name: 'classgraph', version: '4.8.181'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.8-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
@@ -46,8 +49,9 @@ dependencies {
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
-	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.5.0'
+	testShadow group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.13.4'
+	testShadow group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.13.4'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.6.0'
 }
 
 checkstyle {
@@ -68,7 +72,7 @@ task checkAliases {
 task testJar(type: ShadowJar) {
 	dependsOn(compileTestJava)
 	archiveFileName = 'Skript-JUnit.jar'
-	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
+	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow, project.configurations.shadow
 }
 
 task jar(overwrite: true, type: ShadowJar) {
@@ -98,10 +102,11 @@ tasks.withType(ShadowJar) {
 		project.configurations.shadow
 	]
 	dependencies {
-		include(dependency('io.papermc:paperlib'))
+		include(dependency('net.kyori:adventure-text-serializer-bungeecord'))
+		include(dependency('io.github.classgraph:classgraph'))
 		include(dependency('org.bstats:bstats-bukkit'))
 		include(dependency('org.bstats:bstats-base'))
-		include(dependency('net.kyori:adventure-text-serializer-bungeecord'))
+		include(dependency('io.papermc:paperlib'))
 	}
 	relocate 'io.papermc.lib', 'ch.njol.skript.paperlib'
 	relocate 'org.bstats', 'ch.njol.skript.bstats'
@@ -213,9 +218,13 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 		group = 'execution'
 		classpath = files([
 			artifact,
-			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
-			sourceSets.main.runtimeClasspath
+			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') }
 		])
+		if (junit) {
+			classpath += sourceSets.test.runtimeClasspath
+		} else {
+			classpath += sourceSets.main.runtimeClasspath
+		}
 		mainClass = 'ch.njol.skript.test.platform.PlatformMain'
 		args = [
 			'build/test_runners',
@@ -233,6 +242,10 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 		// Do first is used when throwing exceptions.
 		// This way it's not called when defining the task.
 		doFirst {
+			jvmArgs = [
+				'--add-opens=ALL-UNNAMED/ALL-UNNAMED=ALL-UNNAMED',
+				'--add-exports=ALL-UNNAMED/ALL-UNNAMED=ALL-UNNAMED'
+			]
 			if (!gradle.taskGraph.hasTask(":tasks") && !gradle.startParameter.dryRun && modifiers.contains(Modifiers.PROFILE)) {
 				if (!project.hasProperty('profiler'))
 					throw new MissingPropertyException('Add parameter -Pprofiler=<path to profiler>', 'profiler', String.class)
