@@ -8,6 +8,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -243,9 +244,9 @@ public abstract class Utils {
 	}
 
 	/**
-	 * @param word trimmed string
-	 * @return Pair of singular string + boolean whether it was plural
+	 * @deprecated Use {@link #isPlural(String)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
 		assert word != null;
 		if (word.isEmpty())
@@ -273,10 +274,60 @@ public abstract class Utils {
 		return new NonNullPair<>(word, false);
 	}
 
+	public record PluralResult(String updated, boolean plural) {
+
+	}
+
+	/**
+	 * Returns whether a word is plural. If it is, {@code updated} contains the single variant of the word.
+	 * Otherwise, {@code updated == word}.
+	 *
+	 * @param word The word to check.
+	 * @return A pair with the updated word and a boolean indicating whether it was plural.
+	 */
+	public static PluralResult isPlural(String word) {
+		Preconditions.checkNotNull(word, "word cannot be null");
+
+		if (word.isEmpty()) {
+			return new PluralResult("", false);
+		}
+
+		if (couldBeSingular(word)) {
+			return new PluralResult(word, false);
+		}
+
+		for (WordEnding ending : plurals) {
+			if (ending.isCompleteWord()) {
+				// Complete words shouldn't be used as partial pieces
+				if (word.length() != ending.plural().length()) {
+					continue;
+				}
+			}
+
+			if (word.endsWith(ending.plural())) {
+				return new PluralResult(
+					word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
+					true
+				);
+			}
+
+			if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH))) {
+				return new PluralResult(
+					word.substring(0, word.length() - ending.plural().length())
+						+ ending.singular().toUpperCase(Locale.ENGLISH),
+					true
+				);
+			}
+		}
+
+		return new PluralResult(word, false);
+	}
+
 	private static boolean couldBeSingular(String word) {
-		for (final WordEnding ending : plurals) {
+		for (WordEnding ending : plurals) {
 			if (ending.singular().isBlank())
 				continue;
+
 			if (ending.isCompleteWord() && ending.singular().length() != word.length())
 				continue; // Skip complete words
 

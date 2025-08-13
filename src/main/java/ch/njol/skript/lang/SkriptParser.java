@@ -12,8 +12,6 @@ import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.lang.function.ExprFunctionCall;
-import ch.njol.skript.lang.function.FunctionReference;
-import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -46,24 +44,17 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.common.function.FunctionReferenceParser;
+import org.skriptlang.skript.common.function.FunctionReference;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -488,11 +479,10 @@ public class SkriptParser {
 					log.printError();
 					return null;
 				}
-				FunctionReference<T> functionReference = parseFunction(types);
+				FunctionReference<T> functionReference = parseFunctionReference();
 				if (functionReference != null) {
 					log.printLog();
-					//noinspection rawtypes
-					return new ExprFunctionCall(functionReference);
+					return new ExprFunctionCall<>(functionReference, types);
 				} else if (log.hasError()) {
 					log.printError();
 					return null;
@@ -644,10 +634,9 @@ public class SkriptParser {
 				}
 
 				// If it wasn't variable, do same for function call
-				FunctionReference<?> functionReference = parseFunction(types);
+				FunctionReference<?> functionReference = parseFunctionReference();
 				if (functionReference != null) {
-
-					if (onlySingular && !functionReference.isSingle()) {
+					if (onlySingular && !functionReference.single()) {
 						Skript.error("'" + expr + "' can only be a single "
 							+ Classes.toString(Stream.of(exprInfo.classes).map(classInfo -> classInfo.getName().toString()).toArray(), false)
 							+ ", not more.");
@@ -656,7 +645,7 @@ public class SkriptParser {
 					}
 
 					log.printLog();
-					return new ExprFunctionCall<>(functionReference);
+					return new ExprFunctionCall<>(functionReference, types);
 				} else if (log.hasError()) {
 					log.printError();
 					return null;
@@ -876,16 +865,11 @@ public class SkriptParser {
 	private final static String MULTIPLE_AND_OR = "List has multiple 'and' or 'or', will default to 'and'. Use brackets if you want to define multiple lists.";
 	private final static String MISSING_AND_OR = "List is missing 'and' or 'or', defaulting to 'and'";
 
-	private boolean suppressMissingAndOrWarnings = SkriptConfig.disableMissingAndOrWarnings.value();
-
-	private SkriptParser suppressMissingAndOrWarnings() {
-		suppressMissingAndOrWarnings = true;
-		return this;
-	}
+	private final boolean suppressMissingAndOrWarnings = SkriptConfig.disableMissingAndOrWarnings.value();
 
 	@SuppressWarnings("unchecked")
 	public <T> @Nullable Expression<? extends T> parseExpression(Class<? extends T>... types) {
-		if (expr.length() == 0)
+		if (expr.isEmpty())
 			return null;
 
 		assert types.length > 0;
@@ -1145,98 +1129,14 @@ public class SkriptParser {
 		}
 	}
 
-	private final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
-
 	/**
-	 * @param types The required return type or null if it is not used (e.g. when calling a void function)
-	 * @return The parsed function, or null if the given expression is not a function call or is an invalid function call (check for an error to differentiate these two)
+	 * Attempts to parse {@link SkriptParser#expr} as a function reference.
+	 *
+	 * @param <T> The return type of the function.
+	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> @Nullable FunctionReference<T> parseFunction(@Nullable Class<? extends T>... types) {
-		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
-			return null;
-		AtomicBoolean unaryArgument = new AtomicBoolean(false);
-		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-			Matcher matcher = FUNCTION_CALL_PATTERN.matcher(expr);
-			if (!matcher.matches()) {
-				log.printLog();
-				return null;
-			}
-
-			String functionName = "" + matcher.group(1);
-			String args = matcher.group(2);
-			Expression<?>[] params;
-
-			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
-			// See https://github.com/SkriptLang/Skript/issues/1532
-			for (int i = 0; i < args.length(); i = next(args, i, context)) {
-				if (i == -1) {
-					log.printLog();
-					return null;
-				}
-			}
-
-			if ((flags & PARSE_EXPRESSIONS) == 0) {
-				Skript.error("Functions cannot be used here (or there is a problem with your arguments).");
-				log.printError();
-				return null;
-			}
-			final SkriptParser skriptParser = new SkriptParser(args, flags | PARSE_LITERALS, context);
-			params = this.getFunctionArguments(() -> skriptParser.suppressMissingAndOrWarnings().parseExpression(Object.class), args, unaryArgument);
-			if (params == null) {
-				log.printError();
-				return null;
-			}
-
-			ParserInstance parser = getParser();
-			Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
-			FunctionReference<T> functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
-
-			attempt_list_parse:
-			if (unaryArgument.get() && !functionReference.validateParameterArity(true)) {
-				try (ParseLogHandler ignored = SkriptLogger.startParseLogHandler()) {
-					SkriptParser alternative = new SkriptParser(args, flags | PARSE_LITERALS, context);
-					params = this.getFunctionArguments(() -> alternative.suppressMissingAndOrWarnings()
-						.parseExpressionList(ignored, Object.class), args, unaryArgument);
-					ignored.clear();
-					if (params == null)
-						break attempt_list_parse;
-				}
-				functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(),
-					currentScript != null ? currentScript.getConfig().getFileName() : null, types, params);
-			}
-
-			if (!functionReference.validateFunction(true)) {
-				log.printError();
-				return null;
-			}
-			log.printLog();
-			return functionReference;
-		}
-	}
-
-	private Expression<?> @Nullable [] getFunctionArguments(Supplier<Expression<?>> parsing, String args, AtomicBoolean unary) {
-		Expression<?>[] params;
-		if (args.length() != 0) {
-			Expression<?> parsedExpression = parsing.get();
-			if (parsedExpression == null)
-				return null;
-			if (parsedExpression instanceof ExpressionList) {
-				if (!parsedExpression.getAnd()) {
-					Skript.error("Function arguments must be separated by commas and optionally an 'and', but not an 'or'."
-									 + " Put the 'or' into a second set of parentheses if you want to make it a single parameter, e.g. 'give(player, (sword or axe))'");
-					return null;
-				}
-				params = ((ExpressionList<?>) parsedExpression).getExpressions();
-			} else {
-				unary.set(true);
-				params = new Expression[] {parsedExpression};
-			}
-		} else {
-			params = new Expression[0];
-		}
-		return params;
+	public <T> FunctionReference<T> parseFunctionReference() {
+		return new FunctionReferenceParser(context, flags).parseFunctionReference(expr);
 	}
 
 	/**
@@ -1473,22 +1373,24 @@ public class SkriptParser {
 			return startIndex + 1;
 
 		int index;
-		switch (expr.charAt(startIndex)) {
-			case '"':
+		return switch (expr.charAt(startIndex)) {
+			case '"' -> {
 				index = nextQuote(expr, startIndex + 1);
-				return index < 0 ? -1 : index + 1;
-			case '{':
+				yield index < 0 ? -1 : index + 1;
+			}
+			case '{' -> {
 				index = VariableString.nextVariableBracket(expr, startIndex + 1);
-				return index < 0 ? -1 : index + 1;
-			case '(':
+				yield index < 0 ? -1 : index + 1;
+			}
+			case '(' -> {
 				for (index = startIndex + 1; index >= 0 && index < exprLength; index = next(expr, index, context)) {
 					if (expr.charAt(index) == ')')
-						return index + 1;
+						yield index + 1;
 				}
-				return -1;
-			default:
-				return startIndex + 1;
-		}
+				yield -1;
+			}
+			default -> startIndex + 1;
+		};
 	}
 
 	/**
@@ -1687,19 +1589,5 @@ public class SkriptParser {
 	static {
 		ParserInstance.registerData(DefaultValueData.class, DefaultValueData::new);
 	}
-
-	/**
-	 * @deprecated due to bad naming conventions,
-	 * use {@link #LIST_SPLIT_PATTERN} instead. 
-	 */
-	@Deprecated(since = "2.7.0", forRemoval = true)
-	public final static Pattern listSplitPattern = LIST_SPLIT_PATTERN;
-
-	/**
-	 * @deprecated due to bad naming conventions,
-	 * use {@link #WILDCARD} instead.
-	 */
-	@Deprecated(since = "2.8.0", forRemoval = true)
-	public final static String wildcard = WILDCARD;
 
 }
