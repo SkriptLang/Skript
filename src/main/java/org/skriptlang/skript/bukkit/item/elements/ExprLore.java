@@ -2,8 +2,6 @@ package org.skriptlang.skript.bukkit.item.elements;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -15,7 +13,6 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -87,7 +84,7 @@ public class ExprLore extends SimpleExpression<String> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case ADD, SET -> CollectionUtils.array(line == null ? Component[].class : Component.class);
-			case REMOVE, DELETE, REMOVE_ALL -> CollectionUtils.array(String.class, Component.class);
+			case REMOVE, DELETE, REMOVE_ALL -> CollectionUtils.array(Component.class);
 			default -> null;
 		};
 	}
@@ -130,17 +127,11 @@ public class ExprLore extends SimpleExpression<String> {
 					lore = (List<Component>) (List) List.of(delta);
 				}
 				case REMOVE, REMOVE_ALL -> {
-					boolean all = mode == ChangeMode.REMOVE_ALL;
 					assert delta != null;
-					String removalText = format(delta[0]);
-					for (int i = 0; i < lore.size(); i++) {
-						Component replaced = remove(lore.get(i), removalText, all);
-						if (all || lore.get(i) != replaced) {
-							lore.set(i, replaced);
-							if (!all) {
-								break;
-							}
-						}
+					if (mode == ChangeMode.REMOVE_ALL) {
+						lore.removeIf(component -> component.equals(delta[0]));
+					} else {
+						lore.remove((Component) delta[0]);
 					}
 				}
 				case DELETE -> lore = null;
@@ -168,7 +159,9 @@ public class ExprLore extends SimpleExpression<String> {
 				}
 				case REMOVE, REMOVE_ALL -> {
 					assert delta != null;
-					lore.set(line, remove(lore.get(line), format(delta[0]), mode == ChangeMode.REMOVE_ALL));
+					if (lore.get(line).equals(delta[0])) {
+						lore.remove(line);
+					}
 				}
 				case DELETE -> lore.remove(line);
 				default -> {
@@ -180,40 +173,6 @@ public class ExprLore extends SimpleExpression<String> {
 
 		itemMeta.lore(lore);
 		itemType.setItemMeta(itemMeta);
-	}
-
-	private static String format(Object object) {
-		String removalText;
-		if (object instanceof String string) { // ensure string is properly formatted
-			removalText = TextComponentParser.instance().toString(string, true);
-		} else if (object instanceof Component component) {
-			removalText = TextComponentParser.instance().toString(component, true);
-		} else {
-			throw new IllegalArgumentException("Invalid removal object");
-		}
-		return removalText;
-	}
-
-	private static Component remove(Component input, String toRemove, boolean all) {
-		String inputString = TextComponentParser.instance().toString(input, true);
-		String replacement;
-		if (SkriptConfig.caseSensitive.value()) {
-			if (all) {
-				replacement = inputString.replace(toRemove, "");
-			} else {
-				// .replaceFirst requires the regex to be quoted, .replace does it internally
-				replacement = inputString.replaceFirst(Pattern.quote(toRemove), "");
-			}
-		} else {
-			Matcher matcher = Pattern.compile(Pattern.quote(toRemove),
-				Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(inputString);
-			replacement = all ? matcher.replaceAll("") : matcher.replaceFirst("");
-		}
-		if (inputString.equals(replacement)) {
-			return input;
-		}
-		// TODO is unsafe safe? does it matter?
-		return TextComponentParser.instance().parse(replacement, false);
 	}
 
 	@Override

@@ -422,18 +422,18 @@ public final class TextComponentParser {
 	 * @return A formatted string.
 	 */
 	public String toString(String string, boolean all) {
-		return toString(parse(string, !all), all);
+		return toString(parse(string, !all));
 	}
 
 	/**
 	 * Converts a component back into a formatted string.
 	 * @param component The component to convert.
-	 * @param all Whether ALL (known) formatting/tags should be converted.
-	 *  If false, only safe tags like colors and decorations will be converted.
 	 * @return A formatted string.
 	 */
-	public String toString(Component component, boolean all) {
-		return (all ? parser : safeParser).serialize(component);
+	public String toString(Component component) {
+		// We use the default parser rather than our own as creating a custom TagResolver
+		//  that implements serialization is not possible
+		return MiniMessage.miniMessage().serialize(component);
 	}
 
 	/**
