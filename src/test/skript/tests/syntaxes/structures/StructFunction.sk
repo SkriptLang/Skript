@@ -49,8 +49,17 @@ test "function structure type hints":
 
 local function literal_test(x: entity type):
 	stop
+local function literal_test_projectile(x: entity):
+	stop
 
 test "literal type parsing":
 	parse:
 		literal_test(firework)
 	assert last parse logs is not set
+
+	spawn an arrow at test-location:
+		set {_entity} to entity
+		parse:
+			literal_test_projectile(projectile)
+	assert last parse logs are not set
+	clear entity within {_entity}
