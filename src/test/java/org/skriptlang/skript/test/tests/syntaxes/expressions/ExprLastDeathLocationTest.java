@@ -10,7 +10,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
-import org.junit.Assert;
+
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,9 +30,9 @@ public class ExprLastDeathLocationTest extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		if (get == null)
-			Assert.fail("Get statement was null");
+			fail("Get statement was null");
 		if (set == null)
-			Assert.fail("Set statement was null");
+			fail("Set statement was null");
 
 		Location location = new Location(Bukkit.getWorld("world"), 0, 0, 0);
 

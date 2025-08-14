@@ -9,13 +9,14 @@ import ch.njol.skript.variables.Variables;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.bukkit.entity.Player;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("deprecation")
 public class EffActionBarTest extends SkriptJUnitTest {
@@ -24,7 +25,7 @@ public class EffActionBarTest extends SkriptJUnitTest {
 	private Player.Spigot testSpigotPlayer;
 	private Effect actionBarEffect;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		testPlayer = EasyMock.niceMock(Player.class);
 		testSpigotPlayer = EasyMock.niceMock(Player.Spigot.class);
@@ -34,7 +35,7 @@ public class EffActionBarTest extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		if (actionBarEffect == null)
-			Assert.fail("Effect is null");
+			fail("Effect is null");
 
 		String expectedActionBarContent = "hello world";
 

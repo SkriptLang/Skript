@@ -1,22 +1,24 @@
 package org.skriptlang.skript.util;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.StringUtils;
+import io.github.classgraph.ClassGraph;
+
 import com.google.common.base.MoreObjects;
-import com.google.common.reflect.ClassPath;
-import com.google.common.reflect.ClassPath.ResourceInfo;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
@@ -109,18 +111,30 @@ public class ClassLoader {
 	 */
 	public void loadClasses(Class<?> source, @Nullable JarFile jar) {
 		final Collection<String> classPaths;
-		try {
-			if (jar != null) { // load from jar if available
-				classPaths = jar.stream()
-						.map(JarEntry::getName)
-						.collect(Collectors.toSet());
-			} else {
-				classPaths = ClassPath.from(source.getClassLoader()).getResources().stream()
-					.map(ResourceInfo::getResourceName)
-					.collect(Collectors.toSet());
+		if (jar != null && !TestMode.JUNIT) { // load from jar if available
+			classPaths = new HashSet<>();
+			var entries = jar.entries();
+			while (entries.hasMoreElements()) {
+				classPaths.add(entries.nextElement().getName());
 			}
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to load classes: " + e);
+		} else {
+			ClassGraph cg = new ClassGraph().enableClassInfo();
+			List<String> packages = new ArrayList<>();
+			if (!this.basePackage.isEmpty()) {
+				packages.add(this.basePackage);
+			}
+			if (!this.subPackages.isEmpty()) {
+				packages.addAll(this.subPackages);
+			}
+			if (!packages.isEmpty()) {
+				cg.acceptPackages(packages.toArray(String[]::new));
+			}
+			classPaths = cg
+				.scan()
+				.getAllResources()
+				.stream()
+				.map(resource -> resource.getPath())
+				.collect(Collectors.toSet());
 		}
 
 		// Used for tracking valid classes if a non-recursive search is done

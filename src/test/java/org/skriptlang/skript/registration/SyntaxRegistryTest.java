@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 import org.skriptlang.skript.util.Priority;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SyntaxRegistryTest {
 

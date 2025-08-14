@@ -6,7 +6,7 @@ import org.skriptlang.skript.util.Registry;
 
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class BaseSkriptAddonTests {
 

@@ -4,14 +4,15 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import java.time.LocalTime
 
 plugins {
-	id 'com.github.johnrengelman.shadow' version '8.1.1'
+	id 'com.gradleup.shadow' version '9.0.1'
 	id 'maven-publish'
-	id 'java'
 	id 'checkstyle'
+	id 'java'
 }
 
 configurations {
     testImplementation.extendsFrom testShadow
+    shadow.extendsFrom shadowAll
 }
 
 allprojects {
@@ -28,6 +29,8 @@ dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.8'
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.1.0'
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.4.1'
+
+	shadow group: 'io.github.classgraph', name: 'classgraph', version: '4.8.181'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.8-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
@@ -46,8 +49,9 @@ dependencies {
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
-	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.5.0'
+	testShadow group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.13.4'
+	testShadow group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.13.4'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.6.0'
 }
 
 checkstyle {
@@ -68,7 +72,7 @@ task checkAliases {
 task testJar(type: ShadowJar) {
 	dependsOn(compileTestJava)
 	archiveFileName = 'Skript-JUnit.jar'
-	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
+	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow, project.configurations.shadow
 }
 
 task jar(overwrite: true, type: ShadowJar) {
@@ -82,7 +86,7 @@ task build(overwrite: true, type: ShadowJar) {
 	from sourceSets.main.output
 }
 
-// Excludes the tests for the build task. Should be using JUnitQuick, JUnitJava21, JUnitJava17, skriptTest, quickTest.
+// Excludes the tests for the build task. Should be using JUnitQuick, JUnit, skriptTest, quickTest.
 // We do not want tests to run for building. That's time consuming and annoying. Especially in development.
 test {
 	exclude '**/*'
@@ -98,10 +102,11 @@ tasks.withType(ShadowJar) {
 		project.configurations.shadow
 	]
 	dependencies {
-		include(dependency('io.papermc:paperlib'))
+		include(dependency('net.kyori:adventure-text-serializer-bungeecord'))
+		include(dependency('io.github.classgraph:classgraph'))
 		include(dependency('org.bstats:bstats-bukkit'))
 		include(dependency('org.bstats:bstats-base'))
-		include(dependency('net.kyori:adventure-text-serializer-bungeecord'))
+		include(dependency('io.papermc:paperlib'))
 	}
 	relocate 'io.papermc.lib', 'ch.njol.skript.paperlib'
 	relocate 'org.bstats', 'ch.njol.skript.bstats'
@@ -213,10 +218,14 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 		group = 'execution'
 		classpath = files([
 			artifact,
-			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
-			sourceSets.main.runtimeClasspath
+			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') }
 		])
-		main = 'ch.njol.skript.test.platform.PlatformMain'
+		if (junit) {
+			classpath += sourceSets.test.runtimeClasspath
+		} else {
+			classpath += sourceSets.main.runtimeClasspath
+		}
+		mainClass = 'ch.njol.skript.test.platform.PlatformMain'
 		args = [
 			'build/test_runners',
 			junit ? 'src/test/skript/junit' : 'src/test/skript/tests',
@@ -244,11 +253,10 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 }
 
 def java21 = 21
-def java17 = 17
 
 def latestEnv = 'java21/paper-1.21.8.json'
 def latestJava = java21
-def oldestJava = java17
+def oldestJava = java21
 
 def latestJUnitEnv = latestEnv
 def latestJUnitJava = latestJava
@@ -269,24 +277,14 @@ String environments = 'src/test/skript/environments/';
 String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0)
-createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
-createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
+createTestTask('skriptTest', 'Runs tests on all environments.', environments + 'java21', java21, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, -1, Modifiers.PROFILE)
 createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
 createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, 0, Modifiers.GEN_RELEASE_DOCS)
-tasks.register('skriptTest') {
-	description = 'Runs tests on all environments.'
-	dependsOn skriptTestJava17, skriptTestJava21
-}
 
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, Modifiers.JUNIT)
-tasks.register('JUnit') {
-	description = 'Runs JUnit tests on all environments.'
-	dependsOn JUnitJava17, JUnitJava21
-}
+createTestTask('JUnit', 'Runs JUnit tests on all environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {

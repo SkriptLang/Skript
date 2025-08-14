@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BackupPurgeTest {
 
@@ -70,7 +70,7 @@ public class BackupPurgeTest {
 		try (Stream<Path> files = Files.list(FOLDER)) {
 			long count = files.count();
 			assertNotNull(files);
-			assertEquals("backup purge did not delete all files", toKeep, count);
+			assertEquals(toKeep, count, "backup purge did not delete all files");
 		}
 	}
 

@@ -7,7 +7,7 @@ import org.skriptlang.skript.util.Priority;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Contains base tests for SyntaxInfos.
