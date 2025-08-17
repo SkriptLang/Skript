@@ -100,7 +100,7 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender> ex
 	 * @return native brigadier builder
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends ArgumentBuilder<S, T>> ArgumentBuilder<S, T> flatToBuilder() {
+	public final <T extends ArgumentBuilder<S, T>> ArgumentBuilder<S, T> flatToBuilder() {
 		return (ArgumentBuilder<S, T>) flatToBuilder(flat());
 	}
 
@@ -140,12 +140,9 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender> ex
 	 * @param builder builder to copy the data to
 	 * @param node SkriptCommandNode to copy (as native brigadier node)
 	 * @param <S> command sender type
-	 * @param <B> command node builder
-	 * @param <F> skript command node to flat
 	 */
 	@SuppressWarnings("unchecked")
-	static <S extends SkriptCommandSender, B extends ArgumentBuilder<S, B>,
-			F extends SkriptCommandNode<S>> void flat(B builder, F node) {
+	static <S extends SkriptCommandSender> void flat(ArgumentBuilder<S, ?> builder, SkriptCommandNode<S> node) {
 		builder.requires(sender -> {
 			if (!node.getRequirement().test(sender))
 				return false;
@@ -179,6 +176,13 @@ public sealed abstract class SkriptCommandNode<S extends SkriptCommandSender> ex
 					return 0;
 				return node.getCommand().run(context);
 			});
+		}
+
+		if (builder instanceof RequiredArgumentBuilder<?,?> && node instanceof ArgumentSkriptCommandNode<?,?>) {
+			RequiredArgumentBuilder<S, ?> rab = (RequiredArgumentBuilder<S, ?>) builder;
+			ArgumentSkriptCommandNode<S, ?> argumentNode = (ArgumentSkriptCommandNode<S, ?>) node;
+			if (argumentNode.getCustomSuggestions() != null)
+				rab.suggests(argumentNode.getCustomSuggestions());
 		}
 
 		for (CommandNode<S> child : node.getChildren()) {

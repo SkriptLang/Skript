@@ -11,8 +11,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.skriptlang.skript.bukkit.command.PaperCommandUtils;
 import org.skriptlang.skript.lang.command.SkriptCommandSender;
 
 import java.util.List;
@@ -22,8 +22,7 @@ import java.util.concurrent.CompletableFuture;
  * Implementation of {@link SuggestionProvider} that accepts returning Skript MessageComponents
  * instead of Brigadier Messages.
  * <p>
- * Tooltips of those MessageComponents are mapped to tooltips of the suggestions if
- * they are provided as text.
+ * Tooltips of those MessageComponents are serialized as JSON and used as tooltips of Brigadier Messages.
  *
  * @param <S> command source
  */
@@ -44,7 +43,7 @@ public interface SkriptSuggestionProvider<S extends SkriptCommandSender> extends
 						BaseComponent[] baseComponents = BungeeConverter
 							.convert(ChatMessages.parseToArray(component.hoverEvent.value));
 						Component adventure = BungeeComponentSerializer.get().deserialize(baseComponents);
-						tooltip = PaperCommandUtils.brigadierMessage(adventure);
+						tooltip = () -> JSONComponentSerializer.json().serialize(adventure);
 					}
 					// skip any blank components
 					if (component.text.isBlank())
@@ -64,6 +63,7 @@ public interface SkriptSuggestionProvider<S extends SkriptCommandSender> extends
 	 * @param commandContext command context
 	 * @return suggestions
 	 */
-	CompletableFuture<List<MessageComponent>> getSuggestions(CommandContext<S> commandContext) throws CommandSyntaxException;
+	CompletableFuture<List<MessageComponent>> getSuggestions(CommandContext<S> commandContext)
+		throws CommandSyntaxException;
 
 }

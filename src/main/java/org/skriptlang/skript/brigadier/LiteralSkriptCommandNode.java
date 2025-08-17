@@ -59,12 +59,6 @@ public non-sealed class LiteralSkriptCommandNode<S extends SkriptCommandSender> 
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public LiteralArgumentBuilder<S> flatToBuilder() {
-		return (LiteralArgumentBuilder<S>) super.flatToBuilder();
-	}
-
-	@Override
 	protected boolean isValidInput(String s) {
 		return wrapped.isValidInput(s);
 	}

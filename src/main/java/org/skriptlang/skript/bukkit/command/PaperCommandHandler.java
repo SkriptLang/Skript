@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.command;
 
 import ch.njol.skript.Skript;
 import com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent;
-import com.destroystokyo.paper.event.brigadier.AsyncPlayerSendSuggestionsEvent;
 import com.destroystokyo.paper.event.server.AsyncTabCompleteEvent;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
@@ -12,12 +11,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
@@ -38,10 +40,7 @@ import org.skriptlang.skript.lang.command.CommandSourceType;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -52,15 +51,27 @@ import java.util.function.Consumer;
 public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>, Listener {
 
 	private final Map<String, RootSkriptCommandNode<BukkitCommandSender>> commands = new ConcurrentHashMap<>();
+
+	// It is impossible to properly modify command dispatchers.
+	// When a new command is (un)registered, the dispatcher tied to this handler
+	// is set to null and recreated again lazily once it is needed. (when command is executed)
 	private @Nullable CommandDispatcher<BukkitCommandSender> dispatcher;
 
 	/**
 	 * Ensures the dispatcher instance is available.
+	 * <p>
+	 * If no dispatcher instance is available, a new one is created.
 	 */
 	private void ensureDispatcher() {
 		if (dispatcher != null) return;
 		dispatcher = new CommandDispatcher<>();
-		commands.values().forEach(cmd -> dispatcher.register(cmd.flatToBuilder()));
+		commands.values().forEach(cmd -> {
+			ArgumentBuilder<BukkitCommandSender, ?> node = cmd.flatToBuilder();
+			if (!(node instanceof LiteralArgumentBuilder<?>)) // should not happen
+				return;
+			//noinspection unchecked
+			dispatcher.register((LiteralArgumentBuilder<BukkitCommandSender>) node);
+		});
 	}
 
 	@Override
@@ -73,7 +84,8 @@ public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>,
 		// TODO proper registration with aliases and help page
 		Bukkit.getCommandMap().getKnownCommands().put(command.getLiteral(), new WrappedBrigadierCommand(command));
 		dispatcher = null; // reset dispatcher
-		if (Skript.getInstance().isEnabled())
+		if (Skript.getInstance().isEnabled()) // prevents scheduling task on server shutdown
+			// command synchronization has to be delayed at least one tick to prevent concurrent modification exception
 			Bukkit.getScheduler().runTaskLater(Skript.getInstance(), PaperCommandUtils::syncCommands, 1);
 		return true;
 	}
@@ -81,10 +93,12 @@ public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>,
 	@Override
 	public boolean unregisterCommand(RootSkriptCommandNode<BukkitCommandSender> command) {
 		boolean result = commands.remove(command.getLiteral(), command);
-		if (!result) return false;
+		if (!result)
+			return false;
 		Bukkit.getCommandMap().getKnownCommands().remove(command.getLiteral());
 		dispatcher = null; // reset dispatcher
-		if (Skript.getInstance().isEnabled())
+		if (Skript.getInstance().isEnabled()) // prevents scheduling task on server shutdown
+			// command synchronization has to be delayed at least one tick to prevent concurrent modification exception
 			Bukkit.getScheduler().runTaskLater(Skript.getInstance(), PaperCommandUtils::syncCommands, 1);
 		return true;
 	}
@@ -122,13 +136,17 @@ public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>,
 			CommandSourceType.simple(BukkitCommandSender.class,
 				sender -> sender.wrapped() instanceof ConsoleCommandSender,
 				"console", "the console", "server", "the server"),
-			CommandSourceType.simple(BukkitCommandSender.class, sender -> sender.wrapped() instanceof BlockCommandSender,
+			CommandSourceType.simple(BukkitCommandSender.class,
+				sender -> sender.wrapped() instanceof BlockCommandSender,
 				"block", "blocks", "command block", "command blocks"),
 			CommandSourceType.simple(BukkitCommandSender.class, sender -> sender.wrapped() instanceof Entity,
 				"entity", "entities")
 		);
 	}
 
+	// We access the node children here to remove the greedy string node added by Bukkit.
+	// This results only in a visual change on the client - the Bukkit greedy string argument node
+	// for all Bukkit commands is not sent to the client.
 	private static final @Nullable MethodHandle NODE_CHILDREN_GETTER;
 
 	static {
@@ -147,10 +165,13 @@ public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>,
 	@SuppressWarnings("UnstableApiUsage")
 	private void onAsyncPlayerSendCommands(AsyncPlayerSendCommandsEvent<@NotNull CommandSourceStack> event)
 			throws Throwable {
+		// This event will potentially (and most likely) fire twice. Once for async, and once again for sync.
 		if (!event.isAsynchronous() && event.hasFiredAsync())
 			return;
 		RootCommandNode<CommandSourceStack> rootNode = event.getCommandNode();
 		Consumer<CommandNode<CommandSourceStack>> bukkitNodeRemover = node -> {};
+
+		// if the handle is available, we remove the node added by Bukkit command system.
 		if (NODE_CHILDREN_GETTER != null) {
 			//noinspection unchecked
 			Map<String, CommandNode<CommandSourceStack>> children = (Map<String, CommandNode<CommandSourceStack>>)
@@ -158,6 +179,7 @@ public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>,
 			bukkitNodeRemover = node -> children.remove(node.getName());
 		}
 
+		// and we add our nodes with the correct command structure
 		for (RootSkriptCommandNode<BukkitCommandSender> node : commands.values()) {
 			CommandNode<CommandSourceStack> paperCompatible = convertToClientsidePaper(node.flat());
 			bukkitNodeRemover.accept(paperCompatible);
@@ -165,26 +187,56 @@ public class PaperCommandHandler implements CommandHandler<BukkitCommandSender>,
 		}
 	}
 
-	@EventHandler
-	private void onAsyncPlayerSendSuggestions(AsyncPlayerSendSuggestionsEvent event) throws Throwable {
-		String label = getLabel(event.getBuffer());
+	@EventHandler(priority = EventPriority.MONITOR)
+	private void onAsyncTabComplete(AsyncTabCompleteEvent event) throws Throwable {
+		String buffer = event.getBuffer();
+		String label = getLabel(buffer);
 		if (getCommand(label) == null)
 			return;
+
 		ensureDispatcher();
 		assert dispatcher != null;
-		ParseResults<BukkitCommandSender> parseResults =
-			dispatcher.parse(event.getBuffer().substring(1), new BukkitCommandSender(event.getPlayer()));
-		Suggestions suggestions = dispatcher.getCompletionSuggestions(parseResults).get();
-		// add +1 for '/'
-		StringRange range = new StringRange(suggestions.getRange().getStart() + 1, suggestions.getRange().getEnd() + 1);
-		event.setSuggestions(new Suggestions(range, suggestions.getList()));
-	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
-	private void onAsyncTabComplete(AsyncTabCompleteEvent event) {
-		if (getCommand(getLabel(event.getBuffer())) == null)
-			return;
-		event.setCompletions(Collections.singletonList("placeholder"));
+		ParseResults<BukkitCommandSender> parseResults =
+			dispatcher.parse(buffer.substring(1), new BukkitCommandSender(event.getSender()));
+		Suggestions suggestions = dispatcher.getCompletionSuggestions(parseResults).get();
+		StringRange range = suggestions.getRange();
+
+		List<AsyncTabCompleteEvent.Completion> completions = new LinkedList<>();
+		for (Suggestion suggestion : suggestions.getList()) {
+			@Nullable Component tooltip = null;
+			if (suggestion.getTooltip() != null) {
+				try {
+					// we expect JSON component format from SkriptSuggestionProvider
+					tooltip = JSONComponentSerializer.json().deserialize(suggestion.getTooltip().getString());
+				} catch (Exception exception) {
+					// unexpected format, we still provide the tooltip as raw string
+					tooltip = Component.text(suggestion.getTooltip().getString());
+				}
+			}
+			String text = suggestion.getText();
+
+			// On console side, the command is still a Bukkit command - has only a single greedy string node.
+			// We need to adjust the completions to that; we also suggest the previous arguments from the buffer.
+			if (event.getSender() instanceof ConsoleCommandSender) {
+				// There is already a text present for the argument we suggest for
+				if (range.getLength() != 0) {
+					String[] args = buffer.split(" ");
+					// We filter out suggestions that do not start with the last argument in the buffer.
+					// We can not properly use brigadier string range for console so the suggestions get appended
+					// to the buffer.
+					if (!text.startsWith(args[args.length - 1]))
+						continue;
+				}
+				// the suggestion also contains all previous arguments in the buffer
+				text = buffer.substring(1 /* slash */ + label.length() + 1 /* space */)
+					// we cut off the start of the suggestion already in the buffer if present
+					+ text.substring(range.getLength());
+			}
+
+			completions.add(AsyncTabCompleteEvent.Completion.completion(text, tooltip));
+		}
+		event.completions(completions);
 		event.setHandled(true);
 	}
 

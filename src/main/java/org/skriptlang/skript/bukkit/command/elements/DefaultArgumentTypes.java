@@ -37,9 +37,9 @@ public class DefaultArgumentTypes {
 		public static void load(SkriptAddon addon) {
 			addon.syntaxRegistry().register(ArgumentTypeElement.REGISTRY_KEY,
 				SyntaxInfo.builder(DefaultArgumentTypes.String.class)
-					.addPatterns("[single] (word|string)",
-						"(quotable|quoted) string",
-						"greedy string")
+					.addPatterns("[single] (word|string|text)",
+						"(quotable|quoted) (string|text)",
+						"greedy (string|text)")
 					.supplier(DefaultArgumentTypes.String::new)
 					.origin(SyntaxOrigin.of(addon))
 					.build());
