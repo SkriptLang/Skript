@@ -1,8 +1,9 @@
 package org.skriptlang.skript.common.function;
 
-import org.skriptlang.skript.common.function.DefaultFunction.Builder;
+import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.DefaultFunction.Builder;
 
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import java.util.Set;
  *
  * @param <T> The type of the function parameter.
  */
+@NonExtendable
 public interface Parameter<T> {
 
 	/**
