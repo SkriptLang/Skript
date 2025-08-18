@@ -96,6 +96,8 @@ public abstract class Function<T> {
 				if (parameter.keyed && KeyProviderExpression.areKeysRecommended(parameter.def)) {
 					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
 					parameterValue = KeyedValue.zip(defaultValue, keys);
+				} else if (parameter.keyed && defaultValue.length == 1) { // see https://github.com/SkriptLang/Skript/pull/8135
+					parameterValue = KeyedValue.zip(defaultValue, null);
 				} else {
 					parameterValue = defaultValue;
 				}
@@ -127,8 +129,7 @@ public abstract class Function<T> {
 
 	private KeyedValue<Object> @Nullable [] convertToKeyed(Object[] values) {
 		if (values == null || values.length == 0)
-			//noinspection unchecked
-			return new KeyedValue[0];
+			return null;
 
 		if (values instanceof KeyedValue[])
 			//noinspection unchecked
