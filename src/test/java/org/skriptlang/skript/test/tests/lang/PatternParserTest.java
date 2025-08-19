@@ -2,10 +2,17 @@ package org.skriptlang.skript.test.tests.lang;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.expressions.ExprScripts;
+import ch.njol.skript.expressions.ExprScriptsOld;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.Statement;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.util.PatternParser;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
@@ -16,10 +23,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PatternParserTest extends SkriptJUnitTest {
 
-	private static String regexPattern(String pattern) {
+	private static String cleanPattern(String pattern) {
 		return pattern.replaceAll("%[^%()\\[\\]|*]+%", "%*%") // Replaces expressions, except literals
 			.replaceAll("[a-zA-Z0-9]+:", "") // Replaces parse tags with leading ID 'any:'
 			.replaceAll(":", "") // Replaces ':' for parse tags with trailing ID ':any'
@@ -44,11 +52,11 @@ public class PatternParserTest extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		Assert.assertEquals(
-			regexPattern("[all [of the]|the] entities [of %-world%]"),
+			cleanPattern("[all [of the]|the] entities [of %-world%]"),
 			"[all [of the]|the] entities [of %*%]"
 		);
 		compare(
-			new PatternParser(regexPattern("[all [of the]|the] entities [of %-world%]")).getCombinations(),
+			new PatternParser(cleanPattern("[all [of the]|the] entities [of %-world%]")).getCombinations(),
 			Set.of(
 				"all entities", "all entities of %*%",
 				"all of the entities", "all of the entities of %*%",
@@ -58,11 +66,11 @@ public class PatternParserTest extends SkriptJUnitTest {
 		);
 
 		Assert.assertEquals(
-			regexPattern("[all [of the]|the] [:typed] entities [of %-world%]"),
+			cleanPattern("[all [of the]|the] [:typed] entities [of %-world%]"),
 			"[all [of the]|the] [typed] entities [of %*%]"
 		);
 		compare(
-			new PatternParser(regexPattern("[all [of the]|the] [:typed] entities [of %-world%]")).getCombinations(),
+			new PatternParser(cleanPattern("[all [of the]|the] [:typed] entities [of %-world%]")).getCombinations(),
 			Set.of(
 				"all typed entities", "all typed entities of %*%",
 				"all entities", "all entities of %*%",
@@ -76,11 +84,11 @@ public class PatternParserTest extends SkriptJUnitTest {
 		);
 
 		Assert.assertEquals(
-			regexPattern("stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]"),
+			cleanPattern("stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]"),
 			"stop (all sound[s]|sound[s] %*%) [(in [the]|from) %*%] [(from playing to|for) %*%]"
 		);
 		compare(
-			new PatternParser(regexPattern("stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]"))
+			new PatternParser(cleanPattern("stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]"))
 				.getCombinations(),
 			Set.of(
 				"stop all sound", "stop all sound in %*%", "stop all sound in %*% from playing to %*%", "stop all sound in %*% for %*%",
@@ -106,11 +114,11 @@ public class PatternParserTest extends SkriptJUnitTest {
 		);
 
 		Assert.assertEquals(
-			regexPattern("[the] [high:(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %-number%] of %livingentities%"),
+			cleanPattern("[the] [high:(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %-number%] of %livingentities%"),
 			"[the] [(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %*%] of %*%"
 		);
 		compare(
-			new PatternParser(regexPattern("[the] [high:(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %-number%] of %livingentities%"))
+			new PatternParser(cleanPattern("[the] [high:(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %-number%] of %livingentities%"))
 				.getCombinations(),
 			Set.of(
 				"the tall fall damage sound of %*%", "the tall fall damage sound from %*% of %*%",
@@ -196,11 +204,11 @@ public class PatternParserTest extends SkriptJUnitTest {
 		);
 
 		Assert.assertEquals(
-			regexPattern("[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]"),
+			cleanPattern("[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]"),
 			"[on] [uncancelled|cancelled|(any|all)] <.+> [with priority ((lowest|low|normal|high|highest|monitor))]"
 		);
 		compare(
-			new PatternParser(regexPattern("[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]"))
+			new PatternParser(cleanPattern("[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]"))
 				.getCombinations(),
 			Set.of(
 				"on <.+>", "on <.+> with priority lowest", "on <.+> with priority low",
@@ -246,11 +254,11 @@ public class PatternParserTest extends SkriptJUnitTest {
 		);
 
 		Assert.assertEquals(
-			regexPattern("(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%"),
+			cleanPattern("(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%"),
 			"(open|show) (((crafting [table]|workbench)|chest|anvil|hopper|dropper|dispenser) (view|window|inventory|)|%*%) (to|for) %*%"
 		);
 		compare(
-			new PatternParser(regexPattern("(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%"))
+			new PatternParser(cleanPattern("(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%"))
 				.getCombinations(),
 			Set.of(
 				"open crafting to %*%", "open crafting view to %*%", "open crafting window to %*%",
@@ -324,50 +332,213 @@ public class PatternParserTest extends SkriptJUnitTest {
 		);
 	}
 
+	private enum ElementType {
+		STRUCTURE, STATEMENT, EXPRESSION;
+
+		private static ElementType getType(Class<?> elementClass) {
+			if (Structure.class.isAssignableFrom(elementClass)) {
+				return STRUCTURE;
+			} else if (Statement.class.isAssignableFrom(elementClass) || Section.class.isAssignableFrom(elementClass)) {
+				return STATEMENT;
+			} else if (Expression.class.isAssignableFrom(elementClass)) {
+				return EXPRESSION;
+			}
+			throw new IllegalStateException("The class '" + elementClass.getSimpleName() + "' does not fall into a type");
+		}
+	}
+
+	/**
+	 * Record for a logged pattern combination mainly for ensuring if it truly conflicts.
+	 * @param combination The logged pattern combination.
+	 * @param pattern The pattern the combination came from.
+	 * @param elementClass The {@link Class} the pattern is registered to.
+	 * @param elementType The {@link ElementType} of the {@code elementClass}.
+	 */
+	private record Combination(String combination, String pattern, Class<?> elementClass, ElementType elementType) {
+
+		/**
+		 * Whether this {@link Combination} truly conflicts with another {@link Combination}.
+		 * @param other The other {@link Combination}.
+		 * @return {@code true} if it conflicts, otherwise {@code false}.
+		 */
+		private boolean conflicts(Combination other) {
+			return combination.equals(other.combination)
+				&& elementType.equals(other.elementType)
+				&& !elementClass.equals(other.elementClass);
+		}
+
+	}
+
+	/**
+	 * Manual exclusion
+	 */
+	private static class Exclusion {
+
+		private final Set<Class<?>> classes;
+		private final @Nullable String patternCombination;
+
+		/**
+		 * Constructs a new {@link Exclusion} that will exclude any conflicting combination
+		 * as long as the only classes involved in the confliction are {@code classes}.
+		 * @param classes The {@link Class}es to check for.
+		 */
+		private Exclusion(Class<?>... classes) {
+			this(null, classes);
+		}
+
+		/**
+		 * Constructs a new {@link Exclusion} that will exclude the conflicting {@code patternCombination}
+		 * as long as the only classes involved in the confliction are {@code classes}.
+		 * @param patternCombination The restricted combination.
+		 * @param classes The {@link Class}es to check for.
+		 */
+		private Exclusion(@Nullable String patternCombination, Class<?>... classes) {
+			this.patternCombination = patternCombination;
+			this.classes = Set.of(classes);
+		}
+
+		/**
+		 * Whether this {@link Exclusion} excludes the confliction by checking if the {@link Class}es from
+		 * {@code combinations} are only {@link #classes}.
+		 * @param combinations The {@link Combination}s to check.
+		 * @return {@code true} if the confliction can be excluded, otherwise {@code false}.
+		 */
+		private boolean exclude(Set<Combination> combinations) {
+			if (combinations.isEmpty())
+				return false;
+			Set<Class<?>> combinationClasses = combinations.stream()
+				.map(Combination::elementClass)
+				.collect(Collectors.toSet());
+            return combinationClasses.equals(classes);
+        }
+
+	}
+
+	/**
+	 * Whether the info messages from the process of {@link #testPatterns()} should be debugged
+	 * via {@link Skript#debug(String)}.
+	 */
+	public static boolean DEBUG = false;
+
+	/**
+	 * Whether the info messages from the process of {@link #testPatterns()} should be broadcasted
+	 * via {@link Skript#adminBroadcast(String)}.
+	 */
+	public static boolean BROADCAST = false;
+	private static final Set<Exclusion> EXCLUSIONS = new HashSet<>();
+
+	static {
+		EXCLUSIONS.add(new Exclusion(ExprScriptsOld.class, ExprScripts.class));
+	}
+
+	private void info(String message) {
+		if (DEBUG)
+			Skript.debug(message);
+		if (BROADCAST)
+			Skript.adminBroadcast(message);
+	}
+
 	@Test
 	public void testPatterns() {
-		Map<String, Set<Class<?>>> registeredPatterns = new HashMap<>();
+		Map<String, Set<Combination>> registeredPatterns = new HashMap<>();
 		Set<String> hasMultiple = new HashSet<>();
 
 		Collection<SyntaxInfo<?>> elements = Skript.instance().syntaxRegistry().elements();
-		Skript.debug("Total elements: " + elements.size());
+		info("Total elements: " + elements.size());
 		int elementCounter = 0;
 		int patternCounter = 0;
 		int combinationCounter = 0;
 		for (SyntaxInfo<?> syntaxInfo : elements) {
 			Collection<String> patterns = syntaxInfo.patterns();
 			Class<?> elementClass = syntaxInfo.type();
+			ElementType elementType = ElementType.getType(elementClass);
 
 			elementCounter++;
-			Skript.debug("Element Counter: " + elementCounter);
+			info("Element Counter: " + elementCounter);
 			for (String pattern : patterns) {
 				patternCounter++;
-				Skript.debug("Pattern Counter: " + patternCounter);
-				Skript.debug("Pattern: " + pattern);
-				PatternParser parser = new PatternParser(regexPattern(pattern));
-				for (String combination : parser.getCombinations()) {
+				info("Pattern Counter: " + patternCounter);
+				info("Pattern: " + pattern);
+				PatternParser parser = new PatternParser(cleanPattern(pattern));
+				for (String patternCombination : parser.getCombinations()) {
 					combinationCounter++;
-					Skript.debug("Combination Counter: " + combinationCounter);
-					registeredPatterns.computeIfAbsent(combination, set -> new HashSet<>()).add(elementClass);
-					if (registeredPatterns.get(combination).size() > 1)
-						hasMultiple.add(combination);
+					info("Combination Counter: " + combinationCounter);
+					Combination combination = new Combination(patternCombination, pattern, elementClass, elementType);
+					registeredPatterns.computeIfAbsent(patternCombination, set -> new HashSet<>()).add(combination);
+					if (registeredPatterns.get(patternCombination).size() > 1)
+						hasMultiple.add(patternCombination);
 				}
 			}
 		}
 
-		hasMultiple.remove("<.+>"); // Remove regex
+		if (hasMultiple.isEmpty())
+			return;
+
+		// Filter out combinations that can't conflict due to different element types
+		Set<String> filteredMultiple = new HashSet<>();
+		for (String string : hasMultiple) {
+			Set<Combination> combinations = registeredPatterns.get(string);
+			Set<Combination> filteredCombinations = new HashSet<>();
+			for (Combination first : combinations) {
+				boolean conflicts = false;
+				for (Combination second : combinations) {
+					if (filteredCombinations.contains(second))
+						continue;
+					if (first.conflicts(second)) {
+						conflicts = true;
+						break;
+					}
+				}
+				if (!conflicts) {
+					info("Filtered Combination: " + first);
+					filteredCombinations.add(first);
+				}
+			}
+			combinations.removeAll(filteredCombinations);
+			if (combinations.size() <= 1) {
+				info("Filtered Confliction: " + string);
+				filteredMultiple.add(string);
+			}
+		}
+		hasMultiple.removeAll(filteredMultiple);
+		if (hasMultiple.isEmpty())
+			return;
+
+		// Check exclusions
+		Set<String> excluded = new HashSet<>();
+		for (Exclusion exclusion : EXCLUSIONS) {
+			if (exclusion.patternCombination != null) {
+				if (!hasMultiple.contains(exclusion.patternCombination))
+					continue;
+				if (exclusion.exclude(registeredPatterns.get(exclusion.patternCombination))) {
+					info("Excluded: " + exclusion.patternCombination);
+					excluded.add(exclusion.patternCombination);
+				}
+			} else {
+			    for (String string : hasMultiple) {
+					if (excluded.contains(string))
+						continue;
+					if (exclusion.exclude(registeredPatterns.get(string))) {
+						info("Excluded: " + string);
+						excluded.add(string);
+					}
+				}
+			}
+		}
+		hasMultiple.removeAll(excluded);
 		if (hasMultiple.isEmpty())
 			return;
 
 		List<String> errors = new ArrayList<>();
 		for (String string : hasMultiple) {
 			List<String> names = registeredPatterns.get(string).stream()
-				.map(Class::getCanonicalName)
+				.map(combination -> "Class: " + combination.elementClass.getSimpleName() + " - Pattern: " + combination.pattern)
 				.toList();
-			String error = "The pattern '" + string + "' conflicts in: " + StringUtils.join(names, ", ", ", and ");
+			String error = "The pattern combination '" + string + "' conflicts in: \n\t\t\t" + StringUtils.join(names, "\n\t\t\t");
 			errors.add(error);
 		}
-		throw new SkriptAPIException(StringUtils.join(errors, "\n"));
+		errors.add("Total Conflictions: " + errors.size());
+		throw new SkriptAPIException(StringUtils.join(errors, "\n\t"));
 	}
 
 }

@@ -20,6 +20,10 @@ public class PatternParser {
 	private int endIndex = -1;
 	private final LinkedHashSet<String> combinations = new LinkedHashSet<>();
 
+	/**
+	 * Constructs a new {@link PatternParser} to retrieve all combinations of {@code pattern}.
+	 * @param pattern The pattern to get combinations from.
+	 */
 	public PatternParser(String pattern) {
 		this.pattern = pattern;
 		startIndex = 0;
@@ -27,6 +31,12 @@ public class PatternParser {
 		init();
 	}
 
+	/**
+	 * Constructs a new {@link PatternParser} designed for parsing a group.
+	 * @param pattern The full pattern to get combinations from.
+	 * @param startIndex The character index after the opening group bracket '(' or '['
+	 * @param isOptional Whether the group is optional '[' or not '('
+	 */
 	public PatternParser(String pattern, int startIndex, boolean isOptional) {
 		this.pattern = pattern;
 		this.startIndex = startIndex;
@@ -35,6 +45,9 @@ public class PatternParser {
 		init();
 	}
 
+	/**
+	 * Initializes this {@link PatternParser} by iterating through every character and group, and constructing all combinations
+	 */
 	private void init() {
 		List<Object> segments = new ArrayList<>();
 		StringBuilder builder = new StringBuilder();
@@ -43,14 +56,18 @@ public class PatternParser {
 		for (int i = startIndex; i < pattern.length(); i++) {
 			char c = pattern.charAt(i);
 			if (c == '(' && (i == 0 || pattern.charAt(i - 1) != '\\')) {
-				segments.add(builder.toString());
-				builder = new StringBuilder();
+				if (!builder.isEmpty()) {
+					segments.add(builder.toString());
+					builder = new StringBuilder();
+				}
 				PatternParser group = new PatternParser(pattern, i + 1, false);
 				i = group.getEndIndex();
 				segments.add(group);
 			} else if (c == '[' && (i == 0 || pattern.charAt(i - 1) != '\\')) {
-				segments.add(builder.toString());
-				builder = new StringBuilder();
+				if (!builder.isEmpty()) {
+					segments.add(builder.toString());
+					builder = new StringBuilder();
+				}
 				PatternParser group = new PatternParser(pattern, i + 1, true);
 				i = group.getEndIndex();
 				segments.add(group);
@@ -83,6 +100,8 @@ public class PatternParser {
 				Object segment = segments.get(i);
 				if (segment instanceof String string) {
 					if (string.contains("|")) {
+						if (string.contains("||"))
+							optionalChoice = true;
 						List<String> split = new ArrayList<>(Arrays.stream(string.split("\\|")).toList());
 						if (!string.startsWith("|")) {
 							String first = split.remove(0);
@@ -139,6 +158,10 @@ public class PatternParser {
 		}
 	}
 
+	/**
+	 * Applies all new combinations to previous combinations.
+	 * @param strings The new combinations to apply.
+	 */
 	private void apply(Set<String> strings) {
 		if (combinations.isEmpty()) {
 			combinations.addAll(strings);
@@ -154,22 +177,37 @@ public class PatternParser {
 		combinations.addAll(newCombinations);
 	}
 
+	/**
+	 * Gets the ending index for this {@link PatternParser} that correlates to the closing group bracket.
+	 * @return The index of the closing group bracket.
+	 */
 	private int getEndIndex() {
 		assert isGroup;
 		return endIndex;
 	}
 
+	/**
+	 * Joins {@code first} and {@code second} together stripping out unnecessary spaces.
+	 * @param first
+	 * @param second
+	 * @return
+	 */
 	private String combine(String first, String second) {
 		if (first.isEmpty()) {
 			return second.stripLeading();
 		} else if (second.isEmpty()) {
 			return first.stripTrailing();
 		} else if (first.endsWith(" ") && second.startsWith(" ")) {
-			return first + second.substring(1);
+			return first + second.stripLeading();
 		}
 		return first + second;
 	}
 
+	/**
+	 * Similar to {@link #apply(Set)} but applies only the combinations from {@code choices}.
+	 * @param choices The combinations to apply together.
+	 * @return The resulting combinations.
+	 */
 	private Set<String> combineChoices(List<Object> choices) {
 		if (choices.isEmpty())
 			return Collections.emptySet();
@@ -199,6 +237,10 @@ public class PatternParser {
 		return combinations;
 	}
 
+	/**
+	 * Gets the final product of all combinations from this {@link PatternParser}
+	 * @return The combinations.
+	 */
 	public Set<String> getCombinations() {
 		return combinations;
 	}
