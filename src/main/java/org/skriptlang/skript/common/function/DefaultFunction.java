@@ -7,8 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
-import java.util.function.Function;
-
 /**
  * A function that has been implemented in Java, instead of in Skript.
  * <p>
@@ -34,7 +32,8 @@ import java.util.function.Function;
  * @param <T> The return type.
  * @see #builder(SkriptAddon, String, Class)
  */
-public sealed interface DefaultFunction<T> extends Documentable
+public sealed interface DefaultFunction<T>
+		extends Function<T>, Documentable
 		permits DefaultFunctionImpl {
 
 	/**
@@ -135,7 +134,7 @@ public sealed interface DefaultFunction<T> extends Documentable
 		 * @param execute The code to execute.
 		 * @return The final function.
 		 */
-		DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute);
+		DefaultFunction<T> build(@NotNull java.util.function.Function<FunctionArguments, T> execute);
 
 	}
 

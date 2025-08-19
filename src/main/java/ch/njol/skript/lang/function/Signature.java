@@ -15,18 +15,18 @@ import java.util.WeakHashMap;
 /**
  * Function signature: name, parameter types and a return type.
  */
-public class Signature<T> {
-	
+public class Signature<T> implements org.skriptlang.skript.common.function.Signature<T> {
+
 	/**
 	 * Name of the script that the function is inside.
 	 */
 	final @Nullable String script;
-	
+
 	/**
 	 * Name of function this refers to.
 	 */
 	final String name; // Stored for hashCode
-	
+
 	/**
 	 * Parameters taken by this function, in order.
 	 */
@@ -43,13 +43,13 @@ public class Signature<T> {
 	 * to Skript's type system.
 	 */
 	final @Nullable ClassInfo<T> returnType;
-	
+
 	/**
 	 * Whether this function returns a single value, or multiple ones.
 	 * Unspecified and unused when {@link #returnType} is null.
 	 */
 	final boolean single;
-	
+
 	/**
 	 * References (function calls) to function with this signature.
 	 */
@@ -160,12 +160,12 @@ public class Signature<T> {
 	public String getName() {
 		return name;
 	}
-	
+
 	@SuppressWarnings("null")
 	public Parameter<?> getParameter(int index) {
 		return parameters[index];
 	}
-	
+
 	public Parameter<?>[] getParameters() {
 		return parameters;
 	}
@@ -177,7 +177,7 @@ public class Signature<T> {
 	public @Nullable ClassInfo<T> getReturnType() {
 		return returnType;
 	}
-	
+
 	public boolean isSingle() {
 		return single;
 	}
@@ -202,7 +202,7 @@ public class Signature<T> {
 	public int getMaxParameters() {
 		return parameters.length;
 	}
-	
+
 	/**
 	 * Gets minimum number of parameters that the function described by this
 	 * signature is able to take. Parameters that have default values and do
@@ -216,7 +216,7 @@ public class Signature<T> {
 		}
 		return 0; // No-args function
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return name.hashCode();

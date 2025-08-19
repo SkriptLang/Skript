@@ -78,8 +78,7 @@ public sealed interface FunctionArguments
 	 *
 	 * @return All argument names.
 	 */
-	@Unmodifiable
-	@NotNull Set<String> names();
+	@Unmodifiable @NotNull Set<String> names();
 
 	/**
 	 * Checks whether the argument is present.

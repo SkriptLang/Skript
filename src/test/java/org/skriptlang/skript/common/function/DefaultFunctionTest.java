@@ -2,6 +2,8 @@ package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.function.FunctionEvent;
+import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import org.junit.Test;
@@ -29,14 +31,16 @@ public class DefaultFunctionTest {
 				return StringUtils.join(xes, ",");
 			});
 
-		assertEquals("test", built.getName());
-		assertEquals(String.class, built.getReturnType().getC());
-		assertTrue(built.isSingle());
+		Signature<?> signature = (Signature<?>) built.signature();
+
+		assertEquals("test", signature.getName());
+		assertEquals(String.class, signature.getReturnType().getC());
+		assertTrue(signature.isSingle());
 		assertArrayEquals(new String[]{}, built.description().toArray(new String[0]));
 		assertArrayEquals(new String[]{}, built.since().toArray(new String[0]));
 		assertArrayEquals(new String[]{}, built.keywords().toArray(new String[0]));
 
-		Parameter<?>[] parameters = built.getParameters();
+		Parameter<?>[] parameters = signature.getParameters();
 
 		assertEquals(new ch.njol.skript.lang.function.Parameter<>("x", getClassInfo(String[].class), false, null, false, true), parameters[0]);
 	}
@@ -51,19 +55,21 @@ public class DefaultFunctionTest {
 			.parameter("y", Boolean.class)
 			.build(args -> new Object[]{true, 1});
 
-		assertEquals("test", built.getName());
-		assertEquals(Object.class, built.getReturnType().getC());
-		assertFalse(built.isSingle());
+		Signature<?> signature = (Signature<?>) built.signature();
+
+		assertEquals("test", signature.getName());
+		assertEquals(Object.class, signature.getReturnType().getC());
+		assertFalse(signature.isSingle());
 		assertArrayEquals(new String[]{"x", "y"}, built.description().toArray(new String[0]));
 		assertArrayEquals(new String[]{"1", "2"}, built.since().toArray(new String[0]));
 		assertArrayEquals(new String[]{"x", "y"}, built.keywords().toArray(new String[0]));
 
-		Parameter<?>[] parameters = built.getParameters();
+		Parameter<?>[] parameters = signature.getParameters();
 
 		assertEquals(new ch.njol.skript.lang.function.Parameter<>("x", getClassInfo(Object[].class), false, null, false, true), parameters[0]);
 		assertEquals(new ch.njol.skript.lang.function.Parameter<>("y", getClassInfo(Boolean.class), true, null), parameters[1]);
 
-		Object[] execute = built.execute(consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
+		Object[] execute = built.execute(new FunctionEvent<>(built), consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
 
 		assertArrayEquals(new Object[]{true, 1}, execute);
 

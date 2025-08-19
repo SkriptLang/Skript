@@ -16,7 +16,7 @@ import java.util.Arrays;
 /**
  * Functions can be called using arguments.
  */
-public abstract class Function<T> {
+public abstract class Function<T> implements org.skriptlang.skript.common.function.Function<T> {
 
 	/**
 	 * Execute functions even when some parameters are not present.
@@ -35,6 +35,11 @@ public abstract class Function<T> {
 	 * @return A function signature.
 	 */
 	public Signature<T> getSignature() {
+		return sign;
+	}
+
+	@Override
+	public org.skriptlang.skript.common.function.@NotNull Signature<T> signature() {
 		return sign;
 	}
 

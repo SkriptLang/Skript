@@ -131,6 +131,11 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		return source;
 	}
 
+	@Override
+	public org.skriptlang.skript.common.function.@NotNull Signature<T> signature() {
+		return getSignature();
+	}
+
 	static class BuilderImpl<T> implements DefaultFunctionImpl.Builder<T> {
 
 		private final SkriptAddon source;
