@@ -4,25 +4,18 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
  * A class containing all arguments in a function call.
  */
-public final class FunctionArguments {
-
-	private final @Unmodifiable @NotNull Map<String, Object> arguments;
-
-	FunctionArguments(@NotNull Map<String, Object> arguments) {
-		Preconditions.checkNotNull(arguments, "arguments cannot be null");
-
-		this.arguments = Collections.unmodifiableMap(arguments);
-	}
+public sealed interface FunctionArguments
+		permits FunctionArgumentsImpl {
 
 	/**
 	 * Gets a specific argument by name.
+	 *
 	 * <p>
 	 * This method automatically conforms to your expected type,
 	 * to avoid having to cast from Object. Use this method as follows.
@@ -38,15 +31,11 @@ public final class FunctionArguments {
 	 * @param <T>  The type to return.
 	 * @return The value present, or null if no value is present.
 	 */
-	public <T> T get(@NotNull String name) {
-		Preconditions.checkNotNull(name, "name cannot be null");
-
-		//noinspection unchecked
-		return (T) arguments.get(name);
-	}
+	<T> T get(@NotNull String name);
 
 	/**
 	 * Gets a specific argument by name, or a default value if no value is found.
+	 *
 	 * <p>
 	 * This method automatically conforms to your expected type,
 	 * to avoid having to cast from Object. Use this method as follows.
@@ -62,15 +51,11 @@ public final class FunctionArguments {
 	 * @param <T>          The type to return.
 	 * @return The value present, or the default value if no value is present.
 	 */
-	public <T> T getOrDefault(@NotNull String name, T defaultValue) {
-		Preconditions.checkNotNull(name, "name cannot be null");
-
-		//noinspection unchecked
-		return (T) arguments.getOrDefault(name, defaultValue);
-	}
+	<T> T getOrDefault(@NotNull String name, T defaultValue);
 
 	/**
 	 * Gets a specific argument by name, or calculates the default value if no value is found.
+	 *
 	 * <p>
 	 * This method automatically conforms to your expected type,
 	 * to avoid having to cast from Object. Use this method as follows.
@@ -86,28 +71,26 @@ public final class FunctionArguments {
 	 * @param <T>          The type to return.
 	 * @return The value present, or the calculated default value if no value is present.
 	 */
-	public <T> T getOrDefault(@NotNull String name, Supplier<T> defaultValue) {
-		Preconditions.checkNotNull(name, "name cannot be null");
-
-		Object existing = arguments.get(name);
-		if (existing == null) {
-			return defaultValue.get();
-		} else {
-			//noinspection unchecked
-			return (T) existing;
-		}
-	}
+	<T> T getOrDefault(@NotNull String name, Supplier<T> defaultValue);
 
 	/**
-	 * Returns whether this method call contained the following argument.
+	 * Returns all the argument names available in this instance.
+	 *
+	 * @return All argument names.
+	 */
+	@Unmodifiable
+	@NotNull Set<String> names();
+
+	/**
+	 * Checks whether the argument is present.
 	 *
 	 * @param name The argument.
 	 * @return True if the argument is present.
 	 */
-	public boolean has(@NotNull String name) {
+	default boolean has(@NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
-		return arguments.containsKey(name);
+		return names().contains(name);
 	}
 
 }

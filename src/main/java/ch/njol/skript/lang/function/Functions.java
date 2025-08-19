@@ -64,13 +64,13 @@ public abstract class Functions {
 	public static DefaultFunction<?> register(DefaultFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 
-		String name = function.getName();
+		String name = function.name();
 		if (!name.matches(functionNamePattern))
 			throw new SkriptAPIException("Invalid function name '%s'".formatted(name));
 
-		javaNamespace.addSignature(function.getSignature());
+		javaNamespace.addSignature(function.signature());
 		javaNamespace.addFunction(function);
-		globalFunctions.put(function.getName(), javaNamespace);
+		globalFunctions.put(function.name(), javaNamespace);
 
 		FunctionRegistry.getRegistry().register(null, function);
 
