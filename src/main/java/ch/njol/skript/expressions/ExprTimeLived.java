@@ -19,26 +19,11 @@ import org.jetbrains.annotations.Nullable;
 	Note: This does not reset when a player dies.
 	""")
 @Example("""
-	set {_target} to player's target entity
-	send "%{_target}% has lived for %time lived of {_target}%"
-
-	spawn zombie at player:
-		set {_boss} to zombie
-	# start off with 1 tick lived instead of 0 to avoid custom effects running off spawn
-	add 1 tick to {_boss}'s time lived
-	while {_boss} is alive:
-		wait 1 tick
-		# update display name every tick with hp
-		set display name of {_boss} to "Boss %{_boss}'s health%/%{_boss}'s max health%"
-		# heal every second
-		if mod(ticks of {_boss}'s time lived, 20) is 0:
-			add 1 to {_boss}'s health
-		# push forward every 2 seconds
-		if mod(ticks of {_boss}'s time lived, 40) is 0:
-			push {_boss} forward at speed 1
-		# give strength every 10 seconds
-		if mod(ticks of {_boss}'s time lived, 200) is 0:
-			add potion effect of strength for 3 seconds to {_boss}'s potion effects
+	clear all entities where [input's time lived > 1 hour]
+	""")
+@Example("""
+	on right click on entity:
+		send "%entity% has lived for %time lived of clicked entity%" to player
 	""")
 @Since("INSERT VERSION")
 public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
@@ -89,5 +74,5 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 	protected String getPropertyName() {
 		return "time lived";
 	}
-	
+
 }
