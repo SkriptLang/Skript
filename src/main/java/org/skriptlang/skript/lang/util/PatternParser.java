@@ -39,6 +39,7 @@ public class PatternParser {
 		List<Object> segments = new ArrayList<>();
 		StringBuilder builder = new StringBuilder();
 		boolean hasSelector = false;
+		boolean optionalChoice = false;
 		for (int i = startIndex; i < pattern.length(); i++) {
 			char c = pattern.charAt(i);
 			if (c == '(' && (i == 0 || pattern.charAt(i - 1) != '\\')) {
@@ -54,11 +55,16 @@ public class PatternParser {
 				i = group.getEndIndex();
 				segments.add(group);
 			} else if (isGroup && ((!isOptional && c == ')') || (isOptional && c == ']'))) {
+				if (pattern.charAt(i - 1) == '|')
+					optionalChoice = true;
 				endIndex = i;
 				break;
 			} else {
-				if (c == '|')
+				if (c == '|') {
 					hasSelector = true;
+					if (i == startIndex)
+						optionalChoice = true;
+				}
 				builder.append(c);
 			}
 		}
@@ -86,7 +92,9 @@ public class PatternParser {
 						current.clear();
 
 						if (!split.isEmpty()) {
-							current.add(split.remove(split.size() - 1));
+							if (!string.endsWith("|")) {
+								current.add(split.remove(split.size() - 1));
+							}
 							if (!split.isEmpty()) {
 								choices.addAll(split);
 							}
@@ -108,8 +116,11 @@ public class PatternParser {
 					combinations.addAll(parser.getCombinations());
 				}
 			}
-			if (isOptional)
+			if (isOptional || optionalChoice) {
 				combinations.add("");
+			} else {
+				combinations.remove("");
+			}
 		} else {
 			for (Object segment : segments) {
 				if (segment instanceof String string) {
@@ -118,8 +129,13 @@ public class PatternParser {
 					apply(parser.getCombinations());
 				}
 			}
-			if (isGroup && isOptional)
-				combinations.add("");
+			if (isGroup) {
+				if (isOptional) {
+					combinations.add("");
+				} else {
+					combinations.remove("");
+				}
+			}
 		}
 	}
 
@@ -145,13 +161,11 @@ public class PatternParser {
 
 	private String combine(String first, String second) {
 		if (first.isEmpty()) {
-			return second.trim();
+			return second.stripLeading();
 		} else if (second.isEmpty()) {
-			return first.trim();
+			return first.stripTrailing();
 		} else if (first.endsWith(" ") && second.startsWith(" ")) {
 			return first + second.substring(1);
-		} else if (!first.endsWith(" ") && !second.startsWith(" ")) {
-			return first + " " + second;
 		}
 		return first + second;
 	}
