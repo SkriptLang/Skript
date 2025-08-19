@@ -62,23 +62,22 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Entity entity = getExpr().getSingle(event);
-		if (entity == null) return;
-
 		int newTicks = 1;
 		if (delta != null && delta[0] instanceof Timespan timespan) {
 			newTicks = (int) timespan.get(Timespan.TimePeriod.TICK);
 		}
 
-		int currentTicks = entity.getTicksLived();
-		int valueToSet = switch (mode) {
-			case ADD -> currentTicks + newTicks;
-			case REMOVE -> currentTicks - newTicks;
-			case SET, RESET -> newTicks;
-			default -> currentTicks;
-		};
+		for (Entity entity : getExpr().getArray(event)) {
+			int currentTicks = entity.getTicksLived();
+			int valueToSet = switch (mode) {
+				case ADD -> currentTicks + newTicks;
+				case REMOVE -> currentTicks - newTicks;
+				case SET, RESET -> newTicks;
+				default -> currentTicks;
+			};
 
-		entity.setTicksLived(Math.max(1, valueToSet));
+			entity.setTicksLived(Math.max(1, valueToSet));
+		}
 	}
 
 	@Override
@@ -90,4 +89,5 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 	protected String getPropertyName() {
 		return "time lived";
 	}
+	
 }
