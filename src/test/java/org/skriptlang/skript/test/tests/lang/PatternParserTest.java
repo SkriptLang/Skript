@@ -349,7 +349,7 @@ public class PatternParserTest extends SkriptJUnitTest {
 					combinationCounter++;
 					Skript.adminBroadcast("Combination Counter: " + combinationCounter);
 					registeredPatterns.computeIfAbsent(combination, set -> new HashSet<>()).add(elementClass);
-					if (registeredPatterns.get(combination).size() > 2)
+					if (registeredPatterns.get(combination).size() > 1)
 						hasMultiple.add(combination);
 				}
 			}
