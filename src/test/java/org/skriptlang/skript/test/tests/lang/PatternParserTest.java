@@ -31,7 +31,7 @@ public class PatternParserTest extends SkriptJUnitTest {
 			Set<String> gotCopy = new HashSet<>(Set.copyOf(got));
 			gotCopy.removeAll(expect);
 			if (!gotCopy.isEmpty()) {
-				Assert.fail("Unexpected combinations: " + got);
+				Assert.fail("Unexpected combinations: " + gotCopy);
 			}
 			Set<String> expectCopy = new HashSet<>(Set.copyOf(expect));
 			expectCopy.removeAll(got);
