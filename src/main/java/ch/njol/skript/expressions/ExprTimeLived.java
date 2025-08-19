@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Example("""
 	on right click on entity:
-		send "%entity% has lived for %time lived of clicked entity%" to player
+		send "%entity% has lived for %time lived of entity%" to player
 	""")
 @Since("INSERT VERSION")
 public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
