@@ -15,7 +15,7 @@ public final class FunctionArguments {
 
 	private final @Unmodifiable @NotNull Map<String, Object> arguments;
 
-	public FunctionArguments(@NotNull Map<String, Object> arguments) {
+	FunctionArguments(@NotNull Map<String, Object> arguments) {
 		Preconditions.checkNotNull(arguments, "arguments cannot be null");
 
 		this.arguments = Collections.unmodifiableMap(arguments);
