@@ -330,7 +330,7 @@ public class PatternParserTest extends SkriptJUnitTest {
 		Set<String> hasMultiple = new HashSet<>();
 
 		Collection<SyntaxInfo<?>> elements = Skript.instance().syntaxRegistry().elements();
-		Skript.adminBroadcast("Total elements: " + elements.size());
+		Skript.debug("Total elements: " + elements.size());
 		int elementCounter = 0;
 		int patternCounter = 0;
 		int combinationCounter = 0;
@@ -339,15 +339,15 @@ public class PatternParserTest extends SkriptJUnitTest {
 			Class<?> elementClass = syntaxInfo.type();
 
 			elementCounter++;
-			Skript.adminBroadcast("Element Counter: " + elementCounter);
+			Skript.debug("Element Counter: " + elementCounter);
 			for (String pattern : patterns) {
 				patternCounter++;
-				Skript.adminBroadcast("Pattern Counter: " + patternCounter);
-				Skript.adminBroadcast("Pattern: " + pattern);
+				Skript.debug("Pattern Counter: " + patternCounter);
+				Skript.debug("Pattern: " + pattern);
 				PatternParser parser = new PatternParser(regexPattern(pattern));
 				for (String combination : parser.getCombinations()) {
 					combinationCounter++;
-					Skript.adminBroadcast("Combination Counter: " + combinationCounter);
+					Skript.debug("Combination Counter: " + combinationCounter);
 					registeredPatterns.computeIfAbsent(combination, set -> new HashSet<>()).add(elementClass);
 					if (registeredPatterns.get(combination).size() > 1)
 						hasMultiple.add(combination);
