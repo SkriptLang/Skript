@@ -53,8 +53,7 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.DELETE)
 			return null;
 		return CollectionUtils.array(Timespan.class);
