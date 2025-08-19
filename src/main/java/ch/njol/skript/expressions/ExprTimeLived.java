@@ -48,8 +48,7 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 	}
 
 	@Override
-	@Nullable
-	public Timespan convert(Entity entity) {
+	public @Nullable Timespan convert(Entity entity) {
 		return new Timespan(TimePeriod.TICK, entity.getTicksLived());
 	}
 
