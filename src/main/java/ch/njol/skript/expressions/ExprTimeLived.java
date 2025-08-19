@@ -60,7 +60,7 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Entity entity = getExpr().getSingle(event);
 		if (entity == null) return;
 
