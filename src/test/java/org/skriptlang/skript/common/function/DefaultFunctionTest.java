@@ -69,11 +69,11 @@ public class DefaultFunctionTest {
 		assertEquals(new ch.njol.skript.lang.function.Parameter<>("x", getClassInfo(Object[].class), false, null, false, true), parameters[0]);
 		assertEquals(new ch.njol.skript.lang.function.Parameter<>("y", getClassInfo(Boolean.class), true, null), parameters[1]);
 
-		Object[] execute = built.execute(new FunctionEvent<>(built), consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
+		Object[] execute = ((DefaultFunctionImpl<?>) built).execute(consign(new Object[]{1, 2, 3}, new Boolean[]{true}));
 
 		assertArrayEquals(new Object[]{true, 1}, execute);
 
-		execute = built.execute(consign(new Object[]{}, new Boolean[]{true}));
+		execute = ((DefaultFunctionImpl<?>) built).execute(consign(new Object[]{}, new Boolean[]{true}));
 
 		assertArrayEquals(new Object[]{true, 1}, execute);
 	}
