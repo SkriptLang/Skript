@@ -65,7 +65,7 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 		if (entity == null) return;
 
 		int newTicks = 1;
-		if (delta != null) {
+		if (delta != null && delta[0] instanceof Timespan timespan) {
 			newTicks = (int) timespan.get(Timespan.TimePeriod.TICK);
 		}
 
