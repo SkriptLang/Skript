@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -328,7 +329,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 			} else if (Expression.class.isAssignableFrom(elementClass)) {
 				return EXPRESSION;
 			}
-			throw new IllegalStateException("The class '" + elementClass.getSimpleName() + "' does not fall into a type");
+			throw new IllegalArgumentException("The class '" + elementClass.getSimpleName() + "' does not fall into a type");
 		}
 	}
 
@@ -350,6 +351,15 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 			return combination.equals(other.combination)
 				&& elementType.equals(other.elementType)
 				&& !elementClass.equals(other.elementClass);
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (!(object instanceof Combination other))
+				return false;
+			return combination.equals(other.combination)
+				&& elementType.equals(other.elementType)
+				&& elementClass.equals(other.elementClass);
 		}
 
 	}
@@ -383,7 +393,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		 * Whether this {@link Exclusion} excludes the conflict by checking if the {@link Class}es from
 		 * {@code combinations} are only {@link #classes}.
 		 * @param combinations The {@link Combination}s to check.
-		 * @return {@code true} if the confliction can be excluded, otherwise {@code false}.
+		 * @return {@code true} if the conflict can be excluded, otherwise {@code false}.
 		 */
 		private boolean exclude(Set<Combination> combinations) {
 			if (combinations.isEmpty())
@@ -403,7 +413,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 	public static boolean DEBUG = false;
 
 	/**
-	 * Whether the info messages from the process of {@link #testPatterns()} should be broadcasted
+	 * Whether the info messages from the process of {@link #testPatterns()} should broadcast
 	 * via {@link Skript#adminBroadcast(String)}.
 	 */
 	public static boolean BROADCAST = false;
@@ -456,8 +466,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		Map<String, Set<Combination>> registeredPatterns = new HashMap<>();
 
 		Collection<SyntaxInfo<?>> elements = Skript.instance().syntaxRegistry().elements();
-		info("Total elements: " + elements.size());
-		int elementCounter = 0;
+		info("Total Elements: " + elements.size());
 		int patternCounter = 0;
 		int combinationCounter = 0;
 		for (SyntaxInfo<?> syntaxInfo : elements) {
@@ -465,78 +474,86 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 			Class<?> elementClass = syntaxInfo.type();
 			ElementType elementType = ElementType.getType(elementClass);
 
-			elementCounter++;
-			info("Element Counter: " + elementCounter);
 			for (String pattern : patterns) {
 				patternCounter++;
-				info("Pattern Counter: " + patternCounter);
-				info("Pattern: " + pattern);
 				for (String patternCombination : getCombinations(pattern)) {
 					combinationCounter++;
-					info("Combination Counter: " + combinationCounter);
 					Combination combination = new Combination(patternCombination, pattern, elementClass, elementType);
 					registeredPatterns.computeIfAbsent(patternCombination, set -> new HashSet<>()).add(combination);
 				}
 			}
 		}
+		info("Total Patterns: " + patternCounter);
+		info("Total Combinations: " + combinationCounter);
 
 		Set<String> hasMultiple = new HashSet<>();
+		int filterCombinationCounter = 0;
+		int filterConflictCounter = 0;
 		for (Entry<String, Set<Combination>> entry : registeredPatterns.entrySet()) {
 			Set<Combination> combinations = entry.getValue();
-			if (combinations.size() <= 1)
+			int size = combinations.size();
+			if (size <= 1)
 				continue;
-			String string = entry.getKey();
-			Set<Combination> filtered = new HashSet<>();
 			// Filter out combinations that can't conflict due to different element types
-			for (Combination first : combinations) {
-				boolean conflicts = false;
-				for (Combination second : combinations) {
-					if (filtered.contains(second))
-						continue;
-					if (first.conflicts(second)) {
-						conflicts = true;
-						break;
+			List<Combination> list = new ArrayList<>(combinations);
+			boolean[] hasConflict = new boolean[size];
+			for (int firstIndex = 0; firstIndex < size - 1; firstIndex++) {
+				if (hasConflict[firstIndex])
+					continue;
+				for (int secondIndex = firstIndex + 1; secondIndex < size; secondIndex++) {
+					if (list.get(firstIndex).conflicts(list.get(secondIndex))) {
+						hasConflict[firstIndex] = true;
+						hasConflict[secondIndex] = true;
 					}
 				}
-				if (!conflicts) {
-					info("Filtered Combination: " + first);
-					filtered.add(first);
+			}
+
+			Set<Combination> nonConflicting = new HashSet<>();
+			for (int index = 0; index < size; index++) {
+				if (!hasConflict[index]) {
+					nonConflicting.add(list.get(index));
+					filterCombinationCounter++;
 				}
 			}
-			combinations.removeAll(filtered);
+
+			combinations.removeAll(nonConflicting);
 			if (combinations.size() <= 1) {
-				info("Filtered Confliction: " + string);
-				continue;
+				filterConflictCounter++;
+			} else {
+				hasMultiple.add(entry.getKey());
 			}
-			hasMultiple.add(string);
 		}
+		info("Total Filtered Combinations: " + filterCombinationCounter);
+		info("Total Filtered Conflicts: " + filterConflictCounter);
 
 		if (hasMultiple.isEmpty())
 			return;
 
 		// Check exclusions
 		registerExclusions();
-		Set<String> excluded = new HashSet<>();
+		int excludedCounter = 0;
 		for (Exclusion exclusion : EXCLUSIONS) {
-			if (exclusion.patternCombination != null) {
-				if (!hasMultiple.contains(exclusion.patternCombination))
+			if (hasMultiple.isEmpty())
+				break;
+			String exclusionPattern = exclusion.patternCombination;
+			if (exclusionPattern != null) {
+				if (!hasMultiple.contains(exclusionPattern))
 					continue;
-				if (exclusion.exclude(registeredPatterns.get(exclusion.patternCombination))) {
-					info("Excluded: " + exclusion.patternCombination);
-					excluded.add(exclusion.patternCombination);
+				if (exclusion.exclude(registeredPatterns.get(exclusionPattern))) {
+					hasMultiple.remove(exclusionPattern);
+					excludedCounter++;
 				}
 			} else {
-			    for (String string : hasMultiple) {
-					if (excluded.contains(string))
-						continue;
+				for (Iterator<String> iterator = hasMultiple.iterator(); iterator.hasNext();) {
+					String string = iterator.next();
 					if (exclusion.exclude(registeredPatterns.get(string))) {
-						info("Excluded: " + string);
-						excluded.add(string);
+						iterator.remove();
+						excludedCounter++;
 					}
 				}
 			}
 		}
-		hasMultiple.removeAll(excluded);
+		info("Total Excluded: " + excludedCounter);
 		if (hasMultiple.isEmpty())
 			return;
 
@@ -548,7 +565,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 			String error = "The pattern combination '" + string + "' conflicts in: \n\t\t\t" + StringUtils.join(names, "\n\t\t\t");
 			errors.add(error);
 		}
-		errors.add("Total Conflictions: " + errors.size());
+		errors.add("Total Conflicts: " + errors.size());
 		throw new SkriptAPIException(StringUtils.join(errors, "\n\t"));
 	}
 
