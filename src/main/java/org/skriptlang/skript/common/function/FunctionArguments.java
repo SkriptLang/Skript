@@ -80,16 +80,4 @@ public sealed interface FunctionArguments
 	 */
 	@Unmodifiable @NotNull Set<String> names();
 
-	/**
-	 * Checks whether the argument is present.
-	 *
-	 * @param name The argument.
-	 * @return True if the argument is present.
-	 */
-	default boolean has(@NotNull String name) {
-		Preconditions.checkNotNull(name, "name cannot be null");
-
-		return names().contains(name);
-	}
-
 }

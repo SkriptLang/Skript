@@ -49,11 +49,4 @@ record FunctionArgumentsImpl(@Unmodifiable @NotNull Map<String, Object> argument
 		return Collections.unmodifiableSet(arguments.keySet());
 	}
 
-	@Override
-	public boolean has(@NotNull String name) {
-		Preconditions.checkNotNull(name, "name cannot be null");
-
-		return arguments.containsKey(name);
-	}
-
 }
