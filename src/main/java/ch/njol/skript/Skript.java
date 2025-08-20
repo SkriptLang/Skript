@@ -96,6 +96,7 @@ import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
@@ -586,6 +587,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			FurnaceModule.load();
 			LootTableModule.load();
 			skript.loadModules(new DamageSourceModule());
+			skript.loadModules(new InteractionModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
