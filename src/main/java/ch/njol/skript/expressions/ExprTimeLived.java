@@ -59,7 +59,7 @@ public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 				default -> currentTicks;
 			};
 
-			entity.setTicksLived(Math.max(1, valueToSet));
+			entity.setTicksLived(Math2.fit(1, valueToSet, Integer.MAX_VALUE));
 		}
 	}
 
