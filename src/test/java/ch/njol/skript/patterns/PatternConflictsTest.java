@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -360,7 +361,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 
 		/**
 		 * Constructs a new {@link Exclusion} that will exclude any conflicting combination
-		 * as long as the only classes involved in the confliction are {@code classes}.
+		 * as long as the only classes involved in the conflict are {@code classes}.
 		 * @param classes The {@link Class}es to check for.
 		 */
 		private Exclusion(Class<?>... classes) {
@@ -369,7 +370,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 
 		/**
 		 * Constructs a new {@link Exclusion} that will exclude the conflicting {@code patternCombination}
-		 * as long as the only classes involved in the confliction are {@code classes}.
+		 * as long as the only classes involved in the conflict are {@code classes}.
 		 * @param patternCombination The restricted combination.
 		 * @param classes The {@link Class}es to check for.
 		 */
@@ -379,7 +380,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		}
 
 		/**
-		 * Whether this {@link Exclusion} excludes the confliction by checking if the {@link Class}es from
+		 * Whether this {@link Exclusion} excludes the conflict by checking if the {@link Class}es from
 		 * {@code combinations} are only {@link #classes}.
 		 * @param combinations The {@link Combination}s to check.
 		 * @return {@code true} if the confliction can be excluded, otherwise {@code false}.
@@ -423,16 +424,24 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		EXCLUSIONS.add(new Exclusion("the %*% of %*%", ExprArmorSlot.class, ExprEntities.class));
 		EXCLUSIONS.add(new Exclusion("%*% of %*%", ExprArmorSlot.class, ExprEntities.class, ExprXOf.class));
 
-		// More than 1 conflict
+		// 2
+		EXCLUSIONS.add(new Exclusion(ExprNewBannerPattern.class, ExprFireworkEffect.class));
+		EXCLUSIONS.add(new Exclusion(ExprInventoryAction.class, ExprClicked.class));
+		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprValueWithin.class));
+
+		// 4
+		EXCLUSIONS.add(new Exclusion(ExprEntitySound.class, ExprBlockSound.class));
+		EXCLUSIONS.add(new Exclusion(ExprEnchantmentLevel.class, ExprPotionEffectTier.class));
+
+		// 5
+		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprSets.class));
+
+		// 6
+		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprItemsIn.class));
+
+		// 8
 		EXCLUSIONS.add(new Exclusion(CondScriptLoaded.class, CondIsLoaded.class));
 		EXCLUSIONS.add(new Exclusion(CondDate.class, CondCompare.class));
-		EXCLUSIONS.add(new Exclusion(ExprNewBannerPattern.class, ExprFireworkEffect.class));
-		EXCLUSIONS.add(new Exclusion(ExprEntitySound.class, ExprBlockSound.class));
-		EXCLUSIONS.add(new Exclusion(ExprInventoryAction.class, ExprClicked.class));
-		EXCLUSIONS.add(new Exclusion(ExprEnchantmentLevel.class, ExprPotionEffectTier.class));
-		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprItemsIn.class));
-		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprSets.class));
-		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprValueWithin.class));
 	}
 
 	private void info(String message) {
@@ -445,7 +454,6 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 	@Test
 	public void testPatterns() {
 		Map<String, Set<Combination>> registeredPatterns = new HashMap<>();
-		Set<String> hasMultiple = new HashSet<>();
 
 		Collection<SyntaxInfo<?>> elements = Skript.instance().syntaxRegistry().elements();
 		info("Total elements: " + elements.size());
@@ -468,24 +476,22 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 					info("Combination Counter: " + combinationCounter);
 					Combination combination = new Combination(patternCombination, pattern, elementClass, elementType);
 					registeredPatterns.computeIfAbsent(patternCombination, set -> new HashSet<>()).add(combination);
-					if (registeredPatterns.get(patternCombination).size() > 1)
-						hasMultiple.add(patternCombination);
 				}
 			}
 		}
 
-		if (hasMultiple.isEmpty())
-			return;
-
-		// Filter out combinations that can't conflict due to different element types
-		Set<String> filteredMultiple = new HashSet<>();
-		for (String string : hasMultiple) {
-			Set<Combination> combinations = registeredPatterns.get(string);
-			Set<Combination> filteredCombinations = new HashSet<>();
+		Set<String> hasMultiple = new HashSet<>();
+		for (Entry<String, Set<Combination>> entry : registeredPatterns.entrySet()) {
+			Set<Combination> combinations = entry.getValue();
+			if (combinations.size() <= 1)
+				continue;
+			String string = entry.getKey();
+			Set<Combination> filtered = new HashSet<>();
+			// Filter out combinations that can't conflict due to different element types
 			for (Combination first : combinations) {
 				boolean conflicts = false;
 				for (Combination second : combinations) {
-					if (filteredCombinations.contains(second))
+					if (filtered.contains(second))
 						continue;
 					if (first.conflicts(second)) {
 						conflicts = true;
@@ -494,16 +500,17 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 				}
 				if (!conflicts) {
 					info("Filtered Combination: " + first);
-					filteredCombinations.add(first);
+					filtered.add(first);
 				}
 			}
-			combinations.removeAll(filteredCombinations);
+			combinations.removeAll(filtered);
 			if (combinations.size() <= 1) {
 				info("Filtered Confliction: " + string);
-				filteredMultiple.add(string);
+				continue;
 			}
+			hasMultiple.add(string);
 		}
-		hasMultiple.removeAll(filteredMultiple);
+
 		if (hasMultiple.isEmpty())
 			return;
 

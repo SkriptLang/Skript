@@ -78,8 +78,7 @@ public abstract class PatternElement {
 					newCombinations.add(combineCombination(base, add));
 				}
 			}
-			combinations.clear();
-			combinations.addAll(newCombinations);
+			combinations = newCombinations;
 		}
 		return combinations;
 	}
