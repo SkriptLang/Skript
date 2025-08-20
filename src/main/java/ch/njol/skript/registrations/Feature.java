@@ -15,7 +15,8 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
 public enum Feature implements Experiment {
 
 	EXAMPLES("Examples",
-		"""
+	"examples",
+	"""
 			A section used to provide examples inside code.
 			
 			```
@@ -23,10 +24,10 @@ public enum Feature implements Experiment {
 				kick the player due to "you are not allowed here!"
 			```
 			""",
-		"examples",
-		LifeCycle.STABLE),
+			LifeCycle.STABLE),
 	QUEUES("Queues",
-		"""
+	"queues",
+	"""
 			A collection that removes elements whenever they are requested.
 			
 			This is useful for processing tasks or keeping track of things that need to happen only once.
@@ -53,57 +54,58 @@ public enum Feature implements Experiment {
 			
 			Queues can be looped over like a regular list.
 			""",
-		"queues",
-		LifeCycle.EXPERIMENTAL),
+			LifeCycle.EXPERIMENTAL),
 	FOR_EACH_LOOPS("For Loops",
-		"""
+	"for loop",
+	"""
 			A new kind of loop syntax that stores the loop index and value in variables for convenience.
 			
 			This can be used to avoid confusion when nesting multiple loops inside each other.
 			
 			```
 			for {_index}, {_value} in {my list::*}:
-			    broadcast "%{_index}%: %{_value}%"
+				broadcast "%{_index}%: %{_value}%"
 			```
 			
 			```
 			for each {_player} in all players:
-			    send "Hello %{_player}%!" to {_player}
+				send "Hello %{_player}%!" to {_player}
 			```
 			
 			All existing loop features are also available in this section.
 			""",
-		"for loop",
-		LifeCycle.EXPERIMENTAL,
-		"for [each] loop[s]"),
+			LifeCycle.EXPERIMENTAL,
+			"for [each] loop[s]"),
 	SCRIPT_REFLECTION("Script Reflection",
-		"""
+	"reflection",
+	"""
 			This feature includes:
 			
 			- The ability to reference a script in code.
 			- Finding and running functions by name.
 			- Reading configuration files and values.
-			""", "reflection",
-		LifeCycle.EXPERIMENTAL,
-		"[script] reflection"),
+			""",
+			LifeCycle.EXPERIMENTAL,
+			"[script] reflection"),
 	CATCH_ERRORS("Runtime Error Catching",
-		"""
+	"catch runtime errors",
+	"""
 			A new catch [run[ ]time] error[s] section allows you to catch and suppress runtime errors within it and access them later with [the] last caught [run[ ]time] errors.
 			
 			```
 			catch runtime errors:
-			    ...
-			    set worldborder center of {_border} to {_my unsafe location}
-			    ...
+				...
+				set worldborder center of {_border} to {_my unsafe location}
+				...
 			if last caught runtime errors contains "Your location can't have a NaN value as one of its components":
-			    set worldborder center of {_border} to location(0, 0, 0)
+				set worldborder center of {_border} to location(0, 0, 0)
 			```
 			""",
-		"catch runtime errors",
-		LifeCycle.EXPERIMENTAL,
-		"error catching [section]"),
+			LifeCycle.EXPERIMENTAL,
+			"error catching [section]"),
 	TYPE_HINTS("Type Hints",
-		"""
+	"type hints",
+	"""
 			Local variable type hints enable Skript to understand what kind of values your local variables will hold at parse time. Consider the following example:
 			
 			```
@@ -122,11 +124,11 @@ public enum Feature implements Experiment {
 			{_var::%player's name%} # can't use type hints
 			```
 			""",
-		"type hints",
-		LifeCycle.EXPERIMENTAL,
-		"[local variable] type hints"),
+			LifeCycle.EXPERIMENTAL,
+			"[local variable] type hints"),
 	DAMAGE_SOURCE("Damage Sources",
-		"""
+	"damage source",
+	"""
 			Damage sources are a more advanced and detailed version of damage causes. Damage sources include information such as the type of damage, the location where the damage originated from, the entity that directly caused the damage, and more.
 			
 			Below is an example of what damaging using custom damage sources looks like:
@@ -141,19 +143,17 @@ public enum Feature implements Experiment {
 			
 			For more details about the syntax, visit damage source on our documentation website.
 			""",
-		"damage source",
-		LifeCycle.EXPERIMENTAL,
-		"damage source[s]")
-	;
+			LifeCycle.EXPERIMENTAL,
+			"damage source[s]");
 
-	private final String codeName;
 	private final String displayName;
+	private final String codeName;
 	private final String description;
 	private final LifeCycle phase;
 	private final SkriptPattern compiledPattern;
 
-	Feature(@NotNull String displayName, @NotNull String description,
-			@NotNull String codeName, @NotNull LifeCycle phase,
+	Feature(@NotNull String displayName, @NotNull String codeName,
+			@NotNull String description, @NotNull LifeCycle phase,
 			String... patterns) {
 		Preconditions.checkNotNull(codeName, "codeName cannot be null");
 		Preconditions.checkNotNull(displayName, "displayName cannot be null");
