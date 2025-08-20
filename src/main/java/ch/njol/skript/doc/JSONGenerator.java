@@ -242,6 +242,10 @@ public class JSONGenerator extends DocumentationGenerator {
 		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
 		for (Class<? extends Event> supportedEvent : info.events()) {
 			for (Class<? extends Event> event : allEventValues.keySet()) {
+				if (event == null) {
+					continue;
+				}
+
 				if (!event.isAssignableFrom(supportedEvent)) {
 					continue;
 				}
