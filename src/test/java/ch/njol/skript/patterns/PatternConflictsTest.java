@@ -46,7 +46,6 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		Set<String> expectCopy = new HashSet<>(Set.copyOf(expect));
 		expectCopy.removeAll(got);
 		if (!expectCopy.isEmpty()) {
-			Skript.adminBroadcast(StringUtils.join(got, "\n"));
 			Assert.fail("Combinations not found: " + expectCopy);
 		}
 	}
