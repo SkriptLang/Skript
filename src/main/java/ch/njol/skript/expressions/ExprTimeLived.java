@@ -18,9 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	Returns the total amount of time the entity has lived.
 	Note: This does not reset when a player dies.
 	""")
-@Example("""
-	clear all entities where [input's time lived > 1 hour]
-	""")
+@Example("clear all entities where [input's time lived > 1 hour]")
 @Example("""
 	on right click on entity:
 		send "%entity% has lived for %time lived of entity%" to player
