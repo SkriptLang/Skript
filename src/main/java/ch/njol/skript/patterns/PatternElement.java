@@ -2,6 +2,9 @@ package ch.njol.skript.patterns;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public abstract class PatternElement {
 
 	@Nullable
@@ -46,6 +49,54 @@ public abstract class PatternElement {
 			stringBuilder.append(next);
 		}
 		return stringBuilder.toString();
+	}
+
+	/**
+	 * Gets the combinations available to this {@link PatternElement}.
+	 * @param clean Whether unnecessary data should be excluded from the combinations.
+	 * @return The combinations.
+	 */
+	public abstract Set<String> getCombinations(boolean clean);
+
+	/**
+	 * Gets all combinations available to this {@link PatternElement} and linked {@link PatternElement}s.
+	 * @param clean Whether unnecessary data should be excluded from the combinations.
+	 * @return The combinations.
+	 */
+	public final Set<String> getAllCombinations(boolean clean) {
+		Set<String> combinations = getCombinations(clean);
+		if (combinations.isEmpty())
+			combinations.add("");
+		PatternElement next = this;
+		while ((next = next.originalNext) != null) {
+			Set<String> newCombinations = new HashSet<>();
+			Set<String> nextCombinations = next.getCombinations(clean);
+			if (nextCombinations.isEmpty())
+				continue;
+			for (String base : combinations) {
+				for (String add : nextCombinations) {
+					newCombinations.add(combineCombination(base, add));
+				}
+			}
+			combinations.clear();
+			combinations.addAll(newCombinations);
+		}
+		return combinations;
+	}
+
+	/**
+	 * Helper method for appropriately combining two strings together.
+	 * @return The resulting string.
+	 */
+	private String combineCombination(String first, String second) {
+		if (first.isEmpty()) {
+			return second.stripLeading();
+		} else if (second.isEmpty()) {
+			return first.stripTrailing();
+		} else if (first.endsWith(" ") && second.startsWith(" ")) {
+			return first + second.stripLeading();
+		}
+		return first + second;
 	}
 
 }

@@ -1,9 +1,14 @@
-package org.skriptlang.skript.test.tests.lang;
+package ch.njol.skript.patterns;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.expressions.ExprScripts;
-import ch.njol.skript.expressions.ExprScriptsOld;
+import ch.njol.skript.conditions.CondCompare;
+import ch.njol.skript.conditions.CondDate;
+import ch.njol.skript.conditions.CondIsLoaded;
+import ch.njol.skript.conditions.CondScriptLoaded;
+import ch.njol.skript.effects.EffScriptFile;
+import ch.njol.skript.effects.EffWorldLoad;
+import ch.njol.skript.expressions.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.Statement;
@@ -13,9 +18,9 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.util.PatternParser;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
+import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,40 +28,36 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class PatternParserTest extends SkriptJUnitTest {
-
-	private static String cleanPattern(String pattern) {
-		return pattern.replaceAll("%[^%()\\[\\]|*]+%", "%*%") // Replaces expressions, except literals
-			.replaceAll("[a-zA-Z0-9]+:", "") // Replaces parse tags with leading ID 'any:'
-			.replaceAll(":", "") // Replaces ':' for parse tags with trailing ID ':any'
-			.replaceAll("[0-9]+¦", ""); // Replaces parse marks '1¦'
-	}
+public class PatternConflictsTest extends SkriptJUnitTest {
 
 	private static void compare(Set<String> got, Set<String> expect) {
-		if (!expect.equals(got)) {
-			Set<String> gotCopy = new HashSet<>(Set.copyOf(got));
-			gotCopy.removeAll(expect);
-			if (!gotCopy.isEmpty()) {
-				Assert.fail("Unexpected combinations: " + gotCopy);
-			}
-			Set<String> expectCopy = new HashSet<>(Set.copyOf(expect));
-			expectCopy.removeAll(got);
-			if (!expectCopy.isEmpty()) {
-				Assert.fail("Combinations not found: " + expectCopy);
-			}
+		if (expect.equals(got))
+			return;
+
+		Set<String> gotCopy = new HashSet<>(Set.copyOf(got));
+		gotCopy.removeAll(expect);
+		if (!gotCopy.isEmpty()) {
+			Assert.fail("Unexpected combinations: " + gotCopy);
 		}
+		Set<String> expectCopy = new HashSet<>(Set.copyOf(expect));
+		expectCopy.removeAll(got);
+		if (!expectCopy.isEmpty()) {
+			Skript.adminBroadcast(StringUtils.join(got, "\n"));
+			Assert.fail("Combinations not found: " + expectCopy);
+		}
+	}
+
+	private Set<String> getCombinations(String pattern) {
+		return PatternCompiler.compile(pattern, new AtomicInteger()).getAllCombinations(true);
 	}
 
 	@Test
 	public void test() {
-		Assert.assertEquals(
-			cleanPattern("[all [of the]|the] entities [of %-world%]"),
-			"[all [of the]|the] entities [of %*%]"
-		);
 		compare(
-			new PatternParser(cleanPattern("[all [of the]|the] entities [of %-world%]")).getCombinations(),
+			getCombinations("[all [of the]|the] entities [of %-world%]"),
 			Set.of(
 				"all entities", "all entities of %*%",
 				"all of the entities", "all of the entities of %*%",
@@ -65,12 +66,8 @@ public class PatternParserTest extends SkriptJUnitTest {
 			)
 		);
 
-		Assert.assertEquals(
-			cleanPattern("[all [of the]|the] [:typed] entities [of %-world%]"),
-			"[all [of the]|the] [typed] entities [of %*%]"
-		);
 		compare(
-			new PatternParser(cleanPattern("[all [of the]|the] [:typed] entities [of %-world%]")).getCombinations(),
+			getCombinations("[all [of the]|the] [:typed] entities [of %-world%]"),
 			Set.of(
 				"all typed entities", "all typed entities of %*%",
 				"all entities", "all entities of %*%",
@@ -83,13 +80,8 @@ public class PatternParserTest extends SkriptJUnitTest {
 			)
 		);
 
-		Assert.assertEquals(
-			cleanPattern("stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]"),
-			"stop (all sound[s]|sound[s] %*%) [(in [the]|from) %*%] [(from playing to|for) %*%]"
-		);
 		compare(
-			new PatternParser(cleanPattern("stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]"))
-				.getCombinations(),
+			getCombinations("stop (all:all sound[s]|sound[s] %-strings%) [(in [the]|from) %-soundcategory%] [(from playing to|for) %players%]"),
 			Set.of(
 				"stop all sound", "stop all sound in %*%", "stop all sound in %*% from playing to %*%", "stop all sound in %*% for %*%",
 				"stop all sound in the %*%", "stop all sound in the %*% from playing to %*%", "stop all sound in the %*% for %*%",
@@ -113,13 +105,8 @@ public class PatternParserTest extends SkriptJUnitTest {
 			)
 		);
 
-		Assert.assertEquals(
-			cleanPattern("[the] [high:(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %-number%] of %livingentities%"),
-			"[the] [(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %*%] of %*%"
-		);
 		compare(
-			new PatternParser(cleanPattern("[the] [high:(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %-number%] of %livingentities%"))
-				.getCombinations(),
+			getCombinations("[the] [high:(tall|high)|(low|normal)] fall damage sound[s] [from [[a] height [of]] %-number%] of %livingentities%"),
 			Set.of(
 				"the tall fall damage sound of %*%", "the tall fall damage sound from %*% of %*%",
 				"the tall fall damage sound from a height %*% of %*%", "the tall fall damage sound from a height of %*% of %*%",
@@ -203,13 +190,8 @@ public class PatternParserTest extends SkriptJUnitTest {
 			)
 		);
 
-		Assert.assertEquals(
-			cleanPattern("[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]"),
-			"[on] [uncancelled|cancelled|(any|all)] <.+> [with priority ((lowest|low|normal|high|highest|monitor))]"
-		);
 		compare(
-			new PatternParser(cleanPattern("[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]"))
-				.getCombinations(),
+			getCombinations("[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]"),
 			Set.of(
 				"on <.+>", "on <.+> with priority lowest", "on <.+> with priority low",
 				"on <.+> with priority normal", "on <.+> with priority high",
@@ -253,13 +235,8 @@ public class PatternParserTest extends SkriptJUnitTest {
 			)
 		);
 
-		Assert.assertEquals(
-			cleanPattern("(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%"),
-			"(open|show) (((crafting [table]|workbench)|chest|anvil|hopper|dropper|dispenser) (view|window|inventory|)|%*%) (to|for) %*%"
-		);
 		compare(
-			new PatternParser(cleanPattern("(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%"))
-				.getCombinations(),
+			getCombinations("(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%"),
 			Set.of(
 				"open crafting to %*%", "open crafting view to %*%", "open crafting window to %*%",
 				"open crafting inventory to %*%", "open crafting for %*%", "open crafting view for %*%",
@@ -332,9 +309,17 @@ public class PatternParserTest extends SkriptJUnitTest {
 		);
 	}
 
+	/**
+	 * Enum to determine what element type a class falls into.
+	 */
 	private enum ElementType {
 		STRUCTURE, STATEMENT, EXPRESSION;
 
+		/**
+		 * Gets the {@link ElementType} that {@code elementClass} falls into.
+		 * @param elementClass The {@link Class} to check.
+		 * @return The {@link ElementType}.
+		 */
 		private static ElementType getType(Class<?> elementClass) {
 			if (Structure.class.isAssignableFrom(elementClass)) {
 				return STRUCTURE;
@@ -369,9 +354,6 @@ public class PatternParserTest extends SkriptJUnitTest {
 
 	}
 
-	/**
-	 * Manual exclusion
-	 */
 	private static class Exclusion {
 
 		private final Set<Class<?>> classes;
@@ -425,10 +407,33 @@ public class PatternParserTest extends SkriptJUnitTest {
 	 * via {@link Skript#adminBroadcast(String)}.
 	 */
 	public static boolean BROADCAST = false;
+
 	private static final Set<Exclusion> EXCLUSIONS = new HashSet<>();
 
-	static {
+	private void registerExclusions() {
+		// Usage of these depend on an Experiment being enabled
 		EXCLUSIONS.add(new Exclusion(ExprScriptsOld.class, ExprScripts.class));
+
+		// Intentional - Sovde
+		EXCLUSIONS.add(new Exclusion("vector from %*%", ExprVectorOfLocation.class, ExprVectorFromDirection.class));
+
+		// TODO
+		// Only 1 conflict
+		EXCLUSIONS.add(new Exclusion("formatted %*%", ExprFormatDate.class, ExprColoured.class));
+		EXCLUSIONS.add(new Exclusion("unload %*%", EffScriptFile.class, EffWorldLoad.class));
+		EXCLUSIONS.add(new Exclusion("the %*% of %*%", ExprArmorSlot.class, ExprEntities.class));
+		EXCLUSIONS.add(new Exclusion("%*% of %*%", ExprArmorSlot.class, ExprEntities.class, ExprXOf.class));
+
+		// More than 1 conflict
+		EXCLUSIONS.add(new Exclusion(CondScriptLoaded.class, CondIsLoaded.class));
+		EXCLUSIONS.add(new Exclusion(CondDate.class, CondCompare.class));
+		EXCLUSIONS.add(new Exclusion(ExprNewBannerPattern.class, ExprFireworkEffect.class));
+		EXCLUSIONS.add(new Exclusion(ExprEntitySound.class, ExprBlockSound.class));
+		EXCLUSIONS.add(new Exclusion(ExprInventoryAction.class, ExprClicked.class));
+		EXCLUSIONS.add(new Exclusion(ExprEnchantmentLevel.class, ExprPotionEffectTier.class));
+		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprItemsIn.class));
+		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprSets.class));
+		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprValueWithin.class));
 	}
 
 	private void info(String message) {
@@ -459,8 +464,7 @@ public class PatternParserTest extends SkriptJUnitTest {
 				patternCounter++;
 				info("Pattern Counter: " + patternCounter);
 				info("Pattern: " + pattern);
-				PatternParser parser = new PatternParser(cleanPattern(pattern));
-				for (String patternCombination : parser.getCombinations()) {
+				for (String patternCombination : getCombinations(pattern)) {
 					combinationCounter++;
 					info("Combination Counter: " + combinationCounter);
 					Combination combination = new Combination(patternCombination, pattern, elementClass, elementType);
@@ -505,6 +509,7 @@ public class PatternParserTest extends SkriptJUnitTest {
 			return;
 
 		// Check exclusions
+		registerExclusions();
 		Set<String> excluded = new HashSet<>();
 		for (Exclusion exclusion : EXCLUSIONS) {
 			if (exclusion.patternCombination != null) {
