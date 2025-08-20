@@ -273,7 +273,7 @@ public class TypePatternElement extends PatternElement {
 	@Override
 	public Set<String> getCombinations(boolean clean) {
 		Set<String> combinations = new HashSet<>();
-		if (flagMask == 2 && !clean) {
+		if (!clean || flagMask == 2) {
 			combinations.add(toString());
 		} else {
 			combinations.add("%*%");
