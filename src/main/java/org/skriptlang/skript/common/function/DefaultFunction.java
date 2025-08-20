@@ -44,7 +44,8 @@ public sealed interface DefaultFunction<T>
 	 * @param <T>        The return type.
 	 * @return The builder for a function.
 	 */
-	static <T> Builder<T> builder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
+	@Contract("_, _, _ -> new")
+	static <T> @NotNull Builder<T> builder(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
 		return new DefaultFunctionImpl.BuilderImpl<>(source, name, returnType);
 	}
 
@@ -58,8 +59,8 @@ public sealed interface DefaultFunction<T>
 	 *
 	 * @return This function.
 	 */
-	@Contract(" -> this")
-	default DefaultFunction<T> register() {
+	@Contract("-> this")
+	default @NotNull DefaultFunction<T> register() {
 		Functions.register(this);
 
 		return this;
