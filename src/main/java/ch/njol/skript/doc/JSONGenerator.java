@@ -12,9 +12,11 @@ import ch.njol.skript.util.Version;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Generates JSON docs
@@ -156,7 +159,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		Keywords keywords = syntaxClass.getAnnotation(Keywords.class);
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
-		if (syntaxInfo instanceof DefaultSyntaxInfos.Expression<?, ?> expression) {
+		if (syntaxInfo instanceof SyntaxInfo.Expression<?, ?> expression) {
 			syntaxJsonObject.add("returns", getExpressionReturnTypes(expression));
 		}
 
@@ -194,12 +197,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param expression The expression class.
 	 * @return An object with the return type.
 	 */
-	private static @Nullable JsonObject getExpressionReturnTypes(DefaultSyntaxInfos.Expression<?, ?> expression) {
-		ClassInfo<?> exact = Classes.getExactClassInfo(expression.returnType());
-
-		if (exact == null) {
-			return null;
-		}
+	private static @NotNull JsonObject getExpressionReturnTypes(DefaultSyntaxInfos.Expression<?, ?> expression) {
+		ClassInfo<?> exact = Classes.getSuperClassInfo(expression.returnType());
 
 		JsonObject object = new JsonObject();
 		object.addProperty("id", exact.getCodeName());
@@ -241,7 +240,10 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
 		for (Class<? extends Event> supportedEvent : info.events()) {
-			for (Class<? extends Event> event : allEventValues.keySet()) {
+			for (Entry<Class<? extends Event>, EventValueInfo<?, ?>> entry : allEventValues.entries()) {
+				Class<? extends Event> event = entry.getKey();
+				EventValueInfo<?, ?> eventValueInfo = entry.getValue();
+
 				if (event == null) {
 					continue;
 				}
@@ -250,45 +252,37 @@ public class JSONGenerator extends DocumentationGenerator {
 					continue;
 				}
 
-				Collection<EventValueInfo<?, ?>> eventValueInfos = allEventValues.get(event);
-
-				for (EventValueInfo<?, ?> eventValueInfo : eventValueInfos) {
-					Class<?>[] excludes = eventValueInfo.excludes();
-					if (excludes != null && Set.of(excludes).contains(event)) {
-						continue;
-					}
-
-					Class<?> valueClass = eventValueInfo.valueClass();
-					ClassInfo<?> classInfo;
-					if (valueClass.isArray()) {
-						classInfo = Classes.getExactClassInfo(valueClass.componentType());
-					} else {
-						classInfo = Classes.getExactClassInfo(valueClass);
-					}
-
-					if (classInfo == null) {
-						continue;
-					}
-
-					String name = classInfo.getName().getSingular();
-					if (valueClass.isArray()) {
-						name = classInfo.getName().getPlural();
-					}
-					if (name.isBlank()) {
-						continue;
-					}
-
-					if (eventValueInfo.time() == EventValues.TIME_PAST) {
-						name = "past " + name;
-					} else if (eventValueInfo.time() == EventValues.TIME_FUTURE) {
-						name = "future " + name;
-					}
-
-					JsonObject object = new JsonObject();
-					object.addProperty("id", DocumentationIdProvider.getId(classInfo));
-					object.addProperty("name", name.toLowerCase(Locale.ENGLISH));
-					eventValues.add(object);
+				Class<?>[] excludes = eventValueInfo.excludes();
+				if (excludes != null && Set.of(excludes).contains(event)) {
+					continue;
 				}
+
+				Class<?> valueClass = eventValueInfo.valueClass();
+				ClassInfo<?> classInfo;
+				if (valueClass.isArray()) {
+					classInfo = Classes.getSuperClassInfo(valueClass.componentType());
+				} else {
+					classInfo = Classes.getSuperClassInfo(valueClass);
+				}
+
+				String name = classInfo.getName().getSingular();
+				if (valueClass.isArray()) {
+					name = classInfo.getName().getPlural();
+				}
+				if (name.isBlank()) {
+					continue;
+				}
+
+				if (eventValueInfo.time() == EventValues.TIME_PAST) {
+					name = "past " + name;
+				} else if (eventValueInfo.time() == EventValues.TIME_FUTURE) {
+					name = "future " + name;
+				}
+
+				JsonObject object = new JsonObject();
+				object.addProperty("id", DocumentationIdProvider.getId(classInfo));
+				object.addProperty("name", name.toLowerCase(Locale.ENGLISH));
+				eventValues.add(object);
 			}
 		}
 
@@ -466,6 +460,31 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
+	 * Gets the json object representing the addon.
+	 *
+	 * @return The json object representing the addon.
+	 */
+	private JsonObject getSource() {
+		JsonObject object = new JsonObject();
+
+		object.addProperty("name", source.name());
+
+		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(source.name());
+		if (plugin != null) {
+			object.addProperty("version", plugin.getDescription().getVersion());
+		} else {
+			try {
+				plugin = JavaPlugin.getProvidingPlugin(source.source());
+				object.addProperty("version", plugin.getDescription().getVersion());
+			} catch (Exception ex) {
+				object.add("version", null);
+			}
+		}
+
+		return object;
+	}
+
+	/**
 	 * Generates the json documentation for this addon at the specified path.
 	 *
 	 * @param path The output path.
@@ -492,25 +511,6 @@ public class JSONGenerator extends DocumentationGenerator {
 			Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
 			throw new IOException(ex);
 		}
-	}
-
-	/**
-	 * Gets the json object representing the addon.
-	 *
-	 * @return The json object representing the addon.
-	 */
-	private JsonObject getSource() {
-		JsonObject object = new JsonObject();
-
-		object.addProperty("name", source.name());
-		try {
-			JavaPlugin plugin = JavaPlugin.getProvidingPlugin(source.source());
-			object.addProperty("version", plugin.getDescription().getVersion());
-		} catch (Exception ex) {
-			object.add("version", null);
-		}
-
-		return object;
 	}
 
 	/**
