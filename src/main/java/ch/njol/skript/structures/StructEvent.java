@@ -19,11 +19,9 @@ import java.util.Locale;
 @Description("""
 	The structure used for listening to events.
 	
-	Optionally allows specifying whether to listen to events that have been cancelled or events that have
-	been cancelled, and then were uncancelled again.
-	
-	Also allows specifying with which priority to listen to events. Events are called in the following order
-	of priorities.
+	Optionally allows specifying whether to listen to events that have been cancelled,
+	and allows specifying with which priority to listen to events.
+	Events are called in the following order of priorities.
 	
 	```
 	lowest -> low -> normal -> high -> highest -> monitor
@@ -55,7 +53,7 @@ import java.util.Locale;
 	on join with priority highest:
 		# called last
 	""")
-@Since({"1.0", "2.9 (listening to cancellable events)"})
+@Since({"1.0", "2.6 (per-event priority)", "2.9 (listening to cancellable events)"})
 public class StructEvent extends Structure {
 
 	static {
