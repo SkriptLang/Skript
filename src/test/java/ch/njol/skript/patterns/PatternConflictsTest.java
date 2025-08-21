@@ -507,15 +507,13 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 				}
 			}
 
-			Set<Combination> nonConflicting = new HashSet<>();
 			for (int index = 0; index < size; index++) {
 				if (!hasConflict[index]) {
-					nonConflicting.add(list.get(index));
+					combinations.remove(list.get(index));
 					filterCombinationCounter++;
 				}
 			}
 
-			combinations.removeAll(nonConflicting);
 			if (combinations.size() <= 1) {
 				filterConflictCounter++;
 			} else {
