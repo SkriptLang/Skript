@@ -61,7 +61,7 @@ public interface Experiment {
 	 * @return The display name for this experiment.
 	 */
 	default @NotNull String displayName() {
-		return "";
+		return codeName();
 	}
 
 	/**

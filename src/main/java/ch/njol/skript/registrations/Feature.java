@@ -15,8 +15,8 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
 public enum Feature implements Experiment {
 
 	EXAMPLES("Examples",
-	"examples",
-	"""
+		"examples",
+		"""
 			A section used to provide examples inside code.
 			
 			```
@@ -26,8 +26,8 @@ public enum Feature implements Experiment {
 			""",
 			LifeCycle.STABLE),
 	QUEUES("Queues",
-	"queues",
-	"""
+		"queues",
+		"""
 			A collection that removes elements whenever they are requested.
 			
 			This is useful for processing tasks or keeping track of things that need to happen only once.
@@ -56,8 +56,8 @@ public enum Feature implements Experiment {
 			""",
 			LifeCycle.EXPERIMENTAL),
 	FOR_EACH_LOOPS("For Loops",
-	"for loop",
-	"""
+		"for loop",
+		"""
 			A new kind of loop syntax that stores the loop index and value in variables for convenience.
 			
 			This can be used to avoid confusion when nesting multiple loops inside each other.
@@ -77,8 +77,8 @@ public enum Feature implements Experiment {
 			LifeCycle.EXPERIMENTAL,
 			"for [each] loop[s]"),
 	SCRIPT_REFLECTION("Script Reflection",
-	"reflection",
-	"""
+		"reflection",
+		"""
 			This feature includes:
 			
 			- The ability to reference a script in code.
@@ -88,8 +88,8 @@ public enum Feature implements Experiment {
 			LifeCycle.EXPERIMENTAL,
 			"[script] reflection"),
 	CATCH_ERRORS("Runtime Error Catching",
-	"catch runtime errors",
-	"""
+		"catch runtime errors",
+		"""
 			A new catch [run[ ]time] error[s] section allows you to catch and suppress runtime errors within it and access them later with [the] last caught [run[ ]time] errors.
 			
 			```
@@ -104,8 +104,8 @@ public enum Feature implements Experiment {
 			LifeCycle.EXPERIMENTAL,
 			"error catching [section]"),
 	TYPE_HINTS("Type Hints",
-	"type hints",
-	"""
+		"type hints",
+		"""
 			Local variable type hints enable Skript to understand what kind of values your local variables will hold at parse time. Consider the following example:
 			
 			```
@@ -127,8 +127,8 @@ public enum Feature implements Experiment {
 			LifeCycle.EXPERIMENTAL,
 			"[local variable] type hints"),
 	DAMAGE_SOURCE("Damage Sources",
-	"damage source",
-	"""
+		"damage source",
+		"""
 			Damage sources are a more advanced and detailed version of damage causes. Damage sources include information such as the type of damage, the location where the damage originated from, the entity that directly caused the damage, and more.
 			
 			Below is an example of what damaging using custom damage sources looks like:
@@ -160,7 +160,7 @@ public enum Feature implements Experiment {
 		Preconditions.checkNotNull(description, "description cannot be null");
 
 		this.displayName = displayName;
-		this.description = description;
+		this.description = description.strip();
 		this.codeName = codeName;
 		this.phase = phase;
 		this.compiledPattern = switch (patterns.length) {
