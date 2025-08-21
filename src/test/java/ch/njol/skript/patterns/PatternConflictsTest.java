@@ -394,7 +394,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		 * @param combinations The {@link Combination}s to check.
 		 * @return {@code true} if the conflict can be excluded, otherwise {@code false}.
 		 */
-		private boolean exclude(Set<Combination> combinations) {
+		private boolean exclude(List<Combination> combinations) {
 			if (combinations.isEmpty())
 				return false;
 			Set<Class<?>> combinationClasses = combinations.stream()
@@ -462,7 +462,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 
 	@Test
 	public void testPatterns() {
-		Map<String, Set<Combination>> registeredPatterns = new HashMap<>();
+		Map<String, List<Combination>> registeredPatterns = new HashMap<>();
 
 		Collection<SyntaxInfo<?>> elements = Skript.instance().syntaxRegistry().elements();
 		info("Total Elements: " + elements.size());
@@ -478,7 +478,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 				for (String patternCombination : getCombinations(pattern)) {
 					combinationCounter++;
 					Combination combination = new Combination(patternCombination, pattern, elementClass, elementType);
-					registeredPatterns.computeIfAbsent(patternCombination, set -> new HashSet<>()).add(combination);
+					registeredPatterns.computeIfAbsent(patternCombination, list -> new ArrayList<>()).add(combination);
 				}
 			}
 		}
@@ -488,30 +488,32 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		Set<String> hasMultiple = new HashSet<>();
 		int filterCombinationCounter = 0;
 		int filterConflictCounter = 0;
-		for (Entry<String, Set<Combination>> entry : registeredPatterns.entrySet()) {
-			Set<Combination> combinations = entry.getValue();
+		for (Entry<String, List<Combination>> entry : registeredPatterns.entrySet()) {
+			List<Combination> combinations = entry.getValue();
 			int size = combinations.size();
 			if (size <= 1)
 				continue;
 			// Filter out combinations that can't conflict due to different element types
-			List<Combination> list = new ArrayList<>(combinations);
 			boolean[] hasConflict = new boolean[size];
 			for (int firstIndex = 0; firstIndex < size - 1; firstIndex++) {
 				if (hasConflict[firstIndex])
 					continue;
 				for (int secondIndex = firstIndex + 1; secondIndex < size; secondIndex++) {
-					if (list.get(firstIndex).conflicts(list.get(secondIndex))) {
+					if (combinations.get(firstIndex).conflicts(combinations.get(secondIndex))) {
 						hasConflict[firstIndex] = true;
 						hasConflict[secondIndex] = true;
 					}
 				}
 			}
 
-			for (int index = 0; index < size; index++) {
+			int index = 0;
+			for (Iterator<Combination> iterator = combinations.iterator(); iterator.hasNext();) {
+				Combination combination = iterator.next();
 				if (!hasConflict[index]) {
-					combinations.remove(list.get(index));
 					filterCombinationCounter++;
+					iterator.remove();
 				}
+				index++;
 			}
 
 			if (combinations.size() <= 1) {
