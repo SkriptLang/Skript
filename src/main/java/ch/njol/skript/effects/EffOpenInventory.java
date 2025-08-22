@@ -40,16 +40,16 @@ public class EffOpenInventory extends Effect {
 	// TODO: Add support for Paper's MenuType (1.21.3+)
 
 	private enum OpenableType {
-		ANVIL("anvil", InventoryType.ANVIL),
-		CARTOGRAPHY("cartography [table]", "cartography table", InventoryType.CARTOGRAPHY),
-		CRAFTING("(crafting [table]|workbench)", "crafting table", InventoryType.CRAFTING),
+		ANVIL("[an] anvil", "anvil", InventoryType.ANVIL),
+		CARTOGRAPHY("[a] cartography [table]", "cartography table", InventoryType.CARTOGRAPHY),
+		CRAFTING("[a] (crafting [table]|workbench)", "crafting table", InventoryType.CRAFTING),
 		DISPENSER("dispenser", InventoryType.DISPENSER),
 		DROPPER("dropper", InventoryType.DROPPER),
-		ENCHANTING("enchant(ing|ment) [table]", "enchantment table", InventoryType.ENCHANTING),
+		ENCHANTING("[an] enchant(ing|ment) [table]", "enchantment table", InventoryType.ENCHANTING),
 		GRINDSTONE("grindstone", InventoryType.GRINDSTONE),
 		HOPPER("hopper", InventoryType.HOPPER),
 		LOOM("loom", InventoryType.LOOM),
-		SMITHING("smithing [table]", "smithing table", InventoryType.SMITHING),
+		SMITHING("[a] smithing [table]", "smithing table", InventoryType.SMITHING),
 		STONECUTTER("stonecutter", InventoryType.STONECUTTER)
 		;
 
@@ -58,11 +58,11 @@ public class EffOpenInventory extends Effect {
 		private final InventoryType inventoryType;
 
 		OpenableType(String pattern, InventoryType inventoryType) {
-			this(pattern, pattern, inventoryType);
+			this(pattern, "[a] " + pattern, inventoryType);
 		}
 
 		OpenableType(String pattern, String toString, InventoryType inventoryType) {
-			this.pattern = "(open|show) [a[n]] " + pattern + "[view|window|inventory] (to|for) %players%";
+			this.pattern = "(open|show) " + pattern + "[view|window|inventory] (to|for) %players%";
 			this.toString = toString;
 			this.inventoryType = inventoryType;
 		}
