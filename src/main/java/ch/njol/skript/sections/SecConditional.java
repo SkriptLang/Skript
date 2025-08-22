@@ -245,8 +245,14 @@ public class SecConditional extends Section {
 			} else { // otherwise, we cannot be sure whether a delay will occur
 				shouldDelayAfter = Kleenean.UNKNOWN;
 			}
-			// set our determined delay state (in case this is the end)
-			parser.setHasDelayBefore(shouldDelayAfter);
+			// set our determined delay state
+			if (shouldDelayAfter.isTrue()) {
+				// if we should delay, but there is no else, it is not guaranteed that any branches will run
+				// thus, the delay state is not TRUE but rather UNKNOWN
+				parser.setHasDelayBefore(type == ConditionalType.ELSE ? Kleenean.TRUE : Kleenean.UNKNOWN);
+			} else {
+				parser.setHasDelayBefore(shouldDelayAfter);
+			}
 		}
 
 		// Get the execution intent of the entire conditional chain.
