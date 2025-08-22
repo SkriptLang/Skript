@@ -152,7 +152,7 @@ public class SecConditional extends Section {
 
 		// conditional branches are independent, so we need to use the delay state from before the conditional chain
 		// IMPORTANT: we assume that conditions cannot cause delays
-		if (!parser.getHasDelayBefore().isTrue()) { // would only be considered delayed if it was originally delayed
+		if (!parser.getHasDelayBefore().isTrue()) { // would only be considered delayed if it was delayed before this chain
 			//noinspection ConstantConditions - chain has been verified... there is an IF
 			parser.setHasDelayBefore(hasDelayBefore != null ? hasDelayBefore :
 				getPrecedingConditional(triggerItems, ConditionalType.IF).hasDelayBefore);
