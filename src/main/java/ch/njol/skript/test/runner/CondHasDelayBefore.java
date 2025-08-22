@@ -16,7 +16,7 @@ public class CondHasDelayBefore extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasDelayBefore.class,
-			"has delay before is[negated: not|negated:n't] (:true|:false|:unknown)");
+			"has delay before is[negated: not|negated:n't] (:true|:false|:unknown) [init:failing if wrong]");
 	}
 
 	private Kleenean expected;
@@ -25,9 +25,17 @@ public class CondHasDelayBefore extends Condition {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setNegated(parseResult.hasTag("negated"));
-		expected = Kleenean.valueOf(parseResult.tags.get(parseResult.tags.size() - 1).toUpperCase(Locale.ENGLISH));
+		if (parseResult.hasTag("true")) {
+			expected = Kleenean.TRUE;
+		} else if (parseResult.hasTag("false")) {
+			expected = Kleenean.FALSE;
+		} else if (parseResult.hasTag("unknown")) {
+			expected = Kleenean.UNKNOWN;
+		} else {
+			throw new IllegalStateException("missing kleenean type parse tag");
+		}
 		success = (getParser().getHasDelayBefore() == expected) ^ isNegated();
-		return true;
+		return !parseResult.hasTag("init") || success;
 	}
 
 	@Override

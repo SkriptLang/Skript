@@ -150,6 +150,14 @@ public class SecConditional extends Section {
 			hasDelayBefore = parser.getHasDelayBefore();
 		}
 
+		// conditional branches are independent, so we need to use the delay state from before the conditional chain
+		// IMPORTANT: we assume that conditions cannot cause delays
+		if (!parser.getHasDelayBefore().isTrue()) { // would only be considered delayed if it was originally delayed
+			//noinspection ConstantConditions - chain has been verified... there is an IF
+			parser.setHasDelayBefore(hasDelayBefore != null ? hasDelayBefore :
+				getPrecedingConditional(triggerItems, ConditionalType.IF).hasDelayBefore);
+		}
+
 		// if this an "if" or "else if", let's try to parse the conditions right away
 		if (type == ConditionalType.IF || type == ConditionalType.ELSE_IF) {
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
@@ -229,29 +237,29 @@ public class SecConditional extends Section {
 		}
 
 		if (!multiline || type == ConditionalType.THEN) {
-			// conditional branches are independent, so we need to use the delay state from before the conditional chain
-			//noinspection ConstantConditions - chain has been verified... there is an IF
-			parser.setHasDelayBefore(hasDelayBefore != null ? hasDelayBefore :
-				getPrecedingConditional(triggerItems, ConditionalType.IF).hasDelayBefore);
+			boolean considerDelayUpdate = !getParser().getHasDelayBefore().isTrue();
 			loadCode(sectionNode);
 
-			Kleenean hasDelayAfter = parser.getHasDelayBefore();
-			Kleenean preceding = getPrecedingShouldDelayAfter(triggerItems);
-			// two cases
-			// 1. if there is no prior result, just use this one
-			// 2. if the preceding overall result is the same as the just parsed section, no change is necessary
-			if (preceding == null || preceding == hasDelayAfter) {
-				shouldDelayAfter = hasDelayAfter;
-			} else { // otherwise, we cannot be sure whether a delay will occur
-				shouldDelayAfter = Kleenean.UNKNOWN;
-			}
-			// set our determined delay state
-			if (shouldDelayAfter.isTrue()) {
-				// if we should delay, but there is no else, it is not guaranteed that any branches will run
-				// thus, the delay state is not TRUE but rather UNKNOWN
-				parser.setHasDelayBefore(type == ConditionalType.ELSE ? Kleenean.TRUE : Kleenean.UNKNOWN);
-			} else {
-				parser.setHasDelayBefore(shouldDelayAfter);
+			// only need to account for changing the delay if it wasn't already delayed before this chain
+			if (considerDelayUpdate) {
+				Kleenean hasDelayAfter = parser.getHasDelayBefore();
+				Kleenean preceding = getPrecedingShouldDelayAfter(triggerItems);
+				// two cases
+				// 1. if there is no prior result, just use this one
+				// 2. if the preceding overall result is the same as the just parsed section, no change is necessary
+				if (preceding == null || preceding == hasDelayAfter) {
+					shouldDelayAfter = hasDelayAfter;
+				} else { // otherwise, we cannot be sure whether a delay will occur
+					shouldDelayAfter = Kleenean.UNKNOWN;
+				}
+				// set our determined delay state
+				if (shouldDelayAfter.isTrue()) {
+					// if we should delay, but there is no else, it is not guaranteed that any branches will run
+					// thus, the delay state is not TRUE but rather UNKNOWN
+					parser.setHasDelayBefore(type == ConditionalType.ELSE ? Kleenean.TRUE : Kleenean.UNKNOWN);
+				} else {
+					parser.setHasDelayBefore(shouldDelayAfter);
+				}
 			}
 		}
 
