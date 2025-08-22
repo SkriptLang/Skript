@@ -1,20 +1,17 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.KeyProviderExpression;
-import ch.njol.skript.lang.KeyedValue;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -148,19 +145,6 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 	@Override
 	public boolean isSingle() {
 		return true;
-	}
-	
-	@Override
-	@Nullable
-	@SuppressWarnings("unchecked")
-	protected <R> ConvertedExpression<Object, ? extends R> getConvertedExpr(Class<R>... to) {
-		if (isKeyedLoop && !isIndex) {
-			Class<R> superType = (Class<R>) Utils.getSuperType(to);
-			return new ConvertedExpression<>(this, superType,
-					new ConverterInfo<>(Object.class, superType, o -> Converters.convert(o, to), 0));
-		} else {
-			return super.getConvertedExpr(to);
-		}
 	}
 	
 	@Override
