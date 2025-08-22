@@ -154,8 +154,10 @@ public class SecConditional extends Section {
 		// IMPORTANT: we assume that conditions cannot cause delays
 		if (!parser.getHasDelayBefore().isTrue()) { // would only be considered delayed if it was delayed before this chain
 			//noinspection ConstantConditions - chain has been verified... there is an IF
-			parser.setHasDelayBefore(hasDelayBefore != null ? hasDelayBefore :
-				getPrecedingConditional(triggerItems, ConditionalType.IF).hasDelayBefore);
+			Kleenean wasDelayedBeforeChain = hasDelayBefore != null ? hasDelayBefore :
+				getPrecedingConditional(triggerItems, ConditionalType.IF).hasDelayBefore;
+			assert wasDelayedBeforeChain != null;
+			parser.setHasDelayBefore(wasDelayedBeforeChain);
 		}
 
 		// if this an "if" or "else if", let's try to parse the conditions right away
@@ -220,7 +222,7 @@ public class SecConditional extends Section {
 				Which will be printed after the debugged section (e.g 'if all')
 			 */
 			if ((Skript.debug() || sectionNode.debug()) && conditionals.size() > 1) {
-				String indentation = getParser().getIndentation() + "    ";
+				String indentation = parser.getIndentation() + "    ";
 				for (Conditional<?> condition : conditionals)
 					Skript.debug(indentation + SkriptColor.replaceColorChar(condition.toString(null, true)));
 			}
@@ -237,7 +239,7 @@ public class SecConditional extends Section {
 		}
 
 		if (!multiline || type == ConditionalType.THEN) {
-			boolean considerDelayUpdate = !getParser().getHasDelayBefore().isTrue();
+			boolean considerDelayUpdate = !parser.getHasDelayBefore().isTrue();
 			loadCode(sectionNode);
 
 			// only need to account for changing the delay if it wasn't already delayed before this chain
