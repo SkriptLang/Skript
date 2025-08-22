@@ -178,3 +178,40 @@ test "SecConditional - non-multiline conditional at the end":
 	else if 1 is 1:
 		set {_a} to true
 	assert {_a} is set with "non-multiline 'if' didn't run used at the end of a multiline 'if'"
+
+test "SecConditional - delay logic":
+	assert has delay before is false with "should not have delay at start of test"
+
+	parse:
+		if true is true:
+			stop
+		else:
+			stop
+	assert has delay before is false with "all branches having no delay should not cause a delay"
+
+	parse:
+		if true is true:
+			stop
+		else:
+			wait 1 second
+	assert has delay before is unknown with "only some branches having a delay should cause an unknown delay"
+
+	parse:
+		if true is true:
+			wait 1 second
+		else if:
+			true is true
+		then:
+			wait 1 second
+	assert unsafely has delay before is true with "all branches having a delay should cause a guaranteed delay"
+
+	parse:
+		if:
+			true is true
+		then:
+			stop
+		else if:
+			true is true
+		then:
+			stop
+	assert unsafely has delay before is true with "all branches having no delay should not change an already delayed trigger"
