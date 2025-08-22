@@ -25,8 +25,9 @@ import java.util.function.Consumer;
 
 @Name("Open/Close Inventory")
 @Description("""
-	Opens an inventory to a player. The player can then access and modify the inventory as if it was a chest that he just opened.
-	Please note that currently 'show' and 'open' have the same effect, but 'show' will eventually show an unmodifiable view of the inventory in the future.
+	Opens an inventory to a player. The player can then access and modify the inventory as if it was a chest that they opened.
+	Please note that currently 'show' and 'open' have the same effect,\
+	but 'show' will eventually show an unmodifiable view of the inventory in the future.
 	""")
 @Example("open the player's inventory for the player")
 @Example("open an anvil window for all players")
@@ -52,19 +53,18 @@ public class EffOpenInventory extends Effect {
 		STONECUTTER("stonecutter", InventoryType.STONECUTTER)
 		;
 
-
 		private final String pattern;
 		private final String toString;
 		private final InventoryType inventoryType;
+
+		OpenableType(String pattern, InventoryType inventoryType) {
+			this(pattern, pattern, inventoryType);
+		}
 
 		OpenableType(String pattern, String toString, InventoryType inventoryType) {
 			this.pattern = "(open|show) [a[n]] " + pattern + "[view|window|inventory] (to|for) %players%";
 			this.toString = toString;
 			this.inventoryType = inventoryType;
-		}
-
-		OpenableType(String pattern, InventoryType inventoryType) {
-			this(pattern, pattern, inventoryType);
 		}
 
 	}
