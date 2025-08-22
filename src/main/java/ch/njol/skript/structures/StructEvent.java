@@ -19,16 +19,16 @@ import java.util.Locale;
 @Description("""
 	The structure used for listening to events.
 	
-	Optionally allows specifying whether to listen to events that have been cancelled,
-	and allows specifying with which priority to listen to events.
+	Optionally allows specifying whether to listen to events that have been cancelled, \
+	and allows specifying with which priority to listen to events. \
 	Events are called in the following order of priorities.
 	
 	```
 	lowest -> low -> normal -> high -> highest -> monitor
 	```
 	
-	Modifying event-values or cancelling events is not supported when using the 'monitor' priority. It should only
-	be used for monitoring the outcome of an event.
+	Modifying event-values or cancelling events is not supported when using the 'monitor' priority. \
+	It should only be used for monitoring the outcome of an event.
 	""")
 @Example("""
 	on load:
