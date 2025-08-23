@@ -11,7 +11,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 /**
- * Represents a condition that can be solved/checked during initialization.
+ * Represents a condition that can be simplified during initialization.
  */
 public class SimplifiedCondition extends Condition {
 
@@ -53,7 +53,6 @@ public class SimplifiedCondition extends Condition {
 	}
 
 	private final Condition source;
-
 	private final boolean result;
 
 	/**

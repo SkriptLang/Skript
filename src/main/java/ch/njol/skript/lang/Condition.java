@@ -131,7 +131,7 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	 * @param exprs The {@link Expression}s required for evaluation.
 	 * @return {@link SimplifiedCondition} if all of {@code exprs} are {@link Literal}s, otherwise {@code this}.
 	 */
-	public Condition simpleSimplify(Expression<?>... exprs) {
+	public Condition simplifyWith(Expression<?>... exprs) {
 		return simpleSimplify(TestMode.DEV_MODE, exprs);
 	}
 

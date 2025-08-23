@@ -46,7 +46,7 @@ public enum ScriptWarning {
 	UNREACHABLE_CODE("unreachable code"),
 
 	/**
-	 * A {@link Condition} can be simplified to {@link SimplifiedCondition} resulting in always passing or failing.
+	 * A {@link Condition} can be simplified to {@link SimplifiedCondition}, which results in the assertion always passing or failing.
 	 */
 	CONSTANT_CONDITION("constant condition", "constant condition[s]")
 	;
