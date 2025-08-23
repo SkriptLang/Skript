@@ -184,7 +184,7 @@ public class CondContains extends Condition implements VerboseAssert {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(containers, items);
+		return simplifyWith(containers, items);
 	}
 
 	@Override

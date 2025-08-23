@@ -132,7 +132,7 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	 * @return {@link SimplifiedCondition} if all of {@code exprs} are {@link Literal}s, otherwise {@code this}.
 	 */
 	public Condition simplifyWith(Expression<?>... exprs) {
-		return simpleSimplify(TestMode.DEV_MODE, exprs);
+		return simplifyWith(TestMode.DEV_MODE, exprs);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	 * @param exprs The {@link Expression}s required for evaluation.
 	 * @return {@link SimplifiedCondition} if all of {@code exprs} are {@link Literal}s, otherwise {@code this}.
 	 */
-	public Condition simpleSimplify(boolean warn, Expression<?>... exprs) {
+	public Condition simplifyWith(boolean warn, Expression<?>... exprs) {
 		if (exprs.length == 0)
 			return this;
 		for (Expression<?> expr : exprs) {

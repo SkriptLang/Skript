@@ -1,6 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.test.runner.TestMode;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +43,7 @@ public class CondMinecraftVersion extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(version);
+		return simplifyWith(version);
 	}
 
 	@Override

@@ -74,7 +74,7 @@ public class CondMethodExists extends PropertyCondition<String> {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(signatures);
+		return simplifyWith(signatures);
 	}
 
 	@Override

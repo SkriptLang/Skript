@@ -83,7 +83,7 @@ public class CondStartsEndsWith extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(strings, affix);
+		return simplifyWith(strings, affix);
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class CondIsInfinite extends PropertyCondition<Object> {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(getExpr());
+		return simplifyWith(getExpr());
 	}
 
 	@Override

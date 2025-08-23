@@ -77,7 +77,7 @@ public class CondMatches extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(strings, regex);
+		return simplifyWith(strings, regex);
 	}
 
 	@Override

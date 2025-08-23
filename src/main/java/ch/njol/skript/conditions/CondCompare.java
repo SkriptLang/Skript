@@ -399,7 +399,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(first, second, third);
+		return simplifyWith(first, second, third);
 	}
 
 	@Override

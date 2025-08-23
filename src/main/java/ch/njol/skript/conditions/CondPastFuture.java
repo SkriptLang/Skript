@@ -80,7 +80,7 @@ public class CondPastFuture extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(dates);
+		return simplifyWith(dates);
 	}
 
 	@Override

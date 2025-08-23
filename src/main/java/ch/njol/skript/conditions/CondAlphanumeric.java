@@ -45,7 +45,7 @@ public class CondAlphanumeric extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(strings);
+		return simplifyWith(strings);
 	}
 
 	@Override

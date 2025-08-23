@@ -61,7 +61,7 @@ public class CondDate extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(date, delta);
+		return simplifyWith(date, delta);
 	}
 
 	@Override
