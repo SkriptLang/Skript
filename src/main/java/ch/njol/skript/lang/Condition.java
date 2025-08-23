@@ -139,8 +139,8 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	 * Helper method for simplifying this {@link Condition} using the {@link Expression}s it requires to be evaluated.
 	 * Providing no {@link Expression}s will result in a failed simplification process.
 	 *
-	 * @param exprs The {@link Expression}s required for evaluation.
 	 * @param warn Whether a warning should be outputted if it's simplifiable.
+	 * @param exprs The {@link Expression}s required for evaluation.
 	 * @return {@link SimplifiedCondition} if all of {@code exprs} are {@link Literal}s, otherwise {@code this}.
 	 */
 	public Condition simpleSimplify(boolean warn, Expression<?>... exprs) {
