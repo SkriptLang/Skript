@@ -44,7 +44,7 @@ public class CondMinecraftVersion extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simpleSimplify(!TestMode.ENABLED, version);
+		return simpleSimplify(version);
 	}
 
 	@Override

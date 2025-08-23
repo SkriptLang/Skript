@@ -22,8 +22,8 @@ public class SimplifiedCondition extends Condition {
 	 * @param original The original {@link Condition} to simplify.
 	 * @return A new {@link SimplifiedCondition}.
 	 */
-	public static Condition toLiteral(Condition original) {
-		return toLiteral(original, true);
+	public static Condition fromCondition(Condition original) {
+		return fromCondition(original, true);
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class SimplifiedCondition extends Condition {
 	 * @param warn Whether a warning should be outputted.
 	 * @return A new {@link SimplifiedCondition}.
 	 */
-	public static Condition toLiteral(Condition original, boolean warn) {
+	public static Condition fromCondition(Condition original, boolean warn) {
 		if (original instanceof SimplifiedCondition simplifiedCondition)
 			return simplifiedCondition;
 

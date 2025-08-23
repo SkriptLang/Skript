@@ -5,6 +5,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -131,7 +132,7 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	 * @return {@link SimplifiedCondition} if all of {@code exprs} are {@link Literal}s, otherwise {@code this}.
 	 */
 	public Condition simpleSimplify(Expression<?>... exprs) {
-		return simpleSimplify(true, exprs);
+		return simpleSimplify(!TestMode.ENABLED, exprs);
 	}
 
 	/**
@@ -149,7 +150,7 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 			if (expr != null && !(expr instanceof Literal<?>))
 				return this;
 		}
-		return SimplifiedCondition.toLiteral(this, warn);
+		return SimplifiedCondition.fromCondition(this, warn);
 	}
 
 	/**
