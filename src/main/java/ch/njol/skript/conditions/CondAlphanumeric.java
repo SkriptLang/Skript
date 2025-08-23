@@ -42,7 +42,12 @@ public class CondAlphanumeric extends Condition {
 	public boolean check(Event e) {
 		return isNegated() ^ strings.check(e, StringUtils::isAlphanumeric);
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		return simpleSimplify(strings);
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return strings.toString(e, debug) + " is" + (isNegated() ? "n't" : "") + " alphanumeric";

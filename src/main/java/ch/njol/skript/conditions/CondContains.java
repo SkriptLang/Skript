@@ -3,10 +3,6 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.lang.VerboseAssert;
-import ch.njol.skript.lang.util.common.AnyContains;
-import ch.njol.skript.util.LiteralUtils;
-import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -14,18 +10,21 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.comparator.Comparators;
+import ch.njol.skript.lang.util.common.AnyContains;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.skriptlang.skript.lang.converter.Converters;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -181,6 +180,11 @@ public class CondContains extends Condition implements VerboseAssert {
 		}
 		joiner.add("match in %s".formatted(VerboseAssert.getExpressionValue(containers, event)));
 		return joiner.toString();
+	}
+
+	@Override
+	public Condition simplify() {
+		return simpleSimplify(containers, items);
 	}
 
 	@Override

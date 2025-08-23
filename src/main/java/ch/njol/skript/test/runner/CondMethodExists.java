@@ -2,6 +2,7 @@ package ch.njol.skript.test.runner;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.lang.Condition;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -69,6 +70,11 @@ public class CondMethodExists extends PropertyCondition<String> {
 	@Override
 	protected String getPropertyName() {
 		return "method exists";
+	}
+
+	@Override
+	public Condition simplify() {
+		return simpleSimplify(false, signatures);
 	}
 
 	@Override

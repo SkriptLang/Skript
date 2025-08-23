@@ -398,6 +398,11 @@ public class CondCompare extends Condition implements VerboseAssert {
 	}
 
 	@Override
+	public Condition simplify() {
+		return simpleSimplify(first, second, third);
+	}
+
+	@Override
 	public String toString(final @Nullable Event event, final boolean debug) {
 		String s;
 		final Expression<?> third = this.third;

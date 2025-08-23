@@ -79,6 +79,11 @@ public class CondPastFuture extends Condition {
 	}
 
 	@Override
+	public Condition simplify() {
+		return simpleSimplify(dates);
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return dates.toString(event, debug) + (dates.isSingle() ? " is"  : " are") + " in the" + (isFuture ? " future" : " past");
 	}

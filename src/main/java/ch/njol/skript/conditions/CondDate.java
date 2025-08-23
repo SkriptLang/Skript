@@ -58,7 +58,12 @@ public class CondDate extends Condition {
 						timespan -> now - date.getTime() >= timespan.getAs(Timespan.TimePeriod.MILLISECOND)
 				), isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		return simpleSimplify(date, delta);
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return date.toString(e, debug) + " was " + (isNegated() ? "less" : "more") + " than " + delta.toString(e, debug) + " ago";

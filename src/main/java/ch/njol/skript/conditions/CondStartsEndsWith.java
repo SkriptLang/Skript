@@ -80,7 +80,12 @@ public class CondStartsEndsWith extends Condition {
 			},
 			isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		return simpleSimplify(strings, affix);
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		if (isNegated())

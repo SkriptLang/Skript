@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.potion.PotionEffect;
 
@@ -26,6 +27,11 @@ public class CondIsInfinite extends PropertyCondition<Object> {
 		if (object instanceof Timespan timespan)
 			return timespan.isInfinite();
 		return false;
+	}
+
+	@Override
+	public Condition simplify() {
+		return simpleSimplify(getExpr());
 	}
 
 	@Override

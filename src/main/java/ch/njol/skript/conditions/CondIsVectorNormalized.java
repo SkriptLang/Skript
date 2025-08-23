@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
 import org.bukkit.util.Vector;
 
 @Name("Is Normalized")
@@ -21,7 +22,12 @@ public class CondIsVectorNormalized extends PropertyCondition<Vector> {
 	public boolean check(Vector vector) {
 		return vector.isNormalized();
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		return simpleSimplify(getExpr());
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "normalized";
