@@ -45,7 +45,7 @@ public class SimplifiedCondition extends Condition {
 			ParserInstance parser = ParserInstance.get();
 			Script script = parser.isActive() ? parser.getCurrentScript() : null;
 			if (script != null && !script.suppressesWarning(ScriptWarning.CONSTANT_CONDITION)) {
-				Skript.warning("The condition '" + original + "' will always be " + (result ? "true" : "false") + ".");
+				Skript.warning("The condition '" + original.toString(event, Skript.debug()) + "' will always be " + (result ? "true" : "false") + ".");
 			}
 		}
 
