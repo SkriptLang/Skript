@@ -8,6 +8,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -77,7 +79,9 @@ public class CondMatches extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(strings, regex);
+		if (!(strings instanceof Literal<String>) || !(regex instanceof Literal<String>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override

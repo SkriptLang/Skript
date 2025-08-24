@@ -5,7 +5,6 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -122,35 +121,6 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 	@Override
 	public Condition simplify() {
 		return this;
-	}
-
-	/**
-	 * Helper method for simplifying this {@link Condition} using the {@link Expression}s it requires to be evaluated.
-	 * Providing no {@link Expression}s will result in a failed simplification process.
-	 *
-	 * @param exprs The {@link Expression}s required for evaluation.
-	 * @return {@link SimplifiedCondition} if all of {@code exprs} are {@link Literal}s, otherwise {@code this}.
-	 */
-	public Condition simplifyWith(Expression<?>... exprs) {
-		return simplifyWith(TestMode.DEV_MODE, exprs);
-	}
-
-	/**
-	 * Helper method for simplifying this {@link Condition} using the {@link Expression}s it requires to be evaluated.
-	 * Providing no {@link Expression}s will result in a failed simplification process.
-	 *
-	 * @param warn Whether a warning should be outputted if it's simplifiable.
-	 * @param exprs The {@link Expression}s required for evaluation.
-	 * @return {@link SimplifiedCondition} if all of {@code exprs} are {@link Literal}s, otherwise {@code this}.
-	 */
-	public Condition simplifyWith(boolean warn, Expression<?>... exprs) {
-		if (exprs.length == 0)
-			return this;
-		for (Expression<?> expr : exprs) {
-			if (expr != null && !(expr instanceof Literal<?>))
-				return this;
-		}
-		return SimplifiedCondition.fromCondition(this, warn);
 	}
 
 	/**

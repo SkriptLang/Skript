@@ -10,6 +10,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.VerboseAssert;
@@ -399,7 +400,11 @@ public class CondCompare extends Condition implements VerboseAssert {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(first, second, third);
+		if (!(first instanceof Literal<?>) || !(second instanceof Literal<?>))
+			return this;
+		if (third != null && !(third instanceof Literal<?>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override

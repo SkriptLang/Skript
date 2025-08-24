@@ -8,6 +8,8 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.Material;
 
 @Name("Is Fuel")
@@ -34,7 +36,9 @@ public class CondIsFuel extends PropertyCondition<ItemType> {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(getExpr());
+		if (!(getExpr() instanceof Literal<? extends ItemType>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override

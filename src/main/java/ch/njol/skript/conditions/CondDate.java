@@ -1,5 +1,7 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +63,9 @@ public class CondDate extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(date, delta);
+		if (!(date instanceof Literal<Date>) || !(delta instanceof Literal<Timespan>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override

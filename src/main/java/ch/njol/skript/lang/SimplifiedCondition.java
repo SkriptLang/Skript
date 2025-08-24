@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ContextlessEvent;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +24,7 @@ public class SimplifiedCondition extends Condition {
 	 * @return A new {@link SimplifiedCondition}.
 	 */
 	public static Condition fromCondition(Condition original) {
-		return fromCondition(original, true);
+		return fromCondition(original, (!TestMode.ENABLED || TestMode.DEV_MODE));
 	}
 
 	/**

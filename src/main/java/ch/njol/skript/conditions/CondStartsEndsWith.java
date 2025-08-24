@@ -1,5 +1,7 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,7 +85,9 @@ public class CondStartsEndsWith extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(strings, affix);
+		if (!(strings instanceof Literal<String>) || !(affix instanceof Literal<String>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override

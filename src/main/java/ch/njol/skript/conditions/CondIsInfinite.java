@@ -6,6 +6,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.potion.PotionEffect;
 
@@ -31,7 +33,9 @@ public class CondIsInfinite extends PropertyCondition<Object> {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(getExpr());
+		if (!(getExpr() instanceof Literal<?>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override

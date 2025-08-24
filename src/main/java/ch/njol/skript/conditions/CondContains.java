@@ -9,6 +9,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -184,7 +186,9 @@ public class CondContains extends Condition implements VerboseAssert {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(containers, items);
+		if (!(containers instanceof Literal<?>) || !(items instanceof Literal<?>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override

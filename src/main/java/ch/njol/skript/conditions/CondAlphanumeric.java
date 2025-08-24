@@ -1,5 +1,7 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +47,9 @@ public class CondAlphanumeric extends Condition {
 
 	@Override
 	public Condition simplify() {
-		return simplifyWith(strings);
+		if (!(strings instanceof Literal<String>))
+			return this;
+		return SimplifiedCondition.fromCondition(this);
 	}
 
 	@Override
