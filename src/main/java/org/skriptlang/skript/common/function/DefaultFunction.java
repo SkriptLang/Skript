@@ -11,7 +11,7 @@ import org.skriptlang.skript.common.function.Parameter.Modifier;
  * <p>
  * An example implementation is stated below.
  * <pre><code>
- * DefaultFunction.builder(addon, "floor", Long.class)
+ * DefaultFunction<Long> function = DefaultFunction.builder(addon, "floor", Long.class)
  * 	.description("Rounds a number down.")
  * 	.examples("floor(2.34) = 2")
  * 	.since("3.0")
@@ -23,8 +23,9 @@ import org.skriptlang.skript.common.function.Parameter.Modifier;
  * 			return l;
  *
  * 		return Math2.floor(((Number) value).doubleValue());
- *    })
- *    .register();
+ *    });
+ *
+ * Functions.register(function);
  * </code></pre>
  * </p>
  *
