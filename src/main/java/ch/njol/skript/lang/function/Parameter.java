@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction;
-import org.skriptlang.skript.common.function.ScriptParameter;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -34,12 +33,12 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 * If {@link SkriptConfig#caseInsensitiveVariables} is {@code true},
 	 * then the valid variable names may not necessarily match this string in casing.
 	 */
-	private final String name;
+	final String name;
 
 	/**
 	 * Type of the parameter.
 	 */
-	private final ClassInfo<T> type;
+	final ClassInfo<T> type;
 
 	/**
 	 * Expression that will provide default value of this parameter
@@ -52,12 +51,18 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 */
 	final boolean single;
 
+	/**
+	 * Whether this parameter takes in key-value pairs.
+	 * <br>
+	 * If this is true, a {@link ch.njol.skript.lang.KeyedValue} array containing key-value pairs will be passed to
+	 * {@link Function#execute(FunctionEvent, Object[][])} rather than a value-only object array.
+	 */
+	final boolean keyed;
+
 	private final Set<Modifier> modifiers;
 
 	/**
-	 * @deprecated Use {@link ScriptParameter}
-	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
-	 * instead.
+	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
@@ -65,9 +70,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	}
 
 	/**
-	 * @deprecated Use {@link ScriptParameter}
-	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
-	 * instead.
+	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
@@ -75,6 +78,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.type = type;
 		this.def = def;
 		this.single = single;
+		this.keyed = keyed;
 		this.modifiers = new HashSet<>();
 
 		if (def != null) {
@@ -86,9 +90,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	}
 
 	/**
-	 * @deprecated Use {@link ScriptParameter}
-	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
-	 * instead.
+	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed, boolean optional) {
@@ -96,6 +98,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.type = type;
 		this.def = def;
 		this.single = single;
+		this.keyed = keyed;
 		this.modifiers = new HashSet<>();
 
 		if (optional) {
@@ -120,6 +123,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		this.def = def;
 		this.single = single;
 		this.modifiers = Set.of(modifiers);
+		this.keyed = this.modifiers.contains(Modifier.KEYED);
 	}
 
 	/**

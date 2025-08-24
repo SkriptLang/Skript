@@ -285,16 +285,13 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	 * @param <T> The type of class.
 	 * @return The non-array {@link ClassInfo} of {@code cls}.
 	 */
-	private static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
-		ClassInfo<T> classInfo;
+	private static <T> ClassInfo<? super T> getClassInfo(Class<T> cls) {
+		ClassInfo<? super T> classInfo;
 		if (cls.isArray()) {
 			//noinspection unchecked
-			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
+			classInfo = (ClassInfo<T>) Classes.getSuperClassInfo(cls.componentType());
 		} else {
-			classInfo = Classes.getExactClassInfo(cls);
-		}
-		if (classInfo == null) {
-			throw new IllegalArgumentException("No type found for " + cls.getSimpleName());
+			classInfo = Classes.getSuperClassInfo(cls);
 		}
 		return classInfo;
 	}

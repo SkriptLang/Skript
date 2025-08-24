@@ -234,4 +234,21 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 	}
 
+	/**
+	 * A parameter for a {@link DefaultFunction}.
+	 *
+	 * @param name The name.
+	 * @param type The type's class.
+	 * @param modifiers The modifiers.
+	 * @param <T> The type.
+	 */
+	record DefaultParameter<T>(String name, Class<T> type, Set<Modifier> modifiers)
+			implements Parameter<T> {
+
+		DefaultParameter(String name, Class<T> type, Modifier... modifiers) {
+			this(name, type, Set.of(modifiers));
+		}
+
+	}
+
 }

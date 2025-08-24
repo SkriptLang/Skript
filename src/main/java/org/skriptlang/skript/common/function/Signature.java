@@ -1,5 +1,7 @@
 package org.skriptlang.skript.common.function;
 
+import org.jetbrains.annotations.ApiStatus.Experimental;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 
 /**
@@ -9,6 +11,8 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
  * <p>It will contain methods when Signature has been properly reworked.</p>
  */
 @NonExtendable
+@Internal
+@Experimental
 public interface Signature<T> {
 
 }

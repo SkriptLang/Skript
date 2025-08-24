@@ -1,17 +1,23 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.doc.Documentable;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @deprecated Use {@link DefaultFunction} instead.
  */
 @Deprecated(since = "INSERT VERSION", forRemoval = true)
-public abstract class JavaFunction<T> extends Function<T> {
+public abstract class JavaFunction<T> extends Function<T> implements Documentable {
 
 	private @NotNull String @Nullable [] returnedKeys;
 
@@ -132,4 +138,28 @@ public abstract class JavaFunction<T> extends Function<T> {
 		return true;
 	}
 
+	@Override
+	public @NotNull String name() {
+		return getName();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> description() {
+		return description != null ? List.of(description) : Collections.emptyList();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> since() {
+		return since != null ? List.of(since) : Collections.emptyList();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> examples() {
+		return examples != null ? List.of(examples) : Collections.emptyList();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> keywords() {
+		return keywords != null ? List.of(keywords) : Collections.emptyList();
+	}
 }

@@ -78,7 +78,7 @@ public abstract class Functions {
 	}
 
 	/**
-	 * @deprecated Use {@link DefaultFunction#register()} or {@link #register(DefaultFunction)} instead.
+	 * @deprecated Use {@link #register(DefaultFunction)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static JavaFunction<?> registerFunction(JavaFunction<?> function) {

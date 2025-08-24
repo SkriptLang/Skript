@@ -55,18 +55,6 @@ public sealed interface DefaultFunction<T>
 	@NotNull SkriptAddon source();
 
 	/**
-	 * Registers this function.
-	 *
-	 * @return This function.
-	 */
-	@Contract("-> this")
-	default @NotNull DefaultFunction<T> register() {
-		Functions.register(this);
-
-		return this;
-	}
-
-	/**
 	 * Represents a builder for {@link DefaultFunction DefaultFunctions}.
 	 *
 	 * @param <T> The return type of the function.
