@@ -1,6 +1,5 @@
 package org.skriptlang.skript.common.function;
 
-import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 

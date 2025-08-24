@@ -1,7 +1,6 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.doc.Documentable;
-import ch.njol.skript.lang.function.Functions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
