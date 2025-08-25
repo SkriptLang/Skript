@@ -28,11 +28,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Buildable")
+@Name("Customizable")
 @Description("""
-	Provide an object to builded upon in the section removing the necessity of including "of %object%" for expressions.
-	Only objects that can contain data can be used to be builded upon. (i.e. itemtypes, itemstacks, inventories)
-	Objects that 
+	Provide an object to customized in the section removing the necessity of including "of %object%" for expressions.
+	Only objects that can contain data can be used to be customized. (i.e. itemtypes, itemstacks, inventories)
+	Objects that cannot hold data themselves can be used to create an object that holds data.
 	""")
 @Example("""
 	# Internally, 'chest inventory' is an InventoryType, but can be customized as an Inventory
@@ -60,7 +60,7 @@ public class ExprSecCustomizable<T> extends SectionExpression<T> implements Sect
 	private Class<?> returnType;
 	private @Nullable Object object;
 	private Trigger trigger;
-	private BuildableExpression<?> buildableExpression;
+	private CustomizableExpression<?> customizableExpression;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
@@ -173,13 +173,13 @@ public class ExprSecCustomizable<T> extends SectionExpression<T> implements Sect
 		} else {
 			name = "custom " + Classes.toString(returnType);
 		}
-		buildableExpression = new BuildableExpression<>(this);
+		customizableExpression = new CustomizableExpression<>(this);
 
 		trigger = SectionUtils.loadLinkedCode(name, (beforeLoading, afterLoading) ->
 			loadCode(node, name, () -> {
 				beforeLoading.run();
 				//noinspection unchecked
-				getParser().getData(DefaultValueData.class).addDefaultValue((Class<T>) returnType, (DefaultExpression<T>) buildableExpression);
+				getParser().getData(DefaultValueData.class).addDefaultValue((Class<T>) returnType, (DefaultExpression<T>) customizableExpression);
 			}, () -> {
 				afterLoading.run();
 				getParser().getData(DefaultValueData.class).removeDefaultValue(returnType);
@@ -268,7 +268,7 @@ public class ExprSecCustomizable<T> extends SectionExpression<T> implements Sect
 
 	@Override
 	public Expression<?> getSectionValue() {
-		return buildableExpression;
+		return customizableExpression;
 	}
 
 	@Override
@@ -299,11 +299,11 @@ public class ExprSecCustomizable<T> extends SectionExpression<T> implements Sect
 		return builder.toString();
 	}
 
-	private static class BuildableExpression<T> extends SectionValueExpression<ExprSecCustomizable<T>, T> {
+	private static class CustomizableExpression<T> extends SectionValueExpression<ExprSecCustomizable<T>, T> {
 
 		private final ExprSecCustomizable<T> exprSec;
 
-		private BuildableExpression(ExprSecCustomizable<T> exprSec) {
+		private CustomizableExpression(ExprSecCustomizable<T> exprSec) {
 			//noinspection unchecked
 			super(exprSec, (Class<T>) exprSec.returnType);
 			this.exprSec = exprSec;

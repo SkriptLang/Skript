@@ -8,7 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
-public class DefaultBuildables {
+public class DefaultCustomizables {
 
 	static {
 		// REGISTER
