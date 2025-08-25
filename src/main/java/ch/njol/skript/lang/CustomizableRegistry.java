@@ -16,9 +16,9 @@ import java.util.Map;
  * Registry for registering classes that normally can not be builded upon, such as {@link Enum}s or from {@link org.bukkit.Registry}.
  * But can be used to build another object, such as {@link InventoryType} to {@link Inventory}
  */
-public class BuildableRegistry {
+public class CustomizableRegistry {
 
-	private static final Map<Class<?>, BuildableIdentifier> registry = new HashMap<>();
+	private static final Map<Class<?>, CustomizableIdentifier> registry = new HashMap<>();
 	private static final List<Class<?>> disallowed = new ArrayList<>();
 
 	/**
@@ -30,8 +30,8 @@ public class BuildableRegistry {
 	 * @throws SkriptAPIException If {@code from} is already registered to another class.
 	 * @throws SkriptAPIException If {@code from} is already disallowed.
 	 */
-	public static <F, T> void registerBuildable(Class<F> from, Class<T> to, Converter<F, T> converter) {
-		BuildableIdentifier identifier = new BuildableIdentifier(to, converter);
+	public static <F, T> void registerCustomizable(Class<F> from, Class<T> to, Converter<F, T> converter) {
+		CustomizableIdentifier identifier = new CustomizableIdentifier(to, converter);
 		if (registry.containsKey(from)) {
 			throw new SkriptAPIException("A buildable of '" + Classes.toString(from) + "' is already registered to '" +
 				Classes.toString(registry.get(from).to) + "'.");
@@ -98,7 +98,7 @@ public class BuildableRegistry {
 	public static <F, T> @Nullable Converter<F, T> getConverter(Class<F> from) {
 		if (!isRegistered(from))
 			return null;
-		BuildableIdentifier identifier = registry.get(from);
+		CustomizableIdentifier identifier = registry.get(from);
 		//noinspection unchecked
 		return (Converter<F, T>) identifier.converter;
 	}
@@ -113,7 +113,7 @@ public class BuildableRegistry {
 		if (!isRegistered(from))
 			return null;
 
-		BuildableIdentifier identifier = registry.get(from);
+		CustomizableIdentifier identifier = registry.get(from);
 		//noinspection unchecked
 		return (Class<T>) identifier.to;
 	}
@@ -132,7 +132,7 @@ public class BuildableRegistry {
 		Class<F> fromClass = (Class<F>) from.getClass();
 		if (!isRegistered(fromClass))
 			return null;
-		BuildableIdentifier identifier = registry.get(fromClass);
+		CustomizableIdentifier identifier = registry.get(fromClass);
 		//noinspection unchecked
 		Class<T> toClass = (Class<T>) identifier.to;
 
@@ -146,6 +146,6 @@ public class BuildableRegistry {
 		return converter.convert(from);
 	}
 
-	private record BuildableIdentifier(Class<?> to, Converter<?, ?> converter) {}
+	private record CustomizableIdentifier(Class<?> to, Converter<?, ?> converter) {}
 
 }

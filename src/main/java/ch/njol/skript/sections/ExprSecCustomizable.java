@@ -35,22 +35,22 @@ import java.util.List;
 	Objects that 
 	""")
 @Example("""
-	# Internally, 'chest inventory' is an InventoryType, but can be used to build as an Inventory
-	set {_gui} to a buildable chest inventory:
-		set slot 0 to a buildable diamond:
+	# Internally, 'chest inventory' is an InventoryType, but can be customized as an Inventory
+	set {_gui} to a custom chest inventory:
+		set slot 0 to a custom diamond:
 			set lore to "Custom Item"
 	""")
 @Example("""
-	set {_gui} to a chest inventory named "Shop" with 6 rows:
-		set slot 0 to a buildable nether star:
+	set {_gui} to a custom chest inventory named "Shop" with 6 rows:
+		set slot 0 to a custom nether star:
 			set name to "Ranks"
 	""")
 @Since("INSERT VERSION")
-public class ExprSecBuildable<T> extends SectionExpression<T> implements SectionValueProvider {
+public class ExprSecCustomizable<T> extends SectionExpression<T> implements SectionValueProvider {
 
 	static {
 		//noinspection unchecked
-		Skript.registerExpression(ExprSecBuildable.class, Object.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprSecCustomizable.class, Object.class, ExpressionType.COMBINED,
 			"[a] custom %object% [with]",
 			"[a] custom %*classinfo% (of|from) %object% [with]");
 	}
@@ -80,12 +80,12 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 					possible.add(info);
 				}
 				if (possible.isEmpty()) {
-					Skript.error("The provided object can reference multiple types. Which none can be builded upon.");
+					Skript.error("The provided object can reference multiple types. Which none can be customized.");
 					return false;
 				} else if (possible.size() >= 2) {
-					String codeName = possible.get(0).getCodeName();
+					String codeName = possible.get(0).getName().toString();
 					Skript.error("The provided object can reference multiple types. Consider specifying the object with '" +
-						expr.toString(null, false) + " (" + codeName + ")' or using 'buildable " + codeName +
+						expr.toString(null, false) + " (" + codeName + ")' or using 'custom " + codeName +
 						" of " + expr.toString(null, false) + "'.");
 					return false;
 				}
@@ -102,22 +102,22 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 				Class<?>[] possible = expr.possibleReturnTypes();
 				if (possible.length >= 2) {
 					Skript.error("The provided expression can reference multiple types. Consider using " +
-						"'buildable " + getClassInfoName(possible[0]) + " of " + expr.toString(null, false) + "'.");
+						"'custom " + getClassInfoName(possible[0]) + " of " + expr.toString(null, false) + "'.");
 					return false;
 				} else if (possible.length == 1 && possible[0].equals(Object.class)) {
 					Skript.error("The provided expression can reference multiple types. Consider using " +
-						"'buildable %*classinfo% of " + expr.toString(null, false) + "'.");
+						"'custom %*classinfo% of " + expr.toString(null, false) + "'.");
 					return false;
 				}
 				returnType = possible[0];
 			}
 			if (!canBuild()) {
-				if (!BuildableRegistry.isRegistered(returnType)) {
-					Skript.error(Utils.A(getClassInfoName()) + " cannot be builded upon.");
+				if (!CustomizableRegistry.isRegistered(returnType)) {
+					Skript.error(Utils.A(getClassInfoName()) + " cannot be customized.");
 					return false;
 				} else {
-					returnType = BuildableRegistry.getConvertedClass(returnType);
-					object = BuildableRegistry.convert(object);
+					returnType = CustomizableRegistry.getConvertedClass(returnType);
+					object = CustomizableRegistry.convert(object);
 				}
 			}
 		} else {
@@ -129,12 +129,12 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 				return false;
 
 			if (!canBuild()) {
-				if (!BuildableRegistry.isRegistered(returnType)) {
-					Skript.error(Utils.A(getClassInfoName()) + " cannot be builded upon.");
+				if (!CustomizableRegistry.isRegistered(returnType)) {
+					Skript.error(Utils.A(getClassInfoName()) + " cannot be customized.");
 				} else {
-					Class<?> buildAs = BuildableRegistry.getConvertedClass(returnType);
-					Skript.error(Utils.A(getClassInfoName()) + " cannot be builded upon. " +
-						"But can be builded as " + Utils.a(getClassInfoName(buildAs)) + ".");
+					Class<?> buildAs = CustomizableRegistry.getConvertedClass(returnType);
+					Skript.error(Utils.A(getClassInfoName()) + " cannot be customized. " +
+						"But can be customized as " + Utils.a(getClassInfoName(buildAs)) + ".");
 				}
 				return false;
 			}
@@ -160,7 +160,7 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 				}
 			}
 			if (!convertable) {
-				Skript.error("The provided expression " + expr.toString(null, false) + " cannot be builded as " +
+				Skript.error("The provided expression " + expr.toString(null, false) + " cannot be customized as " +
 					Utils.a(getClassInfoName()) + ".");
 				return false;
 			}
@@ -208,7 +208,7 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 	private boolean canBuild(ClassInfo<?> classInfo) {
 		if (classInfo instanceof EnumClassInfo<?> || classInfo instanceof RegistryClassInfo<?>) {
 			return false;
-		} else if (BuildableRegistry.isDisallowed(classInfo.getC())) {
+		} else if (CustomizableRegistry.isDisallowed(classInfo.getC())) {
 			return false;
 		}
 		return true;
@@ -216,7 +216,7 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 
 	private boolean canConvert(Class<?> from, Class<?> to) {
 		return to.isAssignableFrom(from)
-			|| BuildableRegistry.getConvertedClass(from) == to
+			|| CustomizableRegistry.getConvertedClass(from) == to
 			|| Converters.converterExists(from, to);
 	}
 
@@ -236,13 +236,13 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 		if (object == null) {
 			object = expr.getSingle(event);
 			if (object == null) {
-				error("Cannot build upon a null object.");
+				error("Cannot customize a null object.");
 				return null;
 			}
 			if (classInfo != null) {
 				object = convert(object);
 				if (object == null) {
-					error(Utils.A(expr.toString(event, false)) + " cannot be builded as " + Utils.a(classInfo.getCodeName()));
+					error(Utils.A(expr.toString(event, false)) + " cannot be customized as " + Utils.a(classInfo.getName().toString()));
 					return null;
 				}
 			}
@@ -260,7 +260,7 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 			return null;
 		if (returnType.isInstance(object))
 			return object;
-		Object converted = BuildableRegistry.convert(object);
+		Object converted = CustomizableRegistry.convert(object);
 		if (converted != null)
 			return converted;
 		return Converters.convert(object, returnType);
@@ -290,7 +290,7 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("buildable");
+		builder.append("custom");
 		if (classInfo == null) {
 			builder.append(expr);
 		} else {
@@ -299,11 +299,11 @@ public class ExprSecBuildable<T> extends SectionExpression<T> implements Section
 		return builder.toString();
 	}
 
-	private static class BuildableExpression<T> extends SectionValueExpression<ExprSecBuildable<T>, T> {
+	private static class BuildableExpression<T> extends SectionValueExpression<ExprSecCustomizable<T>, T> {
 
-		private final ExprSecBuildable<T> exprSec;
+		private final ExprSecCustomizable<T> exprSec;
 
-		private BuildableExpression(ExprSecBuildable<T> exprSec) {
+		private BuildableExpression(ExprSecCustomizable<T> exprSec) {
 			//noinspection unchecked
 			super(exprSec, (Class<T>) exprSec.returnType);
 			this.exprSec = exprSec;
