@@ -149,13 +149,14 @@ public class ExpressionList<T> implements Expression<T> {
 	@SuppressWarnings("unchecked")
 	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		Expression<? extends R>[] exprs = new Expression[expressions.length];
-		Class<?>[] returnTypes = new Class[expressions.length];
+		Set<Class<?>> possibleReturnTypeSet = new HashSet<>();
 		for (int i = 0; i < exprs.length; i++) {
 			if ((exprs[i] = expressions[i].getConvertedExpression(to)) == null)
 				return null;
-			returnTypes[i] = exprs[i].getReturnType();
+			possibleReturnTypeSet.addAll(Arrays.asList(exprs[i].possibleReturnTypes()));
 		}
-		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(returnTypes).getC(), returnTypes, and, this);
+		Class<?>[] possibleReturnTypes = possibleReturnTypeSet.toArray(new Class[0]);
+		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(possibleReturnTypes).getC(), possibleReturnTypes, and, this);
 	}
 
 	@Override
