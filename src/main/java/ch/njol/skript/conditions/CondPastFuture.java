@@ -82,9 +82,9 @@ public class CondPastFuture extends Condition {
 
 	@Override
 	public Condition simplify() {
-		if (!(dates instanceof Literal<Date>))
-			return this;
-		return SimplifiedCondition.fromCondition(this);
+		if (dates instanceof Literal<Date>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
 	}
 
 	@Override

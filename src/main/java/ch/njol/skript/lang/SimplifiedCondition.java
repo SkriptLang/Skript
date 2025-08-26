@@ -32,7 +32,7 @@ public class SimplifiedCondition extends Condition {
 	 * Any expression used by {@code original} that requires specific event data cannot be safely simplified.
 	 *
 	 * @param original The original {@link Condition} to simplify.
-	 * @param warn Whether a warning should be outputted.
+	 * @param warn Whether a warning for constant conditions should be outputted.
 	 * @return A new {@link SimplifiedCondition}.
 	 */
 	public static Condition fromCondition(Condition original, boolean warn) {

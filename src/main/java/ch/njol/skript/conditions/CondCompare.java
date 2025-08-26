@@ -400,11 +400,9 @@ public class CondCompare extends Condition implements VerboseAssert {
 
 	@Override
 	public Condition simplify() {
-		if (!(first instanceof Literal<?>) || !(second instanceof Literal<?>))
-			return this;
-		if (third != null && !(third instanceof Literal<?>))
-			return this;
-		return SimplifiedCondition.fromCondition(this);
+		if (first instanceof Literal<?> && second instanceof Literal<?> && (third == null || third instanceof Literal<?>))
+			return SimplifiedCondition.fromCondition(this);
+		return this;
 	}
 
 	@Override

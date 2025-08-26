@@ -186,9 +186,9 @@ public class CondContains extends Condition implements VerboseAssert {
 
 	@Override
 	public Condition simplify() {
-		if (!(containers instanceof Literal<?>) || !(items instanceof Literal<?>))
-			return this;
-		return SimplifiedCondition.fromCondition(this);
+		if (containers instanceof Literal<?> && items instanceof Literal<?>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
 	}
 
 	@Override
