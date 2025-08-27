@@ -36,6 +36,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	public static final boolean HAS_SHEAR_SOUND = Skript.methodExists(Equippable.class, "shearSound");
 
 	static {
+		// Paper changed '#model' to '#assetId' in 1.21.4
 		Method componentModelMethod = null;
 		Method builderModelMethod = null;
 		if (HAS_MODEL_METHOD) {
@@ -110,9 +111,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 			.dispensable(base.dispensable())
 			.equipSound(base.equipSound())
 			.swappable(base.swappable());
-		if (HAS_MODEL_METHOD) {
-			setModel(builder, getModel());
-		}
+		setModel(builder, getModel());
 		if (HAS_EQUIP_ON_INTERACT) {
 			builder.equipOnInteract(base.equipOnInteract());
 		}
@@ -184,6 +183,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	 */
 	public static Key getModel(Equippable component) {
 		if (HAS_MODEL_METHOD) {
+			assert COMPONENT_MODEL_METHOD != null;
 			try {
 				return (Key) COMPONENT_MODEL_METHOD.invoke(component);
 			} catch (Exception ignored) {}

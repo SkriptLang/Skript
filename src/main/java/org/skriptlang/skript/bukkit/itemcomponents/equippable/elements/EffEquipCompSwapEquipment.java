@@ -28,7 +28,7 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 			"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
 			"(make|let) %equippablecomponents% swap equipment [on right click|when right clicked]",
 			"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]",
-			"make| %equippablecomponents% not swap equipment [on right click|when right clicked]"
+			"make %equippablecomponents% not swap equipment [on right click|when right clicked]"
 		);
 	}
 
