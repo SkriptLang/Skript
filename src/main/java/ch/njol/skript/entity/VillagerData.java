@@ -6,6 +6,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -108,7 +109,7 @@ public class VillagerData extends EntityData<Villager> {
 	}
 	
 	@Override
-	public EntityData getSuperType() {
+	public @NotNull EntityData getSuperType() {
 		return new VillagerData(profession);
 	}
 	

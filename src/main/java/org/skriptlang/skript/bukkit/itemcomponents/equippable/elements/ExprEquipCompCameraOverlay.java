@@ -10,10 +10,11 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.ValidationResult;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.key.Key;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Camera Overlay")
@@ -33,7 +34,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
+public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	static {
 		registerDefault(ExprEquipCompCameraOverlay.class, String.class, "camera overlay", "equippablecomponents");
@@ -41,7 +42,7 @@ public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<Equippa
 
 	@Override
 	public @Nullable String convert(EquippableWrapper wrapper) {
-		NamespacedKey key = wrapper.getComponent().getCameraOverlay();
+		Key key = wrapper.getComponent().cameraOverlay();
 		return key == null ? null : key.toString();
 	}
 
@@ -68,7 +69,7 @@ public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<Equippa
 		}
 		NamespacedKey finalKey = key;
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setCameraOverlay(finalKey)));
+		getExpr().stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.cameraOverlay(finalKey)));
 	}
 
 	@Override

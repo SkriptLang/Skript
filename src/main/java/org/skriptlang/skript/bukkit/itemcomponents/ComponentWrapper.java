@@ -1,25 +1,29 @@
 package org.skriptlang.skript.bukkit.itemcomponents;
 
+import ch.njol.skript.aliases.ItemData;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.util.ItemSource;
+import ch.njol.skript.util.slot.Slot;
+import io.papermc.paper.datacomponent.BuildableDataComponent;
+import io.papermc.paper.datacomponent.DataComponentBuilder;
+import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
  * A wrapper that allows access and modification of a specific component from an {@link ItemStack}
  * or a stand-alone component.
  * @param <T> The type of component
+ * @param <B> The builder type of {@link T}
  */
-public abstract class ComponentWrapper<T> {
+@SuppressWarnings({"UnstableApiUsage", "NonExtendableApiUsage"})
+public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B extends DataComponentBuilder<T>> implements Cloneable {
 
-	private final @Nullable ItemSource itemSource;
-	private final @Nullable ItemStack itemStack;
-	private final T component;
+	private final @Nullable ItemSource<?> itemSource;
+	private T component;
 
 	/**
 	 * Constructs a {@link ComponentWrapper} that wraps the given {@link ItemStack} in an {@link ItemSource}.
@@ -27,7 +31,7 @@ public abstract class ComponentWrapper<T> {
 	 * @param itemStack The original {@link ItemStack}.
 	 */
 	public ComponentWrapper(ItemStack itemStack) {
-		this(new ItemSource(itemStack));
+		this(new ItemSource<>(itemStack));
 	}
 
 	/**
@@ -35,10 +39,11 @@ public abstract class ComponentWrapper<T> {
 	 * Ensures up-to-date component data retrieval and modification on the {@link ItemStack} of the {@link ItemSource} .
 	 * @param itemSource The {@link ItemSource} representing the original source of the {@link ItemStack}.
 	 */
-	public ComponentWrapper(ItemSource itemSource) {
+	public ComponentWrapper(ItemSource<?> itemSource) {
+		if (itemSource.getItemStack() == null)
+			throw new IllegalArgumentException("ItemSource must have an ItemStack to retrieve");
 		this.itemSource = itemSource;
-		this.itemStack = itemSource.getItemStack();
-		this.component = this.getComponent(itemStack.getItemMeta());
+		this.component = this.getComponent(itemSource.getItemStack());
 	}
 
 	/**
@@ -47,7 +52,14 @@ public abstract class ComponentWrapper<T> {
 	public ComponentWrapper(T component) {
 		this.component = component;
 		this.itemSource = null;
-		this.itemStack = null;
+	}
+
+	/**
+	 * Constructs a {@link ComponentWrapper} that only references to a built component.
+	 */
+	public ComponentWrapper(B builder) {
+		this.component = builder.build();
+		this.itemSource = null;
 	}
 
 	/**
@@ -57,35 +69,64 @@ public abstract class ComponentWrapper<T> {
 	 */
 	public T getComponent() {
 		if (itemSource != null) {
-			assert itemStack != null;
-			return this.getComponent(itemStack.getItemMeta());
+			return this.getComponent(itemSource.getItemStack());
 		}
 		return component;
+	}
+
+	/**
+	 * Returns the builder of the current component
+	 * If this {@link ComponentWrapper} was constructed with an {@link ItemSource}, the builder is retrieved from
+	 * the component of the stored item. Otherwise, the stored {@link #component}.
+	 */
+	public B getBuilder() {
+		if (itemSource != null) {
+			return this.getBuilder(itemSource.getItemStack());
+		}
+		//noinspection unchecked
+		return (B) component.toBuilder();
 	}
 
 	/**
 	 * Returns the {@link ItemStack} associated with this {@link ComponentWrapper}, if available.
 	 */
 	public @Nullable ItemStack getItemStack() {
-		return itemStack;
+		return itemSource == null ? null : itemSource.getItemStack();
 	}
 
 	/**
 	 * Returns the {@link ItemSource} the {@link ItemStack} is sourced from.
 	 */
-	public @Nullable ItemSource getItemSource() {
+	public @Nullable ItemSource<?> getItemSource() {
 		return itemSource;
 	}
 
 	/**
-	 * Returns the {@link Converter} used to extract the component from the {@link ItemMeta}.
+	 * Returns the {@link DataComponentType} of this {@link ComponentWrapper}.
 	 */
-	protected abstract T getComponent(ItemMeta itemMeta);
+	public abstract DataComponentType.Valued<T> getDataComponentType();
 
 	/**
-	 * Returns the {@link BiConsumer} that updates the component on the {@link ItemMeta}.
+	 * Returns the {@link T} component from {@code itemStack}.
 	 */
-	protected abstract void setComponent(ItemMeta itemMeta, T component);
+	protected abstract T getComponent(ItemStack itemStack);
+
+	/**
+	 * Returns the {@link B} builder of the component from {@code itemStack}.
+	 */
+	protected abstract B getBuilder(ItemStack itemStack);
+
+	/**
+	 * Sets the {@link T} component on {@code itemStack}.
+	 */
+	protected abstract void setComponent(ItemStack itemStack, T component);
+
+	/**
+	 * Sets the {@link B} builder component on {@code itemStack}.
+	 */
+	protected void setBuilder(ItemStack itemStack, B builder) {
+		setComponent(itemStack, builder.build());
+	}
 
 	/**
 	 * Apply the current {@link #component} to the {@link #itemSource}.
@@ -98,53 +139,73 @@ public abstract class ComponentWrapper<T> {
 	 * Apply a new {@code component} or {@link #component} to the {@link #itemSource}.
 	 */
 	public void applyComponent(@NotNull T component) {
+		this.component = component;
 		if (itemSource == null)
 			return;
-		assert itemStack != null;
-		ItemMeta itemMeta = itemStack.getItemMeta();
-		setComponent(itemMeta, component);
-		itemSource.setItemMeta(itemMeta);
+		ItemStack itemStack = itemSource.getItemStack();
+		setComponent(itemStack, component);
+		if (itemSource.getSource() instanceof ItemType itemType) {
+			for (ItemData itemData : itemType) {
+				ItemStack dataStack = itemData.getStack();
+				if (dataStack == null)
+					continue;
+				dataStack.setData(getDataComponentType(), component);
+			}
+		} else if (itemSource.getSource() instanceof Slot slot) {
+			slot.setItem(itemStack);
+		}
 	}
 
 	/**
-	 * Edit {@link #component} via {@link Consumer}.
-	 * @param consumer The {@link Consumer} to edit the component.
+	 * Apply a new {@code builder} to the {@link #itemSource}.
 	 */
-	public void editComponent(Consumer<T> consumer) {
-		T component = getComponent();
-		consumer.accept(component);
-		applyComponent(component);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof ComponentWrapper<?> other))
-			return false;
-		boolean relation = true;
-		if (this.itemStack != null && other.itemStack != null)
-			relation = this.itemStack.equals(other.itemStack);
-		relation &= this.getComponent().equals(other.getComponent());
-		return relation;
+	public void applyBuilder(@NotNull B builder) {
+		applyComponent(builder.build());
 	}
 
 	/**
-	 * Get a clone of this {@link ComponentWrapper}.
+	 * Edit the {@link T} component of this {@link ComponentWrapper} and have changes applied.
 	 */
-	public abstract ComponentWrapper<T> clone();
+	public void editBuilder(Consumer<B> consumer) {
+		B builder = getBuilder();
+		consumer.accept(builder);
+		applyComponent(builder.build());
+	}
 
 	/**
-	 * Get a new component {@link T}.
+	 * Returns a clone of this {@link ComponentWrapper}.
+	 */
+	public abstract ComponentWrapper<T, B> clone();
+
+	/**
+	 * Returns a new component {@link T}.
 	 */
 	public abstract T newComponent();
 
 	/**
-	 * Get a new {@link ComponentWrapper<T>}.
+	 * Returns a new builder {@link B}.
 	 */
-	public abstract ComponentWrapper<T> newWrapper();
+	public abstract B newBuilder();
+
+	/**
+	 * Returns a new {@link ComponentWrapper}.
+	 */
+	public abstract ComponentWrapper<T, B> newWrapper();
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ComponentWrapper<?, ?> other))
+			return false;
+		boolean relation = true;
+		if (this.itemSource != null && other.itemSource != null)
+			relation = this.itemSource.getItemStack().equals(other.itemSource.getItemStack());
+		relation &= this.getComponent().equals(other.getComponent());
+		return relation;
+	}
 
 	@Override
 	public String toString() {
-		return component.toString();
+		return getComponent().toString();
 	}
 
 }

@@ -13,6 +13,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -20,7 +21,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 import java.util.List;
@@ -39,9 +40,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperiment {
+public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	public static class BlankEquippableSectionEvent extends Event {
+	private static class BlankEquippableSectionEvent extends Event {
 
 		private final EquippableWrapper wrapper;
 
@@ -71,12 +72,10 @@ public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> 
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(node, "blank equippable component", afterLoading, BlankEquippableSectionEvent.class);
-			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'blank equippable component' section.");
-				return false;
-			}
+			trigger = SectionUtils.loadLinkedCode("blank equippable component", (beforeLoading, afterLoading) ->
+				loadCode(node, "blank equippable component", beforeLoading, afterLoading, BlankEquippableSectionEvent.class)
+			);
+			return trigger != null;
 		}
 		return true;
 	}

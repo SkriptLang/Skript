@@ -13,7 +13,7 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.List;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class CondEquipCompDispensable extends PropertyCondition<EquippableWrapper> implements EquippableExperiment {
+public class CondEquipCompDispensable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	static {
 		List<String> patterns = new ArrayList<>(Arrays.asList(getPatterns(PropertyType.CAN, "be dispensed", "equippablecomponents")));
@@ -53,7 +53,7 @@ public class CondEquipCompDispensable extends PropertyCondition<EquippableWrappe
 
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
-		return wrapper.getComponent().isDispensable();
+		return wrapper.getComponent().dispensable();
 	}
 
 	@Override

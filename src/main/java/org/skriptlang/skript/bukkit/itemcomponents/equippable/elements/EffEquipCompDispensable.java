@@ -8,7 +8,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Dispense")
@@ -21,12 +21,15 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class EffEquipCompDispensable extends Effect implements EquippableExperiment {
+public class EffEquipCompDispensable extends Effect implements EquippableExperimentSyntax {
 
 	static {
 		Skript.registerEffect(EffEquipCompDispensable.class,
-			"allow %equippablecomponents% to be dispensed",
-			"(block|prevent) %equippablecomponents% from being dispensed"
+			"(allow|force) %equippablecomponents% to be dispensed",
+			"make %equippablecomponents% dispensable",
+			"let %equippablecomponents% be dispensed",
+			"(block|prevent|disallow) %equippablecomponents% from being dispensed",
+			"make %equippablecomponents% not dispensable"
 		);
 	}
 
@@ -37,13 +40,13 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		dispensable = matchedPattern == 0;
+		dispensable = matchedPattern < 3;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setDispensable(dispensable)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.dispensable(dispensable)));
 	}
 
 	@Override

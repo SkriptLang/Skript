@@ -9,7 +9,7 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Lose Durability")
@@ -23,14 +23,14 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class EffEquipCompDamageable extends Effect implements EquippableExperiment {
+public class EffEquipCompDamageable extends Effect implements EquippableExperimentSyntax {
 
 	static {
 		Skript.registerEffect(EffEquipCompDamageable.class,
-			"make %equippablecomponents% lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
-			"(allow|force) %equippablecomponents% to lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
-			"make %equippablecomponents% not lose durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))",
-			"(disallow|prevent) %equippablecomponents% from losing durability (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured))"
+			"(make|let) %equippablecomponents% (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"(allow|force) %equippablecomponents% to (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"make %equippablecomponents% not (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+			"(disallow|prevent) %equippablecomponents% from (lose durability|being damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
 		);
 	}
 
@@ -47,7 +47,7 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setDamageOnHurt(loseDurability)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.damageOnHurt(loseDurability)));
 	}
 
 	@Override

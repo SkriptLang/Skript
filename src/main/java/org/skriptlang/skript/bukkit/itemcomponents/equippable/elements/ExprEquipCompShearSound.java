@@ -9,31 +9,34 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.key.Key;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
-@Name("Equippable Component - Equip Sound")
-@Description("The sound to be played when the item is equipped. "
+@Name("Equippable Component - Shear Sound")
+@Description("The sound to be played when the item is sheared off of an entity. "
 	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
-@Example("set the equip sound of {_item} to \"entity.experience_orb.pickup\"")
+@Example("set the shear sound of {_item} to \"entity.experience_orb.pickup\"")
 @Example("""
 	set {_component} to the equippable component of {_item}
-	set the equip sound of {_component} to "block.note_block.pling"
+	set the shear sound of {_component} to "block.note_block.pling"
 	""")
-@RequiredPlugins("Minecraft 1.21.2+")
+@RequiredPlugins("Minecraft 1.21.6+")
 @Since("INSERT VERSION")
-public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
+public class ExprEquipCompShearSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	static {
-		registerDefault(ExprEquipCompSound.class, String.class, "equip sound", "equippablecomponents");
+		if (EquippableWrapper.HAS_SHEAR_SOUND)
+			registerDefault(ExprEquipCompShearSound.class, String.class, "shear[ed [off]] sound", "equippablecomponents");
 	}
 
 	@Override
 	public @Nullable String convert(EquippableWrapper wrapper) {
-		return SoundUtils.getKey(wrapper.getComponent().getEquipSound()).getKey();
+		return wrapper.getComponent().shearSound().toString();
 	}
 
 	@Override
@@ -49,10 +52,19 @@ public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapp
 		if (delta != null) {
 			String soundString = (String) delta[0];
 			enumSound = SoundUtils.getSound(soundString);
+			if (enumSound == null) {
+				error("Could not find a sound with the id '" + soundString + "'.");
+				return;
+			}
 		}
-		Sound finalSound = enumSound;
+		Key key;
+		if (enumSound != null) {
+			key = Registry.SOUNDS.getKey(enumSound);
+		} else {
+			key = null;
+		}
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setEquipSound(finalSound)));
+		getExpr().stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.shearSound(key)));
 	}
 
 	@Override
@@ -62,7 +74,7 @@ public class ExprEquipCompSound extends SimplePropertyExpression<EquippableWrapp
 
 	@Override
 	protected String getPropertyName() {
-		return "equip sound";
+		return "shear sound";
 	}
 
 }

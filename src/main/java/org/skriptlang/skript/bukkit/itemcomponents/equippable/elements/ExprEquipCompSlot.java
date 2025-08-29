@@ -8,10 +8,11 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equipment Slot")
@@ -24,7 +25,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperiment {
+public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperimentSyntax {
 
 	static {
 		registerDefault(ExprEquipCompSlot.class, EquipmentSlot.class, "equipment slot", "equippablecomponents");
@@ -32,7 +33,7 @@ public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrappe
 
 	@Override
 	public @Nullable EquipmentSlot convert(EquippableWrapper wrapper) {
-		return wrapper.getComponent().getSlot();
+		return wrapper.getComponent().slot();
 	}
 
 	@Override
@@ -44,13 +45,13 @@ public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrappe
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (delta == null)
-			return;
+		assert delta != null;
 		EquipmentSlot providedSlot = (EquipmentSlot) delta[0];
-		if (providedSlot == null)
-			return;
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSlot(providedSlot)));
+		getExpr().stream(event).forEach(wrapper -> {
+			Equippable changed = wrapper.clone(providedSlot);
+			wrapper.applyComponent(changed);
+		});
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Swap Equipment")
@@ -21,12 +21,14 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class EffEquipCompSwapEquipment extends Effect implements EquippableExperiment {
+public class EffEquipCompSwapEquipment extends Effect implements EquippableExperimentSyntax {
 
 	static {
 		Skript.registerEffect(EffEquipCompSwapEquipment.class,
-			"allow %equippablecomponents% to swap equipment [on right click|when right clicked]",
-			"prevent %equippablecomponents% from swapping equipment [on right click|when right clicked]"
+			"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
+			"(make|let) %equippablecomponents% swap equipment [on right click|when right clicked]",
+			"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]",
+			"make %equippablecomponents% not swap equipment [on right click|when right clicked]"
 		);
 	}
 
@@ -37,13 +39,13 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		swappable = matchedPattern == 0;
+		swappable = matchedPattern < 2;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSwappable(swappable)));
+		wrappers.stream(event).forEach(wrapper -> wrapper.editBuilder(builder -> builder.swappable(swappable)));
 	}
 
 	@Override

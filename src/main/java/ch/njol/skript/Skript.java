@@ -91,6 +91,7 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
+import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
@@ -485,7 +486,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
 		unmodifiableSkript = new ModernSkriptBridge.SpecialUnmodifiableSkript(skript);
 		skript.localizer().setSourceDirectories("lang",
-				getDataFolder().getAbsolutePath() + "lang");
+				getDataFolder().getAbsolutePath() + File.separatorChar + "lang");
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
@@ -579,6 +580,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
+			skript.loadModules(new DamageSourceModule());
 			skript.loadModules(new ItemComponentModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
@@ -1278,7 +1280,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (disabled)
 			return;
 		disabled = true;
-		this.experimentRegistry = null;
 
 		if (!partDisabled) {
 			beforeDisable();
@@ -1293,6 +1294,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				Skript.exception(e, "An error occurred while shutting down.", "This might or might not cause any issues.");
 			}
 		}
+
+		this.experimentRegistry = null;
 	}
 
 	// ================ CONSTANTS, OPTIONS & OTHER ================
@@ -1768,6 +1771,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see String#formatted(Object...)
 	 */
 	public static void debug(String message, Object... objects) {
+		if (!debug())
+			return;
 		debug(message.formatted(objects));
 	}
 
@@ -1794,6 +1799,17 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static void error(final @Nullable String error) {
 		if (error != null)
 			SkriptLogger.log(Level.SEVERE, error);
+	}
+
+	/**
+	 * Sends an error message with formatted objects.
+	 *
+	 * @param message The message to send
+	 * @param objects The objects to format the message with
+	 * @see String#formatted(Object...)
+	 */
+	public static void error(String message, Object... objects) {
+		error(message.formatted(objects));
 	}
 
 	/**

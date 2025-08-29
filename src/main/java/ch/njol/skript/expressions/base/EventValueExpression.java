@@ -76,15 +76,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * @param <T> The return type.
 	 * @param <E> The Expression type.
 	 * @return The registered {@link SyntaxInfo}.
+	 * @deprecated Use {@link #infoBuilder(Class, Class, String...)} to build a {@link SyntaxInfo}
+	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
 	 */
 	@ApiStatus.Experimental
+	@Deprecated(since = "2.12", forRemoval = true)
 	public static <E extends EventValueExpression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String pattern) {
-		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
-				.priority(DEFAULT_PRIORITY)
-				.addPattern("[the] " + pattern)
-				.build();
-		registry.register(SyntaxRegistry.EXPRESSION, info);
-		return info;
+		return register(registry, expressionClass, returnType, new String[]{pattern});
 	}
 
 	/**
@@ -99,23 +97,42 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * @param <T> The return type.
 	 * @param <E> The Expression type.
 	 * @return The registered {@link SyntaxInfo}.
+	 * @deprecated Use {@link #infoBuilder(Class, Class, String...)} to build a {@link SyntaxInfo}
+	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
 	 */
+	@ApiStatus.Experimental
+	@Deprecated(since = "2.12", forRemoval = true)
 	public static <E extends EventValueExpression<T>, T> DefaultSyntaxInfos.Expression<E, T> register(
 		SyntaxRegistry registry,
 		Class<E> expressionClass,
 		Class<T> returnType,
 		String ... patterns
 	) {
-		for (int i = 0; i < patterns.length; i++) {
-			if (!StringUtils.startsWithIgnoreCase(patterns[i], "[the] "))
-				patterns[i] = "[the] " + patterns[i];
-		}
-		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
-			.priority(DEFAULT_PRIORITY)
-			.addPatterns(patterns)
-			.build();
+		SyntaxInfo.Expression<E, T> info = infoBuilder(expressionClass, returnType, patterns).build();
 		registry.register(SyntaxRegistry.EXPRESSION, info);
 		return info;
+	}
+
+	/**
+	 * Creates a builder for a {@link SyntaxInfo} representing a {@link EventValueExpression} with the provided patterns.
+	 * The info will use {@link #DEFAULT_PRIORITY} as its {@link SyntaxInfo#priority()}.
+	 * This method will append '[the]' to the beginning of each patterns
+	 * @param expressionClass The expression class to be represented by the info.
+	 * @param returnType The class representing the expression's return type.
+	 * @param patterns The patterns to match for creating this expression.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends EventValueExpression<T>, T> SyntaxInfo.Expression.Builder<? extends SyntaxInfo.Expression.Builder<?, E, T>, E, T> infoBuilder(
+			Class<E> expressionClass, Class<T> returnType, String... patterns) {
+		for (int i = 0; i < patterns.length; i++) {
+			patterns[i] = "[the] " + patterns[i];
+		}
+		return SyntaxInfo.Expression.builder(expressionClass, returnType)
+			.priority(DEFAULT_PRIORITY)
+			.addPatterns(patterns);
 	}
 
 	/**

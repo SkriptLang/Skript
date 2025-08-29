@@ -13,19 +13,17 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.Entity;
+import io.papermc.paper.registry.set.RegistryKeySet;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
 @Name("Equippable Component - Allowed Entities")
 @Description("The entities allowed to wear the item. "
 	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
@@ -36,7 +34,8 @@ import java.util.List;
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperiment {
+@SuppressWarnings({"rawtypes", "UnstableApiUsage"})
+public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperimentSyntax {
 
 	static {
 		registerDefault(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents");
@@ -53,14 +52,10 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 	protected EntityData @Nullable [] get(Event event, EquippableWrapper[] source) {
 		List<EntityData> types = new ArrayList<>();
 		for (EquippableWrapper wrapper : source) {
-			EquippableComponent component = wrapper.getComponent();
-			Collection<EntityType> allowed = component.getAllowedEntities();
-			if (allowed == null || allowed.isEmpty())
+			Collection<EntityType> allowed = wrapper.getAllowedEntities();
+			if (allowed.isEmpty())
 				continue;
-			allowed.forEach(entityType -> {
-				Class<? extends Entity> entityClass = entityType.getEntityClass();
-				types.add(EntityData.fromClass(entityClass));
-			});
+			allowed.forEach(entityType -> types.add(EntityUtils.toSkriptEntityData(entityType)));
 		}
 		return types.toArray(EntityData[]::new);
 	}
@@ -82,24 +77,22 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 					converted.add(EntityUtils.toBukkitEntityType(entityData));
 			}
 		}
+		RegistryKeySet<EntityType> keys = EquippableWrapper.convertAllowedEntities(converted);
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> {
-			Collection<EntityType> allowed = component.getAllowedEntities();
-			List<EntityType> current = allowed != null ? new ArrayList<>(allowed) : new ArrayList<>();
+		getExpr().stream(event).forEach(wrapper -> {
+			Collection<EntityType> allowed = wrapper.getAllowedEntities();
+			List<EntityType> current = new ArrayList<>(allowed);
 			switch (mode) {
-				case SET -> component.setAllowedEntities(converted);
-				case ADD -> {
+				case SET -> {
+					current.clear();
 					current.addAll(converted);
-					component.setAllowedEntities(current);
 				}
-				case REMOVE -> {
-					current.removeAll(converted);
-					component.setAllowedEntities(current);
-				}
-				case DELETE -> component.setAllowedEntities(new ArrayList<>());
-				default -> throw new IllegalStateException("Unexpected value: " + mode);
+				case ADD -> current.addAll(converted);
+				case REMOVE -> current.removeAll(converted);
+				case DELETE -> current.clear();
 			}
-		}));
+			wrapper.editBuilder(builder -> builder.allowedEntities(EquippableWrapper.convertAllowedEntities(current)));
+		});
 	}
 
 	@Override

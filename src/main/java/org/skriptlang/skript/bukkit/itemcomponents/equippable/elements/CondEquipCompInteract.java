@@ -8,7 +8,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.inventory.meta.components.EquippableComponent;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Can Equip On Entities")
@@ -17,7 +17,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Example("if {_item} can be equipped on entities:")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.5+")
-public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> implements EquippableExperiment {
+public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "isEquipOnInteract"))
@@ -26,7 +26,7 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
-		return wrapper.getComponent().isEquipOnInteract();
+		return wrapper.getComponent().equipOnInteract();
 	}
 
 	@Override

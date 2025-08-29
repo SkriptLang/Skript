@@ -17,7 +17,6 @@ import ch.njol.util.Math2;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Expand/Shrink World Border")
 @Description({
@@ -26,11 +25,11 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	"Using `to` sets to the specified size."
 })
 @Examples({
-	"expand world border of player by 100 in 5 seconds",
-	"shrink world border of world \"world\" to 100 in 10 seconds"
+	"expand world border of player by 100 over 5 seconds",
+	"shrink world border of world \"world\" to 100 over 10 seconds"
 })
 @Since("2.11")
-public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorProducer {
+public class EffWorldBorderExpand extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldBorderExpand.class,
@@ -48,7 +47,6 @@ public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorPr
 	private Expression<Number> numberExpr;
 	private @Nullable Expression<Timespan> timespan;
 	private static final double MAX_WORLDBORDER_SIZE = 59999968;
-	private Node node;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -59,7 +57,6 @@ public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorPr
 		shrink = matchedPattern > 1;
 		radius = parseResult.hasTag("radius");
 		to = parseResult.hasTag("to");
-		node = getParser().getNode();
 		return true;
 	}
 
@@ -95,11 +92,6 @@ public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorPr
 				worldBorder.setSize(size, speed);
 			}
 		}
-	}
-
-	@Override
-	public Node getNode() {
-		return node;
 	}
 
 	@Override

@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	"send target block's maximum dusted stage",
 	"set {_sand}'s dusted stage to 2"
 })
-@Since("INSERT VERSION")
+@Since("2.12")
 @RequiredPlugins("Minecraft 1.20+")
 public class ExprDustedStage extends PropertyExpression<Object, Integer> {
 
