@@ -1,15 +1,17 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyedValue;
-import ch.njol.skript.lang.function.*;
+import org.skriptlang.skript.common.function.DefaultFunction;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.Parameter;
+import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -23,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,21 +44,25 @@ public class DefaultFunctions {
 	private static final DecimalFormat DEFAULT_DECIMAL_FORMAT = new DecimalFormat("###,###.##");
 
 	static {
+		SkriptAddon skript = Skript.instance();
 		Parameter<?>[] numberParam = new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null)};
 		Parameter<?>[] numbersParam = new Parameter[] {new Parameter<>("ns", DefaultClasses.NUMBER, false, null)};
 
 		// basic math functions
 
-		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true) {
-			@Override
-			public Long[] executeSimple(Object[][] params) {
-				if (params[0][0] instanceof Long)
-					return new Long[] {(Long) params[0][0]};
-				return new Long[] {Math2.floor(((Number) params[0][0]).doubleValue())};
-			}
-		}.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
+		Functions.register(DefaultFunction.builder(skript, "floor", Long.class)
+			.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
-			.since("2.2"));
+			.since("2.2")
+			.parameter("n", Number.class)
+			.build(args -> {
+				Number value = args.get("n");
+
+				if (value instanceof Long l)
+					return l;
+
+				return Math2.floor(value.doubleValue());
+			}));
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
@@ -359,53 +367,53 @@ public class DefaultFunctions {
 			.examples("set {_nether} to world(\"%{_world}%_nether\")")
 			.since("2.2");
 
-		Functions.registerFunction(new JavaFunction<Location>("location", new Parameter[] {
-			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("z", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("world", DefaultClasses.WORLD, true, new EventValueExpression<>(World.class)),
-			new Parameter<>("yaw", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true)),
-			new Parameter<>("pitch", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, true))
-		}, DefaultClasses.LOCATION, true) {
-			@Override
-			@Nullable
-			public Location[] execute(FunctionEvent<?> event, Object[][] params) {
-				for (int i : new int[] {0, 1, 2, 4, 5}) {
-					if (params[i] == null || params[i].length == 0 || params[i][0] == null)
-						return null;
-				}
+		Functions.register(DefaultFunction.builder(skript, "location", Location.class)
+			.description(
+				"Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
+				"If for whatever reason the world is not found, it will fallback to the server's main world."
+			)
+			.examples("""
+				# TELEPORTING
+				teleport player to location(1,1,1, world "world")
+				teleport player to location(1,1,1, world "world", 100, 0)
+				teleport player to location(1,1,1, world "world", yaw of player, pitch of player)
+				teleport player to location(1,1,1, world of player)
+				teleport player to location(1,1,1, world("world"))
+				teleport player to location({_x}, {_y}, {_z}, {_w}, {_yaw}, {_pitch})
+				
+				# SETTING BLOCKS
+				set block at location(1,1,1, world "world") to stone
+				set block at location(1,1,1, world "world", 100, 0) to stone
+				set block at location(1,1,1, world of player) to stone
+				set block at location(1,1,1, world("world")) to stone
+				set block at location({_x}, {_y}, {_z}, {_w}) to stone
+				
+				# USING VARIABLES
+				set {_l1} to location(1,1,1)
+				set {_l2} to location(10,10,10)
+				set blocks within {_l1} and {_l2} to stone
+				if player is within {_l1} and {_l2}:
+				
+				# OTHER
+				kill all entities in radius 50 around location(1,65,1, world "world")
+				delete all entities in radius 25 around location(50,50,50, world "world_nether")
+				ignite all entities in radius 25 around location(1,1,1, world of player)
+				"""
+			)
+			.since("2.2")
+			.parameter("x", Number.class)
+			.parameter("y", Number.class)
+			.parameter("z", Number.class)
+			.parameter("world", World.class, Modifier.OPTIONAL)
+			.parameter("yaw", Float.class, Modifier.OPTIONAL)
+			.parameter("pitch", Float.class, Modifier.OPTIONAL)
+			.build(args -> {
+				World world = args.getOrDefault("world", Bukkit.getWorlds().get(0));
 
-				World world = params[3].length == 1 ? (World) params[3][0] : Bukkit.getWorlds().get(0); // fallback to main world of server
-
-				return new Location[] {new Location(world,
-					((Number) params[0][0]).doubleValue(), ((Number) params[1][0]).doubleValue(), ((Number) params[2][0]).doubleValue(),
-					((Number) params[4][0]).floatValue(), ((Number) params[5][0]).floatValue())};
-			}
-		}.description("Creates a location from a world and 3 coordinates, with an optional yaw and pitch.",
-						"If for whatever reason the world is not found, it will fallback to the server's main world.")
-			.examples("# TELEPORTING",
-					"teleport player to location(1,1,1, world \"world\")",
-					"teleport player to location(1,1,1, world \"world\", 100, 0)",
-					"teleport player to location(1,1,1, world \"world\", yaw of player, pitch of player)",
-					"teleport player to location(1,1,1, world of player)",
-					"teleport player to location(1,1,1, world(\"world\"))",
-					"teleport player to location({_x}, {_y}, {_z}, {_w}, {_yaw}, {_pitch})",
-					"# SETTING BLOCKS",
-					"set block at location(1,1,1, world \"world\") to stone",
-					"set block at location(1,1,1, world \"world\", 100, 0) to stone",
-					"set block at location(1,1,1, world of player) to stone",
-					"set block at location(1,1,1, world(\"world\")) to stone",
-					"set block at location({_x}, {_y}, {_z}, {_w}) to stone",
-					"# USING VARIABLES",
-					"set {_l1} to location(1,1,1)",
-					"set {_l2} to location(10,10,10)",
-					"set blocks within {_l1} and {_l2} to stone",
-					"if player is within {_l1} and {_l2}:",
-					"# OTHER",
-					"kill all entities in radius 50 around location(1,65,1, world \"world\")",
-					"delete all entities in radius 25 around location(50,50,50, world \"world_nether\")",
-					"ignite all entities in radius 25 around location(1,1,1, world of player)")
-			.since("2.2"));
+				return new Location(world,
+					args.<Number>get("x").doubleValue(), args.<Number>get("y").doubleValue(), args.<Number>get("z").doubleValue(),
+					args.getOrDefault("yaw", 0f), args.getOrDefault("pitch", 0f));
+			}));
 
 		Functions.registerFunction(new SimpleJavaFunction<Date>("date", new Parameter[] {
 			new Parameter<>("year", DefaultClasses.NUMBER, true, null),
@@ -471,23 +479,18 @@ public class DefaultFunctions {
 			.examples("date(2014, 10, 1) # 0:00, 1st October 2014", "date(1990, 3, 5, 14, 30) # 14:30, 5th May 1990", "date(1999, 12, 31, 23, 59, 59, 999, -3*60, 0) # almost year 2000 in parts of Brazil (-3 hours offset, no DST)")
 			.since("2.2"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Vector>("vector", new Parameter[] {
-			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("z", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.VECTOR, true) {
-			@Override
-			public Vector[] executeSimple(Object[][] params) {
-				return new Vector[] {new Vector(
-					((Number)params[0][0]).doubleValue(),
-					((Number)params[1][0]).doubleValue(),
-					((Number)params[2][0]).doubleValue()
-				)};
-			}
-
-		}.description("Creates a new vector, which can be used with various expressions, effects and functions.")
+		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
+			.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 			.examples("vector(0, 0, 0)")
-			.since("2.2-dev23"));
+			.since("2.2-dev23")
+			.parameter("x", Number.class)
+			.parameter("y", Number.class)
+			.parameter("z", Number.class)
+			.build(args -> new Vector(
+				args.<Number>get("x").doubleValue(),
+				args.<Number>get("y").doubleValue(),
+				args.<Number>get("z").doubleValue()
+			)));
 
 		Functions.registerFunction(new SimpleJavaFunction<Long>("calcExperience", new Parameter[] {
 			new Parameter<>("level", DefaultClasses.LONG, true, null)
@@ -535,27 +538,31 @@ public class DefaultFunctions {
 			)
 			.since("2.5, 2.10 (alpha)");
 
-		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
-			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),
-			new Parameter<>("getExactPlayer", DefaultClasses.BOOLEAN, true, new SimpleLiteral<Boolean>(false, true)) // getExactPlayer -- grammar ¯\_ (ツ)_/¯
-		}, DefaultClasses.PLAYER, true) {
-			@Override
-			public Player[] executeSimple(Object[][] params) {
-				String name = (String) params[0][0];
-				boolean isExact = (boolean) params[1][0];
+		Functions.register(DefaultFunction.builder(skript, "player", Player.class)
+			.description(
+				"Returns an online player from their name or UUID, if player is offline function will return nothing.",
+				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name."
+			)
+			.examples(
+				"set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'",
+				"set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'",
+				"set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline"
+			)
+			.since("2.8.0")
+			.parameter("nameOrUUID", String.class)
+			.parameter("getExactPlayer", Boolean.class, Modifier.OPTIONAL)
+			.build(args -> {
+				String name = args.get("nameOrUUID");
+				boolean isExact = args.getOrDefault("getExactPlayer", false);
+
 				UUID uuid = null;
-				if (name.length() > 16 || name.contains("-")) { // shortcut
+				if (name.length() > 16 || name.contains("-")) {
 					if (Utils.isValidUUID(name))
 						uuid = UUID.fromString(name);
 				}
-				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
-			}
-		}).description("Returns an online player from their name or UUID, if player is offline function will return nothing.",
-				"Setting 'getExactPlayer' parameter to true will return the player whose name is exactly equal to the provided name instead of returning a player that their name starts with the provided name.")
-			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'",
-				"set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'",
-				"set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
-			.since("2.8.0");
+
+				return uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name));
+			}));
 
 		{ // offline player function
 			// TODO - remove this when Spigot support is dropped
@@ -614,22 +621,22 @@ public class DefaultFunctions {
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
 
-		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
-			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
-		}, DefaultClasses.STRING, true) {
-			@Override
-			public String[] executeSimple(Object[][] params) {
-				StringBuilder builder = new StringBuilder();
-				for (Object object : params[0]) {
-					builder.append(Classes.toString(object));
-				}
-				return new String[] {builder.toString()};
-			}
-		}).description("Joins the provided texts (and other things) into a single text.")
+		Functions.register(DefaultFunction.builder(skript, "concat", String.class)
+			.description("Joins the provided texts (and other things) into a single text.")
 			.examples(
 				"concat(\"hello \", \"there\") # hello there",
 				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
-			).since("2.9.0");
+			)
+			.since("2.9.0")
+			.parameter("texts", Object[].class)
+			.build(args -> {
+				StringBuilder builder = new StringBuilder();
+				Object[] objects = args.get("texts");
+				for (Object object : objects) {
+					builder.append(Classes.toString(object));
+				}
+				return builder.toString();
+			}));
 
 		// joml functions - for display entities
 		{
