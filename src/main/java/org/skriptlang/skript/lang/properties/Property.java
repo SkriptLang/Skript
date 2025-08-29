@@ -20,27 +20,23 @@ public record Property<Handler>(
 		this.handler = handler;
 	}
 
-	public static <Handler> Property<Handler> of(
+	public static <HandlerClass, Handler extends HandlerClass> Property<Handler> of(
 			@NotNull String name,
 			@NotNull SkriptAddon provider,
-			@NotNull Class<? extends Handler> handler) {
-		return new Property<>(name, provider, handler);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> Class<T> toHandlerType(Class<?> rawClass) {
-		return (Class<T>) rawClass;
+			@NotNull Class<HandlerClass> handler) {
+		//noinspection unchecked
+		return (Property<Handler>) new Property<>(name, provider, handler);
 	}
 
 	public static final Property<NameHandler<?, ?>> NAME = Property.of(
 			"name",
 			Skript.instance(),
-			toHandlerType(NameHandler.class));
+			NameHandler.class);
 
 	public static final Property<ContainsHandler<?, ?>> CONTAINS = Property.of(
 			"contains",
 			Skript.instance(),
-			toHandlerType(ContainsHandler.class));
+			ContainsHandler.class);
 
 //	public static final Property AMOUNT = new Property("amount", Skript.getAddonInstance());
 //	@SuppressWarnings("unchecked")
