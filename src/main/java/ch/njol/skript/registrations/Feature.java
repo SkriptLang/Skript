@@ -9,13 +9,16 @@ import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Experimental feature toggles as provided by Skript itself.
  */
 public enum Feature implements Experiment {
 
-	EXAMPLES("Examples",
-		"examples",
+	EXAMPLES("examples",
+		"Examples",
 		"""
 		A section used to provide examples inside code.
 		
@@ -25,8 +28,8 @@ public enum Feature implements Experiment {
 		```
 		""",
 		LifeCycle.STABLE),
-	QUEUES("Queues",
-		"queues",
+	QUEUES("queues",
+		"Queues",
 		"""
 		A collection that removes elements whenever they are requested.
 		
@@ -55,8 +58,8 @@ public enum Feature implements Experiment {
 		Queues can be looped over like a regular list.
 		""",
 		LifeCycle.EXPERIMENTAL),
-	FOR_EACH_LOOPS("For Loops",
-		"for loop",
+	FOR_EACH_LOOPS("for loop",
+		"For Loops",
 		"""
 		A new kind of loop syntax that stores the loop index and value in variables for convenience.
 		
@@ -76,8 +79,8 @@ public enum Feature implements Experiment {
 		""",
 		LifeCycle.EXPERIMENTAL,
 		"for [each] loop[s]"),
-	SCRIPT_REFLECTION("Script Reflection",
-		"reflection",
+	SCRIPT_REFLECTION("reflection",
+		"Script Reflection",
 		"""
 		This feature includes:
 		
@@ -87,10 +90,12 @@ public enum Feature implements Experiment {
 		""",
 		LifeCycle.EXPERIMENTAL,
 		"[script] reflection"),
-	CATCH_ERRORS("Runtime Error Catching",
-		"catch runtime errors",
+	CATCH_ERRORS("catch runtime errors",
+		"Runtime Error Catching",
 		"""
-		A new catch [run[ ]time] error[s] section allows you to catch and suppress runtime errors within it and access them later with [the] last caught [run[ ]time] errors.
+		A new catch runtime errors section allows you to catch and \
+		suppress runtime errors within it and access them later with \
+		the last caught runtime errors.
 		
 		```
 		catch runtime errors:
@@ -103,10 +108,12 @@ public enum Feature implements Experiment {
 		""",
 		LifeCycle.EXPERIMENTAL,
 		"error catching [section]"),
-	TYPE_HINTS("Type Hints",
-		"type hints",
+	TYPE_HINTS("type hints",
+		"Type Hints",
 		"""
-		Local variable type hints enable Skript to understand what kind of values your local variables will hold at parse time. Consider the following example:
+		Local variable type hints enable Skript to understand \
+		what kind of values your local variables will hold at parse time. \
+		Consider the following example:
 		
 		```
 		set {_a} to 5
@@ -115,9 +122,13 @@ public enum Feature implements Experiment {
 		set {_c} to {_a} in lowercase # oops i used the wrong variable
 		```
 		
-		Previously, the code above would parse without issue. However, Skript now understands that when it is used, {_a} could only be a number (and not a text). Thus, the code above would now error with a message about mismatched types.
+		Previously, the code above would parse without issue. \
+		However, Skript now understands that when it is used, \
+		{_a} could only be a number (and not a text). \
+		Thus, the code above would now error with a message about mismatched types.
 		
-		Please note that this feature is currently only supported by simple local variables. A simple local variable is one whose name does not contain any expressions:
+		Please note that this feature is currently only supported by simple local variables. \
+		A simple local variable is one whose name does not contain any expressions:
 		
 		```
 		{_var} # can use type hints
@@ -126,10 +137,13 @@ public enum Feature implements Experiment {
 		""",
 		LifeCycle.EXPERIMENTAL,
 		"[local variable] type hints"),
-	DAMAGE_SOURCE("Damage Sources",
-		"damage source",
+	DAMAGE_SOURCE("damage source",
+		"Damage Sources",
 		"""
-		Damage sources are a more advanced and detailed version of damage causes. Damage sources include information such as the type of damage, the location where the damage originated from, the entity that directly caused the damage, and more.
+		Damage sources are a more advanced and detailed version of damage causes. \
+		Damage sources include information such as the type of damage, \
+		the location where the damage originated from, the entity that \
+		directly caused the damage, and more.
 		
 		Below is an example of what damaging using custom damage sources looks like:
 		
@@ -152,7 +166,7 @@ public enum Feature implements Experiment {
 	private final LifeCycle phase;
 	private final SkriptPattern compiledPattern;
 
-	Feature(@NotNull String displayName, @NotNull String codeName,
+	Feature(@NotNull String codeName, @NotNull String displayName,
 			@NotNull String description, @NotNull LifeCycle phase,
 			String... patterns) {
 		Preconditions.checkNotNull(codeName, "codeName cannot be null");
@@ -182,8 +196,8 @@ public enum Feature implements Experiment {
 	}
 
 	@Override
-	public @NotNull String description() {
-		return description;
+	public @NotNull Collection<String> description() {
+		return List.of(description);
 	}
 
 	@Override

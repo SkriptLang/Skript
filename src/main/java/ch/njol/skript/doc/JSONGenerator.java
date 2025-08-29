@@ -386,14 +386,13 @@ public class JSONGenerator extends DocumentationGenerator {
 				object.addProperty("name", experiment.displayName());
 			}
 
-			JsonArray description = new JsonArray();
-			for (String part : experiment.description().split("\\n")) {
-				description.add(part);
-			}
-
 			if (experiment.description().isEmpty()) {
 				object.add("description", null);
 			} else {
+				JsonArray description = new JsonArray();
+				for (String part : experiment.description()) {
+					description.add(part);
+				}
 				object.add("description", description);
 			}
 

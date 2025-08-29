@@ -6,6 +6,8 @@ import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -67,8 +69,8 @@ public interface Experiment {
 	/**
 	 * @return The description for this experiment.
 	 */
-	default @NotNull String description() {
-		return "";
+	default @NotNull Collection<String> description() {
+		return List.of();
 	}
 
 	/**
