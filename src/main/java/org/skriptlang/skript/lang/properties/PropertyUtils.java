@@ -13,7 +13,7 @@ public class PropertyUtils {
 
 
 
-	public static class PropertyMap<Handler> extends HashMap<Class<?>, PropertyInfo<Handler>> {
+	public static class PropertyMap<Handler extends Property.PropertyHandler<?>> extends HashMap<Class<?>, PropertyInfo<Handler>> {
 		public @Nullable Handler getHandler(Class<?> inputClass) {
 			PropertyInfo<Handler> propertyInfo;
 			// check if we don't already know the right info for this class
@@ -63,7 +63,7 @@ public class PropertyUtils {
 	}
 
 
-	public static <Handler> PropertyMap<Handler> getPossiblePropertyInfos(
+	public static <Handler extends Property.PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
 		Property<Handler> property,
 		Expression<?> expr
 	) {

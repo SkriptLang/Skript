@@ -479,7 +479,7 @@ public class ClassInfo<T> implements Debuggable {
 
 	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
 
-	public <Handler> ClassInfo<T> property(Property<Handler> property, @NotNull Handler handler) {
+	public <Handler extends Property.PropertyHandler<T>> ClassInfo<T> property(Property<? super Handler> property, @NotNull Handler handler) {
 		if (propertyInfos.containsKey(property)) {
 			throw new IllegalStateException("Property " + property.name() + " is already registered for the " + c.getName() + " type.");
 		}
@@ -492,7 +492,7 @@ public class ClassInfo<T> implements Debuggable {
 		return propertyInfos.containsKey(property);
 	}
 
-	public <Handler> @Nullable PropertyInfo<Handler> getPropertyInfo(Property<Handler> property) {
+	public <Handler extends Property.PropertyHandler<?>> @Nullable PropertyInfo<Handler> getPropertyInfo(Property<Handler> property) {
 		if (!propertyInfos.containsKey(property)) {
 			return null;
 		}

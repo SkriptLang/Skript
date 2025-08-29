@@ -9,7 +9,7 @@ import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.util.Locale;
 
-public record Property<Handler>(
+public record Property<Handler extends Property.PropertyHandler<?>>(
 		String name,
 		SkriptAddon provider,
 		@NotNull Class<? extends Handler> handler
@@ -20,7 +20,7 @@ public record Property<Handler>(
 		this.handler = handler;
 	}
 
-	public static <HandlerClass, Handler extends HandlerClass> Property<Handler> of(
+	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> Property<Handler> of(
 			@NotNull String name,
 			@NotNull SkriptAddon provider,
 			@NotNull Class<HandlerClass> handler) {
@@ -52,7 +52,10 @@ public record Property<Handler>(
 		propertyRegistry.register(CONTAINS);
 	}
 
-	public interface ExpressionPropertyHandler<Type, ReturnType> {
+	@SuppressWarnings("unused")
+	public interface PropertyHandler<Type> {}
+
+	public interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHandler<Type> {
 		// Handler for the NAME property
 		default Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			return null;
@@ -72,7 +75,7 @@ public record Property<Handler>(
 		Name name(Named named);
 	}
 
-	public interface ContainsHandler<Container, Element> {
+	public interface ContainsHandler<Container, Element> extends PropertyHandler<Container> {
 		boolean contains(Container container, Element element);
 		Class<? extends Element>[] elementTypes();
 		default boolean canContain(Class<?> type) {
