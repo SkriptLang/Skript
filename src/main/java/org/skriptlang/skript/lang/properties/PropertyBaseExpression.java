@@ -75,8 +75,6 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 			.toArray(size -> (Object[]) Array.newInstance(getReturnType(), size));
 	}
 
-	protected void preConvert(Event event) {}
-
 	protected abstract <T> @Nullable Object convert(Event event, Handler handler, T source);
 
 	@Override
@@ -130,15 +128,8 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		for (Object nameHaver : expr.getArray(event)) {
-			PropertyInfo<Handler> propertyInfo;
-			// check if we don't already know the right info for this class
-			if (properties.containsKey(nameHaver.getClass())) {
-				propertyInfo = properties.get(nameHaver.getClass());
-			} else {
-				// search for assignable property info
-				propertyInfo = properties.lookupPropertyInfo(nameHaver.getClass());
-			}
+		for (Object propertyHaver : expr.getArray(event)) {
+			PropertyInfo<Handler> propertyInfo = properties.get(propertyHaver.getClass());
 			if (propertyInfo == null) {
 				continue; // no property info found, skip
 			}
@@ -157,10 +148,10 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 				// single type, compare to delta[0]
 				if ((allowedType.isArray() && allowedType.isInstance(delta))
 					|| (delta != null && allowedType.isInstance(delta[0]))) {
-					// if the nameHaver is allowed, change
+					// if the propertyHaver is allowed, change
 					@SuppressWarnings("unchecked")
-					var handler = (Property.NameHandler<Object, ?>) propertyInfo.handler();
-					handler.change(nameHaver, delta, mode);
+					var handler = (ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
+					handler.change(propertyHaver, delta, mode);
 				}
 				// if allowed type is singular, take delta[0]
 			}

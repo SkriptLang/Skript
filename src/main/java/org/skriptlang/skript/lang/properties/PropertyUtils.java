@@ -17,12 +17,7 @@ public class PropertyUtils {
 		public @Nullable Handler getHandler(Class<?> inputClass) {
 			PropertyInfo<Handler> propertyInfo;
 			// check if we don't already know the right info for this class
-			if (containsKey(inputClass)) {
-				propertyInfo = get(inputClass);
-			} else {
-				// search for assignable property info
-				propertyInfo = lookupPropertyInfo(inputClass);
-			}
+			propertyInfo = get(inputClass);
 			if (propertyInfo == null) {
 				// no property info found, return null
 				return null;
@@ -31,7 +26,11 @@ public class PropertyUtils {
 			return propertyInfo.handler();
 		}
 
-		public PropertyInfo<Handler> lookupPropertyInfo(Class<?> actualClass) {
+		public PropertyInfo<Handler> get(Class<?> actualClass) {
+			if (super.containsKey(actualClass)) {
+				return super.get(actualClass);
+			}
+
 			Class<?> closestClass = null;
 			for (Class<?> candidateClass : keySet()) {
 				// need to make sure we get the closest match
@@ -42,7 +41,7 @@ public class PropertyUtils {
 				}
 			}
 
-			var propertyInfo = get(closestClass);
+			var propertyInfo = super.get(closestClass);
 			// add to properties so we don't have to search again
 			put(actualClass, propertyInfo);
 			return propertyInfo;
