@@ -28,7 +28,9 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.skriptlang.skript.util.Executable;
@@ -217,7 +219,31 @@ public class SkriptClasses {
 					}
 				})
 				.cloner(ItemType::clone)
-				.serializer(new YggdrasilSerializer<>()));
+				.serializer(new YggdrasilSerializer<>())
+				.property(Property.NAME, new Property.NameHandler<ItemType, String>() {
+					@Override
+					public String name(ItemType itemType) {
+						return itemType.name();
+					}
+
+					@Override
+					public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+						if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.RESET)
+							return new Class[] {String.class};
+						return null;
+					}
+
+					@Override
+					public void change(ItemType itemType, Object @Nullable [] delta, Changer.ChangeMode mode) {
+						String name = delta != null ? (String) delta[0] : null;
+						itemType.setName(name);
+					}
+
+					@Override
+					public @NotNull Class<String> returnType() {
+						return String.class;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Time.class, "time")
 				.user("times?")

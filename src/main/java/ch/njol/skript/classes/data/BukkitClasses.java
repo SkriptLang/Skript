@@ -60,7 +60,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.Property.NameHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.*;
@@ -580,7 +583,23 @@ public class BukkitClasses {
 					public String toVariableNameString(final Inventory i) {
 						return "inventory of " + Classes.toString(i.getHolder(), StringMode.VARIABLE_NAME);
 					}
-				}).changer(DefaultChangers.inventoryChanger));
+				}).changer(DefaultChangers.inventoryChanger)
+				.property(Property.CONTAINS, new Property.ContainsHandler<Inventory, Object>() {
+					@Override
+					public boolean contains(Inventory container, Object element) {
+						if (element instanceof ItemType type) {
+							return type.isContainedIn(container);
+						} else if (element instanceof ItemStack stack) {
+							return container.containsAtLeast(stack, stack.getAmount());
+						}
+						return false;
+					}
+
+					@Override
+					public Class<?>[] elementTypes() {
+						return new Class[]{ItemType.class, ItemStack.class};
+					}
+				}));
 
 		Classes.registerClass(new EnumClassInfo<>(InventoryAction.class, "inventoryaction", "inventory actions")
 				.user("inventory ?actions?")
@@ -679,7 +698,18 @@ public class BukkitClasses {
 					}
 				})
 				.changer(DefaultChangers.playerChanger)
-				.serializeAs(OfflinePlayer.class));
+				.serializeAs(OfflinePlayer.class)
+			.property(Property.NAME, new NameHandler<Player, String>() {
+				@Override
+				public String name(Player player) {
+					return player.getName();
+				}
+
+				@Override
+				public @NotNull Class<String> returnType() {
+					return String.class;
+				}
+			}));
 
 		Classes.registerClass(new ClassInfo<>(OfflinePlayer.class, "offlineplayer")
 				.user("offline ?players?")

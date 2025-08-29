@@ -18,6 +18,8 @@ import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.Property.ContainsHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.UUID;
@@ -300,6 +302,18 @@ public class JavaClasses {
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
+					}
+				})
+				.property(Property.CONTAINS, new ContainsHandler<String, String>() {
+					@Override
+					public boolean contains(String container, String element) {
+						return StringUtils.contains(container, element, SkriptConfig.caseSensitive.value());
+					}
+
+					@Override
+					public Class<? extends String>[] elementTypes() {
+						//noinspection unchecked
+						return new Class[]{String.class};
 					}
 				}));
 

@@ -107,6 +107,8 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -370,6 +372,12 @@ public final class Skript extends JavaPlugin implements Listener {
 		return experimentRegistry;
 	}
 
+
+	private static PropertyRegistry propertyRegistry;
+	public static PropertyRegistry getPropertyRegistry() {
+		return propertyRegistry;
+	}
+
 	/**
 	 * @return The folder containing all Scripts.
 	 */
@@ -498,6 +506,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		experimentRegistry = new ExperimentRegistry(this);
 		Feature.registerAll(getAddonInstance(), experimentRegistry);
 
+		propertyRegistry = new PropertyRegistry(this);
+		Property.registerDefaultProperties();
+
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
 
@@ -523,7 +534,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			if (pauseThreshold > -1) {
 				Skript.warning("Minecraft server pausing is enabled!");
 				Skript.warning("Scripts that interact with the world or entities may not work as intended when the server is paused and may crash your server.");
-				Skript.warning("Consider setting 'pause-when-empty-seconds' to -1 in server.properties to make sure you don't encounter any issues.");
+				Skript.warning("Consider setting 'pause-when-empty-seconds' to -1 in server.propertyRegistry to make sure you don't encounter any issues.");
 			}
 		}
 
@@ -577,6 +588,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
+			getAddonInstance().loadClasses("org.skriptlang.skript.lang", "properties");
 			// todo: become proper module once registry api is merged
 			FishingModule.load();
 			BreedingModule.load();

@@ -29,12 +29,11 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.properties.Property;
 
 import java.io.*;
 import java.lang.reflect.Array;
@@ -344,6 +343,15 @@ public abstract class Classes {
 		}
 		return list;
 	}
+
+
+	@ApiStatus.Internal
+	public static final Map<Property<?>, List<ClassInfo<?>>> CLASS_INFOS_BY_PROPERTY = new HashMap<>();
+
+	public static @NotNull List<ClassInfo<?>> getClassInfosByProperty(@NotNull Property<?> property) {
+		return CLASS_INFOS_BY_PROPERTY.getOrDefault(property, Collections.emptyList());
+	}
+
 
 	/**
 	 * Gets a class by its code name

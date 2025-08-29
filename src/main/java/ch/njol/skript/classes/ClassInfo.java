@@ -6,16 +6,16 @@ import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyInfo;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -475,5 +475,30 @@ public class ClassInfo<T> implements Debuggable {
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();
 	}
+
+
+	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
+
+	public <Handler> ClassInfo<T> property(Property<Handler> property, @NotNull Handler handler) {
+		if (propertyInfos.containsKey(property)) {
+			throw new IllegalStateException("Property " + property.name() + " is already registered for the " + c.getName() + " type.");
+		}
+		propertyInfos.put(property, new PropertyInfo<>(property, handler));
+		Classes.CLASS_INFOS_BY_PROPERTY.computeIfAbsent(property, k -> new ArrayList<>()).add(this);
+		return this;
+	}
+
+	public boolean hasProperty(Property<?> property) {
+		return propertyInfos.containsKey(property);
+	}
+
+	public <Handler> @Nullable PropertyInfo<Handler> getPropertyInfo(Property<Handler> property) {
+		if (!propertyInfos.containsKey(property)) {
+			return null;
+		}
+		//noinspection unchecked
+		return (PropertyInfo<Handler>) propertyInfos.get(property);
+	}
+
 
 }
