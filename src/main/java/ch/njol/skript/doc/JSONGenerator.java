@@ -470,16 +470,12 @@ public class JSONGenerator extends DocumentationGenerator {
 		object.addProperty("name", source.name());
 
 		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(source.name());
-		if (plugin != null) {
-			object.addProperty("version", plugin.getDescription().getVersion());
-		} else {
+		if (plugin == null) {
 			try {
 				plugin = JavaPlugin.getProvidingPlugin(source.source());
-				object.addProperty("version", plugin.getDescription().getVersion());
-			} catch (Exception ex) {
-				object.add("version", null);
-			}
+			} catch (Exception ignored) { }
 		}
+		object.addProperty("version", plugin == null ? null : plugin.getDescription().getVersion());
 
 		return object;
 	}
