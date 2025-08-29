@@ -17,6 +17,7 @@ import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
+import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -655,6 +656,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 
 				stopAcceptingRegistrations();
+
+				Functions.flushRegistrationQueue();
 
 				Documentation.generate(); // TODO move to test classes?
 

@@ -54,6 +54,23 @@ public abstract class Functions {
 
 	static boolean callFunctionEvents = false;
 
+	private static final Queue<DefaultFunction<?>> registered = new LinkedList<>();
+
+	/**
+	 * Flushes the queue of {@link DefaultFunction DefaultFunctions}
+	 * that were registered before {@link ClassInfo} registration was completed.
+	 */
+	public static void flushRegistrationQueue() {
+		if (Skript.isAcceptRegistrations()) {
+			throw new IllegalStateException("Flushing registration queue before registrations are closed");
+		}
+
+		for (DefaultFunction<?> function : registered) {
+			register(function);
+		}
+
+		registered.clear();
+	}
 
 	/**
 	 * Registers a {@link DefaultFunction}.
@@ -62,7 +79,10 @@ public abstract class Functions {
 	 * @return The registered function.
 	 */
 	public static DefaultFunction<?> register(DefaultFunction<?> function) {
-		Skript.checkAcceptRegistrations();
+		if (Skript.isAcceptRegistrations()) {
+			registered.add(function);
+			return function;
+		}
 
 		String name = function.name();
 		if (!name.matches(functionNamePattern))
