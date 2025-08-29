@@ -58,7 +58,6 @@ public record Property<Handler>(
 
 	public interface ExpressionPropertyHandler<Type, ReturnType> {
 		// Handler for the NAME property
-		ReturnType name(Type named);
 		default Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			return null;
 		}
@@ -73,7 +72,9 @@ public record Property<Handler>(
 	 * @param <Named>
 	 * @param <Name>
 	 */
-	public interface NameHandler<Named, Name> extends ExpressionPropertyHandler<Named, Name> {	}
+	public interface NameHandler<Named, Name> extends ExpressionPropertyHandler<Named, Name> {
+		Name name(Named named);
+	}
 
 	public interface ContainsHandler<Container, Element> {
 		boolean contains(Container container, Element element);
