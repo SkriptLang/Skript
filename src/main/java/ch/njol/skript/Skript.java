@@ -96,6 +96,7 @@ import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
@@ -415,8 +416,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		File config = new File(getDataFolder(), "config.sk");
 		File features = new File(getDataFolder(), "features.sk");
 		File lang = new File(getDataFolder(), "lang");
-		File aliasesFolder = new File(getDataFolder(), "aliases");
-		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists() || !aliasesFolder.exists()) {
+		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -433,11 +433,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					populateLanguageFiles = true;
 				}
 
-				if (!aliasesFolder.isDirectory()) {
-					if (!aliasesFolder.mkdirs())
-						throw new IOException("Could not create the directory " + aliasesFolder);
-				}
-				
 				f = new ZipFile(getFile());
 				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
@@ -586,6 +581,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			FurnaceModule.load();
 			LootTableModule.load();
 			skript.loadModules(new DamageSourceModule());
+			skript.loadModules(new ItemComponentModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

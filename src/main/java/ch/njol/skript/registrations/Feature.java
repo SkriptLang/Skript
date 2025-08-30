@@ -17,7 +17,9 @@ public enum Feature implements Experiment {
 	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection"),
 	CATCH_ERRORS("catch runtime errors", LifeCycle.EXPERIMENTAL, "error catching [section]"),
 	TYPE_HINTS("type hints", LifeCycle.EXPERIMENTAL, "[local variable] type hints"),
-	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]")
+	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]"),
+	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components"),
+	TOOL_COMPONENTS("tool components", LifeCycle.EXPERIMENTAL, "tool components")
 	;
 
 	private final String codeName;
