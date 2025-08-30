@@ -11,6 +11,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -58,6 +59,15 @@ public class ToolRuleWrapper {
 			.correctForDrops(rule.correctForDrops())
 			.blocks(rule.blocks())
 			.speed(rule.speed());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ToolRuleWrapper other))
+			return false;
+		return rule.blocks().values().equals(other.rule.blocks().values())
+			&& rule.correctForDrops().equals(other.rule.correctForDrops())
+			&& Objects.equals(rule.speed(), other.rule.speed());
 	}
 
 	public static class Builder {
