@@ -169,6 +169,11 @@ public abstract class ComponentWrapper<T, B extends DataComponentBuilder<T>> imp
 		applyComponent(builder.build());
 	}
 
+	/**
+	 * Convert {@code component} to a builder.
+	 * @param component The component.
+	 * @return The builder.
+	 */
 	public abstract B toBuilder(T component);
 
 	/**

@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A {@link ComponentWrapper} for getting and setting data on an {@link ToolComponent}
+ * A {@link ComponentWrapper} for getting and setting data on an {@link Tool} component.
  */
 @SuppressWarnings("UnstableApiUsage")
 public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
@@ -101,6 +101,10 @@ public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 		return newInstance();
 	}
 
+	/**
+	 * Get all {@link Rule}s from {@link #component} in the form of {@link ToolRuleWrapper}s.
+	 * @return The {@link ToolRuleWrapper}s.
+	 */
 	public List<ToolRuleWrapper> getRules() {
 		List<ToolRuleWrapper> wrappers = new ArrayList<>();
 		getComponent().rules().forEach(rule -> wrappers.add(new ToolRuleWrapper(this, rule)));
@@ -114,6 +118,9 @@ public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 		return new ToolWrapper(new ToolBuilder());
 	}
 
+	/**
+	 * Custom builder class for {@link Tool}.
+	 */
 	public static class ToolBuilder implements Builder {
 
 		private boolean canDestroyBlocksInCreative = false;
@@ -123,6 +130,10 @@ public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 
 		public ToolBuilder() {}
 
+		/**
+		 * Constructs a {@link ToolBuilder} with the same data from {@code tool}.
+		 * @param tool The {@link Tool} component to copy data from/
+		 */
 		public ToolBuilder(Tool tool) {
 			damagePerBlock = tool.damagePerBlock();
 			defaultMiningSpeed = tool.defaultMiningSpeed();
@@ -131,21 +142,41 @@ public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 				canDestroyBlocksInCreative = tool.canDestroyBlocksInCreative();
 		}
 
+		/**
+		 * Set whether the {@link Tool} component should break blocks when used in creative.
+		 * @param canDestroyBlocksInCreative Whether to break blocks.
+		 * @return {@code this}.
+		 */
 		public ToolBuilder canDestroyBlocksInCreative(boolean canDestroyBlocksInCreative) {
 			this.canDestroyBlocksInCreative = canDestroyBlocksInCreative;
 			return this;
 		}
 
+		/**
+		 * Set the amount of damage the {@link Tool} component should do per block.
+		 * @param damagePerBlock The amount of damage.
+		 * @return {@code this}.
+		 */
 		public ToolBuilder damagePerBlock(int damagePerBlock) {
 			this.damagePerBlock = damagePerBlock;
 			return this;
 		}
 
+		/**
+		 * Set the default mining speed of the {@link Tool} component.
+		 * @param defaultMiningSpeed The mining speed.
+		 * @return {@code this}.
+		 */
 		public ToolBuilder defaultMiningSpeed(float defaultMiningSpeed) {
 			this.defaultMiningSpeed = defaultMiningSpeed;
 			return this;
 		}
 
+		/**
+		 * Set the tool rules for the {@link Tool} component.
+		 * @param rules The tool rules.
+		 * @return {@code this}.
+		 */
 		public ToolBuilder setRules(List<Rule> rules) {
 			this.rules.clear();
 			this.rules.addAll(rules);
@@ -164,11 +195,21 @@ public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 			return this;
 		}
 
+		/**
+		 * Remove tool rules for the {@link Tool} component.
+		 * @param rules The tool rules.
+		 * @return {@code this}.
+		 */
 		public ToolBuilder removeRules(Collection<Rule> rules) {
 			this.rules.removeAll(rules);
 			return this;
 		}
 
+		/**
+		 * Remove a tool rule for the {@link Tool} component.
+		 * @param rule The tool rule.
+		 * @return {@code this}.
+		 */
 		public ToolBuilder removeRule(Rule rule) {
 			this.rules.remove(rule);
 			return this;
