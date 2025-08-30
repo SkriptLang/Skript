@@ -19,14 +19,13 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
+import org.bukkit.block.BlockType;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.meta.components.ToolComponent;
-import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,18 +45,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Since("INSERT VERSION")
 
 @SuppressWarnings("UnstableApiUsage")
-public class ExprSecToolRule extends SectionExpression<ToolRule> implements ToolExperiment {
+public class ExprSecToolRule extends SectionExpression<ToolRuleWrapper> implements ToolExperiment {
 
 	public static class ToolRuleSectionEvent extends Event {
 
-		private final ToolRule toolRule;
+		private final ToolRuleWrapper toolRuleWrapper;
 
-		public ToolRuleSectionEvent(ToolRule toolRule) {
-			this.toolRule = toolRule;
+		public ToolRuleSectionEvent(ToolRuleWrapper toolRuleWrapper) {
+			this.toolRuleWrapper = toolRuleWrapper;
 		}
 
-		public ToolRule getToolRule() {
-			return toolRule;
+		public ToolRuleWrapper getToolRuleWrapper() {
+			return toolRuleWrapper;
 		}
 
 		@Override
@@ -66,12 +65,10 @@ public class ExprSecToolRule extends SectionExpression<ToolRule> implements Tool
 		}
 	}
 
-	private static final ToolComponent TOOL_COMPONENT = ToolWrapper.newInstance().getComponent();
-
 	static {
-		Skript.registerExpression(ExprSecToolRule.class, ToolRule.class, ExpressionType.SIMPLE,
-			"a [custom] tool rule with [the] block types %itemtypes%");
-		EventValues.registerEventValue(ToolRuleSectionEvent.class, ToolRule.class, ToolRuleSectionEvent::getToolRule);
+		Skript.registerExpression(ExprSecToolRule.class, ToolRuleWrapper.class, ExpressionType.SIMPLE,
+			"a [custom] tool rule with [the] block types [of] %itemtypes%");
+		EventValues.registerEventValue(ToolRuleSectionEvent.class, ToolRuleWrapper.class, ToolRuleSectionEvent::getToolRuleWrapper);
 	}
 
 	private Expression<ItemType> types;
@@ -86,7 +83,7 @@ public class ExprSecToolRule extends SectionExpression<ToolRule> implements Tool
 			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
 			trigger = loadCode(node, "tool rule", afterLoading, ToolRuleSectionEvent.class);
 			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'tool rule' section.");
+				Skript.error("Delays cannot be used within a 'custom tool rule' section.");
 				return false;
 			}
 		}
@@ -94,18 +91,23 @@ public class ExprSecToolRule extends SectionExpression<ToolRule> implements Tool
 	}
 
 	@Override
-	protected ToolRule @Nullable [] get(Event event) {
-		List<Material> materials = types.stream(event).map(ItemType::getMaterial).toList();
-		if (materials.isEmpty()) {
+	protected ToolRuleWrapper @Nullable [] get(Event event) {
+		List<BlockType> blocks = types.stream(event)
+			.map(ItemType::getMaterial)
+			.filter(Material::isBlock)
+			.map(Material::asBlockType)
+			.toList();
+		if (blocks.isEmpty()) {
 			error("You must provide block types to create a custom tool rule.");
 			return null;
 		}
-		ToolRule toolRule = TOOL_COMPONENT.addRule(materials, null, null);
+		ToolRuleWrapper wrapper = new ToolRuleWrapper();
+		wrapper.modify(builder -> builder.blocks(blocks));
 		if (trigger != null) {
-			ToolRuleSectionEvent sectionEvent = new ToolRuleSectionEvent(toolRule);
+			ToolRuleSectionEvent sectionEvent = new ToolRuleSectionEvent(wrapper);
 			Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
 		}
-		return new ToolRule[] {toolRule};
+		return new ToolRuleWrapper[] {wrapper};
 	}
 
 	@Override
@@ -114,8 +116,8 @@ public class ExprSecToolRule extends SectionExpression<ToolRule> implements Tool
 	}
 
 	@Override
-	public Class<? extends ToolRule> getReturnType() {
-		return ToolRule.class;
+	public Class<ToolRuleWrapper> getReturnType() {
+		return ToolRuleWrapper.class;
 	}
 
 	@Override

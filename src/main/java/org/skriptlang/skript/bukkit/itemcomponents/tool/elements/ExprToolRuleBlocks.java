@@ -14,13 +14,17 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
+import org.bukkit.Registry;
+import org.bukkit.block.BlockType;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @Name("Tool Rule - Blocks")
@@ -41,7 +45,7 @@ import java.util.List;
 @Since("INSERT VERSION")
 
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> implements ToolExperiment {
+public class ExprToolRuleBlocks extends PropertyExpression<ToolRuleWrapper, ItemType> implements ToolExperiment {
 
 	static {
 		registerDefault(ExprToolRuleBlocks.class, ItemType.class, "tool rule[s] block types", "toolrules");
@@ -50,15 +54,23 @@ public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> i
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
-		setExpr((Expression<? extends ToolRule>) exprs[0]);
+		setExpr((Expression<ToolRuleWrapper>) exprs[0]);
 		return true;
 	}
 
 	@Override
-	protected ItemType @Nullable [] get(Event event, ToolRule[] source) {
+	protected ItemType @Nullable [] get(Event event, ToolRuleWrapper[] source) {
 		List<ItemType> types = new ArrayList<>();
-		for (ToolRule rule : getExpr().getArray(event)) {
-			types.addAll(rule.getBlocks().stream().map(ItemType::new).toList());
+		for (ToolRuleWrapper ruleWrapper : source) {
+			Collection<BlockType> blockTypes = ComponentUtils.registryKeySetToCollection(
+				ruleWrapper.getRule().blocks(),
+				Registry.BLOCK
+			);
+			List<ItemType> itemTypes = blockTypes.stream()
+				.map(blockType -> blockType.asMaterial())
+				.map(ItemType::new)
+				.toList();
+			types.addAll(itemTypes);
 		}
 		return types.toArray(new ItemType[0]);
 	}
@@ -74,8 +86,12 @@ public class ExprToolRuleBlocks extends PropertyExpression<ToolRule, ItemType> i
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
 		ItemType[] types = (ItemType[]) delta;
-		List<Material> materials = Arrays.stream(types).map(ItemType::getMaterial).toList();
-		getExpr().stream(event).forEach(toolRule -> toolRule.setBlocks(materials));
+		List<BlockType> blockTypes = Arrays.stream(types)
+			.map(ItemType::getMaterial)
+			.filter(Material::isBlock)
+			.map(Material::asBlockType)
+			.toList();
+		getExpr().stream(event).forEach(ruleWrapper -> ruleWrapper.modify(builder -> builder.blocks(blockTypes)));
 	}
 
 	@Override

@@ -92,6 +92,11 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	}
 
 	@Override
+	public Builder toBuilder(Equippable component) {
+		return component.toBuilder();
+	}
+
+	@Override
 	public EquippableWrapper clone() {
 		EquippableWrapper clone = newWrapper();
 		Equippable base = getComponent();

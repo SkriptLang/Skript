@@ -29,7 +29,7 @@ public class ExprToolCompDamage extends SimplePropertyExpression<ToolWrapper, In
 
 	@Override
 	public @Nullable Integer convert(ToolWrapper wrapper) {
-		return wrapper.getComponent().getDamagePerBlock();
+		return wrapper.getComponent().damagePerBlock();
 	}
 
 	@Override
@@ -44,18 +44,18 @@ public class ExprToolCompDamage extends SimplePropertyExpression<ToolWrapper, In
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int damage = delta == null ? 0 : ((Number) delta[0]).intValue();
 		if (mode == ChangeMode.SET)
-			damage = Math2.fit(Integer.MIN_VALUE, damage, Integer.MAX_VALUE);
+			damage = Math2.fit(0, damage, Integer.MAX_VALUE);
 
 		for (ToolWrapper wrapper : getExpr().getArray(event)) {
 			int newDamage;
 			if (mode == ChangeMode.ADD) {
-				newDamage = Math2.fit(Integer.MIN_VALUE, wrapper.getComponent().getDamagePerBlock() + damage, Integer.MAX_VALUE);
+				newDamage = Math2.fit(0, wrapper.getComponent().damagePerBlock() + damage, Integer.MAX_VALUE);
 			} else if (mode == ChangeMode.REMOVE) {
-				newDamage = Math2.fit(Integer.MIN_VALUE, wrapper.getComponent().getDamagePerBlock() + damage, Integer.MAX_VALUE);
+				newDamage = Math2.fit(0, wrapper.getComponent().damagePerBlock() + damage, Integer.MAX_VALUE);
 			} else {
 				newDamage = damage;
 			}
-			wrapper.editComponent(component -> component.setDamagePerBlock(newDamage));
+			wrapper.editBuilder(toolBuilder -> toolBuilder.damagePerBlock(newDamage));
 		}
 	}
 

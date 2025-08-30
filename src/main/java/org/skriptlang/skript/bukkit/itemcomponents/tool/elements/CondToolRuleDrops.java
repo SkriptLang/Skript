@@ -9,9 +9,9 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 @Name("Tool Rule - Drops Enabled")
 @Description("If the block types set in the tool rule should drop their respective items, "
@@ -22,11 +22,11 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 		if the tool rule drops of loop-value is enabled:
 			remove loop-value from the tool rules of {_item}
 	""")
-@RequiredPlugins("Minecraft 1.20.6")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
 
 @SuppressWarnings("UnstableApiUsage")
-public class CondToolRuleDrops extends PropertyCondition<ToolRule> implements ToolExperiment {
+public class CondToolRuleDrops extends PropertyCondition<ToolRuleWrapper> implements ToolExperiment {
 
 	static {
 		Skript.registerCondition(CondToolRuleDrops.class, ConditionType.PROPERTY,
@@ -36,8 +36,8 @@ public class CondToolRuleDrops extends PropertyCondition<ToolRule> implements To
 	}
 
 	@Override
-	public boolean check(ToolRule toolRule) {
-		Boolean correct = toolRule.isCorrectForDrops();
+	public boolean check(ToolRuleWrapper wrapper) {
+		Boolean correct = wrapper.getRule().correctForDrops().toBoolean();
 		if (correct != null)
 			return correct;
 		return false;

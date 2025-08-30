@@ -7,11 +7,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 @Name("Tool Rule - Speed")
 @Description("""
@@ -31,29 +32,51 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
 @Since("INSERT VERSION")
 
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRule, Float> implements ToolExperiment {
+public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper, Float> implements ToolExperiment {
 
 	static {
 		registerDefault(ExprToolRuleSpeed.class, Float.class, "tool rule speed", "toolrules");
 	}
 
 	@Override
-	public @Nullable Float convert(ToolRule toolRule) {
-		return toolRule.getSpeed();
+	public @Nullable Float convert(ToolRuleWrapper ruleWrapper) {
+		return ruleWrapper.getRule().speed();
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(Number.class);
-		return null;
+		return switch (mode) {
+			case SET, DELETE, REMOVE, ADD -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		assert delta != null;
-		float speed = ((Number) delta[0]).floatValue();
-		getExpr().stream(event).forEach(toolRule -> toolRule.setSpeed(speed));
+		float speed;
+		if (delta != null) {
+			speed = Math2.fit(0, ((Number) delta[0]).floatValue(), Float.MAX_VALUE);
+		} else {
+			speed = 0;
+		}
+		getExpr().stream(event).forEach(ruleWrapper -> {
+			Float currentSpeed = ruleWrapper.getRule().speed();
+			final float newSpeed = switch (mode) {
+				case SET, DELETE -> speed;
+				case ADD -> {
+					if (currentSpeed == null)
+						yield speed;
+					yield Math2.fit(0, currentSpeed + speed, Float.MAX_VALUE);
+				}
+				case REMOVE -> {
+					if (currentSpeed == null)
+						yield 0;
+					yield Math2.fit(0, currentSpeed - speed, Float.MAX_VALUE);
+				}
+				default -> currentSpeed;
+			};
+			ruleWrapper.modify(builder -> builder.speed(newSpeed));
+		});
 	}
 
 	@Override

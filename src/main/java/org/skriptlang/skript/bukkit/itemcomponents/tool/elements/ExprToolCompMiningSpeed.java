@@ -29,7 +29,7 @@ public class ExprToolCompMiningSpeed extends SimplePropertyExpression<ToolWrappe
 
 	@Override
 	public @Nullable Float convert(ToolWrapper wrapper) {
-		return wrapper.getComponent().getDefaultMiningSpeed();
+		return wrapper.getComponent().defaultMiningSpeed();
 	}
 
 	@Override
@@ -44,18 +44,18 @@ public class ExprToolCompMiningSpeed extends SimplePropertyExpression<ToolWrappe
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		float speed = delta == null ? 1f : ((Number) delta[0]).floatValue();
 		if (mode == ChangeMode.SET)
-			speed = Math2.fit(Float.MIN_VALUE, speed, Float.MAX_VALUE);
+			speed = Math2.fit(0, speed, Float.MAX_VALUE);
 
 		for (ToolWrapper wrapper : getExpr().getArray(event)) {
 			float newSpeed;
 			if (mode == ChangeMode.ADD) {
-				newSpeed = Math2.fit(Float.MIN_VALUE, wrapper.getComponent().getDefaultMiningSpeed() + speed, Float.MAX_VALUE);
+				newSpeed = Math2.fit(0, wrapper.getComponent().defaultMiningSpeed() + speed, Float.MAX_VALUE);
 			} else if (mode == ChangeMode.REMOVE) {
-				newSpeed = Math2.fit(Float.MIN_VALUE, wrapper.getComponent().getDefaultMiningSpeed() - speed, Float.MAX_VALUE);
+				newSpeed = Math2.fit(0, wrapper.getComponent().defaultMiningSpeed() - speed, Float.MAX_VALUE);
 			} else {
 				newSpeed = speed;
 			}
-			wrapper.editComponent(component -> component.setDefaultMiningSpeed(newSpeed));
+			wrapper.editBuilder(toolBuilder -> toolBuilder.defaultMiningSpeed(newSpeed));
 		}
 	}
 

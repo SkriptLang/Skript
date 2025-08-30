@@ -12,14 +12,14 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.datacomponent.item.Tool.Rule;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.ToolComponent.ToolRule;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Name("Tool Component - Tool Rules")
@@ -30,10 +30,10 @@ import java.util.List;
 @Since("INSERT VERSION")
 
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRule> implements ToolExperiment {
+public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRuleWrapper> implements ToolExperiment {
 
 	static {
-		registerDefault(ExprToolCompRules.class, ToolRule.class, "tool rules", "toolcomponents");
+		registerDefault(ExprToolCompRules.class, ToolRuleWrapper.class, "tool rules", "toolcomponents");
 	}
 
 	@Override
@@ -44,40 +44,41 @@ public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRule>
 	}
 
 	@Override
-	protected ToolRule @Nullable [] get(Event event, ToolWrapper[] source) {
-		List<ToolRule> rules = new ArrayList<>();
+	protected ToolRuleWrapper @Nullable [] get(Event event, ToolWrapper[] source) {
+		List<ToolRuleWrapper> rules = new ArrayList<>();
 		for (ToolWrapper wrapper : source) {
-			rules.addAll(wrapper.getComponent().getRules());
+			rules.addAll(wrapper.getRules());
 		}
-		return rules.toArray(ToolRule[]::new);
+		return rules.toArray(ToolRuleWrapper[]::new);
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, DELETE, ADD, REMOVE -> CollectionUtils.array(ToolRule[].class);
+			case SET, DELETE, ADD, REMOVE -> CollectionUtils.array(ToolRuleWrapper[].class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		ToolRule[] rules = null;
-		if (delta != null)
-			rules = (ToolRule[]) delta;
-		List<ToolRule> ruleList = rules != null ? Arrays.stream(rules).toList() : new ArrayList<>();
+		List<ToolRuleWrapper> ruleWrappers = new ArrayList<>();
+		if (delta != null) {
+			for (Object object : delta) {
+				if (object instanceof ToolRuleWrapper ruleWrapper)
+					ruleWrappers.add(ruleWrapper);
+			}
+		}
+		List<Rule> rules = ruleWrappers.stream()
+			.map(ToolRuleWrapper::getRule)
+			.toList();
 
 		for (ToolWrapper wrapper : getExpr().getArray(event)) {
-			wrapper.editComponent(component -> {
+			wrapper.editBuilder(toolBuilder -> {
 				switch (mode) {
-					case SET -> component.setRules(ruleList);
-					case DELETE -> component.getRules().clear();
-					case ADD -> {
-						List<ToolRule> current = component.getRules();
-						current.addAll(ruleList);
-						component.setRules(current);
-					}
-					case REMOVE -> ruleList.forEach(component::removeRule);
+					case SET, DELETE -> toolBuilder.setRules(rules);
+					case ADD -> toolBuilder.addRules(rules);
+					case REMOVE -> toolBuilder.removeRules(rules);
 				}
 			});
 		}
@@ -89,8 +90,8 @@ public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRule>
 	}
 
 	@Override
-	public Class<ToolRule> getReturnType() {
-		return ToolRule.class;
+	public Class<ToolRuleWrapper> getReturnType() {
+		return ToolRuleWrapper.class;
 	}
 
 	@Override
