@@ -45,7 +45,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 public class PropExprName extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 
 	static {
-		register(PropExprName.class , "name[s]");
+		register(PropExprName.class , "name[s]", "objects");
 	}
 
 	@Override

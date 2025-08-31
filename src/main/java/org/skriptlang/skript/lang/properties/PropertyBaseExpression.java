@@ -37,8 +37,8 @@ import java.util.stream.Stream;
  */
 public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyHandler<?,?>> extends SimpleExpression<Object> {
 
-	protected static void register(Class<? extends PropertyBaseExpression<?>> expressionClass, String property) {
-		Skript.registerExpression(expressionClass, Object.class, ExpressionType.PROPERTY, PropertyExpression.getPatterns(property, "objects"));
+	protected static void register(Class<? extends PropertyBaseExpression<?>> expressionClass, String property, String types) {
+		Skript.registerExpression(expressionClass, Object.class, ExpressionType.PROPERTY, PropertyExpression.getPatterns(property, types));
 	}
 
 	protected Expression<?> expr;

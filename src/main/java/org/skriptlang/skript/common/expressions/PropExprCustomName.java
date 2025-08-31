@@ -38,7 +38,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 public class PropExprCustomName extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 
 	static {
-		register(PropExprCustomName.class, "(display|nick|chat|custom)[ ]name[s]");
+		register(PropExprCustomName.class, "(display|nick|chat|custom)[ ]name[s]", "objects");
 	}
 
 	@Override

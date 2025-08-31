@@ -92,7 +92,7 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		@Override
 		public String convert(final Script script) {
 			if (useResolvedName)
-				return script.getConfig().name();
+				return script.name();
 			return script.nameAndPath();
 		}
 

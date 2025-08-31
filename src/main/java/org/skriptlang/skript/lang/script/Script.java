@@ -139,6 +139,13 @@ public final class Script implements Validated {
 	}
 
 	/**
+	 * @return The name of this script (excluding path and file extensions)
+	 */
+	public String name() {
+		return config.name();
+	}
+
+	/**
 	 * This is added to support the legacy script name syntax.
 	 * Script names used to be printed including their directory but excluding their file extension.
 	 *
