@@ -1655,7 +1655,40 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		for (int i = 0; i < patterns.length; i++)
 			patterns[i] = BukkitSyntaxInfos.fixPattern(patterns[i]);
-		var legacy = new SkriptEventInfo.ModernSkriptEventInfo<>(name, patterns, eventClass, "", events);
+		String originClassPath = "";
+		if (ch.njol.skript.lang.util.SimpleEvent.class.isAssignableFrom(eventClass)) {
+			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+			boolean isFromSimpleEvents = false;
+			for (StackTraceElement element : stack) {
+				if ("ch.njol.skript.events.SimpleEvents".equals(element.getClassName())) {
+					isFromSimpleEvents = true;
+					break;
+				}
+			}
+
+			if (isFromSimpleEvents) {
+				originClassPath = "ch.njol.skript.events.SimpleEvents";
+			} else {
+				for (StackTraceElement element : stack) {
+					String className = element.getClassName();
+					if (!className.startsWith("ch.njol.skript") &&
+						!className.startsWith("org.skriptlang.skript") &&
+						!className.startsWith("java.") &&
+						!className.startsWith("sun.") &&
+						!className.startsWith("org.bukkit.") &&
+						!className.startsWith("net.md_5.bungee.") &&
+						!className.startsWith("io.papermc.paper.")) {
+						originClassPath = className;
+						break;
+					}
+				}
+				if (originClassPath.isEmpty() && stack.length > 3) {
+					originClassPath = stack[3].getClassName();
+				}
+			}
+		}
+
+		var legacy = new SkriptEventInfo.ModernSkriptEventInfo<>(name, patterns, eventClass, originClassPath, events);
 		skript.syntaxRegistry().register(BukkitRegistryKeys.EVENT, legacy);
 		return legacy;
 	}
