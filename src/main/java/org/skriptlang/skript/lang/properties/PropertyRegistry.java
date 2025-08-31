@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
-public class PropertyRegistry implements Registry<Property> {
+public class PropertyRegistry implements Registry<Property<?>> {
 
-	private final Map<String, Property> properties;
+	private final Map<String, Property<?>> properties;
 	private final Skript skript;
 
 	public PropertyRegistry(Skript skript) {
@@ -20,7 +20,7 @@ public class PropertyRegistry implements Registry<Property> {
 		this.properties = new java.util.HashMap<>();
 	}
 
-	public boolean register(@NotNull Property property) {
+	public boolean register(@NotNull Property<?> property) {
 		String name = property.name();
 		if (properties.containsKey(name)) {
 			Skript.error("Property '" + name + "' is already registered by " + properties.get(name).provider().name() + ".");
@@ -31,7 +31,7 @@ public class PropertyRegistry implements Registry<Property> {
 		return true;
 	}
 
-	public boolean unregister(@NotNull Property property) {
+	public boolean unregister(@NotNull Property<?> property) {
 		String name = property.name();
 		return unregister(name);
 	}
@@ -48,21 +48,20 @@ public class PropertyRegistry implements Registry<Property> {
 	}
 
 	@Override
-	public @Unmodifiable Collection<Property> elements() {
+	public @Unmodifiable Collection<Property<?>> elements() {
 		return Collections.unmodifiableCollection(properties.values());
 	}
 
-	public Property get(String name) {
+	public Property<?> get(String name) {
 		return properties.get(name);
 	}
 
-	public boolean isRegistered(@NotNull Property property) {
+	public boolean isRegistered(@NotNull Property<?> property) {
 		return isRegistered(property.name());
 	}
 
 	public boolean isRegistered(@NotNull String name) {
 		return properties.containsKey(name.toLowerCase(Locale.ENGLISH));
 	}
-
 
 }

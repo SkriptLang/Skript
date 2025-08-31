@@ -1,10 +1,12 @@
-package org.skriptlang.skript.lang.properties;
+package org.skriptlang.skript.common.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.ExpressionType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.properties.Property.NameHandler;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
+import org.skriptlang.skript.lang.properties.PropertyHandler.NameHandler;
 
 public class PropExprName extends PropertyBaseExpression<NameHandler<?,?>> {
 
@@ -14,7 +16,7 @@ public class PropExprName extends PropertyBaseExpression<NameHandler<?,?>> {
 	}
 
 	@Override
-	Property<NameHandler<?, ?>> getProperty() {
+	public Property<NameHandler<?, ?>> getProperty() {
 		return Property.NAME;
 	}
 

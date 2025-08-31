@@ -14,9 +14,9 @@ public class PropertyUtils {
 
 
 
-	public static class PropertyMap<Handler extends Property.PropertyHandler<?>> extends HashMap<Class<?>, PropertyInfo<Handler>> {
+	public static class PropertyMap<Handler extends PropertyHandler<?>> extends HashMap<Class<?>, Property.PropertyInfo<Handler>> {
 		public @Nullable Handler getHandler(Class<?> inputClass) {
-			PropertyInfo<Handler> propertyInfo;
+			Property.PropertyInfo<Handler> propertyInfo;
 			// check if we don't already know the right info for this class
 			propertyInfo = get(inputClass);
 			if (propertyInfo == null) {
@@ -27,7 +27,7 @@ public class PropertyUtils {
 			return propertyInfo.handler();
 		}
 
-		public PropertyInfo<Handler> get(Class<?> actualClass) {
+		public Property.PropertyInfo<Handler> get(Class<?> actualClass) {
 			if (super.containsKey(actualClass)) {
 				return super.get(actualClass);
 			}
@@ -64,7 +64,7 @@ public class PropertyUtils {
 	}
 
 
-	public static <Handler extends Property.PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
+	public static <Handler extends PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
 		Property<Handler> property,
 		Expression<?> expr
 	) {

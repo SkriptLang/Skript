@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.Property.ContainsHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.UUID;

@@ -63,7 +63,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.Property.NameHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.*;
@@ -584,7 +585,7 @@ public class BukkitClasses {
 						return "inventory of " + Classes.toString(i.getHolder(), StringMode.VARIABLE_NAME);
 					}
 				}).changer(DefaultChangers.inventoryChanger)
-				.property(Property.CONTAINS, new Property.ContainsHandler<Inventory, Object>() {
+				.property(Property.CONTAINS, new ContainsHandler<Inventory, Object>() {
 					@Override
 					public boolean contains(Inventory container, Object element) {
 						if (element instanceof ItemType type) {
@@ -699,7 +700,7 @@ public class BukkitClasses {
 				})
 				.changer(DefaultChangers.playerChanger)
 				.serializeAs(OfflinePlayer.class)
-			.property(Property.NAME, new NameHandler<Player, String>() {
+			.property(Property.NAME, new PropertyHandler.NameHandler<Player, String>() {
 				@Override
 				public String name(Player player) {
 					return player.getName();

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.properties;
+package org.skriptlang.skript.common.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Condition;
@@ -12,7 +12,9 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
-import org.skriptlang.skript.lang.properties.Property.ContainsHandler;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
+import org.skriptlang.skript.lang.properties.PropertyUtils;
 import org.skriptlang.skript.lang.properties.PropertyUtils.PropertyMap;
 
 public class PropCondContains extends Condition {

@@ -13,16 +13,13 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.properties.Property.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyUtils.PropertyMap;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
 
-public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyHandler<?,?>> extends SimpleExpression<Object> {
-
-	abstract Property<Handler> getProperty();
+public abstract class PropertyBaseExpression<Handler extends PropertyHandler.ExpressionPropertyHandler<?,?>> extends SimpleExpression<Object> {
 
 	protected static void register(Class<? extends PropertyBaseExpression<?>> expressionClass, String property) {
 		Skript.registerExpression(expressionClass, Object.class, ExpressionType.PROPERTY, PropertyExpression.getPatterns(property, "objects"));
@@ -33,6 +30,9 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	private Class<?>[] returnTypes;
 	private Class<?> returnType;
 	private final Property<Handler> property = getProperty();
+
+
+	public abstract Property<Handler> getProperty();
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -81,7 +81,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		Set<Class<?>> allowedChangeTypes = new HashSet<>();
-		for (PropertyInfo<Handler> propertyInfo : properties.values()) {
+		for (Property.PropertyInfo<Handler> propertyInfo : properties.values()) {
 			Class<?>[] types = propertyInfo.handler().acceptChange(mode);
 			changeDetails.storeTypes(mode, propertyInfo, types);
 			if (types != null) {
@@ -101,19 +101,19 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 
 	private final ChangeDetails changeDetails = new ChangeDetails();
 
-	class ChangeDetails extends EnumMap<ChangeMode, Map<PropertyInfo<Handler>, Class<?>[]>> {
+	class ChangeDetails extends EnumMap<ChangeMode, Map<Property.PropertyInfo<Handler>, Class<?>[]>> {
 
 		public ChangeDetails() {
 			super(ChangeMode.class);
 		}
 
-		public void storeTypes(ChangeMode mode, PropertyInfo<Handler> propertyInfo, Class<?>[] types) {
-			Map<PropertyInfo<Handler>, Class<?>[]> map = computeIfAbsent(mode, k -> new HashMap<>());
+		public void storeTypes(ChangeMode mode, Property.PropertyInfo<Handler> propertyInfo, Class<?>[] types) {
+			Map<Property.PropertyInfo<Handler>, Class<?>[]> map = computeIfAbsent(mode, k -> new HashMap<>());
 			map.put(propertyInfo, types);
 		}
 
-		public Class<?>[] getTypes(ChangeMode mode, PropertyInfo<Handler> propertyInfo) {
-			Map<PropertyInfo<Handler>, Class<?>[]> map = get(mode);
+		public Class<?>[] getTypes(ChangeMode mode, Property.PropertyInfo<Handler> propertyInfo) {
+			Map<Property.PropertyInfo<Handler>, Class<?>[]> map = get(mode);
 			if (map != null) {
 				return map.get(propertyInfo);
 			}
@@ -130,7 +130,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		for (Object propertyHaver : expr.getArray(event)) {
-			PropertyInfo<Handler> propertyInfo = properties.get(propertyHaver.getClass());
+			Property.PropertyInfo<Handler> propertyInfo = properties.get(propertyHaver.getClass());
 			if (propertyInfo == null) {
 				continue; // no property info found, skip
 			}
@@ -151,7 +151,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 					|| (delta != null && allowedType.isInstance(delta[0]))) {
 					// if the propertyHaver is allowed, change
 					@SuppressWarnings("unchecked")
-					var handler = (ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
+					var handler = (PropertyHandler.ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
 					handler.change(propertyHaver, delta, mode);
 				}
 				// if allowed type is singular, take delta[0]

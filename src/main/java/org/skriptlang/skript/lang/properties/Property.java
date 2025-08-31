@@ -2,14 +2,14 @@ package org.skriptlang.skript.lang.properties;
 
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.NameHandler;
 
 import java.util.Locale;
 
-public record Property<Handler extends Property.PropertyHandler<?>>(
+public record Property<Handler extends PropertyHandler<?>>(
 		String name,
 		SkriptAddon provider,
 		@NotNull Class<? extends Handler> handler
@@ -47,45 +47,11 @@ public record Property<Handler extends Property.PropertyHandler<?>>(
 		// Register default propertyRegistry here
 		// Example: PropertyRegistry.getInstance().register(new Property("example", SkriptAddon.getInstance(), ExampleExpression.class));
 		// This method can be called during addon initialization to ensure default propertyRegistry are registered.
-		PropertyRegistry propertyRegistry = Skript.getPropertyRegistry();
+		PropertyRegistry propertyRegistry = Skript.getAddonInstance().registry(PropertyRegistry.class);
 		propertyRegistry.register(NAME);
 		propertyRegistry.register(CONTAINS);
 	}
 
-	@SuppressWarnings("unused")
-	public interface PropertyHandler<Type> {}
-
-	public interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHandler<Type> {
-		// Handler for the NAME property
-		default Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			return null;
-		}
-		default void change(Type named, Object @Nullable [] delta, ChangeMode mode) {
-			throw new UnsupportedOperationException("Changing the name is not supported for this property.");
-		}
-		@NotNull Class<ReturnType> returnType();
+	public record PropertyInfo<Handler extends PropertyHandler<?>>(Property<Handler> property, Handler handler) {
 	}
-
-	/**
-	 * no returning arrays
-	 * @param <Named>
-	 * @param <Name>
-	 */
-	public interface NameHandler<Named, Name> extends ExpressionPropertyHandler<Named, Name> {
-		Name name(Named named);
-	}
-
-	public interface ContainsHandler<Container, Element> extends PropertyHandler<Container> {
-		boolean contains(Container container, Element element);
-		Class<? extends Element>[] elementTypes();
-		default boolean canContain(Class<?> type) {
-			for (Class<? extends Element> elementType : elementTypes()) {
-				if (elementType.isAssignableFrom(type)) {
-					return true;
-				}
-			}
-			return false;
-		}
-	}
-
 }

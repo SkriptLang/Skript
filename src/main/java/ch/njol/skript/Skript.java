@@ -372,12 +372,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		return experimentRegistry;
 	}
 
-
-	private static PropertyRegistry propertyRegistry;
-	public static PropertyRegistry getPropertyRegistry() {
-		return propertyRegistry;
-	}
-
 	/**
 	 * @return The folder containing all Scripts.
 	 */
@@ -506,7 +500,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		experimentRegistry = new ExperimentRegistry(this);
 		Feature.registerAll(getAddonInstance(), experimentRegistry);
 
-		propertyRegistry = new PropertyRegistry(this);
+		getAddonInstance().storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
 
 		// Load classes which are always safe to use

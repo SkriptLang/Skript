@@ -31,7 +31,9 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.PropertyHandler;
 import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.skriptlang.skript.util.Executable;
@@ -221,7 +223,7 @@ public class SkriptClasses {
 				})
 				.cloner(ItemType::clone)
 				.serializer(new YggdrasilSerializer<>())
-				.property(Property.NAME, new Property.NameHandler<ItemType, String>() {
+				.property(Property.NAME, new PropertyHandler.NameHandler<ItemType, String>() {
 					@Override
 					public String name(ItemType itemType) {
 						return itemType.name();
@@ -966,7 +968,7 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{thing}'s name")
 				.since("2.10")
-				.property(Property.NAME, new Property.NameHandler<AnyNamed, String>() {
+				.property(Property.NAME, new PropertyHandler.NameHandler<AnyNamed, String>() {
 
 					@Override
 					public @NotNull Class<String> returnType() {
@@ -1021,7 +1023,7 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{a} contains {b}")
 				.since("2.10")
-				.property(Property.CONTAINS, new Property.ContainsHandler<AnyContains, Object>() {
+				.property(Property.CONTAINS, new ContainsHandler<AnyContains, Object>() {
 					@Override
 					public boolean contains(AnyContains anyContains, Object object) {
 						return anyContains.checkSafely(object);

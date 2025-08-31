@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyInfo;
+import org.skriptlang.skript.lang.properties.PropertyHandler;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -477,13 +477,13 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 
-	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
+	private final Map<Property<?>, Property.PropertyInfo<?>> propertyInfos = new HashMap<>();
 
-	public <Handler extends Property.PropertyHandler<T>> ClassInfo<T> property(Property<? super Handler> property, @NotNull Handler handler) {
+	public <Handler extends PropertyHandler<T>> ClassInfo<T> property(Property<? super Handler> property, @NotNull Handler handler) {
 		if (propertyInfos.containsKey(property)) {
 			throw new IllegalStateException("Property " + property.name() + " is already registered for the " + c.getName() + " type.");
 		}
-		propertyInfos.put(property, new PropertyInfo<>(property, handler));
+		propertyInfos.put(property, new Property.PropertyInfo<>(property, handler));
 		Classes.CLASS_INFOS_BY_PROPERTY.computeIfAbsent(property, k -> new ArrayList<>()).add(this);
 		return this;
 	}
@@ -492,12 +492,12 @@ public class ClassInfo<T> implements Debuggable {
 		return propertyInfos.containsKey(property);
 	}
 
-	public <Handler extends Property.PropertyHandler<?>> @Nullable PropertyInfo<Handler> getPropertyInfo(Property<Handler> property) {
+	public <Handler extends PropertyHandler<?>> @Nullable Property.PropertyInfo<Handler> getPropertyInfo(Property<Handler> property) {
 		if (!propertyInfos.containsKey(property)) {
 			return null;
 		}
 		//noinspection unchecked
-		return (PropertyInfo<Handler>) propertyInfos.get(property);
+		return (Property.PropertyInfo<Handler>) propertyInfos.get(property);
 	}
 
 
