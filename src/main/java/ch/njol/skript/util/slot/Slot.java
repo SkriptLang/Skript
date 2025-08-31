@@ -1,22 +1,16 @@
 package ch.njol.skript.util.slot;
 
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyNamed;
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.lang.Debuggable;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a container for a single item. It could be an ordinary inventory
  * slot or perhaps an item frame.
  */
-public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
+public abstract class Slot implements Debuggable, AnyAmount {
 
 	protected Slot() {}
 
@@ -40,38 +34,6 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	 * @return True if positions equal, false otherwise.
 	 */
 	public abstract boolean isSameSlot(Slot o);
-
-	/**
-	 * @return The name of the item in this slot
-	 */
-	@Override
-	public @UnknownNullability String name() {
-		ItemStack stack = this.getItem();
-		if (stack != null && stack.hasItemMeta()) {
-			ItemMeta meta = stack.getItemMeta();
-			return meta.hasDisplayName() ? meta.getDisplayName() : null;
-		}
-		return null;
-	}
-
-	@Override
-	public boolean supportsNameChange() {
-		return true;
-	}
-
-	/**
-	 * @param name The name to change
-	 */
-	@Override
-	public void setName(String name) {
-		ItemStack stack = this.getItem();
-		if (stack != null && !ItemUtils.isAir(stack.getType())) {
-			ItemMeta meta = stack.hasItemMeta() ? stack.getItemMeta() : Bukkit.getItemFactory().getItemMeta(stack.getType());
-			meta.setDisplayName(name);
-			stack.setItemMeta(meta);
-			this.setItem(stack);
-		}
-	}
 
 	@Override
 	public @NotNull Number amount() {

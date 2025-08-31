@@ -1,6 +1,5 @@
 package ch.njol.skript.classes.data;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
@@ -26,22 +25,23 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
-import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -105,7 +105,7 @@ public class SkriptClasses {
 					}
 
 					@Override
-					public void deserialize(final ClassInfo o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(final ClassInfo o, final Fields f) {
 						assert false;
 					}
 
@@ -118,13 +118,6 @@ public class SkriptClasses {
 						if (ci == null)
 							throw new StreamCorruptedException("Invalid ClassInfo " + codeName);
 						return ci;
-					}
-
-//					return c.getCodeName();
-					@Override
-					@Nullable
-					public ClassInfo deserialize(final String s) {
-						return Classes.getClassInfoNoError(s);
 					}
 
 					@Override
@@ -181,51 +174,51 @@ public class SkriptClasses {
 				.supplier(() -> Arrays.stream(Material.values())
 					.map(ItemType::new)
 					.iterator())
-				.parser(new Parser<ItemType>() {
+				.parser(new Parser<>() {
 					@Override
 					@Nullable
-					public ItemType parse(final String s, final ParseContext context) {
+					public ItemType parse(String s, ParseContext context) {
 						return Aliases.parseItemType(s);
 					}
 
 					@Override
-					public String toString(final ItemType t, final int flags) {
+					public String toString(ItemType t, int flags) {
 						return t.toString(flags);
 					}
 
 					@Override
-					public String getDebugMessage(final ItemType t) {
+					public String getDebugMessage(ItemType t) {
 						return t.getDebugMessage();
 					}
 
 					@Override
-					public String toVariableNameString(final ItemType t) {
-						final StringBuilder b = new StringBuilder("itemtype:");
-						b.append(t.getInternalAmount());
-						b.append("," + t.isAll());
+					public String toVariableNameString(ItemType itemType) {
+						final StringBuilder result = new StringBuilder("itemtype:");
+						result.append(itemType.getInternalAmount());
+						result.append(",").append(itemType.isAll());
 						// TODO this is missing information
-						for (final ItemData d : t.getTypes()) {
-							b.append("," + d.getType());
+						for (ItemData itemData : itemType.getTypes()) {
+							result.append(",").append(itemData.getType());
 						}
-						final EnchantmentType[] enchs = t.getEnchantmentTypes();
-						if (enchs != null) {
-							b.append("|");
-							for (final EnchantmentType ench : enchs) {
-								Enchantment e = ench.getType();
-								if (e == null)
+						EnchantmentType[] enchantmentTypes = itemType.getEnchantmentTypes();
+						if (enchantmentTypes != null) {
+							result.append("|");
+							for (EnchantmentType enchantmentType : enchantmentTypes) {
+								Enchantment enchantment = enchantmentType.getType();
+								if (enchantment == null)
 									continue;
-								b.append("#" + e.getKey().toString());
-								b.append(":" + ench.getLevel());
+								result.append("#").append(enchantment.getKey());
+								result.append(":").append(enchantmentType.getLevel());
 							}
 						}
-						return "" + b.toString();
+						return result.toString();
 					}
 				})
 				.cloner(ItemType::clone)
 				.serializer(new YggdrasilSerializer<>())
-				.property(Property.NAME, new PropertyHandler.NameHandler<ItemType, String>() {
+				.property(Property.NAME, new ExpressionPropertyHandler<ItemType, String>() {
 					@Override
-					public String name(ItemType itemType) {
+					public String convert(ItemType itemType) {
 						return itemType.name();
 					}
 
@@ -564,7 +557,44 @@ public class SkriptClasses {
 						return "slot:" + o.toString();
 					}
 				})
-				.serializeAs(ItemStack.class));
+				.serializeAs(ItemStack.class)
+				.property(Property.NAME, new ExpressionPropertyHandler<Slot, String>() {
+					@Override
+					public String convert(Slot slot) {
+						ItemStack stack = slot.getItem();
+						if (stack != null && stack.hasItemMeta()) {
+							ItemMeta meta = stack.getItemMeta();
+							return meta.hasDisplayName() ? meta.getDisplayName() : null;
+						}
+						return null;
+					}
+
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						if (mode == ChangeMode.SET)
+							return new Class[] {String.class};
+						return null;
+					}
+
+					@Override
+					public void change(Slot named, Object @Nullable [] delta, ChangeMode mode) {
+						assert mode == ChangeMode.SET;
+						assert delta != null;
+						String name = (String) delta[0];
+						ItemStack stack = named.getItem();
+						if (stack != null && !ItemUtils.isAir(stack.getType())) {
+							ItemMeta meta = stack.hasItemMeta() ? stack.getItemMeta() : Bukkit.getItemFactory().getItemMeta(stack.getType());
+							meta.setDisplayName(name);
+							stack.setItemMeta(meta);
+							named.setItem(stack);
+						}
+					}
+
+					@Override
+					public @NotNull Class<String> returnType() {
+						return String.class;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")
@@ -840,7 +870,8 @@ public class SkriptClasses {
 				public String toVariableNameString(Config config) {
 					return this.toString(config, 0);
 				}
-			}));
+			})
+			.property(Property.NAME, ExpressionPropertyHandler.of(Config::name, String.class)));
 
 		Classes.registerClass(new ClassInfo<>(Node.class, "node")
 			.user("nodes?")
@@ -867,53 +898,11 @@ public class SkriptClasses {
 					return this.toString(node, 0);
 				}
 
-			}));
+			})
+			.property(Property.NAME, ExpressionPropertyHandler.of(Node::getKey, String.class)));
 
-		Classes.registerClass(new ClassInfo<>(Script.class, "script")
-				.user("scripts?")
-				.name("Script")
-				.description("A script loaded by Skript.",
-					"Disabled scripts will report as being empty since their content has not been loaded.")
-				.usage("")
-				.examples("the current script")
-				.since("2.10")
-				.parser(new Parser<Script>() {
-					final Path path = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
+		Classes.registerClass(new ScriptClassInfo());
 
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return switch (context) {
-							case PARSE, COMMAND -> true;
-							default -> false;
-						};
-					}
-
-					@Override
-					@Nullable
-					public Script parse(final String name, final ParseContext context) {
-						return switch (context) {
-							case PARSE, COMMAND -> {
-								@Nullable File file = ScriptLoader.getScriptFromName(name);
-								if (file == null || !file.isFile())
-									yield null;
-								yield ScriptLoader.getScript(file);
-							}
-							default -> null;
-						};
-					}
-
-					@Override
-					public String toString(final Script script, final int flags) {
-						@Nullable File file = script.getConfig().getFile();
-						if (file == null)
-							return script.getConfig().getFileName();
-						return path.relativize(file.toPath().toAbsolutePath()).toString();
-					}
-					@Override
-					public String toVariableNameString(final Script script) {
-						return this.toString(script, 0);
-					}
-				}));
 
 		Classes.registerClass(new ClassInfo<>(Executable.class, "executable")
 			.user("executables?")
@@ -959,7 +948,7 @@ public class SkriptClasses {
 				public String toVariableNameString(DynamicFunctionReference<?> function) {
 					return this.toString(function, 0);
 				}
-			}));
+			}).property(Property.NAME, ExpressionPropertyHandler.of(DynamicFunctionReference::name, String.class)));
 
 		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
@@ -968,7 +957,7 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{thing}'s name")
 				.since("2.10")
-				.property(Property.NAME, new PropertyHandler.NameHandler<AnyNamed, String>() {
+				.property(Property.NAME, new ExpressionPropertyHandler<AnyNamed, String>() {
 
 					@Override
 					public @NotNull Class<String> returnType() {
@@ -976,7 +965,7 @@ public class SkriptClasses {
 					}
 
 					@Override
-					public String name(AnyNamed anyNamed) {
+					public String convert(AnyNamed anyNamed) {
 						return anyNamed.name();
 					}
 

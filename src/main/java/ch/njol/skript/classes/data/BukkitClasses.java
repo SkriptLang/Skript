@@ -1,7 +1,6 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
@@ -12,23 +11,22 @@ import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.ChickenData.ChickenVariantDummy;
 import ch.njol.skript.entity.CowData.CowVariantDummy;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.PigData.PigVariantDummy;
 import ch.njol.skript.entity.WolfData.WolfVariantDummy;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.*;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.PaperUtils;
+import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
@@ -53,21 +51,20 @@ import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.*;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.base.types.*;
+import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
 import java.io.StreamCorruptedException;
-import java.util.*;
+import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,45 +76,7 @@ public class BukkitClasses {
 	public BukkitClasses() {}
 
 	static {
-		Classes.registerClass(new ClassInfo<>(Entity.class, "entity")
-				.user("entit(y|ies)")
-				.name("Entity")
-				.description("An entity is something in a <a href='#world'>world</a> that's not a <a href='#block'>block</a>, " +
-						"e.g. a <a href='#player'>player</a>, a skeleton, or a zombie, but also " +
-						"<a href='#projectile'>projectiles</a> like arrows, fireballs or thrown potions, " +
-						"or special entities like dropped items, falling blocks or paintings.")
-				.usage("player, op, wolf, tamed ocelot, powered creeper, zombie, unsaddled pig, fireball, arrow, dropped item, item frame, etc.")
-				.examples("entity is a zombie or creeper",
-						"player is an op",
-						"projectile is an arrow",
-						"shoot a fireball from the player")
-				.since("1.0")
-				.defaultExpression(new EventValueExpression<>(Entity.class))
-				.parser(new Parser<Entity>() {
-					@Override
-					public @Nullable Entity parse(final String s, final ParseContext context) {
-						if (Utils.isValidUUID(s))
-							return Bukkit.getEntity(UUID.fromString(s));
-
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
-					}
-
-					@Override
-					public String toVariableNameString(final Entity e) {
-						return "entity:" + e.getUniqueId().toString().toLowerCase(Locale.ENGLISH);
-					}
-
-					@Override
-					public String toString(final Entity e, final int flags) {
-						return EntityData.toString(e, flags);
-					}
-				})
-				.changer(DefaultChangers.entityChanger));
+		Classes.registerClass(new EntityClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(LivingEntity.class, "livingentity")
 				.user("living ?entit(y|ies)")
@@ -129,7 +88,7 @@ public class BukkitClasses {
 						"shoot a zombie from the creeper")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(LivingEntity.class))
-				.changer(DefaultChangers.entityChanger));
+				.changer(new EntityChanger()));
 
 		Classes.registerClass(new ClassInfo<>(Projectile.class, "projectile")
 				.user("projectiles?")
@@ -142,98 +101,7 @@ public class BukkitClasses {
 				.defaultExpression(new EventValueExpression<>(Projectile.class))
 				.changer(DefaultChangers.nonLivingEntityChanger));
 
-		Classes.registerClass(new ClassInfo<>(Block.class, "block")
-				.user("blocks?")
-				.name("Block")
-				.description("A block in a <a href='#world'>world</a>. It has a <a href='#location'>location</a> and a <a href='#itemstack'>type</a>, " +
-						"and can also have a <a href='#direction'>direction</a> (mostly a <a href='#ExprFacing'>facing</a>), an <a href='#inventory'>inventory</a>, or other special properties.")
-				.usage("")
-				.examples("")
-				.since("1.0")
-				.defaultExpression(new EventValueExpression<>(Block.class))
-				.parser(new Parser<Block>() {
-					@Override
-					@Nullable
-					public Block parse(final String s, final ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(final Block b, final int flags) {
-						return BlockUtils.blockToString(b, flags);
-					}
-
-					@Override
-					public String toVariableNameString(final Block b) {
-						return b.getWorld().getName() + ":" + b.getX() + "," + b.getY() + "," + b.getZ();
-					}
-
-					@Override
-					public String getDebugMessage(final Block b) {
-						return toString(b, 0) + " block (" + b.getWorld().getName() + ":" + b.getX() + "," + b.getY() + "," + b.getZ() + ")";
-					}
-				})
-				.changer(DefaultChangers.blockChanger)
-				.serializer(new Serializer<Block>() {
-					@Override
-					public Fields serialize(final Block b) {
-						final Fields f = new Fields();
-						f.putObject("world", b.getWorld());
-						f.putPrimitive("x", b.getX());
-						f.putPrimitive("y", b.getY());
-						f.putPrimitive("z", b.getZ());
-						return f;
-					}
-
-					@Override
-					public void deserialize(final Block o, final Fields f) {
-						assert false;
-					}
-
-					@Override
-					protected Block deserialize(final Fields fields) throws StreamCorruptedException {
-						final World w = fields.getObject("world", World.class);
-						final int x = fields.getPrimitive("x", int.class), y = fields.getPrimitive("y", int.class), z = fields.getPrimitive("z", int.class);
-						if (w == null)
-							throw new StreamCorruptedException();
-						return w.getBlockAt(x, y, z);
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-
-					// return b.getWorld().getName() + ":" + b.getX() + "," + b.getY() + "," + b.getZ();
-					@Override
-					@Nullable
-					public Block deserialize(final String s) {
-						final String[] split = s.split("[:,]");
-						if (split.length != 4)
-							return null;
-						final World w = Bukkit.getWorld(split[0]);
-						if (w == null)
-							return null;
-						try {
-							final int[] l = new int[3];
-							for (int i = 0; i < 3; i++)
-								l[i] = Integer.parseInt(split[i + 1]);
-							return w.getBlockAt(l[0], l[1], l[2]);
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				}));
+		Classes.registerClass(new BlockClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(BlockData.class, "blockdata")
 				.user("block ?datas?")
@@ -544,63 +412,11 @@ public class BukkitClasses {
 					public boolean mustSyncDeserialization() {
 						return true;
 					}
-				}));
+				})
+				.property(Property.NAME, ExpressionPropertyHandler.of(World::getName, String.class))
+		);
 
-		Classes.registerClass(new ClassInfo<>(Inventory.class, "inventory")
-				.user("inventor(y|ies)")
-				.name("Inventory")
-				.description("An inventory of a <a href='#player'>player</a> or <a href='#block'>block</a>. " +
-								"Inventories have many effects and conditions regarding the items contained.",
-						"An inventory has a fixed amount of <a href='#slot'>slots</a> which represent a specific place in the inventory, " +
-								"e.g. the <a href='#ExprArmorSlot'>helmet slot</a> for players " +
-								"(Please note that slot support is still very limited but will be improved eventually).")
-				.usage("")
-				.examples("")
-				.since("1.0")
-				.defaultExpression(new EventValueExpression<>(Inventory.class))
-				.parser(new Parser<Inventory>() {
-					@Override
-					@Nullable
-					public Inventory parse(final String s, final ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(final Inventory i, final int flags) {
-						return "inventory of " + Classes.toString(i.getHolder());
-					}
-
-					@Override
-					public String getDebugMessage(final Inventory i) {
-						return "inventory of " + Classes.getDebugMessage(i.getHolder());
-					}
-
-					@Override
-					public String toVariableNameString(final Inventory i) {
-						return "inventory of " + Classes.toString(i.getHolder(), StringMode.VARIABLE_NAME);
-					}
-				}).changer(DefaultChangers.inventoryChanger)
-				.property(Property.CONTAINS, new ContainsHandler<Inventory, Object>() {
-					@Override
-					public boolean contains(Inventory container, Object element) {
-						if (element instanceof ItemType type) {
-							return type.isContainedIn(container);
-						} else if (element instanceof ItemStack stack) {
-							return container.containsAtLeast(stack, stack.getAmount());
-						}
-						return false;
-					}
-
-					@Override
-					public Class<?>[] elementTypes() {
-						return new Class[]{ItemType.class, ItemStack.class};
-					}
-				}));
+		Classes.registerClass(new InventoryClassInfo());
 
 		Classes.registerClass(new EnumClassInfo<>(InventoryAction.class, "inventoryaction", "inventory actions")
 				.user("inventory ?actions?")
@@ -624,189 +440,9 @@ public class BukkitClasses {
 				.examples("")
 				.since("2.2-dev32"));
 
-		Classes.registerClass(new ClassInfo<>(Player.class, "player")
-				.user("players?")
-				.name("Player")
-				.description(
-						"A player. Depending on whether a player is online or offline several actions can be performed with them, " +
-						"though you won't get any errors when using effects that only work if the player is online (e.g. changing their inventory) on an offline player.",
-						"You have two possibilities to use players as command arguments: <player> and <offline player>. " +
-						"The first requires that the player is online and also accepts only part of the name, " +
-						"while the latter doesn't require that the player is online, but the player's name has to be entered exactly."
-				).usage(
-						"Parsing an offline player as a player (online) will return nothing (none), for that case you would need to parse as " +
-						"offlineplayer which only returns nothing (none) if player doesn't exist in Minecraft databases (name not taken) otherwise it will return the player regardless of their online status."
-				).examples(
-						"set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online or starts with Notch like Notchan",
-						"set {_p} to \"N\" parsed as a player # returns Notch if Notch is online because their name starts with 'N' (case insensitive) however, it would return nothing if no player whose name starts with 'N' is online."
-				).since("1.0")
-				.defaultExpression(new EventValueExpression<>(Player.class))
-				.after("string", "world")
-				.parser(new Parser<Player>() {
-					@Override
-					@Nullable
-					public Player parse(String string, ParseContext context) {
-						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
-							if (string.isEmpty())
-								return null;
+		Classes.registerClass(new PlayerClassInfo());
 
-							if (Utils.isValidUUID(string))
-								return Bukkit.getPlayer(UUID.fromString(string));
-
-							String name = string.toLowerCase(Locale.ENGLISH);
-							int nameLength = name.length(); // caching
-							List<Player> players = new ArrayList<>();
-							for (Player player : Bukkit.getOnlinePlayers()) {
-								if (player.getName().toLowerCase(Locale.ENGLISH).startsWith(name)) {
-									if (player.getName().length() == nameLength) // a little better in performance than String#equals()
-										return player;
-									players.add(player);
-								}
-							}
-							if (players.size() == 1)
-								return players.get(0);
-							if (players.size() == 0)
-								Skript.error(String.format(Language.get("commands.no player starts with"), string));
-							else
-								Skript.error(String.format(Language.get("commands.multiple players start with"), string));
-							return null;
-						}
-						assert false;
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
-					}
-
-					@Override
-					public String toString(final Player p, final int flags) {
-						return "" + p.getName();
-					}
-
-					@Override
-					public String toVariableNameString(final Player p) {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
-							return "" + p.getUniqueId();
-						else
-							return "" + p.getName();
-					}
-
-					@Override
-					public String getDebugMessage(final Player p) {
-						return p.getName() + " " + Classes.getDebugMessage(p.getLocation());
-					}
-				})
-				.changer(DefaultChangers.playerChanger)
-				.serializeAs(OfflinePlayer.class)
-			.property(Property.NAME, new PropertyHandler.NameHandler<Player, String>() {
-				@Override
-				public String name(Player player) {
-					return player.getName();
-				}
-
-				@Override
-				public @NotNull Class<String> returnType() {
-					return String.class;
-				}
-			}));
-
-		Classes.registerClass(new ClassInfo<>(OfflinePlayer.class, "offlineplayer")
-				.user("offline ?players?")
-				.name("Offline Player")
-				.description(
-						"A player that is possibly offline. See <a href='#player'>player</a> for more information. " +
-						"Please note that while all effects and conditions that require a player can be used with an " +
-						"offline player as well, they will not work if the player is not actually online."
-				).usage(
-						"Parsing an offline player as a player (online) will return nothing (none), for that case you would need to parse as " +
-						"offlineplayer which only returns nothing (none) if player doesn't exist in Minecraft databases (name not taken) otherwise it will return the player regardless of their online status."
-				).examples("set {_p} to \"Notch\" parsed as an offlineplayer # returns Notch even if they're offline")
-				.since("2.0 beta 8")
-				.defaultExpression(new EventValueExpression<>(OfflinePlayer.class))
-				.after("string", "world")
-				.parser(new Parser<OfflinePlayer>() {
-					@Override
-					public @Nullable OfflinePlayer parse(final String s, final ParseContext context) {
-						if (Utils.isValidUUID(s))
-							return Bukkit.getOfflinePlayer(UUID.fromString(s));
-						else if (SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
-							return Bukkit.getOfflinePlayer(s);
-						return null;
-					}
-
-					@Override
-					public boolean canParse(ParseContext context) {
-						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
-					}
-
-					@Override
-					public String toString(OfflinePlayer p, int flags) {
-						return p.getName() == null ? p.getUniqueId().toString() : p.getName();
-					}
-
-					@Override
-					public String toVariableNameString(OfflinePlayer p) {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value() || p.getName() == null)
-							return "" + p.getUniqueId();
-						else
-							return "" + p.getName();
-					}
-
-					@Override
-					public String getDebugMessage(OfflinePlayer p) {
-						if (p.isOnline())
-							return Classes.getDebugMessage(p.getPlayer());
-						return toString(p, 0);
-					}
-				}).serializer(new Serializer<OfflinePlayer>() {
-					@Override
-					public Fields serialize(final OfflinePlayer p) {
-						final Fields f = new Fields();
-						f.putObject("uuid", p.getUniqueId());
-						return f;
-					}
-
-					@Override
-					public void deserialize(final OfflinePlayer o, final Fields f) {
-						assert false;
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-
-					@SuppressWarnings("deprecation")
-					@Override
-					protected OfflinePlayer deserialize(final Fields fields) throws StreamCorruptedException {
-						if (fields.contains("uuid")) {
-							final UUID uuid = fields.getObject("uuid", UUID.class);
-							if (uuid == null)
-								throw new StreamCorruptedException();
-							return Bukkit.getOfflinePlayer(uuid);
-						} else {
-							final String name = fields.getObject("name", String.class);
-							if (name == null)
-								throw new StreamCorruptedException();
-							return Bukkit.getOfflinePlayer(name);
-						}
-					}
-
-					// return p.getName();
-					@SuppressWarnings("deprecation")
-					@Override
-					@Nullable
-					public OfflinePlayer deserialize(final String s) {
-						return Bukkit.getOfflinePlayer(s);
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-				}));
+		Classes.registerClass(new OfflinePlayerClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(CommandSender.class, "commandsender")
 				.user("((commands?)? ?)?(sender|executor)s?")
@@ -827,7 +463,7 @@ public class BukkitClasses {
 						"\t\t\tsend \"Yay!\" to sender and arg-1")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(CommandSender.class))
-				.parser(new Parser<CommandSender>() {
+				.parser(new Parser<>() {
 					@Override
 					@Nullable
 					public CommandSender parse(final String s, final ParseContext context) {
@@ -841,14 +477,15 @@ public class BukkitClasses {
 
 					@Override
 					public String toString(final CommandSender s, final int flags) {
-						return "" + s.getName();
+						return s.getName();
 					}
 
 					@Override
 					public String toVariableNameString(final CommandSender s) {
-						return "" + s.getName();
+						return s.getName();
 					}
-				}));
+				})
+				.property(Property.NAME, ExpressionPropertyHandler.of(CommandSender::getName, String.class)));
 
 		Classes.registerClass(new ClassInfo<>(InventoryHolder.class, "inventoryholder")
 				.name(ClassInfo.NO_DOC)
@@ -1327,9 +964,10 @@ public class BukkitClasses {
 			.documentationId("CatType"));
 
 
+		//noinspection rawtypes
 		PatternedParser<GameRule> gameRuleParser = new PatternedParser<>() {
 			
-			private String[] patterns = Arrays.stream(GameRule.values()).map(GameRule::getName).toArray(String[]::new);
+			private final String[] patterns = Arrays.stream(GameRule.values()).map(GameRule::getName).toArray(String[]::new);
 			
 			@Override
 			public @Nullable GameRule parse(String string, ParseContext context) {
@@ -1351,6 +989,7 @@ public class BukkitClasses {
 				return patterns;
 			}
 		};
+
 		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
 			.user("gamerules?")
 			.name("Gamerule")
@@ -1360,6 +999,7 @@ public class BukkitClasses {
 			.requiredPlugins("Minecraft 1.13 or newer")
 			.supplier(GameRule.values())
 			.parser(gameRuleParser)
+			.property(Property.NAME, ExpressionPropertyHandler.of(GameRule::getName, String.class))
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")

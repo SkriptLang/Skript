@@ -3,7 +3,6 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import org.bukkit.event.Event;
@@ -29,7 +28,7 @@ import java.util.Objects;
  * @param <Result> The return type of this function, if known.
  */
 public class DynamicFunctionReference<Result>
-	implements Contract, Executable<Event, Result[]>, Validated, AnyNamed {
+	implements Contract, Executable<Event, Result[]>, Validated {
 
 	private final @NotNull String name;
 	private final @Nullable Script source;
@@ -81,7 +80,6 @@ public class DynamicFunctionReference<Result>
 		return source;
 	}
 
-	@Override
 	public @NotNull String name() {
 		return name;
 	}
