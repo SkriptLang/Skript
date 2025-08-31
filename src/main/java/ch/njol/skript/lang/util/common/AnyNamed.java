@@ -10,6 +10,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @see AnyProvider
  */
 @FunctionalInterface
+@Deprecated(since="INSERT VERSION")
 public interface AnyNamed extends AnyProvider {
 
 	/**

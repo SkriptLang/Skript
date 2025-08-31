@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -51,7 +52,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		// determine possible return types
 		returnTypes = getPropertyReturnTypes(properties, Handler::returnType);
 		returnType = Utils.getSuperType(returnTypes);
-		return true;
+		return LiteralUtils.canInitSafely(expr);
 	}
 
 	private Class<?> @NotNull [] getPropertyReturnTypes(@NotNull PropertyMap<Handler> properties, Function<Handler, Class<?>> getReturnType) {

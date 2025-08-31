@@ -3,6 +3,7 @@ package org.skriptlang.skript.lang.properties;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -55,11 +56,11 @@ public class PropertyUtils {
 		}
 
 		// get all types with a name property
-		List<ClassInfo<?>> namedClassInfos = Classes.getClassInfosByProperty(property);
-		Class<?>[] namedClasses = namedClassInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
+		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
+		Class<?>[] classes = classInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
 
 		//noinspection unchecked,rawtypes
-		return expr.getConvertedExpression((Class[]) namedClasses);
+		return LiteralUtils.defendExpression(expr).getConvertedExpression((Class[]) classes);
 	}
 
 
@@ -68,15 +69,35 @@ public class PropertyUtils {
 		Expression<?> expr
 	) {
 		PropertyMap<Handler> propertyInfos = new PropertyMap<>();
-		// for each return type, check if it has a name property
+
+		// get all types with a name property
+		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
+
+		// for each return type, match to a classinfo w/ name property
 		for (Class<?> returnType : expr.possibleReturnTypes()) {
-			ClassInfo<?> classInfo = Classes.getSuperClassInfo(returnType);
-			// get property
-			var propertyInfo = classInfo.getPropertyInfo(property);
-			if (propertyInfo == null) {
+			ClassInfo<?> closestInfo = null;
+			for (ClassInfo<?> propertiedClassInfo  : classInfos) {
+				if (propertiedClassInfo.getC() == returnType) {
+					// exact match, use it
+					closestInfo = propertiedClassInfo;
+					break;
+				}
+				if (propertiedClassInfo.getC().isAssignableFrom(returnType)) {
+					// closest match so far
+					if (closestInfo == null || closestInfo.getC().isAssignableFrom(propertiedClassInfo.getC())) {
+						closestInfo = propertiedClassInfo;
+					}
+				}
+			}
+			if (closestInfo == null) {
 				continue; // no name property
 			}
+
+			// get property
+			var propertyInfo = closestInfo.getPropertyInfo(property);
+			ClassInfo<?> classInfo = Classes.getSuperClassInfo(returnType);
 			propertyInfos.put(classInfo.getC(), propertyInfo);
+			propertyInfos.put(closestInfo.getC(), propertyInfo);
 		}
 		return propertyInfos;
 	}

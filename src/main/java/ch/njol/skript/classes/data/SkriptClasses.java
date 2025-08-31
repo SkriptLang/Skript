@@ -7,6 +7,7 @@ import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -227,14 +228,14 @@ public class SkriptClasses {
 					}
 
 					@Override
-					public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-						if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.RESET)
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
 							return new Class[] {String.class};
 						return null;
 					}
 
 					@Override
-					public void change(ItemType itemType, Object @Nullable [] delta, Changer.ChangeMode mode) {
+					public void change(ItemType itemType, Object @Nullable [] delta, ChangeMode mode) {
 						String name = delta != null ? (String) delta[0] : null;
 						itemType.setName(name);
 					}
@@ -958,14 +959,43 @@ public class SkriptClasses {
 				}
 			}));
 
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
 				.name("Any Named Thing")
 				.description("Something that has a name (e.g. an item).")
 				.usage("")
 				.examples("{thing}'s name")
 				.since("2.10")
+				.property(Property.NAME, new Property.NameHandler<AnyNamed, String>() {
+
+					@Override
+					public @NotNull Class<String> returnType() {
+						return String.class;
+					}
+
+					@Override
+					public String name(AnyNamed anyNamed) {
+						return anyNamed.name();
+					}
+
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						if (mode == ChangeMode.SET)
+							return new Class[] {String.class};
+						return null;
+					}
+
+					@Override
+					public void change(AnyNamed named, Object @Nullable [] delta, ChangeMode mode) {
+						if (mode == ChangeMode.SET && named.supportsNameChange()) {
+							assert delta != null;
+							named.setName((String) delta[0]);
+						}
+					}
+				})
 		);
 
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
 				.name("Any Numbered/Sized Thing")
 				.description("Something that has an amount or size.")
@@ -974,6 +1004,7 @@ public class SkriptClasses {
 				.since("2.10")
 		);
 
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyValued.class, "valued")
 			.name("Any Valued Thing")
 			.description("Something that has a value.")
@@ -982,6 +1013,7 @@ public class SkriptClasses {
 			.since("2.10")
 		);
 
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
 				.user("any container")
 				.name("Anything with Contents")
@@ -989,6 +1021,17 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{a} contains {b}")
 				.since("2.10")
+				.property(Property.CONTAINS, new Property.ContainsHandler<AnyContains, Object>() {
+					@Override
+					public boolean contains(AnyContains anyContains, Object object) {
+						return anyContains.checkSafely(object);
+					}
+
+					@Override
+					public Class<?>[] elementTypes() {
+						return new Class[]{Object.class};
+					}
+				})
 		);
 	}
 

@@ -5,6 +5,8 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +33,6 @@ public class PropCondContains extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-
 		this.haystack = PropertyUtils.asProperty(Property.CONTAINS, expressions[0]);
 		if (haystack == null) {
 			Skript.error("The expression " + expressions[0] + " returns types that do not contain anything.");
@@ -44,13 +45,35 @@ public class PropCondContains extends Condition {
 			Skript.error("The expression " + haystack + " returns types that do not contain anything.");
 			return false; // no name property found
 		}
-		// determine possible return types
-//		elementTypes = getElementTypes(properties);
-		this.needles = expressions[1];
+
+		this.needles = LiteralUtils.defendExpression(expressions[1]);
 		explicitSingle = matchedPattern == 2 && parseResult.mark != 1 || haystack.isSingle();
 
-		needles = expressions[1];
-		return true;
+		if (explicitSingle) {
+			// determine possible needle types
+			Class<?>[][] elementTypes = getElementTypes(properties);
+			var needleReturnTypes = needles.possibleReturnTypes();
+			// if no needle types are compatible with the element types, error
+			if (!determineTypeCompatibility(needleReturnTypes, elementTypes)) {
+				Skript.error("'" + haystack + "'  cannot contain " + Classes.toString(needleReturnTypes, false));
+				return false;
+			}
+		}
+
+		return LiteralUtils.canInitSafely(haystack, needles);
+	}
+
+	private static boolean determineTypeCompatibility(Class<?>[] needleReturnTypes, Class<?>[][] elementTypes) {
+		for (Class<?> needleType : needleReturnTypes) {
+			for (Class<?>[] haystackType : elementTypes) {
+				for (Class<?> allowedNeedleType : haystackType) {
+					if (allowedNeedleType.isAssignableFrom(needleType)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	private Class<?>[][] getElementTypes(PropertyMap<ContainsHandler<?, ?>> properties) {
