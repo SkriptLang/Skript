@@ -114,6 +114,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			&& (property = PROPERTY_REGISTRY.get(relatedProperty.value())) != null) {
 			PROPERTY_RELATED_SYNTAXES.computeIfAbsent(property, key -> new HashSet<>()).add(syntaxInfo);
 		}
+		syntaxJsonObject.add("property", property == null ? null : getPropertyDetails(property));
 		syntaxJsonObject.add("propertyClasses", property == null ? null : getPropertyRelatedClassInfos(property));
 
 		if (syntaxClass.isAnnotationPresent(Examples.class)) {
@@ -318,8 +319,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * Returns a JsonArray containing the properties of a classinfo, with their ids, names, descriptions, and related syntaxes
 	 * Related syntaxes are returned as a list containing their ids and names
-	 * @param classInfo
-	 * @return
+	 * @param classInfo the classinfo to get the properties of
+	 * @return a JsonArray containing the properties of the classinfo with their ids, names, descriptions, and related syntaxes
 	 */
 	private static JsonArray getClassInfoProperties(ClassInfo<?> classInfo) {
 		JsonArray array = new JsonArray();
@@ -392,6 +393,20 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
+	 * Generates the documentation JsonObject for a property
+	 *
+	 * @param property the property to generate the JsonObject of
+	 * @return the JsonObject of the property containing the id, name, and description
+	 */
+	private static JsonObject getPropertyDetails(Property<?> property) {
+		JsonObject object = new JsonObject();
+		object.addProperty("id", DocumentationIdProvider.getId(property));
+		object.addProperty("name", property.name());
+		object.addProperty("description", property.description());
+		return object;
+	}
+
+	/**
 	 * Generates a JsonArray containing the documentation JsonObjects for each property in the iterator.
 	 * Must be run after all other syntax elements (not including ClassInfos) so that related syntaxes can be found.
 	 *
@@ -401,10 +416,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	private static JsonElement generatePropertiesArray(Iterator<Property<?>> iterator) {
 		JsonArray array = new JsonArray();
 		iterator.forEachRemaining(property -> {
-			JsonObject object = new JsonObject();
-			object.addProperty("id", DocumentationIdProvider.getId(property));
-			object.addProperty("name", property.name());
-			object.addProperty("description", property.description());
+			JsonObject object = getPropertyDetails(property);
 			object.add("relatedClasses", getPropertyRelatedClassInfos(property));
 			object.add("relatedSyntaxes", getPropertyRelatedSyntaxes(property));
 			array.add(object);
