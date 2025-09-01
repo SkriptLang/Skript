@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryClassInfo extends ClassInfo<Inventory> {
+
 	public InventoryClassInfo() {
 		super(Inventory.class, "inventory");
 		this.user("inventor(y|ies)")
@@ -50,12 +51,18 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 			.defaultExpression(new EventValueExpression<>(Inventory.class))
 			.parser(new InventoryParser())
 			.changer(new InventoryChanger())
-			.property(Property.CONTAINS, new InventoryContainsHandler())
-			.property(Property.NAME, new InventoryNameHandler())
-			.property(Property.DISPLAY_NAME, new InventoryNameHandler());
+			.property(Property.CONTAINS,
+				"Inventories can contain items.",
+				new InventoryContainsHandler())
+			.property(Property.NAME,
+				"The name of the inventory. Can be set or reset.",
+				new InventoryNameHandler())
+			.property(Property.DISPLAY_NAME,
+				"The name of the inventory. Can be set or reset.",
+				new InventoryNameHandler());
 	}
 
-	public static class InventoryParser extends Parser<Inventory> {
+	private static class InventoryParser extends Parser<Inventory> {
 		//<editor-fold desc="inventory parser" defaultstate="collapsed">
 		@Override
 		@Nullable
@@ -284,4 +291,5 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 		}
 		//</editor-fold>
 	}
+
 }

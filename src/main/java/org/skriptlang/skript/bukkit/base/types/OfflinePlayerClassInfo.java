@@ -19,6 +19,7 @@ import java.io.StreamCorruptedException;
 import java.util.UUID;
 
 public class OfflinePlayerClassInfo extends ClassInfo<OfflinePlayer> {
+
 	public OfflinePlayerClassInfo() {
 		super(OfflinePlayer.class, "offlineplayer");
 		this.user("offline ?players?")
@@ -36,10 +37,12 @@ public class OfflinePlayerClassInfo extends ClassInfo<OfflinePlayer> {
 			.after("string", "world")
 			.parser(new OfflinePlayerParser())
 			.serializer(new OfflinePlayerSerializer())
-			.property(Property.NAME, ExpressionPropertyHandler.of(OfflinePlayer::getName, String.class));
+			.property(Property.NAME,
+				"The name of an offline player, as text. Cannot be changed.",
+				ExpressionPropertyHandler.of(OfflinePlayer::getName, String.class));
 	}
 
-	public static class OfflinePlayerParser extends Parser<OfflinePlayer> {
+	private static class OfflinePlayerParser extends Parser<OfflinePlayer> {
 		//<editor-fold desc="offline player parser" defaultstate="collapsed">
 		@Override
 		public @Nullable OfflinePlayer parse(final String s, final ParseContext context) {
@@ -77,7 +80,7 @@ public class OfflinePlayerClassInfo extends ClassInfo<OfflinePlayer> {
 		//</editor-fold>
 	}
 
-	public static class OfflinePlayerSerializer extends Serializer<OfflinePlayer> {
+	private static class OfflinePlayerSerializer extends Serializer<OfflinePlayer> {
 		//<editor-fold desc="offline player serializer" defaultstate="collapsed">
 		@Override
 		public Fields serialize(final OfflinePlayer p) {

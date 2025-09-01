@@ -18,8 +18,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +46,10 @@ public class JSONGenerator extends DocumentationGenerator {
 		.setPrettyPrinting()
 		.serializeNulls()
 		.create();
+
+	// A map of properties to syntaxes that have the property. Used to get related syntaxes for properties
+	private static final Map<Property<?>, Set<SyntaxInfo<?>>> PROPERTY_RELATED_SYNTAXES = new HashMap<>();
+	private static final PropertyRegistry PROPERTY_REGISTRY = Skript.instance().registry(PropertyRegistry.class);
 
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
@@ -100,6 +107,14 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("description", description == null ? null : convertToJsonArray(description.value()));
 
 		syntaxJsonObject.add("patterns", cleanPatterns(syntaxInfo.getPatterns()));
+
+		RelatedProperty relatedProperty = syntaxClass.getAnnotation(RelatedProperty.class);
+		Property<?> property = null;
+		if (relatedProperty != null
+			&& (property = PROPERTY_REGISTRY.get(relatedProperty.value())) != null) {
+			PROPERTY_RELATED_SYNTAXES.computeIfAbsent(property, key -> new HashSet<>()).add(syntaxInfo);
+		}
+		syntaxJsonObject.add("propertyClasses", property == null ? null : getPropertyRelatedClassInfos(property));
 
 		if (syntaxClass.isAnnotationPresent(Examples.class)) {
 			@NotNull Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
@@ -295,7 +310,28 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
 
+		syntaxJsonObject.add("properties", getClassInfoProperties(classInfo));
+
 		return syntaxJsonObject;
+	}
+
+	/**
+	 * Returns a JsonArray containing the properties of a classinfo, with their ids, names, descriptions, and related syntaxes
+	 * Related syntaxes are returned as a list containing their ids and names
+	 * @param classInfo
+	 * @return
+	 */
+	private static JsonArray getClassInfoProperties(ClassInfo<?> classInfo) {
+		JsonArray array = new JsonArray();
+		for (Property<?> property : classInfo.getAllProperties()) {
+			JsonObject object = new JsonObject();
+			object.addProperty("id", DocumentationIdProvider.getId(property));
+			object.addProperty("name", property.name());
+			object.addProperty("description", classInfo.getPropertyDescription(property));
+			object.add("relatedSyntax", getPropertyRelatedSyntaxes(property));
+			array.add(object);
+		}
+		return array;
 	}
 
 	/**
@@ -312,6 +348,68 @@ public class JSONGenerator extends DocumentationGenerator {
 				syntaxArray.add(classInfoElement);
 		});
 		return syntaxArray;
+	}
+
+	/**
+	 * Acquires the classes that have the property and returns their ids, names, and property descriptions.
+	 *
+	 * @param property the property to generate the documentation object for
+	 * @return the JsonObject containing the ids, name, and property descriptions of the classes that have the property
+	 */
+	private static JsonArray getPropertyRelatedClassInfos(Property<?> property) {
+		JsonArray array = new JsonArray();
+		for (ClassInfo<?> classInfo : Classes.CLASS_INFOS_BY_PROPERTY.get(property)) {
+			JsonObject object = new JsonObject();
+			object.addProperty("id", DocumentationIdProvider.getId(classInfo));
+			object.addProperty("name", Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()));
+			object.addProperty("description", classInfo.getPropertyDescription(property));
+			array.add(object);
+		}
+		return array;
+	}
+
+	/**
+	 * Acquires the syntaxes that are related to the property and returns their ids and names.
+	 * Must be run after all other syntax elements have been documented so that the ones with the property
+	 * can be found.
+	 *
+	 * @param property the property to generate the documentation object for
+	 * @return the JsonObject containing the ids and names of the syntaxes that relate to the property
+	 */
+	private static JsonElement getPropertyRelatedSyntaxes(Property<?> property) {
+		JsonArray array = new JsonArray();
+		Set<SyntaxInfo<?>> relatedSyntaxes = PROPERTY_RELATED_SYNTAXES.get(property);
+		if (relatedSyntaxes == null || relatedSyntaxes.isEmpty()) {
+			System.out.println("Property " + property.name() + " has no related syntaxes");
+			return null;
+		}
+		for (SyntaxInfo<?> element : relatedSyntaxes) {
+			JsonObject object = new JsonObject();
+			object.addProperty("id", DocumentationIdProvider.getId(SyntaxElementInfo.fromModern(element)));
+			array.add(object);
+		}
+		return array;
+	}
+
+	/**
+	 * Generates a JsonArray containing the documentation JsonObjects for each property in the iterator.
+	 * Must be run after all other syntax elements (not including ClassInfos) so that related syntaxes can be found.
+	 *
+	 * @param iterator the properties to generate documentation for
+	 * @return a JsonArray containing the documentation JsonObjects for each property
+	 */
+	private static JsonElement generatePropertiesArray(Iterator<Property<?>> iterator) {
+		JsonArray array = new JsonArray();
+		iterator.forEachRemaining(property -> {
+			JsonObject object = new JsonObject();
+			object.addProperty("id", DocumentationIdProvider.getId(property));
+			object.addProperty("name", property.name());
+			object.addProperty("description", property.description());
+			object.add("relatedClasses", getPropertyRelatedClassInfos(property));
+			object.add("relatedSyntaxes", getPropertyRelatedSyntaxes(property));
+			array.add(object);
+		});
+		return array;
 	}
 
 	/**
@@ -407,7 +505,6 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("effects", generateSyntaxElementArray(Skript.getEffects().iterator()));
 		jsonDocs.add("expressions", generateSyntaxElementArray(Skript.getExpressions()));
 		jsonDocs.add("events", generateStructureElementArray(Skript.getEvents().iterator()));
-		jsonDocs.add("classes", generateClassInfoArray(Classes.getClassInfos().iterator()));
 
 		Stream<StructureInfo<? extends Structure>> structuresExcludingEvents = Skript.getStructures().stream()
 			.filter(structureInfo -> !(structureInfo instanceof SkriptEventInfo));
@@ -415,6 +512,10 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("sections", generateSyntaxElementArray(Skript.getSections().iterator()));
 
 		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
+
+		// do last so properties are mapped to syntaxes
+		jsonDocs.add("classes", generateClassInfoArray(Classes.getClassInfos().iterator()));
+		jsonDocs.add("properties", generatePropertiesArray(PROPERTY_REGISTRY.iterator()));
 
 		saveDocs(outputDir.toPath().resolve("docs.json"), jsonDocs);
 	}

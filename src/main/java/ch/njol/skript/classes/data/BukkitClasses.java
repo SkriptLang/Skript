@@ -413,7 +413,9 @@ public class BukkitClasses {
 						return true;
 					}
 				})
-				.property(Property.NAME, ExpressionPropertyHandler.of(World::getName, String.class))
+				.property(Property.NAME,
+					"A world's name, as text. Cannot be changed.",
+					ExpressionPropertyHandler.of(World::getName, String.class))
 		);
 
 		Classes.registerClass(new InventoryClassInfo());
@@ -485,7 +487,11 @@ public class BukkitClasses {
 						return s.getName();
 					}
 				})
-				.property(Property.NAME, ExpressionPropertyHandler.of(CommandSender::getName, String.class)));
+				.property(Property.NAME,
+					"A command sender's name, as text. Cannot be changed.",
+					ExpressionPropertyHandler.of(CommandSender::getName, String.class)));
+
+		Classes.registerClass(new NameableClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(InventoryHolder.class, "inventoryholder")
 				.name(ClassInfo.NO_DOC)
@@ -999,7 +1005,9 @@ public class BukkitClasses {
 			.requiredPlugins("Minecraft 1.13 or newer")
 			.supplier(GameRule.values())
 			.parser(gameRuleParser)
-			.property(Property.NAME, ExpressionPropertyHandler.of(GameRule::getName, String.class))
+			.property(Property.NAME,
+				"A gamerule's name, as text. Cannot be changed.",
+				ExpressionPropertyHandler.of(GameRule::getName, String.class))
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")

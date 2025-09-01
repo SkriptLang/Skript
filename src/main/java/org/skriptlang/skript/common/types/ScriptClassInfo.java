@@ -19,6 +19,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 public class ScriptClassInfo extends ClassInfo<Script> {
+
 	public ScriptClassInfo() {
 		super(Script.class, "script");
 		this.user("scripts?")
@@ -29,7 +30,11 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 			.examples("the current script")
 			.since("2.10")
 			.parser(new ScriptParser())
-			.property(Property.NAME, new ScriptNameHandler());
+			.property(Property.NAME,
+				"A script's name, as text. If the experiment 'Script Reflection' is enabled, "
+					+ "this will return the resolved name of the script, otherwise it returns the file "
+					+ "name with path relative to the scripts folder. Cannot be changed.",
+				new ScriptNameHandler());
 	}
 
 	private static class ScriptParser extends Parser<Script> {
@@ -102,4 +107,5 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		}
 		//</editor-fold>
 	}
+
 }

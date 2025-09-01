@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class PlayerClassInfo extends ClassInfo<Player> {
+
 	public PlayerClassInfo() {
 		super(Player.class, "player");
 		this.user("players?")
@@ -49,8 +50,12 @@ public class PlayerClassInfo extends ClassInfo<Player> {
 			.after("string", "world")
 			.parser(new PlayerParser())
 			.changer(new PlayerChanger())
-			.property(Property.NAME, ExpressionPropertyHandler.of(Player::getName, String.class))
-			.property(Property.DISPLAY_NAME, new PlayerDisplayNameHandler())
+			.property(Property.NAME,
+				"A player's account/true name, as text. Cannot be changed.",
+				ExpressionPropertyHandler.of(Player::getName, String.class))
+			.property(Property.DISPLAY_NAME,
+				"The player's display name, as text. Can be set or reset.",
+				new PlayerDisplayNameHandler())
 			.serializeAs(OfflinePlayer.class);
 	}
 
@@ -161,4 +166,5 @@ public class PlayerClassInfo extends ClassInfo<Player> {
 		}
 		//</editor-fold>
 	}
+
 }

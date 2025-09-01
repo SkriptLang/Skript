@@ -304,7 +304,9 @@ public class JavaClasses {
 						return false;
 					}
 				})
-				.property(Property.CONTAINS, new ContainsHandler<String, String>() {
+				.property(Property.CONTAINS,
+					"Strings can contain other strings.",
+					new ContainsHandler<String, String>() {
 					@Override
 					public boolean contains(String container, String element) {
 						return StringUtils.contains(container, element, SkriptConfig.caseSensitive.value());

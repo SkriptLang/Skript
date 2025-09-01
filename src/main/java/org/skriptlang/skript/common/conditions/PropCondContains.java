@@ -1,6 +1,9 @@
 package org.skriptlang.skript.common.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RelatedProperty;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -17,6 +20,9 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyUtils;
 import org.skriptlang.skript.lang.properties.PropertyUtils.PropertyMap;
 
+@Name("Contains (Property)")
+@Description("Checks whether a type contains certain elements. The type must be have a 'contains' property.")
+@RelatedProperty("contains")
 public class PropCondContains extends Condition {
 
 	static {

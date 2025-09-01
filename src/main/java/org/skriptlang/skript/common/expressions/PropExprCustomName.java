@@ -1,14 +1,10 @@
 package org.skriptlang.skript.common.expressions;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
-// TODO: dynamic docs linkage
 @Name("Display Name")
 @Description({
 	"Represents the display name of a player, or the custom name of an item, entity, "
@@ -35,6 +31,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 	"2.2-dev20 (inventory name)",
 	"2.4 (non-living entity support, changeable inventory name)"
 })
+@RelatedProperty("display name")
 public class PropExprCustomName extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 
 	static {

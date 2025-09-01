@@ -50,21 +50,40 @@ import java.util.Locale;
  */
 public record Property<Handler extends PropertyHandler<?>>(
 		String name,
+		String description,
 		SkriptAddon provider,
 		@NotNull Class<? extends Handler> handler
 ) {
+
+	private static final PropertyRegistry propertyRegistry = Skript.getAddonInstance().registry(PropertyRegistry.class);
+
 	/**
-	 * Creates a new property. Prefer {@link #of(String, SkriptAddon, Class)}.
+	 * Creates a new property. Prefer {@link #of(String, String, SkriptAddon, Class)}.
 	 *
 	 * @param name the name of the property
 	 * @param provider the addon that provides this property
 	 * @param handler the handler class for this property
-	 * @see #of(String, SkriptAddon, Class)
+	 * @see #of(String, String, SkriptAddon, Class)
 	 */
-	public Property(@NotNull String name, SkriptAddon provider, @NotNull Class<? extends Handler> handler) {
+	public Property(String name, String description, SkriptAddon provider, @NotNull Class<? extends Handler> handler) {
 		this.name = name.toLowerCase(Locale.ENGLISH);
+		this.description = description;
 		this.provider = provider;
 		this.handler = handler;
+	}
+
+	/**
+	 * Gets a documentation-friendly ID for this property, based on its name.
+	 * May be overridden to provide a custom ID.
+	 *
+	 * @return a documentation-friendly ID for this property
+	 */
+	public String getDocumentationID() {
+		return name.replace(' ', '-').toLowerCase(Locale.ENGLISH);
+	}
+
+	public boolean register() {
+		return propertyRegistry.register(this);
 	}
 
 	/**
@@ -79,10 +98,11 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> Property<Handler> of(
 			@NotNull String name,
+			@NotNull String description,
 			@NotNull SkriptAddon provider,
 			@NotNull Class<HandlerClass> handler) {
 		//noinspection unchecked
-		return (Property<Handler>) new Property<>(name, provider, handler);
+		return (Property<Handler>) new Property<>(name, description, provider, handler);
 	}
 
 	/**
@@ -91,6 +111,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> NAME = Property.of(
 			"name",
+			"Something with a name, such as a script or a player.",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -100,6 +121,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> DISPLAY_NAME = Property.of(
 			"display name",
+			"A more prominently displayed name, such as a player's display name or an entity's custom name. Often more easily changed than the regular name.",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -109,6 +131,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ContainsHandler<?, ?>> CONTAINS = Property.of(
 			"contains",
+			"Something that can contain other things, such as an inventory or a string.",
 			Skript.instance(),
 			ContainsHandler.class);
 
@@ -117,9 +140,9 @@ public record Property<Handler extends PropertyHandler<?>>(
 	//	public static final Property VALUED = new Property("valued", Skript.getAddonInstance());
 
 	public static void registerDefaultProperties() {
-		PropertyRegistry propertyRegistry = Skript.getAddonInstance().registry(PropertyRegistry.class);
-		propertyRegistry.register(NAME);
-		propertyRegistry.register(CONTAINS);
+		NAME.register();
+		DISPLAY_NAME.register();
+		CONTAINS.register();
 	}
 
 	/**

@@ -11,6 +11,8 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Arrays;
@@ -141,6 +143,19 @@ public class DocumentationIdProvider {
 			otherEventInfo -> eventId.equals(getEventId(otherEventInfo)),
 			otherEventInfo -> Arrays.equals(otherEventInfo.getPatterns(), eventInfo.getPatterns()));
 		return addCollisionSuffix(eventId, collisionCount);
+	}
+
+	/**
+	 * Gets the documentation ID of a property
+	 * @param property the property to get the ID of
+	 * @return the ID of the property
+	 */
+	public static String getId(Property<?> property) {
+		String propertyId = property.getDocumentationID();
+		int collisionCount = calculateCollisionCount(Skript.instance().registry(PropertyRegistry.class).iterator(),
+			otherProperty -> propertyId.equals(otherProperty.getDocumentationID()),
+			otherProperty -> property == otherProperty);
+		return addCollisionSuffix(propertyId, collisionCount);
 	}
 
 }

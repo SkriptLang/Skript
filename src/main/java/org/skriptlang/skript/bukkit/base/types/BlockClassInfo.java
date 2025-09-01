@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class BlockClassInfo extends ClassInfo<Block> {
+
 	public BlockClassInfo() {
 		super(Block.class, "block");
 		this.user("blocks?")
@@ -43,10 +44,13 @@ public class BlockClassInfo extends ClassInfo<Block> {
 			.parser(new BlockParser())
 			.changer(new BlockChanger())
 			.serializer(new BlockSerializer())
-			.property(Property.NAME, new BlockNameHandler());
+			.property(Property.NAME,
+				"The custom name of the block, if it has one. Only TileEntities like chests and furnaces can " +
+					"have names. Can be set or reset.",
+				new BlockNameHandler());
 	}
 
-	public static class BlockNameHandler implements ExpressionPropertyHandler<Block, String> {
+	private static class BlockNameHandler implements ExpressionPropertyHandler<Block, String> {
 		//<editor-fold desc="name property for blocks" defaultstate="collapsed">
 		@Override
 		public String convert(Block block) {
@@ -83,7 +87,7 @@ public class BlockClassInfo extends ClassInfo<Block> {
 		//</editor-fold>
 	}
 
-	public static class BlockSerializer extends Serializer<Block> {
+	private static class BlockSerializer extends Serializer<Block> {
 		//<editor-fold desc="block serializer" defaultstate="collapsed">
 		@Override
 		public Fields serialize(final Block b) {
@@ -121,7 +125,7 @@ public class BlockClassInfo extends ClassInfo<Block> {
 		//</editor-fold>
 	}
 
-	public static class BlockParser extends Parser<Block> {
+	private static class BlockParser extends Parser<Block> {
 		//<editor-fold desc="block parser" defaultstate="collapsed">
 		@Override
 		public @Nullable Block parse(final String s, final ParseContext context) {

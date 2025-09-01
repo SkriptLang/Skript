@@ -47,11 +47,15 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 			.defaultExpression(new EventValueExpression<>(Entity.class))
 			.parser(new EntityParser())
 			.changer(new EntityChanger())
-			.property(Property.NAME, new EntityNameHandler(Property.NAME))
-			.property(Property.DISPLAY_NAME, new EntityNameHandler(Property.DISPLAY_NAME));
+			.property(Property.NAME,
+				"The entity's custom name, if it has one, as text. Can be set or reset.",
+				new EntityNameHandler(Property.NAME))
+			.property(Property.DISPLAY_NAME,
+				"The entity's custom name, if it has one, as text. Can be set or reset.",
+				new EntityNameHandler(Property.DISPLAY_NAME));
 	}
 
-	public static class EntityParser extends Parser<Entity> {
+	private static class EntityParser extends Parser<Entity> {
 		//<editor-fold desc="entity parser" defaultstate="collapsed">
 		@Override
 		public @Nullable Entity parse(String s, ParseContext context) {
@@ -192,4 +196,5 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 		}
 		//</editor-fold>
 	}
+
 }
