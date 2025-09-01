@@ -1235,7 +1235,7 @@ public class BukkitClasses {
 			.name("Vehicle")
 			.description("Represents a vehicle.")
 			.since("2.10.2")
-			.changer(DefaultChangers.entityChanger)
+			.changer(new EntityClassInfo.EntityChanger())
 		);
 
 		Classes.registerClass(new EnumClassInfo<>(EquipmentSlot.class, "equipmentslot", "equipment slots")

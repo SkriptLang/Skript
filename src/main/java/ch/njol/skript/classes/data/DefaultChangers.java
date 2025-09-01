@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.base.types.BlockClassInfo;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
 import org.skriptlang.skript.bukkit.base.types.InventoryClassInfo;
+import org.skriptlang.skript.bukkit.base.types.PlayerClassInfo;
 
 /**
  * @author Peter Güttinger
@@ -25,22 +26,13 @@ public class DefaultChangers {
 	 */
 	@Deprecated(since = "INSERT VERSION")
 	public final static Changer<Entity> entityChanger = new EntityClassInfo.EntityChanger();
-	
-	public final static Changer<Player> playerChanger = new Changer<Player>() {
-		@Override
-		@Nullable
-		public Class<? extends Object>[] acceptChange(final ChangeMode mode) {
-			if (mode == ChangeMode.DELETE)
-				return null;
-			return entityChanger.acceptChange(mode);
-		}
-		
-		@Override
-		public void change(final Player[] players, final @Nullable Object[] delta, final ChangeMode mode) {
-			entityChanger.change(players, delta, mode);
-		}
-	};
-	
+
+	/**
+	 * @deprecated Use {@link PlayerClassInfo.PlayerChanger} directly.
+	 */
+	@Deprecated(since = "INSERT VERSION")
+	public final static Changer<Player> playerChanger = new PlayerClassInfo.PlayerChanger();
+
 	public final static Changer<Entity> nonLivingEntityChanger = new Changer<Entity>() {
 		@Override
 		@Nullable
@@ -49,7 +41,7 @@ public class DefaultChangers {
 				return CollectionUtils.array();
 			return null;
 		}
-		
+
 		@Override
 		public void change(final Entity[] entities, final @Nullable Object[] delta, final ChangeMode mode) {
 			assert mode == ChangeMode.DELETE;
