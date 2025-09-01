@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Make Fire Resistant")
 @Description("Makes items fire resistant.")
 @Examples({
-	"make player's tool fire resistant:",
+	"make player's tool fire resistant",
 	"make {_items::*} not resistant to fire"
 })
 @RequiredPlugins("Spigot 1.20.5+")
@@ -26,8 +26,9 @@ import org.jetbrains.annotations.Nullable;
 public class EffFireResistant extends Effect {
 
 	static {
-		if (Skript.methodExists(ItemMeta.class, "setFireResistant", boolean.class))
+		if (Skript.methodExists(ItemMeta.class, "setFireResistant", boolean.class)) {
 			Skript.registerEffect(EffFireResistant.class, "make %itemtypes% [:not] (fire resistant|resistant to fire)");
+		}
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
