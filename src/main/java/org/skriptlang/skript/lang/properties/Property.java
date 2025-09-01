@@ -111,7 +111,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> NAME = Property.of(
 			"name",
-			"Something with a name, such as a script or a player.",
+			"A name, such as a script's name or a player's account name.",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
