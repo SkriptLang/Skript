@@ -30,11 +30,17 @@ public abstract class EntryData<T> {
 	private final String key;
 	private final @Nullable T defaultValue;
 	private final boolean optional;
+	private final boolean multiple;
 
 	public EntryData(String key, @Nullable T defaultValue, boolean optional) {
+		this(key, defaultValue, optional, false);
+	}
+
+	public EntryData(String key, @Nullable T defaultValue, boolean optional, boolean multiple) {
 		this.key = key;
 		this.defaultValue = defaultValue;
 		this.optional = optional;
+		this.multiple = multiple;
 	}
 
 	/**
@@ -57,6 +63,13 @@ public abstract class EntryData<T> {
 	 */
 	public boolean isOptional() {
 		return optional;
+	}
+
+	/**
+	 * @return Whether this entry data can be included repeatedly within a {@link SectionNode}.
+	 */
+	public boolean supportsMultiple() {
+		return multiple;
 	}
 
 	/**

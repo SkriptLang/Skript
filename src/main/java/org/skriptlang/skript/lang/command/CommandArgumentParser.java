@@ -1,0 +1,127 @@
+package org.skriptlang.skript.lang.command;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
+import com.google.common.base.Preconditions;
+import org.skriptlang.skript.registration.SyntaxInfo;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * A utility class responsible for parsing command argument strings.
+ * <p>
+ * It tokenizes an input string into a list of {@link CommandArgument} objects.
+ */
+public final class CommandArgumentParser {
+
+	private CommandArgumentParser() {
+		throw new UnsupportedOperationException();
+	}
+
+	private static final Pattern ARGUMENT_TOKENIZER_PATTERN =
+		Pattern.compile("<[^>]+>|\\([^)]+\\)|\\S+");
+
+	private static final Pattern TYPED_ARGUMENT_PARSER_PATTERN =
+		Pattern.compile("\\s*(?:([^:]+?):)?\\s*(.+?)\\s*");
+
+	private static final Pattern LITERAL_GROUP_PATTERN =
+		Pattern.compile("\\(([^)]+)\\)");
+
+	private static final ThreadLocal<Map<String, AtomicInteger>> ARG_COUNTERS = ThreadLocal.withInitial(HashMap::new);
+
+	/**
+	 * Resets the argument counter for current command.
+	 * <p>
+	 * It is used for auto-generating argument names for unnamed arguments.
+	 */
+	static void resetArgumentCounter() {
+		ARG_COUNTERS.set(new HashMap<>());
+	}
+
+	/**
+	 * Parses a raw string of arguments into a list of CommandArgument objects.
+	 *
+	 * @param arguments the raw argument string (e.g. "help <target: player>")
+	 * @return a list of parsed command arguments
+	 */
+	public static List<CommandArgument> parse(String arguments) {
+		if (arguments == null || arguments.isBlank())
+			return Collections.emptyList();
+
+		Matcher matcher = ARGUMENT_TOKENIZER_PATTERN.matcher(arguments);
+		List<CommandArgument> argumentList = new LinkedList<>();
+
+		while (matcher.find()) {
+			String token = matcher.group();
+			try {
+				argumentList.add(parseToken(token));
+			} catch (IllegalArgumentException e) {
+				Skript.error("Failed to parse command argument '" + token + "': " + e.getMessage());
+				// Stop parsing on the first error.
+				return Collections.emptyList();
+			}
+		}
+		return argumentList;
+	}
+
+	/**
+	 * Parses a single argument token into a {@link CommandArgument} object.
+	 *
+	 * @param token a single token (e.g. "<name:type>", "help", or "(first|second)").
+	 * @return The parsed CommandArgument
+	 */
+	private static CommandArgument parseToken(String token) {
+		if (token.startsWith("<") && token.endsWith(">")) {
+			return parseTypedArgument(token);
+		} else if (token.startsWith("(") && token.endsWith(")")) {
+			Matcher matcher = LITERAL_GROUP_PATTERN.matcher(token);
+			Preconditions.checkArgument(matcher.matches(), "Invalid literal group format: must be "
+				+ "'(literal1|literal2)', but got '" + token + "'");
+			String content = matcher.group(1);
+			List<String> literals = Arrays.asList(content.split("\\|"));
+			Preconditions.checkArgument(!literals.isEmpty() && literals.stream().noneMatch(String::isBlank),
+				"Literal group cannot contain blank or empty literals in '" + token + "'");
+			return new CommandArgument.Literal(literals);
+		} else {
+			return new CommandArgument.Literal(token);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static CommandArgument.Typed<?> parseTypedArgument(String token) {
+		// remove the outer brackets to get the content
+		String content = token.substring(1, token.length() - 1);
+		Matcher typedMatcher = TYPED_ARGUMENT_PARSER_PATTERN.matcher(content);
+		Preconditions.checkArgument(typedMatcher.matches(), "Invalid format: must be '<name: type>' or "
+			+ "'<type>', but got '" + token + "'");
+		String name = typedMatcher.group(1);
+		String typeExpression = typedMatcher.group(2);
+
+		if (name != null) {
+			Preconditions.checkArgument(!name.isBlank(), "Argument name cannot be blank in '" + token
+				+ "'");
+		}
+		Preconditions.checkArgument(!typeExpression.isBlank(), "Argument type cannot be blank in '"
+			+ token + "'");
+
+		var argumentTypes = (Collection<SyntaxInfo<ArgumentTypeElement<?>>>) (Collection<?>)
+			Skript.instance().syntaxRegistry().syntaxes(ArgumentTypeElement.REGISTRY_KEY);
+		ArgumentTypeElement<?> parsedType = SkriptParser.parseStatic(typeExpression, argumentTypes.iterator(),
+			ParseContext.DEFAULT, "Failed to parse argument type '" + typeExpression + "'");
+		Preconditions.checkArgument(parsedType != null, "Unknown argument type in '"
+			+ token + "'");
+
+		// create placeholder name for unnamed arguments
+		if (name == null) {
+			name = parsedType.codeName()
+				+ ARG_COUNTERS.get().computeIfAbsent(parsedType.codeName(), n -> new AtomicInteger()).getAndIncrement();
+		}
+
+		return new CommandArgument.Typed<>(name, parsedType);
+	}
+
+}

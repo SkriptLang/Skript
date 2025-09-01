@@ -12,6 +12,7 @@ import ch.njol.skript.classes.data.DefaultOperations;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
+import org.skriptlang.skript.bukkit.command.BrigadierModule;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;
@@ -101,6 +102,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.tags.TagModule;
+import org.skriptlang.skript.lang.command.ArgumentTypeElement;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -586,6 +588,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			FurnaceModule.load();
 			LootTableModule.load();
 			skript.loadModules(new DamageSourceModule());
+			skript.loadModules(new BrigadierModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

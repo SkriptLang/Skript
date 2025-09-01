@@ -1,0 +1,42 @@
+package org.skriptlang.skript.bukkit.command.elements;
+
+import ch.njol.skript.Skript;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.command.PaperCommandHandler;
+import org.skriptlang.skript.lang.command.CommandHandler;
+import org.skriptlang.skript.lang.command.SkriptCommandSender;
+import org.skriptlang.skript.lang.command.StructGeneralCommand;
+
+/**
+ * Brigadier command structure implementation.
+ */
+public class StructBrigadierCommand extends StructGeneralCommand {
+
+	private static final PaperCommandHandler HANDLER = new PaperCommandHandler();
+
+	/**
+	 * Registers the syntax for the brigadier commands for Paper platform and registers
+	 * the necessary event handlers for its command handler.
+	 *
+	 * @param addon addon to register the structure for
+	 */
+	public static void load(SkriptAddon addon) {
+		StructGeneralCommand.registerCommandStructure(addon, StructBrigadierCommand.class, "brigadier");
+		Bukkit.getPluginManager().registerEvents(HANDLER, Skript.getInstance());
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public CommandHandler<SkriptCommandSender> getHandler() {
+		return (CommandHandler<SkriptCommandSender>) (CommandHandler<?>) HANDLER;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "brigadier command /" + commandNode.getNamespace() + ":" + commandNode.getLiteral();
+	}
+
+}
