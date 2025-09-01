@@ -30,7 +30,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 	private boolean durability;
 
 	static {
-		register(ExprDurability.class, Integer.class, "(damage[s] [value[s]]|1:durabilit(y|ies))", "itemtypes/itemstacks/slots");
+		registerDefault(ExprDurability.class, Integer.class, "(damage[s] [value[s]]|1:durabilit(y|ies))", "itemtypes/itemstacks/slots");
 	}
 
 	@Override

@@ -42,7 +42,7 @@ public class ExprSpawnEggEntity extends SimplePropertyExpression<Object, EntityS
 
 	static {
 		if (Skript.classExists("org.bukkit.entity.EntitySnapshot"))
-			register(ExprSpawnEggEntity.class, EntitySnapshot.class, "spawn egg entity", "itemstacks/itemtypes/slots");
+			registerDefault(ExprSpawnEggEntity.class, EntitySnapshot.class, "spawn egg entity", "itemstacks/itemtypes/slots");
 	}
 
 	@Override

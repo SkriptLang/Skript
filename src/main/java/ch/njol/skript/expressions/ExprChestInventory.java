@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
@@ -55,11 +57,9 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 	private static final String DEFAULT_CHEST_TITLE = InventoryType.CHEST.getDefaultTitle();
 	private static final int DEFAULT_CHEST_ROWS = InventoryType.CHEST.getDefaultSize() / 9;
 
-	@Nullable
-	private Expression<Number> rows;
+	private @Nullable Expression<Number> rows;
 
-	@Nullable
-	private Expression<String> name;
+	private @Nullable Expression<String> name;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -99,6 +99,13 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 	@Override
 	public Class<? extends Inventory> getReturnType() {
 		return Inventory.class;
+	}
+
+	@Override
+	public Expression<? extends Inventory> simplify() {
+		if (rows instanceof Literal<Number> && name instanceof Literal<String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

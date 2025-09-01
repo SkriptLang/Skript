@@ -99,7 +99,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			serializer = BungeeComponentSerializer.get();
 
 		List<String> patterns = new ArrayList<>();
-		patterns.addAll(Arrays.asList(getPatterns("name[s]", "offlineplayers/entities/nameds/inventories")));
+		patterns.addAll(Arrays.asList(getDefaultPatterns("name[s]", "offlineplayers/entities/nameds/inventories")));
 		patterns.addAll(Arrays.asList(getPatterns("(display|nick|chat|custom)[ ]name[s]", "offlineplayers/entities/nameds/inventories")));
 		patterns.addAll(Arrays.asList(getPatterns("(player|tab)[ ]list name[s]", "players")));
 
