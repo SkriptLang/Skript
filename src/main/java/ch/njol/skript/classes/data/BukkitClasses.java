@@ -1590,6 +1590,6 @@ public class BukkitClasses {
 			.description("Represents a reason why a villager changed its career.")
 			.since("2.12")
 		);
-	}
 
+	}
 }
