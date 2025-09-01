@@ -1,52 +1,57 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.Goat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class GoatData extends EntityData<Goat> {
 
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
+		{"goat", Kleenean.UNKNOWN},
+		{"screaming goat", Kleenean.TRUE},
+		{"quiet goat", Kleenean.FALSE}
+	});
+
 	static {
-		if (Skript.classExists("org.bukkit.entity.Goat"))
-			EntityData.register(GoatData.class, "goat", Goat.class, 0,
-				"goat", "screaming goat", "quiet goat");
+		EntityData.register(GoatData.class, "goat", Goat.class, 0, PATTERNS.getPatterns());
 	}
 
-	private int screaming = 0; // 0 = random, 1 = screaming, 2 = quiet
+	private Kleenean screaming = Kleenean.UNKNOWN;
 
 	public GoatData() {}
 
-	public GoatData(int screaming) {
-		this.screaming = screaming;
+	public GoatData(@Nullable Kleenean screaming) {
+		this.screaming = screaming != null ? screaming : Kleenean.UNKNOWN;
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.screaming, 0).orElseThrow();
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		screaming = matchedPattern;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		screaming = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Goat> c, @Nullable Goat goat) {
-		if (goat != null && matchedPattern > 0)
-			goat.setScreaming(matchedPattern == 1);
+	protected boolean init(@Nullable Class<? extends Goat> entityClass, @Nullable Goat goat) {
+		if (goat != null) {
+			screaming = Kleenean.get(goat.isScreaming());
+			super.codeNameIndex = PATTERNS.getMatchedPattern(screaming, 0).orElseThrow();
+		}
 		return true;
 	}
 
 	@Override
-	public void set(Goat entity) {
-		if (matchedPattern > 0)
-			entity.setScreaming(screaming == 1);
+	public void set(Goat goat) {
+		goat.setScreaming(screaming.isTrue());
 	}
 
 	@Override
-	protected boolean match(Goat entity) {
-		if (matchedPattern > 0)
-			return entity.isScreaming() ? screaming == 1 : screaming == 2;
-		return true;
+	protected boolean match(Goat goat) {
+		return kleeneanMatch(screaming, goat.isScreaming());
 	}
 
 	@Override
@@ -55,27 +60,27 @@ public class GoatData extends EntityData<Goat> {
 	}
 
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new GoatData(screaming);
+	public @NotNull EntityData<?> getSuperType() {
+		return new GoatData();
 	}
 
 	@Override
 	protected int hashCode_i() {
-		return screaming;
+		return screaming.hashCode();
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> data) {
-		if (!(data instanceof GoatData))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof GoatData other))
 			return false;
-		return screaming == ((GoatData) data).screaming;
+		return screaming == other.screaming;
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> data) {
-		if (!(data instanceof GoatData))
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof GoatData other))
 			return false;
-		return screaming == ((GoatData) data).screaming;
+		return kleeneanMatch(screaming, other.screaming);
 	}
 
 }
