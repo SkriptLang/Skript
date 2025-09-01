@@ -553,7 +553,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
+				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
 			FishingModule.load();
