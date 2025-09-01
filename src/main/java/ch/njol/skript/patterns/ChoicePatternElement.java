@@ -3,7 +3,9 @@ package ch.njol.skript.patterns;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,4 +57,12 @@ public class ChoicePatternElement extends PatternElement {
 			.map(PatternElement::toFullString)
 			.collect(Collectors.joining("|"));
 	}
+
+	@Override
+	public Set<String> getCombinations(boolean clean) {
+		Set<String> combinations = new HashSet<>();
+		patternElements.forEach(patternElement -> combinations.addAll(patternElement.getAllCombinations(clean)));
+		return combinations;
+	}
+
 }

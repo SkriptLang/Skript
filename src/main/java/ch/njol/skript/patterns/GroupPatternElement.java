@@ -2,6 +2,8 @@ package ch.njol.skript.patterns;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 /**
  * A {@link PatternElement} that represents a group, for example {@code (test)}.
  */
@@ -32,6 +34,11 @@ public class GroupPatternElement extends PatternElement {
 	@Override
 	public String toString() {
 		return "(" + patternElement + ")";
+	}
+
+	@Override
+	public Set<String> getCombinations(boolean clean) {
+		return patternElement.getAllCombinations(clean);
 	}
 
 }
