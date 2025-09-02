@@ -13,6 +13,7 @@ import java.util.regex.PatternSyntaxException;
  *
  * @see AnyProvider
  */
+@Deprecated(since="INSERT VERSION")
 public class AnyInfo<Type extends AnyProvider> extends ClassInfo<Type> {
 
 	/**

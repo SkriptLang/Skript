@@ -1,7 +1,6 @@
 package ch.njol.skript.config;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
@@ -13,7 +12,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class Node implements AnyNamed, Validated, NodeNavigator {
+public abstract class Node implements Validated, NodeNavigator {
 
 	@Nullable
 	protected String key;
@@ -484,11 +483,6 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 			return new String[0];
 
 		return path.toArray(new String[0]);
-	}
-
-	@Override
-	public @Nullable String name() {
-		return this.getKey();
 	}
 
 	@Override

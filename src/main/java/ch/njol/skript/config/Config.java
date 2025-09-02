@@ -2,7 +2,6 @@ package ch.njol.skript.config;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.validate.SectionValidator;
-import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus;
@@ -22,12 +21,15 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a config file.
  */
-public class Config implements Comparable<Config>, Validated, NodeNavigator, AnyNamed {
+public class Config implements Comparable<Config>, Validated, NodeNavigator {
 
 	/**
 	 * One level of the indentation, e.g. a tab or 4 spaces.
@@ -468,7 +470,6 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	/**
 	 * @return The name of this config (excluding path and file extensions)
 	 */
-	@Override
 	public String name() {
 		String name = this.getFileName();
 		if (name == null)

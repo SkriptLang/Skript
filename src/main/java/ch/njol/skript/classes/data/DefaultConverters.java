@@ -10,7 +10,6 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
@@ -29,12 +28,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
@@ -158,70 +153,6 @@ public class DefaultConverters {
 				return entity;
 			return null;
 		}, Converter.NO_CHAINING);
-
-		// Anything with a name -> AnyNamed
-		Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, player -> player::getName, Converter.NO_RIGHT_CHAINING);
-		if (Skript.classExists("org.bukkit.generator.WorldInfo"))
-			Converters.registerConverter(World.class, AnyNamed.class, world -> world::getName, Converter.NO_RIGHT_CHAINING);
-		else //noinspection RedundantCast getName method is on World itself in older versions
-			Converters.registerConverter(World.class, AnyNamed.class, world -> () -> ((World) world).getName(), Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(GameRule.class, AnyNamed.class, rule -> rule::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Server.class, AnyNamed.class, server -> server::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Plugin.class, AnyNamed.class, plugin -> plugin::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(WorldType.class, AnyNamed.class, type -> type::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Team.class, AnyNamed.class, team -> team::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Objective.class, AnyNamed.class, objective -> objective::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			nameable -> new AnyNamed() {
-				@Override
-				public @UnknownNullability String name() {
-					//noinspection deprecation
-					return nameable.getCustomName();
-				}
-
-				@Override
-				public boolean supportsNameChange() {
-					return true;
-				}
-
-				@Override
-				public void setName(String name) {
-					//noinspection deprecation
-					nameable.setCustomName(name);
-				}
-			},
-			//</editor-fold>
-			Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Block.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			block -> new AnyNamed() {
-				@Override
-				public @UnknownNullability String name() {
-					BlockState state = block.getState();
-					if (state instanceof Nameable nameable)
-						//noinspection deprecation
-						return nameable.getCustomName();
-					return null;
-				}
-
-				@Override
-				public boolean supportsNameChange() {
-					return true;
-				}
-
-				@Override
-				public void setName(String name) {
-					BlockState state = block.getState();
-					if (state instanceof Nameable nameable) {
-						//noinspection deprecation
-						nameable.setCustomName(name);
-						state.update(true, false);
-					}
-				}
-			},
-			//</editor-fold>
-			Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(CommandSender.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		// Command senders should be done last because there might be a better alternative above
 
 		// Anything with an amount -> AnyAmount
 		Converters.registerConverter(ItemStack.class, AnyAmount.class, //<editor-fold desc="Converter" defaultstate="collapsed">

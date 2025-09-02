@@ -4,7 +4,6 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
-import com.sun.jdi.request.StepRequest;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -15,6 +14,7 @@ import org.skriptlang.skript.lang.converter.Converters;
  *
  * @see AnyProvider
  */
+@Deprecated(since="INSERT VERSION")
 public interface AnyValued<Type> extends AnyProvider {
 
 	/**
