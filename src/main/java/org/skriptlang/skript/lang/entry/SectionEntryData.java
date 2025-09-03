@@ -15,8 +15,13 @@ public class SectionEntryData extends EntryData<SectionNode> {
 		super(key, defaultValue, optional);
 	}
 
+	public SectionEntryData(String key, @Nullable SectionNode defaultValue, boolean optional, boolean multiple) {
+		super(key, defaultValue, optional, multiple);
+	}
+
 	/**
-	 * Because this entry data is for {@link SectionNode}s, no specific handling needs to be done to obtain the "value".
+	 * Because this entry data is for {@link SectionNode}s,
+	 * no specific handling needs to be done to obtain the "value".
 	 * This method just asserts that the provided node is actually a {@link SectionNode}.
 	 * @param node A {@link SimpleNode} to obtain (and possibly convert) the value of.
 	 * @return The value obtained from the provided {@link SimpleNode}.
