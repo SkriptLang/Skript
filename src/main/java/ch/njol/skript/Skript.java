@@ -491,7 +491,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
 		unmodifiableSkript = new ModernSkriptBridge.SpecialUnmodifiableSkript(skript);
 		skript.localizer().setSourceDirectories("lang",
-				getDataFolder().getAbsolutePath() + "lang");
+				getDataFolder().getAbsolutePath() + File.separatorChar + "lang");
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
@@ -575,7 +575,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
+				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
 			FishingModule.load();

@@ -5,6 +5,8 @@ import ch.njol.skript.lang.function.FunctionRegistry.FunctionIdentifier;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.DefaultClasses;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
@@ -36,7 +38,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getFunction(null, FUNCTION_NAME).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME).conflictingArgs());
 
-		registry.register(TEST_FUNCTION);
+		registry.register(null, TEST_FUNCTION);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
 
@@ -57,13 +59,13 @@ public class FunctionRegistryTest {
 		assertNull(registry.getSignature(null, FUNCTION_NAME).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME).retrieved());
 
-		registry.register(TEST_FUNCTION);
+		registry.register(null, TEST_FUNCTION);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
 		assertEquals(TEST_FUNCTION.getSignature(), registry.getSignature(null, FUNCTION_NAME).retrieved());
 		assertEquals(TEST_FUNCTION, registry.getFunction(null, FUNCTION_NAME).retrieved());
 
-		assertThrows(SkriptAPIException.class, () -> registry.register(TEST_FUNCTION));
+		assertThrows(SkriptAPIException.class, () -> registry.register(null, TEST_FUNCTION));
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
 		assertEquals(TEST_FUNCTION.getSignature(), registry.getSignature(null, FUNCTION_NAME).retrieved());
@@ -78,7 +80,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getSignature(null, FUNCTION_NAME).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME).retrieved());
 
-		registry.register(TEST_FUNCTION);
+		registry.register(null, TEST_FUNCTION);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
 		assertEquals(TEST_FUNCTION.getSignature(), registry.getSignature(null, FUNCTION_NAME).retrieved());
@@ -90,7 +92,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getSignature(null, FUNCTION_NAME).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME).retrieved());
 
-		registry.register(TEST_FUNCTION);
+		registry.register(null, TEST_FUNCTION);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
 		assertEquals(TEST_FUNCTION.getSignature(), registry.getSignature(null, FUNCTION_NAME).retrieved());
@@ -131,7 +133,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getFunction(null, FUNCTION_NAME).retrieved());
 
 		registry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
-		registry.register(TEST_FUNCTION);
+		registry.register(null, TEST_FUNCTION);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(TEST_SCRIPT, FUNCTION_NAME).result());
 		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), registry.getSignature(TEST_SCRIPT, FUNCTION_NAME).retrieved());
@@ -173,7 +175,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getSignature(null, FUNCTION_NAME, Number.class).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME, Number.class).retrieved());
 
-		registry.register(TEST_FUNCTION_B);
+		registry.register(null, TEST_FUNCTION_B);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, Boolean.class).result());
 		assertEquals(TEST_FUNCTION_B.getSignature(), registry.getSignature(null, FUNCTION_NAME, Boolean.class).retrieved());
@@ -182,7 +184,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getSignature(null, FUNCTION_NAME, Number.class).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME, Number.class).retrieved());
 
-		registry.register(TEST_FUNCTION_N);
+		registry.register(null, TEST_FUNCTION_N);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, Boolean.class).result());
 		assertEquals(TEST_FUNCTION_B.getSignature(), registry.getSignature(null, FUNCTION_NAME, Boolean.class).retrieved());
@@ -191,8 +193,8 @@ public class FunctionRegistryTest {
 		assertEquals(TEST_FUNCTION_N.getSignature(), registry.getSignature(null, FUNCTION_NAME, Number.class).retrieved());
 		assertEquals(TEST_FUNCTION_N, registry.getFunction(null, FUNCTION_NAME, Number.class).retrieved());
 
-		assertThrows(SkriptAPIException.class, () -> registry.register(TEST_FUNCTION_B));
-		assertThrows(SkriptAPIException.class, () -> registry.register(TEST_FUNCTION_N));
+		assertThrows(SkriptAPIException.class, () -> registry.register(null, TEST_FUNCTION_B));
+		assertThrows(SkriptAPIException.class, () -> registry.register(null, TEST_FUNCTION_N));
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, Boolean.class).result());
 		assertEquals(TEST_FUNCTION_B.getSignature(), registry.getSignature(null, FUNCTION_NAME, Boolean.class).retrieved());
@@ -214,7 +216,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getSignature(null, FUNCTION_NAME, Number.class).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME, Number.class).retrieved());
 
-		registry.register(TEST_FUNCTION_B);
+		registry.register(null, TEST_FUNCTION_B);
 
 		assertNotSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, Boolean.class).result());
 		assertEquals(TEST_FUNCTION_B.getSignature(), registry.getSignature(null, FUNCTION_NAME, Boolean.class).retrieved());
@@ -232,7 +234,7 @@ public class FunctionRegistryTest {
 		assertNull(registry.getSignature(null, FUNCTION_NAME, Number.class).retrieved());
 		assertNull(registry.getFunction(null, FUNCTION_NAME, Number.class).retrieved());
 
-		registry.register(TEST_FUNCTION_N);
+		registry.register(null, TEST_FUNCTION_N);
 
 		assertSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, Boolean.class).result());
 		assertNull(registry.getSignature(null, FUNCTION_NAME, Boolean.class).retrieved());
@@ -386,6 +388,79 @@ public class FunctionRegistryTest {
 		};
 
 		assertEquals(FunctionIdentifier.of(function2.getSignature()), identifier);
+	}
+
+	// see https://github.com/SkriptLang/Skript/pull/8015
+	@Test
+	public void testRemoveGlobalScriptFunctions8015() {
+		// create empty TEST_SCRIPT namespace such that it is not null
+		registry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
+		registry.remove(LOCAL_TEST_FUNCTION.getSignature());
+
+		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(TEST_SCRIPT, FUNCTION_NAME).result());
+
+		// construct a global function with a non-null script, which happens in script functions
+		Signature<Boolean> signature = new Signature<>(TEST_SCRIPT, FUNCTION_NAME, new Parameter<?>[0],
+			false, DefaultClasses.BOOLEAN, true, "");
+		SimpleJavaFunction<Boolean> fn = new SimpleJavaFunction<>(signature) {
+			@Override
+			public Boolean @Nullable [] executeSimple(Object[][] params) {
+				return new Boolean[] { true };
+			}
+		};
+
+		// ensure new behaviour
+		assertThrows(IllegalArgumentException.class, () -> registry.register(TEST_SCRIPT, fn));
+
+		registry.register(null, fn);
+
+		assertEquals(RetrievalResult.EXACT, registry.getSignature(null, FUNCTION_NAME).result());
+
+		registry.remove(signature);
+
+		assertEquals(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME).result());
+	}
+
+	private static final Function<Boolean> TEST_FUNCTION_P = new SimpleJavaFunction<>(FUNCTION_NAME,
+		new Parameter[]{
+			new Parameter<>("a", DefaultClasses.PLAYER, true, null)
+		}, DefaultClasses.BOOLEAN, true) {
+		@Override
+		public Boolean @Nullable [] executeSimple(Object[][] params) {
+			return new Boolean[]{true};
+		}
+	};
+
+	private static final Function<Boolean> TEST_FUNCTION_OP = new SimpleJavaFunction<>(FUNCTION_NAME,
+			new Parameter[]{
+					new Parameter<>("a", DefaultClasses.OFFLINE_PLAYER, true, null)
+			}, DefaultClasses.BOOLEAN, true) {
+		@Override
+		public Boolean @Nullable [] executeSimple(Object[][] params) {
+			return new Boolean[]{true};
+		}
+	};
+
+	@Test
+	public void testGetExactSignature() {
+		assertSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, Player.class).result());
+		assertNull(registry.getSignature(null, FUNCTION_NAME, Player.class).retrieved());
+		assertNull(registry.getFunction(null, FUNCTION_NAME, Player.class).retrieved());
+		assertSame(RetrievalResult.NOT_REGISTERED, registry.getSignature(null, FUNCTION_NAME, OfflinePlayer.class).result());
+		assertNull(registry.getSignature(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+		assertNull(registry.getFunction(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+
+		registry.register(null, TEST_FUNCTION_P);
+
+		assertSame(RetrievalResult.EXACT, registry.getExactSignature(null, FUNCTION_NAME, Player.class).result());
+		assertEquals(TEST_FUNCTION_P.getSignature(), registry.getExactSignature(null, FUNCTION_NAME, Player.class).retrieved());
+		assertNull(registry.getExactSignature(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+
+		assertEquals(TEST_FUNCTION_P.getSignature(), registry.getSignature(null, FUNCTION_NAME, Player.class).retrieved());
+		assertEquals(TEST_FUNCTION_P.getSignature(), registry.getSignature(null, FUNCTION_NAME, OfflinePlayer.class).retrieved());
+
+		registry.remove(TEST_FUNCTION_P.getSignature());
+		registry.remove(TEST_FUNCTION_OP.getSignature());
 	}
 
 }
