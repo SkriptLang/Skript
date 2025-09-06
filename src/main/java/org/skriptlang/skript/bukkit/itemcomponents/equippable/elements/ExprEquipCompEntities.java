@@ -13,7 +13,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import io.papermc.paper.registry.set.RegistryKeySet;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -77,7 +76,6 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 					converted.add(EntityUtils.toBukkitEntityType(entityData));
 			}
 		}
-		RegistryKeySet<EntityType> keys = EquippableWrapper.convertAllowedEntities(converted);
 
 		getExpr().stream(event).forEach(wrapper -> {
 			Collection<EntityType> allowed = wrapper.getAllowedEntities();
