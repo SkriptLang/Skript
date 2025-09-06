@@ -4,7 +4,6 @@ import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.util.ItemSource;
 import ch.njol.skript.util.slot.Slot;
-import io.papermc.paper.datacomponent.BuildableDataComponent;
 import io.papermc.paper.datacomponent.DataComponentBuilder;
 import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +19,7 @@ import java.util.function.Consumer;
  * @param <B> The builder type of {@link T}
  */
 @SuppressWarnings({"UnstableApiUsage", "NonExtendableApiUsage"})
-public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B extends DataComponentBuilder<T>> implements Cloneable {
+public abstract class ComponentWrapper<T, B extends DataComponentBuilder<T>> implements Cloneable {
 
 	private final @Nullable ItemSource<?> itemSource;
 	private T component;
@@ -83,8 +82,7 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 		if (itemSource != null) {
 			return this.getBuilder(itemSource.getItemStack());
 		}
-		//noinspection unchecked
-		return (B) component.toBuilder();
+		return toBuilder(component);
 	}
 
 	/**
@@ -171,6 +169,13 @@ public abstract class ComponentWrapper<T extends BuildableDataComponent<?, ?>, B
 		consumer.accept(builder);
 		applyComponent(builder.build());
 	}
+
+	/**
+	 * Convert {@code component} to a builder.
+	 * @param component The component.
+	 * @return The builder.
+	 */
+	protected abstract B toBuilder(T component);
 
 	/**
 	 * Returns a clone of this {@link ComponentWrapper}.
