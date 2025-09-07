@@ -12,8 +12,10 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Can Equip On Entities")
-@Description("Whether an entity should equip the item when right clicking on the entity with the item. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
+@Description("""
+	Whether an entity should equip the item when right clicking on the entity with the item.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("if {_item} can be equipped on entities:")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21.5+")

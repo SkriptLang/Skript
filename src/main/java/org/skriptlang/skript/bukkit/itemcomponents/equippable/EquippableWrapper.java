@@ -8,18 +8,17 @@ import io.papermc.paper.datacomponent.item.Equippable;
 import io.papermc.paper.datacomponent.item.Equippable.Builder;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
-import io.papermc.paper.registry.set.RegistrySet;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Registry;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * A {@link ComponentWrapper} for getting and setting data on an {@link Equippable} component.
@@ -92,7 +91,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	}
 
 	@Override
-	protected Builder toBuilder(Equippable component) {
+	protected Builder getBuilder(Equippable component) {
 		return component.toBuilder();
 	}
 
@@ -227,10 +226,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	 * @return The allowed {@link EntityType}s.
 	 */
 	public static Collection<EntityType> getAllowedEntities(Equippable component) {
-		RegistryKeySet<EntityType> keys = component.allowedEntities();
-		if (keys == null)
-			return Collections.emptyList();
-		return keys.resolve(Registry.ENTITY_TYPE);
+		return ComponentUtils.registryKeySetToCollection(component.allowedEntities(), Registry.ENTITY_TYPE);
 	}
 
 	/**
@@ -239,7 +235,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	 * @return {@link RegistryKeySet} representation of {@code entityTypes}.
 	 */
 	public static RegistryKeySet<EntityType> convertAllowedEntities(Collection<EntityType> entityTypes) {
-		return RegistrySet.keySetFromValues(RegistryKey.ENTITY_TYPE, entityTypes);
+		return ComponentUtils.collectionToRegistryKeySet(entityTypes, RegistryKey.ENTITY_TYPE);
 	}
 
 }

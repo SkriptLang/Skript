@@ -18,8 +18,10 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equip Sound")
-@Description("The sound to be played when the item is equipped. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
+@Description("""
+	The sound to be played when the item is equipped.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("set the equip sound of {_item} to \"entity.experience_orb.pickup\"")
 @Example("""
 	set {_component} to the equippable component of {_item}
