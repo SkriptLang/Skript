@@ -1,6 +1,11 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable.elements;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
@@ -10,16 +15,31 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.set.RegistryKeySet;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
+import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
+import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumeEffectExperimentalSyntax;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Name("Consume Effect - Remove Effects")
+@Description("""
+	A consume effect that removes the provided potion types when the item has been consumed.
+	Consume effects have to be added to the consumable component of an item.
+	NOTE: Consume Effect elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
+@Example("""
+	set {_effect} to a consume effect to remove blindness, bad luck and slowness
+	add {_effect} to the consume effects of {_item}
+	""")
+@RequiredPlugins("Minecraft 1.21.3+")
+@Since("INSERT VERSION")
 @SuppressWarnings("UnstableApiUsage")
-public class ExprConsumeEffectRemove extends SimpleExpression<ConsumeEffect> implements ConsumableExperimentSyntax {
+public class ExprConsumeEffectRemove extends SimpleExpression<ConsumeEffect> implements ConsumeEffectExperimentalSyntax {
 
 	static {
 		Skript.registerExpression(ExprConsumeEffectRemove.class, ConsumeEffect.class, ExpressionType.PROPERTY,
@@ -41,8 +61,9 @@ public class ExprConsumeEffectRemove extends SimpleExpression<ConsumeEffect> imp
 		if (types.isEmpty())
 			return null;
 
-
-		return new ConsumeEffect[0] ;
+		RegistryKeySet<PotionEffectType> keys = ComponentUtils.collectionToRegistryKeySet(types, RegistryKey.MOB_EFFECT);
+		ConsumeEffect effect = ConsumeEffect.removeEffects(keys);
+		return new ConsumeEffect[] {effect};
 	}
 
 	@Override

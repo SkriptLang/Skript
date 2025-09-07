@@ -19,7 +19,8 @@ public enum Feature implements Experiment {
 	TYPE_HINTS("type hints", LifeCycle.EXPERIMENTAL, "[local variable] type hints"),
 	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]"),
 	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components"),
-	CONSUMABLE_COMPONENTS("consumable components", LifeCycle.EXPERIMENTAL, "consumable components")
+	CONSUMABLE_COMPONENTS("consumable components", LifeCycle.EXPERIMENTAL, "consumable components"),
+	CONSUME_EFFECTS("consume effects", LifeCycle.EXPERIMENTAL, "consume effects")
 	;
 
 	private final String codeName;
