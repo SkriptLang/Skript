@@ -14,8 +14,10 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Will Lose Durability")
-@Description("Whether an item can be damaged when the wearer gets injured. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
+@Description("""
+	Whether an item will be damaged when the wearer gets injured.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("""
 	if {_item} will lose durability when hurt:
 		add "Damageable on injury" to lore of {_item}

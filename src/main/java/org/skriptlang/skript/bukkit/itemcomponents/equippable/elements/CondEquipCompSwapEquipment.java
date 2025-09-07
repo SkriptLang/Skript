@@ -10,11 +10,11 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Can Swap Equipment")
-@Description({
-	"Whether an item can swap equipment by right clicking with it in your hand.",
-	"The item will swap places of the set 'equipment slot' of the item. If an equipment slot is not set, defaults to helmet.",
-	"NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended."
-})
+@Description("""
+	Whether an item can swap equipment by right clicking with it in your hand.
+	The item will swap places of the set 'equipment slot' of the item. If an equipment slot is not set, defaults to helmet.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.
+	""")
 @Example("""
 	if {_item} can swap equipment:
 		add "Swappable" to lore of {_item}

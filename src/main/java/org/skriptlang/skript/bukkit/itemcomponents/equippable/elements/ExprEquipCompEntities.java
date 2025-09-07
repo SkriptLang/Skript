@@ -24,8 +24,10 @@ import java.util.Collection;
 import java.util.List;
 
 @Name("Equippable Component - Allowed Entities")
-@Description("The entities allowed to wear the item. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
+@Description("""
+	The entities allowed to wear the item.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("set the allowed entities of {_item} to a zombie and a skeleton")
 @Example("""
 	set {_component} to the equippable component of {_item}
