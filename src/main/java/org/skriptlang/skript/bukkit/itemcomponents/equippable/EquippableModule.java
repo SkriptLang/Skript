@@ -30,7 +30,10 @@ public class EquippableModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(EquippableWrapper.class, "equippablecomponent")
 			.user("equippable ?components?")
 			.name("Equippable Components")
-			.description("Represents an equippable component used for items.")
+			.description("""
+				Represents an equippable component used for items.
+				NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+				""")
 			.requiredPlugins("Minecraft 1.21.2+")
 			.since("INSERT VERSION")
 			.defaultExpression(new EventValueExpression<>(EquippableWrapper.class))

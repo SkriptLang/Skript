@@ -79,9 +79,10 @@ public abstract class ComponentWrapper<T, B extends DataComponentBuilder<T>> imp
 	 * the component of the stored item. Otherwise, the stored {@link #component}.
 	 */
 	public B getBuilder() {
-		if (itemSource != null)
+		if (itemSource != null) {
 			return this.getBuilder(itemSource.getItemStack());
-		return toBuilder(component);
+		}
+		return getBuilder(component);
 	}
 
 	/**
@@ -174,7 +175,7 @@ public abstract class ComponentWrapper<T, B extends DataComponentBuilder<T>> imp
 	 * @param component The component.
 	 * @return The builder.
 	 */
-	public abstract B toBuilder(T component);
+	protected abstract B getBuilder(T component);
 
 	/**
 	 * Returns a clone of this {@link ComponentWrapper}.

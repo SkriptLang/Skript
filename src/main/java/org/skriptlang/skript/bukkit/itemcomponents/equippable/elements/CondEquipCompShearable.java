@@ -10,8 +10,10 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Can Be Sheared Off")
-@Description("Whether an item can be sheared off of an entity. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
+@Description("""
+	Whether an item can be sheared off of an entity.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("""
 	if {_item} can be sheared off:
 		add "Shearable" to lore of {_item}

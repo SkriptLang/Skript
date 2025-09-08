@@ -27,9 +27,11 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Name("New Equippable Component")
-@Description("Gets a blank equippable component. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work aas intended.")
+@Name("Blank Equippable Component")
+@Description("""
+	Gets a blank equippable component.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("""
 	set {_component} to a blank equippable component
 	set the equippable component of {_item} to {_component}

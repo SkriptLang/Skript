@@ -21,8 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 
 @Name("Equippable Component - Can Be Dispensed")
-@Description("Whether an item can be dispensed by a dispenser. "
-	+ "NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.")
+@Description("""
+	Whether an item can be dispensed by a dispenser.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("""
 	if {_item} can be dispensed:
 		add "Dispensable" to lore of {_item}

@@ -18,15 +18,15 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperime
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Camera Overlay")
-@Description({
-	"The camera overlay for the player when the item is equipped.",
-	"Example: The jack-o'-lantern view when having a jack-o'-lantern equipped as a helmet.",
-	"The camera overlay is represented as a namespaced key.",
-	"A namespaced key can be formatted as 'namespace:id' or 'id'. "
-		+ "It can only contain one ':' to separate the namespace and the id. "
-		+ "Only alphanumeric characters, periods, underscores, and dashes can be used.",
-	"NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended."
-})
+@Description("""
+	The camera overlay for the player when the item is equipped.
+	Example: The jack-o'-lantern view when having a jack-o'-lantern equipped as a helmet.
+	The camera overlay is represented as a namespaced key.
+	A namespaced key can be formatted as 'namespace:id' or 'id'. \
+	It can only contain one ':' to separate the namespace and the id. \
+	Only alphanumeric characters, periods, underscores, and dashes can be used.
+	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("set the camera overlay of {_item} to \"custom_overlay\"")
 @Example("""
 	set {_component} to the equippable component of {_item}
