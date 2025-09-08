@@ -33,7 +33,7 @@ public class LitConsumeEffectClear extends SimpleLiteral<ConsumeEffect> implemen
 
 	static {
 		Skript.registerExpression(LitConsumeEffectClear.class, ConsumeEffect.class, ExpressionType.SIMPLE,
-			"[a] consume effect to clear all potion effects");
+			"[a] consume effect to clear all (potion|status) effects");
 	}
 
 	public LitConsumeEffectClear() {

@@ -1,15 +1,24 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable;
 
 import ch.njol.skript.util.ItemSource;
+import io.papermc.paper.datacomponent.DataComponentBuilder;
 import io.papermc.paper.datacomponent.DataComponentType.Valued;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Consumable;
-import io.papermc.paper.datacomponent.item.Consumable.Builder;
+import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import net.kyori.adventure.key.Key;
+import org.bukkit.Registry;
+import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper.ConsumableBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
-public class ConsumableWrapper extends ComponentWrapper<Consumable, Builder> {
+public class ConsumableWrapper extends ComponentWrapper<Consumable, ConsumableBuilder> {
 
 	public ConsumableWrapper(ItemStack itemStack) {
 		super(itemStack);
@@ -23,7 +32,7 @@ public class ConsumableWrapper extends ComponentWrapper<Consumable, Builder> {
 		super(component);
 	}
 
-	public ConsumableWrapper(Builder builder) {
+	public ConsumableWrapper(ConsumableBuilder builder) {
 		super(builder);
 	}
 
@@ -41,11 +50,11 @@ public class ConsumableWrapper extends ComponentWrapper<Consumable, Builder> {
 	}
 
 	@Override
-	protected Builder getBuilder(ItemStack itemStack) {
+	protected ConsumableBuilder getBuilder(ItemStack itemStack) {
 		Consumable consumable = itemStack.getData(DataComponentTypes.CONSUMABLE);
 		if (consumable != null)
-			return consumable.toBuilder();
-		return Consumable.consumable();
+			return new ConsumableBuilder(consumable);
+		return new ConsumableBuilder();
 	}
 
 	@Override
@@ -54,8 +63,8 @@ public class ConsumableWrapper extends ComponentWrapper<Consumable, Builder> {
 	}
 
 	@Override
-	protected Builder toBuilder(Consumable component) {
-		return component.toBuilder();
+	protected ConsumableBuilder getBuilder(Consumable component) {
+		return new ConsumableBuilder(component);
 	}
 
 	@Override
@@ -71,8 +80,8 @@ public class ConsumableWrapper extends ComponentWrapper<Consumable, Builder> {
 	}
 
 	@Override
-	public Builder newBuilder() {
-		return Consumable.consumable();
+	public ConsumableBuilder newBuilder() {
+		return new ConsumableBuilder();
 	}
 
 	@Override
@@ -82,6 +91,78 @@ public class ConsumableWrapper extends ComponentWrapper<Consumable, Builder> {
 
 	public static ConsumableWrapper newInstance() {
 		return new ConsumableWrapper(Consumable.consumable().build());
+	}
+
+	/**
+	 * Custom builder class for {@link Consumable} that mimics {@link Consumable.Builder} allowing methods not
+	 * shared across all versions to be used.
+	 */
+	@SuppressWarnings("NonExtendableApiUsage")
+	public static class ConsumableBuilder implements DataComponentBuilder<Consumable> {
+
+		private ItemUseAnimation animation = ItemUseAnimation.EAT;
+		private List<ConsumeEffect> consumeEffects = new ArrayList<>();
+		private boolean consumeParticles = true;
+		private float consumeSeconds = 5;
+		private Key sound = Registry.SOUNDS.getKey(Sound.ENTITY_GENERIC_EAT);
+
+		public ConsumableBuilder() {}
+
+		public ConsumableBuilder(Consumable consumable) {
+			this.animation = consumable.animation();
+			this.consumeEffects.addAll(consumable.consumeEffects());
+			this.consumeParticles = consumable.hasConsumeParticles();
+			this.consumeSeconds = consumable.consumeSeconds();
+			this.sound = consumable.sound();
+		}
+
+		public ConsumableBuilder animation(ItemUseAnimation animation) {
+			this.animation = animation;
+			return this;
+		}
+
+		public ConsumableBuilder addEffect(ConsumeEffect effect) {
+			consumeEffects.add(effect);
+			return this;
+		}
+
+		public ConsumableBuilder addEffects(List<ConsumeEffect> effects) {
+			this.consumeEffects.addAll(effects);
+			return this;
+		}
+
+		public ConsumableBuilder effects(List<ConsumeEffect> effects) {
+			this.consumeEffects.clear();
+			this.consumeEffects.addAll(effects);
+			return this;
+		}
+
+		public ConsumableBuilder hasConsumeParticles(boolean consumeParticles) {
+			this.consumeParticles = consumeParticles;
+			return this;
+		}
+
+		public ConsumableBuilder consumeSeconds(float seconds) {
+			this.consumeSeconds = seconds;
+			return this;
+		}
+
+		public ConsumableBuilder sound(Key sound) {
+			this.sound = sound;
+			return this;
+		}
+
+		@Override
+		public Consumable build() {
+			return Consumable.consumable()
+				.animation(animation)
+				.addEffects(consumeEffects)
+				.hasConsumeParticles(consumeParticles)
+				.consumeSeconds(consumeSeconds)
+				.sound(sound)
+				.build();
+		}
+
 	}
 
 }

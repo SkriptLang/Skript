@@ -26,6 +26,10 @@ import java.util.List;
 	NOTE: Consumable component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("set {_effects::*} to the consumption effects of {_item}")
+@Example("""
+	set {_effect} to a consume effect to clear all potion effects
+	add {_effect} to the consume effects of {_item}
+	""")
 @RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
 @SuppressWarnings("UnstableApiUsage")

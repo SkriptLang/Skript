@@ -6,6 +6,9 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
 
@@ -23,17 +26,27 @@ import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
 public class CondConsCompParticles extends PropertyCondition<ConsumableWrapper> implements ConsumableExperimentSyntax {
 
 	static {
-		register(CondConsCompParticles.class, PropertyType.HAVE, "consum(e|ption) particles [enabled]", "consumablecomponents");
+		register(CondConsCompParticles.class, PropertyType.HAVE, "consum(e|ption) particles [enabled|:disabled]", "consumablecomponents");
+	}
+
+	private boolean checkEnabled;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		checkEnabled = !parseResult.hasTag("disabled");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	public boolean check(ConsumableWrapper wrapper) {
-		return wrapper.getComponent().hasConsumeParticles();
+		return wrapper.getComponent().hasConsumeParticles() == checkEnabled;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "consume particles";
+		if (checkEnabled)
+			return "consume particles enabled";
+		return "consume particles disabled";
 	}
 
 }

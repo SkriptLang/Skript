@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -13,7 +14,6 @@ import io.papermc.paper.datacomponent.item.Consumable;
 import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -64,7 +64,7 @@ public class ConsumableModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(ConsumeEffect.class, "consumeeffect")
 			.user("consume ?effects?")
 			.name("Consume Effect")
-			.description("An effect applied to a consumable component for an item. The effect activates when the item is eaten.")
+			.description("An effect applied to an item. The effect activates when the item is consumed.")
 			.requiredPlugins("Minecraft 1.21.3+")
 			.since("INSERT VERSION")
 		);

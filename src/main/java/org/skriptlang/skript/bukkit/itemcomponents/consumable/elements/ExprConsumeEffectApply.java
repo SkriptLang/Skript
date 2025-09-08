@@ -32,7 +32,7 @@ import java.util.List;
 	NOTE: Consume Effect elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
-	set {_effect} to a consume effect to apply (strength of tier 3 for 1 hour) with a probability of 100
+	set {_effect} to a consume effect to apply (a new potion effect of strength of tier 3 for 1 hour) with a probability of 100
 	add {_effect} to the consume effects of {_item}
 	""")
 @RequiredPlugins("Minecraft 1.21.3+")

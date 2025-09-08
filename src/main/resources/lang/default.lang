@@ -2682,11 +2682,11 @@ damage types:
 
 # Consume Effect Types
 consume effect types:
-	apply_status_effects: apply status effects
-	clear_all_status_effects: clear all status effects, clear status effects
-	play_sound: play sound
-	remove_status_effects: remove status effects
-	teleport_randomly: teleport randomly
+	apply_status_effects: status apply
+	clear_all_status_effects: status clear
+	play_sound: play sound, sound
+	remove_status_effects: status remove
+	teleport_randomly: teleport randomly, teleport
 
 # Item Use Animations
 item use animations:

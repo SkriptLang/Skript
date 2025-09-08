@@ -23,7 +23,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
 	NOTE: Consumable component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("set {_sound} to the consumption sound of {_item}")
-@Example("set the consumption sound of {_item} to \"entity.sheep.ambient\"")
+@Example("set the consumption sound of {_item} to \"minecraft:entity.sheep.ambient\"")
 @RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
 public class ExprConsCompSound extends SimplePropertyExpression<ConsumableWrapper, String> implements ConsumableExperimentSyntax {

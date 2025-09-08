@@ -31,7 +31,7 @@ public class EffConsCompParticles extends Effect implements ConsumableExperiment
 
 	static {
 		Skript.registerEffect(EffConsCompParticles.class,
-			"(enable|:disable) [the] comsum(e|ption) particle[s] [effect[s]] of %consumablecomponents%");
+			"(enable|:disable) [the] consum(e|ption) particle[s] [effect[s]] (of|for) %consumablecomponents%");
 	}
 
 	private Expression<ConsumableWrapper> wrappers;
@@ -42,7 +42,7 @@ public class EffConsCompParticles extends Effect implements ConsumableExperiment
 		//noinspection unchecked
 		wrappers = (Expression<ConsumableWrapper>) exprs[0];
 		enable = !parseResult.hasTag("disable");
-		return false;
+		return true;
 	}
 
 	@Override
