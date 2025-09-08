@@ -73,9 +73,7 @@ public abstract class Updater {
 	 */
 	public CompletableFuture<UpdateManifest> fetchUpdateManifest() {
 		if (!enabled) {
-			CompletableFuture<UpdateManifest> future = CompletableFuture.completedFuture(null);
-			assert future != null;
-			return future;
+			return CompletableFuture.completedFuture(null);
 		}
 		ReleaseChannel channel = releaseChannel;
 		if (channel == null) {
@@ -93,22 +91,16 @@ public abstract class Updater {
 	public CompletableFuture<Void> checkUpdates() {
 		if (!enabled) {
 			// Release status still unknown
-			CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
-			assert future != null;
-			return future;
+			return CompletableFuture.completedFuture(null);
 		}
 		
 		// Custom releases have updating disabled
 		if (currentRelease.flavor.contains("selfbuilt")) {
 			releaseStatus = ReleaseStatus.CUSTOM;
-			CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
-			assert future != null;
-			return future;
+			return CompletableFuture.completedFuture(null);
 		} else if (currentRelease.flavor.contains("nightly")) {
 			releaseStatus = ReleaseStatus.DEVELOPMENT;
-			CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
-			assert future != null;
-			return future;
+			return CompletableFuture.completedFuture(null);
 		}
 		
 		state = UpdaterState.CHECKING; // We started checking for updates
@@ -127,7 +119,6 @@ public abstract class Updater {
 				long ticks = checkFrequency;
 				if (ticks > 0) {
 					new Task(Skript.getInstance(), ticks, true) {
-						
 						@Override
 						public void run() {
 							checkUpdates();
