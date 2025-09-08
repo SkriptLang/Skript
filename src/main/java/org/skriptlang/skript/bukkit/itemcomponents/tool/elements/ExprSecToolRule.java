@@ -24,28 +24,27 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Custom Tool Rule")
-@Description({
-	"Create a custom tool rule with provided block types.",
-	"NOTE: A tool rule must have at least one block type or will be considered invalid."
-})
+@Description("""
+	Create a custom tool rule with provided block types.
+	NOTE: A tool rule must have at least one block type or will be considered invalid.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("""
 	set {_rule} to a custom tool rule with block types oak log, stone and obsidian:
 		enable the tool rule drops for event-tool rule
 		set the tool rule speed to 20
 	add {_rule} to the tool rules of {_item}
 	""")
-@RequiredPlugins("Minecraft 1.20.6+")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
-@SuppressWarnings("UnstableApiUsage")
-public class ExprSecToolRule extends SectionExpression<ToolRuleWrapper> implements ToolExperiment {
+public class ExprSecToolRule extends SectionExpression<ToolRuleWrapper> implements ToolExperimentalSyntax {
 
 	public static class ToolRuleSectionEvent extends Event {
 

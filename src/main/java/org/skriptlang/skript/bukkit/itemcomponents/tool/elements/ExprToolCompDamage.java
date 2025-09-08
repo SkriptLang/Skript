@@ -11,17 +11,19 @@ import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
 @Name("Tool Component - Damage Per Block")
-@Description("The damage the tool/item receives when it breaks a block.")
+@Description("""
+	The damage the item receives when it breaks a block.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("set the damage per block of {_item} to 10")
-@RequiredPlugins("Minecraft 1.20.6+")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolCompDamage extends SimplePropertyExpression<ToolWrapper, Integer> implements ToolExperiment {
+public class ExprToolCompDamage extends SimplePropertyExpression<ToolWrapper, Integer> implements ToolExperimentalSyntax {
 
 	static {
 		registerDefault(ExprToolCompDamage.class, Integer.class, "damage per block", "toolcomponents");

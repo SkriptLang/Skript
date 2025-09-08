@@ -33,7 +33,10 @@ public class ToolModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(ToolWrapper.class, "toolcomponent")
 			.user("tool ?components?")
 			.name("Tool Component")
-			.description("Represents a tool component used for items.")
+			.description("""
+				Represents a tool component used for items.
+				NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
+				""")
 			.requiredPlugins("Minecraft 1.21.3+")
 			.since("INSERT VERSION")
 			.defaultExpression(new EventValueExpression<>(ToolWrapper.class))
@@ -65,6 +68,7 @@ public class ToolModule implements AddonModule {
 					- Block types that the rule should be applied to
 					- Mining speed for the blocks
 					- Whether the blocks should drop their respective items
+				NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 				""")
 			.requiredPlugins("Minecraft 1.21.3+")
 			.since("INSERT VERSION")

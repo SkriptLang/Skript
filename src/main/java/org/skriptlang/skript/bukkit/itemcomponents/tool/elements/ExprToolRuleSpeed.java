@@ -11,7 +11,7 @@ import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 @Name("Tool Rule - Speed")
@@ -22,17 +22,17 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 		- Mining speed for the blocks
 		- Whether the blocks should drop their respective items
 	NOTE: 1.0 is equivalent to the default mining speed of the mined block.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
 	set {_rule} to a custom tool rule with block types oak log, stone and obsidian
 	set the tool rule speed of {_rule} to 10
 	add {_rule} to the tool rules of {_item}
 	""")
-@RequiredPlugins("Minecraft 1.20.6+")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper, Float> implements ToolExperiment {
+public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper, Float> implements ToolExperimentalSyntax {
 
 	static {
 		registerDefault(ExprToolRuleSpeed.class, Float.class, "tool rule speed", "toolrules");
@@ -61,7 +61,7 @@ public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper,
 		}
 		getExpr().stream(event).forEach(ruleWrapper -> {
 			Float currentSpeed = ruleWrapper.getRule().speed();
-			final float newSpeed = switch (mode) {
+			float newSpeed = switch (mode) {
 				case SET, DELETE -> speed;
 				case ADD -> {
 					if (currentSpeed == null)

@@ -17,20 +17,22 @@ import io.papermc.paper.datacomponent.item.Tool;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
 @Name("Tool Component")
-@Description("The tool component of an item. Any changes made to the tool component will be present on the item.")
+@Description("""
+	The tool component of an item. Any changes made to the tool component will be present on the item.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("""
 	set {_component} to the tool component of {_item}
 	set the mining speed of {_component} to 20
 	""")
-@RequiredPlugins("Minecraft 1.20.6+")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolComponent extends SimplePropertyExpression<Object, ToolWrapper> implements ToolExperiment {
+public class ExprToolComponent extends SimplePropertyExpression<Object, ToolWrapper> implements ToolExperimentalSyntax {
 
 	static {
 		register(ExprToolComponent.class, ToolWrapper.class, "tool component[s]", "slots/itemtypes");

@@ -15,7 +15,7 @@ import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.datacomponent.item.Tool.Rule;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
@@ -23,14 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Name("Tool Component - Tool Rules")
-@Description("The tool rules of a tool component.")
+@Description("""
+	The tool rules of a tool component.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("set {_rules::*} to the tool rules of {_item}")
 @Example("set {_rules::*} to the tool rules of (the tool component of {_item})")
-@RequiredPlugins("Minecraft 1.20.6+")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRuleWrapper> implements ToolExperiment {
+public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRuleWrapper> implements ToolExperimentalSyntax {
 
 	static {
 		registerDefault(ExprToolCompRules.class, ToolRuleWrapper.class, "tool rules", "toolcomponents");

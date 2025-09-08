@@ -11,17 +11,19 @@ import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
 @Name("Tool Component - Mining Speed")
-@Description("The default mining speed of a tool/item.")
+@Description("""
+	The default mining speed of an item.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("set the default mining speed of {_item} to 20")
-@RequiredPlugins("Minecraft 1.20.6+")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolCompMiningSpeed extends SimplePropertyExpression<ToolWrapper, Float> implements ToolExperiment {
+public class ExprToolCompMiningSpeed extends SimplePropertyExpression<ToolWrapper, Float> implements ToolExperimentalSyntax {
 
 	static {
 		registerDefault(ExprToolCompMiningSpeed.class, Float.class, "(default|base) mining speed", "toolcomponents");

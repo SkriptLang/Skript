@@ -13,6 +13,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -20,25 +21,24 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Blank Tool Component")
-@Description("Gets a blank tool component.")
-@Example("""
-	set {_component} to a blank tool component:
-		set the default mining speed to 20
-		set the damage per block to 10
-	set the tool component of {_item} to {_component}
+@Description("""
+	Gets a blank tool component.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
-@RequiredPlugins("Minecraft 1.20.6+")
+@Example("clear the tool component of {_item}")
+@Example("reset the tool component of {_item}")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> implements ToolExperiment {
+public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> implements ToolExperimentalSyntax {
 
-	public static class BlankToolSectionEvent extends Event {
+	private static class BlankToolSectionEvent extends Event {
 
 		private final ToolWrapper wrapper;
 
@@ -68,12 +68,10 @@ public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> impleme
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(node, "blank tool component", afterLoading, BlankToolSectionEvent.class);
-			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'blank tool component' section.");
-				return false;
-			}
+			trigger = SectionUtils.loadLinkedCode("blank tool component", (beforeLoading, afterLoading) ->
+				loadCode(node, "blank tool component", beforeLoading, afterLoading, BlankToolSectionEvent.class)
+			);
+			return trigger != null;
 		}
 		return true;
 	}
@@ -100,7 +98,7 @@ public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> impleme
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a blank tool component";
+		return "blank tool component";
 	}
 
 }

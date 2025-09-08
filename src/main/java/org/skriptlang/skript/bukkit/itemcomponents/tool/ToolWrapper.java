@@ -23,7 +23,7 @@ import java.util.List;
 public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 
 	public static final boolean HAS_CAN_DESTROY_BLOCKS_IN_CREATIVE =
-		Skript.methodExists(ToolComponent.class, "canDestroyBlocksInCreative");
+		Skript.methodExists(Tool.class, "canDestroyBlocksInCreative");
 
 	public ToolWrapper(ItemStack itemStack) {
 		super(itemStack);
@@ -68,7 +68,7 @@ public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 	}
 
 	@Override
-	public ToolBuilder toBuilder(Tool component) {
+	public ToolBuilder getBuilder(Tool component) {
 		return new ToolBuilder(component);
 	}
 
@@ -102,7 +102,7 @@ public class ToolWrapper extends ComponentWrapper<Tool, ToolBuilder> {
 	}
 
 	/**
-	 * Get all {@link Rule}s from {@link #component} in the form of {@link ToolRuleWrapper}s.
+	 * Get all {@link Rule}s in the form of {@link ToolRuleWrapper}s.
 	 * @return The {@link ToolRuleWrapper}s.
 	 */
 	public List<ToolRuleWrapper> getRules() {

@@ -19,7 +19,7 @@ import org.bukkit.block.BlockType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 import java.util.ArrayList;
@@ -34,6 +34,7 @@ import java.util.List;
 		- Block types that the rule should be applied to
 		- Mining speed for the blocks
 		- Whether the blocks should drop their respective items
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
 	set {_rule} to a custom tool rule with block types oak log, stone and obsidian
@@ -41,11 +42,10 @@ import java.util.List;
 	enable the tool rule drops for {_rule}
 	add {_rule} to the tool rules of {_item}
 	""")
-@RequiredPlugins("Minecraft 1.20.6+")
+@RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
 @SuppressWarnings("UnstableApiUsage")
-public class ExprToolRuleBlocks extends PropertyExpression<ToolRuleWrapper, ItemType> implements ToolExperiment {
+public class ExprToolRuleBlocks extends PropertyExpression<ToolRuleWrapper, ItemType> implements ToolExperimentalSyntax {
 
 	static {
 		registerDefault(ExprToolRuleBlocks.class, ItemType.class, "tool rule[s] block types", "toolrules");
@@ -67,7 +67,7 @@ public class ExprToolRuleBlocks extends PropertyExpression<ToolRuleWrapper, Item
 				Registry.BLOCK
 			);
 			List<ItemType> itemTypes = blockTypes.stream()
-				.map(blockType -> blockType.asMaterial())
+				.map(BlockType::asMaterial)
 				.map(ItemType::new)
 				.toList();
 			types.addAll(itemTypes);
@@ -91,7 +91,8 @@ public class ExprToolRuleBlocks extends PropertyExpression<ToolRuleWrapper, Item
 			.filter(Material::isBlock)
 			.map(Material::asBlockType)
 			.toList();
-		getExpr().stream(event).forEach(ruleWrapper -> ruleWrapper.modify(builder -> builder.blocks(blockTypes)));
+		getExpr().stream(event).forEach(ruleWrapper ->
+			ruleWrapper.modify(builder -> builder.blocks(blockTypes)));
 	}
 
 	@Override

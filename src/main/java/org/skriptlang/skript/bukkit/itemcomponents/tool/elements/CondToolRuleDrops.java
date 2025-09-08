@@ -10,12 +10,15 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 
 @Name("Tool Rule - Drops Enabled")
-@Description("If the block types set in the tool rule should drop their respective items, "
-	+ "when mined with the tool/item the tool rule is applied to.")
+@Description("""
+	Whether the block types set in the tool rule should drop their respective items, \
+	when mined with the item the tool rule is applied to.
+	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
 @Example("""
 	set {_rules::*} to the tool rules of {_item}
 	loop {_rules::*}:
@@ -24,9 +27,8 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 	""")
 @RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-
 @SuppressWarnings("UnstableApiUsage")
-public class CondToolRuleDrops extends PropertyCondition<ToolRuleWrapper> implements ToolExperiment {
+public class CondToolRuleDrops extends PropertyCondition<ToolRuleWrapper> implements ToolExperimentalSyntax {
 
 	static {
 		Skript.registerCondition(CondToolRuleDrops.class, ConditionType.PROPERTY,
