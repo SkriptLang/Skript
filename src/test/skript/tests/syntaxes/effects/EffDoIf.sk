@@ -4,3 +4,19 @@ test "do if":
 
 	set {_unset} to true if 1 is 2
 	assert {_unset} is not set with "Do if ran when it shouldn't have"
+
+using local variable type hints
+
+test "do if type hints":
+	parse:
+		if true is true:
+			set {_x} to 10
+			exit 1 section if chance of 50%
+			set {_x} to true
+		# type hints should be passed up
+		set {_a} to {_x} in lowercase
+	# ordering not guaranteed
+	set {_o1} to "Expected variable '{_x}' to be a text, but it is an integer or boolean (yes/no)"
+	set {_o2} to "Expected variable '{_x}' to be a text, but it is a boolean (yes/no) or integer"
+	assert last parse logs is {_o1} or {_o2} with "Hint failed (%last parse logs%)"
+	delete {_x}

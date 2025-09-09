@@ -1,7 +1,6 @@
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.WorldUtils;
 import ch.njol.util.Math2;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -46,7 +45,7 @@ public class AABB implements Iterable<Block> {
 	public AABB(final Location center, final double rX, final double rY, final double rZ) {
 		assert rX >= 0 && rY >= 0 && rZ >= 0 : rX + "," + rY + "," + rY;
 		world = center.getWorld();
-		int min = WorldUtils.getWorldMinHeight(world);
+		int min = world.getMinHeight();
 		lowerBound = new Vector3d(center.getX() - rX, Math.max(center.getY() - rY, min), center.getZ() - rZ);
 		upperBound = new Vector3d(center.getX() + rX, Math.min(center.getY() + rY, world.getMaxHeight() - 1), center.getZ() + rZ);
 	}
@@ -59,7 +58,7 @@ public class AABB implements Iterable<Block> {
 	
 	public AABB(final Chunk c) {
 		world = c.getWorld();
-		int min = WorldUtils.getWorldMinHeight(world);
+		int min = world.getMinHeight();
 		lowerBound = c.getBlock(0, min, 0).getLocation().toVector().toVector3d();
 		upperBound = c.getBlock(15, world.getMaxHeight() - 1, 15).getLocation().toVector().toVector3d();
 	}

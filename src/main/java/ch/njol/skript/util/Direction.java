@@ -358,8 +358,18 @@ public class Direction implements YggdrasilRobustSerializable {
 			}
 		}
 	}
-	
-	public static Expression<Location> combine(final Expression<? extends Direction> dirs, final Expression<? extends Location> locs) {
+
+	/*
+	 * Combines direction and location expressions.
+	 * Useful for syntaxes to allow Skripters to have more control over their locations.
+	 * @param dirs The direction expressions to combine.
+	 * @param locs The location expressions to combine.
+	 * @return A combined expression or null if any of the inputs are null.
+	 */
+	public static @Nullable Expression<Location> combine(@Nullable Expression<? extends Direction> dirs, @Nullable Expression<? extends Location> locs) {
+		if (dirs == null || locs == null)
+			return null;
+
 		return new SimpleExpression<Location>() {
 			@SuppressWarnings("null")
 			@Override
@@ -421,7 +431,37 @@ public class Direction implements YggdrasilRobustSerializable {
 			@Override
 			public Expression<? extends Location> simplify() {
 				if (dirs instanceof Literal && dirs.isSingle() && Direction.ZERO.equals(((Literal<?>) dirs).getSingle())) {
-					return locs;
+					return new SimpleExpression<>() {
+						@Override
+						public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+							throw new UnsupportedOperationException();
+						}
+
+						@Override
+						protected Location @Nullable [] get(Event event) {
+							return locs.getAll(event);
+						}
+
+						@Override
+						public boolean getAnd() {
+							return locs.getAnd();
+						}
+
+						@Override
+						public boolean isSingle() {
+							return locs.isSingle();
+						}
+
+						@Override
+						public Class<? extends Location> getReturnType() {
+							return Location.class;
+						}
+
+						@Override
+						public String toString(@Nullable Event event, boolean debug) {
+							return "at " + locs.toString(event, debug);
+						}
+					};
 				}
 				return this;
 			}

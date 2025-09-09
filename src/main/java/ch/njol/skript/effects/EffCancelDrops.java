@@ -22,7 +22,7 @@ import ch.njol.util.Kleenean;
 	"Cancels drops of items in a death, block break, block drop, and block harvest events.",
 	"The dropped experience can be cancelled in a death and block break events.",
 	"Please note that using this in a death event doesn't keep items or experience of a dead player. If you want to do that, "
-		+ "use the <a href='effects.html#EffKeepInventory'>Keep Inventory / Experience</a> effect."
+		+ "use the <a href='#EffKeepInventory'>Keep Inventory / Experience</a> effect."
 })
 @Example("""
 	on death of a zombie:
@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 	on player block harvest:
 		cancel the item drops
 	""")
-@Since("2.4, INSERT VERSION (harvest event)")
+@Since("2.4, 2.12 (harvest event)")
 @RequiredPlugins("1.12.2 or newer (cancelling item drops of blocks)")
 @Events({"death", "break / mine", "block drop", "harvest"})
 public class EffCancelDrops extends Effect implements EventRestrictedSyntax {

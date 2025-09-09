@@ -7,10 +7,13 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +58,13 @@ public class ExprVectorBetweenLocations extends SimpleExpression<Vector3d> {
 	@Override
 	public Class<? extends Vector3d> getReturnType() {
 		return Vector3d.class;
+	}
+
+	@Override
+	public Expression<? extends Vector3d> simplify() {
+		if (from instanceof Literal<Location> && to instanceof Literal<Location>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

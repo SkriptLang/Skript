@@ -20,7 +20,7 @@ import java.util.List;
 	if the first empty slot in player's inventory is not set:
 		message "No empty slot available in your inventory!" to player
 	""")
-@Since("INSERT VERSION")
+@Since("2.12")
 @Keywords({"full", "inventory", "empty", "air", "slot"})
 public class ExprFirstEmptySlot extends SimplePropertyExpression<Inventory, Slot> {
 

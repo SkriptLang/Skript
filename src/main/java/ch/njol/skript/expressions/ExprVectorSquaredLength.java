@@ -5,6 +5,9 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import org.joml.Vector3d;
 
 @Name("Vectors - Squared Length")
@@ -26,6 +29,13 @@ public class ExprVectorSquaredLength extends SimplePropertyExpression<Vector3d, 
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
+	}
+
+	@Override
+	public Expression<? extends Number> simplify() {
+		if (getExpr() instanceof Literal<? extends Vector3d>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

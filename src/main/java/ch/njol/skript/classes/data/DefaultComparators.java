@@ -342,7 +342,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(OfflinePlayer.class, OfflinePlayer.class, new Comparator<OfflinePlayer, OfflinePlayer>() {
 			@Override
 			public Relation compare(OfflinePlayer p1, OfflinePlayer p2) {
-				return Relation.get(Objects.equals(p1.getName(), p2.getName()));
+				return Relation.get(Objects.equals(p1.getUniqueId(), p2.getUniqueId()));
 			}
 
 			@Override
@@ -354,9 +354,13 @@ public class DefaultComparators {
 		// OfflinePlayer - String
 		Comparators.registerComparator(OfflinePlayer.class, String.class, new Comparator<OfflinePlayer, String>() {
 			@Override
-			public Relation compare(OfflinePlayer p, String name) {
-				String offlineName = p.getName();
-				return offlineName == null ? Relation.NOT_EQUAL : Relation.get(offlineName.equalsIgnoreCase(name));
+			public Relation compare(OfflinePlayer player, String name) {
+				if (Utils.isValidUUID(name)) {
+					UUID uuid = UUID.fromString(name);
+					return Relation.get(player.getUniqueId().equals(uuid));
+				}
+				String playerName = player.getName();
+				return playerName == null ? Relation.NOT_EQUAL : Relation.get(playerName.equalsIgnoreCase(name));
 			}
 
 			@Override
@@ -364,6 +368,9 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		// OfflinePlayer - UUID
+		Comparators.registerComparator(OfflinePlayer.class, UUID.class, (player, uuid) -> Relation.get(player.getUniqueId().equals(uuid)));
 		
 		// World - String
 		Comparators.registerComparator(World.class, String.class, new Comparator<World, String>() {

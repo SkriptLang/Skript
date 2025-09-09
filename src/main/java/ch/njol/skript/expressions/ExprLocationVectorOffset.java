@@ -7,10 +7,13 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +30,7 @@ import org.joml.Vector3d;
 public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 
 	static {
-		Skript.registerExpression(ExprLocationVectorOffset.class, Location.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprLocationVectorOffset.class, Location.class, ExpressionType.PROPERTY,
 				"%location% offset by [[the] vectors] %vectors%",
 				"%location%[ ]~[~][ ]%vectors%");
 	}
@@ -46,8 +49,8 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 		return true;
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	protected Location[] get(Event event) {
 		Location l = location.getSingle(event);
 		if (l == null)
@@ -70,8 +73,15 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return location.toString() + " offset by " + vectors.toString();
+	public Expression<? extends Location> simplify() {
+		if (location instanceof Literal<Location> && vectors instanceof Literal<Vector3d>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return location.toString(event, debug) + " offset by " + vectors.toString(event, debug);
 	}
 
 }

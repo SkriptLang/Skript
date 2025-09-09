@@ -110,6 +110,15 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 	}
 
 	/**
+	 * @deprecated Use {@link #loadCode(SectionNode, String, Runnable, Runnable, Class[])}
+	 */
+	@SafeVarargs
+	@Deprecated(since = "2.12", forRemoval = true)
+	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+		return loadCode(sectionNode, name, null, afterLoading, events);
+	}
+
+	/**
 	 * Loads the code in the given {@link SectionNode},
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
 	 * <br>
@@ -121,19 +130,26 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 	 *
 	 * @param sectionNode The section node to load.
 	 * @param name The name of the event(s) being used.
+	 * @param beforeLoading A Runnable to execute before the SectionNode has been loaded.
+	 * This occurs after the {@link ParserInstance} context switch.
 	 * @param afterLoading A Runnable to execute after the SectionNode has been loaded.
-	 * This occurs before {@link ParserInstance} states are reset.
+	 * This occurs before {@link ParserInstance} states are reset (context switches back).
 	 * @param events The event(s) during the section's execution.
 	 * @return A trigger containing the loaded section. This should be stored and used
 	 * to run the section one or more times.
 	 */
 	@SafeVarargs
-	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+	protected final Trigger loadCode(SectionNode sectionNode, String name,
+									 @Nullable Runnable beforeLoading, @Nullable Runnable afterLoading,
+									 Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
 		// backup the existing data
 		ParserInstance.Backup parserBackup = parser.backup();
 		parser.reset();
+
+		if (beforeLoading != null)
+			beforeLoading.run();
 
 		// set our new data for parsing this section
 		parser.setCurrentEvent(name, events);
@@ -169,17 +185,29 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 	@Nullable
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
-		//noinspection unchecked,rawtypes
-		return sectionContext.modify(sectionNode, triggerItems,
-			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
+		return sectionContext.modify(sectionNode, triggerItems, () -> {
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).iterator();
+			//noinspection unchecked,rawtypes
+			return (Section) SkriptParser.parse(expr, (Iterator) iterator, defaultError);
+		});
 	}
 
 	static {
 		ParserInstance.registerData(SectionContext.class, SectionContext::new);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	protected static class SectionContext extends ParserInstance.Data {
+	/**
+	 * Data stored in the {@link ParserInstance} to keep track of the current section being parsed.
+	 * <br>
+	 * This is used to allow syntaxes to claim sections, and to provide the section node and trigger items
+	 * to syntaxes that need them. Failure to correctly manage this context via {@link #modify(SectionNode, List, Supplier)}
+	 * may result in sections being double claimed or infinite parsing loops.
+	 * <br>
+	 * Most users should never need to interact with this class, only those dealing with manual parsing of expressions
+	 * and similar behavior. Context is automatically handled in normal behavior via {@link Statement#parse(String, String)}
+	 * and other similar methods.
+	 */
+	public static class SectionContext extends ParserInstance.Data {
 
 		protected SectionNode sectionNode;
 		protected List<TriggerItem> triggerItems;
@@ -198,7 +226,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 		 * <br>
 		 * See <a href="https://github.com/SkriptLang/Skript/pull/4353">Pull Request #4353</a> and <a href="https://github.com/SkriptLang/Skript/issues/4473">Issue #4473</a>.
 		 */
-		protected <T> T modify(SectionNode sectionNode, List<TriggerItem> triggerItems, Supplier<T> supplier) {
+		public <T> T modify(SectionNode sectionNode, List<TriggerItem> triggerItems, Supplier<T> supplier) {
 			SectionNode prevSectionNode = this.sectionNode;
 			List<TriggerItem> prevTriggerItems = this.triggerItems;
 			Debuggable owner = this.owner;

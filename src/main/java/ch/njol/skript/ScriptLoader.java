@@ -5,6 +5,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
+import ch.njol.skript.lang.ExecutionIntent;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Statement;
@@ -20,7 +21,7 @@ import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
-import ch.njol.skript.variables.TypeHints;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
@@ -951,6 +952,14 @@ public class ScriptLoader {
 
 		ArrayList<TriggerItem> items = new ArrayList<>();
 
+		// Begin local variable type hints
+		parser.getHintManager().enterScope(true);
+		// Track if the scope has been frozen
+		// This is the case when a statement that stops further execution is encountered
+		// Further statements would not run, meaning the hints from them are inaccurate
+		// When true, before exiting the scope, its hints are cleared to avoid passing them up
+		boolean freezeScope = false;
+
 		boolean executionStops = false;
 		for (Node subNode : node) {
 			parser.setNode(subNode);
@@ -983,11 +992,18 @@ public class ScriptLoader {
 
 				items.add(item);
 			} else if (subNode instanceof SectionNode subSection) {
-				TypeHints.enterScope(); // Begin conditional type hints
 
 				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
 				find_section:
 				try {
+					// enter capturing scope
+					// it is possible that the line may successfully parse and initialize (via init), but some other issue
+					// prevents it from being able to load. for example:
+					// - a statement with a section that has no expression to claim the section
+					// - a statement with a section that has multiple expressions attempting to claim the section
+					// thus, hints may be added, but we do not want to save them as the line is invalid
+					parser.getHintManager().enterScope(false);
+
 					item = Section.parse(expr, "Can't understand this section: " + expr, subSection, items);
 					if (item != null)
 						break find_section;
@@ -1014,6 +1030,13 @@ public class ScriptLoader {
 					}
 					continue;
 				} finally {
+					// exit hint scope (see above)
+					HintManager hintManager = parser.getHintManager();
+					if (item == null) { // unsuccessful, wipe out hints
+						hintManager.clearScope(0, false);
+					}
+					hintManager.exitScope();
+
 					RetainingLogHandler afterParse = handler.backup();
 					handler.clear();
 					handler.printLog();
@@ -1023,9 +1046,6 @@ public class ScriptLoader {
 				}
 
 				items.add(item);
-
-				// Destroy these conditional type hints
-				TypeHints.exitScope();
 			} else {
 				continue;
 			}
@@ -1037,7 +1057,24 @@ public class ScriptLoader {
 				Skript.warning("Unreachable code. The previous statement stops further execution.");
 			}
 			executionStops = item.executionIntent() != null;
+
+			if (executionStops && !freezeScope) {
+				freezeScope = true;
+				// Execution might stop for some sections but not all
+				// We want to pass hints up to the scope that execution resumes in
+				if (item.executionIntent() instanceof ExecutionIntent.StopSections intent) {
+					parser.getHintManager().mergeScope(0, intent.levels(), true);
+				}
+			}
 		}
+
+		// If the scope was frozen, then we need to clear it to prevent passing up inaccurate hints
+		// They will have already been copied as necessary
+		if (freezeScope) {
+			parser.getHintManager().clearScope(0, false);
+		}
+		// Destroy local variable type hints for this section
+		parser.getHintManager().exitScope();
 
 		for (int i = 0; i < items.size() - 1; i++)
 			items.get(i).setNext(items.get(i + 1));

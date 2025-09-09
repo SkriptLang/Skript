@@ -1,0 +1,54 @@
+test "except items":
+	set {_base::*} to a copper ingot, an iron ingot, a gold ingot, a diamond and a netherite ingot
+	set {_except::*} to {_base::*} except a copper ingot
+	assert {_except::*} is an iron ingot, a gold ingot, a diamond and a netherite ingot with "Failed to exclude a copper ingot"
+
+	set {_except::*} to {_base::*} except a copper ingot and an iron ingot
+	assert {_except::*} is a gold ingot, a diamond and a netherite ingot with "Failed to exclude a copper ingot and an iron ingot"
+
+	set {_except::*} to {_base::*} excluding a copper ingot, an iron ingot, a gold ingot and a diamond
+	assert {_except::*} is a netherite ingot with "Failed to exclude all but netherite ingot"
+
+	set {_except::*} to {_base::*} not including {_base::*}
+	assert {_except::*} is not set with "Failed to exclude all"
+
+test "except entities":
+	set {_nums::*} to 1, 2, 3, 4, and 5
+
+	assert size of {_nums::*} except 5 is 4 with "Failed to exclude 5"
+	assert size of {_nums::*} except 1 and 5 is 3 with "Failed to exclude 1 and 5"
+	assert size of {_nums::*} excluding -1 is 5 with "Excluding -1 should not change the list"
+
+	set {_exclude::*} to 3, 7, and 1.1
+	assert size of {_nums::*} excluding {_exclude::*} is 4 with "Failed to exclude multiple numbers"
+
+
+	set {_types::*} to a zombie, a skeleton, and a villager
+	assert size of {_types::*} excluding a zombie is 2 with "Failed to exclude zombie"
+	assert size of {_types::*} excluding a zombie and a skeleton is 1 with "Failed to exclude zombie and skeleton"
+
+	delete all villagers
+	spawn 5 villagers at test-location
+	set {_villager} to last spawned villager
+	add {_villager} to {_exclude::*}
+
+	assert size of all villagers not including {_villager} is 4 with "Failed to exclude villager"
+
+	clear all entities
+
+	set {exprexcept::count} to 0
+
+	assert ("a", "z", and 3) excluding excludes() is "z" and 3 with "Failed to exclude the result of a function call"
+
+	assert {exprexcept::count} is 1 with "Function call was not executed exactly once"
+
+
+test "except 'or' objects":
+	assert (1 or 2) except 2 is 1 with "Failed to exclude '2' from an 'or' list"
+
+	set {_item} to (a diamond or an iron ingot or an emerald) excluding a diamond
+	assert {_item} is (an iron ingot or an emerald) with "Failed to exclude 'diamond' from an 'or' item list"
+
+local function excludes() returns strings:
+	add 1 to {exprexcept::count}
+	return "a", "b", "c", "d", and "e"

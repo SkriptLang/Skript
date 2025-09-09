@@ -4,21 +4,16 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.WrapperExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Value Within")
@@ -26,18 +21,19 @@ import org.jetbrains.annotations.Nullable;
 	"Gets the value within objects. Usually used with variables to get the value they store rather than the variable itself, " +
 	"or with lists to get the values of a type."
 )
-@Examples({
-	"set {_entity} to a random entity out of all entities",
-	"delete entity within {_entity} # This deletes the entity itself and not the value stored in the variable",
-	"",
-	"set {_list::*} to \"something\", 10, \"test\" and a zombie",
-	"broadcast the strings within {_list::*} # \"something\", \"test\""
-})
+@Example("""
+	set {_entity} to a random entity out of all entities
+	delete entity within {_entity} # This deletes the entity itself and not the value stored in the variable
+	""")
+@Example("""
+	set {_list::*} to "something", 10, "test" and a zombie
+	broadcast the strings within {_list::*} # "something", "test"
+	""")
 @Since("2.7")
-public class ExprValueWithin extends WrapperExpression<Object> {
+public class ExprValueWithin extends WrapperExpression<Object> implements KeyProviderExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprValueWithin.class, Object.class, ExpressionType.COMBINED, "[the] (%-*classinfo%|value[:s]) (within|in) %~objects%");
+		Skript.registerExpression(ExprValueWithin.class, Object.class, ExpressionType.PROPERTY, "[the] (%-*classinfo%|value[:s]) (within|in) %~objects%");
 	}
 
 	@Nullable
@@ -46,6 +42,8 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 	@Nullable
 	@SuppressWarnings("rawtypes")
 	private Changer changer;
+
+	private boolean returnsKeys;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -72,7 +70,25 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 		if (expr == null)
 			return false;
 		setExpr(expr);
+		returnsKeys = KeyProviderExpression.canReturnKeys(expr);
 		return true;
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
+		if (!returnsKeys)
+			throw new IllegalStateException();
+		return ((KeyProviderExpression<?>) getExpr()).getArrayKeys(event);
+	}
+
+	@Override
+	public boolean canReturnKeys() {
+		return returnsKeys;
+	}
+
+	@Override
+	public boolean areKeysRecommended() {
+		return false;
 	}
 
 	@Override
@@ -89,6 +105,11 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 		if (changer == null)
 			throw new UnsupportedOperationException();
 		changer.change(getArray(event), delta, mode);
+	}
+
+	@Override
+	public boolean isLoopOf(String input) {
+		return getExpr().isLoopOf(input);
 	}
 
 	@Override

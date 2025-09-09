@@ -43,6 +43,9 @@ final class DefaultSyntaxInfosImpl {
 
 		@Override
 		public boolean equals(Object other) {
+			if (this == other) {
+				return true;
+			}
 			return other instanceof Expression<?, ?> expression &&
 					super.equals(other) &&
 					returnType() == expression.returnType();
@@ -129,6 +132,9 @@ final class DefaultSyntaxInfosImpl {
 
 		@Override
 		public boolean equals(Object other) {
+			if (this == other) {
+				return true;
+			}
 			return other instanceof Structure<?> structure &&
 					super.equals(other) &&
 					Objects.equals(entryValidator(), structure.entryValidator()) &&

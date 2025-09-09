@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -15,6 +16,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Angle Between")
 @Description("Gets the angle between two vectors.")
@@ -60,6 +62,13 @@ public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
+	}
+
+	@Override
+	public Expression<? extends Number> simplify() {
+		if (first instanceof Literal<Vector3d> && second instanceof Literal<Vector3d>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override
