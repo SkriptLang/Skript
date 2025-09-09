@@ -33,12 +33,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	NOTE: Consumable component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
-	set {_component} to a blank consumable component
-	set the consumable component of {_item} to {_component}
-	""")
-@Example("""
 	set {_component} to a blank consumable component:
-		set the consumption time to 1 second
+		set the consumption animation to drink animation
+		add (a consume effect to clear all potion effects) to the consume effects
+		set the consumption time to 5 seconds
+		set the consumption sound to "ui.toast.out"
+		enable the consumption particles for event-consumable component
+	set the consumable component of {_item} to {_component}
 	""")
 @RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
