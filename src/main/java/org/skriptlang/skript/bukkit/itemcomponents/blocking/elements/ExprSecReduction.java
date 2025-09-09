@@ -1,0 +1,90 @@
+package org.skriptlang.skript.bukkit.itemcomponents.blocking.elements;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.expressions.base.SectionExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.variables.Variables;
+import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
+import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageReductionWrapper;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class ExprSecReduction extends SectionExpression<DamageReductionWrapper> implements BlockingExperimentalSyntax {
+
+	private static class BlankReductionSectionEvent extends Event {
+
+		private final DamageReductionWrapper wrapper;
+
+		public BlankReductionSectionEvent(DamageReductionWrapper wrapper) {
+			this.wrapper = wrapper;
+		}
+
+		public DamageReductionWrapper getWrapper() {
+			return wrapper;
+		}
+
+		@Override
+		public @NotNull HandlerList getHandlers() {
+			throw new IllegalStateException();
+		}
+	}
+
+	static {
+		Skript.registerExpression(ExprSecReduction.class, DamageReductionWrapper.class, ExpressionType.SIMPLE,
+			"a [custom] damage reduction");
+		EventValues.registerEventValue(BlankReductionSectionEvent.class, DamageReductionWrapper.class, BlankReductionSectionEvent::getWrapper);
+	}
+
+	private Trigger trigger;
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
+		if (node != null) {
+			AtomicBoolean isDelayed = new AtomicBoolean(false);
+			trigger = SectionUtils.loadLinkedCode("custom damage reduction", (beforeLoading, afterLoading) ->
+				loadCode(node, "custom damage reduction", beforeLoading, afterLoading, BlankReductionSectionEvent.class)
+			);
+			return trigger != null;
+		}
+		return true;
+	}
+
+	@Override
+	protected DamageReductionWrapper @Nullable [] get(Event event) {
+		DamageReductionWrapper wrapper = new DamageReductionWrapper();
+		if (trigger != null) {
+			BlankReductionSectionEvent sectionEvent = new BlankReductionSectionEvent(wrapper);
+			Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
+		}
+		return new DamageReductionWrapper[] {wrapper};
+	}
+
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
+	public Class<DamageReductionWrapper> getReturnType() {
+		return DamageReductionWrapper.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "a custom damage reduction";
+	}
+
+}
