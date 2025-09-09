@@ -53,7 +53,7 @@ public abstract class PatternElement {
 
 	/**
 	 * Gets the combinations available to this {@link PatternElement}.
-	 * @param clean Whether unnecessary data should be excluded from the combinations.
+	 * @param clean Whether unnecessary data, determined by each implementation, should be excluded from the combinations.
 	 * @return The combinations.
 	 */
 	public abstract Set<String> getCombinations(boolean clean);
@@ -88,7 +88,7 @@ public abstract class PatternElement {
 	 * @return The resulting string.
 	 */
 	private static String combineCombination(String first, String second) {
-		if (first.isEmpty()) {
+		if (first.isBlank()) {
 			return second.stripLeading();
 		} else if (second.isEmpty()) {
 			return first.stripTrailing();

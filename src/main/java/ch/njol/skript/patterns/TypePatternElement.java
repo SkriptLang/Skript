@@ -268,7 +268,7 @@ public class TypePatternElement extends PatternElement {
 
 	/**
 	 * {@inheritDoc}
-	 * @param clean Whether this type should be replaced with {@code %*%} if it's literal.
+	 * @param clean Whether this type should be replaced with {@code %*%} if it's not literal.
 	 */
 	@Override
 	public Set<String> getCombinations(boolean clean) {
