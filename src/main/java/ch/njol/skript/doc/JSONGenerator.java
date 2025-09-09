@@ -328,14 +328,10 @@ public class JSONGenerator extends DocumentationGenerator {
 		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
 		functionJsonObject.addProperty("name", function.getName());
 
-		if (function instanceof DefaultFunction<?> defaultFunction) {
-			functionJsonObject.addProperty("since", StringUtils.join(defaultFunction.since(), "\n"));
-			functionJsonObject.add("description", convertToJsonArray(defaultFunction.description().toArray(new String[0])));
-			functionJsonObject.add("examples", convertToJsonArray(defaultFunction.examples().toArray(new String[0])));
-		} else 	if (function instanceof JavaFunction<?> javaFunction) {
-			functionJsonObject.addProperty("since", javaFunction.getSince());
-			functionJsonObject.add("description", convertToJsonArray(javaFunction.getDescription()));
-			functionJsonObject.add("examples", convertToJsonArray(javaFunction.getExamples()));
+		if (function instanceof Documentable documentable) {
+			functionJsonObject.addProperty("since", StringUtils.join(documentable.since(), "\n"));
+			functionJsonObject.add("description", convertToJsonArray(documentable.description().toArray(new String[0])));
+			functionJsonObject.add("examples", convertToJsonArray(documentable.examples().toArray(new String[0])));
 		}
 
 		functionJsonObject.add("returnType", getReturnType(function));

@@ -112,8 +112,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this.name = name;
 		this.local = script != null;
 		if (returnType != null) {
-			//noinspection unchecked
-			this.returnType = (ClassInfo<T>) getClassInfo(returnType);
+			this.returnType = getClassInfo(returnType);
 		} else {
 			this.returnType = null;
 		}

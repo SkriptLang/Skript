@@ -657,8 +657,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 				stopAcceptingRegistrations();
 
-				Functions.flushRegistrationQueue();
-
 				Documentation.generate(); // TODO move to test classes?
 
 				// Variable loading

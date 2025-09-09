@@ -289,9 +289,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		ClassInfo<? super T> classInfo;
 		if (cls.isArray()) {
 			//noinspection unchecked
-			classInfo = (ClassInfo<T>) Classes.getSuperClassInfo(cls.componentType());
+			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
 		} else {
-			classInfo = Classes.getSuperClassInfo(cls);
+			classInfo = Classes.getExactClassInfo(cls);
 		}
 		return classInfo;
 	}

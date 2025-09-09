@@ -812,16 +812,11 @@ public class HTMLGenerator extends DocumentationGenerator {
 		String desc;
 
 		String[] typeSince, typeDescription, typeExamples, typeKeywords;
-		if (info instanceof DefaultFunction<?> defaultFunction) {
-			typeSince = defaultFunction.since().toArray(new String[0]);
-			typeDescription = defaultFunction.description().toArray(new String[0]);
-			typeExamples = defaultFunction.examples().toArray(new String[0]);
-			typeKeywords = defaultFunction.keywords().toArray(new String[0]);
-		} else if (info instanceof JavaFunction<?> javaFunction) {
-			typeSince = javaFunction.getSince() != null ? javaFunction.getSince().split("\n") : null;
-			typeDescription = javaFunction.getDescription();
-			typeExamples = javaFunction.getExamples();
-			typeKeywords = javaFunction.getKeywords();
+		if (info instanceof Documentable documentable) {
+			typeSince = documentable.since().toArray(new String[0]);
+			typeDescription = documentable.description().toArray(new String[0]);
+			typeExamples = documentable.examples().toArray(new String[0]);
+			typeKeywords = documentable.keywords().toArray(new String[0]);
 		} else {
 			assert false;
 			return "";
