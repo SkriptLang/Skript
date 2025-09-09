@@ -16,6 +16,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import java.util.function.Function;
 
@@ -60,7 +61,7 @@ public class EffPush extends Effect {
 		if (this.speed != null && speed == null)
 			return;
 
-		Function<Entity, Vector> getDirection;
+		Function<Entity, Vector3d> getDirection;
 		if (this.direction != null) {
 			// push along
 			Direction direction = this.direction.getSingle(event);
@@ -73,25 +74,25 @@ public class EffPush extends Effect {
 			Location target = this.target.getSingle(event);
 			if (target == null)
 				return;
-			Vector targetVector = target.toVector();
+			Vector3d targetVector = target.toVector().toVector3d();
 			getDirection = entity -> {
-					Vector direction = targetVector.subtract(entity.getLocation().toVector());
+					Vector3d reverseDir = entity.getLocation().toVector().toVector3d().sub(targetVector);
 					if (awayFrom)
-						direction.multiply(-1);
-					return direction;
+						return reverseDir;
+					return reverseDir.mul(-1);
 				};
 		}
 
 		Entity[] entities = this.entities.getArray(event);
 		for (Entity entity : entities) {
-			Vector pushDirection = getDirection.apply(entity);
+			Vector3d pushDirection = getDirection.apply(entity);
 			if (speed != null)
-				pushDirection.normalize().multiply(speed.doubleValue());
-			if (!(Double.isFinite(pushDirection.getX()) && Double.isFinite(pushDirection.getY()) && Double.isFinite(pushDirection.getZ()))) {
+				pushDirection.normalize(speed.doubleValue());
+			if (!pushDirection.isFinite()) {
 				// Some component of the mod vector is not finite, so just stop
 				return;
 			}
-			entity.setVelocity(entity.getVelocity().add(pushDirection));
+			entity.setVelocity(entity.getVelocity().add(Vector.fromJOML(pushDirection)));
 		}
 	}
 

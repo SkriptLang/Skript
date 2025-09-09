@@ -13,9 +13,9 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Yaw / Pitch")
 @Description({
@@ -55,8 +55,8 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 
 	@Override
 	public Float convert(Object object) {
-		if (object instanceof Entity) {
-			Location location = ((Entity) object).getLocation();
+		if (object instanceof Entity entity) {
+			Location location = entity.getLocation();
 			return usesYaw
 				? normalizeYaw(location.getYaw())
 				: location.getPitch();
@@ -64,7 +64,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 			return usesYaw
 				? normalizeYaw(location.getYaw())
 				: location.getPitch();
-		} else if (object instanceof Vector vector) {
+		} else if (object instanceof Vector3d vector) {
 			return usesYaw
 				? skriptYaw((getYaw(vector)))
 				: skriptPitch(getPitch(vector));
@@ -77,16 +77,11 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		if (Player.class.isAssignableFrom(getExpr().getReturnType()) && !SUPPORTS_PLAYERS)
 			return null;
 
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-				return CollectionUtils.array(Number.class);
-			case RESET:
-				return new Class[0];
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case SET, ADD, REMOVE -> CollectionUtils.array(Number.class);
+			case RESET -> new Class[0];
+			default -> null;
+		};
 	}
 
 	@Override
@@ -98,12 +93,12 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 			if (object instanceof Player && !SUPPORTS_PLAYERS)
 				continue;
 
-			if (object instanceof Entity) {
-				changeForEntity((Entity) object, value, mode);
-			} else if (object instanceof Location) {
-				changeForLocation(((Location) object), value, mode);
-			} else if (object instanceof Vector) {
-				changeForVector(((Vector) object), value, mode);
+			if (object instanceof Entity entity) {
+				changeForEntity(entity, value, mode);
+			} else if (object instanceof Location location) {
+				changeForLocation(location, value, mode);
+			} else if (object instanceof Vector3d vector3d) {
+				changeForVector(vector3d, value, mode);
 			}
 		}
 	}
@@ -170,7 +165,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		}
 	}
 
-	private void changeForVector(Vector vector, float value, ChangeMode mode) {
+	private void changeForVector(Vector3d vector, float value, ChangeMode mode) {
 		float yaw = getYaw(vector);
 		float pitch = getPitch(vector);
 		switch (mode) {
@@ -191,8 +186,8 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 				else
 					pitch = fromSkriptPitch(value);
 		}
-		Vector newVector = fromYawAndPitch(yaw, pitch).multiply(vector.length());
-		vector.copy(newVector);
+		Vector3d newVector = fromYawAndPitch(yaw, pitch).mul(vector.length());
+		vector.set(newVector);
 	}
 
 	private static float normalizeYaw(float yaw) {
@@ -212,43 +207,35 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 
 	// TODO Mark as private next version after VectorMath deletion
 	@ApiStatus.Internal
-	public static Vector fromYawAndPitch(float yaw, float pitch) {
+	public static Vector3d fromYawAndPitch(float yaw, float pitch) {
 		double y = Math.sin(pitch * DEG_TO_RAD);
 		double div = Math.cos(pitch * DEG_TO_RAD);
 		double x = Math.cos(yaw * DEG_TO_RAD);
 		double z = Math.sin(yaw * DEG_TO_RAD);
 		x *= div;
 		z *= div;
-		return new Vector(x,y,z);
+		return new Vector3d(x,y,z);
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float getYaw(Vector vector) {
-		if (((Double) vector.getX()).equals((double) 0) && ((Double) vector.getZ()).equals((double) 0)){
+	private static float getYaw(Vector3d vector) {
+		if (((Double) vector.x()).equals((double) 0) && ((Double) vector.z()).equals((double) 0)){
 			return 0;
 		}
-		return (float) (Math.atan2(vector.getZ(), vector.getX()) * RAD_TO_DEG);
+		return (float) (Math.atan2(vector.z(), vector.x()) * RAD_TO_DEG);
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float getPitch(Vector vector) {
-		double xy = Math.sqrt(vector.getX() * vector.getX() + vector.getZ() * vector.getZ());
-		return (float) (Math.atan(vector.getY() / xy) * RAD_TO_DEG);
+	private static float getPitch(Vector3d vector) {
+		double xy = Math.sqrt(vector.x() * vector.x() + vector.z() * vector.z());
+		return (float) (Math.atan(vector.y() / xy) * RAD_TO_DEG);
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float skriptYaw(float yaw) {
+	private static float skriptYaw(float yaw) {
 		return yaw < 90
 			? yaw + 270
 			: yaw - 90;
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float skriptPitch(float pitch) {
+	private static float skriptPitch(float pitch) {
 		return -pitch;
 	}
 
@@ -261,4 +248,5 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 	public static float fromSkriptPitch(float pitch) {
 		return -pitch;
 	}
+
 }

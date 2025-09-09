@@ -1,31 +1,11 @@
 package ch.njol.skript.hooks.regions;
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.util.AABB;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilID;
-
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
@@ -35,6 +15,19 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
+
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.util.*;
 
 public class WorldGuardHook extends RegionsPlugin<WorldGuardPlugin> {
 	
@@ -119,8 +112,8 @@ public class WorldGuardHook extends RegionsPlugin<WorldGuardPlugin> {
 		@Override
 		public Iterator<Block> getBlocks() {
 			final BlockVector3 min = region.getMinimumPoint(), max = region.getMaximumPoint();
-			return new AABB(world, new Vector(min.getBlockX(), min.getBlockY(), min.getBlockZ()),
-					new Vector(max.getBlockX(), max.getBlockY(), max.getBlockZ())).iterator();
+			return new AABB(world, new Vector3d(min.getBlockX(), min.getBlockY(), min.getBlockZ()),
+					new Vector3d(max.getBlockX(), max.getBlockY(), max.getBlockZ())).iterator();
 		}
 		
 		@Override

@@ -1,11 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Minecart;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,16 +10,22 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Minecart;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Minecart Derailed / Flying Velocity")
 @Description("The velocity of a minecart as soon as it has been derailed or as soon as it starts flying.")
 @Examples({"on right click on minecart:",
 	"\tset derailed velocity of event-entity to vector 2, 10, 2"})
 @Since("2.5.1")
-public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression<Entity, Vector> {
+public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression<Entity, Vector3d> {
 	
 	static {
-		register(ExprMinecartDerailedFlyingVelocity.class, Vector.class,
+		register(ExprMinecartDerailedFlyingVelocity.class, Vector3d.class,
 			"[minecart] (1¦derailed|2¦flying) velocity", "entities");
 	}
 	
@@ -39,51 +39,45 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 	
 	@Nullable
 	@Override
-	public Vector convert(Entity entity) {
-		if (entity instanceof Minecart) {
-			Minecart mc = (Minecart) entity;
-			return flying ? mc.getFlyingVelocityMod() : mc.getDerailedVelocityMod();
-		}
+	public Vector3d convert(Entity entity) {
+		if (entity instanceof Minecart minecart)
+			return (flying ? minecart.getFlyingVelocityMod() : minecart.getDerailedVelocityMod()).toVector3d();
 		return null;
 	}
 	
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-				return CollectionUtils.array(Vector.class);
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case SET, ADD, REMOVE -> CollectionUtils.array(Vector3d.class);
+			default -> null;
+		};
 	}
 	
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
 		if (delta != null) {
+			assert delta[0] != null;
+			Vector vector = Vector.fromJOML((Vector3d) delta[0]);
 			if (flying) {
 				switch (mode) {
 					case SET:
 						for (Entity entity : getExpr().getArray(e)) {
-							if (entity instanceof Minecart)
-								((Minecart) entity).setFlyingVelocityMod((Vector) delta[0]);
+							if (entity instanceof Minecart minecart)
+								minecart.setFlyingVelocityMod(vector);
 						}
 						break;
 					case ADD:
 						for (Entity entity : getExpr().getArray(e)) {
-							if (entity instanceof Minecart) {
-								Minecart minecart = (Minecart) entity;
-								minecart.setFlyingVelocityMod(((Vector) delta[0]).add(minecart.getFlyingVelocityMod()));
+							if (entity instanceof Minecart minecart) {
+								minecart.setFlyingVelocityMod(minecart.getFlyingVelocityMod().add(vector));
 							}
 						}
 						break;
 					case REMOVE:
 						for (Entity entity : getExpr().getArray(e)) {
-							if (entity instanceof Minecart) {
-								Minecart minecart = (Minecart) entity;
-								minecart.setFlyingVelocityMod(((Vector) delta[0]).subtract(minecart.getFlyingVelocityMod()));
+							if (entity instanceof Minecart minecart) {
+								minecart.setFlyingVelocityMod(minecart.getFlyingVelocityMod().subtract(vector));
 							}
 						}
 						break;
@@ -94,23 +88,21 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 				switch (mode) {
 					case SET:
 						for (Entity entity : getExpr().getArray(e)) {
-							if (entity instanceof Minecart)
-								((Minecart) entity).setDerailedVelocityMod((Vector) delta[0]);
+							if (entity instanceof Minecart minecart)
+								minecart.setDerailedVelocityMod(vector);
 						}
 						break;
 					case ADD:
 						for (Entity entity : getExpr().getArray(e)) {
-							if (entity instanceof Minecart) {
-								Minecart minecart = (Minecart) entity;
-								minecart.setDerailedVelocityMod(((Vector) delta[0]).add(minecart.getDerailedVelocityMod()));
+							if (entity instanceof Minecart minecart) {
+								minecart.setDerailedVelocityMod(minecart.getDerailedVelocityMod().add(vector));
 							}
 						}
 						break;
 					case REMOVE:
 						for (Entity entity : getExpr().getArray(e)) {
-							if (entity instanceof Minecart) {
-								Minecart minecart = (Minecart) entity;
-								minecart.setDerailedVelocityMod(((Vector) delta[0]).subtract(minecart.getDerailedVelocityMod()));
+							if (entity instanceof Minecart minecart) {
+								minecart.setDerailedVelocityMod(minecart.getDerailedVelocityMod().subtract(vector));
 							}
 						}
 						break;
@@ -120,16 +112,15 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 			}
 		}
 	}
-	
+
+	@Override
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return (flying ? "flying" : "derailed") + " velocity";
-	}
-	
-	
-	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
 	}
 	
 }

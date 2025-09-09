@@ -51,8 +51,8 @@ public class BlockLineIterator implements Iterator<Block> {
 	 * @param direction direction to travel in
 	 * @param distance maximum distance to travel
 	 */
-	public BlockLineIterator(Location start, @NotNull Vector direction, double distance) {
-		this(start, start.clone().add(direction.clone().normalize().multiply(distance)));
+	public BlockLineIterator(Location start, @NotNull Vector3d direction, double distance) {
+		this(start, start.clone().add(Vector.fromJOML(direction.normalize(distance, new Vector3d()))));
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class BlockLineIterator implements Iterator<Block> {
 	 * @param direction direction to travel in
 	 * @param distance maximum distance to travel
 	 */
-	public BlockLineIterator(@NotNull Block start, Vector direction, double distance) {
+	public BlockLineIterator(@NotNull Block start, Vector3d direction, double distance) {
 		this(start.getLocation().toCenterLocation(), direction, distance);
 	}
 

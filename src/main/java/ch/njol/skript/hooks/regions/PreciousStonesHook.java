@@ -1,19 +1,12 @@
 package ch.njol.skript.hooks.regions;
 
-import static ch.njol.skript.variables.Variables.yggdrasil;
-
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import ch.njol.skript.hooks.regions.classes.Region;
+import ch.njol.skript.util.AABB;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.YggdrasilID;
+import net.sacredlabyrinth.Phaed.PreciousStones.PreciousStones;
+import net.sacredlabyrinth.Phaed.PreciousStones.field.Field;
+import net.sacredlabyrinth.Phaed.PreciousStones.field.FieldFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -23,13 +16,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.hooks.regions.classes.Region;
-import ch.njol.skript.util.AABB;
-import ch.njol.yggdrasil.Fields;
-import ch.njol.yggdrasil.YggdrasilID;
-import net.sacredlabyrinth.Phaed.PreciousStones.PreciousStones;
-import net.sacredlabyrinth.Phaed.PreciousStones.field.Field;
-import net.sacredlabyrinth.Phaed.PreciousStones.field.FieldFlag;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 
@@ -122,7 +114,7 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 		@Override
         public Iterator<Block> getBlocks() {
             final List<Vector> vectors = field.getCorners();
-            return new AABB(Bukkit.getWorld(field.getWorld()), vectors.get(0), vectors.get(7)).iterator();
+            return new AABB(Bukkit.getWorld(field.getWorld()), vectors.get(0).toVector3d(), vectors.get(7).toVector3d()).iterator();
         }
 
         @Override

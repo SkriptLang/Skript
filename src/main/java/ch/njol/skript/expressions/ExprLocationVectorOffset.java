@@ -1,11 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.Literal;
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -13,11 +7,17 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+
+import org.bukkit.Location;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 
 /**
@@ -39,26 +39,27 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 	private Expression<Location> location;
 
 	@SuppressWarnings("null")
-	private Expression<Vector> vectors;
+	private Expression<Vector3d> vectors;
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		location = (Expression<Location>) exprs[0];
-		vectors = (Expression<Vector>) exprs[1];
+		vectors = (Expression<Vector3d>) exprs[1];
 		return true;
 	}
 
-	@SuppressWarnings("null")
 	@Override
-	protected Location[] get(Event e) {
-		Location l = location.getSingle(e);
+	@SuppressWarnings("null")
+	protected Location[] get(Event event) {
+		Location l = location.getSingle(event);
 		if (l == null)
 			return null;
 		Location clone = l.clone();
-		for (Vector v : vectors.getArray(e))
-			clone.add(v);
-		return CollectionUtils.array(clone);
+		Vector3d sum = new Vector3d();
+		for (Vector3d v : vectors.getArray(event))
+			sum.add(v);
+		return CollectionUtils.array(clone.add(sum.x, sum.y, sum.z));
 	}
 
 	@Override
@@ -73,14 +74,14 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 
 	@Override
 	public Expression<? extends Location> simplify() {
-		if (location instanceof Literal<Location> && vectors instanceof Literal<Vector>)
+		if (location instanceof Literal<Location> && vectors instanceof Literal<Vector3d>)
 			return SimplifiedLiteral.fromExpression(this);
 		return this;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return location.toString() + " offset by " + vectors.toString();
+	public String toString(@Nullable Event event, boolean debug) {
+		return location.toString(event, debug) + " offset by " + vectors.toString(event, debug);
 	}
 
 }

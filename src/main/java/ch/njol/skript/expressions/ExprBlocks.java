@@ -1,16 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Iterator;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
-import com.google.common.collect.Lists;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
@@ -25,7 +14,17 @@ import ch.njol.skript.util.AABB;
 import ch.njol.skript.util.BlockLineIterator;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.Lists;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
+
+import java.util.Iterator;
 
 @Name("Blocks")
 @Description({"Blocks relative to other blocks or between other blocks.",
@@ -136,16 +135,16 @@ public class ExprBlocks extends SimpleExpression<Block> {
 				Direction direction = this.direction.getSingle(event);
 				if (direction == null || location.getWorld() == null)
 					return null;
-				Vector vector = object != location
+				Vector3d vector = object != location
 					? direction.getDirection((Block) object)
 					: direction.getDirection(location);
 				// Cannot be zero.
-				if (vector.getX() == 0 && vector.getY() == 0 && vector.getZ() == 0)
+				if (Math2.vectorIsZero(vector))
 					return null;
 				// start block + (max - 1) == max
 				int distance = SkriptConfig.maxTargetBlockDistance.value() - 1;
-				if (this.direction instanceof ExprDirection) {
-					Expression<Number> numberExpression = ((ExprDirection) this.direction).amount;
+				if (this.direction instanceof ExprDirection exprDirection) {
+					Expression<Number> numberExpression = exprDirection.amount;
 					if (numberExpression != null) {
 						Number number = numberExpression.getSingle(event);
 						if (number != null)

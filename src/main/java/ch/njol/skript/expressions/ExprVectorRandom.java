@@ -12,8 +12,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import java.util.Random;
 
@@ -21,12 +21,12 @@ import java.util.Random;
 @Description("Creates a random unit vector.")
 @Examples("set {_v} to a random vector")
 @Since("2.2-dev28, 2.7 (signed components)")
-public class ExprVectorRandom extends SimpleExpression<Vector> {
+public class ExprVectorRandom extends SimpleExpression<Vector3d> {
 
 	private static final Random RANDOM = new Random();
 	
 	static {
-		Skript.registerExpression(ExprVectorRandom.class, Vector.class, ExpressionType.SIMPLE, "[a] random vector");
+		Skript.registerExpression(ExprVectorRandom.class, Vector3d.class, ExpressionType.SIMPLE, "[a] random vector");
 	}
 
 	@Override
@@ -35,10 +35,10 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	protected Vector[] get(Event event) {
+	protected Vector3d[] get(Event event) {
 		// Generating uniform random numbers leads to bias towards the corners of the cube.
 		// Gaussian distribution is radially symmetric, so it avoids this bias.
-		return CollectionUtils.array(new Vector(RANDOM.nextGaussian(), RANDOM.nextGaussian(), RANDOM.nextGaussian()).normalize());
+		return CollectionUtils.array(new Vector3d(RANDOM.nextGaussian(), RANDOM.nextGaussian(), RANDOM.nextGaussian()).normalize());
 	}
 
 	@Override
@@ -47,8 +47,8 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override

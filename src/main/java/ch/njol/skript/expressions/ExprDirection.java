@@ -1,13 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -20,6 +12,13 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 /**
  * @author Peter Güttinger
@@ -72,7 +71,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	Expression<Number> amount;
 	
 	@Nullable
-	private Vector direction;
+	private Vector3d direction;
 	@Nullable
 	private ExprDirection next;
 	
@@ -89,11 +88,11 @@ public class ExprDirection extends SimpleExpression<Direction> {
 		amount = (Expression<Number>) exprs[0];
 		switch (matchedPattern) {
 			case 0:
-				direction = new Vector(byMark[parseResult.mark].getModX(), byMark[parseResult.mark].getModY(), byMark[parseResult.mark].getModZ());
+				direction = new Vector3d(byMark[parseResult.mark].getModX(), byMark[parseResult.mark].getModY(), byMark[parseResult.mark].getModZ());
 				if (exprs[1] != null) {
-					if (!(exprs[1] instanceof ExprDirection) || ((ExprDirection) exprs[1]).direction == null)
+					if (!(exprs[1] instanceof ExprDirection exprDirection) || exprDirection.direction == null)
 						return false;
-					next = (ExprDirection) exprs[1];
+					next = exprDirection;
 				}
 				break;
 			case 1:
@@ -112,64 +111,64 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	
 	@Override
 	@Nullable
-	protected Direction[] get(final Event e) {
-		final Number n = amount != null ? amount.getSingle(e) : 1;
-		if (n == null)
+	protected Direction[] get(Event event) {
+		Number amountNum = this.amount != null ? this.amount.getSingle(event) : 1;
+		if (amountNum == null)
 			return new Direction[0];
-		final double ln = n.doubleValue();
+		double length = amountNum.doubleValue();
 		if (direction != null) {
-			final Vector v = direction.clone().multiply(ln);
+			Vector3d v = direction.mul(length, new Vector3d());
 			ExprDirection d = next;
 			while (d != null) {
-				final Number n2 = d.amount != null ? d.amount.getSingle(e) : 1;
+				final Number n2 = d.amount != null ? d.amount.getSingle(event) : 1;
 				if (n2 == null)
 					return new Direction[0];
 				assert d.direction != null; // checked in init()
-				v.add(d.direction.clone().multiply(n2.doubleValue()));
+				v.add(d.direction.mul(n2.doubleValue()), new Vector3d());
 				d = d.next;
 			}
 			assert v != null;
 			return new Direction[] {new Direction(v)};
 		} else if (relativeTo != null) {
-			final Object o = relativeTo.getSingle(e);
+			final Object o = relativeTo.getSingle(event);
 			if (o == null)
 				return new Direction[0];
 			if (o instanceof Block) {
 				final BlockFace f = Direction.getFacing((Block) o);
 				if (f == BlockFace.SELF || horizontal && (f == BlockFace.UP || f == BlockFace.DOWN))
 					return new Direction[] {Direction.ZERO};
-				return new Direction[] {new Direction(f, ln)};
+				return new Direction[] {new Direction(f, length)};
 			} else {
 				final Location l = ((Entity) o).getLocation();
 				if (!horizontal) {
 					if (!facing) {
-						final Vector v = l.getDirection().normalize().multiply(ln);
+						Vector3d v = l.getDirection().toVector3d().normalize(length);
 						assert v != null;
 						return new Direction[] {new Direction(v)};
 					}
 					final double pitch = Direction.pitchToRadians(l.getPitch());
 					assert pitch >= -Math.PI / 2 && pitch <= Math.PI / 2;
 					if (pitch > Math.PI / 4)
-						return new Direction[] {new Direction(new double[] {0, ln, 0})};
+						return new Direction[] {new Direction(new double[] {0, length, 0})};
 					if (pitch < -Math.PI / 4)
-						return new Direction[] {new Direction(new double[] {0, -ln, 0})};
+						return new Direction[] {new Direction(new double[] {0, -length, 0})};
 				}
 				double yaw = Direction.yawToRadians(l.getYaw());
 				if (horizontal && !facing) {
-					return new Direction[] {new Direction(new double[] {Math.cos(yaw) * ln, 0, Math.sin(yaw) * ln})};
+					return new Direction[] {new Direction(new double[] {Math.cos(yaw) * length, 0, Math.sin(yaw) * length})};
 				}
 				yaw = Math2.mod(yaw, 2 * Math.PI);
 				if (yaw >= Math.PI / 4 && yaw < 3 * Math.PI / 4)
-					return new Direction[] {new Direction(new double[] {0, 0, ln})};
+					return new Direction[] {new Direction(new double[] {0, 0, length})};
 				if (yaw >= 3 * Math.PI / 4 && yaw < 5 * Math.PI / 4)
-					return new Direction[] {new Direction(new double[] {-ln, 0, 0})};
+					return new Direction[] {new Direction(new double[] {-length, 0, 0})};
 				if (yaw >= 5 * Math.PI / 4 && yaw < 7 * Math.PI / 4)
-					return new Direction[] {new Direction(new double[] {0, 0, -ln})};
+					return new Direction[] {new Direction(new double[] {0, 0, -length})};
 				assert yaw >= 0 && yaw < Math.PI / 4 || yaw >= 7 * Math.PI / 4 && yaw < 2 * Math.PI;
-				return new Direction[] {new Direction(new double[] {ln, 0, 0})};
+				return new Direction[] {new Direction(new double[] {length, 0, 0})};
 			}
 		} else {
-			return new Direction[] {new Direction(horizontal ? Direction.IGNORE_PITCH : 0, yaw, ln)};
+			return new Direction[] {new Direction(horizontal ? Direction.IGNORE_PITCH : 0, yaw, length)};
 		}
 	}
 	

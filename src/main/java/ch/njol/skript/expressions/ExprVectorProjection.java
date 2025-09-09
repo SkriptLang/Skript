@@ -8,43 +8,43 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+import org.joml.Vector3d;
 
 @Name("Vectors - Vector Projection")
 @Description("An expression to get the vector projection of two vectors.")
 @Examples("set {_projection} to vector projection of vector(1, 2, 3) onto vector(4, 4, 4)")
 @Since("2.8.0")
-public class ExprVectorProjection extends SimpleExpression<Vector> {
+public class ExprVectorProjection extends SimpleExpression<Vector3d> {
 
 	static {
-		Skript.registerExpression(ExprVectorProjection.class, Vector.class, ExpressionType.COMBINED, "[vector] projection [of] %vector% on[to] %vector%");
+		Skript.registerExpression(ExprVectorProjection.class, Vector3d.class, ExpressionType.COMBINED, "[vector] projection [of] %vector% on[to] %vector%");
 	}
 
-	private Expression<Vector> left, right;
+	private Expression<Vector3d> left, right;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.left = (Expression<Vector>) exprs[0];
-		this.right = (Expression<Vector>) exprs[1];
+		this.left = (Expression<Vector3d>) exprs[0];
+		this.right = (Expression<Vector3d>) exprs[1];
 		return true;
 	}
 
 	@Override
 	@Nullable
-	protected Vector[] get(Event event) {
-		Vector left = this.left.getOptionalSingle(event).orElse(new Vector());
-		Vector right = this.right.getOptionalSingle(event).orElse(new Vector());
+	protected Vector3d[] get(Event event) {
+		Vector3d left = this.left.getOptionalSingle(event).orElse(new Vector3d());
+		Vector3d right = this.right.getOptionalSingle(event).orElse(new Vector3d());
 		double dot = left.dot(right);
 		double length = right.lengthSquared();
 		double scalar = dot / length;
-		return new Vector[] {right.clone().multiply(scalar)};
+		return new Vector3d[] {right.mul(scalar, new Vector3d())};
 	}
 
 	@Override
@@ -53,13 +53,13 @@ public class ExprVectorProjection extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override
-	public Expression<? extends Vector> simplify() {
-		if (left instanceof Literal<Vector> && right instanceof Literal<Vector>)
+	public Expression<? extends Vector3d> simplify() {
+		if (left instanceof Literal<Vector3d> && right instanceof Literal<Vector3d>)
 			return SimplifiedLiteral.fromExpression(this);
 		return this;
 	}

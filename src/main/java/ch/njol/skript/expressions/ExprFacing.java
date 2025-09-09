@@ -16,8 +16,8 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 /**
  * @author Peter Güttinger
@@ -89,18 +89,18 @@ public class ExprFacing extends SimplePropertyExpression<Object, Direction> {
 		if (b == null)
 			return;
 		BlockData data = b.getBlockData();
-		if (data instanceof org.bukkit.block.data.Directional) {
-			((org.bukkit.block.data.Directional) data).setFacing(toBlockFace(((Direction) delta[0]).getDirection(b)));
+		if (data instanceof org.bukkit.block.data.Directional directional) {
+			directional.setFacing(toBlockFace(((Direction) delta[0]).getDirection(b)));
 			b.setBlockData(data, false);
 		}
 	}
 	
-	private static BlockFace toBlockFace(final Vector dir) {
+	private static BlockFace toBlockFace(final Vector3d dir) {
 //		dir.normalize();
 		BlockFace r = null;
 		double d = Double.MAX_VALUE;
 		for (final BlockFace f : BlockFace.values()) {
-			final double a = Math.pow(f.getModX() - dir.getX(), 2) + Math.pow(f.getModY() - dir.getY(), 2) + Math.pow(f.getModZ() - dir.getZ(), 2);
+			final double a = Math.pow(f.getModX() - dir.x(), 2) + Math.pow(f.getModY() - dir.y(), 2) + Math.pow(f.getModZ() - dir.z(), 2);
 			if (a < d) {
 				d = a;
 				r = f;

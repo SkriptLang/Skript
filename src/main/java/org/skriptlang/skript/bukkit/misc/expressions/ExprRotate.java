@@ -11,11 +11,12 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.skriptlang.skript.bukkit.misc.rotation.NonMutatingQuaternionRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.NonMutatingVectorRotator;
@@ -57,7 +58,7 @@ public class ExprRotate extends SimpleExpression<Object> {
 	private Expression<?> toRotate;
 
 	private @UnknownNullability Expression<Number> angle;
-	private @UnknownNullability Expression<Vector> vector;
+	private @UnknownNullability Expression<Vector3d> vector;
 	private @UnknownNullability Axis axis;
 
 	private @UnknownNullability Expression<Number> x, y, z;
@@ -78,7 +79,7 @@ public class ExprRotate extends SimpleExpression<Object> {
 				axis = Axis.valueOf(axisString);
 			}
 			case 2 -> {
-				vector = (Expression<Vector>) exprs[1];
+				vector = (Expression<Vector3d>) exprs[1];
 				angle = (Expression<Number>) exprs[2];
 				axis = Axis.ARBITRARY;
 			}
@@ -119,18 +120,18 @@ public class ExprRotate extends SimpleExpression<Object> {
 		if (Double.isInfinite(radAngle) || Double.isNaN(radAngle))
 			return new Object[0];
 
-		Rotator<Vector> vectorRotator;
+		Rotator<Vector3d> vectorRotator;
 		Rotator<Quaternionf> quaternionRotator;
 
 		if (axis == Axis.ARBITRARY) {
 			// rotate around arbitrary axis
-			Vector axis = vector.getSingle(event);
-			if (axis == null || axis.isZero())
+			Vector3d axis = vector.getSingle(event);
+			if (axis == null || Math2.vectorIsZero(axis))
 				return new Object[0];
 			axis.normalize();
-			Vector3f jomlAxis = axis.toVector3f();
+			Vector3f v3fAxis = new Vector3f((float) axis.x, (float) axis.y, (float) axis.z);
 			vectorRotator = new NonMutatingVectorRotator(Axis.ARBITRARY, axis, radAngle);
-			quaternionRotator = new NonMutatingQuaternionRotator(Axis.LOCAL_ARBITRARY, jomlAxis, (float) radAngle);
+			quaternionRotator = new NonMutatingQuaternionRotator(Axis.LOCAL_ARBITRARY, v3fAxis, (float) radAngle);
 		} else {
 			vectorRotator = new NonMutatingVectorRotator(axis, radAngle);
 			quaternionRotator = new NonMutatingQuaternionRotator(axis, (float) radAngle);
@@ -138,7 +139,7 @@ public class ExprRotate extends SimpleExpression<Object> {
 
 		return toRotate.stream(event)
 			.map(object -> {
-				if (object instanceof Vector vectorToRotate) {
+				if (object instanceof Vector3d vectorToRotate) {
 					return vectorRotator.rotate(vectorToRotate);
 				} else if (object instanceof Quaternionf quaternion) {
 					return quaternionRotator.rotate(quaternion);
@@ -161,7 +162,7 @@ public class ExprRotate extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?>[] possibleReturnTypes() {
-		return new Class<?>[]{Quaternionf.class, Vector.class};
+		return new Class<?>[]{Quaternionf.class, Vector3d.class};
 	}
 
 	@Override

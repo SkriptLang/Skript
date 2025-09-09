@@ -12,8 +12,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Vectors - Create from Direction")
 @Description({
@@ -28,10 +28,10 @@ import org.jetbrains.annotations.Nullable;
 	"set {_v::*} to vectors from north, south, east, and west"
 })
 @Since("2.8.0")
-public class ExprVectorFromDirection extends SimpleExpression<Vector> {
+public class ExprVectorFromDirection extends SimpleExpression<Vector3d> {
 
 	static {
-		Skript.registerExpression(ExprVectorFromDirection.class, Vector.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprVectorFromDirection.class, Vector3d.class, ExpressionType.PROPERTY,
 				"vector[s] [from] %directions%",
 				"%directions% vector[s]");
 	}
@@ -52,10 +52,10 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 
 	@Override
 	@Nullable
-	protected Vector[] get(Event event) {
+	protected Vector3d[] get(Event event) {
 		return direction.stream(event)
 				.map(Direction::getDirection)
-				.toArray(Vector[]::new);
+				.toArray(Vector3d[]::new);
 	}
 
 	@Override
@@ -64,8 +64,8 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override

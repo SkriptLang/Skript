@@ -18,10 +18,10 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import java.math.BigDecimal;
@@ -471,17 +471,17 @@ public class DefaultFunctions {
 			.examples("date(2014, 10, 1) # 0:00, 1st October 2014", "date(1990, 3, 5, 14, 30) # 14:30, 5th May 1990", "date(1999, 12, 31, 23, 59, 59, 999, -3*60, 0) # almost year 2000 in parts of Brazil (-3 hours offset, no DST)")
 			.since("2.2"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Vector>("vector", new Parameter[] {
+		Functions.registerFunction(new SimpleJavaFunction<>("vector", new Parameter[]{
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("z", DefaultClasses.NUMBER, true, null)
 		}, DefaultClasses.VECTOR, true) {
 			@Override
-			public Vector[] executeSimple(Object[][] params) {
-				return new Vector[] {new Vector(
-					((Number)params[0][0]).doubleValue(),
-					((Number)params[1][0]).doubleValue(),
-					((Number)params[2][0]).doubleValue()
+			public Vector3d[] executeSimple(Object[][] params) {
+				return new Vector3d[]{new Vector3d(
+					((Number) params[0][0]).doubleValue(),
+					((Number) params[1][0]).doubleValue(),
+					((Number) params[2][0]).doubleValue()
 				)};
 			}
 
@@ -662,10 +662,10 @@ public class DefaultFunctions {
 						@Override
 						public Quaternionf[] executeSimple(Object[][] params) {
 							float angle = (float) (((Number) params[0][0]).floatValue() / 180 * Math.PI);
-							Vector v = ((Vector) params[1][0]);
-							if (v.isZero() || !Double.isFinite(v.getX()) || !Double.isFinite(v.getY()) || !Double.isFinite(v.getZ()))
+							Vector3d v = ((Vector3d) params[1][0]);
+							if (Math2.vectorIsZero(v) || !v.isFinite())
 								return new Quaternionf[0];
-							Vector3f axis = ((Vector) params[1][0]).toVector3f();
+							Vector3f axis = new Vector3f((float) v.x, (float) v.y, (float) v.z);
 							return CollectionUtils.array(new Quaternionf(new AxisAngle4f(angle, axis)));
 						}
 					})

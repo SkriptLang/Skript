@@ -1,23 +1,20 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PaperEntityUtils;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import io.papermc.paper.entity.LookAnchor;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Look At")
 @Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
@@ -88,6 +85,8 @@ public class EffLook extends Effect {
 		Object object = target.getSingle(event);
 		if (object == null)
 			return;
+		if (object instanceof Vector3d vector)
+			object = Vector.fromJOML(vector);
 
 		Float speed = this.speed == null ? null : this.speed.getOptionalSingle(event).map(Number::floatValue).orElse(null);
 		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getOptionalSingle(event).map(Number::floatValue).orElse(null);

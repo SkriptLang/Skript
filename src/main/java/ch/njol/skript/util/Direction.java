@@ -20,6 +20,7 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
@@ -85,60 +86,60 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	public Direction(final BlockFace f, final double length) {
-		this(new Vector(f.getModX(), f.getModY(), f.getModZ()).normalize().multiply(length));
+		this(new Vector3d(f.getModX(), f.getModY(), f.getModZ()).normalize().mul(length));
 	}
 	
-	public Direction(final Vector v) {
+	public Direction(final Vector3d v) {
 		relative = false;
-		pitchOrX = v.getX();
-		yawOrY = v.getY();
-		lengthOrZ = v.getZ();
+		pitchOrX = v.x();
+		yawOrY = v.y();
+		lengthOrZ = v.z();
 	}
 	
 	public Location getRelative(final Location l) {
-		return l.clone().add(getDirection(l));
+		return l.clone().add(Vector.fromJOML(getDirection(l)));
 	}
 	
 	public Location getRelative(final Entity e) {
-		return e.getLocation().add(getDirection(e.getLocation()));
+		return e.getLocation().add(Vector.fromJOML(getDirection(e.getLocation())));
 	}
 	
 	public Location getRelative(final Block b) {
-		return b.getLocation().add(getDirection(b));
+		return b.getLocation().add(Vector.fromJOML(getDirection(b)));
 	}
 
 	/*
 	 * Used to get a vector from a direction without anything to be relative to.
 	 * Any relative directions will be relative to 0 degrees pitch and yaw.
 	 */
-	public Vector getDirection() {
+	public Vector3d getDirection() {
 		if (!relative)
-			return new Vector(pitchOrX, yawOrY, lengthOrZ);
+			return new Vector3d(pitchOrX, yawOrY, lengthOrZ);
 		return getDirection(0, 0);
 	}
 
-	public Vector getDirection(final Location l) {
+	public Vector3d getDirection(final Location l) {
 		if (!relative)
-			return new Vector(pitchOrX, yawOrY, lengthOrZ);
+			return new Vector3d(pitchOrX, yawOrY, lengthOrZ);
 		return getDirection(pitchOrX == IGNORE_PITCH ? 0 : pitchToRadians(l.getPitch()), yawToRadians(l.getYaw()));
 	}
 	
-	public Vector getDirection(final Entity e) {
+	public Vector3d getDirection(final Entity e) {
 		return getDirection(e.getLocation());
 	}
 	
-	public Vector getDirection(Block b) {
+	public Vector3d getDirection(Block b) {
 		if (!relative)
-			return new Vector(pitchOrX, yawOrY, lengthOrZ);
+			return new Vector3d(pitchOrX, yawOrY, lengthOrZ);
 		BlockFace blockFace = getFacing(b);
 		return getDirection(pitchOrX == IGNORE_PITCH ? 0 : blockFace.getModZ() * Math.PI / 2 /* only up and down have a z mod */, Math.atan2(blockFace.getModZ(), blockFace.getModX()));
 	}
 	
-	private Vector getDirection(final double p, final double y) {
+	private Vector3d getDirection(final double p, final double y) {
 		if (pitchOrX == IGNORE_PITCH)
-			return new Vector(Math.cos(y + yawOrY) * lengthOrZ, 0, Math.sin(y + yawOrY) * lengthOrZ);
+			return new Vector3d(Math.cos(y + yawOrY) * lengthOrZ, 0, Math.sin(y + yawOrY) * lengthOrZ);
 		final double lxz = Math.cos(p + pitchOrX) * lengthOrZ;
-		return new Vector(Math.cos(y + yawOrY) * lxz, Math.sin(p + pitchOrX) * Math.cos(yawOrY) * lengthOrZ, Math.sin(y + yawOrY) * lxz);
+		return new Vector3d(Math.cos(y + yawOrY) * lxz, Math.sin(p + pitchOrX) * Math.cos(yawOrY) * lengthOrZ, Math.sin(y + yawOrY) * lxz);
 	}
 	
 	@Override
@@ -231,9 +232,9 @@ public class Direction implements YggdrasilRobustSerializable {
 		return getFacing(yaw, pitch);
 	}
 	
-	public static BlockFace getFacing(final Vector v, final boolean horizontal) {
-		final double pitch = horizontal ? 0 : Math.atan2(v.getY(), Math.sqrt(Math.pow(v.getX(), 2) + Math.pow(v.getZ(), 2)));
-		final double yaw = Math.atan2(v.getZ(), v.getX());
+	public static BlockFace getFacing(final Vector3d v, final boolean horizontal) {
+		final double pitch = horizontal ? 0 : Math.atan2(v.y(), Math.sqrt(Math.pow(v.x(), 2) + Math.pow(v.z(), 2)));
+		final double yaw = Math.atan2(v.z(), v.x());
 		return getFacing(yaw, pitch);
 	}
 	
@@ -245,7 +246,7 @@ public class Direction implements YggdrasilRobustSerializable {
 		for (int i = 0; i < blocks.length; i++) {
 			r[i] = blocks[i].getLocation();
 			for (int j = 0; j < directions.length; j++) {
-				r[i].add(directions[j].getDirection(blocks[i]));
+				r[i].add(Vector.fromJOML(directions[j].getDirection(blocks[i])));
 			}
 		}
 		return r;
@@ -259,7 +260,7 @@ public class Direction implements YggdrasilRobustSerializable {
 		for (int i = 0; i < locations.length; i++) {
 			r[i] = locations[i].clone();
 			for (int j = 0; j < directions.length; j++) {
-				r[i].add(directions[j].getDirection(locations[i]));
+				r[i].add(Vector.fromJOML(directions[j].getDirection(locations[i])));
 			}
 		}
 		return r;
@@ -300,10 +301,10 @@ public class Direction implements YggdrasilRobustSerializable {
 		return toString(mod, absoluteDirections);
 	}
 	
-	public static String toString(final Vector dir) {
-		if (dir.getX() == 0 && dir.getY() == 0 && dir.getZ() == 0)
+	public static String toString(Vector3d dir) {
+		if (dir.x() == 0 && dir.y() == 0 && dir.z() == 0)
 			return Language.get("directions.at");
-		return toString(new double[] {dir.getX(), dir.getY(), dir.getZ()}, absoluteDirections);
+		return toString(new double[] {dir.x(), dir.y(), dir.z()}, absoluteDirections);
 	}
 	
 	@SuppressWarnings("null")

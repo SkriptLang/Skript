@@ -8,14 +8,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+import org.joml.Vector3d;
 
 @Name("Vectors - Spherical Shape")
 @Description("Forms a 'spherical shaped' vector using yaw and pitch to manipulate the current point.")
@@ -25,12 +25,12 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 	"set {_v} to spherical vector radius 1, yaw 45, pitch 90"
 })
 @Since("2.2-dev28")
-public class ExprVectorSpherical extends SimpleExpression<Vector> {
+public class ExprVectorSpherical extends SimpleExpression<Vector3d> {
 
 	private static final double DEG_TO_RAD = Math.PI / 180;
 
 	static {
-		Skript.registerExpression(ExprVectorSpherical.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorSpherical.class, Vector3d.class, ExpressionType.SIMPLE,
 				"[a] [new] spherical vector [(from|with)] [radius] %number%, [yaw] %number%(,[ and]| and) [pitch] %number%");
 	}
 
@@ -48,7 +48,7 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event event) {
+	protected Vector3d[] get(Event event) {
 		Number radius = this.radius.getSingle(event);
 		Number yaw = this.yaw.getSingle(event);
 		Number pitch = this.pitch.getSingle(event);
@@ -64,12 +64,12 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public Class<? extends Vector> getReturnType() {
-		return Vector.class;
+	public Class<? extends Vector3d> getReturnType() {
+		return Vector3d.class;
 	}
 
 	@Override
-	public Expression<? extends Vector> simplify() {
+	public Expression<? extends Vector3d> simplify() {
 		if (radius instanceof Literal<Number> && yaw instanceof Literal<Number> && pitch instanceof Literal<Number>)
 			return SimplifiedLiteral.fromExpression(this);
 		return this;
@@ -81,7 +81,7 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 				" and pitch" + pitch.toString(event, debug);
 	}
 
-	public static Vector fromSphericalCoordinates(double radius, double theta, double phi) {
+	public static Vector3d fromSphericalCoordinates(double radius, double theta, double phi) {
 		double r = Math.abs(radius);
 		double t = theta * DEG_TO_RAD;
 		double p = phi * DEG_TO_RAD;
@@ -89,7 +89,7 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 		double x = r * sinp * Math.cos(t);
 		double y = r * Math.cos(p);
 		double z = r * sinp * Math.sin(t);
-		return new Vector(x, y, z);
+		return new Vector3d(x, y, z);
 	}
 
 }

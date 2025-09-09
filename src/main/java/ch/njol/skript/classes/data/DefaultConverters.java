@@ -35,6 +35,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
+import org.joml.Vector3d;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
@@ -267,8 +268,12 @@ public class DefaultConverters {
 		// Enchantment - EnchantmentType
 		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
 
-		// Vector - Direction
-		Converters.registerConverter(Vector.class, Direction.class, Direction::new);
+		// Vector3d - Vector
+		Converters.registerConverter(Vector3d.class, Vector.class, Vector::fromJOML, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Vector.class, Vector3d.class, Vector::toVector3d);
+
+		// Vector3d - Direction
+		Converters.registerConverter(Vector3d.class, Direction.class, Direction::new);
 
 		// EnchantmentOffer - EnchantmentType
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));

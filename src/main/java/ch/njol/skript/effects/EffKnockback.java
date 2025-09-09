@@ -1,11 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -13,8 +9,8 @@ import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 @Name("Knockback")
 @Description("Apply the same velocity as a knockback to living entities in a direction. Mechanics such as knockback resistance will be factored in.")
@@ -53,11 +49,11 @@ public class EffKnockback extends Effect {
 		double strength = this.strength != null ? this.strength.getOptionalSingle(event).orElse(1).doubleValue() : 1.0;
 
 		for (LivingEntity livingEntity : entities.getArray(event)) {
-			Vector directionVector = direction.getDirection(livingEntity);
+			Vector3d directionVector = direction.getDirection(livingEntity);
 			// Flip the direction, because LivingEntity#knockback() takes the direction of the source of the knockback,
 			// not the direction of the actual knockback.
-			directionVector.multiply(-1);
-			livingEntity.knockback(strength, directionVector.getX(), directionVector.getZ());
+			directionVector.negate();
+			livingEntity.knockback(strength, directionVector.x(), directionVector.z());
 			// ensure velocity is sent to client
 			livingEntity.setVelocity(livingEntity.getVelocity());
 		}

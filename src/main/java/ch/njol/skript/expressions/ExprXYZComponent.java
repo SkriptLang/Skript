@@ -10,15 +10,15 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.joml.Quaternionf;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+import org.joml.Vector3d;
 
 import java.util.Locale;
 
@@ -68,12 +68,12 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 
 	@Override
 	public @Nullable Number convert(Object object) {
-		if (object instanceof Vector vector) {
+		if (object instanceof Vector3d vector) {
 			return switch (axis) {
 				case W -> null;
-				case X -> vector.getX();
-				case Y -> vector.getY();
-				case Z -> vector.getZ();
+				case X -> vector.x();
+				case Y -> vector.y();
+				case Z -> vector.z();
 			};
 		} else if (object instanceof Quaternionf quaternion) {
 			return switch (axis) {
@@ -91,9 +91,9 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 		if ((mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.SET)) {
 			boolean acceptsChange;
 			if (IS_RUNNING_1194) {
-				acceptsChange = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class, Quaternionf.class);
+				acceptsChange = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector3d.class, Quaternionf.class);
 			} else {
-				acceptsChange = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class);
+				acceptsChange = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector3d.class);
 			}
 			if (acceptsChange)
 				return CollectionUtils.array(Number.class);
@@ -107,11 +107,11 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 		final double value = ((Number) delta[0]).doubleValue();
 
 		// for covering the edge cases such as an expression that returns a Vector but can only be set to a Quaternions
-		boolean acceptsVectors = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class);
+		boolean acceptsVectors = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector3d.class);
 		boolean acceptsQuaternions = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Quaternionf.class);
 
 		getExpr().changeInPlace(event, object -> {
-			if (acceptsVectors && object instanceof Vector vector) {
+			if (acceptsVectors && object instanceof Vector3d vector) {
 				changeVector(vector, axis, value, mode);
 			} else if (acceptsQuaternions && object instanceof Quaternionf quaternion) {
 				changeQuaternion(quaternion, axis, (float) value, mode);
@@ -127,7 +127,7 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	 * @param value the value to modify by
 	 * @param mode the change mode to determine the modification type
 	 */
-	private static void changeVector(Vector vector, Axis axis, double value, ChangeMode mode) {
+	private static void changeVector(Vector3d vector, Axis axis, double value, ChangeMode mode) {
 		if (axis == Axis.W)
 			return;
 		switch (mode) {
@@ -136,16 +136,16 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 				//$FALL-THROUGH$
 			case ADD:
 				switch (axis) {
-					case X -> vector.setX(vector.getX() + value);
-					case Y -> vector.setY(vector.getY() + value);
-					case Z -> vector.setZ(vector.getZ() + value);
+					case X -> vector.x += value;
+					case Y -> vector.y += value;
+					case Z -> vector.z += value;
 				}
 				break;
 			case SET:
 				switch (axis) {
-					case X -> vector.setX(value);
-					case Y -> vector.setY(value);
-					case Z -> vector.setZ(value);
+					case X -> vector.x = value;
+					case Y -> vector.y = value;
+					case Z -> vector.z = value;
 				}
 				break;
 			default:
