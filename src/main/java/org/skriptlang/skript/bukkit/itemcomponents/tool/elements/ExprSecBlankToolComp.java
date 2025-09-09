@@ -32,8 +32,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	Gets a blank tool component.
 	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
-@Example("clear the tool component of {_item}")
-@Example("reset the tool component of {_item}")
+@Example("""
+	set {_component} to a blank tool component:
+		set the damage per block to 10
+		set the default mining speed to 5
+		allow event-tool component to destroy blocks in creative
+		add (a custom tool rule with the blocks types oak log and stone) to the tool rules
+	set the item component of {_item} to {_component}
+	""")
 @RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
 public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> implements ToolExperimentalSyntax {
