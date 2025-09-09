@@ -2,6 +2,11 @@ package org.skriptlang.skript.bukkit.itemcomponents.blocking.elements;
 
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.key.Key;
@@ -12,15 +17,26 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 
+@Name("Blocking Component - Blocked Sound")
+@Description("""
+	The sound that plays when the item successfully blocks an attack.
+	NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
+@Example("set {_sound} to the blocked sound of {_item}")
+@Example("set the blocked sound of {_item} to \"minecraft:ui.toast.challenge_complete\"")
+@RequiredPlugins("Minecraft 1.21.5+")
+@Since("INSERT VERSION")
 public class ExprBlockCompBlockSound extends SimplePropertyExpression<BlockingWrapper, String> implements BlockingExperimentalSyntax {
 
 	static {
-		registerDefault(ExprBlockCompBlockSound.class, String.class, "[blocking] block sound", "blockingcomponents");
+		registerDefault(ExprBlockCompBlockSound.class, String.class, "blocked sound[s]", "blockingcomponents");
 	}
 
 	@Override
 	public @Nullable String convert(BlockingWrapper wrapper) {
-		return wrapper.getComponent().blockSound().toString();
+		//noinspection UnstableApiUsage
+		Key key = wrapper.getComponent().blockSound();
+		return key == null ? null : key.toString();
 	}
 
 	@Override
@@ -59,7 +75,7 @@ public class ExprBlockCompBlockSound extends SimplePropertyExpression<BlockingWr
 
 	@Override
 	protected String getPropertyName() {
-		return "blocking block sound";
+		return "blocked sound";
 	}
 
 }

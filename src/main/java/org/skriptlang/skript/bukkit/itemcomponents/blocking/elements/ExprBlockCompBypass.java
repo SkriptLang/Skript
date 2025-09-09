@@ -1,6 +1,11 @@
 package org.skriptlang.skript.bukkit.itemcomponents.blocking.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.registry.RegistryKey;
@@ -12,10 +17,19 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 
+@Name("Blocking Component - Damage Type Bypass")
+@Description("""
+	The damage type that can bypass when the item is blocking.
+	NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
+@Example("set {_bypass} to the damage type bypass of {_item}")
+@Example("set the damage type bypass of {_item} to magic")
+@RequiredPlugins("Minecraft 1.21.5+")
+@Since("INSERT VERSION")
 public class ExprBlockCompBypass extends SimplePropertyExpression<BlockingWrapper, DamageType> implements BlockingExperimentalSyntax {
 
 	static {
-		registerDefault(ExprBlockCompBypass.class, DamageType.class, "[blocking] damage type bypass", "blockingcomponents");
+		registerDefault(ExprBlockCompBypass.class, DamageType.class, "[blocking] damage type bypass[es]", "blockingcomponents");
 	}
 
 	@Override

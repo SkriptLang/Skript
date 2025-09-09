@@ -63,6 +63,11 @@ public class BlockingModule implements AddonModule {
 			.name("Damage Reduction")
 			.description("""
 				Represents a damage reduction that is applied to a blocking component.
+				Damage Reductions contain data that attribute to:
+					- What damage types can be being blocked
+					- The base amount of damage to block when blocking one of the damage types
+					- The factor amount of damage to block when blocking one of the damage types
+					- The angle at which the item can block when blocking one of the damage types
 				NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
 				""")
 			.requiredPlugins("Minecraft 1.21.5+")
@@ -91,6 +96,10 @@ public class BlockingModule implements AddonModule {
 			.name("Item Damage Function")
 			.description("""
 				Represents an item damage function that is applied to a blocking component.
+				Item Damage Functions contain data that attribute to:
+					- The base amount of damage to be applied to the item, if the attack damage passes the threshold
+					- The factor amount to get a fraction of the attack damage to be applied to the item, if the attack damage passes the threshold
+					- The threshold amount
 				NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
 				""")
 			.requiredPlugins("Minecraft 1.21.5+")

@@ -1,6 +1,11 @@
 package org.skriptlang.skript.bukkit.itemcomponents.blocking.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
@@ -9,10 +14,20 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 
+@Name("Blocking Component - Disable Cooldown Scale")
+@Description("""
+	The scalar applied to the disabled cooldown time for the item when disabled by an attack.
+	NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
+@Example("set {_scale} to the disabled cooldown scale of {_item}")
+@Example("set the blocking disable cooldown scale of {_item} to 2")
+@RequiredPlugins("Minecraft 1.21.5+")
+@Since("INSERT VERSION")
 public class ExprBlockCompDisableScale extends SimplePropertyExpression<BlockingWrapper, Float> implements BlockingExperimentalSyntax {
 
 	static {
-		registerDefault(ExprBlockCompDisableScale.class, Float.class, "blocking disable scale", "blockingcomponents");
+		registerDefault(ExprBlockCompDisableScale.class, Float.class, "[blocking] disabl(e[d]|ing) cooldown (scale|scalar)[s]",
+			"blockingcomponents");
 	}
 
 	@Override
@@ -51,7 +66,7 @@ public class ExprBlockCompDisableScale extends SimplePropertyExpression<Blocking
 
 	@Override
 	protected String getPropertyName() {
-		return "blocking disable scale";
+		return "blocking disable cooldown scale";
 	}
 
 }

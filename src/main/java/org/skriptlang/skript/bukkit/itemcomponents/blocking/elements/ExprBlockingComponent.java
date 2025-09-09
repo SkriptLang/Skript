@@ -3,6 +3,11 @@ package org.skriptlang.skript.bukkit.itemcomponents.blocking.elements;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.ItemSource;
 import ch.njol.skript.util.slot.Slot;
@@ -15,6 +20,19 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 
+@Name("Blocking Component")
+@Description("""
+	The blocking component of an item. Any changes made to the blocking component will be present on the item.
+	NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
+@Example("""
+	set {_component} to the blocking component of {_item}
+	set the damage type bypass of {_component} to magic
+	""")
+@Example("clear the blocking component of {_item}")
+@Example("reset the blocking component of {_item}")
+@RequiredPlugins("Minecraft 1.21.5+")
+@Since("INSERT VERSION")
 public class ExprBlockingComponent extends SimplePropertyExpression<Object, BlockingWrapper> implements BlockingExperimentalSyntax {
 
 	static {

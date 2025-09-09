@@ -1,6 +1,11 @@
 package org.skriptlang.skript.bukkit.itemcomponents.blocking.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
@@ -11,10 +16,19 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 
+@Name("Blocking Component - Delay Time")
+@Description("""
+	The amount of time before an item can block an attack after starting to block.
+	NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
+	""")
+@Example("set {_time} to the blocking delay time of {_item}")
+@Example("set the blocking delay time of {_item} to 5 ticks")
+@RequiredPlugins("Minecraft 1.21.5+")
+@Since("INSERT VERSION")
 public class ExprBlockCompDelay extends SimplePropertyExpression<BlockingWrapper, Timespan> implements BlockingExperimentalSyntax {
 
 	static {
-		registerDefault(ExprBlockCompDelay.class, Timespan.class, "blocking delay time", "blockingcomponents");
+		registerDefault(ExprBlockCompDelay.class, Timespan.class, "blocking delay time[s]", "blockingcomponents");
 	}
 	
 	@Override

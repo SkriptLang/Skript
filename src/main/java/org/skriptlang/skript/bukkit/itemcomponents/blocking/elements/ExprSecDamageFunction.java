@@ -22,41 +22,36 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
-import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageFunctionWrapper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Name("Blank Blocking Component")
+@Name("Custom Item Damage Function")
 @Description("""
-	Gets a blank blocking component.
+	Gets a custom item damage function.
 	NOTE: Blocking component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
-	set {_component} to a blank blocking component:
-		set the blocked sound to ""
-		set the disabled sound to ""
-		set the damage type bypass to magic
-		set the blocking delay time to 1 second
-		set the disabled cooldown scale to 0.2
-		add (a blank damage reduction) to the damage reductions
-	set the blocking component of {_item} to {_component}
+	set {_damageFunction} to a custom item damage function:
+		set the damage function base to 10
+		set the damage function factor to 0.3
+		set the damage function threshold to 50
+	set the item damage function of {_item} to {_damageFunction}
 	""")
-@Example("clear the blocking component of {_item}")
-@Example("reset the blocking component of {_item}")
 @RequiredPlugins("Minecraft 1.21.5+")
 @Since("INSERT VERSION")
-public class ExprSecBlankBlockComp extends SectionExpression<BlockingWrapper> implements BlockingExperimentalSyntax {
+public class ExprSecDamageFunction extends SectionExpression<DamageFunctionWrapper> implements BlockingExperimentalSyntax {
 
-	private static class BlockCompSectionEvent extends Event {
+	private static class DamageFunctionSectionEvent extends Event {
 
-		private final BlockingWrapper wrapper;
+		private final DamageFunctionWrapper wrapper;
 
-		public BlockCompSectionEvent(BlockingWrapper wrapper) {
+		public DamageFunctionSectionEvent(DamageFunctionWrapper wrapper) {
 			this.wrapper = wrapper;
 		}
 
-		public BlockingWrapper getWrapper() {
+		public DamageFunctionWrapper getWrapper() {
 			return wrapper;
 		}
 
@@ -67,9 +62,9 @@ public class ExprSecBlankBlockComp extends SectionExpression<BlockingWrapper> im
 	}
 
 	static {
-		Skript.registerExpression(ExprSecBlankBlockComp.class, BlockingWrapper.class, ExpressionType.SIMPLE,
-			"a (blank|empty) blocking component");
-		EventValues.registerEventValue(BlockCompSectionEvent.class, BlockingWrapper.class, BlockCompSectionEvent::getWrapper);
+		Skript.registerExpression(ExprSecDamageFunction.class, DamageFunctionWrapper.class, ExpressionType.SIMPLE,
+			"a [custom] item damage function");
+		EventValues.registerEventValue(DamageFunctionSectionEvent.class, DamageFunctionWrapper.class, DamageFunctionSectionEvent::getWrapper);
 	}
 
 	private Trigger trigger;
@@ -78,8 +73,8 @@ public class ExprSecBlankBlockComp extends SectionExpression<BlockingWrapper> im
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			trigger = SectionUtils.loadLinkedCode("blank blocking component", (beforeLoading, afterLoading) ->
-				loadCode(node, "blank blocking component", beforeLoading, afterLoading, BlockCompSectionEvent.class)
+			trigger = SectionUtils.loadLinkedCode("custom item damage function", (beforeLoading, afterLoading) ->
+				loadCode(node, "custom item damage function", beforeLoading, afterLoading, DamageFunctionSectionEvent.class)
 			);
 			return trigger != null;
 		}
@@ -87,13 +82,13 @@ public class ExprSecBlankBlockComp extends SectionExpression<BlockingWrapper> im
 	}
 
 	@Override
-	protected BlockingWrapper @Nullable [] get(Event event) {
-		BlockingWrapper wrapper = BlockingWrapper.newInstance();
+	protected DamageFunctionWrapper @Nullable [] get(Event event) {
+		DamageFunctionWrapper wrapper = new DamageFunctionWrapper();
 		if (trigger != null) {
-			BlockCompSectionEvent sectionEvent = new BlockCompSectionEvent(wrapper);
+			DamageFunctionSectionEvent sectionEvent = new DamageFunctionSectionEvent(wrapper);
 			Variables.withLocalVariables(event, sectionEvent, () -> TriggerItem.walk(trigger, sectionEvent));
 		}
-		return new BlockingWrapper[] {wrapper};
+		return new DamageFunctionWrapper[] {wrapper};
 	}
 
 	@Override
@@ -102,13 +97,13 @@ public class ExprSecBlankBlockComp extends SectionExpression<BlockingWrapper> im
 	}
 
 	@Override
-	public Class<BlockingWrapper> getReturnType() {
-		return BlockingWrapper.class;
+	public Class<DamageFunctionWrapper> getReturnType() {
+		return DamageFunctionWrapper.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a blank blocking component";
+		return "a custom item damage function";
 	}
 
 }

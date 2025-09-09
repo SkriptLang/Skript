@@ -101,6 +101,11 @@ public class BlockingWrapper extends ComponentWrapper<BlocksAttacks, BlockingBui
 		return wrappers;
 	}
 
+	public DamageFunctionWrapper getDamageFunction() {
+		ItemDamageFunction damageFunction = getComponent().itemDamage();
+		return new DamageFunctionWrapper(this, damageFunction);
+	}
+
 	public static BlockingWrapper newInstance() {
 		return new BlockingWrapper(new BlockingBuilder().build());
 	}
