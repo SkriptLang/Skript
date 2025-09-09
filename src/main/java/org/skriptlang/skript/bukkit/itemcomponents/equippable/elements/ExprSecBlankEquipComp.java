@@ -33,12 +33,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
-	set {_component} to a blank equippable component
-	set the equippable component of {_item} to {_component}
-	""")
-@Example("""
 	set {_component} to a blank equippable component:
+		set the camera overlay to "custom_overlay"
+		set the allowed entities to a zombie and a skeleton
+		set the equip sound to "block.note_block.pling"
+		set the equipped model id to "custom_model"
+		set the shear sound to "ui.toast.in"
 		set the equipment slot to chest slot
+		allow event-equippable component to be damage when hurt
+		allow event-equippable component to be dispensed
+		allow event-equippable component to be equipped onto entities
+		allow event-equippable component to be sheared off
+		allow event-equippable component to swap equipment
+	set the equippable component of {_item} to {_component}
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
