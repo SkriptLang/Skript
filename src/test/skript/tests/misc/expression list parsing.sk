@@ -1,0 +1,13 @@
+test "expression list parsing":
+	parse:
+		test expr list true and false
+	assert last parse logs is not set with "boolean and list parsing failed"
+	parse:
+		test expr list 10 or true
+	assert last parse logs is not set with "mixed or list parsing failed"
+	parse:
+		test expr list 10 and true
+	assert last parse logs is set with "mixed and list parsing succeeded"
+	parse:
+		test expr list 10 and 20
+	assert last parse logs is set with "number and list parsing succeeded"
