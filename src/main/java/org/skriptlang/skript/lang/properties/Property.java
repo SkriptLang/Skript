@@ -51,6 +51,7 @@ import java.util.Locale;
 public record Property<Handler extends PropertyHandler<?>>(
 		String name,
 		String description,
+		String[] since,
 		SkriptAddon provider,
 		@NotNull Class<? extends Handler> handler
 ) {
@@ -58,16 +59,17 @@ public record Property<Handler extends PropertyHandler<?>>(
 	private static final PropertyRegistry propertyRegistry = Skript.getAddonInstance().registry(PropertyRegistry.class);
 
 	/**
-	 * Creates a new property. Prefer {@link #of(String, String, SkriptAddon, Class)}.
+	 * Creates a new property. Prefer {@link #of(String, String, String, SkriptAddon, Class)}.
 	 *
 	 * @param name the name of the property
 	 * @param provider the addon that provides this property
 	 * @param handler the handler class for this property
-	 * @see #of(String, String, SkriptAddon, Class)
+	 * @see #of(String, String, String, SkriptAddon, Class)
 	 */
-	public Property(String name, String description, SkriptAddon provider, @NotNull Class<? extends Handler> handler) {
+	public Property(String name, String description, String[] since, SkriptAddon provider, @NotNull Class<? extends Handler> handler) {
 		this.name = name.toLowerCase(Locale.ENGLISH);
 		this.description = description;
+		this.since = since;
 		this.provider = provider;
 		this.handler = handler;
 	}
@@ -90,6 +92,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 * Creates a new property.
 	 *
 	 * @param name the name of the property
+	 * @param description a brief description of the property
 	 * @param provider the addon that provides this property
 	 * @param handler the handler class for this property
 	 * @param <HandlerClass> the type of the handler class
@@ -99,10 +102,33 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> Property<Handler> of(
 			@NotNull String name,
 			@NotNull String description,
+			@NotNull String since,
 			@NotNull SkriptAddon provider,
 			@NotNull Class<HandlerClass> handler) {
 		//noinspection unchecked
-		return (Property<Handler>) new Property<>(name, description, provider, handler);
+		return (Property<Handler>) new Property<>(name, description, new String[]{since}, provider, handler);
+	}
+
+	/**
+	 * Creates a new property.
+	 *
+	 * @param name the name of the property
+	 * @param description a brief description of the property
+	 * @param since the version[s] that this property was added/updated.
+	 * @param provider the addon that provides this property
+	 * @param handler the handler class for this property
+	 * @param <HandlerClass> the type of the handler class
+	 * @param <Handler> the type of the handler
+	 * @return a new property
+	 */
+	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> Property<Handler> of(
+		@NotNull String name,
+		@NotNull String description,
+		@NotNull String @NotNull [] since,
+		@NotNull SkriptAddon provider,
+		@NotNull Class<HandlerClass> handler) {
+		//noinspection unchecked
+		return (Property<Handler>) new Property<>(name, description, since, provider, handler);
 	}
 
 	/**

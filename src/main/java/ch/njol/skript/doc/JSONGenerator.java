@@ -115,7 +115,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			PROPERTY_RELATED_SYNTAXES.computeIfAbsent(property, key -> new HashSet<>()).add(syntaxInfo);
 		}
 		syntaxJsonObject.add("property", property == null ? null : getPropertyDetails(property));
-		syntaxJsonObject.add("propertyClasses", property == null ? null : getPropertyRelatedClassInfos(property));
+		syntaxJsonObject.add("propertyTypes", property == null ? null : getPropertyRelatedClassInfos(property));
 
 		if (syntaxClass.isAnnotationPresent(Examples.class)) {
 			@NotNull Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
@@ -363,7 +363,6 @@ public class JSONGenerator extends DocumentationGenerator {
 			JsonObject object = new JsonObject();
 			object.addProperty("id", DocumentationIdProvider.getId(classInfo));
 			object.addProperty("name", Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()));
-			object.addProperty("description", classInfo.getPropertyDescription(property));
 			array.add(object);
 		}
 		return array;
@@ -403,6 +402,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		object.addProperty("id", DocumentationIdProvider.getId(property));
 		object.addProperty("name", property.name());
 		object.addProperty("description", property.description());
+		object.add("since", convertToJsonArray(property.since()));
 		return object;
 	}
 
@@ -417,7 +417,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonArray array = new JsonArray();
 		iterator.forEachRemaining(property -> {
 			JsonObject object = getPropertyDetails(property);
-			object.add("relatedClasses", getPropertyRelatedClassInfos(property));
+			object.add("relatedTypes", getPropertyRelatedClassInfos(property));
 			object.add("relatedSyntaxes", getPropertyRelatedSyntaxes(property));
 			array.add(object);
 		});
