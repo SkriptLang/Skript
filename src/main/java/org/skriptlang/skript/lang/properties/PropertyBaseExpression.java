@@ -59,14 +59,14 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.expr = PropertyUtils.asProperty(property, expressions[0]);
 		if (expr == null) {
-			Skript.error("The expression " + expressions[0] + " returns types that do not have a name.");
+			Skript.error("The expression " + expressions[0] + " returns types that do not have the " + getPropertyName() + " property."); // todo: improve error message (which types?)
 			return false;
 		}
 
 		// get all possible property infos for the expression's return types
 		properties = PropertyUtils.getPossiblePropertyInfos(property, expr);
 		if (properties.isEmpty()) {
-			Skript.error("The expression " + expr + " returns types that do not have a name.");
+			Skript.error("The expression " + expr + " returns types that do not have the " + getPropertyName() + " property.");
 			return false; // no name property found
 		}
 

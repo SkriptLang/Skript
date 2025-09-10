@@ -138,6 +138,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?, ?>> NAME = Property.of(
 			"name",
 			"A name, such as a script's name or a player's account name.",
+			"INSERT VERSION",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -148,6 +149,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?, ?>> DISPLAY_NAME = Property.of(
 			"display name",
 			"A more prominently displayed name, such as a player's display name or an entity's custom name. Often more easily changed than the regular name.",
+		"INSERT VERSION",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -158,12 +160,20 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ContainsHandler<?, ?>> CONTAINS = Property.of(
 			"contains",
 			"Something that can contain other things, such as an inventory or a string.",
+		"INSERT VERSION",
 			Skript.instance(),
 			ContainsHandler.class);
 
 	// TODO: other common properties
 	//	public static final Property AMOUNT = new Property("amount", Skript.getAddonInstance());
 	//	public static final Property VALUED = new Property("valued", Skript.getAddonInstance());
+
+	public static final Property<ExpressionPropertyHandler<?, ?>> AMOUNT = Property.of(
+		"amount",
+		"The amount of something, say the number of items in a stack or in a queue.",
+		"INSERT VERSION",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
 
 	public static void registerDefaultProperties() {
 		NAME.register();
