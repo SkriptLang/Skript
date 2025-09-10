@@ -115,7 +115,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 			.dispensable(base.dispensable())
 			.equipSound(base.equipSound())
 			.swappable(base.swappable());
-		setModel(builder, getModel());
+		setAssetId(builder, getAssetId());
 		if (HAS_EQUIP_ON_INTERACT) {
 			builder.equipOnInteract(base.equipOnInteract());
 		}
@@ -154,17 +154,17 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	 * Updates the model/assetId of this {@link EquippableWrapper} with {@code key}.
 	 * @param key The {@link Key} to set to.
 	 */
-	public void setModel(Key key) {
+	public void setAssetId(Key key) {
 		Builder builder = getBuilder();
-		setModel(builder, key);
+		setAssetId(builder, key);
 		applyBuilder(builder);
 	}
 
 	/**
 	 * Returns the model/assetId {@link Key} of this {@link EquippableWrapper}.
 	 */
-	public Key getModel() {
-		return getModel(getComponent());
+	public Key getAssetId() {
+		return getAssetId(getComponent());
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	 * @param component The {@link Equippable} component to retrieve.
 	 * @return The {@link Key}.
 	 */
-	public static Key getModel(Equippable component) {
+	public static Key getAssetId(Equippable component) {
 		if (HAS_MODEL_METHOD) {
 			assert COMPONENT_MODEL_METHOD != null;
 			try {
@@ -205,7 +205,7 @@ public class EquippableWrapper extends ComponentWrapper<Equippable, Builder> {
 	 * @param key The {@link Key} to set to.
 	 * @return {@code builder}.
 	 */
-	public static Builder setModel(Builder builder, Key key) {
+	public static Builder setAssetId(Builder builder, Key key) {
 		if (HAS_MODEL_METHOD) {
 			assert BUILDER_MODEL_METHOD != null;
 			try {

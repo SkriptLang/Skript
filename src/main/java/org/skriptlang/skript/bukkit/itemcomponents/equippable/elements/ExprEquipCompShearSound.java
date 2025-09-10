@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Shear Sound")
 @Description("""
@@ -34,6 +35,16 @@ public class ExprEquipCompShearSound extends SimplePropertyExpression<Equippable
 	static {
 		if (EquippableWrapper.HAS_SHEAR_SOUND)
 			registerDefault(ExprEquipCompShearSound.class, String.class, "shear[ed [off]] sound", "equippablecomponents");
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		if (!EquippableWrapper.HAS_SHEAR_SOUND)
+			return;
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEquipCompShearSound.class, String.class, "shear[ed [off]] sound", "equippablecomponents", true)
+				.supplier(ExprEquipCompShearSound::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -13,10 +13,13 @@ import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class EquippableModule implements AddonModule {
 
@@ -69,11 +72,33 @@ public class EquippableModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents.equippable", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		register(addon.syntaxRegistry(),
+			CondEquipCompDamage::register,
+			CondEquipCompDispensable::register,
+			CondEquipCompInteract::register,
+			CondEquipCompShearable::register,
+			CondEquipCompSwapEquipment::register,
+
+			EffEquipCompDamageable::register,
+			EffEquipCompDispensable::register,
+			EffEquipCompInteract::register,
+			EffEquipCompShearable::register,
+			EffEquipCompSwapEquipment::register,
+
+			ExprEquipCompCameraOverlay::register,
+			ExprEquipCompEntities::register,
+			ExprEquipCompEquipSound::register,
+			ExprEquipCompModel::register,
+			ExprEquipCompShearSound::register,
+			ExprEquipCompSlot::register,
+			ExprEquippableComponent::register,
+
+			ExprSecBlankEquipComp::register
+		);
+	}
+
+	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
+		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
 }

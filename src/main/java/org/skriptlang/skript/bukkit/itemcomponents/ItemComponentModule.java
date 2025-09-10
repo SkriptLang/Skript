@@ -8,14 +8,13 @@ import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
-
-import java.io.IOException;
+import org.skriptlang.skript.bukkit.itemcomponents.generic.ExprItemCompCopy;
 
 public class ItemComponentModule implements AddonModule {
 
 	@Override
 	public boolean canLoad(SkriptAddon addon) {
-		return Skript.isRunningMinecraft(1, 21, 2);
+		return Skript.classExists("io.papermc.paper.datacomponent.BuildableDataComponent");
 	}
 
 	@Override
@@ -50,11 +49,7 @@ public class ItemComponentModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		addon.loadModules(new EquippableModule());
 
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents", "generic");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		ExprItemCompCopy.register(addon.syntaxRegistry());
 	}
 
 }

@@ -8,6 +8,8 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Can Be Sheared Off")
 @Description("""
@@ -27,9 +29,14 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class CondEquipCompShearable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	static {
-		if (EquippableWrapper.HAS_CAN_BE_SHEARED)
-			register(CondEquipCompShearable.class, PropertyType.CAN, "be sheared off [of entities]", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		if (!EquippableWrapper.HAS_CAN_BE_SHEARED)
+			return;
+		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondEquipCompShearable.class)
+			.addPatterns(getPatterns(PropertyType.CAN, "be sheared off [of entities]", "equippablecomponents"))
+			.supplier(CondEquipCompShearable::new)
+			.build()
+		);
 	}
 
 	@Override
