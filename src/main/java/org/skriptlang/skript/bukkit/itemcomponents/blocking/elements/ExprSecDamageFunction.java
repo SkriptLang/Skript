@@ -63,7 +63,7 @@ public class ExprSecDamageFunction extends SectionExpression<DamageFunctionWrapp
 
 	static {
 		Skript.registerExpression(ExprSecDamageFunction.class, DamageFunctionWrapper.class, ExpressionType.SIMPLE,
-			"a [custom] item damage function");
+			"a [custom] [item] damage function");
 		EventValues.registerEventValue(DamageFunctionSectionEvent.class, DamageFunctionWrapper.class, DamageFunctionSectionEvent::getWrapper);
 	}
 

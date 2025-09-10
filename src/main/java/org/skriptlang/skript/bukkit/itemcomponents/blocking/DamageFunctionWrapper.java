@@ -77,6 +77,13 @@ public class DamageFunctionWrapper {
 		return new Builder(damageFunction);
 	}
 
+	@Override
+	public boolean equals(Object object) {
+		if (!(object instanceof DamageFunctionWrapper other))
+			return false;
+		return damageFunction.equals(other.damageFunction);
+	}
+
 	/**
 	 * Custom builder class for {@link ItemDamageFunction}.
 	 */

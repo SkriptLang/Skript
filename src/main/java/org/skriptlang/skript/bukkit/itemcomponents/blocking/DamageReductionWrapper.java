@@ -87,6 +87,13 @@ public class DamageReductionWrapper {
 		return new Builder(damageReduction);
 	}
 
+	@Override
+	public boolean equals(Object object) {
+		if (!(object instanceof DamageReductionWrapper other))
+			return false;
+		return damageReduction.equals(other.damageReduction);
+	}
+
 	/**
 	 * Custom builder class for {@link DamageReduction}.
 	 */
