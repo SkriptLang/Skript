@@ -44,10 +44,10 @@ import java.util.List;
 	""")
 @RequiredPlugins("Minecraft 1.21.5+")
 @Since("INSERT VERSION")
-public class ExprReductionType extends PropertyExpression<DamageReductionWrapper, DamageType> implements BlockingExperimentalSyntax {
+public class ExprReductionDamageTypes extends PropertyExpression<DamageReductionWrapper, DamageType> implements BlockingExperimentalSyntax {
 
 	static {
-		registerDefault(ExprReductionType.class, DamageType.class, "[damage] reduction damage types", "damagereductions");
+		registerDefault(ExprReductionDamageTypes.class, DamageType.class, "[damage] reduction damage types", "damagereductions");
 	}
 
 	@Override
