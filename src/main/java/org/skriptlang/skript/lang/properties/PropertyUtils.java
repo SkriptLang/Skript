@@ -1,14 +1,9 @@
 package org.skriptlang.skript.lang.properties;
 
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Utilities for dealing with {@link Property}s and {@link PropertyHandler}s.
@@ -72,84 +67,6 @@ public class PropertyUtils {
 			return propertyInfo;
 		}
 
-	}
-
-	/**
-	 * Converts the given expression to an expression that returns types that have the given property.
-	 * This is useful for ensuring that an expression can be used with a property.
-	 *
-	 * @param property the property to check for
-	 * @param expr the expression to convert
-	 * @return an expression that returns types that have the property, or null if no such expression can be created
-	 */
-	public static @Nullable Expression<?> asProperty(Property<?> property, Expression<?> expr) {
-		if (expr == null) {
-			return null; // no expression to convert
-		}
-
-		// get all types with a name property
-		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
-		Class<?>[] classes = classInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
-
-		//noinspection unchecked,rawtypes
-		return LiteralUtils.defendExpression(expr).getConvertedExpression((Class[]) classes);
-	}
-
-	/**
-	 * Gets a map of all possible property infos for the given expression's return types.
-	 * This is useful for determining which property handlers can be used with an expression.
-	 *
-	 * @param property the property to check for
-	 * @param expr the expression to check
-	 * @param <Handler> the type of the property handler
-	 * @return a map of classes to property infos for the given expression's return types
-	 */
-	public static <Handler extends PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
-		Property<Handler> property,
-		Expression<?> expr
-	) {
-		PropertyMap<Handler> propertyInfos = new PropertyMap<>();
-
-		// get all types with a name property
-		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
-
-		// for each return type, match to a classinfo w/ name property
-		for (Class<?> returnType : expr.possibleReturnTypes()) {
-			ClassInfo<?> closestInfo = null;
-			for (ClassInfo<?> propertiedClassInfo  : classInfos) {
-				if (propertiedClassInfo.getC() == returnType) {
-					// exact match, use it
-					closestInfo = propertiedClassInfo;
-					break;
-				}
-				if (propertiedClassInfo.getC().isAssignableFrom(returnType)) {
-					// closest match so far
-					if (closestInfo == null || closestInfo.getC().isAssignableFrom(propertiedClassInfo.getC())) {
-						closestInfo = propertiedClassInfo;
-					}
-				}
-			}
-			if (closestInfo == null) {
-				continue; // no name property
-			}
-
-			// get property
-			var propertyInfo = closestInfo.getPropertyInfo(property);
-			if (propertyInfo != null) {
-				var clonedHandler = propertyInfo.handler().newInstance();
-				if (clonedHandler.init(expr, expr.getParser())) {
-					// overwrite with cloned handler
-					//noinspection unchecked
-					propertyInfo = new PropertyInfo<>(propertyInfo.property(), (Handler) clonedHandler);
-				} else {
-					propertyInfo = null; // failed to init, invalid property
-				}
-			}
-			ClassInfo<?> classInfo = Classes.getSuperClassInfo(returnType);
-			propertyInfos.put(classInfo.getC(), propertyInfo);
-			propertyInfos.put(closestInfo.getC(), propertyInfo);
-		}
-		return propertyInfos;
 	}
 
 }

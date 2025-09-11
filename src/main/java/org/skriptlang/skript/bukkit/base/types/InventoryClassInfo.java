@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 
 import java.util.ArrayList;
@@ -59,7 +60,16 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 				new InventoryNameHandler())
 			.property(Property.DISPLAY_NAME,
 				"The name of the inventory. Can be set or reset.",
-				new InventoryNameHandler());
+				new InventoryNameHandler())
+			.property(Property.IS_EMPTY,
+				"Whether the inventory contains no items (all slots contain air).",
+				ConditionPropertyHandler.of(inventory -> {
+					for (ItemStack s : inventory.getContents()) {
+						if (s != null && s.getType() != Material.AIR)
+							return false; // There is an item here!
+					}
+					return true;
+				}));
 	}
 
 	private static class InventoryParser extends Parser<Inventory> {

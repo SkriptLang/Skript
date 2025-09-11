@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.base.types;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
 public class SlotClassInfo extends ClassInfo<Slot> {
@@ -44,7 +46,16 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 				new SlotNameHandler())
 			.property(Property.DISPLAY_NAME,
 				"The custom name of the item in the slot, if it has one. Can be set or reset.",
-				new SlotNameHandler());
+				new SlotNameHandler())
+			.property(Property.AMOUNT,
+				"The amount of items in the slot's stack. Can be set.",
+				new SlotAmountHandler())
+			.property(Property.IS_EMPTY,
+				"Whether this slot does not contain a (non-air) item.",
+				ConditionPropertyHandler.of(slot -> {
+					ItemStack item = slot.getItem();
+					return item == null || item.getType() == Material.AIR;
+				}));
 	}
 
 	public static class SlotChanger implements Changer<Slot> {
@@ -143,15 +154,15 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 		}
 
 		@Override
-		public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-			if (mode == Changer.ChangeMode.SET)
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.SET)
 				return new Class[] {String.class};
 			return null;
 		}
 
 		@Override
-		public void change(Slot named, Object @Nullable [] delta, Changer.ChangeMode mode) {
-			assert mode == Changer.ChangeMode.SET;
+		public void change(Slot named, Object @Nullable [] delta, ChangeMode mode) {
+			assert mode == ChangeMode.SET;
 			assert delta != null;
 			String name = (String) delta[0];
 			ItemStack stack = named.getItem();
@@ -166,6 +177,35 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 		@Override
 		public @NotNull Class<String> returnType() {
 			return String.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class SlotAmountHandler implements ExpressionPropertyHandler<Slot, Number> {
+		//<editor-fold desc="amount property for slots" defaultstate="collapsed">
+		@Override
+		public Number convert(Slot slot) {
+			return slot.getAmount();
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.SET)
+				return new Class[] {Integer.class};
+			return null;
+		}
+
+		@Override
+		public void change(Slot slot, Object @Nullable [] delta, ChangeMode mode) {
+			if (mode == ChangeMode.SET) {
+				assert delta != null;
+				slot.setAmount((Integer) delta[0]);
+			}
+		}
+
+		@Override
+		public @NotNull Class<Number> returnType() {
+			return Number.class;
 		}
 		//</editor-fold>
 	}

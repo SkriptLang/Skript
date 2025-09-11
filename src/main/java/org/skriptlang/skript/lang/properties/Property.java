@@ -12,6 +12,7 @@ import org.skriptlang.skript.bukkit.base.types.PlayerClassInfo;
 import org.skriptlang.skript.common.conditions.PropCondContains;
 import org.skriptlang.skript.common.expressions.PropExprName;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
@@ -37,8 +38,8 @@ import java.util.Locale;
  * 1) Using {@link PropertyBaseExpression}. This expression handles all the complexities of properties for any property
  * handler that implements {@link ExpressionPropertyHandler}. See {@link PropExprName} for an example.<br>
  * 2) By implementing the property directly in a custom syntax. This is more complex, but allows for more flexibility.
- * See {@link PropCondContains} for an example. The implementer is responsible for using {@link PropertyUtils#asProperty(Property, Expression)}
- * and {@link PropertyUtils#getPossiblePropertyInfos(Property, Expression)} to ensure the given expression can return
+ * See {@link PropCondContains} for an example. The implementer is responsible for using {@link PropertyBaseSyntax#asProperty(Property, Expression)}
+ * and {@link PropertyBaseSyntax#getPossiblePropertyInfos(Property, Expression)} to ensure the given expression can return
  * valid types that have the given property, and then use {@link PropertyUtils.PropertyMap#get(Class)} during runtime
  * to acquire the right handler for the given type and then apply it.
  * <br>
@@ -131,6 +132,10 @@ public record Property<Handler extends PropertyHandler<?>>(
 		return (Property<Handler>) new Property<>(name, description, since, provider, handler);
 	}
 
+	/* ****************************************************
+	 * DEFAULT PROPERTIES
+	 * ****************************************************/
+
 	/**
 	 * A property for things that have a name.
 	 * @see ScriptClassInfo.ScriptNameHandler
@@ -165,7 +170,6 @@ public record Property<Handler extends PropertyHandler<?>>(
 			ContainsHandler.class);
 
 	// TODO: other common properties
-	//	public static final Property AMOUNT = new Property("amount", Skript.getAddonInstance());
 	//	public static final Property VALUED = new Property("valued", Skript.getAddonInstance());
 
 	public static final Property<ExpressionPropertyHandler<?, ?>> AMOUNT = Property.of(
@@ -182,12 +186,29 @@ public record Property<Handler extends PropertyHandler<?>>(
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
+	public static final Property<ExpressionPropertyHandler<?, ?>> NUMBER = Property.of(
+		"number",
+		"The number of something, say the number of elements in a queue.",
+		"INSERT VERSION",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
+
+	public static final Property<ConditionPropertyHandler<?>> IS_EMPTY = Property.of(
+		"empty",
+		"Whether something is empty or not.",
+		"INSERT VERSION",
+		Skript.instance(),
+		ConditionPropertyHandler.class);
+
 	public static void registerDefaultProperties() {
 		NAME.register();
 		DISPLAY_NAME.register();
 		CONTAINS.register();
 		AMOUNT.register();
 		SIZE.register();
+		NUMBER.register();
+		IS_EMPTY.register();
 	}
 
 	/**

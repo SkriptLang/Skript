@@ -1,13 +1,9 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.ChickenData.ChickenVariantDummy;
@@ -51,13 +47,15 @@ import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.base.types.*;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
@@ -66,7 +64,6 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -532,95 +529,7 @@ public class BukkitClasses {
 						"set the player argument's game mode to creative")
 				.since("1.0"));
 
-		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("items?", "item ?stacks?")
-				.name("Item")
-				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
-								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
-								"while an item type can represent a whole range of items (e.g. any cobble stone stairs regardless of direction).",
-						"You don't usually need this type except when you want to make a command that only accepts an exact item.",
-						"Please note that currently 'material' is exactly the same as 'item', i.e. can have an amount & enchantments.")
-				.usage("<code>[<number> [of]] <alias> [of <enchantment> <level>]</code>, Where <alias> must be an alias that represents exactly one item " +
-						"(i.e cannot be a general alias like 'sword' or 'plant')")
-				.examples("set {_item} to type of the targeted block",
-						"{_item} is a torch")
-				.since("1.0")
-				.after("number")
-				.supplier(() -> Arrays.stream(Material.values())
-					.filter(Material::isItem)
-					.map(ItemStack::new)
-					.iterator())
-				.parser(new Parser<ItemStack>() {
-					@Override
-					@Nullable
-					public ItemStack parse(final String s, final ParseContext context) {
-						ItemType t = Aliases.parseItemType(s);
-						if (t == null)
-							return null;
-						t = t.getItem();
-						if (t.numTypes() != 1) {
-							Skript.error("'" + s + "' represents multiple materials");
-							return null;
-						}
-
-						final ItemStack i = t.getRandom();
-						if (i == null) {
-							Skript.error("'" + s + "' cannot represent an item");
-							return null;
-						}
-						return i;
-					}
-
-					@Override
-					public String toString(final ItemStack i, final int flags) {
-						return ItemType.toString(i, flags);
-					}
-
-					@Override
-					public String toVariableNameString(final ItemStack i) {
-						final StringBuilder b = new StringBuilder("item:");
-						b.append(i.getType().name());
-						b.append(":" + ItemUtils.getDamage(i));
-						b.append("*" + i.getAmount());
-
-						for (Entry<Enchantment, Integer> entry : i.getEnchantments().entrySet())
-							b.append("#" + entry.getKey().getKey())
-									.append(":" + entry.getValue());
-
-						return b.toString();
-					}
-				})
-				.cloner(ItemStack::clone)
-				.serializer(new ConfigurationSerializer<>())
-			.property(Property.AMOUNT,
-				"The number of items in this stack",
-				new ExpressionPropertyHandler<ItemStack, Number>() {
-
-					@Override
-					public Number convert(ItemStack itemStack) {
-						return itemStack.getAmount();
-					}
-
-					@Override
-					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-						if (mode == ChangeMode.SET)
-							return new Class[] {Integer.class};
-						return null;
-					}
-
-					@Override
-					public void change(ItemStack itemStack, Object @Nullable [] delta, ChangeMode mode) {
-						if (mode == ChangeMode.SET) {
-							assert delta != null;
-							itemStack.setAmount((Integer) delta[0]);
-						}
-					}
-
-					@Override
-					public @NotNull Class<Number> returnType() {
-						return Number.class;
-					}
-				}));
+		Classes.registerClass(new ItemStackClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Item.class, "itementity")
 				.name(ClassInfo.NO_DOC)

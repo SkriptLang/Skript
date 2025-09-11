@@ -1,6 +1,5 @@
 package org.skriptlang.skript.common.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
-import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
 @Name("Size")
 @Description("""
@@ -26,10 +25,10 @@ import org.skriptlang.skript.lang.properties.PropertyHandler;
 	""")
 @Example("message \"There are %size of all players% players online!\"")
 @Since({"1.0", "INSERT VERSION (sizes of)"})
-public class PropExprSize extends PropertyBaseExpression<PropertyHandler.ExpressionPropertyHandler<?, ?>> {
+public class PropExprSize extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
 	static {
-		register(org.skriptlang.skript.common.expressions.PropExprAmount.class, "size[:s]", "objects");
+		register(PropExprSize.class, "size[:s]", "objects");
 	}
 
 	private ExpressionList<?> exprs;
@@ -45,21 +44,9 @@ public class PropExprSize extends PropertyBaseExpression<PropertyHandler.Express
 			return super.init(expressions, matchedPattern, isDelayed, parseResult);
 		} else {
 			// if exprlist or varlist, count elements
-			if (expressions[0] instanceof ExpressionList<?> exprList) {
-				this.exprs = exprList;
-			} else {
-				this.exprs = new ExpressionList<>(new Expression<?>[]{ expressions[0] }, Object.class, false);
-			}
-			this.exprs = (ExpressionList<?>) LiteralUtils.defendExpression(this.exprs);
-			if (!LiteralUtils.canInitSafely(this.exprs)) {
-				return false;
-			}
-			if (this.exprs.isSingle()) {
-				Skript.error("'" + this.exprs.toString(null, Skript.debug()) + "' can only ever have one value at most, thus the 'size of ...' expression is useless. Use '... exists' instead to find out whether the expression has a value.");
-				return false;
-			}
+			this.exprs = PropExprAmount.asExprList(expressions[0]);
+			return LiteralUtils.canInitSafely(this.exprs);
 		}
-		return true;
 	}
 
 	@Override
@@ -91,7 +78,7 @@ public class PropExprSize extends PropertyBaseExpression<PropertyHandler.Express
 	}
 
 	@Override
-	public @NotNull Property<PropertyHandler.ExpressionPropertyHandler<?, ?>> getProperty() {
+	public @NotNull Property<ExpressionPropertyHandler<?, ?>> getProperty() {
 		return Property.SIZE;
 	}
 

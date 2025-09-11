@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.base.types;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.YggdrasilSerializer;
@@ -47,7 +47,10 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 				new ItemTypeNameHandler())
 			.property(Property.DISPLAY_NAME,
 				"An item type's custom name, if set. Can be set or reset.",
-				new ItemTypeNameHandler());
+				new ItemTypeNameHandler())
+			.property(Property.AMOUNT,
+				"The amount of items in the stack this type represents. E.g. 5 for '5 stone swords'. Can be set.",
+				new ItemTypeAmountHandler());
 	}
 
 	private static class ItemTypeParser extends Parser<ItemType> {
@@ -100,14 +103,14 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 		}
 
 		@Override
-		public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-			if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.RESET)
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
 				return new Class[] {String.class};
 			return null;
 		}
 
 		@Override
-		public void change(ItemType itemType, Object @Nullable [] delta, Changer.ChangeMode mode) {
+		public void change(ItemType itemType, Object @Nullable [] delta, ChangeMode mode) {
 			String name = delta != null ? (String) delta[0] : null;
 			itemType.setName(name);
 		}
@@ -115,6 +118,35 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 		@Override
 		public @NotNull Class<String> returnType() {
 			return String.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class ItemTypeAmountHandler implements ExpressionPropertyHandler<ItemType, Number> {
+		//<editor-fold desc="amount property for item types" defaultstate="collapsed">
+		@Override
+		public Number convert(ItemType itemType) {
+			return itemType.getAmount();
+		}
+
+		@Override
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.SET)
+				return new Class[] {Integer.class};
+			return null;
+		}
+
+		@Override
+		public void change(ItemType itemType, Object @Nullable [] delta, ChangeMode mode) {
+			if (mode == ChangeMode.SET) {
+				assert delta != null;
+				itemType.setAmount((Integer) delta[0]);
+			}
+		}
+
+		@Override
+		public @NotNull Class<Number> returnType() {
+			return Number.class;
 		}
 		//</editor-fold>
 	}

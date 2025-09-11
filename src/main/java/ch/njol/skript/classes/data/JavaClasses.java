@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 
 import java.io.StreamCorruptedException;
@@ -317,7 +318,10 @@ public class JavaClasses {
 						//noinspection unchecked
 						return new Class[]{String.class};
 					}
-				}));
+				})
+			.property(Property.IS_EMPTY,
+				"Whether the string is empty, i.e. has no characters.",
+				ConditionPropertyHandler.of(String::isEmpty)));
 
 		// joml type - for display entities
 		if (Skript.classExists("org.joml.Quaternionf"))

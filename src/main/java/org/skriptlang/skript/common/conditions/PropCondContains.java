@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
-import org.skriptlang.skript.lang.properties.PropertyUtils;
 import org.skriptlang.skript.lang.properties.PropertyUtils.PropertyMap;
 
 @Name("Contains (Property)")
@@ -41,14 +41,14 @@ public class PropCondContains extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.haystack = PropertyUtils.asProperty(Property.CONTAINS, expressions[0]);
+		this.haystack = PropertyBaseSyntax.asProperty(Property.CONTAINS, expressions[0]);
 		if (haystack == null) {
 			Skript.error("The expression " + expressions[0] + " returns types that do not contain anything.");
 			return false;
 		}
 		// determine if the expression truly has a name property
 
-		properties = PropertyUtils.getPossiblePropertyInfos(Property.CONTAINS, haystack);
+		properties = PropertyBaseSyntax.getPossiblePropertyInfos(Property.CONTAINS, haystack);
 		if (properties.isEmpty()) {
 			Skript.error("The expression " + haystack + " returns types that do not contain anything.");
 			return false; // no name property found

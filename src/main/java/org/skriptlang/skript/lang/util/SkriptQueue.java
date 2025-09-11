@@ -1,6 +1,5 @@
 package org.skriptlang.skript.lang.util;
 
-import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.util.Container;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +11,7 @@ import java.util.*;
  */
 @Container.ContainerType(Object.class)
 public class SkriptQueue extends LinkedList<@NotNull Object>
-	implements Deque<Object>, Queue<Object>, AnyAmount, Container<Object> {
+	implements Deque<Object>, Queue<Object>, Container<Object> {
 
 	@Override
 	public boolean add(Object element) {
@@ -91,11 +90,6 @@ public class SkriptQueue extends LinkedList<@NotNull Object>
 			it.remove();
 		}
 		return elements;
-	}
-
-	@Override
-	public @NotNull Number amount() {
-		return this.size();
 	}
 
 	@Override

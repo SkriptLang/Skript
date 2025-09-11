@@ -24,19 +24,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.base.types.ItemTypeClassInfo;
 import org.skriptlang.skript.bukkit.base.types.SlotClassInfo;
+import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
-import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -514,90 +512,7 @@ public class SkriptClasses {
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
 
-		Classes.registerClass(new ClassInfo<>(SkriptQueue.class, "queue")
-				.user("queues?")
-				.name("Queue")
-				.description("A queued list of values. Entries are removed from a queue when they are queried.")
-				.examples(
-					"set {queue} to a new queue",
-					"add \"hello\" to {queue}",
-					"broadcast the 1st element of {queue}"
-				)
-				.since("2.10")
-				.changer(new Changer<>() {
-					@Override
-					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-						return switch (mode) {
-							case ADD, REMOVE, DELETE -> new Class[] {Object.class};
-							case RESET -> new Class[0];
-							default -> null;
-						};
-					}
-
-					@Override
-					public void change(SkriptQueue[] what, Object @Nullable [] delta, ChangeMode mode) {
-						for (SkriptQueue queue : what) {
-							switch (mode) {
-								case RESET, DELETE -> queue.clear();
-								case ADD -> {
-									assert delta != null;
-									queue.addAll(Arrays.asList(delta));
-								}
-								case REMOVE -> {
-									assert delta != null;
-									queue.removeAll(Arrays.asList(delta));
-								}
-							}
-						}
-					}
-				})
-				.parser(new Parser<SkriptQueue>() {
-
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(SkriptQueue queue, int flags) {
-						return Classes.toString(queue.toArray(), flags, true);
-					}
-
-					@Override
-					public String toVariableNameString(SkriptQueue queue) {
-						return this.toString(queue, 0);
-					}
-
-				})
-				.serializer(new Serializer<SkriptQueue>() {
-					@Override
-					public Fields serialize(SkriptQueue queue) throws NotSerializableException {
-						Fields fields = new Fields();
-						fields.putObject("contents", queue.toArray());
-						return fields;
-					}
-
-					@Override
-					public void deserialize(SkriptQueue queue, Fields fields)
-						throws StreamCorruptedException, NotSerializableException {
-						Object[] contents = fields.getObject("contents", Object[].class);
-						queue.clear();
-						if (contents != null)
-							queue.addAll(List.of(contents));
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-
-					@Override
-					protected boolean canBeInstantiated() {
-						return true;
-					}
-				})
-		);
-
+		Classes.registerClass(new QueueClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Config.class, "config")
 			.user("configs?")
@@ -751,6 +666,35 @@ public class SkriptClasses {
 		);
 
 		//noinspection deprecation
+		ExpressionPropertyHandler<AnyAmount, Number> amountHandler = new ExpressionPropertyHandler<>() {
+			//<editor-fold desc="amount property for anyAmount" defaultstate="collapsed">
+			@Override
+			public Number convert(AnyAmount anyNamed) {
+				return anyNamed.amount();
+			}
+
+			@Override
+			public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+				if (mode == ChangeMode.SET)
+					return new Class[]{String.class};
+				return null;
+			}
+
+			@Override
+			public void change(AnyAmount named, Object @Nullable [] delta, ChangeMode mode) {
+				if (mode == ChangeMode.SET && named.supportsAmountChange()) {
+					assert delta != null;
+					named.setAmount((Number) delta[0]);
+				}
+			}
+
+			@Override
+			public @NotNull Class<Number> returnType() {
+				return Number.class;
+			}
+			//</editor-fold>
+		};
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
 				.name("Any Numbered/Sized Thing")
 				.description("Something that has an amount or size.")
@@ -759,62 +703,16 @@ public class SkriptClasses {
 				.since("2.10")
 				.property(Property.AMOUNT,
 					"The amount of a thing",
-					new ExpressionPropertyHandler<AnyAmount, Number>() {
-
-						@Override
-						public Number convert(AnyAmount anyNamed) {
-							return anyNamed.amount();
-						}
-
-						@Override
-						public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-							if (mode == ChangeMode.SET)
-								return new Class[] {String.class};
-							return null;
-						}
-
-						@Override
-						public void change(AnyAmount named, Object @Nullable [] delta, ChangeMode mode) {
-							if (mode == ChangeMode.SET && named.supportsAmountChange()) {
-								assert delta != null;
-								named.setAmount((Number) delta[0]);
-							}
-						}
-
-						@Override
-						public @NotNull Class<Number> returnType() {
-							return Number.class;
-						}
-					})
+					amountHandler)
 				.property(Property.SIZE,
 					"The size of a thing",
-					new ExpressionPropertyHandler<AnyAmount, Number>() {
-
-						@Override
-						public Number convert(AnyAmount anyNamed) {
-							return anyNamed.amount();
-						}
-
-						@Override
-						public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-							if (mode == ChangeMode.SET)
-								return new Class[] {String.class};
-							return null;
-						}
-
-						@Override
-						public void change(AnyAmount named, Object @Nullable [] delta, ChangeMode mode) {
-							if (mode == ChangeMode.SET && named.supportsAmountChange()) {
-								assert delta != null;
-								named.setAmount((Number) delta[0]);
-							}
-						}
-
-						@Override
-						public @NotNull Class<Number> returnType() {
-							return Number.class;
-						}
-					}));
+					amountHandler)
+				.property(Property.NUMBER,
+					"The number of a thing",
+					amountHandler)
+				.property(Property.IS_EMPTY,
+					"Whether this thing is empty, i.e. has an amount of 0.",
+					ConditionPropertyHandler.of(AnyAmount::isEmpty)));
 
 		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyValued.class, "valued")

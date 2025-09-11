@@ -35,7 +35,8 @@ import java.util.stream.Stream;
  * @param <Handler> The type of ExpressionPropertyHandler used by this expression.
  * @see PropExprName PropExprName - An example implementation of this class.
  */
-public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyHandler<?,?>> extends SimpleExpression<Object> {
+public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyHandler<?,?>> extends SimpleExpression<Object>
+	implements PropertyBaseSyntax<Handler> {
 
 	protected static void register(Class<? extends PropertyBaseExpression<?>> expressionClass, String property, String types) {
 		Skript.registerExpression(expressionClass, Object.class, ExpressionType.PROPERTY, PropertyExpression.getPatterns(property, types));
@@ -47,24 +48,17 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	private Class<?> returnType;
 	private final Property<Handler> property = getProperty();
 
-	/**
-	 * Gets the property this expression represents.
-	 * This is used to find the appropriate handlers for the expression's input types.
-	 *
-	 * @return The property this expression represents.
-	 */
-	public abstract @NotNull Property<Handler> getProperty();
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.expr = PropertyUtils.asProperty(property, expressions[0]);
+		this.expr = PropertyBaseSyntax.asProperty(property, expressions[0]);
 		if (expr == null) {
 			Skript.error("The expression " + expressions[0] + " returns types that do not have the " + getPropertyName() + " property."); // todo: improve error message (which types?)
 			return false;
 		}
 
 		// get all possible property infos for the expression's return types
-		properties = PropertyUtils.getPossiblePropertyInfos(property, expr);
+		properties = PropertyBaseSyntax.getPossiblePropertyInfos(property, expr);
 		if (properties.isEmpty()) {
 			Skript.error("The expression " + expr + " returns types that do not have the " + getPropertyName() + " property.");
 			return false; // no name property found
@@ -212,15 +206,6 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	@Override
 	public Class<?>[] possibleReturnTypes() {
 		return returnTypes;
-	}
-
-	/**
-	 * Returns the name of the property for use in toString, e.g. "name", "display name", etc.
-	 * Defaults to the {@link #property}'s name, but can be overridden for custom names.
-	 * @return The name of the property to use in {@link #toString(Event, boolean)}.
-	 */
-	public String getPropertyName() {
-		return property.name();
 	}
 
 	@Override
