@@ -10,7 +10,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyUtils.PropertyMap;
 
 public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHandler<?>> extends Condition
 	implements PropertyBaseSyntax<Handler>{

@@ -40,7 +40,7 @@ import java.util.Locale;
  * 2) By implementing the property directly in a custom syntax. This is more complex, but allows for more flexibility.
  * See {@link PropCondContains} for an example. The implementer is responsible for using {@link PropertyBaseSyntax#asProperty(Property, Expression)}
  * and {@link PropertyBaseSyntax#getPossiblePropertyInfos(Property, Expression)} to ensure the given expression can return
- * valid types that have the given property, and then use {@link PropertyUtils.PropertyMap#get(Class)} during runtime
+ * valid types that have the given property, and then use {@link PropertyMap#get(Class)} during runtime
  * to acquire the right handler for the given type and then apply it.
  * <br>
  * <br>

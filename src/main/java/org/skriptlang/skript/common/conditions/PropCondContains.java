@@ -18,7 +18,7 @@ import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
-import org.skriptlang.skript.lang.properties.PropertyUtils.PropertyMap;
+import org.skriptlang.skript.lang.properties.PropertyMap;
 
 @Name("Contains (Property)")
 @Description("Checks whether a type contains certain elements. The type must be have a 'contains' property.")

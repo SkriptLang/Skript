@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.expressions.PropExprName;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyUtils.PropertyMap;
 
 import java.lang.reflect.Array;
 import java.util.*;

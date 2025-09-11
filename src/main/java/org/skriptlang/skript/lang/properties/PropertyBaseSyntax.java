@@ -66,11 +66,11 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 	 * @param <Handler> the type of the property handler
 	 * @return a map of classes to property infos for the given expression's return types
 	 */
-	static <Handler extends PropertyHandler<?>> PropertyUtils.PropertyMap<Handler> getPossiblePropertyInfos(
+	static <Handler extends PropertyHandler<?>> PropertyMap<Handler> getPossiblePropertyInfos(
 		Property<Handler> property,
 		Expression<?> expr
 	) {
-		PropertyUtils.PropertyMap<Handler> propertyInfos = new PropertyUtils.PropertyMap<>();
+		PropertyMap<Handler> propertyInfos = new PropertyMap<>();
 
 		// get all types with a name property
 		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
