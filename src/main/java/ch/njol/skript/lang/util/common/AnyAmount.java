@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A provider for anything with a (number) amount/size.
- * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprAmount}
+ * Anything implementing this (or convertible to this) can be used by the {@link org.skriptlang.skript.common.expressions.PropExprAmount}
  * property expression.
  *
  * @see AnyProvider

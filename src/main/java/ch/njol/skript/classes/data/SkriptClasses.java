@@ -757,7 +757,64 @@ public class SkriptClasses {
 				.usage("")
 				.examples("the size of {thing}", "the amount of {thing}")
 				.since("2.10")
-		);
+				.property(Property.AMOUNT,
+					"The amount of a thing",
+					new ExpressionPropertyHandler<AnyAmount, Number>() {
+
+						@Override
+						public Number convert(AnyAmount anyNamed) {
+							return anyNamed.amount();
+						}
+
+						@Override
+						public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+							if (mode == ChangeMode.SET)
+								return new Class[] {String.class};
+							return null;
+						}
+
+						@Override
+						public void change(AnyAmount named, Object @Nullable [] delta, ChangeMode mode) {
+							if (mode == ChangeMode.SET && named.supportsAmountChange()) {
+								assert delta != null;
+								named.setAmount((Number) delta[0]);
+							}
+						}
+
+						@Override
+						public @NotNull Class<Number> returnType() {
+							return Number.class;
+						}
+					})
+				.property(Property.SIZE,
+					"The size of a thing",
+					new ExpressionPropertyHandler<AnyAmount, Number>() {
+
+						@Override
+						public Number convert(AnyAmount anyNamed) {
+							return anyNamed.amount();
+						}
+
+						@Override
+						public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+							if (mode == ChangeMode.SET)
+								return new Class[] {String.class};
+							return null;
+						}
+
+						@Override
+						public void change(AnyAmount named, Object @Nullable [] delta, ChangeMode mode) {
+							if (mode == ChangeMode.SET && named.supportsAmountChange()) {
+								assert delta != null;
+								named.setAmount((Number) delta[0]);
+							}
+						}
+
+						@Override
+						public @NotNull Class<Number> returnType() {
+							return Number.class;
+						}
+					}));
 
 		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyValued.class, "valued")

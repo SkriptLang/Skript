@@ -175,10 +175,19 @@ public record Property<Handler extends PropertyHandler<?>>(
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
+	public static final Property<ExpressionPropertyHandler<?, ?>> SIZE = Property.of(
+		"size",
+		"The size of something, say the number of elements in a queue.",
+		"INSERT VERSION",
+		Skript.instance(),
+		ExpressionPropertyHandler.class);
+
 	public static void registerDefaultProperties() {
 		NAME.register();
 		DISPLAY_NAME.register();
 		CONTAINS.register();
+		AMOUNT.register();
+		SIZE.register();
 	}
 
 	/**

@@ -7,6 +7,7 @@ import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.ChickenData.ChickenVariantDummy;
@@ -19,7 +20,6 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PaperUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
@@ -57,6 +57,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.base.types.*;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
@@ -590,7 +591,36 @@ public class BukkitClasses {
 					}
 				})
 				.cloner(ItemStack::clone)
-				.serializer(new ConfigurationSerializer<>()));
+				.serializer(new ConfigurationSerializer<>())
+			.property(Property.AMOUNT,
+				"The number of items in this stack",
+				new ExpressionPropertyHandler<ItemStack, Number>() {
+
+					@Override
+					public Number convert(ItemStack itemStack) {
+						return itemStack.getAmount();
+					}
+
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						if (mode == ChangeMode.SET)
+							return new Class[] {Integer.class};
+						return null;
+					}
+
+					@Override
+					public void change(ItemStack itemStack, Object @Nullable [] delta, ChangeMode mode) {
+						if (mode == ChangeMode.SET) {
+							assert delta != null;
+							itemStack.setAmount((Integer) delta[0]);
+						}
+					}
+
+					@Override
+					public @NotNull Class<Number> returnType() {
+						return Number.class;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Item.class, "itementity")
 				.name(ClassInfo.NO_DOC)

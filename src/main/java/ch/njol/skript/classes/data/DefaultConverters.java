@@ -9,7 +9,6 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
-import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
@@ -29,7 +28,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
@@ -153,28 +151,6 @@ public class DefaultConverters {
 				return entity;
 			return null;
 		}, Converter.NO_CHAINING);
-
-		// Anything with an amount -> AnyAmount
-		Converters.registerConverter(ItemStack.class, AnyAmount.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			item -> new AnyAmount() {
-
-				@Override
-				public @NotNull Number amount() {
-					return item.getAmount();
-				}
-
-				@Override
-				public boolean supportsAmountChange() {
-					return true;
-				}
-
-				@Override
-				public void setAmount(Number amount) {
-					item.setAmount(amount != null ? amount.intValue() : 0);
-				}
-			},
-			//</editor-fold>
-			Converter.NO_RIGHT_CHAINING);
 
 		// InventoryHolder - Location
 		// since the individual ones can't be trusted to chain.
