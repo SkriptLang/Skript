@@ -12,6 +12,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -23,7 +24,7 @@ import org.skriptlang.skript.lang.properties.PropertyMap;
 @Name("Contains (Property)")
 @Description("Checks whether a type contains certain elements. The type must be have a 'contains' property.")
 @RelatedProperty("contains")
-public class PropCondContains extends Condition {
+public class PropCondContains extends Condition implements PropertyBaseSyntax<ContainsHandler<?,?>> {
 
 	static {
 		Skript.registerCondition(PropCondContains.class,
@@ -43,14 +44,14 @@ public class PropCondContains extends Condition {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.haystack = PropertyBaseSyntax.asProperty(Property.CONTAINS, expressions[0]);
 		if (haystack == null) {
-			Skript.error("The expression " + expressions[0] + " returns types that do not contain anything.");
+			Skript.error(getBadTypesErrorMessage(expressions[0]));
 			return false;
 		}
 		// determine if the expression truly has a name property
 
 		properties = PropertyBaseSyntax.getPossiblePropertyInfos(Property.CONTAINS, haystack);
 		if (properties.isEmpty()) {
-			Skript.error("The expression " + haystack + " returns types that do not contain anything.");
+			Skript.error(getBadTypesErrorMessage(haystack));
 			return false; // no name property found
 		}
 
@@ -130,7 +131,13 @@ public class PropCondContains extends Condition {
 	}
 
 	@Override
+	public @NotNull Property<ContainsHandler<?, ?>> getProperty() {
+		return Property.CONTAINS;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "x contains y";
 	}
+
 }

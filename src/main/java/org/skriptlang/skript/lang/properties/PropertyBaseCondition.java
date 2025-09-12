@@ -30,14 +30,14 @@ public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHan
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.propertyHolder = PropertyBaseSyntax.asProperty(property, expressions[0]);
 		if (propertyHolder == null) {
-			Skript.error("The expression " + expressions[0] + " returns types that do not have the " + getPropertyName() + " property."); // todo: improve error message (which types?)
+			Skript.error(getBadTypesErrorMessage(expressions[0]));
 			return false;
 		}
 
 		// get all possible property infos for the expression's return types
 		properties = PropertyBaseSyntax.getPossiblePropertyInfos(property, propertyHolder);
 		if (properties.isEmpty()) {
-			Skript.error("The expression " + propertyHolder + " returns types that do not have the " + getPropertyName() + " property.");
+			Skript.error(getBadTypesErrorMessage(propertyHolder));
 			return false; // no name property found
 		}
 		setNegated(matchedPattern == 1);

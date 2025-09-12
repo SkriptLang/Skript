@@ -44,14 +44,14 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 
 		this.expr = PropertyBaseSyntax.asProperty(property, propertyExpr);
 		if (expr == null) {
-			Skript.error("The expression " + propertyExpr + " returns types that do not have the " + getPropertyName() + " property."); // todo: improve error message (which types?)
+			Skript.error(getBadTypesErrorMessage(propertyExpr));
 			return false;
 		}
 
 		// get all possible property infos for the expression's return types
 		properties = PropertyBaseSyntax.getPossiblePropertyInfos(property, expr);
 		if (properties.isEmpty()) {
-			Skript.error("The expression " + expr + " returns types that do not have the " + getPropertyName() + " property.");
+			Skript.error(getBadTypesErrorMessage(expr));
 			return false; // no name property found
 		}
 

@@ -2,11 +2,13 @@ package org.skriptlang.skript.lang.properties;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,6 +16,27 @@ import java.util.List;
  * @param <Handler> The property handler used for the applicable property.
  */
 public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
+
+	/**
+	 * Produces a standard error message for use when an expression returns types that do not have the
+	 * correct property.
+	 * @param expr The expression that has bad types.
+	 * @return An error message.
+	 */
+	default @Nullable String getBadTypesErrorMessage(@NotNull Expression<?> expr) {
+		if (expr instanceof UnparsedLiteral unparsedLiteral) {
+			//noinspection unchecked
+			var tempExpr = unparsedLiteral.getConvertedExpression(Object.class);
+			if (tempExpr != null)
+				expr = tempExpr;
+		}
+		return "The expression " + expr + " returns the following types that do not have the "
+			+ getPropertyName() + " property: "
+			+ Classes.toString(Arrays.stream(expr.possibleReturnTypes())
+				.map(Classes::getSuperClassInfo)
+				.filter(classInfo -> !classInfo.hasProperty(getProperty()))
+				.toArray(), true);
+	}
 
 	/**
 	 * Gets the property this expression represents.
