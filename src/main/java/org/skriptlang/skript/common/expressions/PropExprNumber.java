@@ -1,10 +1,7 @@
 package org.skriptlang.skript.common.expressions;
 
 import ch.njol.skript.classes.Changer;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -25,6 +22,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 	""")
 @Example("message \"There are %number of all players% players online!\"")
 @Since({"1.0", "INSERT VERSION (numbers of)"})
+@RelatedProperty("number")
 public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
 	static {

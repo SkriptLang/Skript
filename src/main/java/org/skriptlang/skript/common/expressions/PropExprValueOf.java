@@ -2,6 +2,7 @@ package org.skriptlang.skript.common.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -21,6 +22,22 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+@Name("Value")
+@Description({
+	"Returns the value of something that has a value, e.g. a node in a config.",
+	"The value is automatically converted to the specified type (e.g. text, number) where possible."
+})
+@Example("""
+	set {_node} to node "update check interval" in the skript config
+	
+	broadcast text value of {_node}
+	# text value of {_node} = "12 hours" (text)
+	
+	wait for {_node}'s timespan value
+	# timespan value of {_node} = 12 hours (duration)
+	""")
+@Since("2.10")
+@RelatedProperty("typed value")
 public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHandler<?, ?>> {
 
 	static {
@@ -95,4 +112,5 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 	public @NotNull Property<TypedValuePropertyHandler<?, ?>> getProperty() {
 		return Property.TYPED_VALUE;
 	}
+
 }

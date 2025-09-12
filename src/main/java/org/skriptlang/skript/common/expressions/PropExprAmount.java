@@ -1,10 +1,7 @@
 package org.skriptlang.skript.common.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -28,6 +25,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 @Example("if amount of player's tool > 5:")
 @Example("if amounts of player's tool and player's offhand tool > 5:")
 @Since({"1.0", "INSERT VERSION (amounts of)"})
+@RelatedProperty("amount")
 public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
 	static {

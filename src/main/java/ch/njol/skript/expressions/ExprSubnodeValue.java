@@ -25,21 +25,12 @@ import java.lang.reflect.Array;
 
 @Name("Value of Subnode")
 @Description({
-	"Returns the value of something that has a value, e.g. a node in a config.",
+	"Returns the value of an sub-node of the given node, following the provided path.",
 	"The value is automatically converted to the specified type (e.g. text, number) where possible."
 })
 @Example("""
 	set {_node} to node "language" in the skript config
 	broadcast the text value of {_node}
-	""")
-@Example("""
-	set {_node} to node "update check interval" in the skript config
-	
-	broadcast text value of {_node}
-	# text value of {_node} = "12 hours" (text)
-	
-	wait for {_node}'s timespan value
-	# timespan value of {_node} = 12 hours (duration)
 	""")
 @Since("2.10")
 public class ExprSubnodeValue extends SimplePropertyExpression<Node, Object> {
