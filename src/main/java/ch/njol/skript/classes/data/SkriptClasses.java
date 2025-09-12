@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.config.Config;
+import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -30,6 +31,7 @@ import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
@@ -575,7 +577,23 @@ public class SkriptClasses {
 			})
 			.property(Property.NAME,
 				"The key of the node, as text.",
-				ExpressionPropertyHandler.of(Node::getKey, String.class)));
+				ExpressionPropertyHandler.of(Node::getKey, String.class))
+			.property(Property.TYPED_VALUE,
+				"The value of the node, if it is an entry node, as text.",
+				new TypedValuePropertyHandler<Node, String>() {
+
+					@Override
+					public @Nullable String convert(Node propertyHolder) {
+						if (propertyHolder instanceof EntryNode entryNode)
+							return entryNode.getValue();
+						return null;
+					}
+
+					@Override
+					public @NotNull Class<String> returnType() {
+						return String.class;
+					}
+				}));
 
 		Classes.registerClass(new ScriptClassInfo());
 
@@ -721,6 +739,39 @@ public class SkriptClasses {
 			.usage("")
 			.examples("the text of {node}")
 			.since("2.10")
+			.property(Property.TYPED_VALUE,
+				"The value of something. Can be set.",
+				new TypedValuePropertyHandler<AnyValued, Object>() {
+					@Override
+					public Object convert(AnyValued propertyHolder) {
+						return propertyHolder.value();
+					}
+
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						return switch (mode) {
+							case SET, RESET, DELETE -> new Class[]{Object.class};
+							default -> null;
+						};
+					}
+
+					@Override
+					public void change(AnyValued propertyHolder, Object @Nullable [] delta, ChangeMode mode) {
+						if (propertyHolder.supportsValueChange()) {
+							if (delta != null) {
+								//noinspection unchecked
+								propertyHolder.changeValue(delta[0]);
+							} else {
+								propertyHolder.resetValue();
+							}
+						}
+					}
+
+					@Override
+					public @NotNull Class<Object> returnType() {
+						return Object.class;
+					}
+				})
 		);
 
 		//noinspection deprecation

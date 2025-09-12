@@ -42,10 +42,10 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	}
 
 	protected Expression<?> expr;
-	private PropertyMap<Handler> properties;
-	private Class<?>[] returnTypes;
-	private Class<?> returnType;
-	private final Property<Handler> property = getProperty();
+	protected PropertyMap<Handler> properties;
+	protected Class<?>[] returnTypes;
+	protected Class<?> returnType;
+	protected final Property<Handler> property = getProperty();
 
 
 	@Override
@@ -69,7 +69,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		return LiteralUtils.canInitSafely(expr);
 	}
 
-	private Class<?> @NotNull [] getPropertyReturnTypes(@NotNull PropertyMap<Handler> properties, Function<Handler, Class<?>[]> getReturnType) {
+	protected Class<?> @NotNull [] getPropertyReturnTypes(@NotNull PropertyMap<Handler> properties, Function<Handler, Class<?>[]> getReturnType) {
 		return properties.values().stream()
 			.flatMap((propertyInfo) -> Arrays.stream(getReturnType.apply(propertyInfo.handler())))
 			.filter(type -> type != Object.class)

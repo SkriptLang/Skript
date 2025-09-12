@@ -1,13 +1,19 @@
 package org.skriptlang.skript.lang.properties;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.ExprSubnodeValue;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.StringMode;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.conditions.PropCondContains;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -112,7 +118,7 @@ public interface PropertyHandler<Type> {
 		 * @param propertyHolder The object to convert.
 		 * @return The property value.
 		 */
-		ReturnType convert(Type propertyHolder);
+		@Nullable ReturnType convert(Type propertyHolder);
 
 		/**
 		 * Returns the types of changes that this property supports. If the property does not support any changes,
@@ -182,7 +188,7 @@ public interface PropertyHandler<Type> {
 			return new ExpressionPropertyHandler<>() {
 
 				@Override
-				public ReturnType convert(Type propertyHolder) {
+				public @Nullable ReturnType convert(Type propertyHolder) {
 					return converter.apply(propertyHolder);
 				}
 
@@ -218,6 +224,43 @@ public interface PropertyHandler<Type> {
 			Predicate<Type> predicate
 		) {
 			return predicate::test;
+		}
+	}
+
+	interface TypedValuePropertyHandler<Type, ValueType> extends ExpressionPropertyHandler<Type, ValueType> {
+
+		/**
+		 * @return This thing's value
+		 */
+		@Override
+		@Nullable ValueType convert(Type propertyHolder);
+
+		default <Converted> Converted convert(Type propertyHolder, ClassInfo<Converted> expected) {
+			ValueType value = convert(propertyHolder);
+			if (value == null)
+				return null;
+			return ExprSubnodeValue.convertedValue(value, expected);
+		}
+
+		/**
+		 * This method can be used to convert change values to ValueType (or null)
+		 *
+		 * @param value The (unchecked) new value
+		 */
+		default ValueType convertChangeValue(Object value) throws UnsupportedOperationException {
+			Class<ValueType> typeClass = returnType();
+			ClassInfo<? super ValueType> classInfo = Classes.getSuperClassInfo(typeClass);
+			if (value == null) {
+				return null;
+			} else if (typeClass == String.class) {
+				return typeClass.cast(Classes.toString(value, StringMode.MESSAGE));
+			} else if (value instanceof String string
+				&& classInfo.getParser() != null
+				&& classInfo.getParser().canParse(ParseContext.CONFIG)) {
+				return (ValueType) classInfo.getParser().parse(string, ParseContext.CONFIG);
+			} else {
+				return Converters.convert(value, typeClass);
+			}
 		}
 	}
 }

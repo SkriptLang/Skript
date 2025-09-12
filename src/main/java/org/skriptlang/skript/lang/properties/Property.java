@@ -15,6 +15,7 @@ import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
 
 import java.util.Locale;
 
@@ -201,6 +202,13 @@ public record Property<Handler extends PropertyHandler<?>>(
 		Skript.instance(),
 		ConditionPropertyHandler.class);
 
+	public static final Property<TypedValuePropertyHandler<?, ?>> TYPED_VALUE = Property.of(
+		"typed value",
+		"A value of a specific type, e.g. 'string value of x'.",
+		"INSERT VERSION",
+		Skript.instance(),
+		TypedValuePropertyHandler.class);
+
 	public static void registerDefaultProperties() {
 		NAME.register();
 		DISPLAY_NAME.register();
@@ -209,6 +217,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 		SIZE.register();
 		NUMBER.register();
 		IS_EMPTY.register();
+		TYPED_VALUE.register();
 	}
 
 	/**

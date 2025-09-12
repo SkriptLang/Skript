@@ -53,6 +53,9 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
 		Class<?>[] classes = classInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
 
+		if (classes.length == 0)
+			return null;
+
 		//noinspection unchecked,rawtypes
 		return LiteralUtils.defendExpression(expr).getConvertedExpression((Class[]) classes);
 	}
