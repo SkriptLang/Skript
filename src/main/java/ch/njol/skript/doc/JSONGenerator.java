@@ -11,6 +11,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
 import ch.njol.skript.util.Version;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import org.bukkit.event.Cancellable;
@@ -18,8 +19,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxOrigin.ElementOrigin;
 
 import java.io.File;
 import java.io.IOException;
@@ -126,6 +130,9 @@ public class JSONGenerator extends DocumentationGenerator {
 		Keywords keywords = syntaxClass.getAnnotation(Keywords.class);
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
+		syntaxJsonObject.addProperty("category", getCategory(syntaxInfo.origin(), name.value(),
+				description == null ? null : description.value(), syntaxInfo.getPatterns()));
+
 		return syntaxJsonObject;
 	}
 
@@ -148,6 +155,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
 		syntaxJsonObject.add("eventValues", getEventValues(info));
 		syntaxJsonObject.add("keywords", convertToJsonArray(info.getKeywords()));
+		syntaxJsonObject.addProperty("category", getCategory(info.origin(), info.getName(), info.getDescription(), info.getPatterns()));
 
 		return syntaxJsonObject;
 	}
@@ -294,6 +302,8 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
+		syntaxJsonObject.addProperty("category", getCategory(null,
+				Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()), classInfo.getDescription(), null));
 
 		return syntaxJsonObject;
 	}
@@ -332,6 +342,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
+		functionJsonObject.addProperty("category", getCategory(null, function.getName(), function.getDescription(), null));
 		return functionJsonObject;
 	}
 
@@ -380,6 +391,46 @@ public class JSONGenerator extends DocumentationGenerator {
 			strings[i] = Documentation.cleanPatterns(strings[i], false, false);
 		}
 		return convertToJsonArray(strings);
+	}
+
+	private static @Nullable String getCategory(SyntaxOrigin origin, String name, String[] description, String[] patterns) {
+		if (origin instanceof ElementOrigin elementOrigin) {
+			for (Category category : Category.values()) {
+				if (category.modules().contains(elementOrigin.module())) {
+					return category.name();
+				}
+			}
+		}
+
+		if (patterns == null) patterns = new String[] { "" };
+		String first = getCategory(String.join("", patterns));
+		if (first != null) {
+			return first;
+		} else {
+			if (description == null) description = new String[] { "" };
+			return getCategory(name + String.join("", description) + String.join("", patterns));
+		}
+	}
+
+	private static @Nullable String getCategory(String patterns) {
+		Set<Category> options = new HashSet<>();
+
+		for (Category value : Category.values()) {
+			for (String keyword : value.keywords()) {
+				if (patterns.toLowerCase().contains(keyword)) {
+					options.add(value);
+					break;
+				}
+			}
+		}
+
+		if (options.isEmpty()) {
+			return null;
+		} else if (options.size() == 1) {
+			return options.stream().findAny().orElseThrow().name();
+		} else {
+			return options.stream().max(Comparator.comparingInt(Category::priority)).orElseThrow().name();
+		}
 	}
 
 	/**

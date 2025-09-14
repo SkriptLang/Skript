@@ -2,6 +2,9 @@ package org.skriptlang.skript.addon;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 /**
  * A module is a component of a {@link SkriptAddon} used for registering syntax and other {@link Skript} components.
@@ -42,6 +45,21 @@ public interface AddonModule {
 	 */
 	default boolean canLoad(SkriptAddon addon) {
 		return true;
+	}
+
+	/**
+	 * Registers syntax such that it belongs to the current module.
+	 *
+	 * @param addon The addon this module belongs to.
+	 * @param registry The registry to add this syntax to.
+	 * @param cls The syntax info.
+	 * @param <I> The type of syntax.
+	 */
+	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, Key<I> registry, I cls) {
+		//noinspection unchecked
+		addon.syntaxRegistry().register(registry, (I) cls.toBuilder()
+				.origin(SyntaxOrigin.of(addon, this))
+				.build());
 	}
 
 }

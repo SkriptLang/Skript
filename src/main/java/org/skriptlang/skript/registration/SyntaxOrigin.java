@@ -2,6 +2,7 @@ package org.skriptlang.skript.registration;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 /**
@@ -48,6 +49,57 @@ public interface SyntaxOrigin {
 		 */
 		public SkriptAddon addon() {
 			return addon;
+		}
+
+	}
+
+	/**
+	 * Constructs a syntax origin from an addon and module.
+	 * @param addon The addon to construct this origin from.
+	 * @param module The module to include in this origin.
+	 * @return An origin pointing to the provided addon and module.
+	 */
+	@Contract("_, _ -> new")
+	static SyntaxOrigin of(SkriptAddon addon, AddonModule module) {
+		return new ElementOrigin(addon, module);
+	}
+
+	/**
+	 * An origin describing the addon and module a syntax has originated from.
+	 * @see SyntaxOrigin#of(SkriptAddon, AddonModule)
+	 */
+	final class ElementOrigin implements SyntaxOrigin {
+
+		private final SkriptAddon addon;
+		private final AddonModule module;
+
+		private ElementOrigin(SkriptAddon addon, AddonModule module) {
+			this.addon = addon.unmodifiableView();
+			this.module = module;
+		}
+
+		/**
+		 * @return A string representing the name of the addon this origin describes.
+		 * Equivalent to {@link SkriptAddon#name()}.
+		 */
+		@Override
+		public String name() {
+			return addon.name();
+		}
+
+		/**
+		 * @return An unmodifiable view of the addon this origin describes.
+		 * @see SkriptAddon#unmodifiableView()
+		 */
+		public SkriptAddon addon() {
+			return addon;
+		}
+
+		/**
+		 * @return The module used for registering this element.
+		 */
+		public AddonModule module() {
+			return module;
 		}
 
 	}

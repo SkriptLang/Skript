@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.damagesource;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.doc.Category;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
@@ -25,6 +26,8 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void init(SkriptAddon addon) {
+		Category.DAMAGE_SOURCES.modules().add(this);
+
 		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
 			.user("damage ?sources?")
 			.name("Damage Source")
