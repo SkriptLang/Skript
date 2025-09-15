@@ -23,9 +23,8 @@ public final class ExampleScriptManager {
 	private void loadInstalled(File scriptsDir) {
 		installedFile = new File(scriptsDir, "examples.installed");
 		installed = new HashSet<>();
-		if (!installedFile.exists()) {
+		if (!installedFile.exists())
 			return;
-		}
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(installedFile), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -37,9 +36,8 @@ public final class ExampleScriptManager {
 	}
 
 	private void flushInstalled() {
-		if (installedFile == null) {
+		if (installedFile == null)
 			return;
-		}
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(installedFile), StandardCharsets.UTF_8))) {
 			for (String entry : installed) {
 				writer.write(entry);
@@ -51,9 +49,8 @@ public final class ExampleScriptManager {
 	}
 
 	public void installExamples(String plugin, Collection<ExampleScript> scripts, File scriptsDir) {
-		if (installed == null) {
+		if (installed == null)
 			loadInstalled(scriptsDir);
-		}
 		File baseDir = new File(scriptsDir, "-examples/" + plugin);
 		for (ExampleScript script : scripts) {
 			String key = plugin + "/" + script.name();

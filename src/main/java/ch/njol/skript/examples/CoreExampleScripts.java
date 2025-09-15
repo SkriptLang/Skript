@@ -33,9 +33,8 @@ public final class CoreExampleScripts {
 	private static ExampleScript load(String name) {
 		String path = "scripts/-examples/" + name;
 		try (InputStream in = CoreExampleScripts.class.getClassLoader().getResourceAsStream(path)) {
-			if (in == null) {
+			if (in == null)
 				throw new IllegalStateException("Missing example script " + path);
-			}
 			String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 			return new ExampleScript(name, content);
 		} catch (IOException e) {
