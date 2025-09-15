@@ -2,6 +2,7 @@ package ch.njol.skript;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import ch.njol.skript.examples.ExampleScript;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import org.jetbrains.annotations.ApiStatus;
@@ -91,6 +93,23 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	@Nullable
 	public String getLanguageFileDirectory() {
 		return localizer().languageFileDirectory();
+	}
+
+	/**
+	 * Registers example scripts with Skript for this addon.
+	 *
+	 * @param scripts Example scripts to install
+	 * @throws IOException If an I/O error occurs while installing the scripts
+	 */
+	public void registerExampleScripts(ExampleScript... scripts) throws IOException {
+		if (Skript.exampleManager == null) {
+			throw new IllegalStateException("Example script manager is not initialized");
+		}
+		Skript.exampleManager.installExamples(
+			plugin.getName(),
+			Arrays.asList(scripts),
+			Skript.getInstance().getScriptsFolder()
+		);
 	}
 
 	@Nullable
