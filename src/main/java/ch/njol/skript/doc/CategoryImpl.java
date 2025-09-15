@@ -13,7 +13,6 @@ final class CategoryImpl implements Category {
 
 	private static final Set<Category> instances = new HashSet<>();
 	private final String name;
-	private final int priority;
 	private final Set<String> keywords;
 	private final Set<AddonModule> modules;
 
@@ -21,10 +20,9 @@ final class CategoryImpl implements Category {
 		return instances;
 	}
 
-	CategoryImpl(String name, int priority, Set<String> keywords) {
+	CategoryImpl(String name, Set<String> keywords) {
 		instances.add(this);
 		this.name = name;
-		this.priority = priority;
 		this.keywords = keywords.stream().map(String::toLowerCase).collect(Collectors.toSet());
 		this.modules = new HashSet<>();
 	}
@@ -32,10 +30,6 @@ final class CategoryImpl implements Category {
 	@Override
 	public @NotNull String name() {
 		return name;
-	}
-
-	public int priority() {
-		return priority;
 	}
 
 	public @NotNull Set<String> keywords() {

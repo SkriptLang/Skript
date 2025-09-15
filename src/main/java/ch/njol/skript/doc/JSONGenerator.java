@@ -172,7 +172,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
 		for (Class<? extends Event> supportedEvent : info.events) {
 			for (Class<? extends Event> event : allEventValues.keySet()) {
-				if (!event.isAssignableFrom(supportedEvent)) {
+				if (event == null || !event.isAssignableFrom(supportedEvent)) {
 					continue;
 				}
 
@@ -430,15 +430,8 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		if (options.isEmpty()) {
 			return null;
-		} else if (options.size() == 1) {
-			return options.stream().findAny().orElseThrow().name();
-		} else {
-			return options.stream()
-					.filter(it -> it instanceof CategoryImpl)
-					.map(it -> (CategoryImpl) it)
-					.max(Comparator.comparingInt(CategoryImpl::priority))
-					.orElseThrow().name();
 		}
+		return options.stream().findAny().orElseThrow().name();
 	}
 
 	/**

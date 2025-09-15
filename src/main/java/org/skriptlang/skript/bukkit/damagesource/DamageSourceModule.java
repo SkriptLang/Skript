@@ -14,10 +14,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.damagesource.elements.CondScalesWithDifficulty;
+import org.skriptlang.skript.bukkit.damagesource.elements.*;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+import java.util.Set;
 
 public class DamageSourceModule implements AddonModule {
 
@@ -59,13 +59,14 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		register(addon, SyntaxRegistry.CONDITION, CondScalesWithDifficulty.info());
+		register(addon, SyntaxRegistry.CONDITION,
+				Set.of(CondScalesWithDifficulty.info(), CondWasIndirect.info()));
 
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		register(addon, SyntaxRegistry.EXPRESSION,
+				Set.of(ExprCausingEntity.info(), ExprCreatedDamageSource.info(),
+				ExprDamageLocation.info(), ExprDamageType.info(),
+				ExprDirectEntity.info(), ExprFoodExhaustion.info(),
+				ExprSecDamageSource.info(), ExprSourceLocation.info()));
 	}
 
 }
