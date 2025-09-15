@@ -14,6 +14,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.damagesource.elements.CondScalesWithDifficulty;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.IOException;
 
@@ -26,7 +28,7 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void init(SkriptAddon addon) {
-		Category.DAMAGE_SOURCES.modules().add(this);
+		Category.DAMAGE_SOURCES.addModule(this);
 
 		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
 			.user("damage ?sources?")
@@ -57,6 +59,8 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
+		register(addon, SyntaxRegistry.CONDITION, CondScalesWithDifficulty.info());
+
 		try {
 			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
 		} catch (IOException e) {

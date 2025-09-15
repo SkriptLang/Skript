@@ -1,9 +1,10 @@
 package ch.njol.skript.doc;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.util.Priority;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,19 +34,24 @@ final class CategoryImpl implements Category {
 		return name;
 	}
 
-	@Override
 	public int priority() {
 		return priority;
 	}
 
-	@Override
 	public @NotNull Set<String> keywords() {
 		return keywords;
 	}
 
 	@Override
+	public void addModule(@NotNull AddonModule module) {
+		Preconditions.checkNotNull(module, "module cannot be null");
+
+		modules.add(module);
+	}
+
+	@Override
 	public @NotNull Set<AddonModule> modules() {
-		return modules;
+		return Collections.unmodifiableSet(modules);
 	}
 
 }

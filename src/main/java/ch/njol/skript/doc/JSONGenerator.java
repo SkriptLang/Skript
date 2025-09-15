@@ -416,7 +416,11 @@ public class JSONGenerator extends DocumentationGenerator {
 		Set<Category> options = new HashSet<>();
 
 		for (Category value : Category.values()) {
-			for (String keyword : value.keywords()) {
+			if (!(value instanceof CategoryImpl impl)) {
+				break;
+			}
+
+			for (String keyword : impl.keywords()) {
 				if (patterns.toLowerCase().contains(keyword)) {
 					options.add(value);
 					break;
@@ -429,7 +433,11 @@ public class JSONGenerator extends DocumentationGenerator {
 		} else if (options.size() == 1) {
 			return options.stream().findAny().orElseThrow().name();
 		} else {
-			return options.stream().max(Comparator.comparingInt(Category::priority)).orElseThrow().name();
+			return options.stream()
+					.filter(it -> it instanceof CategoryImpl)
+					.map(it -> (CategoryImpl) it)
+					.max(Comparator.comparingInt(CategoryImpl::priority))
+					.orElseThrow().name();
 		}
 	}
 

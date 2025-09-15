@@ -2,6 +2,7 @@ package ch.njol.skript.doc;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 
 import java.util.HashSet;
@@ -10,7 +11,8 @@ import java.util.Set;
 /**
  * Represents a category a documented element can belong to.
  */
-public interface Category {
+public sealed interface Category
+	permits CategoryImpl {
 
 	Category ENTITIES = of("Entities", 200, "entity", "entities", "animal", "panda", "allay",
 			"zombie", "goat", "horse", "pig", "fish", "villager", "bee");
@@ -31,13 +33,22 @@ public interface Category {
 			"arithmetic", "vector", "vectors", "nan", "round", "rounds", "root", "quaternion", "permutations",
 			"combinations", "numbers", "infinity", "exponential");
 
+	/**
+	 * @return The display name of this category.
+	 */
 	@NotNull String name();
 
-	int priority();
+	/**
+	 * Adds a module to this category.
+	 *
+	 * @param module The module to add.
+	 */
+	void addModule(@NotNull AddonModule module);
 
-	@NotNull Set<String> keywords();
-
-	@NotNull Set<AddonModule> modules();
+	/**
+	 * @return The modules that are represented by this category.
+	 */
+	@Unmodifiable @NotNull Set<AddonModule> modules();
 
 	static Category of(@NotNull String name, int priority, String @NotNull ... keywords) {
 		Preconditions.checkNotNull(name, "name cannot be null");

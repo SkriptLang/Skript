@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.damagesource.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
@@ -11,24 +10,25 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Damage Source - Does Scale With Difficulty")
 @Description("Whether the damage from a damage source scales with the difficulty of the server.")
 @Example("""
-	on death:
-		if event-damage source scales damage with difficulty:
-	""")
+		on death:
+			if event-damage source scales damage with difficulty:
+		""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
 
-	static {
-		Skript.registerCondition(CondScalesWithDifficulty.class,
-			"%damagesources% ((does|do) scale|scales) damage with difficulty",
-			"%damagesources% (do not|don't|does not|doesn't) scale damage with difficulty",
-			"%damagesources%'[s] damage ((does|do) scale|scales) with difficulty",
-			"%damagesources%'[s] damage (do not|don't|does not|doesn't) scale with difficulty");
+	public static SyntaxInfo<CondScalesWithDifficulty> info() {
+		return SyntaxInfo.builder(CondScalesWithDifficulty.class)
+				.addPatterns("%damagesources% ((does|do) scale|scales) damage with difficulty",
+						"%damagesources% (do not|don't|does not|doesn't) scale damage with difficulty",
+						"%damagesources%'[s] damage ((does|do) scale|scales) with difficulty",
+						"%damagesources%'[s] damage (do not|don't|does not|doesn't) scale with difficulty")
+				.build();
 	}
 
 	@Override
