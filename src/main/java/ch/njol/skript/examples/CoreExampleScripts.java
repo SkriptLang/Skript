@@ -3,6 +3,7 @@ package ch.njol.skript.examples;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 
 public final class CoreExampleScripts {
@@ -23,6 +24,10 @@ public final class CoreExampleScripts {
 	);
 
 	private CoreExampleScripts() {
+	}
+
+	public static Collection<ExampleScript> all() {
+		return EXAMPLES;
 	}
 
 	private static ExampleScript load(String name) {

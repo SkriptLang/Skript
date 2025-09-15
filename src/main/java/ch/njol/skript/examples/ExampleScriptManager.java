@@ -14,13 +14,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class ExampleScriptManager {
-	private static Set<String> installed;
-	private static File installedFile;
+	private Set<String> installed;
+	private File installedFile;
 
-	private ExampleScriptManager() {
+	public ExampleScriptManager() {
 	}
 
-	private static void loadInstalled(File scriptsDir) {
+	private void loadInstalled(File scriptsDir) {
 		installedFile = new File(scriptsDir, "examples.installed");
 		installed = new HashSet<>();
 		if (!installedFile.exists()) {
@@ -36,7 +36,7 @@ public final class ExampleScriptManager {
 		}
 	}
 
-	private static void flushInstalled() {
+	private void flushInstalled() {
 		if (installedFile == null) {
 			return;
 		}
@@ -50,7 +50,7 @@ public final class ExampleScriptManager {
 		}
 	}
 
-	public static void installExamples(String plugin, Collection<ExampleScript> scripts, File scriptsDir) {
+	public void installExamples(String plugin, Collection<ExampleScript> scripts, File scriptsDir) {
 		if (installed == null) {
 			loadInstalled(scriptsDir);
 		}
