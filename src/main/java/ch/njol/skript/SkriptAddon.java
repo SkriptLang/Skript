@@ -102,9 +102,9 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	 * @throws IOException If an I/O error occurs while installing the scripts
 	 */
 	public void registerExampleScripts(ExampleScript... scripts) throws IOException {
-		if (Skript.exampleManager == null) {
+		if (Skript.exampleManager == null)
 			throw new IllegalStateException("Example script manager is not initialized");
-		}
+
 		Skript.exampleManager.installExamples(
 			plugin.getName(),
 			Arrays.asList(scripts),

@@ -23,8 +23,7 @@ public final class CoreExampleScripts {
 		load("variables.sk")
 	);
 
-	private CoreExampleScripts() {
-	}
+	private CoreExampleScripts() {}
 
 	public static Collection<ExampleScript> all() {
 		return EXAMPLES;

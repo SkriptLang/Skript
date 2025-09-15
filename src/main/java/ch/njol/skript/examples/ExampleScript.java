@@ -22,9 +22,8 @@ public record ExampleScript(String name, String content) {
 	 */
 	public static ExampleScript fromResource(JavaPlugin plugin, String resourcePath, String outputName) throws IOException {
 		try (InputStream in = plugin.getResource(resourcePath)) {
-			if (in == null) {
+			if (in == null)
 				throw new IOException("Resource not found: " + resourcePath);
-			}
 			String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 			return new ExampleScript(outputName, content);
 		}
