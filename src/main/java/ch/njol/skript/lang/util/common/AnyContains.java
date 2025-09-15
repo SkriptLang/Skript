@@ -5,7 +5,7 @@ import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * A provider for anything that contains other things.
- * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.conditions.CondContains}
+ * Anything implementing this (or convertible to this) can be used by the {@link org.skriptlang.skript.common.conditions.PropCondContains}
  * conditions.
  *
  * @param <Type> the type of objects that this container can check for containment.

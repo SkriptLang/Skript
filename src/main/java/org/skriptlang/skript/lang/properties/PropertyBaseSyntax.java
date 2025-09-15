@@ -7,8 +7,9 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +31,23 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 			if (tempExpr != null)
 				expr = tempExpr;
 		}
+		List<ClassInfo<?>> validClassInfos = Classes.getClassInfosByProperty(getProperty());
+		Class<?>[] validTypes = validClassInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
+		List<Class<?>> invalidTypes = new ArrayList<>();
+		nextType:
+		for (Class<?> type : expr.possibleReturnTypes()) {
+			ClassInfo<?> info = Classes.getSuperClassInfo(type);
+			if (info.hasProperty(getProperty()))
+				continue;
+			for (Class<?> validType : validTypes) {
+				if (Converters.converterExists(type, validType))
+					continue nextType;
+			}
+			invalidTypes.add(type);
+		}
 		return "The expression " + expr + " returns the following types that do not have the "
 			+ getPropertyName() + " property: "
-			+ Classes.toString(Arrays.stream(expr.possibleReturnTypes())
-				.map(Classes::getSuperClassInfo)
-				.filter(classInfo -> !classInfo.hasProperty(getProperty()))
-				.toArray(), true);
+			+ Classes.toString(invalidTypes.toArray(), true);
 	}
 
 	/**
