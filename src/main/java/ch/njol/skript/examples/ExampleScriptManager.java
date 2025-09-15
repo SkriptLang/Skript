@@ -21,7 +21,7 @@ public final class ExampleScriptManager {
 	}
 
 	private void loadInstalled(File scriptsDir) {
-		installedFile = new File(scriptsDir, "examples.installed");
+		installedFile = new File(scriptsDir.getParentFile(), ".loaded_examples");
 		installed = new HashSet<>();
 		if (!installedFile.exists())
 			return;
