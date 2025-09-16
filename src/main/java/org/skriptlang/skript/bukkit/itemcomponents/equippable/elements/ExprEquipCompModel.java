@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	It can only contain one ':' to separate the namespace and the id. \
 	Only alphanumeric characters, periods, underscores, and dashes can be used.
 	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-""")
+	""")
 @Example("set the equipped model key of {_item} to \"custom_model\"")
 @Example("""
 	set {_component} to the equippable component of {_item}
