@@ -1,0 +1,13 @@
+parse:
+	results: {DelayedBranchTest::*}
+	code:
+		on damage:
+			if true is true: # avoid messing up other tests
+				stop
+			if true is false:
+				wait tick
+			else:
+				set damage to 0
+
+test "delayed conditional branch delays other branches":
+	assert {DelayedBranchTest::*} is not set with "delayed conditional branch delayed another branch"
