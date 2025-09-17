@@ -21,7 +21,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -162,7 +161,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		Keywords keywords = syntaxClass.getAnnotation(Keywords.class);
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
-		syntaxJsonObject.addProperty("category", getCategory(syntaxInfo.origin(), name.value(),
+		syntaxJsonObject.addProperty("category", getCategoryName(syntaxInfo.origin(), name.value(),
 				description == null ? null : List.of(description.value()), syntaxInfo.patterns()));
 
 		if (syntaxInfo instanceof SyntaxInfo.Expression<?, ?> expression) {
@@ -230,7 +229,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.requiredPlugins().toArray(new String[0])));
 		syntaxJsonObject.add("examples", convertToJsonArray(info.examples().toArray(new String[0])));
 		syntaxJsonObject.add("eventValues", getEventValues(info));
-		syntaxJsonObject.addProperty("category", getCategory(info.origin(), info.name(), info.description(), info.patterns()));
+		syntaxJsonObject.addProperty("category", getCategoryName(info.origin(), info.name(), info.description(), info.patterns()));
 
 		return syntaxJsonObject;
 	}
@@ -376,7 +375,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
-		syntaxJsonObject.addProperty("category", getCategory(null,
+		syntaxJsonObject.addProperty("category", getCategoryName(null,
 				Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()),
 				List.of(classInfo.getDescription()), null));
 
@@ -417,7 +416,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
-		functionJsonObject.addProperty("category", getCategory(null, function.getName(), List.of(function.getDescription()), null));
+		functionJsonObject.addProperty("category", getCategoryName(null, function.getName(), List.of(function.getDescription()), null));
 		return functionJsonObject;
 	}
 
@@ -469,10 +468,25 @@ public class JSONGenerator extends DocumentationGenerator {
 		return convertToJsonArray(strings);
 	}
 
-	private static @Nullable String getCategory(SyntaxOrigin origin, String name, Collection<String> description, Collection<String> patterns) {
+	/**
+	 * Returns the category name of an element given its origin, name, description and patterns.
+	 *
+	 * <p>Attempts to find a category by using pattern first.
+	 * If this has no results, then it will use the name and description.</p>
+	 *
+	 * @param origin The origin of this element.
+	 * @param name The name of this element.
+	 * @param description The description of this element.
+	 * @param patterns The patterns of this element.
+	 * @return The category name, or null if none is found.
+	 */
+	private static @Nullable String getCategoryName(
+			@Nullable SyntaxOrigin origin, @NotNull String name,
+			@Nullable Collection<String> description, @Nullable Collection<String> patterns
+	) {
 		if (origin instanceof ElementOrigin elementOrigin) {
 			for (Category category : Category.values()) {
-				if (category.modules().contains(elementOrigin.module())) {
+				if (category.modules().contains(elementOrigin.module().getClass())) {
 					return category.name();
 				}
 			}
@@ -488,7 +502,13 @@ public class JSONGenerator extends DocumentationGenerator {
 		}
 	}
 
-	private static @Nullable String getCategory(String patterns) {
+	/**
+	 * Attempts to find a category based on the input.
+	 *
+	 * @param input The input.
+	 * @return A category, or null if none is found.
+	 */
+	private static @Nullable String getCategory(String input) {
 		Set<Category> options = new HashSet<>();
 
 		for (Category value : Category.values()) {
@@ -497,7 +517,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			}
 
 			for (String keyword : impl.keywords()) {
-				if (patterns.toLowerCase().contains(keyword)) {
+				if (input.toLowerCase().contains(keyword)) {
 					options.add(value);
 					break;
 				}

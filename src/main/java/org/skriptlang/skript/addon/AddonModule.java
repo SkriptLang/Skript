@@ -52,7 +52,9 @@ public interface AddonModule {
 	}
 
 	/**
-	 * @return The category to which this module belongs, or null if this module belongs to no category.
+	 * Returns the documentation category which this module belongs to.
+	 *
+	 * @return The category of this module, or null if this module belongs to no category.
 	 */
 	default @Nullable Category category() {
 		return null;

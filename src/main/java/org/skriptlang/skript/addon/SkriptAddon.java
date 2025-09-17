@@ -98,14 +98,14 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 
 		for (AddonModule module : filtered) {
 			module.init(this);
+		}
+		for (AddonModule module : filtered) {
+			module.load(this);
 
 			Category category = module.category();
 			if (category != null) {
 				category.addModule(module.getClass());
 			}
-		}
-		for (AddonModule module : filtered) {
-			module.load(this);
 		}
 	}
 
