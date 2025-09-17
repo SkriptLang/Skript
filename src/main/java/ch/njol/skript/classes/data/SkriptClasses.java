@@ -13,10 +13,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyContains;
-import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyValued;
+import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
@@ -963,6 +960,14 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{a} contains {b}")
 				.since("2.10")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyWeighted.class, "weighted")
+			.name("Any Weighted Thing")
+			.description("Something that has a weight.")
+			.usage("")
+			.examples("the weight of {spawner entry}")
+			.since("INSERT VERSION")
 		);
 	}
 
