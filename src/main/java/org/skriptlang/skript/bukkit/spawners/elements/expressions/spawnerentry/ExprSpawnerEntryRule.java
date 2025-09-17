@@ -32,7 +32,7 @@ public class ExprSpawnerEntryRule extends SimplePropertyExpression<SkriptSpawner
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprSpawnerEntryRule.class, SpawnRule.class,
-			"spawner entry [spawn] rule[s]", "spawnerentries", true)
+			"spawn rule[s]", "spawnerentries", true)
 				.supplier(ExprSpawnerEntryRule::new)
 				.build()
 		);
