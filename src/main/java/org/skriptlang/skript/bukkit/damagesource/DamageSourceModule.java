@@ -60,13 +60,13 @@ public class DamageSourceModule implements AddonModule {
 	@Override
 	public void load(SkriptAddon addon) {
 		register(addon, SyntaxRegistry.CONDITION,
-				Set.of(CondScalesWithDifficulty.info(), CondWasIndirect.info()));
+				CondScalesWithDifficulty.info(), CondWasIndirect.info());
 
 		register(addon, SyntaxRegistry.EXPRESSION,
-				Set.of(ExprCausingEntity.info(), ExprCreatedDamageSource.info(),
+				ExprCausingEntity.info(), ExprCreatedDamageSource.info(),
 				ExprDamageLocation.info(), ExprDamageType.info(),
 				ExprDirectEntity.info(), ExprFoodExhaustion.info(),
-				ExprSecDamageSource.info(), ExprSourceLocation.info()));
+				ExprSecDamageSource.info(), ExprSourceLocation.info());
 	}
 
 }

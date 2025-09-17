@@ -72,7 +72,8 @@ public interface AddonModule {
 	 * @param classes The syntax infos.
 	 * @param <I> The type of syntax.
 	 */
-	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, Key<I> registry, Set<I> classes) {
+	@SuppressWarnings("unchecked")
+	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, Key<I> registry, I... classes) {
 		for (I cls : classes) {
 			register(addon, registry, cls);
 		}
