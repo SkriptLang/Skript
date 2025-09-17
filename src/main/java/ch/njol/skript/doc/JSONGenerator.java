@@ -21,12 +21,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxOrigin.ElementOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -161,7 +163,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
 		syntaxJsonObject.addProperty("category", getCategory(syntaxInfo.origin(), name.value(),
-				description == null ? null : description.value(), syntaxInfo.getPatterns()));
+				description == null ? null : List.of(description.value()), syntaxInfo.patterns()));
 
 		if (syntaxInfo instanceof SyntaxInfo.Expression<?, ?> expression) {
 			syntaxJsonObject.add("returns", getExpressionReturnTypes(expression));
@@ -228,8 +230,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.requiredPlugins().toArray(new String[0])));
 		syntaxJsonObject.add("examples", convertToJsonArray(info.examples().toArray(new String[0])));
 		syntaxJsonObject.add("eventValues", getEventValues(info));
-		syntaxJsonObject.add("keywords", convertToJsonArray(info.getKeywords()));
-		syntaxJsonObject.addProperty("category", getCategory(info.origin(), info.getName(), info.getDescription(), info.getPatterns()));
+		syntaxJsonObject.addProperty("category", getCategory(info.origin(), info.name(), info.description(), info.patterns()));
 
 		return syntaxJsonObject;
 	}
@@ -376,7 +377,8 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
 		syntaxJsonObject.addProperty("category", getCategory(null,
-				Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()), classInfo.getDescription(), null));
+				Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()),
+				List.of(classInfo.getDescription()), null));
 
 		return syntaxJsonObject;
 	}
@@ -415,7 +417,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
-		functionJsonObject.addProperty("category", getCategory(null, function.getName(), function.getDescription(), null));
+		functionJsonObject.addProperty("category", getCategory(null, function.getName(), List.of(function.getDescription()), null));
 		return functionJsonObject;
 	}
 
@@ -467,29 +469,23 @@ public class JSONGenerator extends DocumentationGenerator {
 		return convertToJsonArray(strings);
 	}
 
-	private static @Nullable String getCategory(SyntaxOrigin origin, String name, String[] description, String[] patterns) {
-		System.out.println("x");
+	private static @Nullable String getCategory(SyntaxOrigin origin, String name, Collection<String> description, Collection<String> patterns) {
 		if (origin instanceof ElementOrigin elementOrigin) {
-			System.out.println("===");
 			for (Category category : Category.values()) {
-				System.out.println(category.name());
-				System.out.println(Arrays.toString(category.modules().stream().map(it -> it.getClass().getSimpleName()).toArray()));
 				if (category.modules().contains(elementOrigin.module())) {
 					return category.name();
 				}
 			}
 		}
 
-		return null;
-
-//		if (patterns == null) patterns = new String[] { "" };
-//		String first = getCategory(String.join("", patterns));
-//		if (first != null) {
-//			return first;
-//		} else {
-//			if (description == null) description = new String[] { "" };
-//			return getCategory(name + String.join("", description) + String.join("", patterns));
-//		}
+		if (patterns == null) patterns = List.of();
+		String first = getCategory(String.join("", patterns));
+		if (first != null) {
+			return first;
+		} else {
+			if (description == null) description = List.of();
+			return getCategory(name + String.join("", description) + String.join("", patterns));
+		}
 	}
 
 	private static @Nullable String getCategory(String patterns) {

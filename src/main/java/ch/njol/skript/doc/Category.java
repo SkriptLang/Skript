@@ -28,6 +28,7 @@ public interface Category {
 	Category TIME = new CategoryImpl("Time", "time", "unix");
 	Category UUIDS = new CategoryImpl("UUIDs", "uuid");
 	Category DATES = new CategoryImpl("Dates", "date");
+	Category LOCATIONS = new CategoryImpl("Locations", "location");
 	Category MATH = new CategoryImpl("Math", "angle", "degree", "radian",
 			"arithmetic", "vector", "vectors", "nan", "round", "rounds", "root", "quaternion", "permutations",
 			"combinations", "numbers", "infinity", "exponential");
