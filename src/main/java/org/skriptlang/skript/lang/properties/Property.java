@@ -8,9 +8,11 @@ import ch.njol.skript.lang.Expression;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.base.types.InventoryClassInfo;
+import org.skriptlang.skript.bukkit.base.types.ItemStackClassInfo;
 import org.skriptlang.skript.bukkit.base.types.PlayerClassInfo;
 import org.skriptlang.skript.common.conditions.PropCondContains;
 import org.skriptlang.skript.common.expressions.PropExprName;
+import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
@@ -58,7 +60,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 		@NotNull Class<? extends Handler> handler
 ) {
 
-	private static final PropertyRegistry propertyRegistry = Skript.getAddonInstance().registry(PropertyRegistry.class);
+	private static final PropertyRegistry PROPERTY_REGISTRY = Skript.getAddonInstance().registry(PropertyRegistry.class);
 
 	/**
 	 * Creates a new property. Prefer {@link #of(String, String, String, SkriptAddon, Class)}.
@@ -86,8 +88,12 @@ public record Property<Handler extends PropertyHandler<?>>(
 		return name.replace(' ', '-').toLowerCase(Locale.ENGLISH);
 	}
 
+	/**
+	 * Helpful registration shortcut.
+	 * @return whether the property was successfully registered.
+	 */
 	public boolean register() {
-		return propertyRegistry.register(this);
+		return PROPERTY_REGISTRY.register(this);
 	}
 
 	/**
@@ -170,9 +176,10 @@ public record Property<Handler extends PropertyHandler<?>>(
 			Skript.instance(),
 			ContainsHandler.class);
 
-	// TODO: other common properties
-	//	public static final Property VALUED = new Property("valued", Skript.getAddonInstance());
-
+	/**
+	 * A property for getting the amount of something.
+	 * @see ItemStackClassInfo.ItemStackAmountHandler
+	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> AMOUNT = Property.of(
 		"amount",
 		"The amount of something, say the number of items in a stack or in a queue.",
@@ -180,6 +187,10 @@ public record Property<Handler extends PropertyHandler<?>>(
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
+	/**
+	 * A property for getting the size of something.
+	 * @see QueueClassInfo.QueueAmountHandler
+	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> SIZE = Property.of(
 		"size",
 		"The size of something, say the number of elements in a queue.",
@@ -187,6 +198,9 @@ public record Property<Handler extends PropertyHandler<?>>(
 		Skript.instance(),
 		ExpressionPropertyHandler.class);
 
+	/**
+	 * A property for getting the number of something.
+	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> NUMBER = Property.of(
 		"number",
 		"The number of something, say the number of elements in a queue.",
@@ -195,6 +209,10 @@ public record Property<Handler extends PropertyHandler<?>>(
 		ExpressionPropertyHandler.class);
 
 
+	/**
+	 * A property for checking whether something is empty.
+	 * @see QueueClassInfo
+	 */
 	public static final Property<ConditionPropertyHandler<?>> IS_EMPTY = Property.of(
 		"empty",
 		"Whether something is empty or not.",
@@ -202,6 +220,9 @@ public record Property<Handler extends PropertyHandler<?>>(
 		Skript.instance(),
 		ConditionPropertyHandler.class);
 
+	/**
+	 * A property for getting a specific value of something.
+	 */
 	public static final Property<TypedValuePropertyHandler<?, ?>> TYPED_VALUE = Property.of(
 		"typed value",
 		"A value of a specific type, e.g. 'string value of x'.",
@@ -209,6 +230,9 @@ public record Property<Handler extends PropertyHandler<?>>(
 		Skript.instance(),
 		TypedValuePropertyHandler.class);
 
+	/**
+	 * Register all Skript's default properties. Should be done prior to loading classinfos.
+	 */
 	public static void registerDefaultProperties() {
 		NAME.register();
 		DISPLAY_NAME.register();

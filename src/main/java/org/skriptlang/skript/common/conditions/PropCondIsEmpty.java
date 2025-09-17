@@ -1,9 +1,6 @@
 package org.skriptlang.skript.common.conditions;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseCondition;
@@ -13,6 +10,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHa
 @Description("Checks whether something is empty.")
 @Example("player's inventory is empty")
 @Since("unknown (before 2.1)")
+@RelatedProperty("empty")
 public class PropCondIsEmpty extends PropertyBaseCondition<ConditionPropertyHandler<?>> {
 
 	static {

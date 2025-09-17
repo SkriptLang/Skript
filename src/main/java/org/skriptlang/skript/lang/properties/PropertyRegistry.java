@@ -7,9 +7,16 @@ import org.skriptlang.skript.util.Registry;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * A registry handling {@link Property}s.
+ * Skript and addons should register any new properties here to avoid conflicts.
+ * If a conflict does occur, your property will fail to register and return false. You should check if your property
+ * has a matching handler with the already registered one. If so, you should be able to use the other property instead of your own.
+ */
 public class PropertyRegistry implements Registry<Property<?>> {
 
 	private final Map<String, Property<?>> properties;
@@ -17,7 +24,7 @@ public class PropertyRegistry implements Registry<Property<?>> {
 
 	public PropertyRegistry(Skript skript) {
 		this.skript = skript;
-		this.properties = new java.util.HashMap<>();
+		this.properties = new HashMap<>();
 	}
 
 	public boolean register(@NotNull Property<?> property) {

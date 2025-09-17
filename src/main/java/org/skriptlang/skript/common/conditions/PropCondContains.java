@@ -26,15 +26,21 @@ import org.skriptlang.skript.lang.properties.PropertyMap;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringJoiner;
 
 @Name("Contains (Property)")
-@Description("Checks whether a type contains certain elements. The type must be have a 'contains' property.")
-@Example("""
-	if 
-	
+@Description("""
+	Checks whether a type or list contains certain elements.
+	When checking if a list contains a specific element, use '{list::*} contains {x}'.
+	When checking if a single type contains something, use `player's inventory contains {x}`.
+	When checking if many types contain something, use '{inventories::*} contain {x}` \
+	or `contents of {inventories::*} contain {x}.
 	""")
+@Example("block contains 20 cobblestone")
+@Example("player has 4 flint and 2 iron ingots")
+@Example("{list::*} contains 5")
+@Example("names of {list::*} contain \"prefix\"")
+@Example("contents of the inventories of all players contain 1 stick")
 @RelatedProperty("contains")
 public class PropCondContains extends Condition implements PropertyBaseSyntax<ContainsHandler<?,?>>, VerboseAssert {
 
@@ -42,6 +48,8 @@ public class PropCondContains extends Condition implements PropertyBaseSyntax<Co
 		Skript.registerCondition(PropCondContains.class,
 			"%objects% contain[1:s] %objects%",
 			"%objects% (1:doesn't|1:does not|do not|don't) contain %objects%",
+			"contents of %objects% contain %objects%",
+			"contents of %objects% (do not|don't) contain %objects%",
 			"%inventories% (has|have) %itemtypes% [in [(the[ir]|his|her|its)] inventory]",
 			"%inventories% (doesn't|does not|do not|don't) have %itemtypes% [in [(the[ir]|his|her|its)] inventory]");
 	}
@@ -81,10 +89,8 @@ public class PropCondContains extends Condition implements PropertyBaseSyntax<Co
 	 */
 
 	private Expression<?> haystack;
-	private Expression<?> covertedHaystack;
 	private Expression<?> needles;
 	private PropertyMap<ContainsHandler<?, ?>> properties;
-	private Set<Class<?>> convertable;
 
 	boolean allowContainmentCheck = false;
 	boolean allowDirectCheck = false;

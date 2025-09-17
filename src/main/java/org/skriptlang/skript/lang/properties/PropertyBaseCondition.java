@@ -9,8 +9,14 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.conditions.PropCondIsEmpty;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 
+/**
+ * A helper class for implementing property-driven conditions. Only {@link #getProperty()} needs to be implemented.
+ * @param <Handler> The handler type expected for this property.
+ * @see PropCondIsEmpty
+ */
 public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHandler<?>> extends Condition
 	implements PropertyBaseSyntax<Handler>{
 
@@ -18,10 +24,25 @@ public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHan
 	private PropertyMap<Handler> properties;
 	private final Property<Handler> property = getProperty();
 
+	/**
+	 * Registers a new property condition. The property type is set to {@link PropertyType#BE}.
+	 *
+	 * @param condition the class to register
+	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 */
 	public static void register(Class<? extends Condition> condition, String property, String type) {
 		PropertyCondition.register(condition, property, type);
 	}
 
+	/**
+	 * Registers a new property condition.
+	 *
+	 * @param condition the class to register
+	 * @param propertyType the property type, see {@link PropertyType}
+	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 */
 	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
 		PropertyCondition.register(condition, propertyType, property, type);
 	}
@@ -47,7 +68,6 @@ public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHan
 	@Override
 	public boolean check(Event event) {
 		return propertyHolder.check(event, (element) -> {
-				// determine handler
 				//noinspection unchecked
 				var handler = (ConditionPropertyHandler<Object>) properties.getHandler(element.getClass());
 				if (handler == null)
@@ -56,6 +76,10 @@ public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHan
 			}, isNegated());
 	}
 
+	/**
+	 * The type of propertycondition this should be. Defaults to {@link PropertyType#BE}.
+	 * @return The PropertyType. Used in toString and pattern generation.
+	 */
 	protected PropertyType getPropertyType() {
 		return PropertyType.BE;
 	}
