@@ -344,14 +344,16 @@ public abstract class Classes {
 		return list;
 	}
 
-
 	@ApiStatus.Internal
 	public static final Map<Property<?>, List<ClassInfo<?>>> CLASS_INFOS_BY_PROPERTY = new HashMap<>();
 
+	/**
+	 * @param property The property the class infos must have.
+	 * @return A list of all class infos with the given property.
+	 */
 	public static @NotNull List<ClassInfo<?>> getClassInfosByProperty(@NotNull Property<?> property) {
 		return CLASS_INFOS_BY_PROPERTY.getOrDefault(property, Collections.emptyList());
 	}
-
 
 	/**
 	 * Gets a class by its code name

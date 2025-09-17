@@ -21,10 +21,10 @@ import org.jetbrains.annotations.Nullable;
 		set the player's tab list name to "&lt;green&gt;%player's name%"
 	""")
 @Since("before 2.1")
-public class ExprName extends SimplePropertyExpression<Player, String> {
+public class ExprTablistName extends SimplePropertyExpression<Player, String> {
 
 	static {
-		register(ExprName.class, String.class, "(player|tab)[ ]list name[s]", "players");
+		register(ExprTablistName.class, String.class, "(player|tab)[ ]list name[s]", "players");
 	}
 
 	@Override

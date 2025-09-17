@@ -8,6 +8,7 @@ import ch.njol.skript.doc.RelatedProperty;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
@@ -95,14 +96,17 @@ public class PropCondContains extends Condition implements PropertyBaseSyntax<Co
 	boolean allowContainmentCheck = false;
 	boolean allowDirectCheck = false;
 
+	int matchedPattern;
+
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.haystack = LiteralUtils.defendExpression(expressions[0]);
 		this.needles = LiteralUtils.defendExpression(expressions[1]);
+		this.matchedPattern = matchedPattern;
 		if (!LiteralUtils.canInitSafely(haystack, needles))
 			return false;
 		allowContainmentCheck = parseResult.mark != 1 || haystack.isSingle();
-		allowDirectCheck = true;
+		allowDirectCheck = matchedPattern < 2;
 		setNegated(matchedPattern % 2 == 1);
 
 		if (allowContainmentCheck) {
@@ -310,9 +314,29 @@ public class PropCondContains extends Condition implements PropertyBaseSyntax<Co
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return haystack.toString(event, debug)
-			+ (isNegated() ? "doesn't" : "")
-			+ " contain" + (allowContainmentCheck ? "" : "s")
-			+ needles.toString(event, debug);
+		var builder = new SyntaxStringBuilder(event, debug);
+		switch (matchedPattern) {
+			case 1, 2 -> {
+				builder.append(haystack);
+				if (isNegated())
+					builder.append(allowContainmentCheck ? "don't" : "doesn't");
+				builder.append(allowContainmentCheck ? "contain" : "contains")
+						.append(needles);
+			}
+			case 3, 4 -> {
+				builder.append("contents of", haystack);
+				if (isNegated())
+					builder.append("don't");
+				builder.append("contain", needles);
+			}
+			case 5, 6 -> {
+				builder.append(haystack);
+				if (isNegated())
+					builder.append("don't");
+				builder.append("have", needles);
+			}
+		}
+		return builder.toString();
 	}
+
 }

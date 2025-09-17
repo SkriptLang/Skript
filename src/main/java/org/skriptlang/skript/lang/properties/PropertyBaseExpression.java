@@ -211,4 +211,5 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	public String toString(Event event, boolean debug) {
 		return getPropertyName() + " of " + expr.toString(event, debug);
 	}
+
 }
