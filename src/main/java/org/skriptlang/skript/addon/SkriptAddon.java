@@ -1,5 +1,6 @@
 package org.skriptlang.skript.addon;
 
+import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.skriptlang.skript.Skript;
@@ -97,6 +98,11 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 
 		for (AddonModule module : filtered) {
 			module.init(this);
+
+			Category category = module.category();
+			if (category != null) {
+				category.addModule(module.getClass());
+			}
 		}
 		for (AddonModule module : filtered) {
 			module.load(this);

@@ -14,7 +14,7 @@ final class CategoryImpl implements Category {
 	private static final Set<Category> instances = new HashSet<>();
 	private final String name;
 	private final Set<String> keywords;
-	private final Set<AddonModule> modules;
+	private final Set<Class<? extends AddonModule>> modules;
 
 	public static Set<Category> getInstances() {
 		return instances;
@@ -41,14 +41,14 @@ final class CategoryImpl implements Category {
 	}
 
 	@Override
-	public void addModule(@NotNull AddonModule module) {
+	public void addModule(@NotNull Class<? extends AddonModule> module) {
 		Preconditions.checkNotNull(module, "module cannot be null");
 
 		modules.add(module);
 	}
 
 	@Override
-	public @NotNull Set<AddonModule> modules() {
+	public Set<Class<? extends AddonModule>> modules() {
 		return Collections.unmodifiableSet(modules);
 	}
 

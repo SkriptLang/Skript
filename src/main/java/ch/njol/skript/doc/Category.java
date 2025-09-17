@@ -2,7 +2,6 @@ package ch.njol.skript.doc;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 
 import java.util.HashSet;
@@ -43,12 +42,12 @@ public interface Category {
 	 *
 	 * @param module The module to add.
 	 */
-	void addModule(@NotNull AddonModule module);
+	void addModule(@NotNull Class<? extends AddonModule> module);
 
 	/**
 	 * @return The modules that are represented by this category.
 	 */
-	@Unmodifiable @NotNull Set<AddonModule> modules();
+	Set<Class<? extends AddonModule>> modules();
 
 	/**
 	 * Creates a new category.

@@ -1,6 +1,8 @@
 package org.skriptlang.skript.addon;
 
+import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
@@ -47,6 +49,13 @@ public interface AddonModule {
 	 */
 	default boolean canLoad(SkriptAddon addon) {
 		return true;
+	}
+
+	/**
+	 * @return The category to which this module belongs, or null if this module belongs to no category.
+	 */
+	default @Nullable Category category() {
+		return null;
 	}
 
 	/**

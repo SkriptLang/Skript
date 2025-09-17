@@ -12,12 +12,11 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.damagesource.elements.*;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-
-import java.util.Set;
 
 public class DamageSourceModule implements AddonModule {
 
@@ -28,8 +27,6 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void init(SkriptAddon addon) {
-		Category.DAMAGE_SOURCES.addModule(this);
-
 		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
 			.user("damage ?sources?")
 			.name("Damage Source")
@@ -67,6 +64,11 @@ public class DamageSourceModule implements AddonModule {
 				ExprDamageLocation.info(), ExprDamageType.info(),
 				ExprDirectEntity.info(), ExprFoodExhaustion.info(),
 				ExprSecDamageSource.info(), ExprSourceLocation.info());
+	}
+
+	@Override
+	public @Nullable Category category() {
+		return Category.DAMAGE_SOURCES;
 	}
 
 }
