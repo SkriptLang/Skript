@@ -174,6 +174,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 				@SuppressWarnings("unchecked")
 				var handler = (ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
 				handler.change(propertyHaver, null, mode);
+				continue;
 			}
 
 			// check if delta matches any of the allowed types

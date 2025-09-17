@@ -75,20 +75,6 @@ public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHan
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		if (useProperties)
-			return super.getReturnType();
-		return Long.class;
-	}
-
-	@Override
-	public Class<?>[] possibleReturnTypes() {
-		if (useProperties)
-			return super.possibleReturnTypes();
-		return new Class[]{Long.class};
-	}
-
-	@Override
 	protected Object @Nullable [] get(Event event) {
 		if (useProperties)
 			return super.get(event);
@@ -105,6 +91,20 @@ public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHan
 		if (useProperties)
 			return super.isSingle();
 		return true;
+	}
+
+	@Override
+	public Class<?> getReturnType() {
+		if (useProperties)
+			return super.getReturnType();
+		return Long.class;
+	}
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		if (useProperties)
+			return super.possibleReturnTypes();
+		return new Class[]{Long.class};
 	}
 
 	@Override

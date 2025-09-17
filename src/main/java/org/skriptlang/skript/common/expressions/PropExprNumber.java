@@ -48,10 +48,29 @@ public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHan
 	}
 
 	@Override
+	protected Object @Nullable [] get(Event event) {
+		if (useProperties)
+			return super.get(event);
+		return new Long[]{(long) exprs.getArray(event).length};
+	}
+
+	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
 		if (useProperties)
 			return super.acceptChange(mode);
 		return null;
+	}
+
+	@Override
+	public @NotNull Property<ExpressionPropertyHandler<?, ?>> getProperty() {
+		return Property.NUMBER;
+	}
+
+	@Override
+	public boolean isSingle() {
+		if (useProperties)
+			return super.isSingle();
+		return true;
 	}
 
 	@Override
@@ -66,25 +85,6 @@ public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHan
 		if (useProperties)
 			return super.possibleReturnTypes();
 		return new Class[]{Long.class};
-	}
-
-	@Override
-	protected Object @Nullable [] get(Event event) {
-		if (useProperties)
-			return super.get(event);
-		return new Long[]{(long) exprs.getArray(event).length};
-	}
-
-	@Override
-	public @NotNull Property<ExpressionPropertyHandler<?, ?>> getProperty() {
-		return Property.NUMBER;
-	}
-
-	@Override
-	public boolean isSingle() {
-		if (useProperties)
-			return super.isSingle();
-		return true;
 	}
 
 	@Override
