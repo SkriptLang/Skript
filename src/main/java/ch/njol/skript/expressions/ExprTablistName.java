@@ -12,9 +12,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Tab List Name")
-@Description({
-	"Represents the name of a player that shows up in the tab list.",
-})
+@Description("Represents the name of a player that shows up in the tab list.")
 @Example("""
 	on join:
 		player has permission "name.red"
@@ -33,15 +31,14 @@ public class ExprTablistName extends SimplePropertyExpression<Player, String> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
 			return CollectionUtils.array(String.class);
 		return null;
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		String name = delta != null ? (String) delta[0] : null;
 		for (Player player : getExpr().getArray(event)) {
 			player.setPlayerListName(name);

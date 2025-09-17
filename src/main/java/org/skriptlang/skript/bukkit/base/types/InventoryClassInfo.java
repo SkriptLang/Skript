@@ -75,8 +75,7 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 	private static class InventoryParser extends Parser<Inventory> {
 		//<editor-fold desc="inventory parser" defaultstate="collapsed">
 		@Override
-		@Nullable
-		public Inventory parse(final String s, final ParseContext context) {
+		public @Nullable Inventory parse(final String s, final ParseContext context) {
 			return null;
 		}
 

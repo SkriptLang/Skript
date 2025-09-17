@@ -21,4 +21,5 @@ public class PropCondIsEmpty extends PropertyBaseCondition<ConditionPropertyHand
 	public @NotNull Property<ConditionPropertyHandler<?>> getProperty() {
 		return Property.IS_EMPTY;
 	}
+
 }

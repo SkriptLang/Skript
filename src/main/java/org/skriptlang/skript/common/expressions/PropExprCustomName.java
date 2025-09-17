@@ -22,7 +22,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 		"Changing name of an inventory means opening the same inventory with the same contents but with a different name to its current viewers.",
 })
 @Example("""
-	"on join:
+	on join:
 		player has permission "name.red"
 		set the player's display name to "&lt;red&gt;[admin] &lt;gold&gt;%name of player%"
 	""")

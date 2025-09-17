@@ -13,7 +13,7 @@ import org.skriptlang.skript.lang.properties.Property;
  * @deprecated Use {@link Property#NAME} instead.
  */
 @FunctionalInterface
-@Deprecated(since="INSERT VERSION")
+@Deprecated(since="INSERT VERSION", forRemoval = true)
 public interface AnyNamed extends AnyProvider {
 
 	/**

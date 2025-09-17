@@ -308,16 +308,16 @@ public class JavaClasses {
 				.property(Property.CONTAINS,
 					"Strings can contain other strings.",
 					new ContainsHandler<String, String>() {
-					@Override
-					public boolean contains(String container, String element) {
-						return StringUtils.contains(container, element, SkriptConfig.caseSensitive.value());
-					}
+						@Override
+						public boolean contains(String container, String element) {
+							return StringUtils.contains(container, element, SkriptConfig.caseSensitive.value());
+						}
 
-					@Override
-					public Class<? extends String>[] elementTypes() {
-						//noinspection unchecked
-						return new Class[]{String.class};
-					}
+						@Override
+						public Class<? extends String>[] elementTypes() {
+							//noinspection unchecked
+							return new Class[]{String.class};
+						}
 				})
 			.property(Property.IS_EMPTY,
 				"Whether the string is empty, i.e. has no characters.",

@@ -52,8 +52,7 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 	private static class ItemStackParser extends Parser<ItemStack> {
 		//<editor-fold desc="item stack parser" defaultstate="collapsed">
 		@Override
-		@Nullable
-		public ItemStack parse(final String s, final ParseContext context) {
+		public @Nullable ItemStack parse(final String s, final ParseContext context) {
 			ItemType t = Aliases.parseItemType(s);
 			if (t == null)
 				return null;

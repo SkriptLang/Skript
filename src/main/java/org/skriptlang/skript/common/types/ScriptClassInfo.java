@@ -50,8 +50,7 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		}
 
 		@Override
-		@Nullable
-		public Script parse(final String name, final ParseContext context) {
+		public @Nullable Script parse(final String name, final ParseContext context) {
 			return switch (context) {
 				case PARSE, COMMAND -> {
 					@Nullable File file = ScriptLoader.getScriptFromName(name);

@@ -23,7 +23,7 @@ package ch.njol.skript.lang.util.common;
  * may conflict between things that provide two values (e.g. something declaring
  * both a name and a size)
  */
-@Deprecated(since="INSERT VERSION")
+@Deprecated(since="INSERT VERSION", forRemoval = true)
 public interface AnyProvider {
 
 }

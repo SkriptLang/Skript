@@ -563,8 +563,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
-			skript.loadModules(new DamageSourceModule());
-			skript.loadModules(new CommonModule());
+			skript.loadModules(new DamageSourceModule(), new CommonModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

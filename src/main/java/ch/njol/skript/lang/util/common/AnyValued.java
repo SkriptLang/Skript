@@ -15,7 +15,7 @@ import org.skriptlang.skript.lang.converter.Converters;
  *
  * @see AnyProvider
  */
-@Deprecated(since="INSERT VERSION")
+@Deprecated(since="INSERT VERSION", forRemoval = true)
 public interface AnyValued<Type> extends AnyProvider {
 
 	/**

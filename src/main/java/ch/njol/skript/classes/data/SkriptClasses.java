@@ -785,15 +785,15 @@ public class SkriptClasses {
 				.property(Property.CONTAINS,
 					"AnyContains can contain other things depending on its type.",
 					new ContainsHandler<AnyContains, Object>() {
-					@Override
-					public boolean contains(AnyContains anyContains, Object object) {
-						return anyContains.checkSafely(object);
-					}
+						@Override
+						public boolean contains(AnyContains anyContains, Object object) {
+							return anyContains.checkSafely(object);
+						}
 
-					@Override
-					public Class<?>[] elementTypes() {
-						return new Class[]{Object.class};
-					}
+						@Override
+						public Class<?>[] elementTypes() {
+							return new Class[]{Object.class};
+						}
 				})
 		);
 	}

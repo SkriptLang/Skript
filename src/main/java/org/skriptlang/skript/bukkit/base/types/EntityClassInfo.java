@@ -85,8 +85,7 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 	public static class EntityChanger implements Changer<Entity> {
 		//<editor-fold desc="entity changer" defaultstate="collapsed">
 		@Override
-		@Nullable
-		public Class<?>[] acceptChange(ChangeMode mode) {
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			return switch (mode) {
 				case ADD -> CollectionUtils.array(ItemType[].class, Inventory.class, Experience[].class);
 				case DELETE -> CollectionUtils.array();

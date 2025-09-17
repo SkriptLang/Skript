@@ -19,7 +19,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @see AnyProvider
  */
 @FunctionalInterface
-@Deprecated(since="INSERT VERSION")
+@Deprecated(since="INSERT VERSION", forRemoval = true)
 public interface AnyContains<Type> extends AnyProvider {
 
 	/**

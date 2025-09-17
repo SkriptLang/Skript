@@ -92,8 +92,7 @@ public class PlayerClassInfo extends ClassInfo<Player> {
 	public static class PlayerParser extends Parser<Player> {
 		//<editor-fold desc="player parser" defaultstate="collapsed">
 		@Override
-		@Nullable
-		public Player parse(String string, ParseContext context) {
+		public @Nullable Player parse(String string, ParseContext context) {
 			if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 				if (string.isEmpty())
 					return null;
@@ -153,8 +152,7 @@ public class PlayerClassInfo extends ClassInfo<Player> {
 		private static final Changer<Entity> ENTITY_CHANGER = new EntityClassInfo.EntityChanger();
 
 		@Override
-		@Nullable
-		public Class<?>[] acceptChange(final ChangeMode mode) {
+		public Class<?> @Nullable [] acceptChange(final ChangeMode mode) {
 			if (mode == ChangeMode.DELETE)
 				return null;
 			return ENTITY_CHANGER.acceptChange(mode);

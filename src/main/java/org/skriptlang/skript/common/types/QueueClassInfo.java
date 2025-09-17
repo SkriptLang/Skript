@@ -136,4 +136,5 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 		}
 		//</editor-fold>
 	}
+
 }

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  * @see AnyProvider
  */
 @FunctionalInterface
-@Deprecated(since="INSERT VERSION")
+@Deprecated(since="INSERT VERSION", forRemoval = true)
 public interface AnyAmount extends AnyProvider {
 
 	/**

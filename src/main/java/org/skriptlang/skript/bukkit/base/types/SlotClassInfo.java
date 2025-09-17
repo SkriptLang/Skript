@@ -62,8 +62,7 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 		//<editor-fold desc="slot changer" defaultstate="collapsed">
 		@SuppressWarnings("unchecked")
 		@Override
-		@Nullable
-		public Class<Object>[] acceptChange(final ChangeMode mode) {
+		public Class<Object> @Nullable [] acceptChange(final ChangeMode mode) {
 			if (mode == ChangeMode.RESET)
 				return null;
 			if (mode == ChangeMode.SET)
@@ -72,7 +71,7 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 		}
 
 		@Override
-		public void change(final Slot[] slots, final @Nullable Object[] deltas, final ChangeMode mode) {
+		public void change(final Slot[] slots, final Object @Nullable [] deltas, final ChangeMode mode) {
 			if (mode == ChangeMode.SET) {
 				if (deltas != null) {
 					if (deltas.length == 1) {
