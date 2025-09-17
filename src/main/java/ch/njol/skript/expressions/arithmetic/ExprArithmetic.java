@@ -43,50 +43,32 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 
 	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 
-	private static class PatternInfo {
-		public final Operator operator;
-		public final boolean leftGrouped;
-		public final boolean rightGrouped;
-
-		public PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
-			this.operator = operator;
-			this.leftGrouped = leftGrouped;
-			this.rightGrouped = rightGrouped;
-		}
+	private record PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
 	}
 
-	private static final Patterns<PatternInfo> patterns = new Patterns<>(new Object[][] {
+	// initialized during registration
+	private static Patterns<PatternInfo> patterns = null;
 
-		{"\\(%object%\\)[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.ADDITION, true, true)},
-		{"\\(%object%\\)[ ]+[ ]%object%", new PatternInfo(Operator.ADDITION, true, false)},
-		{"%object%[ ]+[ ]\\(%object%\\)", new PatternInfo(Operator.ADDITION, false, true)},
-		{"%object%[ ]+[ ]%object%", new PatternInfo(Operator.ADDITION, false, false)},
-
-		{"\\(%object%\\)[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.SUBTRACTION, true, true)},
-		{"\\(%object%\\)[ ]-[ ]%object%", new PatternInfo(Operator.SUBTRACTION, true, false)},
-		{"%object%[ ]-[ ]\\(%object%\\)", new PatternInfo(Operator.SUBTRACTION, false, true)},
-		{"%object%[ ]-[ ]%object%", new PatternInfo(Operator.SUBTRACTION, false, false)},
-
-		{"\\(%object%\\)[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULTIPLICATION, true, true)},
-		{"\\(%object%\\)[ ]*[ ]%object%", new PatternInfo(Operator.MULTIPLICATION, true, false)},
-		{"%object%[ ]*[ ]\\(%object%\\)", new PatternInfo(Operator.MULTIPLICATION, false, true)},
-		{"%object%[ ]*[ ]%object%", new PatternInfo(Operator.MULTIPLICATION, false, false)},
-
-		{"\\(%object%\\)[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIVISION, true, true)},
-		{"\\(%object%\\)[ ]/[ ]%object%", new PatternInfo(Operator.DIVISION, true, false)},
-		{"%object%[ ]/[ ]\\(%object%\\)", new PatternInfo(Operator.DIVISION, false, true)},
-		{"%object%[ ]/[ ]%object%", new PatternInfo(Operator.DIVISION, false, false)},
-
-		{"\\(%object%\\)[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXPONENTIATION, true, true)},
-		{"\\(%object%\\)[ ]^[ ]%object%", new PatternInfo(Operator.EXPONENTIATION, true, false)},
-		{"%object%[ ]^[ ]\\(%object%\\)", new PatternInfo(Operator.EXPONENTIATION, false, true)},
-		{"%object%[ ]^[ ]%object%", new PatternInfo(Operator.EXPONENTIATION, false, false)},
-
-	});
-
-	static {
+	public static void registerExpression() {
+		Skript.checkAcceptRegistrations();
+		List<Object[]> infos = new ArrayList<>();
+		for (Operator operator : Arithmetics.getAllOperators()) {
+			infos.add(new Object[] {"\\(%object%\\)[ ]" + operator.sign() + "[ ]\\(%object%\\)",
+				new PatternInfo(operator, true, true)});
+			infos.add(new Object[] {"\\(%object%\\)[ ]" + operator.sign() + "[ ]%object%",
+				new PatternInfo(operator, true, false)});
+			infos.add(new Object[] {"%object%[ ]" + operator.sign() + "[ ]\\(%object%\\)",
+				new PatternInfo(operator, false, true)});
+			infos.add(new Object[] {"%object%[ ]" + operator.sign() + "[ ]%object%",
+				new PatternInfo(operator, false, false)});
+		}
+		Object[][] arr = new Object[infos.size()][];
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = infos.get(i);
+		patterns = new Patterns<>(arr);
 		//noinspection unchecked
-		Skript.registerExpression(ExprArithmetic.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
+		Skript.registerExpression(ExprArithmetic.class, Object.class,
+			ExpressionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
 	}
 
 	private Expression<L> first;
@@ -105,7 +87,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	private boolean leftGrouped, rightGrouped, isTopLevel;
 
 	@Override
-	@SuppressWarnings({"ConstantConditions", "rawtypes", "unchecked"})
+	@SuppressWarnings({"ConstantConditions", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		first = (Expression<L>) exprs[0];
 		second = (Expression<R>) exprs[1];
@@ -118,7 +100,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		// check if this is the top-level arithmetic expression (not part of a larger expression)
 		ParsingStack stack = getParser().getParsingStack();
 		isTopLevel = stack.isEmpty() || stack.peek().getSyntaxElementClass() != ExprArithmetic.class;
-    
+
 		// print warning for arg-1 confusion scenario
 		printArgWarning(first, second, operator);
 
@@ -126,7 +108,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		 * Step 1: UnparsedLiteral Resolving
 		 *
 		 * Since Arithmetic may be performed on a variety of types, it is possible that 'first' or 'second'
-		 *  will represent unparsed literals. That is, the parser could not determine what their literal contents represent.
+		 *  will represent unparsed literals. That is, the parser could not determine what their literal
+		 *  contents represent.
 		 * Thus, it is now up to this expression to determine what they mean.
 		 *
 		 * If there are no unparsed literals, nothing happens at this step.
@@ -143,7 +126,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	 	 * If 'first' cannot be converted, init will fail.
 	 	 * If no operations are found for converting 'first', init will fail, UNLESS the type of 'second' is object,
 	 	 *  where operations will be searched again later with the context of the type of first.
-	 	 * TODO When 'first' can represent multiple literals, it might be worth checking which of those can work with 'operator' and 'second'
+	 	 * TODO When 'first' can represent multiple literals, it might be worth checking which of those can work
+	 	 *  with 'operator' and 'second'
 	 	 *
 	 	 * Case 3. 'second' is an unparsed literal, 'first' is not
 	 	 * In this case, 'second' needs to be converted into the "right" type of
@@ -151,36 +135,38 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		 * If 'second' cannot be converted, init will fail.
 		 * If no operations are found for converting 'second', init will fail, UNLESS the type of 'first' is object,
 		 *  where operations will be searched again later with the context of the type of second.
-		 * TODO When 'second' can represent multiple literals, it might be worth checking which of those can work with 'first' and 'operator'
+		 * TODO When 'second' can represent multiple literals, it might be worth checking which of those can work
+		 *  with 'first' and 'operator'
 		 */
 
 		if (first instanceof UnparsedLiteral) {
 			if (second instanceof UnparsedLiteral) { // first and second need converting
 				for (OperationInfo<?, ?, ?> operation : Arithmetics.getOperations(operator)) {
 					// match left type with 'first'
-					Expression<?> convertedFirst = first.getConvertedExpression(operation.getLeft());
+					Expression<?> convertedFirst = first.getConvertedExpression(operation.left());
 					if (convertedFirst == null)
 						continue;
 					// match right type with 'second'
-					Expression<?> convertedSecond = second.getConvertedExpression(operation.getRight());
+					Expression<?> convertedSecond = second.getConvertedExpression(operation.right());
 					if (convertedSecond == null)
 						continue;
 					// success, set the values
 					first = (Expression<L>) convertedFirst;
 					second = (Expression<R>) convertedSecond;
-					returnType = (Class<? extends T>) operation.getReturnType();
+					returnType = (Class<? extends T>) operation.returnType();
 				}
 			} else { // first needs converting
 				// attempt to convert <first> to types that make valid operations with <second>
 				Class<?> secondClass = second.getReturnType();
-				List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.lookupRightOperations(operator, secondClass);
+				List<? extends OperationInfo<?, ?, ?>> operations = Arithmetics.lookupRightOperations(operator,
+					secondClass);
 				if (operations.isEmpty()) { // no known operations with second's type
 					if (secondClass != Object.class) // there won't be any operations
 						return error(first.getReturnType(), secondClass);
 					first = (Expression<L>) first.getConvertedExpression(Object.class);
 				} else {
 					first = (Expression<L>) first.getConvertedExpression(operations.stream()
-							.map(OperationInfo::getLeft)
+							.map(OperationInfo::left)
 							.toArray(Class[]::new));
 				}
 			}
@@ -194,7 +180,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 				second = (Expression<R>) second.getConvertedExpression(Object.class);
 			} else {
 				second = (Expression<R>) second.getConvertedExpression(operations.stream()
-						.map(OperationInfo::getRight)
+						.map(OperationInfo::right)
 						.toArray(Class[]::new));
 			}
 		}
@@ -208,15 +194,18 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		 * After the first step, everything that can be known about 'first' and 'second' during parsing is known.
 		 * As a result, it is time to determine the return type of the operation.
 		 *
-		 * If the types of 'first' or 'second' are object, it is possible that multiple operations with different return types
-		 *  will be found. If that is the case, the supertype of these operations will be the return type (can be object).
-		 * If the types of both are object (e.g. variables), the return type will be object (have to wait until runtime and hope it works).
+		 * If the types of 'first' or 'second' are object, it is possible that multiple operations with
+		 *  different return types will be found. If that is the case, the supertype of these operations
+		 *  will be the return type (can be object).
+		 * If the types of both are object (e.g. variables), the return type will be object
+		 *  (have to wait until runtime and hope it works).
 		 * Of course, if no operations are found, init will fail.
 		 *
 		 * After these checks, it is safe to assume returnType has a value, as init should have failed by now if not.
 		 * One final check is performed specifically for numerical types.
 		 * Any numerical operation involving division or exponents have a return type of Double.
-		 * Other operations will also return Double, UNLESS 'first' and 'second' are of integer types, in which case the return type will be Long.
+		 * Other operations will also return Double, UNLESS 'first' and 'second' are of integer types,
+		 *  in which case the return type will be Long.
 		 *
 		 * If the types of both are something meaningful, the search for a registered operation commences.
 		 * If no operation can be found, init will fail.
@@ -231,11 +220,11 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			if (!(firstClass == Object.class && secondClass == Object.class)) { // both aren't object
 				if (firstClass == Object.class) {
 					returnTypes = Arithmetics.lookupRightOperations(operator, secondClass).stream()
-							.map(OperationInfo::getReturnType)
+							.map(OperationInfo::returnType)
 							.toArray(Class[]::new);
 				} else { // secondClass is Object
 					returnTypes = Arithmetics.lookupLeftOperations(operator, firstClass).stream()
-							.map(OperationInfo::getReturnType)
+							.map(OperationInfo::returnType)
 							.toArray(Class[]::new);
 				}
 			}
@@ -249,10 +238,11 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 				knownReturnTypes = ImmutableSet.copyOf(returnTypes);
 			}
 		} else if (returnType == null) { // lookup
-			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
+			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(
+				operator, firstClass, secondClass);
 			if (operationInfo == null) // we error if we couldn't find an operation between the two types
 				return error(firstClass, secondClass);
-			returnType = operationInfo.getReturnType();
+			returnType = operationInfo.returnType();
 		}
 
 		// ensure proper return types for numerical operations
@@ -273,7 +263,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		/*
 		 * Step 3: Chaining and Parsing
 		 *
-		 * This step builds the arithmetic chain that will be parsed into an ordered operation to be executed at runtime.
+		 * This step builds the arithmetic chain that will be parsed into an ordered operation to be
+		 *  executed at runtime.
 		 * With larger operations, it is possible that 'first' or 'second' will be instances of ExprArithmetic.
 		 * As a result, their chains need to be incorporated into this instance's chain.
 		 * This is to ensure that, during parsing, a "gettable" that follows the order of operations is built.
@@ -290,7 +281,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			chain.add(first);
 		}
 		chain.add(operator);
-		if (second instanceof ExprArithmetic && !rightGrouped) { // combine chain of 'second' if we do not have parentheses
+		// combine chain of 'second' if we do not have parentheses
+		if (second instanceof ExprArithmetic && !rightGrouped) {
 			chain.addAll(((ExprArithmetic<?, ?, R>) second).chain);
 		} else {
 			chain.add(second);
@@ -301,17 +293,23 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	}
 
 	private void printArgWarning(Expression<L> first, Expression<R> second, Operator operator) {
-		if (operator == Operator.SUBTRACTION && !rightGrouped && !leftGrouped // if the operator is '-' and the user didn't use ()
-			&& first instanceof ExprArgument argument && argument.couldCauseArithmeticConfusion() // if the first expression is 'arg'
-			&& second instanceof ExprArithmetic<?, ?, ?> secondArith && secondArith.first instanceof Literal<?> literal // this ambiguity only occurs when the code is parsed as `arg - (1 * 2)` or a similar PEMDAS priority.
+		// if the operator is '-' and the user didn't use ()
+		if (operator == Operator.SUBTRACTION && !rightGrouped && !leftGrouped
+			// if the first expression is 'arg'
+			&& first instanceof ExprArgument argument && argument.couldCauseArithmeticConfusion()
+			// this ambiguity only occurs when the code is parsed as `arg - (1 * 2)` or a similar PEMDAS priority.
+			&& second instanceof ExprArithmetic<?, ?, ?> secondArith && secondArith.first instanceof Literal<?> literal
 			&& literal.canReturn(Number.class)) {
 			// ensure that the second literal is a 1
 			Literal<?> secondLiteral = (Literal<?>) LiteralUtils.defendExpression(literal);
 			if (LiteralUtils.canInitSafely(secondLiteral)) {
 				double number = ((Number) secondLiteral.getSingle()).doubleValue();
 				if (number == 1)
-					Skript.warning("This subtraction is ambiguous and could be interpreted as either the 'first argument' expression ('argument-1') or as subtraction from the argument value ('(argument) - 1'). " +
-					"If you meant to use 'argument-1', omit the hyphen ('arg 1') or use parentheses to clarify your intent.");
+					Skript.warning("This subtraction is ambiguous and could be interpreted as either the " +
+						"'first argument' expression ('argument-1') or as subtraction from the argument " +
+						"value ('(argument) - 1'). " +
+					"If you meant to use 'argument-1', omit the hyphen ('arg 1') or use parentheses " +
+						"to clarify your intent.");
 			}
 		}
 	}
@@ -327,8 +325,11 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 
 	private boolean error(Class<?> firstClass, Class<?> secondClass) {
 		ClassInfo<?> first = Classes.getSuperClassInfo(firstClass), second = Classes.getSuperClassInfo(secondClass);
-		if (first.getC() != Object.class && second.getC() != Object.class) // errors with "object" are not very useful and often misleading
-			Skript.error(operator.getName() + " can't be performed on " + first.getName().withIndefiniteArticle() + " and " + second.getName().withIndefiniteArticle());
+		// errors with "object" are not very useful and often misleading
+		if (first.getC() != Object.class && second.getC() != Object.class)
+			Skript.error(operator.getName() + " can't be performed on " +
+				first.getName().withIndefiniteArticle() + " and " +
+				second.getName().withIndefiniteArticle());
 		return false;
 	}
 
