@@ -161,12 +161,12 @@ public class JSONGenerator extends DocumentationGenerator {
 		Keywords keywords = syntaxClass.getAnnotation(Keywords.class);
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
-		syntaxJsonObject.addProperty("category", getCategoryName(syntaxInfo.origin(), name.value(),
-				description == null ? null : List.of(description.value()), syntaxInfo.patterns()));
-
 		if (syntaxInfo instanceof SyntaxInfo.Expression<?, ?> expression) {
 			syntaxJsonObject.add("returns", getExpressionReturnTypes(expression));
 		}
+
+		syntaxJsonObject.add("categories", getCategoriesArray(syntaxInfo.origin(), name.value(),
+				description == null ? null : List.of(description.value()), syntaxInfo.patterns()));
 
 		return syntaxJsonObject;
 	}
@@ -229,7 +229,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.requiredPlugins().toArray(new String[0])));
 		syntaxJsonObject.add("examples", convertToJsonArray(info.examples().toArray(new String[0])));
 		syntaxJsonObject.add("eventValues", getEventValues(info));
-		syntaxJsonObject.addProperty("category", getCategoryName(info.origin(), info.name(), info.description(), info.patterns()));
+		syntaxJsonObject.add("categories", getCategoriesArray(info.origin(), info.name(), info.description(), info.patterns()));
 
 		return syntaxJsonObject;
 	}
@@ -375,7 +375,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
-		syntaxJsonObject.addProperty("category", getCategoryName(null,
+		syntaxJsonObject.add("categories", getCategoriesArray(null,
 				Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()),
 				List.of(classInfo.getDescription()), null));
 
@@ -416,7 +416,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
-		functionJsonObject.addProperty("category", getCategoryName(null, function.getName(), List.of(function.getDescription()), null));
+		functionJsonObject.add("categories", getCategoriesArray(null, function.getName(), List.of(function.getDescription()), null));
 		return functionJsonObject;
 	}
 
@@ -480,26 +480,32 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param patterns The patterns of this element.
 	 * @return The category name, or null if none is found.
 	 */
-	private static @Nullable String getCategoryName(
+	private static @Nullable JsonArray getCategoriesArray(
 			@Nullable SyntaxOrigin origin, @NotNull String name,
 			@Nullable Collection<String> description, @Nullable Collection<String> patterns
 	) {
+		JsonArray categories = new JsonArray();
 		if (origin instanceof ElementOrigin elementOrigin) {
 			for (Category category : Category.values()) {
 				if (category.modules().contains(elementOrigin.module().getClass())) {
-					return category.name();
+					categories.add(category.name());
 				}
 			}
+			return categories;
 		}
 
 		if (patterns == null) patterns = List.of();
-		String first = getCategory(String.join("", patterns));
-		if (first != null) {
+		JsonArray first = getCategories(String.join("", patterns));
+		if (!first.isEmpty()) {
 			return first;
-		} else {
-			if (description == null) description = List.of();
-			return getCategory(name + String.join("", description) + String.join("", patterns));
 		}
+		if (description == null) description = List.of();
+		
+		JsonArray second = getCategories(name + String.join("", description) + String.join("", patterns));
+		if (second.isEmpty()) {
+			return null;
+		}
+		return second;
 	}
 
 	/**
@@ -508,9 +514,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param input The input.
 	 * @return A category, or null if none is found.
 	 */
-	private static @Nullable String getCategory(String input) {
-		Set<Category> options = new HashSet<>();
-
+	private static JsonArray getCategories(String input) {
+		JsonArray options = new JsonArray();
 		for (Category value : Category.values()) {
 			if (!(value instanceof CategoryImpl impl)) {
 				break;
@@ -518,16 +523,13 @@ public class JSONGenerator extends DocumentationGenerator {
 
 			for (String keyword : impl.keywords()) {
 				if (input.toLowerCase().contains(keyword)) {
-					options.add(value);
+					options.add(value.name());
 					break;
 				}
 			}
 		}
 
-		if (options.isEmpty()) {
-			return null;
-		}
-		return options.stream().findAny().orElseThrow().name();
+		return options;
 	}
 
 	/**

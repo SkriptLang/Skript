@@ -3,6 +3,7 @@ package org.skriptlang.skript.addon;
 import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -11,6 +12,7 @@ import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -102,8 +104,8 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 		for (AddonModule module : filtered) {
 			module.load(this);
 
-			Category category = module.category();
-			if (category != null) {
+			Set<Category> categories = module.category();
+			for (Category category : categories) {
 				category.addModule(module.getClass());
 			}
 		}

@@ -2,6 +2,7 @@ package org.skriptlang.skript.addon;
 
 import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -54,10 +55,10 @@ public interface AddonModule {
 	/**
 	 * Returns the documentation category which this module belongs to.
 	 *
-	 * @return The category of this module, or null if this module belongs to no category.
+	 * @return The category of this module.
 	 */
-	default @Nullable Category category() {
-		return null;
+	default @NotNull Set<Category> category() {
+		return Set.of();
 	}
 
 	/**
