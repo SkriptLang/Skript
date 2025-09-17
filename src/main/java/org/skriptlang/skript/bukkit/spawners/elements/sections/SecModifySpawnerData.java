@@ -64,18 +64,21 @@ public class SecModifySpawnerData extends Section {
 	}
 
 	private enum TrialSpawnerState {
-		OMINOUS, REGULAR, BOTH;
+		OMINOUS, REGULAR, BOTH, CURRENT;
 
 		public static TrialSpawnerState fromTags(List<String> tags) {
 			if (tags.contains("ominous")) {
 				return OMINOUS;
 			} else if (tags.contains("ominous and regular")) {
 				return BOTH;
-			} else {
+			} else if (tags.contains("regular")) {
 				return REGULAR;
+			} else {
+				return CURRENT;
 			}
 		}
 	}
+
 
 	private Expression<?> spawners;
 	private SpawnerDataType dataType;
@@ -110,8 +113,12 @@ public class SecModifySpawnerData extends Section {
 				mobData.applyData(mobSpawner);
 			} else {
 				TrialSpawner trialSpawner = SpawnerUtils.getTrialSpawner(spawnerObject);
-				SkriptTrialSpawnerData trialData = SkriptTrialSpawnerData.fromTrialSpawner(trialSpawner,
-					state == TrialSpawnerState.OMINOUS);
+				SkriptTrialSpawnerData trialData = switch (state) {
+					case CURRENT -> SkriptTrialSpawnerData.fromTrialSpawner(trialSpawner, trialSpawner.isOminous());
+					case OMINOUS -> SkriptTrialSpawnerData.fromTrialSpawner(trialSpawner, true);
+					// start with regular, then modify the ominous if needed
+					case REGULAR, BOTH -> SkriptTrialSpawnerData.fromTrialSpawner(trialSpawner, false);
+				};
 
 				TrialSpawnerDataEvent regularEvent = new TrialSpawnerDataEvent(trialData);
 				Variables.withLocalVariables(event, regularEvent, () -> TriggerItem.walk(trigger, regularEvent));
@@ -126,7 +133,12 @@ public class SecModifySpawnerData extends Section {
 					Variables.withLocalVariables(event, ominousEvent, () -> TriggerItem.walk(trigger, ominousEvent));
 					trialData.applyData(trialSpawner, true);
 				} else {
-					trialData.applyData(trialSpawner, state == TrialSpawnerState.OMINOUS);
+					trialData.applyData(trialSpawner, switch (state) {
+						case CURRENT -> trialSpawner.isOminous();
+						case OMINOUS -> true;
+						case REGULAR -> false;
+						case BOTH -> throw new IllegalStateException();
+					});
 				}
 			}
 		}

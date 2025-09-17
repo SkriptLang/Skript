@@ -66,15 +66,17 @@ public class ExprSpawnerData extends PropertyExpression<Object, SkriptSpawnerDat
 	}
 
 	private enum TrialSpawnerState {
-		OMINOUS, REGULAR, BOTH;
+		OMINOUS, REGULAR, BOTH, CURRENT;
 
 		public static TrialSpawnerState fromTags(List<String> tags) {
 			if (tags.contains("ominous")) {
 				return OMINOUS;
 			} else if (tags.contains("ominous and regular")) {
 				return BOTH;
-			} else {
+			} else if (tags.contains("regular")) {
 				return REGULAR;
+			} else {
+				return CURRENT;
 			}
 		}
 	}
@@ -105,6 +107,7 @@ public class ExprSpawnerData extends PropertyExpression<Object, SkriptSpawnerDat
 
 			TrialSpawner trialSpawner = SpawnerUtils.getTrialSpawner(spawnerObject);
 			datas.addAll(switch (state) {
+				case CURRENT -> List.of(SkriptTrialSpawnerData.fromTrialSpawner(trialSpawner, trialSpawner.isOminous()));
 				case OMINOUS -> List.of(SkriptTrialSpawnerData.fromTrialSpawner(trialSpawner, true));
 				case REGULAR -> List.of(SkriptTrialSpawnerData.fromTrialSpawner(trialSpawner, false));
 				case BOTH -> List.of(
