@@ -32,7 +32,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		add 2 to spawn count of {_data}
 		remove 1 from spawn count of {_data}
 		reset spawn count of {_data}
-		set mob spawner data of event-block to {_data}
 	""")
 @Since("INSERT VERSION")
 public class ExprSpawnCount extends SimplePropertyExpression<SkriptMobSpawnerData, Integer> {

@@ -83,7 +83,8 @@ public class ExprSpawnerData extends PropertyExpression<Object, SkriptSpawnerDat
 	private TrialSpawnerState state;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr(exprs[0]);
 		dataType = SpawnerDataType.fromTags(parseResult.tags);
 		state = TrialSpawnerState.fromTags(parseResult.tags);
 		return true;
