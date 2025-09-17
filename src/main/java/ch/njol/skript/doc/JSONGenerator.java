@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxOrigin.ElementOrigin;
 
@@ -84,7 +85,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param syntaxInfo the syntax info element to generate the documentation object of
 	 * @return the JsonObject representing the documentation of the provided syntax element
 	 */
-	private static JsonObject generatedAnnotatedElement(SyntaxElementInfo<?> syntaxInfo) {
+	// TODO WAIT FOR JSONGENERATOR IMPROVEMENTS
+	private static JsonObject generatedAnnotatedElement(SyntaxInfo<?> syntaxInfo) {
 		Class<?> syntaxClass = syntaxInfo.getElementClass();
 		Name name = syntaxClass.getAnnotation(Name.class);
 		if (name == null || syntaxClass.getAnnotation(NoDoc.class) != null)
@@ -394,22 +396,28 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	private static @Nullable String getCategory(SyntaxOrigin origin, String name, String[] description, String[] patterns) {
+		System.out.println("x");
 		if (origin instanceof ElementOrigin elementOrigin) {
+			System.out.println("===");
 			for (Category category : Category.values()) {
+				System.out.println(category.name());
+				System.out.println(Arrays.toString(category.modules().stream().map(it -> it.getClass().getSimpleName()).toArray()));
 				if (category.modules().contains(elementOrigin.module())) {
 					return category.name();
 				}
 			}
 		}
 
-		if (patterns == null) patterns = new String[] { "" };
-		String first = getCategory(String.join("", patterns));
-		if (first != null) {
-			return first;
-		} else {
-			if (description == null) description = new String[] { "" };
-			return getCategory(name + String.join("", description) + String.join("", patterns));
-		}
+		return null;
+
+//		if (patterns == null) patterns = new String[] { "" };
+//		String first = getCategory(String.join("", patterns));
+//		if (first != null) {
+//			return first;
+//		} else {
+//			if (description == null) description = new String[] { "" };
+//			return getCategory(name + String.join("", description) + String.join("", patterns));
+//		}
 	}
 
 	private static @Nullable String getCategory(String patterns) {

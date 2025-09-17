@@ -20,6 +20,10 @@ final class CategoryImpl implements Category {
 		return instances;
 	}
 
+	CategoryImpl(String name, String... keywords) {
+		this(name, new HashSet<>(Set.of(keywords)));
+	}
+
 	CategoryImpl(String name, Set<String> keywords) {
 		instances.add(this);
 		this.name = name;
