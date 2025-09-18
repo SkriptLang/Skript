@@ -48,7 +48,7 @@ final class CategoryImpl implements Category {
 	}
 
 	@Override
-	public Set<Class<? extends AddonModule>> modules() {
+	public @Unmodifiable Set<Class<? extends AddonModule>> modules() {
 		return Collections.unmodifiableSet(modules);
 	}
 
