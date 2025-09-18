@@ -43,8 +43,10 @@ public class ExprDistance extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		Location l1 = loc1.getSingle(event);
 		Location l2 = loc2.getSingle(event);
-		if (l1 == null || l2 == null || l1.getWorld() != l2.getWorld())
+		if (l1 == null || l2 == null)
 			return new Number[0];
+		if (l1.getWorld() != l2.getWorld())
+			return new Number[] {Double.POSITIVE_INFINITY};
 		return new Number[] {l1.distance(l2)};
 	}
 	
