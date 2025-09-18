@@ -46,7 +46,7 @@ public class ExprDistance extends SimpleExpression<Number> {
 		if (l1 == null || l2 == null)
 			return new Number[0];
 		if (l1.getWorld() != l2.getWorld()) {
-			error("Cannot calculate the distance between a location from " + l1.getWorld().getName() + " and " + l2.getWorld().getName() + "!");
+			error("Cannot calculate the distance between locations from two different worlds! (" + Classes.toString(l1.getWorld()) + " and " + Classes.toString(l2.getWorld()) + ")");
 			return new Number[0];
 		}
 		return new Number[] {l1.distance(l2)};
