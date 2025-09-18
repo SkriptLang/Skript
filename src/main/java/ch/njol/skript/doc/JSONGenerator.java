@@ -21,17 +21,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyRegistry;
-import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
-import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -462,7 +460,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		}
 		for (SyntaxInfo<?> element : relatedSyntaxes) {
 			JsonObject object = new JsonObject();
-			object.addProperty("id", DocumentationIdProvider.getId(SyntaxElementInfo.fromModern(element)));
+			object.addProperty("id", DocumentationIdProvider.getId(element));
 			array.add(object);
 		}
 		return array;
