@@ -51,11 +51,11 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 		Expression<?> propertyExpr;
 		if (matchedPattern == 0) {
 			//noinspection unchecked
-			type = ((Literal<ClassInfo<?>>) expressions[0]).getSingle();
+			type = expressions[0] == null ? null : ((Literal<ClassInfo<?>>) expressions[0]).getSingle();
 			propertyExpr = expressions[1];
 		} else {
 			//noinspection unchecked
-			type = ((Literal<ClassInfo<?>>) expressions[1]).getSingle();
+			type = expressions[1] == null ? null : ((Literal<ClassInfo<?>>) expressions[1]).getSingle();
 			propertyExpr = expressions[0];
 		}
 
