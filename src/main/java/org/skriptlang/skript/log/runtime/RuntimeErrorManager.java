@@ -169,18 +169,14 @@ public class RuntimeErrorManager implements Closeable {
 	 */
 	public boolean removeConsumer(RuntimeErrorConsumer consumer) {
 		synchronized (filterMap) {
-			var iterator = filterMap.entrySet().iterator();
-			while (iterator.hasNext()) {
-				var entry = iterator.next();
-				boolean removed = entry.getValue().remove(consumer);
-				if (entry.getValue().isEmpty()) {
-					iterator.remove();
-				}
-				if (removed)
-					return true;
-			}
+			var set = filterMap.get(consumer.getFilter());
+			if (set == null)
+				 return false;
+			boolean removed = set.remove(consumer);
+			if (set.isEmpty())
+				filterMap.remove(consumer.getFilter());
+			return removed;
 		}
-		return false;
 	}
 
 	/**
