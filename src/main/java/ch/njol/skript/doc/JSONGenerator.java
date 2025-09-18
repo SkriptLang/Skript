@@ -478,7 +478,8 @@ public class JSONGenerator extends DocumentationGenerator {
 			}
 		}
 
-		if (patterns == null) patterns = List.of();
+		if (patterns == null)
+			patterns = List.of();
 		String first = getCategory(String.join("", patterns));
 		if (first != null) {
 			return first;
