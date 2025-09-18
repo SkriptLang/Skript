@@ -484,7 +484,8 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (first != null) {
 			return first;
 		} else {
-			if (description == null) description = List.of();
+			if (description == null)
+				description = List.of();
 			return getCategory(name + String.join("", description) + String.join("", patterns));
 		}
 	}
