@@ -6,17 +6,15 @@ import ch.njol.skript.lang.Expression;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
-public class ArithmeticExpressionInfo<T> implements ArithmeticGettable<T> {
-	
-	private final Expression<? extends T> expression;
-	
-	public ArithmeticExpressionInfo(Expression<? extends T> expression) {
-		this.expression = expression;
-	}
+/**
+ * Arithmetic gettable wrapped around an expression.
+ *
+ * @param <T> expression type
+ */
+public record ArithmeticExpressionInfo<T>(Expression<? extends T> expression) implements ArithmeticGettable<T> {
 
 	@Override
-	@Nullable
-	public T get(Event event) {
+	public @Nullable T get(Event event) {
 		T object = expression.getSingle(event);
 		return object == null ? Arithmetics.getDefaultValue(expression.getReturnType()) : object;
 	}
