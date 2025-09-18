@@ -46,18 +46,18 @@ test "domestication":
 	subtract infinity value from max domestication level of {_e}
 	assert max domestication level of {_e} is 1 with "infinity value should result in 1 when subtracted from the max domestication level of a horse"
 	set max domestication level of {_e} to infinity value # set is done last so the domestication level tests can also go to infinity
-	assert max domestication level of {_e} is 2147483647 with "infinity value should set the max domestication level of a horse to the max integer value"
+	assert max domestication level of {_e} is max integer value with "infinity value should set the max domestication level of a horse to the max integer value"
 
 	add infinity value to domestication level of {_e}
 	assert domestication level of {_e} is 1 with "infinity value shouldn't affect the domestication level of a horse when added"
 	subtract infinity value from domestication level of {_e}
 	assert domestication level of {_e} is 1 with "infinity value should result in 1 when subtracted from the domestication level of a horse"
 	set domestication level of {_e} to infinity value
-	assert domestication level of {_e} is 2147483647 with "infinity value should set the domestication level of a horse to the max integer value"
+	assert domestication level of {_e} is max integer value with "infinity value should set the domestication level of a horse to the max integer value"
 
 	# NaN values
 	add NaN value to max domestication level of {_e}
-	assert max domestication level of {_e} is 2147483647 with "NaN value should result in 2147483647 when added to the max domestication level of a horse"
+	assert max domestication level of {_e} is max integer value with "NaN value should result in max integer value when added to the max domestication level of a horse"
 	set max domestication level of {_e} to NaN value
 	assert max domestication level of {_e} is 1 with "NaN value should result in 1 when used to set the max domestication level of a horse"
 	subtract NaN value from max domestication level of {_e}
