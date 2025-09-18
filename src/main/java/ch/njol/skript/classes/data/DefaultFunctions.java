@@ -8,6 +8,7 @@ import ch.njol.skript.lang.function.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
+import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.*;
 import ch.njol.util.Math2;
@@ -511,29 +512,6 @@ public class DefaultFunctions {
 
 		}.description("Calculates the total amount of experience needed to achieve given level from scratch in Minecraft.")
 			.since("2.2-dev32"));
-
-		Functions.registerFunction(new SimpleJavaFunction<Color>("rgb", new Parameter[] {
-			new Parameter<>("red", DefaultClasses.LONG, true, null),
-			new Parameter<>("green", DefaultClasses.LONG, true, null),
-			new Parameter<>("blue", DefaultClasses.LONG, true, null),
-			new Parameter<>("alpha", DefaultClasses.LONG, true, new SimpleLiteral<>(255L,true))
-		}, DefaultClasses.COLOR, true) {
-			@Override
-			public ColorRGB[] executeSimple(Object[][] params) {
-				Long red = (Long) params[0][0];
-				Long green = (Long) params[1][0];
-				Long blue = (Long) params[2][0];
-				Long alpha = (Long) params[3][0];
-
-				return CollectionUtils.array(ColorRGB.fromRGBA(red.intValue(), green.intValue(), blue.intValue(), alpha.intValue()));
-			}
-		}).description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
-						"but these only take affect in certain situations, like text display backgrounds.")
-			.examples(
-				"dye player's leggings rgb(120, 30, 45)",
-				"set the colour of a text display to rgb(10, 50, 100, 50)"
-			)
-			.since("2.5, 2.10 (alpha)");
 
 		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
 			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),

@@ -1,0 +1,11 @@
+test "colour grayscales":
+
+	set {_redGrayscale} to grayscale(red)
+	set {_redAndBlueGrayscale} to grayscale(red blended with blue)
+	set {_shadedRedGrayscale} to grayscale(shade(red, 50, true))
+
+	assert hex code of {_redGrayscale} is "#535353" with "hex code of grayscale of red was incorrect"
+	assert hex code of {_redAndBlueGrayscale} is "#505050" with "hex code of grayscale of red was incorrect"
+	assert hex code of {_shadedRedGrayscale} is "#292929" with "hex code of grayscale of red was incorrect"
+
+	assert grayscale({_x}) is not set with "getting the grayscale of an invalid type shouldn't return anything"

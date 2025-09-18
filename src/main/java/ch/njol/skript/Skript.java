@@ -111,6 +111,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.common.colors.ColorModule;
 import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
@@ -583,6 +584,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			BreedingModule.load();
 			DisplayModule.load();
 			InputModule.load();
+			ColorModule.load();
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
