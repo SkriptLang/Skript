@@ -2,6 +2,7 @@ package ch.njol.skript.doc;
 
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 
 import java.util.Collections;
