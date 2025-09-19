@@ -472,7 +472,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * Returns the category name of an element given its origin, name, description and patterns.
 	 *
 	 * <p>Attempts to find a category by using pattern first.
-	 * If this has no results, then it will use the name and description.</p>
+	 * If this has no results, then it will use the name and description.
+	 * </p>
 	 *
 	 * @param origin The origin of this element.
 	 * @param name The name of this element.
