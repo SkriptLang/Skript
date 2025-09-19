@@ -1129,6 +1129,10 @@ public class SkriptParser {
 		}
 	}
 
+	public <T> ch.njol.skript.lang.function.@Nullable FunctionReference<T> parseFunction(@Nullable Class<? extends T>... types) {
+		return new FunctionReferenceParser(context, flags).parseFunctionReference(expr);
+	}
+
 	/**
 	 * Attempts to parse {@link SkriptParser#expr} as a function reference.
 	 *

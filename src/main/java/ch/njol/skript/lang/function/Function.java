@@ -158,14 +158,7 @@ public abstract class Function<T> {
 	}
 
 	/**
-	 * Executes this function with given parameters. Usually, using
-	 * {@link #execute(Object[][])} is better; it handles optional and keyed arguments
-	 * and function event creation automatically.
-	 * @param event Associated function event. This is usually created by Skript.
-	 * @param params Function parameters.
-	 * There must be {@link Signature#getMaxParameters()} amount of them, and
-	 * you need to manually handle default values.
-	 * @return Function return value(s).
+	 * @deprecated Use {@link #execute(FunctionEvent, FunctionArguments)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);

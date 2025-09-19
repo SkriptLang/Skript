@@ -94,15 +94,19 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		// avoid assigning values to a parameter multiple times
 		Set<String> named = new HashSet<>();
 		for (Argument<String> argument : arguments) {
-			if (argument.type() == ArgumentType.NAMED) {
-				boolean added = named.add(argument.name());
-				if (!added) {
-					Skript.error(Language.get("functions.already assigned value to parameter"), argument.name());
-					log.printError();
-					return null;
-				}
-			}
-		}
+            if (argument.type() != ArgumentType.NAMED) {
+                continue;
+            }
+
+            boolean added = named.add(argument.name());
+            if (added) {
+                continue;
+            }
+
+            Skript.error(Language.get("functions.already assigned value to parameter"), argument.name());
+            log.printError();
+            return null;
+        }
 
 		String namespace;
 		if (ParserInstance.get().isActive()) {
@@ -266,11 +270,13 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		// disallow naming any arguments other than the first
 		if (arguments.length > 1) {
 			for (Argument<String> argument : arguments) {
-				if (argument.type() == ArgumentType.NAMED) {
-					doesNotExist(name, arguments);
-					return null;
-				}
-			}
+                if (argument.type() != ArgumentType.NAMED) {
+                    continue;
+                }
+
+                doesNotExist(name, arguments);
+                return null;
+            }
 		}
 
 		Set<FunctionReference<T>> references = new HashSet<>();

@@ -164,8 +164,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// Validate that return types are what caller expects they are
 		Class<? extends T>[] returnTypes = this.returnTypes;
 		if (returnTypes != null) {
-			Class<?> rt = sign.returnType();
-			if (rt == null) {
+			Class<?> returnType = sign.returnType();
+			if (returnType == null) {
 				if (first) {
 					Skript.error("The function '" + stringified + "' doesn't return any value.");
 				} else {
@@ -176,9 +176,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				return false;
 			}
 
-			if (!Converters.converterExists(rt, returnTypes)) {
+			if (!Converters.converterExists(returnType, returnTypes)) {
 				if (first) {
-					Skript.error("The returned value of the function '" + stringified + "', " + rt + ", is " + SkriptParser.notOfType(returnTypes) + ".");
+					Skript.error("The returned value of the function '" + stringified + "', " + returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
 				} else {
 					Skript.error("The function '" + stringified + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
