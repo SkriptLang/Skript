@@ -14,6 +14,7 @@ import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
+import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
@@ -575,7 +576,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
+				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
 			FishingModule.load();
@@ -1388,6 +1389,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static void stopAcceptingRegistrations() {
 		Converters.createChainedConverters();
+		ExprArithmetic.registerExpression();
 		acceptRegistrations = false;
 		Classes.onRegistrationsStop();
 	}

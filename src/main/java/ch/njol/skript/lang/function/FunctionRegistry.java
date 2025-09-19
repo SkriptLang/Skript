@@ -56,8 +56,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
 
 	@Override
-	@Unmodifiable
-	public @NotNull Collection<Function<?>> elements() {
+	public @Unmodifiable @NotNull Collection<Function<?>> elements() {
 		Set<Function<?>> functions = new HashSet<>();
 
 		for (Namespace namespace : namespaces.values()) {
