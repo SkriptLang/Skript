@@ -500,7 +500,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			return first;
 		}
 		if (description == null) description = List.of();
-		
+
 		JsonArray second = getCategories(name + String.join("", description) + String.join("", patterns));
 		if (second.isEmpty()) {
 			return null;
