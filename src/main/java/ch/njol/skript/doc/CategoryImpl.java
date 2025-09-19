@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,7 @@ final class CategoryImpl implements Category {
 
 	private static final Set<Category> instances = new HashSet<>();
 	private final String name;
+	private final Category parent;
 	private final Set<String> keywords;
 	private final Set<Class<? extends AddonModule>> modules;
 
@@ -22,19 +24,27 @@ final class CategoryImpl implements Category {
 	}
 
 	CategoryImpl(String name, String... keywords) {
-		this(name, new HashSet<>(Set.of(keywords)));
+		this(name, (Category) null);
 	}
 
-	CategoryImpl(String name, Set<String> keywords) {
+	CategoryImpl(String name, Category parent, String... keywords) {
 		instances.add(this);
 		this.name = name;
-		this.keywords = keywords.stream().map(String::toLowerCase).collect(Collectors.toSet());
+		this.parent = parent;
+		this.keywords = Arrays.stream(keywords)
+				.map(String::toLowerCase)
+				.collect(Collectors.toUnmodifiableSet());
 		this.modules = new HashSet<>();
 	}
 
 	@Override
 	public @NotNull String name() {
 		return name;
+	}
+
+	@Override
+	public Category parent() {
+		return parent;
 	}
 
 	public @NotNull Set<String> keywords() {
@@ -49,7 +59,7 @@ final class CategoryImpl implements Category {
 	}
 
 	@Override
-	public @Unmodifiable Set<Class<? extends AddonModule>> modules() {
+	public @Unmodifiable @NotNull Set<Class<? extends AddonModule>> modules() {
 		return Collections.unmodifiableSet(modules);
 	}
 
