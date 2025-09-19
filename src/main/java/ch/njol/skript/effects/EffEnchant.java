@@ -88,11 +88,11 @@ public class EffEnchant extends Effect {
 				};
 			}
 			case ENCHANT_AT_LEVEL -> {
-				ItemFactory factory = Bukkit.getItemFactory();
 				Number levelValue = level.getSingle(event);
 				if (levelValue == null || levelValue.intValue() < 0) {
 					return;
 				}
+				ItemFactory factory = Bukkit.getItemFactory();
 				changeFunction = item -> {
 					ItemStack itemstack = item.getRandom();
 					if (itemstack == null) {
