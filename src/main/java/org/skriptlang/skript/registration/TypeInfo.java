@@ -15,8 +15,6 @@ public interface TypeInfo<T> {
 
 	}
 
-	@NotNull String id();
-
 	@NotNull String name();
 
 	@NotNull Class<T> type();
@@ -24,6 +22,18 @@ public interface TypeInfo<T> {
 	@NotNull Priority priority();
 
 	@Unmodifiable @NotNull Collection<String> patterns();
+
+	@Unmodifiable @NotNull Collection<String> description();
+
+	@Unmodifiable @NotNull Collection<String> since();
+
+	@Unmodifiable @NotNull Collection<String> examples();
+
+	@Unmodifiable @NotNull Collection<String> keywords();
+
+	Parser<T> parser();
+
+	Serializer<T> serializer();
 
 	/**
 	 * Represents a builder for {@link TypeInfo TypeInfos}.
