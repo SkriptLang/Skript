@@ -23,6 +23,12 @@ public class EvtPortal extends SkriptEvent {
 				).examples(
 					"on portal:",
 						"\tbroadcast \"%player% has entered a portal!\"",
+					"",
+					"on player portal:",
+						"\tplayer's world is world(\"wilderness\")",
+						"\tset world of event-location to player's world",
+						"\tadd 9000 to x-pos of event-location",
+					"",
 					"on entity portal:",
 						"\tbroadcast \"A %type of event-entity% has entered a portal!"
 				).since("1.0, 2.5.3 (entities), INSERT VERSION (location changers)");
