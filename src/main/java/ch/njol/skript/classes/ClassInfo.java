@@ -11,6 +11,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.TypeInfo;
+import org.skriptlang.skript.util.Priority;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,7 +27,7 @@ import java.util.regex.PatternSyntaxException;
  * @param <T> The class this info is for
  */
 @SuppressFBWarnings("DM_STRING_VOID_CTOR")
-public class ClassInfo<T> implements Debuggable {
+public class ClassInfo<T> implements TypeInfo<T>, Debuggable {
 
 	private final Class<T> c;
 	private final String codeName;
@@ -476,4 +478,18 @@ public class ClassInfo<T> implements Debuggable {
 		return getName().getSingular();
 	}
 
+	@Override
+	public @NotNull String name() {
+		return docName;
+	}
+
+	@Override
+	public @NotNull Class<T> type() {
+		return c;
+	}
+
+	@Override
+	public @NotNull Priority priority() {
+		return null;
+	}
 }

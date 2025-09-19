@@ -35,6 +35,8 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.TypeInfo;
+import org.skriptlang.skript.registration.TypeRegistry;
 
 import java.io.*;
 import java.lang.reflect.Array;
@@ -238,7 +240,10 @@ public abstract class Classes {
 		return null;
 	}
 
-	@SuppressWarnings("null")
+	/**
+	 * @deprecated Use {@link TypeRegistry#elements()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static List<ClassInfo<?>> getClassInfos() {
 		checkAllowClassInfoInteraction();
 		final ClassInfo<?>[] ci = classInfos;
@@ -248,12 +253,9 @@ public abstract class Classes {
 	}
 
 	/**
-	 * This method can be called even while Skript is loading.
-	 *
-	 * @param codeName
-	 * @return The ClassInfo with the given code name
-	 * @throws SkriptAPIException If the given class was not registered
+	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static ClassInfo<?> getClassInfo(final String codeName) {
 		final ClassInfo<?> ci = classInfosByCodeName.get(codeName);
 		if (ci == null)
@@ -261,39 +263,29 @@ public abstract class Classes {
 		return ci;
 	}
 
+
 	/**
-	 * This method can be called even while Skript is loading.
-	 *
-	 * @param codeName
-	 * @return The class info registered with the given code name or null if the code name is invalid or not yet registered
+	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} instead.
 	 */
-	@Nullable
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static ClassInfo<?> getClassInfoNoError(final @Nullable String codeName) {
 		return classInfosByCodeName.get(codeName);
 	}
 
 	/**
-	 * Gets the class info for the given class.
-	 * <p>
-	 * This method can be called even while Skript is loading.
-	 *
-	 * @param c The exact class to get the class info for.
-	 * @return The class info for the given class or null if no info was found.
+	 * @deprecated Use {@link TypeRegistry#fromClass(Class)} instead.
 	 */
-	@SuppressWarnings("unchecked")
 	@Nullable
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> ClassInfo<T> getExactClassInfo(final @Nullable Class<T> c) {
+		//noinspection unchecked
 		return (ClassInfo<T>) exactClassInfos.get(c);
 	}
 
 	/**
-	 * Gets the class info of the given class or its closest registered superclass. This method will never return null unless <tt>c</tt> is null.
-	 *
-	 * @param c
-	 * @return The closest superclass's info
+	 * @deprecated Use {@link TypeRegistry#superTypeFromClass(Class)} instead.
 	 */
-	@SuppressWarnings("unchecked")
-	@Contract(pure = true, value = "!null -> !null")
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
 		checkAllowClassInfoInteraction();
@@ -346,24 +338,19 @@ public abstract class Classes {
 	}
 
 	/**
-	 * Gets a class by its code name
-	 *
-	 * @param codeName
-	 * @return the class with the given code name
-	 * @throws SkriptAPIException If the given class was not registered
+	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} and {@link TypeInfo#type()} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static Class<?> getClass(final String codeName) {
 		checkAllowClassInfoInteraction();
 		return getClassInfo(codeName).getC();
 	}
 
 	/**
-	 * As the name implies
-	 *
-	 * @param name
-	 * @return the class info or null if the name was not recognised
+	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} instead.
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static ClassInfo<?> getClassInfoFromUserInput(String name) {
 		checkAllowClassInfoInteraction();
 		name = "" + name.toLowerCase(Locale.ENGLISH);
@@ -380,12 +367,10 @@ public abstract class Classes {
 	}
 
 	/**
-	 * As the name implies
-	 *
-	 * @param name
-	 * @return the class or null if the name was not recognized
+	 * @deprecated Use {@link TypeInfo#type()} instead.
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static Class<?> getClassFromUserInput(final String name) {
 		checkAllowClassInfoInteraction();
 		final ClassInfo<?> ci = getClassInfoFromUserInput(name);
@@ -441,12 +426,10 @@ public abstract class Classes {
 	}
 
 	/**
-	 * Gets the name a class was registered with.
-	 *
-	 * @param c The exact class
-	 * @return The name of the class or null if the given class wasn't registered.
+	 * @deprecated Use {@link TypeInfo#name()} instead.
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static String getExactClassName(final Class<?> c) {
 		checkAllowClassInfoInteraction();
 		final ClassInfo<?> ci = exactClassInfos.get(c);
