@@ -1,5 +1,7 @@
 package ch.njol.skript.examples;
 
+import ch.njol.skript.Skript;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,13 +41,19 @@ public final class ExampleScriptManager {
 	private void flushInstalled() {
 		if (installedFile == null)
 			return;
+		File parent = installedFile.getParentFile();
+		if (parent != null && !parent.exists() && !parent.mkdirs()) {
+			Skript.warning("Failed to create directory for installed examples at " + parent.getAbsolutePath());
+			return;
+		}
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(installedFile), StandardCharsets.UTF_8))) {
 			for (String entry : installed) {
 				writer.write(entry);
 				writer.newLine();
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to save installed examples", e);
+			Skript.warning("Failed to save installed examples to " + installedFile + ": " + e.getMessage());
+			return;
 		}
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			try {
