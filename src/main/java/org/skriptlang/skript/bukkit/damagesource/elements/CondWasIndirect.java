@@ -29,6 +29,7 @@ public class CondWasIndirect extends PropertyCondition<DamageSource> implements 
 
 	public static SyntaxInfo<CondWasIndirect> info() {
 		return SyntaxInfo.builder(CondWasIndirect.class)
+				.priority(DEFAULT_PRIORITY)
 				.supplier(CondWasIndirect::new)
 				.addPatterns("%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
 						"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)")

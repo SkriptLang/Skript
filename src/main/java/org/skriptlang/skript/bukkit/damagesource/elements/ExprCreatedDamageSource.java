@@ -8,6 +8,7 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Created Damage Source")
 @Description("Get the created damage source being created/modified in a 'custom damage source' section.")
@@ -19,8 +20,8 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> implements EventRestrictedSyntax {
 
-	public static DefaultSyntaxInfos.Expression<ExprCreatedDamageSource, DamageSource> info() {
-		return DefaultSyntaxInfos.Expression.builder(ExprCreatedDamageSource.class, DamageSource.class)
+	public static SyntaxInfo.Expression<ExprCreatedDamageSource, DamageSource> info() {
+		return SyntaxInfo.Expression.builder(ExprCreatedDamageSource.class, DamageSource.class)
 				.supplier(ExprCreatedDamageSource::new)
 				.addPatterns("created damage source")
 				.build();

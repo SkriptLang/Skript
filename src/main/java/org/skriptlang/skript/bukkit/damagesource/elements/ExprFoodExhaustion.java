@@ -6,6 +6,7 @@ import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Damage Source - Food Exhaustion")
 @Description("The amount of hunger exhaustion caused by a damage source.")
@@ -17,10 +18,9 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperimentSyntax {
 
-	public static DefaultSyntaxInfos.Expression<ExprFoodExhaustion, Float> info() {
-		return DefaultSyntaxInfos.Expression.builder(ExprFoodExhaustion.class, Float.class)
+	public static SyntaxInfo.Expression<ExprFoodExhaustion, Float> info() {
+		return infoBuilder(ExprFoodExhaustion.class, Float.class, "food exhaustion", "damagesources", false)
 				.supplier(ExprFoodExhaustion::new)
-				.addPatterns(getDefaultPatterns("food exhaustion", "damagesources"))
 				.build();
 	}
 

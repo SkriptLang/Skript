@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -81,18 +82,13 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 		}
 	}
 
+	public static SyntaxInfo.Expression<ExprSecDamageSource, DamageSource> info() {
+		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::buildDamageSource);
 
-	public static DefaultSyntaxInfos.Expression<ExprSecDamageSource, DamageSource> info() {
-		return DefaultSyntaxInfos.Expression.builder(ExprSecDamageSource.class, DamageSource.class)
+		return SyntaxInfo.Expression.builder(ExprSecDamageSource.class, DamageSource.class)
 				.supplier(ExprSecDamageSource::new)
 				.addPatterns("[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]")
 				.build();
-	}
-
-	static {
-		Skript.registerExpression(ExprSecDamageSource.class, DamageSource.class, ExpressionType.COMBINED,
-			"[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]");
-		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::buildDamageSource);
 	}
 
 	private @Nullable Expression<DamageType> damageType;

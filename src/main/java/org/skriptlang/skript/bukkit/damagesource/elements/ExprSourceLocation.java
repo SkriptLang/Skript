@@ -7,6 +7,7 @@ import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Damage Source - Source Location")
 @Description({
@@ -23,10 +24,9 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
 
-	public static DefaultSyntaxInfos.Expression<ExprSourceLocation, Location> info() {
-		return DefaultSyntaxInfos.Expression.builder(ExprSourceLocation.class, Location.class)
+	public static SyntaxInfo.Expression<ExprSourceLocation, Location> info() {
+		return infoBuilder(ExprSourceLocation.class, Location.class, "source location", "damagesources", false)
 				.supplier(ExprSourceLocation::new)
-				.addPatterns(getDefaultPatterns("source location", "damagesources"))
 				.build();
 	}
 

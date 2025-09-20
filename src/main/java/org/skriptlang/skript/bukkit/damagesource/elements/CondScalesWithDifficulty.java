@@ -24,6 +24,7 @@ public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> im
 
 	public static SyntaxInfo<CondScalesWithDifficulty> info() {
 		return SyntaxInfo.builder(CondScalesWithDifficulty.class)
+				.priority(DEFAULT_PRIORITY)
 				.supplier(CondScalesWithDifficulty::new)
 				.addPatterns("%damagesources% ((does|do) scale|scales) damage with difficulty",
 						"%damagesources% (do not|don't|does not|doesn't) scale damage with difficulty",
