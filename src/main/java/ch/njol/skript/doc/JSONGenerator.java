@@ -3,11 +3,8 @@ package ch.njol.skript.doc;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import org.skriptlang.skript.common.function.DefaultFunction;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
@@ -411,7 +408,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			functionJsonObject.add("examples", convertToJsonArray(documentable.examples().toArray(new String[0])));
 		}
 
-		functionJsonObject.add("returns", getFunctionReturnType(function));
+		functionJsonObject.add("returns", getReturnType(function));
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
@@ -506,7 +503,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
-		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
+		jsonDocs.add("functions", generateFunctionArray(Functions.getDefaultFunctions().iterator()));
 
 		try {
 			Files.writeString(path, GSON.toJson(jsonDocs));
