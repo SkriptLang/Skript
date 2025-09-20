@@ -13,7 +13,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class ExampleScriptManager {
@@ -24,14 +24,16 @@ public final class ExampleScriptManager {
 	}
 
 	private void loadInstalled(File scriptsDir) {
-		installedFile = new File(scriptsDir.getParentFile(), ".loaded_examples");
-		installed = new HashSet<>();
+		File parent = scriptsDir.getParentFile();
+		installedFile = new File(parent == null ? scriptsDir : parent, ".loaded_examples");
+		installed = new LinkedHashSet<>();
 		if (!installedFile.exists())
 			return;
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(installedFile), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
-				installed.add(line);
+				if (!line.isEmpty())
+					installed.add(line);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to load installed examples", e);
@@ -39,7 +41,7 @@ public final class ExampleScriptManager {
 	}
 
 	private void flushInstalled() {
-		if (installedFile == null)
+		if (installedFile == null || installed == null)
 			return;
 		File parent = installedFile.getParentFile();
 		if (parent != null && !parent.exists() && !parent.mkdirs()) {
@@ -63,12 +65,13 @@ public final class ExampleScriptManager {
 	}
 
 	public void installExamples(String plugin, Collection<ExampleScript> scripts, File scriptsDir) {
-		if (installed == null)
-			loadInstalled(scriptsDir);
+		loadInstalled(scriptsDir);
+		boolean dirty = false;
 		File baseDir = new File(scriptsDir, "-examples/" + plugin);
 		for (ExampleScript script : scripts) {
 			String key = plugin + "/" + script.name();
 			if (installed.add(key)) {
+				dirty = true;
 				File file = new File(baseDir, script.name());
 				file.getParentFile().mkdirs();
 				try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
@@ -78,6 +81,7 @@ public final class ExampleScriptManager {
 				}
 			}
 		}
-		flushInstalled();
+		if (dirty)
+			flushInstalled();
 	}
 }
