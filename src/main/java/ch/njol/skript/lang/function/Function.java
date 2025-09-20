@@ -109,7 +109,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 				} else {
 					parameterValue = defaultValue;
 				}
-			} else if (parameterValue == null) { // Go for default value
+			} else if (!(this instanceof DefaultFunction<?>) && parameterValue == null) { // Go for default value
 				assert parameter.def != null; // Should've been parse error
 				Object[] defaultValue = parameter.def.getArray(event);
 				if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(parameter.def)) {
@@ -126,7 +126,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			 * really have a concept of nulls, it was changed. The config
 			 * option may be removed in future.
 			 */
-			if (!(this instanceof DefaultFunction<T>) && !executeWithNulls && parameterValue.length == 0)
+			if (!(this instanceof DefaultFunction<?>) && !executeWithNulls && parameterValue.length == 0)
 				return null;
 			parameterValues[i] = parameterValue;
 		}
