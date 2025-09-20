@@ -21,9 +21,8 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> implements EventRestrictedSyntax {
 
 	public static SyntaxInfo.Expression<ExprCreatedDamageSource, DamageSource> info() {
-		return SyntaxInfo.Expression.builder(ExprCreatedDamageSource.class, DamageSource.class)
+		return infoBuilder(ExprCreatedDamageSource.class, DamageSource.class, "created damage source")
 				.supplier(ExprCreatedDamageSource::new)
-				.addPatterns("created damage source")
 				.build();
 	}
 

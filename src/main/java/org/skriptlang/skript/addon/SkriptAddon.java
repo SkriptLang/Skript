@@ -3,7 +3,6 @@ package org.skriptlang.skript.addon;
 import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
