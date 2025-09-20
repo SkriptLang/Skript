@@ -60,7 +60,7 @@ final class CategoryImpl implements Category {
 
 	@Override
 	public @Unmodifiable @NotNull Set<Class<? extends AddonModule>> modules() {
-		return Collections.unmodifiableSet(modules);
+		return Set.copyOf(modules);
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.skriptlang.skript.addon;
 
+import ch.njol.skript.doc.Categorizable;
 import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ import java.util.Set;
  */
 @FunctionalInterface
 @ApiStatus.Experimental
-public interface AddonModule {
+public interface AddonModule extends Categorizable {
 
 	/**
 	 * Used for loading the components of this module that are needed first or by other modules (e.g. class infos).
@@ -52,11 +53,7 @@ public interface AddonModule {
 		return true;
 	}
 
-	/**
-	 * Returns the documentation category which this module belongs to.
-	 *
-	 * @return The category of this module.
-	 */
+	@Override
 	default @NotNull Set<Category> category() {
 		return Set.of();
 	}

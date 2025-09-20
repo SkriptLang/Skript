@@ -28,7 +28,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
-import org.skriptlang.skript.registration.SyntaxOrigin.ElementOrigin;
+import org.skriptlang.skript.registration.SyntaxOrigin.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.File;
@@ -486,7 +486,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			@Nullable Collection<String> description, @Nullable Collection<String> patterns
 	) {
 		JsonArray categories = new JsonArray();
-		if (origin instanceof ElementOrigin elementOrigin) {
+		if (origin instanceof ModuleOrigin elementOrigin) {
 			for (Category category : Category.values()) {
 				if (category.modules().contains(elementOrigin.module().getClass())) {
 					categories.add(category.name());

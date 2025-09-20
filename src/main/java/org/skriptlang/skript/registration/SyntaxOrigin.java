@@ -61,19 +61,19 @@ public interface SyntaxOrigin {
 	 */
 	@Contract("_, _ -> new")
 	static SyntaxOrigin of(SkriptAddon addon, AddonModule module) {
-		return new ElementOrigin(addon, module);
+		return new ModuleOrigin(addon, module);
 	}
 
 	/**
 	 * An origin describing the addon and module a syntax has originated from.
 	 * @see SyntaxOrigin#of(SkriptAddon, AddonModule)
 	 */
-	final class ElementOrigin implements SyntaxOrigin {
+	final class ModuleOrigin implements SyntaxOrigin {
 
 		private final SkriptAddon addon;
 		private final AddonModule module;
 
-		private ElementOrigin(SkriptAddon addon, AddonModule module) {
+		private ModuleOrigin(SkriptAddon addon, AddonModule module) {
 			this.addon = addon.unmodifiableView();
 			this.module = module;
 		}
