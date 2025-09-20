@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 /**
  * Template engine, primarily used for generating Skript documentation
  * pages by combining data from annotations and templates.
- *
  */
 public class HTMLGenerator extends DocumentationGenerator {
 

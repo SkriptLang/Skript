@@ -45,7 +45,7 @@ import org.jetbrains.annotations.UnknownNullability;
 })
 @Since({
 	"1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)",
-	"INSERT VERSION (happy ghasts)"
+	"2.12.1 (happy ghasts)"
 })
 public class EffEquip extends Effect {
 

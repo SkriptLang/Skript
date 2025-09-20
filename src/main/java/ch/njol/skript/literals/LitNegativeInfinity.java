@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package ch.njol.skript.literals;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -13,24 +13,20 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("NaN")
-@Description({
-	"A number representing an undefined value. NaN occurs as a result of illegal math, like dividing 0 by 0.",
-	"NaN is deliberately not equal to any other number, including itself.",
-})
-@Example("if {_number} is not {_number}:")
-@Example("if isNaN({_number}) is true:")
+@Name("Negative Infinity")
+@Description("A number representing negative infinity.")
+@Example("if {_number} is -infinity:")
 @Since("2.2-dev32d")
-public class LitNaN extends SimpleLiteral<Double> {
+public class LitNegativeInfinity extends SimpleLiteral<Double> {
 
 	static {
-		Skript.registerExpression(LitNaN.class, Double.class, ExpressionType.SIMPLE,
-			"NaN [value]",
-			"value of NaN");
+		Skript.registerExpression(LitNegativeInfinity.class, Double.class, ExpressionType.SIMPLE,
+				"(-|minus |negative )(infinity|∞) [value]",
+				"value of (-|minus |negative )(infinity|∞)");
 	}
 
-	public LitNaN() {
-		super(Double.NaN, false);
+	public LitNegativeInfinity() {
+		super(Double.NEGATIVE_INFINITY, false);
 	}
 
 	@Override
@@ -40,7 +36,7 @@ public class LitNaN extends SimpleLiteral<Double> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "NaN";
+		return "negative infinity";
 	}
 
 }
