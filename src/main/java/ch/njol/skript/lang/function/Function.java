@@ -90,7 +90,19 @@ public abstract class Function<T> {
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> parameter = parameters[i];
 			Object[] parameterValue = parameter.keyed ? convertToKeyed(parameterValues[i]) : parameterValues[i];
-			if (parameterValue == null) { // Go for default value
+
+			// see https://github.com/SkriptLang/Skript/pull/8135
+			if ((parameterValues[i] == null || parameterValues[i].length == 0)
+				&& parameter.keyed
+				&& parameter.def != null
+			) {
+				Object[] defaultValue = parameter.def.getArray(event);
+				if (defaultValue.length == 1) {
+					parameterValue = KeyedValue.zip(defaultValue, null);
+				} else {
+					parameterValue = defaultValue;
+				}
+			} else if (parameterValue == null) { // Go for default value
 				assert parameter.def != null; // Should've been parse error
 				Object[] defaultValue = parameter.def.getArray(event);
 				if (parameter.keyed && KeyProviderExpression.areKeysRecommended(parameter.def)) {
