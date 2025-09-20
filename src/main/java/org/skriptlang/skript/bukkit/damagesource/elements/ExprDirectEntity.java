@@ -41,7 +41,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
 	public static SyntaxInfo.Expression<ExprDirectEntity, Entity> info() {
-		return infoBuilder(ExprDirectEntity.class, Entity.class, "direct entity", "damagesources", false)
+		return infoBuilder(ExprDirectEntity.class, Entity.class, "direct entity", "damagesources", true)
 				.supplier(ExprDirectEntity::new)
 				.build();
 	}

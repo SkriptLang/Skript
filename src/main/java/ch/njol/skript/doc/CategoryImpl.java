@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,12 +18,12 @@ final class CategoryImpl implements Category {
 	private final Set<String> keywords;
 	private final Set<Class<? extends AddonModule>> modules;
 
-	public static Set<Category> getInstances() {
+	static Set<Category> getInstances() {
 		return instances;
 	}
 
 	CategoryImpl(String name, String... keywords) {
-		this(name, (Category) null);
+		this(name, null, keywords);
 	}
 
 	CategoryImpl(String name, Category parent, String... keywords) {

@@ -40,7 +40,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
 	public static SyntaxInfo.Expression<ExprCausingEntity, Entity> info() {
-		return infoBuilder(ExprCausingEntity.class, Entity.class, "(causing|responsible) entity", "damagesources", false)
+		return infoBuilder(ExprCausingEntity.class, Entity.class, "(causing|responsible) entity", "damagesources", true)
 				.supplier(ExprCausingEntity::new)
 				.build();
 	}

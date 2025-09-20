@@ -489,7 +489,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (origin instanceof ModuleOrigin elementOrigin) {
 			for (Category category : Category.values()) {
 				if (category.modules().contains(elementOrigin.module().getClass())) {
-					categories.add(category.name());
+					categories.add(getCategory(category));
 				}
 			}
 			return categories;
@@ -503,10 +503,10 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (description == null) description = List.of();
 
 		JsonArray second = getCategories(name + String.join("", description) + String.join("", patterns));
-		if (second.isEmpty()) {
-			return null;
+		if (!second.isEmpty()) {
+			return second;
 		}
-		return second;
+		return null;
 	}
 
 	/**
@@ -517,20 +517,38 @@ public class JSONGenerator extends DocumentationGenerator {
 	 */
 	private static JsonArray getCategories(String input) {
 		JsonArray options = new JsonArray();
-		for (Category value : Category.values()) {
-			if (!(value instanceof CategoryImpl impl)) {
+		for (Category category : Category.values()) {
+			if (!(category instanceof CategoryImpl impl)) {
 				break;
 			}
 
 			for (String keyword : impl.keywords()) {
 				if (input.toLowerCase().contains(keyword)) {
-					options.add(value.name());
+					options.add(getCategory(category));
 					break;
 				}
 			}
 		}
 
 		return options;
+	}
+
+	/**
+	 * Transforms a category into a json object.
+	 * @param category The category.
+	 * @return The transformed category.
+	 */
+	private static JsonObject getCategory(@NotNull Category category) {
+		JsonObject object = new JsonObject();
+
+		object.addProperty("name", category.name());
+		if (category.parent() != null) {
+			object.addProperty("parent", category.parent().name());
+		} else {
+			object.add("parent", null);
+		}
+
+		return object;
 	}
 
 	/**

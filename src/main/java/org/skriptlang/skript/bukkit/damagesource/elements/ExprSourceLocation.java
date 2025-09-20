@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
 
 	public static SyntaxInfo.Expression<ExprSourceLocation, Location> info() {
-		return infoBuilder(ExprSourceLocation.class, Location.class, "source location", "damagesources", false)
+		return infoBuilder(ExprSourceLocation.class, Location.class, "source location", "damagesources", true)
 				.supplier(ExprSourceLocation::new)
 				.build();
 	}

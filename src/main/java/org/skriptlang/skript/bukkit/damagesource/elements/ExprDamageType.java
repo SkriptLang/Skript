@@ -39,7 +39,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperimentSyntax {
 
 	public static SyntaxInfo.Expression<ExprDamageType, DamageType> info() {
-		return infoBuilder(ExprDamageType.class, DamageType.class, "damage type", "damagesources", false)
+		return infoBuilder(ExprDamageType.class, DamageType.class, "damage type", "damagesources", true)
 				.supplier(ExprDamageType::new)
 				.build();
 	}

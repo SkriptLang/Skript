@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperimentSyntax {
 
 	public static SyntaxInfo.Expression<ExprFoodExhaustion, Float> info() {
-		return infoBuilder(ExprFoodExhaustion.class, Float.class, "food exhaustion", "damagesources", false)
+		return infoBuilder(ExprFoodExhaustion.class, Float.class, "food exhaustion", "damagesources", true)
 				.supplier(ExprFoodExhaustion::new)
 				.build();
 	}
