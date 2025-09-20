@@ -53,4 +53,5 @@ public class EvtPortal extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		return (isPlayer ? "player" : "entity") + " portal";
 	}
+
 }

@@ -229,10 +229,6 @@ public final class BukkitEventValues {
 		// EntityTameEvent
 		EventValues.registerEventValue(EntityTameEvent.class, Entity.class, EntityTameEvent::getEntity);
 
-		// EntityTeleportEvent
-		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, EntityTeleportEvent::getFrom, TIME_PAST);
-		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, EntityTeleportEvent::getTo);
-
 		// EntityChangeBlockEvent
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, EntityChangeBlockEvent::getBlock, TIME_PAST);
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, EntityChangeBlockEvent::getBlock);
@@ -342,28 +338,8 @@ public final class BukkitEventValues {
 		// PlayerMoveEvent
 		EventValues.registerEventValue(PlayerMoveEvent.class, Block.class,
 			event -> event.getTo().clone().subtract(0, 0.5, 0).getBlock());
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new EventConverter<>() {
-			@Override
-			public void set(PlayerMoveEvent event, Location value) {
-				event.setFrom(value.clone());
-			}
-
-			@Override
-			public Location convert(PlayerMoveEvent event) {
-				return event.getFrom();
-			}
-		}, TIME_PAST);
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new EventConverter<>() {
-			@Override
-			public void set(PlayerMoveEvent event, Location value) {
-				event.setTo(value.clone());
-			}
-
-			@Override
-			public Location convert(PlayerMoveEvent event) {
-				return event.getTo();
-			}
-		});
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, PlayerMoveEvent::getFrom, TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, PlayerMoveEvent::getTo);
 		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, event -> event.getFrom().getChunk(), TIME_PAST);
 		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, event -> event.getTo().getChunk());
 		// PlayerItemDamageEvent
@@ -567,28 +543,10 @@ public final class BukkitEventValues {
 		//PlayerTeleportEvent
 		EventValues.registerEventValue(PlayerTeleportEvent.class, TeleportCause.class, PlayerTeleportEvent::getCause);
 		//EntityMoveEvent
-		EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new EventConverter<>() {
-			@Override
-			public void set(EntityMoveEvent event, Location value) {
-				event.setFrom(value.clone());
-			}
-
-			@Override
-			public Location convert(EntityMoveEvent event) {
-				return event.getFrom();
-			}
-		});
-		EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new EventConverter<>() {
-			@Override
-			public void set(EntityMoveEvent event, Location value) {
-				event.setTo(value.clone());
-			}
-
-			@Override
-			public Location convert(EntityMoveEvent event) {
-				return event.getTo();
-			}
-		}, TIME_FUTURE);
+		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getFrom);
+			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, EntityMoveEvent::getTo, TIME_FUTURE);
+		}
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
 		//FireworkExplodeEvent
