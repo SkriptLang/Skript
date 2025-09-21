@@ -48,29 +48,28 @@ import org.skriptlang.skript.lang.structure.Structure;
 import com.google.common.collect.Lists;
 
 @Name("Auto Reload")
-@Description({
-	"Place at the top of a script file to enable and configure automatic reloading of the script.",
-	"When the script is saved, Skript will automatically reload the script.",
-	"The config.sk node 'script loader thread size' must be set to a positive number for this to be enabled.",
-	"",
-	"available optional nodes:",
-	"\trecipients: The players to send reload messages to. Defaults to console.",
-	"\tpermission: The permission required to receive reload messages. 'recipients' will override this node.",
-})
-@Examples({
-	"auto reload",
-	"",
-	"auto reload:",
-	"\trecipients: \"SkriptDev\", \"61699b2e-d327-4a01-9f1e-0ea8c3f06bc6\" and \"Njol\"", // UUID is Dinnerbone's.
-	"\tpermission: \"skript.reloadnotify\"",
-})
+@Description("""
+	Place at the top of a script file to enable and configure automatic reloading of the script.
+	When the script is saved, Skript will automatically reload the script.
+	The config.sk node 'script loader thread size' must be set to a positive number for this to be enabled.
+	
+	available optional nodes:
+		recipients: The players to send reload messages to. Defaults to console.
+		permission: The permission required to receive reload messages. 'recipients' will override this node.
+	"""})
+@Example("auto reload")
+@Example("""
+	auto reload:
+		recipients: "SkriptDev",  "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6" and "Njol"
+		permission: "skript.reloadnotify"
+	""") // UUID is Dinnerbone's.
 @Since("INSERT VERSION")
 public class StructAutoReload extends Structure {
 
 	public static final Priority PRIORITY = new Priority(10);
 
 	static {
-		Skript.registerStructure(StructAutoReload.class, "auto[matically] reload");
+		Skript.registerStructure(StructAutoReload.class, "auto[matically] reload [(this|the) script]");
 	}
 
 	private Script script;
