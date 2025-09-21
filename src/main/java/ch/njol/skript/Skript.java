@@ -3,39 +3,54 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.*;
+import ch.njol.skript.classes.data.BukkitClasses;
+import ch.njol.skript.classes.data.BukkitEventValues;
+import ch.njol.skript.classes.data.DefaultComparators;
+import ch.njol.skript.classes.data.DefaultConverters;
+import ch.njol.skript.classes.data.DefaultFunctions;
+import ch.njol.skript.classes.data.DefaultOperations;
+import ch.njol.skript.classes.data.JavaClasses;
+import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
+import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptEventInfo;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.*;
+import ch.njol.skript.log.BukkitLoggerFilter;
+import ch.njol.skript.log.CountingLogHandler;
+import ch.njol.skript.log.ErrorDescLogHandler;
+import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.LogHandler;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.log.TestingLogHandler;
+import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.*;
+import ch.njol.skript.test.runner.EffObjectives;
+import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
 import ch.njol.skript.util.Date;
-import ch.njol.skript.util.*;
+import ch.njol.skript.util.EmptyStacktraceException;
+import ch.njol.skript.util.ExceptionUtils;
+import ch.njol.skript.util.FileUtils;
+import ch.njol.skript.util.Task;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
@@ -48,7 +63,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.papermc.lib.PaperLib;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -73,6 +92,7 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
+import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
@@ -92,6 +112,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -472,7 +493,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
 		unmodifiableSkript = new ModernSkriptBridge.SpecialUnmodifiableSkript(skript);
 		skript.localizer().setSourceDirectories("lang",
-				getDataFolder().getAbsolutePath() + "lang");
+				getDataFolder().getAbsolutePath() + File.separatorChar + "lang");
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
@@ -556,7 +577,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
+				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
 			FishingModule.load();
@@ -566,6 +587,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
+			skript.loadModules(new DamageSourceModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -1264,7 +1286,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (disabled)
 			return;
 		disabled = true;
-		this.experimentRegistry = null;
 
 		if (!partDisabled) {
 			beforeDisable();
@@ -1279,6 +1300,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				Skript.exception(e, "An error occurred while shutting down.", "This might or might not cause any issues.");
 			}
 		}
+
+		this.experimentRegistry = null;
 	}
 
 	// ================ CONSTANTS, OPTIONS & OTHER ================
@@ -1367,6 +1390,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static void stopAcceptingRegistrations() {
 		Converters.createChainedConverters();
+		ExprArithmetic.registerExpression();
 		acceptRegistrations = false;
 		Classes.onRegistrationsStop();
 	}
@@ -1651,21 +1675,28 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerSimpleStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-			.origin(getSyntaxOrigin(structureClass))
-			.addPatterns(patterns)
-			.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
-			.build()
+				.origin(getSyntaxOrigin(structureClass))
+				.addPatterns(patterns)
+				.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
+				.build()
 		);
 	}
 
 	public static <E extends Structure> void registerStructure(
 		Class<E> structureClass, EntryValidator entryValidator, String... patterns
 	) {
+		registerStructure(structureClass, entryValidator, DefaultSyntaxInfos.Structure.NodeType.SECTION, patterns);
+	}
+
+	public static <E extends Structure> void registerStructure(
+		Class<E> structureClass, EntryValidator entryValidator, DefaultSyntaxInfos.Structure.NodeType nodeType, String... patterns
+	) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
 				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.entryValidator(entryValidator)
+				.nodeType(nodeType)
 				.build()
 		);
 	}
@@ -1754,6 +1785,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see String#formatted(Object...)
 	 */
 	public static void debug(String message, Object... objects) {
+		if (!debug())
+			return;
 		debug(message.formatted(objects));
 	}
 
@@ -1780,6 +1813,17 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static void error(final @Nullable String error) {
 		if (error != null)
 			SkriptLogger.log(Level.SEVERE, error);
+	}
+
+	/**
+	 * Sends an error message with formatted objects.
+	 *
+	 * @param message The message to send
+	 * @param objects The objects to format the message with
+	 * @see String#formatted(Object...)
+	 */
+	public static void error(String message, Object... objects) {
+		error(message.formatted(objects));
 	}
 
 	/**

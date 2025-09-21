@@ -27,6 +27,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -738,6 +739,10 @@ public class VariableString implements Expression<String> {
 
 	@Override
 	public Expression<String> simplify() {
+		if (isSimple)
+			return SimplifiedLiteral.fromExpression(this);
+		if (this.strings == null || Arrays.stream(this.strings).allMatch(o -> o instanceof Literal))
+			return SimplifiedLiteral.fromExpression(this);
 		return this;
 	}
 

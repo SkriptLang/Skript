@@ -85,8 +85,11 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
 	 * @param <E> The Condition type.
 	 * @return The registered {@link SyntaxInfo}.
+	 * @deprecated Use {@link #infoBuilder(Class, PropertyType, String, String)} to build a {@link SyntaxInfo}
+	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
 	 */
 	@ApiStatus.Experimental
+	@Deprecated(since = "2.12", forRemoval = true)
 	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, String property, String type) {
 		return register(registry, condition, PropertyType.BE, property, type);
 	}
@@ -99,25 +102,39 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
 	 * @param <E> The Condition type.
 	 * @return The registered {@link SyntaxInfo}.
+	 * @deprecated Use {@link #infoBuilder(Class, PropertyType, String, String)} to build a {@link SyntaxInfo}
+	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
 	 */
 	@ApiStatus.Experimental
+	@Deprecated(since = "2.12", forRemoval = true)
 	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
-		SyntaxInfo.Builder<?, E> builder = SyntaxInfo.builder(condition).priority(DEFAULT_PRIORITY);
-		switch (propertyType) {
-			case BE -> builder.addPatterns("%" + type + "% (is|are) " + property,
-					"%" + type + "% (isn't|is not|aren't|are not) " + property);
-			case CAN -> builder.addPatterns("%" + type + "% can " + property,
-					"%" + type + "% (can't|cannot|can not) " + property);
-			case HAVE -> builder.addPatterns("%" + type + "% (has|have) " + property,
-					"%" + type + "% (doesn't|does not|do not|don't) have " + property);
-			case WILL -> builder.addPatterns("%" + type + "% will " + property,
-					"%" + type + "% (will (not|neither)|won't) " + property);
-		}
-		SyntaxInfo<E> info = builder.build();
+		SyntaxInfo<E> info = infoBuilder(condition, propertyType, property, type).build();
 		registry.register(SyntaxRegistry.CONDITION, info);
 		return info;
+	}
+
+	/**
+	 * Creates a builder for a {@link SyntaxInfo} representing a {@link PropertyCondition}.
+	 * Patterns will be appended based on the {@code propertyType} (see {@link #getPatterns(PropertyType, String, String)}).
+	 * The info will use {@link #DEFAULT_PRIORITY} as its {@link SyntaxInfo#priority()}.
+	 * @param condition The condition class to be represented by the info.
+	 * @param propertyType The property type, see {@link PropertyType}
+	 * @param property The property name. For example, {@code empty} in {@code %strings% are empty}.
+	 * @param type The type(s) on which the property is present. Must be plural.
+	 *  For example {@code strings} in {@code %strings% are empty}.
+	 * @param <E> The Condition type.
+	 * @return A {@link SyntaxInfo} representing the property conditon.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends Condition> SyntaxInfo.Builder<? extends SyntaxInfo.Builder<?, E>, E> infoBuilder(
+			Class<E> condition, PropertyType propertyType, String property, String type) {
+		if (type.contains("%"))
+			throw new SkriptAPIException("The type argument must not contain any '%'s");
+		return SyntaxInfo.builder(condition)
+				.priority(DEFAULT_PRIORITY)
+				.addPatterns(getPatterns(propertyType, property, type));
 	}
 
 	/**

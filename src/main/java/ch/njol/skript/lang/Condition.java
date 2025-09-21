@@ -3,6 +3,7 @@ package ch.njol.skript.lang;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.config.Node;
+import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -22,7 +23,7 @@ import java.util.function.Predicate;
  *
  * @see Skript#registerCondition(Class, String...)
  */
-public abstract class Condition extends Statement implements Conditional<Event>, SyntaxRuntimeErrorProducer {
+public abstract class Condition extends Statement implements Conditional<Event>, SyntaxRuntimeErrorProducer, Simplifiable<Condition> {
 
 	public enum ConditionType {
 		/**
@@ -117,6 +118,11 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 		return "condition";
 	}
 
+	@Override
+	public Condition simplify() {
+		return this;
+	}
+
 	/**
 	 * Parse a raw string input as a condition.
 	 * 
@@ -128,8 +134,9 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 		input = input.trim();
 		while (input.startsWith("(") && SkriptParser.next(input, 0, ParseContext.DEFAULT) == input.length())
 			input = input.substring(1, input.length() - 1);
+		var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.CONDITION).iterator();
 		//noinspection unchecked,rawtypes
-		return (Condition) SkriptParser.parse(input, (Iterator) Skript.getConditions().iterator(), defaultError);
+		return (Condition) SkriptParser.parse(input, (Iterator) iterator, defaultError);
 	}
 
 }

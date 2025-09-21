@@ -3,6 +3,7 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.function.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
@@ -58,10 +59,16 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
-				if (params[0][0] instanceof Long)
-					return new Long[] {(Long) params[0][0]};
+				if (params[0][0] instanceof Long longValue)
+					return new Long[] {longValue};
 				double value = ((Number) params[0][0]).doubleValue();
-				int placement = ((Number) params[1][0]).intValue();
+				if (!Double.isFinite(value))
+					return new Double[] {value};
+
+				double placementDouble = ((Number) params[1][0]).doubleValue();
+				if (!Double.isFinite(placementDouble) || placementDouble >= Integer.MAX_VALUE || placementDouble <= Integer.MIN_VALUE)
+					return new Double[] {Double.NaN};
+				int placement = (int) placementDouble;
 				if (placement == 0)
 					return new Long[] {Math2.round(value)};
 				if (placement >= 0) {
@@ -296,7 +303,7 @@ public class DefaultFunctions {
 			.since("2.2"));
 
 		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[] {
-					 new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+					 new Parameter<>("values", DefaultClasses.NUMBER, false, null, true),
 					 new Parameter<>("min", DefaultClasses.NUMBER, true, null),
 					 new Parameter<>("max", DefaultClasses.NUMBER, true, null)
 				 }, DefaultClasses.NUMBER, false, new Contract() {
@@ -313,7 +320,8 @@ public class DefaultFunctions {
 				 }) {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
-				Number[] values = (Number[]) params[0];
+				//noinspection unchecked
+				KeyedValue<Number>[] values = (KeyedValue<Number>[]) params[0];
 				Double[] clampedValues = new Double[values.length];
 				double min = ((Number) params[1][0]).doubleValue();
 				double max = ((Number) params[2][0]).doubleValue();
@@ -321,12 +329,13 @@ public class DefaultFunctions {
 				double trueMin = Math.min(min, max);
 				double trueMax = Math.max(min, max);
 				for (int i = 0; i < values.length; i++) {
-					double value = values[i].doubleValue();
+					double value = values[i].value().doubleValue();
 					clampedValues[i] = Math.max(Math.min(value, trueMax), trueMin);
 				}
+				setReturnedKeys(KeyedValue.unzip(values).keys().toArray(new String[0]));
 				return clampedValues;
 			}
-		}).description("Clamps one or more values between two numbers.")
+		}).description("Clamps one or more values between two numbers.", "This function retains indices")
 			.examples(
 					"clamp(5, 0, 10) = 5",
 					"clamp(5.5, 0, 5) = 5",

@@ -1,15 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.lang.VerboseAssert;
-
-import ch.njol.skript.log.ParseLogHandler;
-import org.bukkit.event.Event;
-import org.skriptlang.skript.lang.comparator.Comparator;
-import org.skriptlang.skript.lang.comparator.ComparatorInfo;
-import org.skriptlang.skript.lang.comparator.Comparators;
-import org.skriptlang.skript.lang.comparator.Relation;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
@@ -20,16 +10,24 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
+import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparator;
+import org.skriptlang.skript.lang.comparator.ComparatorInfo;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.util.Cyclical;
 
 import java.util.function.Predicate;
@@ -228,7 +226,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 	 * form can be accessed.
 	 * @param <T> Wanted type.
 	 * @param type Wanted class of literal.
-	 * @param expr Expression we currently have.
+	 * @param expression Expression we currently have.
 	 * @return A literal value, or null if parsing failed.
 	 */
 	@Nullable
@@ -238,12 +236,8 @@ public class CondCompare extends Condition implements VerboseAssert {
 			source = expression.getSource();
 
 		// Try to get access to unparsed content of it
-		if (source instanceof UnparsedLiteral) {
-			String unparsed = ((UnparsedLiteral) source).getData();
-			T data = Classes.parse(unparsed, type, ParseContext.DEFAULT);
-			if (data != null) { // Success, let's make a literal of it
-				return new SimpleLiteral<>(data, false, new UnparsedLiteral(unparsed));
-			}
+		if (source instanceof UnparsedLiteral unparsedLiteral) {
+			return unparsedLiteral.reparse(type);
 		}
 		return null; // Context-sensitive parsing failed; can't really help it
 	}
@@ -402,6 +396,13 @@ public class CondCompare extends Condition implements VerboseAssert {
 				return !shouldMatch;
 		}
 		return shouldMatch;
+	}
+
+	@Override
+	public Condition simplify() {
+		if (first instanceof Literal<?> && second instanceof Literal<?> && (third == null || third instanceof Literal<?>))
+			return SimplifiedCondition.fromCondition(this);
+		return this;
 	}
 
 	@Override

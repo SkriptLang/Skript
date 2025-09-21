@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 	on player block harvest:
 		cancel the item drops
 	""")
-@Since("2.4, INSERT VERSION (harvest event)")
+@Since("2.4, 2.12 (harvest event)")
 @RequiredPlugins("1.12.2 or newer (cancelling item drops of blocks)")
 @Events({"death", "break / mine", "block drop", "harvest"})
 public class EffCancelDrops extends Effect implements EventRestrictedSyntax {

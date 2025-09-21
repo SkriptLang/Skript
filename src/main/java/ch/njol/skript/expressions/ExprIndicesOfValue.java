@@ -1,19 +1,18 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.skript.lang.Variable;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.util.LiteralUtils;
-import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -21,7 +20,7 @@ import ch.njol.util.Kleenean;
 import java.lang.reflect.Array;
 import java.util.*;
 
-@Name("Indices Of")
+@Name("Indices of Value")
 @Description({
 	"Get the first, last or all positions of a character (or text) in another text using "
 		+ "'positions of %text% in %text%'. Nothing is returned when the value does not occur in the text. "
@@ -29,48 +28,55 @@ import java.util.*;
 	"",
 	"Using 'indices/positions of %objects% in %objects%', you can get the indices or positions of "
 		+ "a list where the value at that index is the provided value. "
-		+ "Indices are only supported for variable lists and will return the string indices of the given value. "
+		+ "Indices are only supported for keyed expressions (e.g. variable lists) "
+		+ "and will return the string indices of the given value. "
 		+ "Positions can be used with any list and will return "
 		+ "the numerical position of the value in the list, counting up from 1. "
-		+ "As well, nothing is returned if the value is not found in the list."
+		+ "Additionally, nothing is returned if the value is not found in the list.",
+	"",
+	"Whether string comparison is case-sensitive or not can be configured in Skript's config file.",
 })
-@Examples({
-	"set {_first} to the first position of \"@\" in the text argument",
-	"if {_s} contains \"abc\":",
-		"\tset {_s} to the first (position of \"abc\" in {_s} + 3) characters of {_s}",
-		"\t# removes everything after the first \"abc\" from {_s}",
-	"",
-	"set {_list::*} to 1, 2, 3, 1, 2, 3",
-	"set {_indices::*} to indices of the value 1 in {_list::*}",
-	"# {_indices::*} is now \"1\" and \"4\"",
-	"",
-	"set {_indices::*} to all indices of the value 2 in {_list::*}",
-	"# {_indices::*} is now \"2\" and \"5\"",
-	"",
-	"set {_positions::*} to all positions of the value 3 in {_list::*}",
-	"# {_positions::*} is now 3 and 6",
-	"",
-	"set {_otherlist::bar} to 100",
-	"set {_otherlist::hello} to \"hi\"",
-	"set {_otherlist::burb} to 100",
-	"set {_otherlist::tud} to \"hi\"",
-	"set {_otherlist::foo} to 100",
-	"",
-	"set {_indices::*} to the first index of the value 100 in {_otherlist::*}",
-	"# {_indices::*} is now \"bar\"",
-	"set {_indices::*} to the last index of the value 100 in {_otherlist::*}",
-	"# {_indices::*} is now \"foo\"",
-	"",
-	"set {_positions::*} to all positions of the value 100 in {_otherlist::*}",
-	"# {_positions::*} is now 1, 3 and 5",
-	"set {_positions::*} to all positions of the value \"hi\" in {_otherlist::*}",
-	"# {_positions::*} is now 2 and 4"
-})
-@Since("2.1, INSERT VERSION (indices, positions of list)")
-public class ExprIndicesOf extends SimpleExpression<Object> {
+@Example("""
+	set {_first} to the first position of "@" in the text argument
+	if {_s} contains "abc":
+		set {_s} to the first (position of "abc" in {_s} + 3) characters of {_s}
+		# removes everything after the first "abc" from {_s}
+	""")
+@Example("""
+	set {_list::*} to 1, 2, 3, 1, 2, 3
+	set {_indices::*} to indices of the value 1 in {_list::*}
+	# {_indices::*} is now "1" and "4"
+
+	set {_indices::*} to all indices of the value 2 in {_list::*}
+	# {_indices::*} is now "2" and "5"
+
+	set {_positions::*} to all positions of the value 3 in {_list::*}
+	# {_positions::*} is now 3 and 6
+	""")
+@Example("""
+	set {_otherlist::bar} to 100
+	set {_otherlist::hello} to "hi"
+	set {_otherlist::burb} to 100
+	set {_otherlist::tud} to "hi"
+	set {_otherlist::foo} to 100
+
+	set {_indices::*} to the first index of the value 100 in {_otherlist::*}
+	# {_indices::*} is now "bar"
+
+	set {_indices::*} to the last index of the value 100 in {_otherlist::*}
+	# {_indices::*} is now "foo"
+
+	set {_positions::*} to all positions of the value 100 in {_otherlist::*}
+	# {_positions::*} is now 1, 3 and 5
+
+	set {_positions::*} to all positions of the value "hi" in {_otherlist::*}
+	# {_positions::*} is now 2 and 4
+	""")
+@Since("2.1, 2.12 (indices, positions of list)")
+public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprIndicesOf.class, Object.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprIndicesOfValue.class, Object.class, ExpressionType.COMBINED,
 			"[the] [1:first|2:last|3:all] (position[mult:s]|mult:indices|index[mult:es]) of [[the] value] %string% in %string%",
 			"[the] [1:first|2:last|3:all] position[mult:s] of [[the] value] %object% in %~objects%",
 			"[the] [1:first|2:last|3:all] (mult:indices|index[mult:es]) of [[the] value] %object% in %~objects%"
@@ -89,9 +95,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			return false;
 		}
 
-		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 2) {
-			Skript.error("'" + exprs[1] + "' is not a list variable. "
-				+ "You can only get the indices of a list variable.");
+		if (!KeyProviderExpression.canReturnKeys(exprs[1]) && matchedPattern == 2) {
+			Skript.error("'" + exprs[1] + "' is not a keyed expression. "
+				+ "You can only get the indices of a keyed expression.");
 			return false;
 		}
 
@@ -125,14 +131,16 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			return getListPositions(objects, value, event);
 		}
 
-		assert objects instanceof Variable<?>;
+		assert objects instanceof KeyProviderExpression<?>;
 
-		return getVariableIndices((Variable<?>) objects, value, event);
+		return getIndices((KeyProviderExpression<?>) objects, value, event);
 	}
 
 	private Long[] getStringPositions(String haystack, String needle) {
+		boolean caseSensitive = SkriptConfig.caseSensitive.value();
+
 		List<Long> positions = new ArrayList<>();
-		long position = haystack.indexOf(needle);
+		long position = StringUtils.indexOf(haystack, needle, caseSensitive);
 
 		if (position == -1)
 			return new Long[0];
@@ -140,18 +148,20 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (indexType == IndexType.ALL) {
 			while (position != -1) {
 				positions.add(position + 1);
-				position = haystack.indexOf(needle, (int) position + 1);
+				position = StringUtils.indexOf(haystack, needle, (int) position + 1, caseSensitive);
 			}
-			return positions.toArray(new Long[0]);
+			return positions.toArray(Long[]::new);
 		}
 
 		if (indexType == IndexType.LAST)
-			position = haystack.lastIndexOf(needle);
+			position = StringUtils.lastIndexOf(haystack, needle, caseSensitive);
 
 		return new Long[]{position + 1};
 	}
 
 	private Long[] getListPositions(Expression<?> list, Object value, Event event) {
+		boolean caseSensitive = SkriptConfig.caseSensitive.value();
+
 		Iterator<?> iterator = list.iterator(event);
 		if (iterator == null)
 			return new Long[0];
@@ -162,7 +172,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		while (iterator.hasNext()) {
 			position++;
 
-			if (!iterator.next().equals(value))
+			if (!equals(iterator.next(), value, caseSensitive))
 				continue;
 
 			if (indexType == IndexType.FIRST)
@@ -177,27 +187,24 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		return positions.toArray(Long[]::new);
 	}
 
-	private String[] getVariableIndices(Variable<?> variable, Object value, Event event) {
-		Iterator<Pair<String, Object>> iterator = variable.variablesIterator(event);
+	private String[] getIndices(KeyProviderExpression<?> expression, Object value, Event event) {
+		boolean caseSensitive = SkriptConfig.caseSensitive.value();
+
+		Iterator<? extends KeyedValue<?>> iterator = expression.keyedIterator(event);
 		if (iterator == null)
 			return new String[0];
 
 		List<String> indices = new ArrayList<>();
 
 		while (iterator.hasNext()) {
-			var pair = iterator.next();
+			var keyedValue = iterator.next();
 
-			Object pairValue = pair.getValue();
-			// when {foo::1::bar} is set, the value of {foo::1} is a map with a null key that holds the value of {foo::1}
-			if (pairValue instanceof Map<?, ?> map)
-				pairValue = map.get(null);
+			if (!equals(keyedValue.value(), value, caseSensitive))
+				continue;
+			if (indexType == IndexType.FIRST)
+				return new String[]{keyedValue.key()};
 
-			if (pairValue.equals(value)) {
-				if (indexType == IndexType.FIRST)
-					return new String[]{pair.getKey()};
-
-				indices.add(pair.getKey());
-			}
+			indices.add(keyedValue.key());
 		}
 
 		if (indices.isEmpty())
@@ -207,6 +214,12 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			return new String[]{indices.get(indices.size() - 1)};
 
 		return indices.toArray(String[]::new);
+	}
+
+	private boolean equals(Object key, Object value, boolean caseSensitive) {
+		if (key instanceof String keyString && value instanceof String valueString)
+			return StringUtils.equals(keyString, valueString, caseSensitive);
+		return key.equals(value);
 	}
 
 	@Override
@@ -219,6 +232,16 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (position)
 			return Long.class;
 		return String.class;
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (this.position && this.string
+			&& value instanceof Literal<?> && objects instanceof Literal<?>
+		) {
+			return SimplifiedLiteral.fromExpression(this);
+		}
+		return this;
 	}
 
 	@Override

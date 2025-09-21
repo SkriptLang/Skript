@@ -67,7 +67,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class BukkitClasses {
 
@@ -1297,31 +1296,39 @@ public class BukkitClasses {
 			.documentationId("CatType"));
 
 
+		PatternedParser<GameRule> gameRuleParser = new PatternedParser<>() {
+			
+			private String[] patterns = Arrays.stream(GameRule.values()).map(GameRule::getName).toArray(String[]::new);
+			
+			@Override
+			public @Nullable GameRule parse(String string, ParseContext context) {
+				return GameRule.getByName(string);
+			}
+
+			@Override
+			public String toString(GameRule gameRule, int flags) {
+				return gameRule.getName();
+			}
+
+			@Override
+			public String toVariableNameString(GameRule gameRule) {
+				return gameRule.getName();
+			}
+
+			@Override
+			public String[] getPatterns() {
+				return patterns;
+			}
+		};
 		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
 			.user("gamerules?")
 			.name("Gamerule")
 			.description("A gamerule")
-			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
+			.usage(gameRuleParser.getCombinedPatterns())
 			.since("2.5")
 			.requiredPlugins("Minecraft 1.13 or newer")
 			.supplier(GameRule.values())
-			.parser(new Parser<GameRule>() {
-				@Override
-				@Nullable
-				public GameRule parse(final String input, final ParseContext context) {
-					return GameRule.getByName(input);
-				}
-
-				@Override
-				public String toString(GameRule o, int flags) {
-					return o.getName();
-				}
-
-				@Override
-				public String toVariableNameString(GameRule o) {
-					return o.getName();
-				}
-			})
+			.parser(gameRuleParser)
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
@@ -1411,7 +1418,7 @@ public class BukkitClasses {
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("2.10"));
 
-		ClassInfo<?> wolfVariantClassInfo = getRegistryClassInfo(
+		ClassInfo<?> wolfVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Wolf$Variant",
 			"WOLF_VARIANT",
 			"wolfvariant",
@@ -1559,7 +1566,7 @@ public class BukkitClasses {
 			.since("2.11")
 		);
 
-		ClassInfo<?> pigVariantClassInfo = getRegistryClassInfo(
+		ClassInfo<?> pigVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Pig$Variant",
 			"PIG_VARIANT",
 			"pigvariant",
@@ -1574,11 +1581,11 @@ public class BukkitClasses {
 			.name("Pig Variant")
 			.description("Represents the variant of a pig entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
 
-		ClassInfo<?> chickenVariantClassInfo = getRegistryClassInfo(
+		ClassInfo<?> chickenVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Chicken$Variant",
 			"CHICKEN_VARIANT",
 			"chickenvariant",
@@ -1593,12 +1600,12 @@ public class BukkitClasses {
 			.name("Chicken Variant")
 			.description("Represents the variant of a chicken entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("ChickenVariant")
 		);
 
-		ClassInfo<?> cowVariantClassInfo = getRegistryClassInfo(
+		ClassInfo<?> cowVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Cow$Variant",
 			"COW_VARIANT",
 			"cowvariant",
@@ -1613,7 +1620,7 @@ public class BukkitClasses {
 			.name("Cow Variant")
 			.description("Represents the variant of a cow entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.12")
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("CowVariant")
 		);
@@ -1622,52 +1629,8 @@ public class BukkitClasses {
 			.user("(villager )?career ?change ?reasons?")
 			.name("Villager Career Change Reason")
 			.description("Represents a reason why a villager changed its career.")
-			.since("INSERT VERSION")
+			.since("2.12")
 		);
 
 	}
-
-	/**
-	 * Gets a {@link RegistryClassInfo} by checking if the {@link Class} from {@code classPath} exists
-	 * and {@link Registry} or {@link io.papermc.paper.registry.RegistryKey} contains {@code registryName}.
-	 * @param classPath The {@link String} representation of the desired {@link Class}.
-	 * @param registryName The {@link String} representation of the desired {@link Registry}.
-	 * @param codeName The name used in patterns.
-	 * @param languageNode The language node of the type.
-	 * @return {@link RegistryClassInfo} if the class and registry exists, otherwise {@code null}.
-	 */
-	private static <R extends Keyed> @Nullable RegistryClassInfo<?> getRegistryClassInfo(
-		String classPath,
-		String registryName,
-		String codeName,
-		String languageNode
-	) {
-		if (!Skript.classExists(classPath))
-			return null;
-		Registry<R> registry = null;
-		if (BukkitUtils.registryExists(registryName)) {
-			try {
-				//noinspection unchecked
-				registry = (Registry<R>) Registry.class.getField(registryName).get(null);
-			} catch (NoSuchFieldException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		} else if (PaperUtils.registryExists(registryName)) {
-			registry = PaperUtils.getBukkitRegistry(registryName);
-		}
-		if (registry != null) {
-			Class<R> registryClass;
-			try {
-				//noinspection unchecked
-				registryClass = (Class<R>) Class.forName(classPath);
-			} catch (ClassNotFoundException e) {
-				Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
-				throw new RuntimeException(e);
-			}
-			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
-		}
-		Skript.debug("There were no registries found for '" + registryName + "'.");
-		return null;
-	}
-
 }

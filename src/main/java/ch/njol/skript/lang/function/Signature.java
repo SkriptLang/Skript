@@ -18,7 +18,7 @@ public class Signature<T> {
 	/**
 	 * Name of the script that the function is inside.
 	 */
-	final String script;
+	final @Nullable String script;
 	
 	/**
 	 * Name of function this refers to.

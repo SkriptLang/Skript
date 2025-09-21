@@ -3,27 +3,32 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.lang.util.common.AnyContains;
-import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.comparator.Comparators;
+import ch.njol.skript.lang.util.common.AnyContains;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.skriptlang.skript.lang.converter.Converters;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 @Name("Contains")
 @Description("Checks whether an inventory contains an item, a text contains another piece of text, "
@@ -33,7 +38,7 @@ import java.util.Objects;
 		"player has 4 flint and 2 iron ingots",
 		"{list::*} contains 5"})
 @Since("1.0")
-public class CondContains extends Condition {
+public class CondContains extends Condition implements VerboseAssert {
 
 	static {
 		Skript.registerCondition(CondContains.class,
@@ -59,8 +64,8 @@ public class CondContains extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		containers = exprs[0];
-		items = exprs[1];
+		containers = LiteralUtils.defendExpression(exprs[0]);
+		items = LiteralUtils.defendExpression(exprs[1]);
 
 		explicitSingle = matchedPattern == 2 && parseResult.mark != 1 || containers.isSingle();
 
@@ -71,7 +76,7 @@ public class CondContains extends Condition {
 		}
 
 		this.setNegated(matchedPattern % 2 == 1);
-		return true;
+		return LiteralUtils.canInitSafely(containers, items);
 	}
 
 	@Override
@@ -154,6 +159,36 @@ public class CondContains extends Condition {
 				}, isNegated());
 			}
 		};
+	}
+
+	@Override
+	public String getExpectedMessage(Event event) {
+		StringJoiner joiner = new StringJoiner(" ");
+		joiner.add("to");
+		if (isNegated()) {
+			joiner.add("not");
+		}
+		joiner.add("find %s".formatted(VerboseAssert.getExpressionValue(items, event)));
+		return joiner.toString();
+	}
+
+	@Override
+	public String getReceivedMessage(Event event) {
+		StringJoiner joiner = new StringJoiner(" ");
+		if (!isNegated()) {
+			joiner.add("no");
+		} else {
+			joiner.add("a");
+		}
+		joiner.add("match in %s".formatted(VerboseAssert.getExpressionValue(containers, event)));
+		return joiner.toString();
+	}
+
+	@Override
+	public Condition simplify() {
+		if (containers instanceof Literal<?> && items instanceof Literal<?>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
 	}
 
 	@Override

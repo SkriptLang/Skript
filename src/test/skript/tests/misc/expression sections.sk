@@ -5,21 +5,21 @@ test "expression sections":
 
 	assert {_var} is false with "expression section ran too early!"
 
-	run {_runnable}
+	run runnable {_runnable}
 	assert {_var} is true with "expression section didn't run!"
 
 	# try it again in case it stops working for some reason
 	set {_var} to false
-	run {_runnable}
+	run runnable {_runnable}
 	assert {_var} is true with "expression section didn't run again!"
 
 	# section in a section!
 	set {_runnable} to a new runnable:
 		set {_runnable2} to a new runnable:
 			set {_var} to true
-		run {_runnable2}
+		run runnable {_runnable2}
 	set {_var} to false
-	run {_runnable}
+	run runnable {_runnable}
 	assert {_var} is true with "expression section in expression section didn't run"
 
 	# test proper logging behavior

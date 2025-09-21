@@ -7,7 +7,9 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
@@ -41,6 +43,10 @@ public class ExprReversedList extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		list = LiteralUtils.defendExpression(exprs[0]);
+		if (list.isSingle()) {
+			Skript.error("A single object cannot be reversed.");
+			return false;
+		}
 		return LiteralUtils.canInitSafely(list);
 	}
 
@@ -96,7 +102,14 @@ public class ExprReversedList extends SimpleExpression<Object> {
 	public boolean canReturn(Class<?> returnType) {
 		return list.canReturn(returnType);
 	}
-
+  
+  @Override
+	public Expression<?> simplify() {
+		if (list instanceof Literal<?>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+  }
+    
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "reversed " + list.toString(e, debug);
