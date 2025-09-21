@@ -208,7 +208,7 @@ public class StructAutoReload extends Structure {
 			List<CommandSender> senders = Lists.newArrayList(Bukkit.getConsoleSender());
 			if (!recipients.isEmpty()) {
 				Bukkit.getOnlinePlayers().stream()
-					.filter(p -> recipients.contains(p.getName()))
+					.filter(p -> recipients.contains(p.getName()) || recipients.contains(p.getUniqueId().toString()))
 					.forEach(senders::add);
 				return Collections.unmodifiableList(senders);
 			}
