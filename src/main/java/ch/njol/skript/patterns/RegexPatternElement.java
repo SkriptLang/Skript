@@ -5,6 +5,8 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +58,11 @@ public class RegexPatternElement extends PatternElement {
 	@Override
 	public String toString() {
 		return "<" + pattern + ">";
+	}
+
+	@Override
+	public Set<String> getCombinations(boolean clean) {
+		return new HashSet<>(Set.of(toString()));
 	}
 
 }
