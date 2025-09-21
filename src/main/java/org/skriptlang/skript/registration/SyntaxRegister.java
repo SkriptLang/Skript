@@ -14,6 +14,13 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 final class SyntaxRegister<I extends SyntaxInfo<?>> {
 
+	private static boolean isSkriptSyntax(SyntaxInfo<?> info) {
+		String originName = info.origin().name();
+		// name will either be generic Skript instance name or class name
+		// TODO something more reliable
+		return originName.equals("Skript") || originName.startsWith("org.skriptlang.skript");
+	}
+
 	private static int calculateComplexityScore(SyntaxInfo<?> info) {
 		return info.patterns().stream()
 				.mapToInt(SyntaxRegister::calculateComplexityScore)
@@ -26,9 +33,9 @@ final class SyntaxRegister<I extends SyntaxInfo<?>> {
 		char[] chars = pattern.toCharArray();
 		for (int i = 0; i < chars.length; i++) {
 			if (chars[i] == '%') {
-				// weigh "%thing% %thing%" or "%thing% [%thing%]" heavier
+				// weigh "%thing% %thing%" or "%thing% [%thing%]" much heavier
 				if ((i - 2 >= 0 && chars[i - 2] == '%') || (i - 3 >= 0 && chars[i - 3] == '%')) {
-					score += 3;
+					score += 5;
 				} else {
 					score++;
 				}
@@ -45,6 +52,12 @@ final class SyntaxRegister<I extends SyntaxInfo<?>> {
 		int priorityResult = a.priority().compareTo(b.priority());
 		if (priorityResult != 0) {
 			return priorityResult;
+		}
+		// prioritize Skript syntax over its addons
+		if (isSkriptSyntax(a) && !isSkriptSyntax(b)) {
+			return -1;
+		} else if (!isSkriptSyntax(a) && isSkriptSyntax(b)) {
+			return 1;
 		}
 		// otherwise, consider the complexity of the syntax
 		int scoreResult = Integer.compare(calculateComplexityScore(a), calculateComplexityScore(b));
