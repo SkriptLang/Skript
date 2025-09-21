@@ -2,6 +2,8 @@ package ch.njol.skript.patterns;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 /**
  * A {@link PatternElement} that contains an optional part, for example {@code [hello world]}.
  */
@@ -35,6 +37,13 @@ public class OptionalPatternElement extends PatternElement {
 	@Override
 	public String toString() {
 		return "[" + patternElement.toFullString() + "]";
+	}
+
+	@Override
+	public Set<String> getCombinations(boolean clean) {
+		Set<String> combinations = patternElement.getAllCombinations(clean);
+		combinations.add("");
+		return combinations;
 	}
 
 }
