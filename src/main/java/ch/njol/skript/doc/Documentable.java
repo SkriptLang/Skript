@@ -35,4 +35,9 @@ public interface Documentable {
 	 */
 	@Unmodifiable @NotNull Collection<String> keywords();
 
+	/**
+	 * @return The unmodifiable requirements.
+	 */
+	@Unmodifiable @NotNull Collection<String> requires();
+
 }

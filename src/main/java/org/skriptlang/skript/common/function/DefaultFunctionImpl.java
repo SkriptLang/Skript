@@ -23,13 +23,16 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	private final Collection<String> since;
 	private final Collection<String> examples;
 	private final Collection<String> keywords;
+	private final Collection<String> requires;
 
 	DefaultFunctionImpl(
 			SkriptAddon source,
 			String name, Parameter<?>[] parameters,
 			Class<T> returnType, boolean single,
-			@Nullable ch.njol.skript.util.Contract contract, Function<FunctionArguments, T> execute,
-			String[] description, String[] since, String[] examples, String[] keywords
+			@Nullable ch.njol.skript.util.Contract contract,
+			Function<FunctionArguments, T> execute,
+			String[] description, String[] since, String[] examples,
+			String[] keywords, String[] requires
 	) {
 		super(new Signature<>(null, name, parameters, returnType, single, contract));
 
@@ -46,6 +49,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		this.since = since != null ? List.of(since) : Collections.emptyList();
 		this.examples = examples != null ? List.of(examples) : Collections.emptyList();
 		this.keywords = keywords != null ? List.of(keywords) : Collections.emptyList();
+		this.requires = requires != null ? List.of(requires) : Collections.emptyList();
 	}
 
 	@Override
@@ -127,6 +131,11 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 	@Override
+	public @Unmodifiable @NotNull Collection<String> requires() {
+		return requires;
+	}
+
+	@Override
 	public @NotNull SkriptAddon source() {
 		return source;
 	}
@@ -149,6 +158,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private String[] since;
 		private String[] examples;
 		private String[] keywords;
+		private String[] requires;
 
 		BuilderImpl(@NotNull SkriptAddon source, @NotNull String name, @NotNull Class<T> returnType) {
 			Preconditions.checkNotNull(source, "source cannot be null");
@@ -205,6 +215,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		}
 
 		@Override
+		public Builder<T> requires(@NotNull String @NotNull ... requires) {
+			Preconditions.checkNotNull(keywords, "requires cannot be null");
+			checkNotNull(keywords, "requires contents cannot be null");
+
+			this.requires = requires;
+			return this;
+		}
+
+		@Override
 		public Builder<T> parameter(@NotNull String name, @NotNull Class<?> type, Modifier @NotNull ... modifiers) {
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
@@ -218,7 +237,8 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
 			return new DefaultFunctionImpl<>(source, name, parameters.values().toArray(new Parameter[0]),
-					returnType, !returnType.isArray(), contract, execute, description, since, examples, keywords);
+					returnType, !returnType.isArray(), contract, execute,
+					description, since, examples, keywords, requires);
 		}
 
 		/**

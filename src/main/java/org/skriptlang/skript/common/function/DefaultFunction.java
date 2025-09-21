@@ -107,6 +107,15 @@ public sealed interface DefaultFunction<T>
 		Builder<T> keywords(@NotNull String @NotNull ... keywords);
 
 		/**
+		 * Sets this function builder's requires.
+		 *
+		 * @param requires The requirements.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		Builder<T> requires(@NotNull String @NotNull ... requires);
+
+		/**
 		 * Adds a parameter to this function builder.
 		 *
 		 * @param name      The parameter name.
