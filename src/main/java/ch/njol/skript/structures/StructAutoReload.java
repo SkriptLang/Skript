@@ -56,7 +56,7 @@ import com.google.common.collect.Lists;
 	available optional nodes:
 		recipients: The players to send reload messages to. Defaults to console.
 		permission: The permission required to receive reload messages. 'recipients' will override this node.
-	"""})
+	""")
 @Example("auto reload")
 @Example("""
 	auto reload:
