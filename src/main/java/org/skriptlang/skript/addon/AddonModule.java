@@ -1,16 +1,10 @@
 package org.skriptlang.skript.addon;
 
-import ch.njol.skript.doc.Categorizable;
-import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
-
-import java.util.Set;
 
 /**
  * A module is a component of a {@link SkriptAddon} used for registering syntax and other {@link Skript} components.
@@ -25,7 +19,7 @@ import java.util.Set;
  */
 @FunctionalInterface
 @ApiStatus.Experimental
-public interface AddonModule extends Categorizable {
+public interface AddonModule {
 
 	/**
 	 * Used for loading the components of this module that are needed first or by other modules (e.g. class infos).
@@ -51,11 +45,6 @@ public interface AddonModule extends Categorizable {
 	 */
 	default boolean canLoad(SkriptAddon addon) {
 		return true;
-	}
-
-	@Override
-	default @NotNull Set<Category> category() {
-		return Set.of();
 	}
 
 	/**

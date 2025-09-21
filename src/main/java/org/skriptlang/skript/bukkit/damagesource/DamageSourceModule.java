@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.damagesource;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.doc.Categorizable;
 import ch.njol.skript.doc.Category;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
@@ -13,7 +14,6 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.damagesource.elements.*;
@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Set;
 
-public class DamageSourceModule implements AddonModule {
+public class DamageSourceModule implements AddonModule, Categorizable {
 
 	@Override
 	public boolean canLoad(SkriptAddon addon) {
@@ -70,7 +70,7 @@ public class DamageSourceModule implements AddonModule {
 	}
 
 	@Override
-	public @NotNull Set<Category> category() {
+	public @NotNull Set<Category> categories() {
 		return Set.of(Category.DAMAGE_SOURCES);
 	}
 

@@ -1,5 +1,6 @@
 package org.skriptlang.skript.addon;
 
+import ch.njol.skript.doc.Categorizable;
 import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -103,9 +104,11 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 		for (AddonModule module : filtered) {
 			module.load(this);
 
-			Set<Category> categories = module.category();
-			for (Category category : categories) {
-				category.addModule(module.getClass());
+			if (module instanceof Categorizable categorizable) {
+				Set<Category> categories = categorizable.categories();
+				for (Category category : categories) {
+					category.addModule(module.getClass());
+				}
 			}
 		}
 	}

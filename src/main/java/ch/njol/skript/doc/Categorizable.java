@@ -11,10 +11,10 @@ import java.util.Set;
 public interface Categorizable {
 
 	/**
-	 * Returns the documentation category which this module belongs to.
+	 * Returns the documentation categories which this module belongs to.
 	 *
-	 * @return The category of this module.
+	 * @return The categories of this module.
 	 */
-	@NotNull Set<Category> category();
+	@NotNull Set<Category> categories();
 
 }
