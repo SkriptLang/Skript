@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.registration.TypeInfoImpl.EnumInfoBuilderImpl;
 import org.skriptlang.skript.registration.TypeInfoImpl.RegistryInfoBuilderImpl;
 import org.skriptlang.skript.registration.TypeInfoImpl.TypeInfoBuilderImpl;
 
@@ -18,6 +19,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
+/**
+ * Represents the info Skript has related to a type.
+ *
+ * @param <T> The class that this {@link TypeInfo} represents
+ */
 @ApiStatus.Experimental
 public interface TypeInfo<T> extends Documentable {
 
@@ -30,7 +36,7 @@ public interface TypeInfo<T> extends Documentable {
 		return new TypeInfoBuilderImpl<>(source, type, name, patterns);
 	}
 
-	static <T extends @NotNull Keyed> RegistryBuilder<T> builder(
+	static <T extends @NotNull Keyed> RestrictedBuilder<T> builder(
 			@NotNull SkriptAddon source,
 			@NotNull Class<T> type,
 			@NotNull String name,
@@ -41,18 +47,50 @@ public interface TypeInfo<T> extends Documentable {
 		return new RegistryInfoBuilderImpl<>(source, type, name, registry, langNode, patterns);
 	}
 
+	static <T extends Enum<T>> RestrictedBuilder<T> builder(
+			@NotNull SkriptAddon source,
+			@NotNull Class<T> type,
+			@NotNull String name,
+			@NotNull String langNode,
+			@NotNull String @NotNull ... patterns
+	) {
+		return new EnumInfoBuilderImpl<>(source, type, name, langNode, patterns);
+	}
+
+	/**
+	 * @return The source of this type.
+	 */
 	@NotNull SkriptAddon source();
 
+	/**
+	 * @return The {@link Class} representing the type.
+	 */
 	@NotNull Class<T> type();
 
+	/**
+	 * @return An unmodifiable collection of all possible ways to reference this type.
+	 */
 	@NotNull @Unmodifiable Collection<String> patterns();
 
+	/**
+	 * @return The {@link Parser} associated with this type.
+	 */
 	Parser<T> parser();
 
+	/**
+	 * @return The {@link Serializer} associated with this type.
+	 */
 	Serializer<T> serializer();
 
+	/**
+	 * @return The default expression associated with this type.
+	 */
 	DefaultExpression<T> defaultExpression();
 
+	/**
+	 * @return A supplier which provides an iterator
+	 * for all possible values that this type can have.
+	 */
 	Supplier<Iterator<T>> values();
 
 	/**
@@ -154,11 +192,12 @@ public interface TypeInfo<T> extends Documentable {
 	}
 
 	/**
-	 * Represents a builder for {@link TypeInfo TypeInfos} based on {@link org.bukkit.Registry Bukkit's Registry}.
+	 * Represents a builder for {@link TypeInfo TypeInfos} based on
+	 * {@link org.bukkit.Registry Bukkit's Registry} or an {@link Enum}.
 	 *
 	 * @param <T> The class of the type.
 	 */
-	interface RegistryBuilder<T> {
+	interface RestrictedBuilder<T> {
 
 		/**
 		 * Sets this type builder's description.
@@ -167,7 +206,7 @@ public interface TypeInfo<T> extends Documentable {
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		RegistryBuilder<T> description(@NotNull String @NotNull ... description);
+		RestrictedBuilder<T> description(@NotNull String @NotNull ... description);
 
 		/**
 		 * Sets this type builder's version history.
@@ -176,7 +215,7 @@ public interface TypeInfo<T> extends Documentable {
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		RegistryBuilder<T> since(@NotNull String @NotNull ... since);
+		RestrictedBuilder<T> since(@NotNull String @NotNull ... since);
 
 		/**
 		 * Sets this type builder's examples.
@@ -185,7 +224,7 @@ public interface TypeInfo<T> extends Documentable {
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		RegistryBuilder<T> examples(@NotNull String @NotNull ... examples);
+		RestrictedBuilder<T> examples(@NotNull String @NotNull ... examples);
 
 		/**
 		 * Sets this type builder's keywords.
@@ -194,7 +233,7 @@ public interface TypeInfo<T> extends Documentable {
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		RegistryBuilder<T> keywords(@NotNull String @NotNull ... keywords);
+		RestrictedBuilder<T> keywords(@NotNull String @NotNull ... keywords);
 
 		/**
 		 * Sets this type builder's requirements.
@@ -203,7 +242,7 @@ public interface TypeInfo<T> extends Documentable {
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		RegistryBuilder<T> requires(@NotNull String @NotNull ... requires);
+		RestrictedBuilder<T> requires(@NotNull String @NotNull ... requires);
 
 		/**
 		 * Sets this type builder's default expression.
@@ -212,7 +251,7 @@ public interface TypeInfo<T> extends Documentable {
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		RegistryBuilder<T> defaultExpression(@NotNull DefaultExpression<T> expr);
+		RestrictedBuilder<T> defaultExpression(@NotNull DefaultExpression<T> expr);
 
 		/**
 		 * Sets this type builder's possible values.
@@ -221,7 +260,7 @@ public interface TypeInfo<T> extends Documentable {
 		 * @return This builder.
 		 */
 		@Contract("_ -> this")
-		RegistryBuilder<T> values(@NotNull Supplier<Iterator<T>> values);
+		RestrictedBuilder<T> values(@NotNull Supplier<Iterator<T>> values);
 
 		/**
 		 * Completes this builder.

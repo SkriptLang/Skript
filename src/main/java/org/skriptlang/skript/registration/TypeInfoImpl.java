@@ -1,10 +1,13 @@
 package org.skriptlang.skript.registration;
 
+import ch.njol.skript.classes.EnumParser;
+import ch.njol.skript.classes.EnumSerializer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.registry.RegistryParser;
 import ch.njol.skript.classes.registry.RegistrySerializer;
 import ch.njol.skript.lang.DefaultExpression;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import com.google.common.base.Preconditions;
 import org.bukkit.Keyed;
 import org.bukkit.Registry;
@@ -147,7 +150,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		private DefaultExpression<T> defaultExpression;
 		private Supplier<Iterator<T>> values;
 
-		public TypeInfoBuilderImpl(SkriptAddon source, Class<T> type, String name, String... patterns) {
+		TypeInfoBuilderImpl(SkriptAddon source, Class<T> type, String name, String... patterns) {
 			Preconditions.checkNotNull(source, "source cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 			Preconditions.checkNotNull(name, "name cannot be null");
@@ -259,7 +262,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 
 	}
 
-	static final class RegistryInfoBuilderImpl<T extends @NotNull Keyed> implements TypeInfo.RegistryBuilder<T> {
+	static final class RegistryInfoBuilderImpl<T extends @NotNull Keyed> implements RestrictedBuilder<T> {
 
 		private final SkriptAddon source;
 		private final Class<T> type;
@@ -277,10 +280,12 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		private DefaultExpression<T> defaultExpression;
 		private Supplier<Iterator<T>> values;
 
-		public RegistryInfoBuilderImpl(
-				SkriptAddon source, Class<T> type,
+		RegistryInfoBuilderImpl(
+				SkriptAddon source,
+				Class<T> type,
 				String name,
-				Registry<T> registry, String langNode,
+				Registry<T> registry,
+				String langNode,
 				String... patterns
 		) {
 			Preconditions.checkNotNull(source, "source cannot be null");
@@ -301,7 +306,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
-		public RegistryBuilder<T> description(@NotNull String @NotNull ... description) {
+		public RestrictedBuilder<T> description(@NotNull String @NotNull ... description) {
 			Preconditions.checkNotNull(description, "description cannot be null");
 			checkNotNull(description, "description contents cannot be null");
 
@@ -310,7 +315,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
-		public RegistryBuilder<T> since(@NotNull String @NotNull ... since) {
+		public RestrictedBuilder<T> since(@NotNull String @NotNull ... since) {
 			Preconditions.checkNotNull(since, "since cannot be null");
 			checkNotNull(since, "since contents cannot be null");
 
@@ -319,7 +324,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
-		public RegistryBuilder<T> examples(@NotNull String @NotNull ... examples) {
+		public RestrictedBuilder<T> examples(@NotNull String @NotNull ... examples) {
 			Preconditions.checkNotNull(examples, "examples cannot be null");
 			checkNotNull(examples, "examples contents cannot be null");
 
@@ -328,7 +333,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
-		public RegistryBuilder<T> keywords(@NotNull String @NotNull ... keywords) {
+		public RestrictedBuilder<T> keywords(@NotNull String @NotNull ... keywords) {
 			Preconditions.checkNotNull(keywords, "keywords cannot be null");
 			checkNotNull(keywords, "keywords contents cannot be null");
 
@@ -338,7 +343,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 
 
 		@Override
-		public RegistryBuilder<T> requires(@NotNull String @NotNull ... requires) {
+		public RestrictedBuilder<T> requires(@NotNull String @NotNull ... requires) {
 			Preconditions.checkNotNull(keywords, "requires cannot be null");
 			checkNotNull(keywords, "requires contents cannot be null");
 
@@ -347,7 +352,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
-		public RegistryBuilder<T> defaultExpression(@NotNull DefaultExpression<T> expr) {
+		public RestrictedBuilder<T> defaultExpression(@NotNull DefaultExpression<T> expr) {
 			Preconditions.checkNotNull(expr, "expr cannot be null");
 
 			this.defaultExpression = expr;
@@ -355,7 +360,131 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
-		public RegistryBuilder<T> values(@NotNull Supplier<Iterator<T>> values) {
+		public RestrictedBuilder<T> values(@NotNull Supplier<Iterator<T>> values) {
+			Preconditions.checkNotNull(values, "values cannot be null");
+
+			this.values = values;
+			return this;
+		}
+
+		@Override
+		public TypeInfo<T> build() {
+			return new TypeInfoImpl<>(
+					source,
+					name,
+					type,
+					patterns,
+					description,
+					since,
+					examples,
+					keywords,
+					requires,
+					parser,
+					serializer,
+					defaultExpression,
+					values
+			);
+		}
+
+	}
+
+	static final class EnumInfoBuilderImpl<T extends Enum<T>> implements RestrictedBuilder<T> {
+
+		private final SkriptAddon source;
+		private final Class<T> type;
+		private final String name;
+		private final String[] patterns;
+
+		private String[] description;
+		private String[] since;
+		private String[] examples;
+		private String[] keywords;
+		private String[] requires;
+
+		private final Parser<T> parser;
+		private final Serializer<T> serializer;
+		private DefaultExpression<T> defaultExpression;
+		private Supplier<Iterator<T>> values;
+
+		EnumInfoBuilderImpl(
+				SkriptAddon source,
+				Class<T> type,
+				String name,
+				String langNode,
+				String... patterns
+		) {
+			Preconditions.checkNotNull(source, "source cannot be null");
+			Preconditions.checkNotNull(type, "type cannot be null");
+			Preconditions.checkNotNull(name, "name cannot be null");
+			Preconditions.checkNotNull(patterns, "patterns cannot be null");
+			Preconditions.checkNotNull(langNode, "langNode cannot be null");
+
+			this.source = source;
+			this.type = type;
+			this.name = name;
+			this.patterns = patterns;
+
+			this.values = () -> new ArrayIterator<>(type.getEnumConstants());
+			this.serializer = new EnumSerializer<>(type);
+			this.parser = new EnumParser<>(type, langNode);
+		}
+
+		@Override
+		public RestrictedBuilder<T> description(@NotNull String @NotNull ... description) {
+			Preconditions.checkNotNull(description, "description cannot be null");
+			checkNotNull(description, "description contents cannot be null");
+
+			this.description = description;
+			return this;
+		}
+
+		@Override
+		public RestrictedBuilder<T> since(@NotNull String @NotNull ... since) {
+			Preconditions.checkNotNull(since, "since cannot be null");
+			checkNotNull(since, "since contents cannot be null");
+
+			this.since = since;
+			return this;
+		}
+
+		@Override
+		public RestrictedBuilder<T> examples(@NotNull String @NotNull ... examples) {
+			Preconditions.checkNotNull(examples, "examples cannot be null");
+			checkNotNull(examples, "examples contents cannot be null");
+
+			this.examples = examples;
+			return this;
+		}
+
+		@Override
+		public RestrictedBuilder<T> keywords(@NotNull String @NotNull ... keywords) {
+			Preconditions.checkNotNull(keywords, "keywords cannot be null");
+			checkNotNull(keywords, "keywords contents cannot be null");
+
+			this.keywords = keywords;
+			return this;
+		}
+
+
+		@Override
+		public RestrictedBuilder<T> requires(@NotNull String @NotNull ... requires) {
+			Preconditions.checkNotNull(keywords, "requires cannot be null");
+			checkNotNull(keywords, "requires contents cannot be null");
+
+			this.requires = requires;
+			return this;
+		}
+
+		@Override
+		public RestrictedBuilder<T> defaultExpression(@NotNull DefaultExpression<T> expr) {
+			Preconditions.checkNotNull(expr, "expr cannot be null");
+
+			this.defaultExpression = expr;
+			return this;
+		}
+
+		@Override
+		public RestrictedBuilder<T> values(@NotNull Supplier<Iterator<T>> values) {
 			Preconditions.checkNotNull(values, "values cannot be null");
 
 			this.values = values;
