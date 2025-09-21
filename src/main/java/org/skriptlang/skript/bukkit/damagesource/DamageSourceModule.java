@@ -13,6 +13,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.registration.TypeInfo;
+import org.skriptlang.skript.registration.TypeRegistry;
 
 import java.io.IOException;
 
@@ -25,24 +27,23 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void init(SkriptAddon addon) {
-		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
-			.user("damage ?sources?")
-			.name("Damage Source")
-			.description(
-				"Represents the source from which an entity was damaged.",
-				"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event.")
-			.since("2.12")
-			.requiredPlugins("Minecraft 1.20.4+")
-			.defaultExpression(new EventValueExpression<>(DamageSource.class))
-		);
+		TypeRegistry registry = addon.registry(TypeRegistry.class);
 
-		Classes.registerClass(new RegistryClassInfo<>(DamageType.class, Registry.DAMAGE_TYPE, "damagetype", "damage types")
-			.user("damage ?types?")
-			.name("Damage Type")
-			.description("References a damage type of a damage source.")
-			.since("2.12")
-			.requiredPlugins("Minecraft 1.20.4+")
-		);
+		registry.register(TypeInfo.builder(addon, DamageSource.class, "Damage Source", "damage ?sources?")
+				.description(
+						"Represents the source from which an entity was damaged.",
+						"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
+				)
+				.since("2.12")
+				.requires("Minecraft 1.20.4+")
+				.defaultExpression(new EventValueExpression<>(DamageSource.class))
+				.build());
+
+		registry.register(TypeInfo.builder(addon, DamageType.class, "Damage Type", Registry.DAMAGE_TYPE, "damage types", "damage ?types?")
+				.description("References a damage type of a damage source.")
+				.since("2.12")
+				.requires("Minecraft 1.20.4+")
+				.build());
 
 		if (Skript.methodExists(EntityDamageEvent.class, "getDamageSource")) {
 			EventValues.registerEventValue(EntityDamageEvent.class, DamageSource.class, EntityDamageEvent::getDamageSource);

@@ -114,6 +114,7 @@ import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.registration.TypeRegistry;
 import org.skriptlang.skript.util.ClassLoader;
 
 import java.io.File;
@@ -492,6 +493,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		unmodifiableSkript = new ModernSkriptBridge.SpecialUnmodifiableSkript(skript);
 		skript.localizer().setSourceDirectories("lang",
 				getDataFolder().getAbsolutePath() + File.separatorChar + "lang");
+
+		skript.storeRegistry(TypeRegistry.class, TypeRegistry.empty());
+
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 

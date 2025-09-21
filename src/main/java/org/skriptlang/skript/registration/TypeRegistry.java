@@ -1,5 +1,6 @@
 package org.skriptlang.skript.registration;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -8,6 +9,7 @@ import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Collection;
 
+@ApiStatus.Experimental
 public interface TypeRegistry extends ViewProvider<TypeRegistry>, Registry<TypeInfo<?>> {
 
 	/**
