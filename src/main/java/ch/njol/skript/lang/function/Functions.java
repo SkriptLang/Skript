@@ -107,7 +107,17 @@ public abstract class Functions {
 				+ (c != null ? " :: " + (signature.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
 		}
 
-		Function<?> function = new ScriptFunction<>(signature, node);
+		Function<?> function;
+		try {
+			function = new ScriptFunction<>(signature, node);
+		} catch (SkriptAPIException ex) {
+			//noinspection ThrowableNotThrown
+			Skript.exception(ex, "Error while trying to load a function");
+
+			// avoid getting a "function is already registered" error when the function implementation is not known yet
+			Functions.unregisterFunction(signature);
+			return null;
+		}
 
 		if (namespace.getFunction(signature.getName()) == null) {
 			namespace.addFunction(function);

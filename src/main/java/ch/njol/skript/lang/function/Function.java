@@ -106,14 +106,26 @@ public abstract class Function<T> {
 
 		int i = 0;
 		// Execute parameters or default value expressions
-		for (org.skriptlang.skript.common.function.Parameter<?> parameter : parameters.values()) {
-			Object[] parameterValue = parameter.modifiers().contains(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
+		for (int i = 0; i < parameters.length; i++) {
+			Parameter<?> parameter = parameters[i];
+			Object[] parameterValue = parameter.keyed ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
-			if (parameterValue == null && parameter instanceof ch.njol.skript.lang.function.Parameter<?> p) { // Go for default value
-				assert p.getDefaultExpression() != null; // Should've been parse error
-				Object[] defaultValue = p.getDefaultExpression().getArray(event);
-				if (parameter.modifiers().contains(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(p.getDefaultExpression())) {
-					String[] keys = ((KeyProviderExpression<?>) p.getDefaultExpression()).getArrayKeys(event);
+			// see https://github.com/SkriptLang/Skript/pull/8135
+			if ((parameterValues[i] == null || parameterValues[i].length == 0)
+				&& parameter.keyed
+				&& parameter.def != null
+			) {
+				Object[] defaultValue = parameter.def.getArray(event);
+				if (defaultValue.length == 1) {
+					parameterValue = KeyedValue.zip(defaultValue, null);
+				} else {
+					parameterValue = defaultValue;
+				}
+			} else if (parameterValue == null) { // Go for default value
+				assert parameter.def != null; // Should've been parse error
+				Object[] defaultValue = parameter.def.getArray(event);
+				if (parameter.keyed && KeyProviderExpression.areKeysRecommended(parameter.def)) {
+					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
 					parameterValue = KeyedValue.zip(defaultValue, keys);
 				} else {
 					parameterValue = defaultValue;
@@ -158,14 +170,7 @@ public abstract class Function<T> {
 	}
 
 	/**
-	 * Executes this function with given parameters. Usually, using
-	 * {@link #execute(Object[][])} is better; it handles optional and keyed arguments
-	 * and function event creation automatically.
-	 * @param event Associated function event. This is usually created by Skript.
-	 * @param params Function parameters.
-	 * There must be {@link Signature#getMaxParameters()} amount of them, and
-	 * you need to manually handle default values.
-	 * @return Function return value(s).
+	 * @deprecated Use {@link #execute(FunctionEvent, FunctionArguments)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
