@@ -7,6 +7,9 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.ParsingConstraints;
+import ch.njol.skript.lang.parser.FunctionParser;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
@@ -444,7 +447,14 @@ public abstract class Functions {
 		if (addon == null) {
 			throw new SkriptAPIException("enabling function events requires addon instance");
 		}
+	}
 
-		callFunctionEvents = true;
+	@SafeVarargs
+	public static <T> FunctionReference<T> parse(String input, Class<? extends T>... types) {
+		return new FunctionParser(
+				input,
+				ParsingConstraints.all().constrainReturnTypes(types),
+				ParseContext.DEFAULT)
+			.parse();
 	}
 }
