@@ -4,6 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 /**
@@ -56,10 +57,7 @@ public interface AddonModule {
 	 * @param <I> The type of syntax.
 	 */
 	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, Key<I> registry, I cls) {
-		//noinspection unchecked
-		addon.syntaxRegistry().register(registry, (I) cls.toBuilder()
-				.origin(SyntaxOrigin.of(addon, this))
-				.build());
+		register(addon, addon.syntaxRegistry(), registry, cls);
 	}
 
 	/**
@@ -72,9 +70,26 @@ public interface AddonModule {
 	 */
 	@SuppressWarnings("unchecked")
 	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, Key<I> registry, I... classes) {
+		SyntaxRegistry syntaxRegistry = addon.syntaxRegistry();
 		for (I cls : classes) {
-			register(addon, registry, cls);
+			register(addon, syntaxRegistry, registry, cls);
 		}
+	}
+
+	/**
+	 * Registers syntax such that it belongs to the current module.
+	 *
+	 * @param addon The addon this module belongs to.
+	 * @param syntaxRegistry The syntax registry.
+	 * @param registry The registry to add this syntax to.
+	 * @param cls The syntax info.
+	 * @param <I> The type of syntax.
+	 */
+	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, SyntaxRegistry syntaxRegistry, Key<I> registry, I cls) {
+		//noinspection unchecked
+		syntaxRegistry.register(registry, (I) cls.toBuilder()
+				.origin(SyntaxOrigin.of(addon, this))
+				.build());
 	}
 
 }

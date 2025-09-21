@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -487,9 +488,10 @@ public class JSONGenerator extends DocumentationGenerator {
 	) {
 		JsonArray categories = new JsonArray();
 		if (origin instanceof ModuleOrigin elementOrigin) {
+			Class<?> moduleClass = elementOrigin.module().getClass();
 			for (Category category : Category.values()) {
-				if (category.modules().contains(elementOrigin.module().getClass())) {
-					categories.add(getCategory(category));
+				if (category.modules().contains(moduleClass)) {
+					categories.add(getCategoryJson(category));
 				}
 			}
 			return categories;
@@ -510,12 +512,13 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
-	 * Attempts to find a category based on the input.
+	 * Attempts to find the categories based on the input.
 	 *
 	 * @param input The input.
-	 * @return A category, or null if none is found.
+	 * @return The categories, or null if no are found.
 	 */
-	private static JsonArray getCategories(String input) {
+	private static @NotNull JsonArray getCategories(@NotNull String input) {
+		String lower = input.toLowerCase();
 		JsonArray options = new JsonArray();
 		for (Category category : Category.values()) {
 			if (!(category instanceof CategoryImpl impl)) {
@@ -523,8 +526,8 @@ public class JSONGenerator extends DocumentationGenerator {
 			}
 
 			for (String keyword : impl.keywords()) {
-				if (input.toLowerCase().contains(keyword)) {
-					options.add(getCategory(category));
+				if (lower.contains(keyword)) {
+					options.add(getCategoryJson(category));
 					break;
 				}
 			}
@@ -538,7 +541,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param category The category.
 	 * @return The transformed category.
 	 */
-	private static JsonObject getCategory(@NotNull Category category) {
+	private static JsonObject getCategoryJson(@NotNull Category category) {
 		JsonObject object = new JsonObject();
 
 		object.addProperty("name", category.name());

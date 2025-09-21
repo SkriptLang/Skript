@@ -11,9 +11,9 @@ import java.util.Set;
 public interface Categorizable {
 
 	/**
-	 * Returns the documentation categories which this module belongs to.
+	 * Returns the documentation categories which this object belongs to.
 	 *
-	 * @return The categories of this module.
+	 * @return The categories of this object.
 	 */
 	@NotNull Set<Category> categories();
 
