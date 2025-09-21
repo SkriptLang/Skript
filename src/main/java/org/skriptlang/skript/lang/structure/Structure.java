@@ -87,20 +87,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		return entryContainer;
 	}
 
-	/**
-	 * Override to set a custom entry validator for this structure depending on the parse results.
-	 * 
-	 * @param arguments The arguments of the structure.
-	 * @param matchedPattern The matched pattern of the structure.
-	 * @param parseResult The parse result of the structure.
-	 * @return The entry validator for this structure, or null if no validation is necessary.
-	 */
-	public EntryValidator entryValidator(Literal<?> @NotNull [] arguments, int matchedPattern, ParseResult parseResult) { return null; }
-
 	@Override
 	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		Literal<?>[] literals = Arrays.copyOf(expressions, expressions.length, Literal[].class);
-		
+
 		StructureData structureData = getParser().getData(StructureData.class);
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
@@ -109,10 +99,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			return init(literals, matchedPattern, parseResult, null);
 		}
 
-		EntryValidator entryValidator = entryValidator(literals, matchedPattern, parseResult);
-		if (entryValidator == null && structureInfo.entryValidator != null) {
-			entryValidator = structureInfo.entryValidator;
-		}
+		EntryValidator entryValidator = structureInfo.entryValidator;
 		if (entryValidator == null) {
 			// No validation necessary, the structure itself will handle it
 			entryContainer = EntryContainer.withoutValidator((SectionNode) structureData.node);
@@ -134,7 +121,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * @param args The arguments of the Structure.
 	 * @param matchedPattern The matched pattern of the Structure.
 	 * @param parseResult The parse result of the Structure.
-	 * @param entryContainer The EntryContainer of the Structure. Will not be null if the Structure provides {@link #entryValidator()}.
+	 * @param entryContainer The EntryContainer of the Structure. Will not be null if the Structure provides a {@link EntryValidator}.
 	 * @return Whether initialization was successful.
 	 */
 	public abstract boolean init(

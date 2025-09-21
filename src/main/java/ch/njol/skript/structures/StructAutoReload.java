@@ -2,17 +2,11 @@ package ch.njol.skript.structures;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.LiteralString;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
@@ -20,19 +14,12 @@ import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-
+import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -44,14 +31,18 @@ import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos.Structure.NodeType;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.*;
+import java.util.logging.Level;
 
 @Name("Auto Reload")
 @Description("""
 	Place at the top of a script file to enable and configure automatic reloading of the script.
 	When the script is saved, Skript will automatically reload the script.
-	The config.sk node 'script loader thread size' must be set to a positive number for this to be enabled.
+	The config.sk node 'script loader thread size' must be set to a positive number (async or parallel loading) \
+	for this to be enabled.
 	
 	available optional nodes:
 		recipients: The players to send reload messages to. Defaults to console.
@@ -67,34 +58,26 @@ import com.google.common.collect.Lists;
 public class StructAutoReload extends Structure {
 
 	public static final Priority PRIORITY = new Priority(10);
+	private static final EntryValidator VALIDATOR = EntryValidator.builder()
+		.addEntryData(new ExpressionEntryData<>("recipients", null, true, String.class, SkriptParser.PARSE_EXPRESSIONS)) // LiteralString doesn't work with PARSE_LITERALS
+		.addEntry("permission", "skript.reloadnotify", true)
+		.build();
 
 	static {
-		Skript.registerStructure(StructAutoReload.class, "auto[matically] reload [(this|the) script]");
+		Skript.registerStructure(StructAutoReload.class, VALIDATOR, NodeType.BOTH, "auto[matically] reload [(this|the) script]");
 	}
 
 	private Script script;
 	private Task task;
 
 	@Override
-	public EntryValidator entryValidator(Literal<?> @NotNull [] arguments, int matchedPattern, ParseResult parseResult) {
-		return EntryValidator.builder()
-			.addEntryData(new ExpressionEntryData<>("recipients", null, true, String.class, SkriptParser.PARSE_EXPRESSIONS)) // LiteralString doesn't work with PARSE_LITERALS
-			.addEntry("permission", "skript.reloadnotify", true)
-			.build();
-	}
-
-	@Override
 	public boolean init(Literal<?> @NotNull [] arguments, int pattern, ParseResult result, EntryContainer container) {
-		try {
-			int threadSize = Integer.parseInt(SkriptConfig.scriptLoaderThreadSize.value());
-			if (threadSize <= 0)
-				throw new IllegalStateException();
-		} catch (IllegalStateException | NumberFormatException e) {
+		if (!ScriptLoader.isAsync()) {
 			Skript.error(Language.get("log.auto reload.async required"));
 			return false;
 		}
 
-		OfflinePlayer[] recipients = null;
+		String[] recipients = null;
 		String permission = "skript.reloadnotify";
 
 		// Container can be null if the structure is simple.
@@ -104,19 +87,14 @@ public class StructAutoReload extends Structure {
 			List<String> strings = new ArrayList<>();
 			if (expression instanceof LiteralString literal) {
 				strings.add(literal.getSingle());
-			} else if (expression instanceof ExpressionList list) {
-				@SuppressWarnings("unchecked")
-				List<Expression<String>> expressions = (List<Expression<String>>) list.getAllExpressions();
-				expressions.stream()
-					.filter(LiteralString.class::isInstance)
-					.map(LiteralString.class::cast)
-					.map(LiteralString::getSingle)
-					.forEach(strings::add);
+			} else if (expression instanceof ExpressionList<String> list) {
+				list.getAllExpressions().forEach(expr -> {
+					if (expr instanceof LiteralString literalString)
+						strings.add(literalString.getSingle());
+				});
 			}
 			if (!strings.isEmpty()) {
-				recipients = strings.stream()
-					.map(string -> Classes.parse(string, OfflinePlayer.class, ParseContext.PARSE))
-					.toArray(OfflinePlayer[]::new);
+				recipients = strings.toArray(String[]::new);
 			}
 			permission = container.getOptional("permission", String.class, false);
 		}
@@ -154,6 +132,7 @@ public class StructAutoReload extends Structure {
 					RedirectingLogHandler logHandler = new RedirectingLogHandler(data.getRecipients(), "").start();
 					TimingLogHandler timingLogHandler = new TimingLogHandler().start()
 				) {
+					reloading(logHandler);
 					OpenCloseable openCloseable = OpenCloseable.combine(logHandler, timingLogHandler);
 					ScriptLoader.reloadScript(script, openCloseable).thenRun(() -> reloaded(logHandler, timingLogHandler));
 				} catch (Exception e) {
@@ -180,6 +159,13 @@ public class StructAutoReload extends Structure {
 		return "auto reload";
 	}
 
+	private void reloading(RedirectingLogHandler logHandler) {
+		String prefix = Language.get("skript.prefix");
+		String what = PluralizingArgsMessage.format(Language.format("log.auto reload.script", script.getConfig().getFileName()));
+		String message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(Language.format("log.auto reload.reloading", what)));
+		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(prefix + message)));
+	}
+
 	private void reloaded(RedirectingLogHandler logHandler, TimingLogHandler timingLogHandler) {
 		String prefix = Language.get("skript.prefix");
 		ArgsMessage m_reload_error = new ArgsMessage("log.auto reload.error");
@@ -197,14 +183,14 @@ public class StructAutoReload extends Structure {
 		}
 	}
 
-	public final class AutoReload implements ScriptData {
+	public static final class AutoReload implements ScriptData {
 
-		private final List<OfflinePlayer> recipients = new ArrayList<>();
+		private final Set<String> recipients = new HashSet<>();
 		private final String permission;
 		private long lastReload; // Compare with File#lastModified()
 
 		// private constructor to prevent instantiation.
-		private AutoReload(long lastReload, @Nullable String permission, @Nullable OfflinePlayer... recipients) {
+		private AutoReload(long lastReload, @Nullable String permission, @Nullable String... recipients) {
 			if (recipients != null)
 				this.recipients.addAll(Lists.newArrayList(recipients));
 
@@ -213,16 +199,17 @@ public class StructAutoReload extends Structure {
 		}
 
 		/**
-		 * Returns a new list of the recipients to recieve reload errors.
+		 * Returns a new list of the recipients to receive reload errors.
 		 * Console command sender included.
 		 * 
 		 * @return the recipients in a list
 		 */
-		@Unmodifiable
-		public List<CommandSender> getRecipients() {
+		public @Unmodifiable List<CommandSender> getRecipients() {
 			List<CommandSender> senders = Lists.newArrayList(Bukkit.getConsoleSender());
 			if (!recipients.isEmpty()) {
-				senders.addAll(recipients.stream().filter(OfflinePlayer::isOnline).map(OfflinePlayer::getPlayer).toList());
+				Bukkit.getOnlinePlayers().stream()
+					.filter(p -> recipients.contains(p.getName()))
+					.forEach(senders::add);
 				return Collections.unmodifiableList(senders);
 			}
 
