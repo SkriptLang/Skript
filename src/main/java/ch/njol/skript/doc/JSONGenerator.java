@@ -515,7 +515,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * Attempts to find the categories based on the input.
 	 *
 	 * @param input The input.
-	 * @return The categories, or null if no are found.
+	 * @return The categories, or null if none are found.
 	 */
 	private static @NotNull JsonArray getCategories(@NotNull String input) {
 		String lower = input.toLowerCase();
