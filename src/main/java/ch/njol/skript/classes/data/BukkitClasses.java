@@ -1632,5 +1632,12 @@ public class BukkitClasses {
 			.since("2.12")
 		);
 
+		Classes.registerClass(new EnumClassInfo<>(PortalType.class, "portaltype", "portal types")
+			.user("portal ?types?")
+			.name("Portal Type")
+			.description("Represents the type of a portal.")
+			.since("INSERT VERSION")
+		);
+
 	}
 }

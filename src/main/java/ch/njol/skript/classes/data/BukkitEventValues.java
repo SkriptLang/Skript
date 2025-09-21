@@ -519,9 +519,18 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PortalCreateEvent.class, Block[].class, event -> event.getBlocks().stream()
 			.map(BlockState::getBlock)
 			.toArray(Block[]::new));
-		if (Skript.methodExists(PortalCreateEvent.class, "getEntity")) { // Minecraft 1.14+
-			EventValues.registerEventValue(PortalCreateEvent.class, Entity.class, PortalCreateEvent::getEntity);
-		}
+		EventValues.registerEventValue(PortalCreateEvent.class, Entity.class, PortalCreateEvent::getEntity);
+		EventValues.registerEventValue(PortalCreateEvent.class, PortalType.class, event -> switch (event.getReason()) {
+			case END_PLATFORM -> PortalType.ENDER;
+			case FIRE, NETHER_PAIR -> PortalType.NETHER;
+		});
+		EventValues.registerEventValue(EntityPortalEvent.class, PortalType.class, EntityPortalEvent::getPortalType);
+		EventValues.registerEventValue(PlayerPortalEvent.class, PortalType.class, event -> switch (event.getCause()) {
+			case END_GATEWAY -> PortalType.END_GATEWAY;
+			case END_PORTAL -> PortalType.ENDER;
+			case NETHER_PORTAL -> PortalType.NETHER;
+			default -> throw new UnsupportedOperationException();
+		});
 		//PlayerEditBookEvent
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, event -> {
 			ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
