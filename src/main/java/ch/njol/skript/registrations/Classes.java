@@ -367,7 +367,7 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeInfo#type()} instead.
+	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} and {@link TypeInfo#type()} instead.
 	 */
 	@Nullable
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
