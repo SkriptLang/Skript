@@ -4,13 +4,26 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @param <T> The return type of the gettable
+ * Represents component that can can be used within an arithmetic context.
+ *
+ * @param <T> the return type of the gettable
+ * @see ArithmeticExpressionInfo
  */
 public interface ArithmeticGettable<T> {
 
-	@Nullable
-	T get(Event event);
+	/**
+	 * Retrieves the value based on the given event context.
+	 *
+	 * @param event event context
+	 * @return the computed value
+	 */
+	@Nullable T get(Event event);
 
+	/**
+	 * Return type of this gettable
+	 *
+	 * @return the return type of this gettable
+	 */
 	Class<? extends T> getReturnType();
 
 }
