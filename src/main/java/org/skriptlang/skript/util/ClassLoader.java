@@ -305,8 +305,8 @@ public class ClassLoader {
 		 * This is useful for when you may want to load from some, but not all, of the subpackages of the base package.
 		 * @param subPackage A string representing a subpackage to not load from.
 		 * @return This builder.
-		 * @see #addSubPackages(String...)
-		 * @see #addSubPackages(Collection)
+		 * @see #excludeSubPackages(String...)
+		 * @see #excludeSubPackages(Collection) 
 		 */
 		@Contract("_ -> this")
 		public Builder excludeSubPackage(String subPackage) {
@@ -319,8 +319,8 @@ public class ClassLoader {
 		 * This is useful for when you may want to load from some, but not all, of the subpackages of the base package.
 		 * @param subPackages Strings representing subpackages to not load from.
 		 * @return This builder.
-		 * @see #addSubPackage(String)
-		 * @see #addSubPackages(Collection)
+		 * @see #excludeSubPackage(String) 
+		 * @see #excludeSubPackages(Collection) 
 		 */
 		@Contract("_ -> this")
 		public Builder excludeSubPackages(String... subPackages) {
@@ -333,8 +333,8 @@ public class ClassLoader {
 		 * This is useful for when you may want to load from some, but not all, of the subpackages of the base package.
 		 * @param subPackages Strings representing subpackages to not load from.
 		 * @return This builder.
-		 * @see #addSubPackage(String)
-		 * @see #addSubPackages(String...)
+		 * @see #excludeSubPackage(String) 
+		 * @see #excludeSubPackages(String...) 
 		 */
 		@Contract("_ -> this")
 		public Builder excludeSubPackages(Collection<String> subPackages) {
