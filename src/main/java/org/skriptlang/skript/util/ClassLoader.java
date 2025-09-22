@@ -53,13 +53,21 @@ public class ClassLoader {
 
 	private final String basePackage;
 	private final Collection<String> subPackages;
+	private final Collection<String> excludedPackages;
 	private final @Nullable Predicate<String> filter;
 	private final boolean initialize;
 	private final boolean deep;
 	private final @Nullable Consumer<Class<?>> forEachClass;
 
-	private ClassLoader(String basePackage, Collection<String> subPackages, @Nullable Predicate<String> filter,
-						boolean initialize, boolean deep, @Nullable Consumer<Class<?>> forEachClass) {
+	private ClassLoader(
+		String basePackage,
+		Collection<String> subPackages,
+		Collection<String> excludedPackages,
+		@Nullable Predicate<String> filter,
+		boolean initialize,
+		boolean deep,
+		@Nullable Consumer<Class<?>> forEachClass
+	) {
 		if (!basePackage.isEmpty()) { // allow empty base package
 			basePackage = basePackage.replace('.', '/') + "/";
 		}
@@ -67,6 +75,9 @@ public class ClassLoader {
 		this.subPackages = subPackages.stream()
 				.map(subPackage -> subPackage.replace('.', '/') + "/")
 				.collect(Collectors.toSet());
+		this.excludedPackages = excludedPackages.stream()
+			.map(excluded -> excluded.replace('.',  '/') + "/")
+			.collect(Collectors.toSet());
 		this.filter = filter;
 		this.initialize = initialize;
 		this.deep = deep;
@@ -149,6 +160,14 @@ public class ClassLoader {
 					}
 				}
 			}
+			if (load && !this.excludedPackages.isEmpty()) {
+				for (String excluded : this.excludedPackages) {
+					if (name.startsWith(excluded, offset)) {
+						load = false;
+						break;
+					}
+				}
+			}
 
 			if (load) {
 				// replace separators and .class extension
@@ -212,6 +231,7 @@ public class ClassLoader {
 
 		private String basePackage = "";
 		private final Collection<String> subPackages = new HashSet<>();
+		private final Collection<String> excludedPackages = new HashSet<>();
 		private @Nullable Predicate<String> filter = null;
 		private boolean initialize;
 		private boolean deep;
@@ -274,6 +294,48 @@ public class ClassLoader {
 		}
 
 		/**
+		 * Excludes a subpackage the loader should not load classes from.
+		 * This is useful for when you may want to load from some, but not all, of the subpackages of the base package.
+		 * @param subPackage A string representing a subpackage to not load from.
+		 * @return This builder.
+		 * @see #addSubPackages(String...)
+		 * @see #addSubPackages(Collection)
+		 */
+		@Contract("_ -> this")
+		public Builder excludeSubPackage(String subPackage) {
+			this.excludedPackages.add(subPackage);
+			return this;
+		}
+
+		/**
+		 * Excludes subpackages the loader should not load classes from.
+		 * This is useful for when you may want to load from some, but not all, of the subpackages of the base package.
+		 * @param subPackages Strings representing subpackages to not load from.
+		 * @return This builder.
+		 * @see #addSubPackage(String)
+		 * @see #addSubPackages(Collection)
+		 */
+		@Contract("_ -> this")
+		public Builder excludeSubPackages(String... subPackages) {
+			Collections.addAll(excludedPackages, subPackages);
+			return this;
+		}
+
+		/**
+		 * Excludes subpackages the loader should not load classes from.
+		 * This is useful for when you may want to load from some, but not all, of the subpackages of the base package.
+		 * @param subPackages Strings representing subpackages to not load from.
+		 * @return This builder.
+		 * @see #addSubPackage(String)
+		 * @see #addSubPackages(String...)
+		 */
+		@Contract("_ -> this")
+		public Builder excludeSubPackages(Collection<String> subPackages) {
+			this.excludedPackages.addAll(subPackages);
+			return this;
+		}
+
+		/**
 		 * A predicate for whether a fully qualified class name should be loaded as a {@link Class}.
 		 * @param filter A predicate for filtering class names.
 		 *  It should return true for class names to load.
@@ -324,7 +386,7 @@ public class ClassLoader {
 		 */
 		@Contract("-> new")
 		public ClassLoader build() {
-			return new ClassLoader(basePackage, subPackages, filter, initialize, deep, forEachClass);
+			return new ClassLoader(basePackage, subPackages, excludedPackages, filter, initialize, deep, forEachClass);
 		}
 
 	}
