@@ -10,7 +10,7 @@ import org.skriptlang.skript.util.ViewProvider;
 import java.util.Collection;
 
 @ApiStatus.Experimental
-public interface TypeRegistry extends ViewProvider<TypeRegistry>, Registry<TypeInfo<?>> {
+public interface TypeRegistry extends /*ViewProvider<TypeRegistry>,*/ Registry<TypeInfo<?>> {
 
 	/**
 	 * Constructs a default implementation of a type registry.
@@ -43,7 +43,7 @@ public interface TypeRegistry extends ViewProvider<TypeRegistry>, Registry<TypeI
 	 *
 	 * @return An unmodifiable view of this type registry.
 	 */
-	@Override
+//	@Override
 	@Contract("-> new")
 	default @NotNull TypeRegistry unmodifiableView() {
 		return new TypeRegistryImpl.UnmodifiableRegistry(this);

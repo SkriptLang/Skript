@@ -1,5 +1,6 @@
 package org.skriptlang.skript.registration;
 
+import ch.njol.skript.classes.Cloner;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.doc.Documentable;
@@ -131,6 +132,11 @@ public interface TypeInfo<T> extends Documentable {
 	Supplier<Iterator<T>> values();
 
 	/**
+	 * @return The {@link Cloner} associated with this type.
+	 */
+	Cloner<T> cloner();
+
+	/**
 	 * Represents a builder for {@link TypeInfo TypeInfos}.
 	 *
 	 * @param <T> The class of the type.
@@ -219,6 +225,15 @@ public interface TypeInfo<T> extends Documentable {
 		Builder<T> values(@NotNull Supplier<Iterator<T>> values);
 
 		/**
+		 * Sets this type builder's cloner.
+		 *
+		 * @param cloner The cloner.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		Builder<T> cloner(@NotNull Cloner<T> cloner);
+
+		/**
 		 * Completes this builder.
 		 *
 		 * @return The final type.
@@ -298,6 +313,15 @@ public interface TypeInfo<T> extends Documentable {
 		 */
 		@Contract("_ -> this")
 		RestrictedBuilder<T> values(@NotNull Supplier<Iterator<T>> values);
+
+		/**
+		 * Sets this type builder's cloner.
+		 *
+		 * @param cloner The cloner.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		RestrictedBuilder<T> cloner(@NotNull Cloner<T> cloner);
 
 		/**
 		 * Completes this builder.

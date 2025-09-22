@@ -27,6 +27,8 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void init(SkriptAddon addon) {
+		System.out.println("dmgs");
+		System.out.println(addon.getClass().getSimpleName());
 		TypeRegistry registry = addon.registry(TypeRegistry.class);
 
 		registry.register(TypeInfo.builder(addon, DamageSource.class, "Damage Source", "damage ?sources?")

@@ -1,5 +1,6 @@
 package ch.njol.skript.classes;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Debuggable;
@@ -11,12 +12,11 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.registration.TypeInfo;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -26,7 +26,7 @@ import java.util.regex.PatternSyntaxException;
  * @param <T> The class this info is for
  */
 @SuppressFBWarnings("DM_STRING_VOID_CTOR")
-public class ClassInfo<T> implements Debuggable {
+public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 
 	private final Class<T> c;
 	private final String codeName;
@@ -42,6 +42,7 @@ public class ClassInfo<T> implements Debuggable {
 	private Cloner<T> cloner = null;
 
 	Pattern @Nullable [] userInputPatterns = null;
+	private Set<String> userInputs;
   
 	@Nullable
 	private Changer<? super T> changer = null;
@@ -475,6 +476,78 @@ public class ClassInfo<T> implements Debuggable {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();
+	}
+
+	@Override
+	public @NotNull SkriptAddon source() {
+		return Skript.getAddonInstance();
+	}
+
+	@Override
+	public @NotNull Class<T> type() {
+		return c;
+	}
+
+	@Override
+	public @NotNull @Unmodifiable Collection<String> patterns() {
+		return List.of();
+	}
+
+	@Override
+	public Parser<T> parser() {
+		//noinspection unchecked
+		return (Parser<T>) parser;
+	}
+
+	@Override
+	public Serializer<T> serializer() {
+		//noinspection unchecked
+		return (Serializer<T>) serializer;
+	}
+
+	@Override
+	public DefaultExpression<T> defaultExpression() {
+		return defaultExpression;
+	}
+
+	@Override
+	public Supplier<Iterator<T>> values() {
+		return supplier;
+	}
+
+	@Override
+	public Cloner<T> cloner() {
+		return cloner;
+	}
+
+	@Override
+	public @NotNull String name() {
+		return docName == null ? "?" : docName;
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> description() {
+		return description == null ? Collections.emptyList() : List.of(description);
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> since() {
+		return since == null ? Collections.emptyList() : List.of(since);
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> examples() {
+		return examples == null ? Collections.emptyList() : List.of(examples);
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> keywords() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> requires() {
+		return requiredPlugins == null ? Collections.emptyList() : List.of(requiredPlugins);
 	}
 
 }

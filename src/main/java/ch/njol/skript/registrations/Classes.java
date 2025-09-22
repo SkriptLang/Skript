@@ -29,7 +29,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -43,11 +42,39 @@ import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Güttinger
  */
 public abstract class Classes {
+
+	private static final TypeRegistry registry = Skript.getAddonInstance().registry(TypeRegistry.class);
+
+	/**
+	 * Converts a {@link TypeInfo} into a {@link ClassInfo}, for backwards compatibility.
+	 *
+	 * @param info The {@link TypeInfo}.
+	 * @return The {@link ClassInfo}.
+	 * @param <T> The type.
+	 */
+	private static <T> ClassInfo<T> toClassInfo(TypeInfo<T> info) {
+		if (info == null) {
+			return null;
+		}
+
+		return new ClassInfo<>(info.type(), info.patterns().stream().findFirst().orElseThrow())
+				.name(info.name())
+				.description(info.description().toArray(new String[0]))
+				.since(String.join("\n", info.since()))
+				.examples(info.examples().toArray(new String[0]))
+				.requiredPlugins(info.requires().toArray(new String[0]))
+				.serializer(info.serializer())
+				.parser(info.parser())
+				.defaultExpression(info.defaultExpression())
+				.supplier(info.values())
+				.cloner(info.cloner());
+	}
 
 	private Classes() {}
 
@@ -63,6 +90,8 @@ public abstract class Classes {
 	 * @param info info about the class to register
 	 */
 	public static <T> void registerClass(final ClassInfo<T> info) {
+		registry.register(info);
+
 		try {
 			Skript.checkAcceptRegistrations();
 			if (classInfosByCodeName.containsKey(info.getCodeName()))
@@ -245,11 +274,9 @@ public abstract class Classes {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static List<ClassInfo<?>> getClassInfos() {
-		checkAllowClassInfoInteraction();
-		final ClassInfo<?>[] ci = classInfos;
-		if (ci == null)
-			return Collections.emptyList();
-		return Collections.unmodifiableList(Arrays.asList(ci));
+		return registry.elements().stream()
+				.map(Classes::toClassInfo)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -257,10 +284,15 @@ public abstract class Classes {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static ClassInfo<?> getClassInfo(final String codeName) {
-		final ClassInfo<?> ci = classInfosByCodeName.get(codeName);
-		if (ci == null)
+		if (codeName == null) {
+			throw new SkriptAPIException("No class info found for null");
+		}
+
+		ClassInfo<?> classInfo = toClassInfo(registry.fromPattern(codeName));
+		if (classInfo == null) {
 			throw new SkriptAPIException("No class info found for " + codeName);
-		return ci;
+		}
+		return classInfo;
 	}
 
 
@@ -269,7 +301,11 @@ public abstract class Classes {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static ClassInfo<?> getClassInfoNoError(final @Nullable String codeName) {
-		return classInfosByCodeName.get(codeName);
+		if (codeName == null) {
+			return null;
+		}
+
+		return toClassInfo(registry.fromPattern(codeName));
 	}
 
 	/**
@@ -277,9 +313,12 @@ public abstract class Classes {
 	 */
 	@Nullable
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public static <T> ClassInfo<T> getExactClassInfo(final @Nullable Class<T> c) {
-		//noinspection unchecked
-		return (ClassInfo<T>) exactClassInfos.get(c);
+	public static <T> ClassInfo<T> getExactClassInfo(@Nullable Class<T> c) {
+		if (c == null) {
+			return null;
+		}
+
+		return toClassInfo(registry.fromClass(c));
 	}
 
 	/**
@@ -288,22 +327,8 @@ public abstract class Classes {
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
-		checkAllowClassInfoInteraction();
-		ClassInfo<? super T> info = getExactClassInfo(c);
-		if (info != null)
-			return info;
-		info = (ClassInfo<? super T>) superClassInfos.get(c);
-		if (info != null)
-			return info;
-		for (final ClassInfo<?> ci : getClassInfos()) {
-			if (ci.getC().isAssignableFrom(c)) {
-				if (!Skript.isAcceptRegistrations())
-					superClassInfos.put(c, ci);
-				return (ClassInfo<? super T>) ci;
-			}
-		}
-		assert false;
-		return null;
+
+		return toClassInfo(registry.superTypeFromClass(c));
 	}
 
 	/**
@@ -378,29 +403,29 @@ public abstract class Classes {
 	}
 
 	/**
-	 * Gets the default of a class
-	 *
-	 * @param codeName
-	 * @return the expression holding the default value or null if this class doesn't have one
-	 * @throws SkriptAPIException If the given class was not registered
+	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} and {@link TypeInfo#defaultExpression()} instead.
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static DefaultExpression<?> getDefaultExpression(final String codeName) {
-		checkAllowClassInfoInteraction();
-		return getClassInfo(codeName).getDefaultExpression();
+		TypeInfo<Object> info = registry.fromPattern(codeName);
+		if (info == null) {
+			return null;
+		}
+		return info.defaultExpression();
 	}
 
 	/**
-	 * Gets the default expression of a class
-	 *
-	 * @param c The class
-	 * @return The expression holding the default value or null if this class doesn't have one
+	 * @deprecated Use {@link TypeRegistry#fromClass(Class)} and {@link TypeInfo#defaultExpression()} instead.
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> DefaultExpression<T> getDefaultExpression(final Class<T> c) {
-		checkAllowClassInfoInteraction();
-		final ClassInfo<T> ci = getExactClassInfo(c);
-		return ci == null ? null : ci.getDefaultExpression();
+		TypeInfo<T> info = registry.fromClass(c);
+		if (info == null) {
+			return null;
+		}
+		return info.defaultExpression();
 	}
 
 	/**
@@ -431,9 +456,11 @@ public abstract class Classes {
 	@Nullable
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static String getExactClassName(final Class<?> c) {
-		checkAllowClassInfoInteraction();
-		final ClassInfo<?> ci = exactClassInfos.get(c);
-		return ci == null ? null : ci.getCodeName();
+		TypeInfo<?> info = registry.fromClass(c);
+		if (info == null) {
+			return null;
+		}
+		return info.name();
 	}
 
 	/**

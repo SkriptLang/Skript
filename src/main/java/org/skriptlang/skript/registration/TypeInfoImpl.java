@@ -1,9 +1,6 @@
 package org.skriptlang.skript.registration;
 
-import ch.njol.skript.classes.EnumParser;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryParser;
 import ch.njol.skript.classes.registry.RegistrySerializer;
 import ch.njol.skript.lang.DefaultExpression;
@@ -36,6 +33,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 	private final Serializer<T> serializer;
 	private final DefaultExpression<T> defaultExpression;
 	private final Supplier<Iterator<T>> values;
+	private final Cloner<T> cloner;
 
 	TypeInfoImpl(
 			SkriptAddon source,
@@ -50,11 +48,15 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 			Parser<T> parser,
 			Serializer<T> serializer,
 			DefaultExpression<T> defaultExpression,
-			Supplier<Iterator<T>> values
+			Supplier<Iterator<T>> values,
+			Cloner<T> cloner
 	) {
 		this.source = source;
 		this.name = name;
 		this.type = type;
+		for (String pattern : patterns) {
+
+		}
 		this.patterns = List.of(patterns);
 		this.description = description != null ? List.of(description) : Collections.emptyList();
 		this.since = since != null ? List.of(since) : Collections.emptyList();
@@ -65,6 +67,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		this.serializer = serializer;
 		this.defaultExpression = defaultExpression;
 		this.values = values;
+		this.cloner = cloner;
 	}
 
 	@Override
@@ -132,6 +135,11 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		return values;
 	}
 
+	@Override
+	public Cloner<T> cloner() {
+		return cloner;
+	}
+
 	static final class TypeInfoBuilderImpl<T> implements TypeInfo.Builder<T> {
 
 		private final SkriptAddon source;
@@ -149,6 +157,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		private Serializer<T> serializer;
 		private DefaultExpression<T> defaultExpression;
 		private Supplier<Iterator<T>> values;
+		private Cloner<T> cloner;
 
 		TypeInfoBuilderImpl(SkriptAddon source, Class<T> type, String name, String... patterns) {
 			Preconditions.checkNotNull(source, "source cannot be null");
@@ -242,6 +251,14 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
+		public Builder<T> cloner(@NotNull Cloner<T> cloner) {
+			Preconditions.checkNotNull(cloner, "cloner cannot be null");
+
+			this.cloner = cloner;
+			return this;
+		}
+
+		@Override
 		public TypeInfo<T> build() {
 			return new TypeInfoImpl<>(
 					source,
@@ -256,7 +273,8 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 					parser,
 					serializer,
 					defaultExpression,
-					values
+					values,
+					cloner
 			);
 		}
 
@@ -279,6 +297,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		private final Serializer<T> serializer;
 		private DefaultExpression<T> defaultExpression;
 		private Supplier<Iterator<T>> values;
+		private Cloner<T> cloner;
 
 		RegistryInfoBuilderImpl(
 				SkriptAddon source,
@@ -368,6 +387,14 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
+		public RestrictedBuilder<T> cloner(@NotNull Cloner<T> cloner) {
+			Preconditions.checkNotNull(cloner, "cloner cannot be null");
+
+			this.cloner = cloner;
+			return this;
+		}
+
+		@Override
 		public TypeInfo<T> build() {
 			return new TypeInfoImpl<>(
 					source,
@@ -382,7 +409,8 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 					parser,
 					serializer,
 					defaultExpression,
-					values
+					values,
+					cloner
 			);
 		}
 
@@ -405,6 +433,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		private final Serializer<T> serializer;
 		private DefaultExpression<T> defaultExpression;
 		private Supplier<Iterator<T>> values;
+		private Cloner<T> cloner;
 
 		EnumInfoBuilderImpl(
 				SkriptAddon source,
@@ -492,6 +521,14 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		}
 
 		@Override
+		public RestrictedBuilder<T> cloner(@NotNull Cloner<T> cloner) {
+			Preconditions.checkNotNull(cloner, "cloner cannot be null");
+
+			this.cloner = cloner;
+			return this;
+		}
+
+		@Override
 		public TypeInfo<T> build() {
 			return new TypeInfoImpl<>(
 					source,
@@ -506,7 +543,8 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 					parser,
 					serializer,
 					defaultExpression,
-					values
+					values,
+					cloner
 			);
 		}
 
