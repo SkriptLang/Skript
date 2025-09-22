@@ -27,6 +27,16 @@ import java.util.function.Supplier;
 @ApiStatus.Experimental
 public interface TypeInfo<T> extends Documentable {
 
+	/**
+	 * Creates a new builder for a regular type.
+	 *
+	 * @param source The source addon.
+	 * @param type The class this type belongs to.
+	 * @param name The display name of this type.
+	 * @param patterns The patterns that the user can enter to reference this type.
+	 * @return A new builder.
+	 * @param <T> The type.
+	 */
 	static <T> Builder<T> builder(
 			@NotNull SkriptAddon source,
 			@NotNull Class<T> type,
@@ -36,6 +46,20 @@ public interface TypeInfo<T> extends Documentable {
 		return new TypeInfoBuilderImpl<>(source, type, name, patterns);
 	}
 
+	/**
+	 * Creates a new builder for a type backed by a {@link Registry}.
+	 *
+	 * @param source The source addon.
+	 * @param type The class this type belongs to.
+	 * @param name The display name of this type.
+	 * @param registry The registry to extract values from.
+	 * @param langNode The node in the {@code default.lang} file used
+	 *                 to associate the values from the registry to a value that
+	 *                 can be used in scripts.
+	 * @param patterns The patterns that the user can enter to reference this type.
+	 * @return A new builder.
+	 * @param <T> The type.
+	 */
 	static <T extends @NotNull Keyed> RestrictedBuilder<T> builder(
 			@NotNull SkriptAddon source,
 			@NotNull Class<T> type,
@@ -47,6 +71,19 @@ public interface TypeInfo<T> extends Documentable {
 		return new RegistryInfoBuilderImpl<>(source, type, name, registry, langNode, patterns);
 	}
 
+	/**
+	 * Creates a new builder for a type backed by an {@link Enum}.
+	 *
+	 * @param source The source addon.
+	 * @param type The class this type belongs to.
+	 * @param name The display name of this type.
+	 * @param langNode The node in the {@code default.lang} file used
+	 *                 to associate the values from the enum to a value that
+	 *                 can be used in scripts.
+	 * @param patterns The patterns that the user can enter to reference this type.
+	 * @return A new builder.
+	 * @param <T> The type.
+	 */
 	static <T extends Enum<T>> RestrictedBuilder<T> builder(
 			@NotNull SkriptAddon source,
 			@NotNull Class<T> type,
