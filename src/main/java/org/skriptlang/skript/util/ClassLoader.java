@@ -72,16 +72,23 @@ public class ClassLoader {
 			basePackage = basePackage.replace('.', '/') + "/";
 		}
 		this.basePackage = basePackage;
-		this.subPackages = subPackages.stream()
-				.map(subPackage -> subPackage.replace('.', '/') + "/")
-				.collect(Collectors.toSet());
-		this.excludedPackages = excludedPackages.stream()
-			.map(excluded -> excluded.replace('.',  '/') + "/")
-			.collect(Collectors.toSet());
+		this.subPackages = formatPackageNames(subPackages);
+		this.excludedPackages = formatPackageNames(excludedPackages);
 		this.filter = filter;
 		this.initialize = initialize;
 		this.deep = deep;
 		this.forEachClass = forEachClass;
+	}
+
+	/**
+	 * Helper method for formatting package names to the correct format.
+	 * @param packages The package names to format.
+	 * @return The formatted package names.
+	 */
+	private Collection<String> formatPackageNames(Collection<String> packages) {
+		return packages.stream()
+			.map(packageName -> packageName.replace('.', '/') + "/")
+			.collect(Collectors.toSet());
 	}
 
 	/**
