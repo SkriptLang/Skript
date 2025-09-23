@@ -39,7 +39,7 @@ import org.bukkit.entity.Player;
 	on vehicle enter:
 		vehicle is a horse
 		add 1 to {statistics::horseMounting::%uuid of player%}
-""")
+	""")
 @Since("2.0")
 public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 
