@@ -162,4 +162,10 @@ public abstract class JavaFunction<T> extends Function<T> implements Documentabl
 	public @Unmodifiable @NotNull Collection<String> keywords() {
 		return keywords != null ? List.of(keywords) : Collections.emptyList();
 	}
+
+	@Override
+	public @Unmodifiable @NotNull Collection<String> requires() {
+		return Collections.emptyList();
+	}
+
 }

@@ -18,7 +18,6 @@ import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
-import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
