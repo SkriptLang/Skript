@@ -34,7 +34,7 @@ import org.bukkit.entity.Player;
 @Example("""
 	set the vehicle of {game::players::*} to a saddled pig
 	give {game::players::*} a carrot on a stick
-""")
+	""")
 @Example("""
 	on vehicle enter:
 		vehicle is a horse
