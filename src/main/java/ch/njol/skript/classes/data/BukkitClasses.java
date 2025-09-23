@@ -1632,5 +1632,20 @@ public class BukkitClasses {
 			.since("2.12")
 		);
 
+		Classes.registerClass(new ClassInfo<>(ItemFrame.class, "itemframe")
+				.user("item ?frames?")
+				.name("Item Frame")
+				.description("Represents the itemframe entity. This classinfo is used to manipulate settings of itemframes in syntaxes.")
+				.since("INSERT VERSION")
+				.defaultExpression(new EventValueExpression<>(ItemFrame.class)));
+
+		Classes.registerClass(new EnumClassInfo<>(Rotation.class, "rotation", "rotations")
+				.user("rotations?")
+				.name("Rotation")
+				.description(
+						"Specify a rotation based orientation, like that on a clock. Used in item frames.",
+						"It represents how something is viewed, as opposed to cardinal directions.")
+				.since("INSERT VERSION"));
+
 	}
 }

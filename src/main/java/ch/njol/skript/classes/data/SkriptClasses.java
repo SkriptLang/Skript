@@ -1,5 +1,13 @@
 package ch.njol.skript.classes.data;
 
+import java.io.StreamCorruptedException;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -25,9 +33,6 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.util.SkriptQueue;
@@ -35,13 +40,9 @@ import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
 import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.regex.Pattern;
 
 @SuppressWarnings("rawtypes")
 public class SkriptClasses {

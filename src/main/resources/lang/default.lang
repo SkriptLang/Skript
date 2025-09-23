@@ -653,7 +653,7 @@ entities:
 		pattern: lightning bolt[plural:s]
 	item frame:
 		name: item frame¦s @an
-		pattern: item[ ]frame[plural:s]
+		pattern: item[ ]frame[plural:s] [(with|of) %-itemtype%] [[(with rotation|rotated)] %-rotation%]
 	magma cube:
 		name: magma cube¦s
 		pattern: magma (cube|slime)[plural:s]
@@ -2573,6 +2573,17 @@ banner pattern types:
 	half_vertical_mirror: vertical half mirror banner pattern
 	half_horizontal_mirror: horizontal half mirror banner pattern
 
+# -- Rotations --
+rotations:
+	clockwise: clockwise, clockwise by 90 degrees, clockwise 90 degrees, 90 degrees
+	clockwise_135: clockwise 135, clockwise by 135 degrees, 135 degrees
+	clockwise_45: clockwise 45, clockwise by 45 degrees, 45 degrees
+	counter_clockwise: counter clockwise, counter clockwise by 90 degrees, counter clockwise 90 degrees, 270 degrees
+	counter_clockwise_45: counter clockwise 45, counter clockwise by 45 degrees, 315 degrees
+	flipped: flipped, flipped upside-down, flipped upside down, 180 degrees
+	flipped_45: flipped 45, flipped upside-down by 45 degrees, 225 degrees
+	none: none, nothing, no rotation, not rotated, 360 degrees
+
 # -- Input Keys --
 input keys:
 	forward: forward movement key, forward key
@@ -2797,6 +2808,8 @@ types:
 	villagercareerchangereason: villager career change reason¦s @a
 	damagesource: damage source¦s @a
 	damagetype: damage type¦s @a
+	itemframe: item frame¦s @an
+	rotation: rotation¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
