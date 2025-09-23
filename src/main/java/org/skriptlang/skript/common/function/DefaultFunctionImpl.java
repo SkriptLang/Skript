@@ -19,11 +19,11 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	private final Parameter<?>[] parameters;
 	private final Function<FunctionArguments, T> execute;
 
-	private final Collection<String> description;
-	private final Collection<String> since;
-	private final Collection<String> examples;
-	private final Collection<String> keywords;
-	private final Collection<String> requires;
+	private final List<String> description;
+	private final List<String> since;
+	private final List<String> examples;
+	private final List<String> keywords;
+	private final List<String> requires;
 
 	DefaultFunctionImpl(
 			SkriptAddon source,
@@ -111,27 +111,27 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> description() {
+	public @Unmodifiable @NotNull List<String> description() {
 		return description;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> since() {
+	public @Unmodifiable @NotNull List<String> since() {
 		return since;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> examples() {
+	public @Unmodifiable @NotNull List<String> examples() {
 		return examples;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> keywords() {
+	public @Unmodifiable @NotNull List<String> keywords() {
 		return keywords;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> requires() {
+	public @Unmodifiable @NotNull List<String> requires() {
 		return requires;
 	}
 

@@ -144,27 +144,27 @@ public abstract class JavaFunction<T> extends Function<T> implements Documentabl
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> description() {
+	public @Unmodifiable @NotNull List<String> description() {
 		return description != null ? List.of(description) : Collections.emptyList();
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> since() {
+	public @Unmodifiable @NotNull List<String> since() {
 		return since != null ? List.of(since) : Collections.emptyList();
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> examples() {
+	public @Unmodifiable @NotNull List<String> examples() {
 		return examples != null ? List.of(examples) : Collections.emptyList();
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> keywords() {
+	public @Unmodifiable @NotNull List<String> keywords() {
 		return keywords != null ? List.of(keywords) : Collections.emptyList();
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> requires() {
+	public @Unmodifiable @NotNull List<String> requires() {
 		return Collections.emptyList();
 	}
 
