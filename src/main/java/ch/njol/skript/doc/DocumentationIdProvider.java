@@ -13,6 +13,7 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.TypeInfo;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -128,6 +129,19 @@ public class DocumentationIdProvider {
 		int collisionCount = calculateCollisionCount(Classes.getClassInfos().iterator(),
 			otherClassInfo -> classInfoId.equals(getClassInfoId(otherClassInfo)),
 			otherClassInfo -> classInfo == otherClassInfo);
+		return addCollisionSuffix(classInfoId, collisionCount);
+	}
+
+	/**
+	 * Gets the documentation ID of a type
+	 * @param type the type to get the ID of
+	 * @return the ID of the type
+	 */
+	public static String getId(TypeInfo<?> type) {
+		String classInfoId = type.name();
+		int collisionCount = calculateCollisionCount(Classes.getClassInfos().iterator(),
+				otherClassInfo -> classInfoId.equals(getClassInfoId(otherClassInfo)),
+				otherClassInfo -> type == otherClassInfo);
 		return addCollisionSuffix(classInfoId, collisionCount);
 	}
 
