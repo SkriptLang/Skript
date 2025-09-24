@@ -29,6 +29,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -269,10 +270,7 @@ public abstract class Classes {
 		return null;
 	}
 
-	/**
-	 * @deprecated Use {@link TypeRegistry#elements()} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@SuppressWarnings("null")
 	public static List<ClassInfo<?>> getClassInfos() {
 		return registry.elements().stream()
 				.map(Classes::toClassInfo)
@@ -280,9 +278,12 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} instead.
+	 * This method can be called even while Skript is loading.
+	 *
+	 * @param codeName
+	 * @return The ClassInfo with the given code name
+	 * @throws SkriptAPIException If the given class was not registered
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static ClassInfo<?> getClassInfo(final String codeName) {
 		if (codeName == null) {
 			throw new SkriptAPIException("No class info found for null");
@@ -295,11 +296,13 @@ public abstract class Classes {
 		return classInfo;
 	}
 
-
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} instead.
+	 * This method can be called even while Skript is loading.
+	 *
+	 * @param codeName
+	 * @return The class info registered with the given code name or null if the code name is invalid or not yet registered
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Nullable
 	public static ClassInfo<?> getClassInfoNoError(final @Nullable String codeName) {
 		if (codeName == null) {
 			return null;
@@ -309,10 +312,14 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromClass(Class)} instead.
+	 * Gets the class info for the given class.
+	 * <p>
+	 * This method can be called even while Skript is loading.
+	 *
+	 * @param c The exact class to get the class info for.
+	 * @return The class info for the given class or null if no info was found.
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> ClassInfo<T> getExactClassInfo(@Nullable Class<T> c) {
 		if (c == null) {
 			return null;
@@ -322,9 +329,12 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeRegistry#superTypeFromClass(Class)} instead.
+	 * Gets the class info of the given class or its closest registered superclass. This method will never return null unless <tt>c</tt> is null.
+	 *
+	 * @param c
+	 * @return The closest superclass's info
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Contract(pure = true, value = "!null -> !null")
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
 
@@ -362,20 +372,26 @@ public abstract class Classes {
 		return list;
 	}
 
+
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} and {@link TypeInfo#type()} instead.
+	 * Gets a class by its code name
+	 *
+	 * @param codeName
+	 * @return the class with the given code name
+	 * @throws SkriptAPIException If the given class was not registered
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static Class<?> getClass(final String codeName) {
 		checkAllowClassInfoInteraction();
 		return getClassInfo(codeName).getC();
 	}
 
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} instead.
+	 * As the name implies
+	 *
+	 * @param name
+	 * @return the class info or null if the name was not recognised
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static ClassInfo<?> getClassInfoFromUserInput(String name) {
 		checkAllowClassInfoInteraction();
 		name = "" + name.toLowerCase(Locale.ENGLISH);
@@ -392,10 +408,12 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} and {@link TypeInfo#type()} instead.
+	 * As the name implies
+	 *
+	 * @param name
+	 * @return the class or null if the name was not recognized
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static Class<?> getClassFromUserInput(final String name) {
 		checkAllowClassInfoInteraction();
 		final ClassInfo<?> ci = getClassInfoFromUserInput(name);
@@ -403,10 +421,13 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromPattern(String)} and {@link TypeInfo#defaultExpression()} instead.
+	 * Gets the default of a class
+	 *
+	 * @param codeName
+	 * @return the expression holding the default value or null if this class doesn't have one
+	 * @throws SkriptAPIException If the given class was not registered
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static DefaultExpression<?> getDefaultExpression(final String codeName) {
 		TypeInfo<Object> info = registry.fromPattern(codeName);
 		if (info == null) {
@@ -416,10 +437,12 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeRegistry#fromClass(Class)} and {@link TypeInfo#defaultExpression()} instead.
+	 * Gets the default expression of a class
+	 *
+	 * @param c The class
+	 * @return The expression holding the default value or null if this class doesn't have one
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> DefaultExpression<T> getDefaultExpression(final Class<T> c) {
 		TypeInfo<T> info = registry.fromClass(c);
 		if (info == null) {
@@ -451,10 +474,12 @@ public abstract class Classes {
 	}
 
 	/**
-	 * @deprecated Use {@link TypeInfo#name()} instead.
+	 * Gets the name a class was registered with.
+	 *
+	 * @param c The exact class
+	 * @return The name of the class or null if the given class wasn't registered.
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static String getExactClassName(final Class<?> c) {
 		TypeInfo<?> info = registry.fromClass(c);
 		if (info == null) {
