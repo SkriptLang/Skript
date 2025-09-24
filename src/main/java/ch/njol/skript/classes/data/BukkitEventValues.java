@@ -520,13 +520,6 @@ public final class BukkitEventValues {
 			case END_PLATFORM -> PortalType.ENDER;
 			case FIRE, NETHER_PAIR -> PortalType.NETHER;
 		});
-		EventValues.registerEventValue(EntityPortalEvent.class, PortalType.class, EntityPortalEvent::getPortalType);
-		EventValues.registerEventValue(PlayerPortalEvent.class, PortalType.class, event -> switch (event.getCause()) {
-			case END_GATEWAY -> PortalType.END_GATEWAY;
-			case END_PORTAL -> PortalType.ENDER;
-			case NETHER_PORTAL -> PortalType.NETHER;
-			default -> throw new UnsupportedOperationException();
-		});
 		//PlayerEditBookEvent
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, event -> {
 			ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
