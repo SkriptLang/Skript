@@ -489,7 +489,7 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	}
 
 	@Override
-	public @NotNull @Unmodifiable Collection<String> patterns() {
+	public @Unmodifiable @NotNull Collection<String> patterns() {
 		if (userInputPatterns == null) {
 			return Collections.emptyList();
 		}

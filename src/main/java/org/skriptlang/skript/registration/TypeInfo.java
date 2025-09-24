@@ -108,7 +108,7 @@ public interface TypeInfo<T> extends Documentable {
 	/**
 	 * @return An unmodifiable collection of all possible ways to reference this type.
 	 */
-	@NotNull @Unmodifiable Collection<String> patterns();
+	@Unmodifiable @NotNull Collection<String> patterns();
 
 	/**
 	 * @return The {@link Parser} associated with this type.

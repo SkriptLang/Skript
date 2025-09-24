@@ -85,7 +85,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 	}
 
 	@Override
-	public @NotNull @Unmodifiable Collection<String> patterns() {
+	public @Unmodifiable @NotNull Collection<String> patterns() {
 		return patterns;
 	}
 
