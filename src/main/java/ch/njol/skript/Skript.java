@@ -494,13 +494,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript.localizer().setSourceDirectories("lang",
 				getDataFolder().getAbsolutePath() + File.separatorChar + "lang");
 
-		skript.storeRegistry(TypeRegistry.class, TypeRegistry.empty());
-
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
 		experimentRegistry = new ExperimentRegistry(this);
 		Feature.registerAll(getAddonInstance(), experimentRegistry);
+
+		skript.storeRegistry(TypeRegistry.class, TypeRegistry.empty());
 
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
