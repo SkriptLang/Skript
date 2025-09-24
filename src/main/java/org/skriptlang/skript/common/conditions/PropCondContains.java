@@ -35,7 +35,7 @@ import java.util.StringJoiner;
 	When checking if a list contains a specific element, use '{list::*} contains {x}'.
 	When checking if a single type contains something, use `player's inventory contains {x}`.
 	When checking if many types contain something, use '{inventories::*} contain {x}` \
-	or `contents of {inventories::*} contain {x}.
+	or `contents of {inventories::*} contain {x}`.
 	""")
 @Example("block contains 20 cobblestone")
 @Example("player has 4 flint and 2 iron ingots")

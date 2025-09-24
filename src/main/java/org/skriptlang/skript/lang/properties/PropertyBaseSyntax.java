@@ -116,7 +116,7 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 		// for each return type, match to a classinfo w/ name property
 		for (Class<?> returnType : expr.possibleReturnTypes()) {
 			ClassInfo<?> closestInfo = null;
-			for (ClassInfo<?> propertiedClassInfo  : classInfos) {
+			for (ClassInfo<?> propertiedClassInfo : classInfos) {
 				if (propertiedClassInfo.getC() == returnType) {
 					// exact match, use it
 					closestInfo = propertiedClassInfo;
