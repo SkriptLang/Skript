@@ -490,7 +490,15 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 
 	@Override
 	public @NotNull @Unmodifiable Collection<String> patterns() {
-		return List.of();
+		if (userInputPatterns == null) {
+			return Collections.emptyList();
+		}
+
+		Set<String> patterns = new HashSet<>();
+		for (Pattern pattern : userInputPatterns) {
+			patterns.addAll(PatternGenerator.generate(pattern.toString()));
+		}
+		return patterns;
 	}
 
 	@Override
@@ -548,6 +556,47 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	@Override
 	public @Unmodifiable @NotNull Collection<String> requires() {
 		return requiredPlugins == null ? Collections.emptyList() : List.of(requiredPlugins);
+	}
+
+	public static class PatternGenerator {
+
+		public static Set<String> generate(String regex) {
+			Set<String> results = new HashSet<>();
+			expandHelper(regex, 0, "", results);
+			return results;
+		}
+
+		private static void expandHelper(String regex, int index, String current, Set<String> results) {
+			if (index >= regex.length()) {
+				results.add(current);
+				return;
+			}
+
+			char c = regex.charAt(index);
+
+			if (c == '[') {
+				int end = regex.indexOf(']', index);
+				String chars = regex.substring(index + 1, end);
+				for (char option : chars.toCharArray()) {
+					expandHelper(regex, end + 1, current + option, results);
+				}
+			} else if (c == '(') {
+				int end = regex.indexOf(')', index);
+				String inside = regex.substring(index + 1, end);
+				String[] options = inside.split("\\|");
+				for (String option : options) {
+					expandHelper(regex, end + 1, current + option, results);
+				}
+			} else if (index + 1 < regex.length() && regex.charAt(index + 1) == '?') {
+				// include char
+				expandHelper(regex, index + 2, current + c, results);
+				// skip char
+				expandHelper(regex, index + 2, current, results);
+			} else {
+				expandHelper(regex, index + 1, current + c, results);
+			}
+		}
+
 	}
 
 }

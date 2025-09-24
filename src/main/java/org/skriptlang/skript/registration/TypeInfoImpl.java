@@ -12,10 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 final class TypeInfoImpl<T> implements TypeInfo<T> {
@@ -23,7 +20,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 	private final SkriptAddon source;
 	private final String name;
 	private final Class<T> type;
-	private final List<String> patterns;
+	private final Set<String> patterns;
 	private final List<String> description;
 	private final List<String> since;
 	private final List<String> examples;
@@ -54,10 +51,6 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		this.source = source;
 		this.name = name;
 		this.type = type;
-		for (String pattern : patterns) {
-
-		}
-		this.patterns = List.of(patterns);
 		this.description = description != null ? List.of(description) : Collections.emptyList();
 		this.since = since != null ? List.of(since) : Collections.emptyList();
 		this.examples = examples != null ? List.of(examples) : Collections.emptyList();
@@ -68,6 +61,12 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		this.defaultExpression = defaultExpression;
 		this.values = values;
 		this.cloner = cloner;
+
+		Set<String> generated = new HashSet<>();
+		for (String pattern : patterns) {
+			generated.addAll(ClassInfo.PatternGenerator.generate(pattern));
+		}
+		this.patterns = Set.copyOf(generated);
 	}
 
 	@Override
