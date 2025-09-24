@@ -90,27 +90,27 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> description() {
+	public @Unmodifiable @NotNull List<String> description() {
 		return description;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> since() {
+	public @Unmodifiable @NotNull List<String> since() {
 		return since;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> examples() {
+	public @Unmodifiable @NotNull List<String> examples() {
 		return examples;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> keywords() {
+	public @Unmodifiable @NotNull List<String> keywords() {
 		return keywords;
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> requires() {
+	public @Unmodifiable @NotNull List<String> requires() {
 		return requires;
 	}
 

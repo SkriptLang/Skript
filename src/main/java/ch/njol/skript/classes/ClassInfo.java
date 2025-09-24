@@ -534,27 +534,27 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> description() {
+	public @Unmodifiable @NotNull List<String> description() {
 		return description == null ? Collections.emptyList() : List.of(description);
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> since() {
+	public @Unmodifiable @NotNull List<String> since() {
 		return since == null ? Collections.emptyList() : List.of(since);
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> examples() {
+	public @Unmodifiable @NotNull List<String> examples() {
 		return examples == null ? Collections.emptyList() : List.of(examples);
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> keywords() {
+	public @Unmodifiable @NotNull List<String> keywords() {
 		return List.of();
 	}
 
 	@Override
-	public @Unmodifiable @NotNull Collection<String> requires() {
+	public @Unmodifiable @NotNull List<String> requires() {
 		return requiredPlugins == null ? Collections.emptyList() : List.of(requiredPlugins);
 	}
 

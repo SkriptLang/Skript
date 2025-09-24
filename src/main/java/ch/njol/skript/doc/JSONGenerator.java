@@ -25,9 +25,7 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.structure.Structure;
-import org.skriptlang.skript.registration.DefaultSyntaxInfos;
-import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.registration.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,6 +103,16 @@ public class JSONGenerator extends DocumentationGenerator {
 		for (String string : strings)
 			jsonArray.add(new JsonPrimitive(string));
 		return jsonArray;
+	}
+
+	/**
+	 * Coverts a String array to a JsonArray
+	 *
+	 * @param strings the String array to convert
+	 * @return the JsonArray containing the Strings
+	 */
+	private static JsonArray convertToJsonArray(Collection<String> strings) {
+		return convertToJsonArray(strings.toArray(new String[0]));
 	}
 
 	/**
@@ -354,35 +362,35 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * Generates the documentation JsonObject for a classinfo
 	 *
-	 * @param classInfo the ClassInfo to generate the documentation of
+	 * @param type the ClassInfo to generate the documentation of
 	 * @return the documentation Jsonobject of the ClassInfo
 	 */
-	private static JsonObject generateClassInfoElement(ClassInfo<?> classInfo) {
-		if (!classInfo.hasDocs())
+	private static JsonObject generateClassInfoElement(TypeInfo<?> type) {
+		if (type.name().isEmpty() || type.name().equals("?"))
 			return null;
 
 		JsonObject syntaxJsonObject = new JsonObject();
-		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(classInfo));
-		syntaxJsonObject.addProperty("name", Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()));
-		syntaxJsonObject.addProperty("since", classInfo.getSince());
+		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(type));
+		syntaxJsonObject.addProperty("name", type.name());
+		syntaxJsonObject.add("since", convertToJsonArray(type.since()));
 
-		syntaxJsonObject.add("patterns", cleanPatterns(classInfo.getUsage()));
-		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
-		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
-		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
+		syntaxJsonObject.add("patterns", cleanPatterns(type.patterns()));
+		syntaxJsonObject.add("description", convertToJsonArray(type.description()));
+		syntaxJsonObject.add("requirements", convertToJsonArray(type.requires()));
+		syntaxJsonObject.add("examples", convertToJsonArray(type.examples()));
 
 		return syntaxJsonObject;
 	}
 
 	/**
-	 * Generates a JsonArray containing the documentation JsonObjects for each classinfo in the iterator
+	 * Generates a JsonArray containing the documentation JsonObjects for each provided type
 	 *
-	 * @param classInfos the classinfos to generate documentation for
-	 * @return a JsonArray containing the documentation JsonObjects for each classinfo
+	 * @param infos The types to generate documentation for
+	 * @return A JsonArray containing the documentation JsonObjects for each classinfo
 	 */
-	private static JsonArray generateClassInfoArray(Iterator<ClassInfo<?>> classInfos) {
+	private static JsonArray generateTypeArray(@NotNull Collection<TypeInfo<?>> infos) {
 		JsonArray syntaxArray = new JsonArray();
-		classInfos.forEachRemaining(classInfo -> {
+		infos.forEach(classInfo -> {
 			JsonObject classInfoElement = generateClassInfoElement(classInfo);
 			if (classInfoElement != null)
 				syntaxArray.add(classInfoElement);
@@ -460,6 +468,16 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
+	 * Cleans the provided patterns
+	 *
+	 * @param strings the patterns to clean
+	 * @return the cleaned patterns
+	 */
+	private static JsonArray cleanPatterns(Collection<String> strings) {
+		return cleanPatterns(strings.toArray(new String[0]));
+	}
+
+	/**
 	 * Gets the json object representing the addon.
 	 *
 	 * @return The json object representing the addon.
@@ -498,7 +516,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("events", generateStructureElementArray(source.syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT)));
 		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
-		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
+		jsonDocs.add("types", generateTypeArray(source.registry(TypeRegistry.class).elements()));
 		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
 
 		try {
