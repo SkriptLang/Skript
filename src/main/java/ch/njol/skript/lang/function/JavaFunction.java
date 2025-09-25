@@ -1,21 +1,16 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.doc.Documentable;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.function.FunctionArguments;
-import org.skriptlang.skript.common.function.Parameter.Modifier;
-
-import java.util.List;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.FunctionArguments;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 

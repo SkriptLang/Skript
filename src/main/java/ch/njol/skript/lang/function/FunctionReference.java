@@ -2,11 +2,14 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -15,16 +18,15 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
 import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionReference} instead.

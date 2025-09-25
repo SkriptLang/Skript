@@ -189,7 +189,7 @@ public final class FunctionReference<T> implements Debuggable {
 		if (Functions.callFunctionEvents)
 			Bukkit.getPluginManager().callEvent(fnEvent);
 
-		return function.execute(fnEvent, new FunctionArguments(args));
+		return function.execute(fnEvent, new FunctionArgumentsImpl(args));
 	}
 
 	private KeyedValue<?>[] evaluateKeyed(Expression<?> expression, Event event) {

@@ -17,9 +17,9 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.DefaultParameter;
 import org.skriptlang.skript.common.function.ScriptParameter;
-import org.skriptlang.skript.common.function.DefaultFunction;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -67,8 +67,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 */
 	final boolean keyed;
 
-	private final Set<Modifier> modifiers;
-
 	/**
 	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
 	 */
@@ -103,11 +101,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
-=======
-	}
-
-	/**
-	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed, boolean optional) {
@@ -149,41 +142,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 */
 	public boolean isOptional() {
 		return modifiers.contains(Modifier.OPTIONAL);
-	}
-
-	/**
-	 * @return The type of this parameter as a {@link ClassInfo}.
-	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
-	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed, boolean optional) {
-		this.name = name;
-		this.type = type;
-		this.def = def;
-		this.single = single;
-		this.modifiers = new HashSet<>();
-
-		if (optional) {
-			modifiers.add(Modifier.OPTIONAL);
-		}
-		if (keyed) {
-			modifiers.add(Modifier.KEYED);
-		}
-	}
-
-	/**
-	 * Constructs a new parameter for script functions.
-	 *
-	 * @param name The name.
-	 * @param type The type of the parameter.
-	 * @param single Whether the parameter is single.
-	 * @param def The default value.
-	 */
-	Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, Modifier... modifiers) {
-		this.name = name;
-		this.type = type;
-		this.def = def;
-		this.single = single;
-		this.modifiers = Set.of(modifiers);
 	}
 
 	/**
@@ -293,10 +251,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		return params;
 	}
 
-	/**
-	 * @deprecated Use {@link #name()} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public String getName() {
 		return name;
 	}

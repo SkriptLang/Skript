@@ -101,6 +101,11 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 	@Override
+	public T execute(org.skriptlang.skript.common.function.FunctionEvent<?> event, FunctionArguments arguments) {
+		return execute.apply(arguments);
+	}
+
+	@Override
 	public boolean resetReturnValue() {
 		return true;
 	}

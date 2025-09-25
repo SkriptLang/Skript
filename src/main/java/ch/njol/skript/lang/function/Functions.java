@@ -11,9 +11,9 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.structures.StructFunction;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.FunctionReference;
 import org.skriptlang.skript.common.function.Parameter;
-import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;

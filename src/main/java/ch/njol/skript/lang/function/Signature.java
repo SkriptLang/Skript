@@ -3,7 +3,6 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
@@ -11,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.FunctionReference;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
@@ -24,9 +24,6 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	/**
 	 * Name of the script that the function is inside.
 	 */
-	private final @Nullable String namespace;
-
-  @Deprecated(forRemoval=true, since="INSERT VERSION")
 	final @Nullable String script;
 
 	/**
@@ -37,7 +34,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	/**
 	 * Parameters taken by this function, in order.
 	 */
-	private final LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters;
+	private final LinkedHashMap<String, Parameter<?>> parameters;
 
 	/**
 	 * Whether this function is only accessible in the script it was declared in
@@ -48,6 +45,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 * The return type.
 	 */
 	final @Nullable ClassInfo<T> returnType;
+	final Class<T> returns;
 
 	/**
 	 * Whether this function returns a single value, or multiple ones.
@@ -65,149 +63,40 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 */
 	final @Nullable Contract contract;
 
----
-	public Signature(@Nullable String namespace,
-					 @NotNull String name,
-					 @NotNull LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters,
-					 boolean local,
-					 @Nullable Class<T> returnType,
-=======
-	public Signature(@Nullable String script,
-					 String name,
-					 Parameter<?>[] parameters, boolean local,
-					 @Nullable ClassInfo<T> returnType,
-					 boolean single,
-					 @Nullable String originClassPath,
---
-					 @Nullable Contract contract) {
-		Preconditions.checkNotNull(name, "name cannot be null");
-		Preconditions.checkNotNull(parameters, "parameters cannot be null");
-
-		this.namespace = namespace;
+	public Signature(@Nullable String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
+		this.script = script;
 		this.name = name;
-		this.parameters = parameters;
+		this.parameters = initParameters(parameters);
 		this.local = local;
 		this.returnType = returnType;
-		this.contract = contract;
-
-		calls = Collections.newSetFromMap(new WeakHashMap<>());
-	}
-
-	/**
---- feature/named-function-args
-	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Signature(String namespace,
-					 String name,
-					 Parameter<?>[] parameters, boolean local,
-					 @Nullable ClassInfo<T> returnType,
-					 boolean single,
-					 @Nullable String originClassPath,
-					 @Nullable Contract contract) {
-		this(namespace, name, initParameters(parameters), local, initReturnType(returnType, single), contract);
-	}
-
-	private static <T> Class<T> initReturnType(ClassInfo<T> classInfo, boolean single) {
-		if (classInfo == null) {
-			return null;
-		}
-
-		if (single) {
-			return classInfo.getC();
+		if (returnType == null) {
+			this.returns = null;
 		} else {
-			//noinspection unchecked
-			return (Class<T>) classInfo.getC().arrayType();
+			if (single) {
+				this.returns = returnType.getC();
+			} else {
+				this.returns = (Class<T>) returnType.getC().arrayType();
+			}
 		}
+		this.single = single;
+		this.contract = contract;
+		this.calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
 
-	private static LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> initParameters(Parameter<?>[] params) {
-		LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> map = new LinkedHashMap<>();
+	public Signature(@Nullable String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single, String stacktrace) {
+		this(script, name, parameters, local, returnType, single, (Contract) null);
+	}
+
+	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, ClassInfo<T> returnType, boolean single, String stacktrace, @Nullable Contract contract) {
+		this(script, name, parameters, local, returnType, single, contract);
+	}
+
+	private static LinkedHashMap<String, Parameter<?>> initParameters(Parameter<?>[] params) {
+		LinkedHashMap<String, Parameter<?>> map = new LinkedHashMap<>();
 		for (Parameter<?> parameter : params) {
 			map.put(parameter.name(), parameter);
 		}
 		return map;
-	}
-
-	/**
-	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Signature(String namespace,
-=======
-	 * Creates a new signature.
-	 *
-	 * @param script The script of this signature.
-	 * @param name The name of the function.
-	 * @param parameters The parameters.
-	 * @param returnType The return type class.
-	 * @param contract A {@link Contract} that may belong to this signature.
-	 */
-	public Signature(@Nullable String script,
-					 String name,
-					 org.skriptlang.skript.common.function.Parameter<?>[] parameters,
-					 @Nullable Class<T> returnType,
-					 boolean single,
-					 @Nullable Contract contract) {
-		this.parameters = new Parameter[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			org.skriptlang.skript.common.function.Parameter<?> parameter = parameters[i];
-			this.parameters[i] = new Parameter<>(parameter.name(),
-				getClassInfo(parameter.type()), parameter.single(),
-				null,
-				parameter.modifiers().toArray(new Modifier[0]));
-		}
-
-		this.script = script;
-		this.name = name;
-		this.local = script != null;
-		if (returnType != null) {
-			//noinspection unchecked
-			this.returnType = (ClassInfo<T>) getClassInfo(returnType);
-		} else {
-			this.returnType = null;
-		}
-		this.single = single;
-		this.contract = contract;
-		this.originClassPath = "";
-
-		calls = Collections.newSetFromMap(new WeakHashMap<>());
-	}
-
-	/**
-	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
-	 *
-	 * @param cls The class.
-	 * @param <T> The type of class.
-	 * @return The non-array {@link ClassInfo} of {@code cls}.
-	 */
-	private static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
-		ClassInfo<T> classInfo;
-		if (cls.isArray()) {
-			//noinspection unchecked
-			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
-		} else {
-			classInfo = Classes.getExactClassInfo(cls);
-		}
-		return classInfo;
-	}
-
-	public Signature(String script,
---- dev/feature
-					 String name,
-					 Parameter<?>[] parameters, boolean local,
-					 @Nullable ClassInfo<T> returnType,
-					 boolean single,
-					 @Nullable String originClassPath) {
-		this(namespace, name, parameters, local, returnType, single, originClassPath, null);
-	}
-
-	/**
-	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public Signature(String namespace, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
-		this(namespace, name, parameters, local, returnType, single, null);
 	}
 
 	/**
@@ -245,7 +134,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 
 	public String getName() {
 		return name;
-  }
+	}
 
 	public boolean isLocal() {
 		return local;
@@ -255,7 +144,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 * @return The namespace of this signature.
 	 */
 	String namespace() {
-		return namespace;
+		return script;
 	}
 
 	/**
@@ -267,11 +156,11 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 			return null;
 		}
 
-		if (returnType.isArray()) {
+		if (returns.isArray()) {
 			//noinspection unchecked
-			return (ClassInfo<T>) Classes.getExactClassInfo(returnType.componentType());
+			return (ClassInfo<T>) Classes.getExactClassInfo(returns.componentType());
 		} else {
-			return Classes.getExactClassInfo(returnType);
+			return Classes.getExactClassInfo(returns);
 		}
 	}
 
@@ -279,14 +168,14 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 * @return The return type of this signature. Returns null for no return type.
 	 */
 	public Class<T> returnType() {
-		return returnType;
+		return returns;
 	}
 
 	/**
 	 * @return Whether this signature returns a single or multiple values.
 	 */
 	public boolean isSingle() {
-		return !returnType.isArray();
+		return !returns.isArray();
 	}
 
 	/**
@@ -354,24 +243,46 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		signatureBuilder.append(name);
 
 		signatureBuilder.append('(')
-			.append(StringUtils.join(parameters.values(), ", "))
-			.append(')');
+				.append(StringUtils.join(parameters.values(), ", "))
+				.append(')');
 
-		if (includeReturnType && returnType != null) {
+		if (includeReturnType && returns != null) {
 			signatureBuilder.append(" :: ");
 
-			ClassInfo<T> ci;
-			if (returnType.isArray()) {
-				//noinspection unchecked
-				ci = (ClassInfo<T>) Classes.getExactClassInfo(returnType.componentType());
-			} else {
-				ci = Classes.getExactClassInfo(returnType);
-			}
-
-			signatureBuilder.append(Utils.toEnglishPlural(ci.getCodeName(), returnType.isArray()));
+			signatureBuilder.append(Utils.toEnglishPlural(returnType.getCodeName(), returns.isArray()));
 		}
 
 		return signatureBuilder.toString();
+	}
+
+	@Override
+	public @NotNull String name() {
+		return name;
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> description() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> since() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> examples() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> keywords() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> requires() {
+		return List.of();
 	}
 
 }

@@ -32,7 +32,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			hintManager.enterScope(false);
 			for (Parameter<?> parameter : sign.parameters().values()) {
 				String hintName = parameter.name();
-				if (!parameter.isSingleValue()) {
+				if (!parameter.single()) {
 					hintName += Variable.SEPARATOR + "*";
 				}
 				hintManager.set(hintName, parameter.type());
@@ -53,7 +53,6 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 		int i = 0;
 		for (Entry<String, Parameter<?>> entry : parameters.entrySet()) {
-			String name = entry.getKey();
 			Parameter<?> parameter = entry.getValue();
 
 			Object[] val = params[i];
@@ -73,8 +72,9 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public T execute(FunctionEvent<?> event, FunctionArguments arguments) {
+	public T execute(org.skriptlang.skript.common.function.FunctionEvent<?> event, FunctionArguments arguments) {
 		LinkedHashMap<String, Parameter<?>> parameters = getSignature().parameters();
+		FunctionEvent<?> newEvent = new FunctionEvent<>(this);
 
 		for (String name : arguments.names()) {
 			Parameter<?> parameter = parameters.get(name);
@@ -85,23 +85,23 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			}
 
 			if (parameter.single()) {
-				Variables.setVariable(name, value, event, true);
+				Variables.setVariable(name, value, newEvent, true);
 			} else {
 				if (value instanceof KeyedValue<?>[] keyedValues) {
 					for (KeyedValue<?> keyedValue : keyedValues) {
-						Variables.setVariable(name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+						Variables.setVariable(name + "::" + keyedValue.key(), keyedValue.value(), newEvent, true);
 					}
 				} else {
 					int i = 0;
 					for (Object o : (Object[]) value) {
-						Variables.setVariable(name + "::" + i, o, event, true);
+						Variables.setVariable(name + "::" + i, o, newEvent, true);
 						i++;
 					}
 				}
 			}
 		}
 
-		trigger.execute(event);
+		trigger.execute(newEvent);
 
 		if (returnType() == null || returnValues == null || returnValues.length == 0) {
 			return null;

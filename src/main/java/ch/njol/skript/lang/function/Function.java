@@ -8,8 +8,8 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.function.FunctionArguments;
 import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.FunctionArguments;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.Arrays;
@@ -116,25 +116,24 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			Parameter<?> parameter = parameters[i];
 			Object[] parameterValue = parameter.hasModifier(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
-			// see https://github.com/SkriptLang/Skript/pull/8135
-			if ((parameterValues[i] == null || parameterValues[i].length == 0)
-				&& parameter.keyed
-				&& parameter.def != null
-			) {
-				Object[] defaultValue = parameter.def.getArray(event);
-				if (defaultValue.length == 1) {
-					parameterValue = KeyedValue.zip(defaultValue, null);
-				} else {
-					parameterValue = defaultValue;
-				}
-			} else if (!(this instanceof DefaultFunction<?>) && parameterValue == null) { // Go for default value
-				assert parameter.def != null; // Should've been parse error
-				Object[] defaultValue = parameter.def.getArray(event);
-				if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(parameter.def)) {
-					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
-					parameterValue = KeyedValue.zip(defaultValue, keys);
-				} else {
-					parameterValue = defaultValue;
+			if (parameter instanceof Parameter<?> old) {
+				// see https://github.com/SkriptLang/Skript/pull/8135
+				if ((parameterValues[i] == null || parameterValues[i].length == 0) && old.keyed && old.def != null) {
+					Object[] defaultValue = old.def.getArray(event);
+					if (defaultValue.length == 1) {
+						parameterValue = KeyedValue.zip(defaultValue, null);
+					} else {
+						parameterValue = defaultValue;
+					}
+				} else if (!(this instanceof DefaultFunction<?>) && parameterValue == null) { // Go for default value
+					assert old.def != null; // Should've been parse error
+					Object[] defaultValue = old.def.getArray(event);
+					if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(old.def)) {
+						String[] keys = ((KeyProviderExpression<?>) old.def).getArrayKeys(event);
+						parameterValue = KeyedValue.zip(defaultValue, keys);
+					} else {
+						parameterValue = defaultValue;
+					}
 				}
 			}
 
@@ -180,15 +179,6 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
-
-	/**
-	 * Executes this function with the given parameters.
-	 *
-	 * @param event The event that is associated with this function execution.
-	 * @param arguments The arguments to execute the function with.
-	 * @return The return value.
-	 */
-	public abstract T execute(FunctionEvent<?> event, FunctionArguments arguments);
 
 	/**
 	 * @return The keys of the values returned by this function, or null if no keys are returned.

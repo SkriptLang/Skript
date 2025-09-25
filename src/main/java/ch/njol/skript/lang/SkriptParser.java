@@ -60,6 +60,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1150,9 +1151,9 @@ public final class SkriptParser {
 	 * @param <T> The return type of the function.
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
-  public <T> FunctionReference<T> parseFunctionReference() {
+	public <T> FunctionReference<T> parseFunctionReference() {
 		return new FunctionReferenceParser(context, flags).parseFunctionReference(expr);
-  }
+	}
  
 	private final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
 
@@ -1191,8 +1192,7 @@ public final class SkriptParser {
 				return null;
 			}
 
-			SkriptParser skriptParser = new SkriptParser(args, flags | PARSE_LITERALS, context)
-				.suppressMissingAndOrWarnings();
+			SkriptParser skriptParser = new SkriptParser(args, flags | PARSE_LITERALS, context);
 			Expression<?>[] params = args.isEmpty() ? new Expression[0] : null;
 
 			String namespace = null;
@@ -1234,7 +1234,7 @@ public final class SkriptParser {
 				boolean trySinglePlural = false;
 				for (var signature : signatures) {
 					trySingle |= signature.getMinParameters() == 1 || signature.getMaxParameters() == 1;
-					trySinglePlural |= trySingle && !signature.getParameter(0).isSingleValue();
+					trySinglePlural |= trySingle && !signature.getParameter(0).single();
 					for (int i = 0; i < signature.getMaxParameters(); i++) {
 						if (signatureDatas.size() <= i) {
 							signatureDatas.add(new ArrayList<>());

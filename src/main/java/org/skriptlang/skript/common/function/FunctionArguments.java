@@ -2,12 +2,6 @@ package org.skriptlang.skript.common.function;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jetbrains.annotations.UnmodifiableView;
-
-import java.util.Collections;
-import java.util.Map;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -77,14 +71,6 @@ public sealed interface FunctionArguments
 	 * @return The value present, or the calculated default value if no value is present.
 	 */
 	<T> T getOrDefault(@NotNull String name, Supplier<T> defaultValue);
-
-	/**
-	 * Returns whether this method call contained the following argument.
-	 *
-	 * @param name The argument.
-	 * @return True if the argument is present.
-	 */
-	boolean has(@NotNull String name);
 
 	/**
 	 * Returns all the argument names available in this instance.

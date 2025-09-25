@@ -1,5 +1,6 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.doc.Documentable;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
@@ -13,6 +14,6 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
 @NonExtendable
 @Internal
 @Experimental
-public interface Signature<T> {
+public interface Signature<T> extends Documentable {
 
 }
