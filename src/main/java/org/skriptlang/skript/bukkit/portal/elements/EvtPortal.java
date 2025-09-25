@@ -1,4 +1,4 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.portal.elements;
 
 import com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent;
 import com.destroystokyo.paper.event.player.PlayerTeleportEndGatewayEvent;

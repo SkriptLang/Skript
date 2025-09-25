@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.portal.elements;
 
 import java.util.Iterator;
 import java.util.List;
