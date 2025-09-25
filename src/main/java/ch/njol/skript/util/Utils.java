@@ -775,8 +775,8 @@ public abstract class Utils {
 		assert classes.length > 0;
 		Class<?> chosen = classes[0];
 		outer:
-		for (final Class<?> checking : classes) {
-			assert checking != null && !checking.isArray() && !checking.isPrimitive() : checking;
+		for (Class<?> checking : classes) {
+			assert !checking.isArray() && !checking.isPrimitive() : "%s has no super".formatted(checking.getSimpleName());
 			if (chosen.isAssignableFrom(checking))
 				continue;
 			Class<?> superType = checking;

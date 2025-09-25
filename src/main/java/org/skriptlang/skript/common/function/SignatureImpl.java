@@ -1,5 +1,6 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -46,5 +47,15 @@ final class SignatureImpl<T> implements Signature<T> {
 	@Override
 	public @Unmodifiable @NotNull SequencedMap<String, Parameter<?>> parameters() {
 		return null;
+	}
+
+	@Override
+	public Contract contract() {
+		return null;
+	}
+
+	@Override
+	public void addCall(FunctionReference<?> reference) {
+
 	}
 }

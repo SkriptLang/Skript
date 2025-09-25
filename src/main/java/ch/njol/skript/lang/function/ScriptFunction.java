@@ -73,7 +73,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public T execute(org.skriptlang.skript.common.function.FunctionEvent<?> event, FunctionArguments arguments) {
+	public T execute(FunctionEvent<?> event, FunctionArguments arguments) {
 		SequencedMap<String, Parameter<?>> parameters = getSignature().parameters();
 		FunctionEvent<?> newEvent = new FunctionEvent<>(this);
 

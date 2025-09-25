@@ -121,7 +121,7 @@ public final class FunctionReference<T> implements Debuggable {
 			}
 		}
 
-		signature.calls().add(this);
+		signature.addCall(this);
 
 		return true;
 	}
@@ -184,10 +184,10 @@ public final class FunctionReference<T> implements Debuggable {
 		});
 
 		Function<T> function = function();
-		FunctionEvent<?> fnEvent = new FunctionEventImpl<>(event);
+		FunctionEvent<?> fnEvent = new FunctionEvent<>(function);
 
 		if (Functions.callFunctionEvents)
-			Bukkit.getPluginManager().callEvent(new ch.njol.skript.lang.function.FunctionEvent<>(function));
+			Bukkit.getPluginManager().callEvent(fnEvent);
 
 		return function.execute(fnEvent, new FunctionArgumentsImpl(args));
 	}
@@ -290,12 +290,12 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @return Whether this reference returns a single or multiple values.
 	 */
 	public boolean single() {
-		if (signature.getContract() != null) {
+		if (signature.contract() != null) {
 			Expression<?>[] args = Arrays.stream(arguments)
 				.map(it -> it.value)
 				.toArray(Expression[]::new);
 
-			return signature.getContract().isSingle(args);
+			return signature.contract().isSingle(args);
 		} else {
 			return signature.single();
 		}

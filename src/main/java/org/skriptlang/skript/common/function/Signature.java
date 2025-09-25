@@ -1,6 +1,7 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.doc.Documentable;
+import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
@@ -30,10 +31,17 @@ public interface Signature<T> extends Documentable {
 	 */
 	@Unmodifiable @NotNull SequencedMap<String, Parameter<?>> parameters();
 
+	Contract contract();
+
+	void addCall(FunctionReference<?> reference);
+
 	/**
 	 * @return Whether this signature returns single values.
 	 */
 	default boolean single() {
+		if (returnType() == null) {
+			return false;
+		}
 		return !returnType().isArray();
 	}
 

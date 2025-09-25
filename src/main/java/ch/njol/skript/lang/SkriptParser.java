@@ -15,7 +15,6 @@ import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -46,12 +45,10 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.FunctionReferenceParser;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
-import org.skriptlang.skript.common.function.FunctionReferenceParser;
-import org.skriptlang.skript.common.function.FunctionReference;
-import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -485,7 +482,7 @@ public final class SkriptParser {
 					log.printError();
 					return null;
 				}
-				FunctionReference<T> functionReference = parseFunctionReference();
+				org.skriptlang.skript.common.function.FunctionReference<T> functionReference = parseFunctionReference();
 				if (functionReference != null) {
 					log.printLog();
 					return new ExprFunctionCall<>(functionReference, types);
@@ -640,7 +637,7 @@ public final class SkriptParser {
 				}
 
 				// If it wasn't variable, do same for function call
-				FunctionReference<?> functionReference = parseFunctionReference();
+				org.skriptlang.skript.common.function.FunctionReference<?> functionReference = parseFunctionReference();
 				if (functionReference != null) {
 					if (onlySingular && !functionReference.single()) {
 						Skript.error("'" + expr + "' can only be a single "
@@ -1151,7 +1148,7 @@ public final class SkriptParser {
 	 * @param <T> The return type of the function.
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
-	public <T> FunctionReference<T> parseFunctionReference() {
+	public <T> org.skriptlang.skript.common.function.FunctionReference<T> parseFunctionReference() {
 		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT) {
 			return null;
 		}

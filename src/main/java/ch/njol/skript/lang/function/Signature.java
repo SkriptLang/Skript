@@ -34,7 +34,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	/**
 	 * Parameters taken by this function, in order.
 	 */
-	private final SequencedMap<String, Parameter<?>> parameters;
+	private final SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters;
 
 	/**
 	 * Whether this function is only accessible in the script it was declared in
@@ -91,29 +91,30 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(script, name, parameters, local, returnType, single, contract);
 	}
 
-	public Signature(String script, String name, SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters, ClassInfo<?> returnClass, boolean local) {
+	public Signature(@Nullable String script, String name, SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters, Class<T> returnType, boolean local) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
 		this.local = local;
-		this.returnType = returnType;
-		if (returnType == null) {
-			this.returns = null;
+		this.returns = returnType;
+		this.single = single();
+		if (returnType != null && returnType.isArray()) {
+			//noinspection unchecked
+			this.returnType = (ClassInfo<T>) Classes.getExactClassInfo(returnType.componentType());
 		} else {
-			if (single) {
-				this.returns = returnType.getC();
-			} else {
-				this.returns = returnType.getC().arrayType();
-			}
+			this.returnType = Classes.getExactClassInfo(returnType);
 		}
-		this.single = returnClass;
 		this.contract = null;
 		this.calls = Collections.newSetFromMap(new WeakHashMap<>());
 	}
 
-	private static LinkedHashMap<String, Parameter<?>> initParameters(Parameter<?>[] params) {
-		LinkedHashMap<String, Parameter<?>> map = new LinkedHashMap<>();
-		for (Parameter<?> parameter : params) {
+	public Signature(String namespace, String name, org.skriptlang.skript.common.function.Parameter<?>[] parameters, Class<T> returnType, boolean single, @Nullable Contract contract) {
+		this(namespace, name, initParameters(parameters), returnType, false);
+	}
+
+	private static SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> initParameters(org.skriptlang.skript.common.function.Parameter<?>[] params) {
+		SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> map = new LinkedHashMap<>();
+		for (org.skriptlang.skript.common.function.Parameter<?> parameter : params) {
 			map.put(parameter.name(), parameter);
 		}
 		return map;
@@ -146,7 +147,17 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 */
 	@Override
 	public @NotNull SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters() {
-		return new LinkedHashMap<>(parameters);
+		return Collections.unmodifiableSequencedMap(parameters);
+	}
+
+	@Override
+	public Contract contract() {
+		return contract;
+	}
+
+	@Override
+	public void addCall(FunctionReference<?> reference) {
+		calls.add(reference);
 	}
 
 	/**

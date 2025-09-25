@@ -1,9 +1,11 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.lang.function.FunctionEvent;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a function implementation.
@@ -29,5 +31,9 @@ public interface Function<T> {
 	 * @return The signature belonging to this function.
 	 */
 	@NotNull Signature<T> signature();
+
+	boolean resetReturnValue();
+
+	@NotNull String @Nullable [] returnedKeys();
 
 }

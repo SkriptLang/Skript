@@ -18,6 +18,7 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Utils.PluralResult;
 import ch.njol.util.StringUtils;
@@ -182,12 +183,13 @@ public class StructFunction extends Structure {
 		 * @see Functions#registerSignature(Signature)
 		 */
 		public static @Nullable Signature<?> parse(String script, String name, String args, @Nullable String returns, boolean local) {
-			LinkedHashMap<String, Parameter<?>> parameters = parseParameters(args);
+			SequencedMap<String, Parameter<?>> parameters = parseParameters(args);
 			if (parameters == null)
 				return null;
 
 			// Parse return type if one exists
 			ClassInfo<?> returnClass;
+			Class<?> returnType = null;
 
             if (returns != null) {
 				returnClass = Classes.getClassInfoFromUserInput(returns);
@@ -201,10 +203,16 @@ public class StructFunction extends Structure {
 					return null;
 				}
 
-				return new Signature<>(script, name, parameters, returnClass, local, null);
+				if (result.plural()) {
+					returnType = returnClass.getC().arrayType();
+				} else {
+					returnType = returnClass.getC();
+				}
+
+				return new Signature<>(script, name, parameters, returnType, local);
 			}
 
-			return new Signature<>(script, name, parameters, null, local, null);
+			return new Signature<>(script, name, parameters, returnType, local);
 		}
 
 		/**

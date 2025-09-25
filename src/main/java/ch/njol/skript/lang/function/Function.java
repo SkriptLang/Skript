@@ -174,7 +174,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	}
 
 	/**
-	 * @deprecated Use {@link #execute(org.skriptlang.skript.common.function.FunctionEvent, FunctionArguments)} instead.
+	 * @deprecated Use {@link #execute(FunctionEvent, FunctionArguments)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
