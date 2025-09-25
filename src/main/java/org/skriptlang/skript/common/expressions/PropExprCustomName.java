@@ -1,5 +1,6 @@
 package org.skriptlang.skript.common.expressions;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.*;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
@@ -35,7 +36,8 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 public class PropExprCustomName extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 
 	static {
-		register(PropExprCustomName.class, "(display|nick|chat|custom)[ ]name[s]", "objects");
+		if (SkriptConfig.useTypeProperties.value())
+			register(PropExprCustomName.class, "(display|nick|chat|custom)[ ]name[s]", "objects");
 	}
 
 	@Override

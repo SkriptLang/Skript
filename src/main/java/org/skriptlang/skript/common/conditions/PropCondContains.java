@@ -1,6 +1,7 @@
 package org.skriptlang.skript.common.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -46,13 +47,14 @@ import java.util.StringJoiner;
 public class PropCondContains extends Condition implements PropertyBaseSyntax<ContainsHandler<?,?>>, VerboseAssert {
 
 	static {
-		Skript.registerCondition(PropCondContains.class,
-			"%objects% contain[1:s] %objects%",
-			"%objects% (1:doesn't|1:does not|do not|don't) contain %objects%",
-			"contents of %objects% contain %objects%",
-			"contents of %objects% (do not|don't) contain %objects%",
-			"%inventories% (has|have) %itemtypes% [in [(the[ir]|his|her|its)] inventory]",
-			"%inventories% (doesn't|does not|do not|don't) have %itemtypes% [in [(the[ir]|his|her|its)] inventory]");
+		if (SkriptConfig.useTypeProperties.value())
+			Skript.registerCondition(PropCondContains.class,
+				"%objects% contain[1:s] %objects%",
+				"%objects% (1:doesn't|1:does not|do not|don't) contain %objects%",
+				"contents of %objects% contain %objects%",
+				"contents of %objects% (do not|don't) contain %objects%",
+				"%inventories% (has|have) %itemtypes% [in [(the[ir]|his|her|its)] inventory]",
+				"%inventories% (doesn't|does not|do not|don't) have %itemtypes% [in [(the[ir]|his|her|its)] inventory]");
 	}
 
 	/*

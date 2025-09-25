@@ -1,6 +1,7 @@
 package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -19,7 +20,7 @@ import java.util.function.Supplier;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
-public final class Script implements Validated {
+public final class Script implements Validated, AnyNamed {
 
 	private final Config config;
 
@@ -141,6 +142,7 @@ public final class Script implements Validated {
 	/**
 	 * @return The name of this script (excluding path and file extensions)
 	 */
+	@Override
 	public String name() {
 		return config.name();
 	}
