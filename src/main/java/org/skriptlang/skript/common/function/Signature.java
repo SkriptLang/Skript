@@ -1,8 +1,14 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.doc.Documentable;
+import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.SequencedMap;
 
 /**
  * Represents a function signature.
@@ -13,6 +19,30 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
 @NonExtendable
 @Internal
 @Experimental
-public interface Signature<T> {
+public interface Signature<T> extends Documentable {
+
+	/**
+	 * @return The type of this parameter.
+	 */
+	Class<T> returnType();
+
+	/**
+	 * @return An unmodifiable view of all the parameters that this signature has.
+	 */
+	@Unmodifiable @NotNull SequencedMap<String, Parameter<?>> parameters();
+
+	Contract contract();
+
+	void addCall(FunctionReference<?> reference);
+
+	/**
+	 * @return Whether this signature returns single values.
+	 */
+	default boolean single() {
+		if (returnType() == null) {
+			return false;
+		}
+		return !returnType().isArray();
+	}
 
 }

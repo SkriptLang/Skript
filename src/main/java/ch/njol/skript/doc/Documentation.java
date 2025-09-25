@@ -9,7 +9,6 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
-import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
@@ -18,6 +17,7 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.IteratorIterable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.Parameter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -389,8 +389,8 @@ public class Documentation {
 		}
 
 		StringBuilder params = new StringBuilder();
-		for (Parameter<?> p : func.getParameters()) {
-			if (params.length() != 0)
+		for (Parameter<?> p : func.getSignature().parameters().values()) {
+			if (!params.isEmpty())
 				params.append(", ");
 			params.append(p.toString());
 		}

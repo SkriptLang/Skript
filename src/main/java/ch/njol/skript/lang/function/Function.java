@@ -2,6 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.util.coll.CollectionUtils;
@@ -9,9 +10,13 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.FunctionArguments;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.ScriptParameter;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.SequencedMap;
 
 /**
  * Functions can be called using arguments.
@@ -47,32 +52,47 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 		return sign.getName();
 	}
 
-	public Parameter<?>[] getParameters() {
+	/**
+	 * @deprecated Use {@link Signature#parameters()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public org.skriptlang.skript.common.function.Parameter<?>[] getParameters() {
 		return sign.getParameters();
 	}
 
-	@SuppressWarnings("null")
-	public Parameter<?> getParameter(int index) {
-		return getParameters()[index];
+	/**
+	 * @deprecated Use {@link Signature#getParameter(String)}} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public org.skriptlang.skript.common.function.Parameter<?> getParameter(int index) {
+		return sign.getParameter(index);
 	}
 
 	public boolean isSingle() {
 		return sign.isSingle();
 	}
 
+	/**
+	 * @deprecated Use {@link #type()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable ClassInfo<T> getReturnType() {
 		return sign.getReturnType();
+	}
+
+	/**
+	 * @return The return type of this signature. Returns null for no return type.
+	 */
+	public Class<T> type() {
+		return sign.returnType();
 	}
 
 	// FIXME what happens with a delay in a function?
 
 	/**
-	 * Executes this function with given parameter.
-	 * @param params Function parameters. Must contain at least
-	 * {@link Signature#getMinParameters()} elements and at most
-	 * {@link Signature#getMaxParameters()} elements.
-	 * @return The result(s) of this function
+	 * @deprecated Use {@link #execute(FunctionEvent, FunctionArguments)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public final T @Nullable [] execute(Object[][] params) {
 		FunctionEvent<? extends T> event = new FunctionEvent<>(this);
 
@@ -82,38 +102,44 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			Bukkit.getPluginManager().callEvent(event);
 
 		// Parameters taken by the function.
-		Parameter<?>[] parameters = sign.getParameters();
+		SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters = sign.parameters();
 
-		if (params.length > parameters.length) {
+		if (params.length > parameters.size()) {
 			// Too many parameters, should have failed to parse
 			assert false : params.length;
 			return null;
 		}
 
 		// If given less that max amount of parameters, pad remaining with nulls
-		Object[][] parameterValues = params.length < parameters.length ? Arrays.copyOf(params, parameters.length) : params;
+		Object[][] parameterValues = params.length < parameters.size() ? Arrays.copyOf(params, parameters.size()) : params;
 
+		int i = 0;
 		// Execute parameters or default value expressions
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = parameters[i];
+		for (org.skriptlang.skript.common.function.Parameter<?> parameter : parameters.values()) {
 			Object[] parameterValue = parameter.hasModifier(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
+			Expression<?> def;
+			if (parameter instanceof Parameter<?> script) {
+				def = script.def;
+			} else if (parameter instanceof ScriptParameter<?> script) {
+				def = script.defaultValue();
+			} else {
+				def = null;
+			}
+
 			// see https://github.com/SkriptLang/Skript/pull/8135
-			if ((parameterValues[i] == null || parameterValues[i].length == 0)
-				&& parameter.keyed
-				&& parameter.def != null
-			) {
-				Object[] defaultValue = parameter.def.getArray(event);
+			if ((parameterValues[i] == null || parameterValues[i].length == 0) && parameter.hasModifier(Modifier.KEYED) && def != null) {
+				Object[] defaultValue = def.getArray(event);
 				if (defaultValue.length == 1) {
 					parameterValue = KeyedValue.zip(defaultValue, null);
 				} else {
 					parameterValue = defaultValue;
 				}
-			} else if (!(this instanceof DefaultFunction<?>) && parameterValue == null) { // Go for default value
-				assert parameter.def != null; // Should've been parse error
-				Object[] defaultValue = parameter.def.getArray(event);
-				if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(parameter.def)) {
-					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
+			} else if (parameterValue == null) { // Go for default value
+				assert def != null; // Should've been parse error
+				Object[] defaultValue = def.getArray(event);
+				if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(def)) {
+					String[] keys = ((KeyProviderExpression<?>) def).getArrayKeys(event);
 					parameterValue = KeyedValue.zip(defaultValue, keys);
 				} else {
 					parameterValue = defaultValue;
@@ -126,9 +152,10 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			 * really have a concept of nulls, it was changed. The config
 			 * option may be removed in future.
 			 */
-			if (!(this instanceof DefaultFunction<?>) && !executeWithNulls && parameterValue.length == 0)
+			if (!(this instanceof DefaultFunction<?>) && !executeWithNulls && parameterValue != null && parameterValue.length == 0)
 				return null;
 			parameterValues[i] = parameterValue;
+			i++;
 		}
 
 		// Execute function contents
@@ -157,15 +184,9 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	}
 
 	/**
-	 * Executes this function with given parameters. Usually, using
-	 * {@link #execute(Object[][])} is better; it handles optional and keyed arguments
-	 * and function event creation automatically.
-	 * @param event Associated function event. This is usually created by Skript.
-	 * @param params Function parameters.
-	 * There must be {@link Signature#getMaxParameters()} amount of them, and
-	 * you need to manually handle default values.
-	 * @return Function return value(s).
+	 * @deprecated Use {@link #execute(FunctionEvent, FunctionArguments)} instead.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
 
 	/**
@@ -185,7 +206,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 
 	@Override
 	public String toString() {
-		return (sign.local ? "local " : "") + "function " + sign.getName();
+		return (sign.isLocal() ? "local " : "") + "function " + sign.getName();
 	}
 
 }
