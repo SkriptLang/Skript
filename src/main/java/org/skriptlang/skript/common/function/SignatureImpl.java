@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
+import java.util.SequencedMap;
 
 final class SignatureImpl<T> implements Signature<T> {
 
@@ -35,5 +36,15 @@ final class SignatureImpl<T> implements Signature<T> {
 	@Override
 	public @Unmodifiable @NotNull List<String> requires() {
 		return List.of();
+	}
+
+	@Override
+	public @NotNull Class<T> returnType() {
+		return null;
+	}
+
+	@Override
+	public @Unmodifiable @NotNull SequencedMap<String, Parameter<?>> parameters() {
+		return null;
 	}
 }

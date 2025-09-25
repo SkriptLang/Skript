@@ -1152,6 +1152,10 @@ public final class SkriptParser {
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
 	public <T> FunctionReference<T> parseFunctionReference() {
+		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT) {
+			return null;
+		}
+
 		return new FunctionReferenceParser(context, flags).parseFunctionReference(expr);
 	}
  

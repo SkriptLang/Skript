@@ -4,6 +4,10 @@ import ch.njol.skript.doc.Documentable;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.SequencedMap;
 
 /**
  * Represents a function signature.
@@ -15,5 +19,22 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable;
 @Internal
 @Experimental
 public interface Signature<T> extends Documentable {
+
+	/**
+	 * @return The type of this parameter.
+	 */
+	Class<T> returnType();
+
+	/**
+	 * @return An unmodifiable view of all the parameters that this signature has.
+	 */
+	@Unmodifiable @NotNull SequencedMap<String, Parameter<?>> parameters();
+
+	/**
+	 * @return Whether this signature returns single values.
+	 */
+	default boolean single() {
+		return !returnType().isArray();
+	}
 
 }

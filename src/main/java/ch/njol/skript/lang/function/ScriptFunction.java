@@ -14,6 +14,7 @@ import org.skriptlang.skript.common.function.Parameter;
 
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.SequencedMap;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
@@ -49,7 +50,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
 	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
-		LinkedHashMap<String, Parameter<?>> parameters = getSignature().parameters();
+		SequencedMap<String, Parameter<?>> parameters = getSignature().parameters();
 
 		int i = 0;
 		for (Entry<String, Parameter<?>> entry : parameters.entrySet()) {
@@ -68,12 +69,12 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		}
 
 		trigger.execute(event);
-		return returnType() != null ? returnValues : null;
+		return type() != null ? returnValues : null;
 	}
 
 	@Override
 	public T execute(org.skriptlang.skript.common.function.FunctionEvent<?> event, FunctionArguments arguments) {
-		LinkedHashMap<String, Parameter<?>> parameters = getSignature().parameters();
+		SequencedMap<String, Parameter<?>> parameters = getSignature().parameters();
 		FunctionEvent<?> newEvent = new FunctionEvent<>(this);
 
 		for (String name : arguments.names()) {
@@ -103,7 +104,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 		trigger.execute(newEvent);
 
-		if (returnType() == null || returnValues == null || returnValues.length == 0) {
+		if (type() == null || returnValues == null || returnValues.length == 0) {
 			return null;
 		}
 
@@ -144,15 +145,15 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	@Override
 	public final @Nullable Class<? extends T> returnValueType() {
-		if (returnType() == null) {
+		if (type() == null) {
 			return null;
 		}
 
-		if (returnType().isArray()) {
+		if (type().isArray()) {
 			//noinspection unchecked
-			return (Class<? extends T>) returnType().componentType();
+			return (Class<? extends T>) type().componentType();
 		} else {
-			return returnType();
+			return type();
 		}
 	}
 

@@ -74,7 +74,7 @@ public final class FunctionReference<T> implements Debuggable {
 				.collect(Collectors.toSet()).size() == ArgumentType.values().length;
 
 			// get the target params of the function
-			LinkedHashMap<String, Parameter<?>> targetParameters = signature.parameters();
+			SequencedMap<String, Parameter<?>> targetParameters = new LinkedHashMap<>(signature.parameters());
 
 			for (Argument<Expression<?>> argument : arguments) {
 				Parameter<?> target;
@@ -184,10 +184,10 @@ public final class FunctionReference<T> implements Debuggable {
 		});
 
 		Function<T> function = function();
-		FunctionEvent<T> fnEvent = new FunctionEvent<>(function);
+		FunctionEvent<?> fnEvent = new FunctionEventImpl<>(event);
 
 		if (Functions.callFunctionEvents)
-			Bukkit.getPluginManager().callEvent(fnEvent);
+			Bukkit.getPluginManager().callEvent(new ch.njol.skript.lang.function.FunctionEvent<>(function));
 
 		return function.execute(fnEvent, new FunctionArgumentsImpl(args));
 	}
@@ -247,7 +247,7 @@ public final class FunctionReference<T> implements Debuggable {
 		if (cachedFunction == null) {
 			Class<?>[] parameters = signature.parameters().values().stream().map(Parameter::type).toArray(Class[]::new);
 
-			Retrieval<Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
+			Retrieval<ch.njol.skript.lang.function.Function<?>> retrieval = FunctionRegistry.getRegistry().getFunction(namespace, name, parameters);
 
 			if (retrieval.result() == RetrievalResult.EXACT) {
 				//noinspection unchecked
@@ -297,7 +297,7 @@ public final class FunctionReference<T> implements Debuggable {
 
 			return signature.getContract().isSingle(args);
 		} else {
-			return signature.isSingle();
+			return signature.single();
 		}
 	}
 

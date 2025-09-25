@@ -13,7 +13,7 @@ import org.skriptlang.skript.common.function.FunctionArguments;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.SequencedMap;
 
 /**
  * Functions can be called using arguments.
@@ -70,7 +70,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	}
 
 	/**
-	 * @deprecated Use {@link #returnType()} instead.
+	 * @deprecated Use {@link #type()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable ClassInfo<T> getReturnType() {
@@ -80,7 +80,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	/**
 	 * @return The return type of this signature. Returns null for no return type.
 	 */
-	public Class<T> returnType() {
+	public Class<T> type() {
 		return sign.returnType();
 	}
 
@@ -99,7 +99,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			Bukkit.getPluginManager().callEvent(event);
 
 		// Parameters taken by the function.
-		LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters = sign.parameters();
+		SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters = sign.parameters();
 
 		if (params.length > parameters.size()) {
 			// Too many parameters, should have failed to parse
@@ -112,8 +112,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 
 		int i = 0;
 		// Execute parameters or default value expressions
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = parameters[i];
+		for (org.skriptlang.skript.common.function.Parameter<?> parameter : parameters.values()) {
 			Object[] parameterValue = parameter.hasModifier(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
 			if (parameter instanceof Parameter<?> old) {
@@ -175,7 +174,7 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	}
 
 	/**
-	 * @deprecated Use {@link #execute(FunctionEvent, FunctionArguments)} instead.
+	 * @deprecated Use {@link #execute(org.skriptlang.skript.common.function.FunctionEvent, FunctionArguments)} instead.
 	 */
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);

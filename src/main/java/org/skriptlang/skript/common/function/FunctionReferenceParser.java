@@ -41,10 +41,6 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
 	 */
 	public <T> FunctionReference<T> parseFunctionReference(String expr) {
-		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT) {
-			return null;
-		}
-
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			if (!expr.endsWith(")")) {
 				log.printLog();
@@ -63,10 +59,11 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			// Check for incorrect quotes, e.g. "myFunction() + otherFunction()" being parsed as one function
 			// See https://github.com/SkriptLang/Skript/issues/1532
 			for (int i = 0; i < args.length(); i = SkriptParser.next(args, i, context)) {
-				if (i == -1) {
-					log.printLog();
-					return null;
+				if (i != -1) {
+					continue;
 				}
+				log.printLog();
+				return null;
 			}
 
 			if ((flags & SkriptParser.PARSE_EXPRESSIONS) == 0) {
@@ -215,7 +212,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				if (argument.type() == ArgumentType.NAMED) {
 					parameter = signature.getParameter(argument.name());
 				} else {
-					parameter = signature.getParameter(remaining.iterator().next());
+					parameter = signature.getParameter(remaining.getFirst());
 				}
 
 				if (parameter == null) {
@@ -283,7 +280,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 		signatures:
 		for (Signature<?> signature : signatures) {
-			Parameter<?> parameter = signature.parameters().entrySet().iterator().next().getValue();
+			Parameter<?> parameter = signature.parameters().firstEntry().getValue();
 
 			Class<?> target = parameter.type().componentType();
 			Class<?>[] targets = new Class<?>[]{target};
@@ -453,7 +450,6 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 			SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
 
-			//noinspection unchecked
 			Expression<?> expression = parser.parseExpression(targets[i]);
 
 			if (expression == null) {

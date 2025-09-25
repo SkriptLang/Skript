@@ -40,23 +40,23 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 * If {@link SkriptConfig#caseInsensitiveVariables} is {@code true},
 	 * then the valid variable names may not necessarily match this string in casing.
 	 */
-	private final String name;
+	final String name;
 
 	/**
 	 * Type of the parameter.
 	 */
-	private final ClassInfo<T> type;
+	final ClassInfo<T> type;
 
 	/**
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
-	private final @Nullable Expression<? extends T> def;
+	final @Nullable Expression<? extends T> def;
 
 	/**
 	 * Whether this parameter takes one or many values.
 	 */
-	private final boolean single;
+	final boolean single;
 
 	private final Set<Modifier> modifiers;
 

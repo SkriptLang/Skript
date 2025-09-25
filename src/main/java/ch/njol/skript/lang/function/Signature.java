@@ -34,18 +34,18 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	/**
 	 * Parameters taken by this function, in order.
 	 */
-	private final LinkedHashMap<String, Parameter<?>> parameters;
+	private final SequencedMap<String, Parameter<?>> parameters;
 
 	/**
 	 * Whether this function is only accessible in the script it was declared in
 	 */
-	private final boolean local;
+	final boolean local;
 
 	/**
 	 * The return type.
 	 */
 	final @Nullable ClassInfo<T> returnType;
-	final Class<T> returns;
+	final Class<?> returns;
 
 	/**
 	 * Whether this function returns a single value, or multiple ones.
@@ -75,7 +75,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 			if (single) {
 				this.returns = returnType.getC();
 			} else {
-				this.returns = (Class<T>) returnType.getC().arrayType();
+				this.returns = returnType.getC().arrayType();
 			}
 		}
 		this.single = single;
@@ -91,6 +91,26 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		this(script, name, parameters, local, returnType, single, contract);
 	}
 
+	public Signature(String script, String name, SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters, ClassInfo<?> returnClass, boolean local) {
+		this.script = script;
+		this.name = name;
+		this.parameters = parameters;
+		this.local = local;
+		this.returnType = returnType;
+		if (returnType == null) {
+			this.returns = null;
+		} else {
+			if (single) {
+				this.returns = returnType.getC();
+			} else {
+				this.returns = returnType.getC().arrayType();
+			}
+		}
+		this.single = returnClass;
+		this.contract = null;
+		this.calls = Collections.newSetFromMap(new WeakHashMap<>());
+	}
+
 	private static LinkedHashMap<String, Parameter<?>> initParameters(Parameter<?>[] params) {
 		LinkedHashMap<String, Parameter<?>> map = new LinkedHashMap<>();
 		for (Parameter<?> parameter : params) {
@@ -103,22 +123,29 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 * @deprecated Use {@link #getParameter(String)} or {@link #parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public org.skriptlang.skript.common.function.Parameter<?> getParameter(int index) {
-		return parameters.values().toArray(new org.skriptlang.skript.common.function.Parameter<?>[0])[index];
+	public Parameter<?> getParameter(int index) {
+		return (Parameter<?>) parameters.values().toArray(new org.skriptlang.skript.common.function.Parameter<?>[0])[index];
 	}
 
 	/**
 	 * @deprecated Use {@link #parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public org.skriptlang.skript.common.function.Parameter<?>[] getParameters() {
-		return parameters.values().toArray(new org.skriptlang.skript.common.function.Parameter<?>[0]);
+	public Parameter<?>[] getParameters() {
+		return (Parameter<?>[]) parameters.values().stream().map(it -> (Parameter<?>) it).toArray();
+	}
+
+	@Override
+	public @NotNull Class<T> returnType() {
+		//noinspection unchecked
+		return (Class<T>) returns;
 	}
 
 	/**
-	 * @return A {@link SequencedCollection} containing all parameters.
+	 * @return A {@link SequencedMap} containing all parameters.
 	 */
-	public @NotNull LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters() {
+	@Override
+	public @NotNull SequencedMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters() {
 		return new LinkedHashMap<>(parameters);
 	}
 
@@ -147,35 +174,15 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 		return script;
 	}
 
-	/**
-	 * @deprecated Use {@link #returnType()} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public @Nullable ClassInfo<T> getReturnType() {
-		if (returnType == null) {
-			return null;
-		}
-
-		if (returns.isArray()) {
-			//noinspection unchecked
-			return (ClassInfo<T>) Classes.getExactClassInfo(returns.componentType());
-		} else {
-			return Classes.getExactClassInfo(returns);
-		}
-	}
-
-	/**
-	 * @return The return type of this signature. Returns null for no return type.
-	 */
-	public Class<T> returnType() {
-		return returns;
+		return returnType;
 	}
 
 	/**
 	 * @return Whether this signature returns a single or multiple values.
 	 */
 	public boolean isSingle() {
-		return !returns.isArray();
+		return single;
 	}
 
 	/**

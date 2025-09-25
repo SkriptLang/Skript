@@ -30,6 +30,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.SequencedMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -186,31 +187,24 @@ public class StructFunction extends Structure {
 				return null;
 
 			// Parse return type if one exists
-			Class<?> returnType;
 			ClassInfo<?> returnClass;
 
             if (returns != null) {
-                returnClass = Classes.getClassInfoFromUserInput(returns);
-                PluralResult result = Utils.isPlural(returns);
+				returnClass = Classes.getClassInfoFromUserInput(returns);
+				PluralResult result = Utils.isPlural(returns);
 
-                if (returnClass == null)
-                    returnClass = Classes.getClassInfoFromUserInput(result.updated());
+				if (returnClass == null)
+					returnClass = Classes.getClassInfoFromUserInput(result.updated());
 
-                if (returnClass == null) {
-                    Skript.error("Cannot recognise the type '" + returns + "'");
-                    return null;
-                }
+				if (returnClass == null) {
+					Skript.error("Cannot recognise the type '" + returns + "'");
+					return null;
+				}
 
-                if (result.plural()) {
-                    returnType = returnClass.getC().arrayType();
-                } else {
-                    returnType = returnClass.getC();
-                }
-            } else {
-                returnType = null;
-            }
+				return new Signature<>(script, name, parameters, returnClass, local, null);
+			}
 
-            return new Signature<>(script, name, parameters, local, returnType, null);
+			return new Signature<>(script, name, parameters, null, local, null);
 		}
 
 		/**
@@ -225,8 +219,8 @@ public class StructFunction extends Structure {
 		private final static Pattern SCRIPT_PARAMETER_PATTERN =
 			Pattern.compile("^\\s*(?<name>[^:(){}\",]+?)\\s*:\\s*(?<type>[a-zA-Z ]+?)\\s*(?:\\s*=\\s*(?<def>.+))?\\s*$");
 
-		private static LinkedHashMap<String, Parameter<?>> parseParameters(String args) {
-			LinkedHashMap<String, Parameter<?>> params = new LinkedHashMap<>();
+		private static SequencedMap<String, Parameter<?>> parseParameters(String args) {
+			SequencedMap<String, Parameter<?>> params = new LinkedHashMap<>();
 
 			boolean caseInsensitive = SkriptConfig.caseInsensitiveVariables.value();
 
