@@ -3,6 +3,7 @@ package org.skriptlang.skript.common.function;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.DefaultFunction.Builder;
 
 import java.util.Set;
 
@@ -27,8 +28,16 @@ public interface Parameter<T> {
 	/**
 	 * @return All modifiers belonging to this parameter.
 	 */
-	@Unmodifiable
-	@NotNull Set<Modifier> modifiers();
+	@Unmodifiable @NotNull Set<Modifier> modifiers();
+
+	/**
+	 * Returns whether this parameter has the specified modifier.
+	 * @param modifier The modifier.
+	 * @return True when {@link #modifiers()} contains the specified modifier, false if not.
+	 */
+	default boolean hasModifier(Modifier modifier) {
+		return modifiers().contains(modifier);
+	}
 
 	/**
 	 * @return Whether this parameter is for single values.
@@ -47,8 +56,7 @@ public interface Parameter<T> {
 		 * @return A new Modifier instance to be used as a custom flag.
 		 */
 		static Modifier of() {
-			return new Modifier() {
-			};
+			return new Modifier() { };
 		}
 
 		/**
@@ -58,6 +66,9 @@ public interface Parameter<T> {
 
 		/**
 		 * The modifier for parameters that support optional keyed expressions.
+		 *
+		 * @see ch.njol.skript.lang.KeyProviderExpression
+		 * @see ch.njol.skript.lang.KeyReceiverExpression
 		 */
 		Modifier KEYED = of();
 

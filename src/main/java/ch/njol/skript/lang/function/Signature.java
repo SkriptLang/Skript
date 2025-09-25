@@ -3,6 +3,7 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
@@ -18,17 +19,20 @@ import java.util.*;
 /**
  * Function signature: name, parameter types and a return type.
  */
-public class Signature<T> {
+public class Signature<T> implements org.skriptlang.skript.common.function.Signature<T> {
 
 	/**
 	 * Name of the script that the function is inside.
 	 */
 	private final @Nullable String namespace;
 
+  @Deprecated(forRemoval=true, since="INSERT VERSION")
+	final @Nullable String script;
+
 	/**
 	 * Name of function this refers to.
 	 */
-	private final String name; // Stored for hashCode
+	final String name; // Stored for hashCode
 
 	/**
 	 * Parameters taken by this function, in order.
@@ -43,23 +47,38 @@ public class Signature<T> {
 	/**
 	 * The return type.
 	 */
-	private final Class<T> returnType;
+	final @Nullable ClassInfo<T> returnType;
+
+	/**
+	 * Whether this function returns a single value, or multiple ones.
+	 * Unspecified and unused when {@link #returnType} is null.
+	 */
+	final boolean single;
 
 	/**
 	 * References (function calls) to function with this signature.
 	 */
-	private final Collection<FunctionReference<?>> calls;
+	final Collection<FunctionReference<?>> calls;
 
 	/**
 	 * An overriding contract for this function (e.g. to base its return on its arguments).
 	 */
-	private final @Nullable Contract contract;
+	final @Nullable Contract contract;
 
+---
 	public Signature(@Nullable String namespace,
 					 @NotNull String name,
 					 @NotNull LinkedHashMap<String, org.skriptlang.skript.common.function.Parameter<?>> parameters,
 					 boolean local,
 					 @Nullable Class<T> returnType,
+=======
+	public Signature(@Nullable String script,
+					 String name,
+					 Parameter<?>[] parameters, boolean local,
+					 @Nullable ClassInfo<T> returnType,
+					 boolean single,
+					 @Nullable String originClassPath,
+--
 					 @Nullable Contract contract) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(parameters, "parameters cannot be null");
@@ -75,6 +94,7 @@ public class Signature<T> {
 	}
 
 	/**
+--- feature/named-function-args
 	 * @deprecated Use {@link #Signature(String, String, LinkedHashMap, boolean, Class, Contract)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
@@ -114,6 +134,66 @@ public class Signature<T> {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Signature(String namespace,
+=======
+	 * Creates a new signature.
+	 *
+	 * @param script The script of this signature.
+	 * @param name The name of the function.
+	 * @param parameters The parameters.
+	 * @param returnType The return type class.
+	 * @param contract A {@link Contract} that may belong to this signature.
+	 */
+	public Signature(@Nullable String script,
+					 String name,
+					 org.skriptlang.skript.common.function.Parameter<?>[] parameters,
+					 @Nullable Class<T> returnType,
+					 boolean single,
+					 @Nullable Contract contract) {
+		this.parameters = new Parameter[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			org.skriptlang.skript.common.function.Parameter<?> parameter = parameters[i];
+			this.parameters[i] = new Parameter<>(parameter.name(),
+				getClassInfo(parameter.type()), parameter.single(),
+				null,
+				parameter.modifiers().toArray(new Modifier[0]));
+		}
+
+		this.script = script;
+		this.name = name;
+		this.local = script != null;
+		if (returnType != null) {
+			//noinspection unchecked
+			this.returnType = (ClassInfo<T>) getClassInfo(returnType);
+		} else {
+			this.returnType = null;
+		}
+		this.single = single;
+		this.contract = contract;
+		this.originClassPath = "";
+
+		calls = Collections.newSetFromMap(new WeakHashMap<>());
+	}
+
+	/**
+	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
+	 *
+	 * @param cls The class.
+	 * @param <T> The type of class.
+	 * @return The non-array {@link ClassInfo} of {@code cls}.
+	 */
+	private static <T> ClassInfo<T> getClassInfo(Class<T> cls) {
+		ClassInfo<T> classInfo;
+		if (cls.isArray()) {
+			//noinspection unchecked
+			classInfo = (ClassInfo<T>) Classes.getExactClassInfo(cls.componentType());
+		} else {
+			classInfo = Classes.getExactClassInfo(cls);
+		}
+		return classInfo;
+	}
+
+	public Signature(String script,
+--- dev/feature
 					 String name,
 					 Parameter<?>[] parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
@@ -165,7 +245,7 @@ public class Signature<T> {
 
 	public String getName() {
 		return name;
-	}
+  }
 
 	public boolean isLocal() {
 		return local;
