@@ -307,6 +307,7 @@ public class JavaClasses {
 				})
 				.property(Property.CONTAINS,
 					"Strings can contain other strings.",
+					Skript.instance(),
 					new ContainsHandler<String, String>() {
 						@Override
 						public boolean contains(String container, String element) {
@@ -321,6 +322,7 @@ public class JavaClasses {
 				})
 			.property(Property.IS_EMPTY,
 				"Whether the string is empty, i.e. has no characters.",
+				Skript.instance(),
 				ConditionPropertyHandler.of(String::isEmpty)));
 
 		// joml type - for display entities

@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.base.types;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -39,6 +40,7 @@ public class OfflinePlayerClassInfo extends ClassInfo<OfflinePlayer> {
 			.serializer(new OfflinePlayerSerializer())
 			.property(Property.NAME,
 				"The name of an offline player, as text. Cannot be changed.",
+				Skript.instance(),
 				ExpressionPropertyHandler.of(OfflinePlayer::getName, String.class));
 	}
 

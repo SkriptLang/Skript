@@ -1,5 +1,6 @@
 package org.skriptlang.skript.common.types;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -36,12 +37,15 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 			.serializer(new QueueSerializer())
 			.property(Property.AMOUNT,
 				"The amount of elements in the queue.",
+				Skript.instance(),
 				new QueueAmountHandler())
 			.property(Property.SIZE,
 				"The size of the queue, in element count.",
+				Skript.instance(),
 				new QueueAmountHandler())
 			.property(Property.IS_EMPTY,
 				"Whether a queue is empty, i.e. whether there are no elements in the queue.",
+				Skript.instance(),
 				ConditionPropertyHandler.of(SkriptQueue::isEmpty));
 	}
 

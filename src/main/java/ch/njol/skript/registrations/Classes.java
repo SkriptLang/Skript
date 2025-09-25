@@ -25,6 +25,7 @@ import ch.njol.yggdrasil.Tag;
 import ch.njol.yggdrasil.Yggdrasil;
 import ch.njol.yggdrasil.YggdrasilInputStream;
 import ch.njol.yggdrasil.YggdrasilOutputStream;
+import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -344,15 +345,28 @@ public abstract class Classes {
 		return list;
 	}
 
+	private static final Map<Property<?>, Set<ClassInfo<?>>> CLASS_INFOS_BY_PROPERTY = new HashMap<>();
+
+	/**
+	 * Mark a classinfo as having a property. Not for external use.
+	 *
+	 * @param property The property this classinfo has.
+	 * @param classInfo The classinfo that has the property.
+	 */
 	@ApiStatus.Internal
-	public static final Map<Property<?>, List<ClassInfo<?>>> CLASS_INFOS_BY_PROPERTY = new HashMap<>();
+	public static void hasProperty(@NotNull Property<?> property, @NotNull ClassInfo<?> classInfo) {
+		Preconditions.checkNotNull(property, "property cannot be null");
+		Preconditions.checkNotNull(classInfo, "classInfo cannot be null");
+		CLASS_INFOS_BY_PROPERTY.computeIfAbsent(property, key -> new HashSet<>()).add(classInfo);
+	}
 
 	/**
 	 * @param property The property the class infos must have.
 	 * @return A list of all class infos with the given property.
 	 */
-	public static @NotNull List<ClassInfo<?>> getClassInfosByProperty(@NotNull Property<?> property) {
-		return CLASS_INFOS_BY_PROPERTY.getOrDefault(property, Collections.emptyList());
+	public static @NotNull Set<ClassInfo<?>> getClassInfosByProperty(@NotNull Property<?> property) {
+		Preconditions.checkNotNull(property, "property cannot be null");
+		return CLASS_INFOS_BY_PROPERTY.getOrDefault(property, Collections.emptySet());
 	}
 
 	/**

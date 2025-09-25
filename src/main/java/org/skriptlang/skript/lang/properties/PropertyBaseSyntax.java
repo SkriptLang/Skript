@@ -11,6 +11,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A base interface for syntaxes dealing with properties to extend and use for common utilities.
@@ -31,7 +32,7 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 			if (tempExpr != null)
 				expr = tempExpr;
 		}
-		List<ClassInfo<?>> validClassInfos = Classes.getClassInfosByProperty(getProperty());
+		Set<ClassInfo<?>> validClassInfos = Classes.getClassInfosByProperty(getProperty());
 		Class<?>[] validTypes = validClassInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
 		List<Class<?>> invalidTypes = new ArrayList<>();
 		nextType:
@@ -85,7 +86,7 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 		}
 
 		// get all types with a name property
-		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
+		Set<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
 		Class<?>[] classes = classInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
 
 		if (classes.length == 0)
@@ -111,7 +112,7 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 		PropertyMap<Handler> propertyInfos = new PropertyMap<>();
 
 		// get all types with a name property
-		List<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
+		Set<ClassInfo<?>> classInfos = Classes.getClassInfosByProperty(property);
 
 		// for each return type, match to a classinfo w/ name property
 		for (Class<?> returnType : expr.possibleReturnTypes()) {

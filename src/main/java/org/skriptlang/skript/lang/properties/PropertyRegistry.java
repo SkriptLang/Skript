@@ -5,11 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.util.Registry;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A registry handling {@link Property}s.

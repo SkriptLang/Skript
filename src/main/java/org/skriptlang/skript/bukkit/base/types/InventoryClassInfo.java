@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -54,15 +55,19 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 			.changer(new InventoryChanger())
 			.property(Property.CONTAINS,
 				"Inventories can contain items.",
+				Skript.instance(),
 				new InventoryContainsHandler())
 			.property(Property.NAME,
 				"The name of the inventory. Can be set or reset.",
+				Skript.instance(),
 				new InventoryNameHandler())
 			.property(Property.DISPLAY_NAME,
 				"The name of the inventory. Can be set or reset.",
+				Skript.instance(),
 				new InventoryNameHandler())
 			.property(Property.IS_EMPTY,
 				"Whether the inventory contains no items (all slots contain air).",
+				Skript.instance(),
 				ConditionPropertyHandler.of(inventory -> {
 					for (ItemStack s : inventory.getContents()) {
 						if (s != null && s.getType() != Material.AIR)
@@ -248,15 +253,15 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 		}
 
 		@Override
-		public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-			if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.RESET)
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
 				return new Class[]{String.class};
 			return null;
 		}
 
 		@Override
 		@SuppressWarnings("deprecation")
-		public void change(Inventory inventory, Object @Nullable [] delta, Changer.ChangeMode mode) {
+		public void change(Inventory inventory, Object @Nullable [] delta, ChangeMode mode) {
 
 			String name = (delta == null || delta.length == 0) ? null : (String) delta[0];
 

@@ -547,6 +547,7 @@ public class SkriptClasses {
 			})
 			.property(Property.NAME,
 				"The filename of the Config, as text.",
+				Skript.instance(),
 				ExpressionPropertyHandler.of(Config::name, String.class)));
 
 		Classes.registerClass(new ClassInfo<>(Node.class, "node")
@@ -577,9 +578,11 @@ public class SkriptClasses {
 			})
 			.property(Property.NAME,
 				"The key of the node, as text.",
+				Skript.instance(),
 				ExpressionPropertyHandler.of(Node::getKey, String.class))
 			.property(Property.TYPED_VALUE,
 				"The value of the node, if it is an entry node, as text.",
+				Skript.instance(),
 				new TypedValuePropertyHandler<Node, String>() {
 
 					@Override
@@ -643,6 +646,7 @@ public class SkriptClasses {
 				}
 			}).property(Property.NAME,
 				"The function's name, as text.",
+				Skript.instance(),
 				ExpressionPropertyHandler.of(DynamicFunctionReference::name, String.class)));
 
 		//noinspection deprecation
@@ -654,6 +658,7 @@ public class SkriptClasses {
 				.since("2.10")
 				.property(Property.NAME,
 					"The name of the thing, as text. Can be set if supported.",
+					Skript.instance(),
 					new ExpressionPropertyHandler<AnyNamed, String>() {
 
 					@Override
@@ -721,15 +726,19 @@ public class SkriptClasses {
 				.since("2.10")
 				.property(Property.AMOUNT,
 					"The amount of a thing",
+					Skript.instance(),
 					amountHandler)
 				.property(Property.SIZE,
 					"The size of a thing",
+					Skript.instance(),
 					amountHandler)
 				.property(Property.NUMBER,
 					"The number of a thing",
+					Skript.instance(),
 					amountHandler)
 				.property(Property.IS_EMPTY,
 					"Whether this thing is empty, i.e. has an amount of 0.",
+					Skript.instance(),
 					ConditionPropertyHandler.of(AnyAmount::isEmpty)));
 
 		//noinspection deprecation
@@ -741,6 +750,7 @@ public class SkriptClasses {
 			.since("2.10")
 			.property(Property.TYPED_VALUE,
 				"The value of something. Can be set.",
+				Skript.instance(),
 				new TypedValuePropertyHandler<AnyValued, Object>() {
 					@Override
 					public Object convert(AnyValued propertyHolder) {
@@ -784,6 +794,7 @@ public class SkriptClasses {
 				.since("2.10")
 				.property(Property.CONTAINS,
 					"AnyContains can contain other things depending on its type.",
+					Skript.instance(),
 					new ContainsHandler<AnyContains, Object>() {
 						@Override
 						public boolean contains(AnyContains anyContains, Object object) {

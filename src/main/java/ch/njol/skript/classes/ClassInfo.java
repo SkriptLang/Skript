@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler;
@@ -479,7 +480,9 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
-	private final Map<Property<?>, String> propertyDescriptions = new HashMap<>();
+	private final Map<Property<?>, PropertyDocs> propertyDocumentation = new HashMap<>();
+
+	public record PropertyDocs(Property<?> property, String description, SkriptAddon provider) {}
 
 	/**
 	 * Registers this class as having the given property, using the given property handler.
@@ -490,13 +493,13 @@ public class ClassInfo<T> implements Debuggable {
  	 * @param <Handler> The type of the property handler
 	 * @throws IllegalStateException If this property is already registered for this class
 	 */
-	public <Handler extends PropertyHandler<T>> ClassInfo<T> property(Property<? super Handler> property, String description, @NotNull Handler handler) {
+	public <Handler extends PropertyHandler<T>> ClassInfo<T> property(Property<? super Handler> property, String description, SkriptAddon addon, @NotNull Handler handler) {
 		if (propertyInfos.containsKey(property)) {
 			throw new IllegalStateException("Property " + property.name() + " is already registered for the " + c.getName() + " type.");
 		}
 		propertyInfos.put(property, new PropertyInfo<>(property, handler));
-		Classes.CLASS_INFOS_BY_PROPERTY.computeIfAbsent(property, k -> new ArrayList<>()).add(this);
-		propertyDescriptions.put(property, description);
+		Classes.hasProperty(property, this);
+		propertyDocumentation.put(property, new PropertyDocs(property, description, addon));
 		return this;
 	}
 
@@ -531,13 +534,13 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	/**
-	 * Gets the description for the given property, or null if this class does not have the property.
+	 * Gets the type-specific documentation for the given property, or null if this type does not have the property.
 	 * Meant to be used for documentation.
-	 * @param property The property to get the description for
-	 * @return The description, or null if this class does not have the property
+	 * @param property The property to get the documentation for
+	 * @return The documentation, or null if this type does not have the property
 	 */
-	public String getPropertyDescription(Property<?> property) {
-		return propertyDescriptions.get(property);
+	public PropertyDocs getPropertyDocumentation(Property<?> property) {
+		return propertyDocumentation.get(property);
 	}
 
 }

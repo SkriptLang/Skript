@@ -1,11 +1,13 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -96,11 +98,6 @@ public class ExprSubnodeValue extends SimplePropertyExpression<Node, Object> {
 			return (Object[]) Array.newInstance(this.getReturnType(), 0);
 		array[0] = this.convert(entryNode);
 		return array;
-	}
-
-	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return null;
 	}
 
 	@Override

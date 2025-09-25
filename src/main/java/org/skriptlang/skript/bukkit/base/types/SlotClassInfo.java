@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.base.types;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer;
@@ -43,15 +44,19 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 			.serializeAs(ItemStack.class)
 			.property(Property.NAME,
 				"The custom name of the item in the slot, if it has one. Can be set or reset.",
+				Skript.instance(),
 				new SlotNameHandler())
 			.property(Property.DISPLAY_NAME,
 				"The custom name of the item in the slot, if it has one. Can be set or reset.",
+				Skript.instance(),
 				new SlotNameHandler())
 			.property(Property.AMOUNT,
 				"The amount of items in the slot's stack. Can be set.",
+				Skript.instance(),
 				new SlotAmountHandler())
 			.property(Property.IS_EMPTY,
 				"Whether this slot does not contain a (non-air) item.",
+				Skript.instance(),
 				ConditionPropertyHandler.of(slot -> {
 					ItemStack item = slot.getItem();
 					return item == null || item.getType() == Material.AIR;

@@ -17,6 +17,7 @@ import org.jetbrains.annotations.UnknownNullability;
  *               that an object is a suitable candidate before performing a containment check.
  *
  * @see AnyProvider
+ * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#CONTAINS} instead.
  */
 @FunctionalInterface
 @Deprecated(since="INSERT VERSION", forRemoval = true)

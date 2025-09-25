@@ -403,7 +403,9 @@ public class JSONGenerator extends DocumentationGenerator {
 			JsonObject object = new JsonObject();
 			object.addProperty("id", DocumentationIdProvider.getId(property));
 			object.addProperty("name", property.name());
-			object.addProperty("description", classInfo.getPropertyDescription(property));
+			var docs = classInfo.getPropertyDocumentation(property);
+			object.addProperty("description", docs.description());
+			object.addProperty("provider", docs.provider().name());
 			object.add("relatedSyntax", getPropertyRelatedSyntaxes(property));
 			array.add(object);
 		}
@@ -434,7 +436,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 */
 	private static JsonArray getPropertyRelatedClassInfos(Property<?> property) {
 		JsonArray array = new JsonArray();
-		for (ClassInfo<?> classInfo : Classes.CLASS_INFOS_BY_PROPERTY.get(property)) {
+		for (ClassInfo<?> classInfo : Classes.getClassInfosByProperty(property)) {
 			JsonObject object = new JsonObject();
 			object.addProperty("id", DocumentationIdProvider.getId(classInfo));
 			object.addProperty("name", Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()));
@@ -459,8 +461,12 @@ public class JSONGenerator extends DocumentationGenerator {
 			return null;
 		}
 		for (SyntaxInfo<?> element : relatedSyntaxes) {
+			Name name = element.type().getAnnotation(Name.class);
+			if (name == null)
+				continue;
 			JsonObject object = new JsonObject();
 			object.addProperty("id", DocumentationIdProvider.getId(element));
+			object.addProperty("name", element.type().getAnnotation(Name.class).value());
 			array.add(object);
 		}
 		return array;
@@ -477,6 +483,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		object.addProperty("id", DocumentationIdProvider.getId(property));
 		object.addProperty("name", property.name());
 		object.addProperty("description", property.description());
+		object.addProperty("provider", property.provider().name());
 		object.add("since", convertToJsonArray(property.since()));
 		return object;
 	}

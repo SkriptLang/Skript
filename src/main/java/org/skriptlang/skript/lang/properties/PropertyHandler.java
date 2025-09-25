@@ -101,7 +101,7 @@ public interface PropertyHandler<Type> {
 		 * @throws UnsupportedOperationException If the property is read-only and does not support changes.
 		 */
 		default void change(Type propertyHolder, Object @Nullable [] delta, ChangeMode mode) {
-			throw new UnsupportedOperationException("Changing the name is not supported for this property.");
+			throw new UnsupportedOperationException("Changing is not supported for this property.");
 		}
 
 		/**

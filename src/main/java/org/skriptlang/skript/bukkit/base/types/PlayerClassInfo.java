@@ -52,9 +52,11 @@ public class PlayerClassInfo extends ClassInfo<Player> {
 			.changer(new PlayerChanger())
 			.property(Property.NAME,
 				"A player's account/true name, as text. Cannot be changed.",
+				Skript.instance(),
 				ExpressionPropertyHandler.of(Player::getName, String.class))
 			.property(Property.DISPLAY_NAME,
 				"The player's display name, as text. Can be set or reset.",
+				Skript.instance(),
 				new PlayerDisplayNameHandler())
 			.serializeAs(OfflinePlayer.class);
 	}

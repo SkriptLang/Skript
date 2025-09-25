@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * property expression.
  *
  * @see AnyProvider
+ * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#AMOUNT} instead.
  */
 @FunctionalInterface
 @Deprecated(since="INSERT VERSION", forRemoval = true)

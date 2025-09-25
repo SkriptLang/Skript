@@ -34,6 +34,7 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 				"A script's name, as text. If the experiment 'Script Reflection' is enabled, "
 					+ "this will return the resolved name of the script, otherwise it returns the file "
 					+ "name with path relative to the scripts folder. Cannot be changed.",
+				Skript.instance(),
 				new ScriptNameHandler());
 	}
 

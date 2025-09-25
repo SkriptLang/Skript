@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.base.types;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -47,6 +48,7 @@ public class BlockClassInfo extends ClassInfo<Block> {
 			.property(Property.NAME,
 				"The custom name of the block, if it has one. Only TileEntities like chests and furnaces can " +
 					"have names. Can be set or reset.",
+				Skript.instance(),
 				new BlockNameHandler());
 	}
 

@@ -46,6 +46,7 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 			.serializer(new ConfigurationSerializer<>())
 			.property(Property.AMOUNT,
 				"The number of items in this stack. Can be set.",
+				Skript.instance(),
 				new ItemStackAmountHandler());
 	}
 

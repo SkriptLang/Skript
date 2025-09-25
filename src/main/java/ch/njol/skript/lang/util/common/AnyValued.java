@@ -14,6 +14,7 @@ import org.skriptlang.skript.lang.converter.Converters;
  * property expression.
  *
  * @see AnyProvider
+ * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#TYPED_VALUE} instead.
  */
 @Deprecated(since="INSERT VERSION", forRemoval = true)
 public interface AnyValued<Type> extends AnyProvider {

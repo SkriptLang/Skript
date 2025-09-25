@@ -68,17 +68,17 @@ public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHan
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (useProperties)
-			return super.acceptChange(mode);
-		return null;
-	}
-
-	@Override
 	protected Object @Nullable [] get(Event event) {
 		if (useProperties)
 			return super.get(event);
 		return new Long[]{(long) exprs.getArray(event).length};
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (useProperties)
+			return super.acceptChange(mode);
+		return null;
 	}
 
 	@Override

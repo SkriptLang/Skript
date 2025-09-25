@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.base.types;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
@@ -44,12 +45,15 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 			.serializer(new YggdrasilSerializer<>())
 			.property(Property.NAME,
 				"An item type's custom name, if set. Can be set or reset.",
+				Skript.instance(),
 				new ItemTypeNameHandler())
 			.property(Property.DISPLAY_NAME,
 				"An item type's custom name, if set. Can be set or reset.",
+				Skript.instance(),
 				new ItemTypeNameHandler())
 			.property(Property.AMOUNT,
 				"The amount of items in the stack this type represents. E.g. 5 for '5 stone swords'. Can be set.",
+				Skript.instance(),
 				new ItemTypeAmountHandler());
 	}
 

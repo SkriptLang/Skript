@@ -413,6 +413,7 @@ public class BukkitClasses {
 				})
 				.property(Property.NAME,
 					"A world's name, as text. Cannot be changed.",
+					Skript.instance(),
 					ExpressionPropertyHandler.of(World::getName, String.class))
 		);
 
@@ -487,6 +488,7 @@ public class BukkitClasses {
 				})
 				.property(Property.NAME,
 					"A command sender's name, as text. Cannot be changed.",
+					Skript.instance(),
 					ExpressionPropertyHandler.of(CommandSender::getName, String.class)));
 
 		Classes.registerClass(new NameableClassInfo());
@@ -946,6 +948,7 @@ public class BukkitClasses {
 			.parser(gameRuleParser)
 			.property(Property.NAME,
 				"A gamerule's name, as text. Cannot be changed.",
+				Skript.instance(),
 				ExpressionPropertyHandler.of(GameRule::getName, String.class))
 		);
 

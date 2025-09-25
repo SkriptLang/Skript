@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.base.types;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -23,6 +24,7 @@ public class NameableClassInfo extends ClassInfo<Nameable> {
 			.after("entity", "commandsender", "block", "player")
 			.property(Property.NAME,
 				"The name of the nameable, if it has one, as text. Use 'display name' if you need a changeable name.",
+				Skript.instance(),
 				ExpressionPropertyHandler.of(nameable -> {
 				if (nameable instanceof CommandSender sender) { // prioritize CommandSender names over Nameable names for "name of"
 					return sender.getName();
@@ -31,6 +33,7 @@ public class NameableClassInfo extends ClassInfo<Nameable> {
 			}, String.class))
 			.property(Property.DISPLAY_NAME,
 				"The custom name of the nameable, if it has one, as text. Can be set or reset.",
+				Skript.instance(),
 				new NameableNameHandler());
 	}
 

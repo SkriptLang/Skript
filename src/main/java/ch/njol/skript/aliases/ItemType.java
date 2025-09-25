@@ -5,6 +5,8 @@ import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Unit;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
@@ -47,7 +49,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
-public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
+public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
+	AnyNamed, AnyAmount {
 
 	private static final boolean IS_RUNNING_1_21 = Skript.isRunningMinecraft(1, 21);
 
@@ -1608,15 +1611,37 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return copy;
 	}
 
+	@Override
 	public @Nullable String name() {
 		ItemMeta meta = this.getItemMeta();
 		return meta.hasDisplayName() ? meta.getDisplayName() : null;
 	}
 
+	@Override
+	public boolean supportsNameChange() {
+		return true;
+	}
+
+	@Override
 	public void setName(String name) {
 		ItemMeta meta = this.getItemMeta();
 		meta.setDisplayName(name);
 		this.setItemMeta(meta);
+	}
+
+	@Override
+	public @NotNull Number amount() {
+		return this.getAmount();
+	}
+
+	@Override
+	public boolean supportsAmountChange() {
+		return true;
+	}
+
+	@Override
+	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.base.types;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.classes.Changer;
@@ -49,9 +50,11 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 			.changer(new EntityChanger())
 			.property(Property.NAME,
 				"The entity's custom name, if it has one, as text. Can be set or reset.",
+				Skript.instance(),
 				new EntityNameHandler(Property.NAME))
 			.property(Property.DISPLAY_NAME,
 				"The entity's custom name, if it has one, as text. Can be set or reset.",
+				Skript.instance(),
 				new EntityNameHandler(Property.DISPLAY_NAME));
 	}
 
