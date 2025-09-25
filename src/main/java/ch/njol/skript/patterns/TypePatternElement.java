@@ -17,6 +17,9 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * A {@link PatternElement} that contains a type to be matched with an expressions, for example {@code %number%}.
  */
@@ -261,6 +264,21 @@ public class TypePatternElement extends PatternElement {
 		exprInfo.flagMask = flagMask;
 		exprInfo.time = time;
 		return exprInfo;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @param clean Whether this type should be replaced with {@code %*%} if it's not literal.
+	 */
+	@Override
+	public Set<String> getCombinations(boolean clean) {
+		Set<String> combinations = new HashSet<>();
+		if (!clean || flagMask == 2) {
+			combinations.add(toString());
+		} else {
+			combinations.add("%*%");
+		}
+		return combinations;
 	}
 
 }

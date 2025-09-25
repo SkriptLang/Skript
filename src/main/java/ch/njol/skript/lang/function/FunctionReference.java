@@ -251,7 +251,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
 							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
-							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + parameter.type() + "."
+							String type = Classes.toString(getClassInfo(target));
+
+							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
 								+ " Please note that storing the value in a variable and then using that variable as parameter may suppress this error, but it still won't work.");
 						}
@@ -293,6 +295,24 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			this.contract = contract;
 
 		return true;
+	}
+
+	/**
+	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
+	 *
+	 * @param cls The class.
+	 * @param <T> The type of class.
+	 * @return The non-array {@link ClassInfo} of {@code cls}.
+	 */
+	private static <T> ClassInfo<? super T> getClassInfo(Class<T> cls) {
+		ClassInfo<? super T> classInfo;
+		if (cls.isArray()) {
+			//noinspection unchecked
+			classInfo = (ClassInfo<? super T>) Classes.getSuperClassInfo(cls.componentType());
+		} else {
+			classInfo = Classes.getSuperClassInfo(cls);
+		}
+		return classInfo;
 	}
 
 	// attempt to get the types of the parameters for this function reference

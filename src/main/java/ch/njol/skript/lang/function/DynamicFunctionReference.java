@@ -184,7 +184,6 @@ public class DynamicFunctionReference<Result>
 				target = parameter.type();
 			}
 
-			//noinspection unchecked
 			Expression<?> expression = parameters[i].getConvertedExpression(target);
 			if (expression == null) {
 				return null;

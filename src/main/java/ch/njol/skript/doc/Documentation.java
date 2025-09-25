@@ -6,6 +6,7 @@ import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
@@ -152,7 +153,7 @@ public class Documentation {
 				"examples VARCHAR(2000) NOT NULL," +
 				"since VARCHAR(100) NOT NULL" +
 				");");
-		for (final JavaFunction<?> func : Functions.getJavaFunctions()) {
+		for (ch.njol.skript.lang.function.Function<?> func : Functions.getDefaultFunctions()) {
 			assert func != null;
 			insertFunction(pw, func);
 		}
@@ -376,15 +377,25 @@ public class Documentation {
 				since);
 	}
 
-	private static void insertFunction(PrintWriter pw, JavaFunction<?> func) {
+	private static void insertFunction(PrintWriter pw, ch.njol.skript.lang.function.Function<?> func) {
+		String[] typeSince, typeDescription, typeExamples;
+		if (func instanceof Documentable documentable) {
+			typeSince = documentable.since().toArray(new String[0]);
+			typeDescription = documentable.description().toArray(new String[0]);
+			typeExamples = documentable.examples().toArray(new String[0]);
+		} else {
+			assert false;
+			return;
+		}
+
 		StringBuilder params = new StringBuilder();
 		for (Parameter<?> p : func.getSignature().parameters().values()) {
 			if (!params.isEmpty())
 				params.append(", ");
 			params.append(p.toString());
 		}
-		final String desc = validateHTML(StringUtils.join(func.getDescription(), "<br/>"), "functions");
-		final String since = validateHTML(func.getSince(), "functions");
+		String desc = validateHTML(StringUtils.join(typeDescription, "<br/>"), "functions");
+		String since = validateHTML(StringUtils.join(typeSince, "\n"), "functions");
 		if (desc == null || since == null) {
 			Skript.warning("Function " + func.getName() + "'s description or 'since' is invalid");
 			return;
@@ -393,7 +404,7 @@ public class Documentation {
 				escapeHTML(func.getName()),
 				escapeHTML(params.toString()),
 				desc,
-				escapeHTML(StringUtils.join(func.getExamples(), "\n")),
+				escapeHTML(StringUtils.join(typeExamples, "\n")),
 				since);
 	}
 

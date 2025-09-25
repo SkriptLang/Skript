@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionArguments;
+import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.Arrays;
@@ -17,7 +18,7 @@ import java.util.LinkedHashMap;
 /**
  * Functions can be called using arguments.
  */
-public abstract class Function<T> {
+public abstract class Function<T> implements org.skriptlang.skript.common.function.Function<T> {
 
 	/**
 	 * Execute functions even when some parameters are not present.
@@ -36,6 +37,11 @@ public abstract class Function<T> {
 	 * @return A function signature.
 	 */
 	public Signature<T> getSignature() {
+		return sign;
+	}
+
+	@Override
+	public org.skriptlang.skript.common.function.@NotNull Signature<T> signature() {
 		return sign;
 	}
 
@@ -108,7 +114,7 @@ public abstract class Function<T> {
 		// Execute parameters or default value expressions
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> parameter = parameters[i];
-			Object[] parameterValue = parameter.keyed ? convertToKeyed(parameterValues[i]) : parameterValues[i];
+			Object[] parameterValue = parameter.hasModifier(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
 			// see https://github.com/SkriptLang/Skript/pull/8135
 			if ((parameterValues[i] == null || parameterValues[i].length == 0)
@@ -121,10 +127,10 @@ public abstract class Function<T> {
 				} else {
 					parameterValue = defaultValue;
 				}
-			} else if (parameterValue == null) { // Go for default value
+			} else if (!(this instanceof DefaultFunction<?>) && parameterValue == null) { // Go for default value
 				assert parameter.def != null; // Should've been parse error
 				Object[] defaultValue = parameter.def.getArray(event);
-				if (parameter.keyed && KeyProviderExpression.areKeysRecommended(parameter.def)) {
+				if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(parameter.def)) {
 					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
 					parameterValue = KeyedValue.zip(defaultValue, keys);
 				} else {
@@ -138,7 +144,7 @@ public abstract class Function<T> {
 			 * really have a concept of nulls, it was changed. The config
 			 * option may be removed in future.
 			 */
-			if (!executeWithNulls && parameterValue != null && parameterValue.length == 0)
+			if (!(this instanceof DefaultFunction<?>) && !executeWithNulls && parameterValue != null && parameterValue.length == 0)
 				return null;
 			parameterValues[i] = parameterValue;
 			i++;
