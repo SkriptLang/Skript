@@ -66,7 +66,8 @@ public class CondWillBeWhitelisted extends Condition {
 		return new SyntaxStringBuilder(event, debug)
 			.append("the")
 			.append(isServer ? "server" : "player")
-			.append("will be whitelisted")
+			.append(isNegated() ? "will not" : "will")
+			.append("be whitelisted")
 			.toString();
 	}
 
