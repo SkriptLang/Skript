@@ -18,13 +18,13 @@ import ch.njol.util.Kleenean;
 @Keywords("server, player")
 @Examples({
 	"on server whitelist:",
-	"\tsend \"Server whitelist has been set to % whether server will be whitelisted%\" to all ops",
+		"\tsend \"Server whitelist has been set to % whether server will be whitelisted%\" to all ops",
 	"",
 	"on player whitelist:",
-	"\tsend \"Whitelist of player % event - player % has been set to % whether server will be whitelisted%\" to all ops"
+		"\tsend \"Whitelist of player % event - player % has been set to % whether server will be whitelisted%\" to all ops"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Paper (server), Paper 1.20+ (player)")
+@RequiredPlugins("Paper")
 public class CondWillBeWhitelisted extends Condition {
 
 	static {

@@ -13,7 +13,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -30,7 +29,6 @@ import ch.njol.util.Kleenean;
 	"unenforce the whitelist"
 })
 @Since("2.9.0")
-@RequiredPlugins("MC 1.17+")
 public class EffEnforceWhitelist extends Effect {
 
 	private static String NOT_WHITELISTED_MESSAGE = "You are not whitelisted on this server!";

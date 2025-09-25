@@ -32,12 +32,12 @@ public class EvtWhitelist extends SkriptEvent {
 				"on player whitelist removed:",
 				"",
 				"on server whitelist:",
-				"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops",
+					"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops",
 				"",
 				"on player whitelist:",
-				"\tsend \"Whitelist of player %event-player% has been set to %whether server will be whitelisted%\" to all ops")
+					"\tsend \"Whitelist of player %event-player% has been set to %whether server will be whitelisted%\" to all ops")
 			.since("INSERT VERSION")
-			.requiredPlugins("Paper (server), Paper 1.20+ (player)");
+			.requiredPlugins("Paper");
 
 		EventValues.registerEventValue(WhitelistStateUpdateEvent.class, OfflinePlayer.class, WhitelistStateUpdateEvent::getPlayer);
 	}
