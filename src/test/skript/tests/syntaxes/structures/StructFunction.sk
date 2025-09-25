@@ -45,18 +45,18 @@ test "function structure type hints":
 	set {_number} to true
 	parse:
 		type_hint_argument_test({_number})
-	assert the first element of the last parse logs is set # contains "The function 'type_hint_argument_test(boolean)' does not exist."
+	assert the first element of the last parse logs contains "The function 'type_hint_argument_test(boolean)' does not exist."
 
 local function list_argument_single_default(x: texts="hey") -> texts:
     return {_x::*}
 
-test "function list argument with a single default":
+test "function list argument with a single default value":
 	assert list_argument_single_default() = "hey"
 
-local function argument_single_default(x: texts="hey") -> text:
+local function argument_single_default(x: text="hey") -> text:
     return {_x}
 
-test "function argument with a single default":
+test "function argument with a default value":
 	assert argument_single_default() = "hey"
 
 local function literal_test(x: entity type):
