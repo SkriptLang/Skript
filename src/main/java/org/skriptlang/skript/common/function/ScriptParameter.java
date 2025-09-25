@@ -48,11 +48,11 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 		Preconditions.checkNotNull(type, "type cannot be null");
 
 		if (!Variable.isValidVariableName(name, true, false)) {
-			Skript.error("A parameter's name must be a valid variable name.");
+			Skript.error("Invalid parameter name: %s", name);
 			return null;
 		}
 
-		Expression<?> d = null;
+		Expression<?> defaultValue = null;
 		if (def != null) {
 			Class<?> target;
 			if (type.isArray()) {
@@ -63,8 +63,8 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 
 			// Parse the default value expression
 			try (RetainingLogHandler log = SkriptLogger.startRetainingLog()) {
-				d = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(target);
-				if (d == null || LiteralUtils.hasUnparsedLiteral(d)) {
+				defaultValue = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(target);
+				if (defaultValue == null || LiteralUtils.hasUnparsedLiteral(defaultValue)) {
 					log.printErrors("Can't understand this expression: " + def);
 					log.stop();
 					return null;
@@ -75,14 +75,14 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 		}
 
 		Set<Modifier> modifiers = new HashSet<>();
-		if (d != null) {
+		if (defaultValue != null) {
 			modifiers.add(Modifier.OPTIONAL);
 		}
 		if (type.isArray()) {
 			modifiers.add(Modifier.KEYED);
 		}
 
-		return new ScriptParameter<>(name, type, d, modifiers.toArray(new Modifier[0]));
+		return new ScriptParameter<>(name, type, defaultValue, modifiers.toArray(new Modifier[0]));
 	}
 
 }

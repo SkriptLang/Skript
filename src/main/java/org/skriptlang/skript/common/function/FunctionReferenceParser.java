@@ -131,7 +131,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 		// first, sort into types
 		for (Signature<?> option : options) {
-			if (option.parameters().size() == 1 && !option.parameters().entrySet().iterator().next().getValue().single()) {
+			if (option.parameters().size() == 1 && !option.parameters().firstEntry().getValue().single()) {
 				lists.add(option);
 			} else {
 				exacts.add(option);

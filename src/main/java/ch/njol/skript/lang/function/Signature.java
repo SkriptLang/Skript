@@ -121,11 +121,33 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	}
 
 	/**
+	 * Converts a {@link org.skriptlang.skript.common.function.Parameter} to a {@link Parameter}.
+	 * @param parameter The parameter to use to convert.
+	 * @return The converted parameter.
+	 */
+	private static Parameter<?> toParameter(org.skriptlang.skript.common.function.Parameter<?> parameter) {
+		if (parameter == null) {
+			return null;
+		}
+
+		ClassInfo<?> classInfo;
+		if (parameter.type().isArray()) {
+			classInfo = Classes.getExactClassInfo(parameter.type().componentType());
+		} else {
+			classInfo = Classes.getExactClassInfo(parameter.type());
+		}
+
+		return new Parameter<>(parameter.name(), classInfo, !parameter.type().isArray(), null, parameter.modifiers().toArray(new Modifier[0]));
+	}
+
+	/**
 	 * @deprecated Use {@link #getParameter(String)} or {@link #parameters()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Parameter<?> getParameter(int index) {
-		return (Parameter<?>) parameters.values().toArray(new org.skriptlang.skript.common.function.Parameter<?>[0])[index];
+		return parameters.values()
+				.stream().map(Signature::toParameter)
+				.toList().get(index);
 	}
 
 	/**
@@ -133,11 +155,16 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public Parameter<?>[] getParameters() {
-		return (Parameter<?>[]) parameters.values().stream().map(it -> (Parameter<?>) it).toArray();
+		return parameters.values().stream().map(Signature::toParameter)
+				.toList()
+				.toArray(new Parameter[0]);
 	}
 
 	@Override
-	public @NotNull Class<T> returnType() {
+	public Class<T> returnType() {
+		if (returns == null) {
+			return null;
+		}
 		//noinspection unchecked
 		return (Class<T>) returns;
 	}

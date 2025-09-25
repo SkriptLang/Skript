@@ -119,7 +119,7 @@ public abstract class Functions {
 		if (Skript.debug() || node.debug()) {
 			Class<?> returnType = signature.returnType();
 			ClassInfo<?> c;
-			if (returnType.isArray()) {
+			if (returnType != null && returnType.isArray()) {
 				c = Classes.getExactClassInfo(returnType.componentType());
 			} else {
 				c = Classes.getExactClassInfo(returnType);

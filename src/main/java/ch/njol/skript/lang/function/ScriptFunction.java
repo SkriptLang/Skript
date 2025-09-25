@@ -35,8 +35,12 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 				String hintName = parameter.name();
 				if (!parameter.single()) {
 					hintName += Variable.SEPARATOR + "*";
+					assert parameter.type().isArray();
+					hintManager.set(hintName, parameter.type().componentType());
+				} else {
+					assert !parameter.type().isArray();
+					hintManager.set(hintName, parameter.type());
 				}
-				hintManager.set(hintName, parameter.type());
 			}
 			trigger = loadReturnableTrigger(node, "function " + sign.getName(), new SimpleEvent());
 		} finally {

@@ -237,7 +237,6 @@ public class StructFunction extends Structure {
 
 			int j = 0;
 			for (int i = 0; i <= args.length(); i = SkriptParser.next(args, i, ParseContext.DEFAULT)) {
-
 				if (i == -1) {
 					Skript.error("Invalid text/variables/parentheses in the arguments of this function");
 					return null;

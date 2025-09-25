@@ -2,6 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.util.coll.CollectionUtils;
@@ -11,8 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.common.function.FunctionArguments;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.ScriptParameter;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.SequencedMap;
 
 /**
@@ -115,24 +118,31 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 		for (org.skriptlang.skript.common.function.Parameter<?> parameter : parameters.values()) {
 			Object[] parameterValue = parameter.hasModifier(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
-			if (parameter instanceof Parameter<?> old) {
-				// see https://github.com/SkriptLang/Skript/pull/8135
-				if ((parameterValues[i] == null || parameterValues[i].length == 0) && old.keyed && old.def != null) {
-					Object[] defaultValue = old.def.getArray(event);
-					if (defaultValue.length == 1) {
-						parameterValue = KeyedValue.zip(defaultValue, null);
-					} else {
-						parameterValue = defaultValue;
-					}
-				} else if (!(this instanceof DefaultFunction<?>) && parameterValue == null) { // Go for default value
-					assert old.def != null; // Should've been parse error
-					Object[] defaultValue = old.def.getArray(event);
-					if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(old.def)) {
-						String[] keys = ((KeyProviderExpression<?>) old.def).getArrayKeys(event);
-						parameterValue = KeyedValue.zip(defaultValue, keys);
-					} else {
-						parameterValue = defaultValue;
-					}
+			Expression<?> def;
+			if (parameter instanceof Parameter<?> script) {
+				def = script.def;
+			} else if (parameter instanceof ScriptParameter<?> script) {
+				def = script.defaultValue();
+			} else {
+				def = null;
+			}
+
+			// see https://github.com/SkriptLang/Skript/pull/8135
+			if ((parameterValues[i] == null || parameterValues[i].length == 0) && parameter.hasModifier(Modifier.KEYED) && def != null) {
+				Object[] defaultValue = def.getArray(event);
+				if (defaultValue.length == 1) {
+					parameterValue = KeyedValue.zip(defaultValue, null);
+				} else {
+					parameterValue = defaultValue;
+				}
+			} else if (parameterValue == null) { // Go for default value
+				assert def != null; // Should've been parse error
+				Object[] defaultValue = def.getArray(event);
+				if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(def)) {
+					String[] keys = ((KeyProviderExpression<?>) def).getArrayKeys(event);
+					parameterValue = KeyedValue.zip(defaultValue, keys);
+				} else {
+					parameterValue = defaultValue;
 				}
 			}
 

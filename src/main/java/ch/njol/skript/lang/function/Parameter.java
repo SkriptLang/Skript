@@ -300,7 +300,12 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 
 	@Override
 	public @NotNull Class<T> type() {
-		return type.getC();
+		if (single) {
+			return type.getC();
+		} else {
+			//noinspection unchecked
+			return (Class<T>) type.getC().arrayType();
+		}
 	}
 
 	@Override
@@ -308,4 +313,8 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		return Collections.unmodifiableSet(modifiers);
 	}
 
+	@Override
+	public boolean single() {
+		return single;
+	}
 }
