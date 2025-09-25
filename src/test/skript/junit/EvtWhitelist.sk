@@ -1,0 +1,48 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtWhitelistTest"
+
+test "EvtWhitelistTest" when running JUnit:
+	add "whitelist event - player" to {_events::*}
+	add "whitelist event - player added" to {_events::*}
+	add "whitelist event - player removed" to {_events::*}
+	add "whitelist event - server" to {_events::*}
+	add "whitelist event - server enabled" to {_events::*}
+	add "whitelist event - server disabled" to {_events::*}
+
+	add "will be whitelisted - player added" to {_events::*}
+	add "will be whitelisted - player removed" to {_events::*}
+	add "will be whitelisted - server enabled" to {_events::*}
+	add "will be whitelisted - server disabled" to {_events::*}
+	ensure junit test {@test} completes {_events::*}
+
+on server whitelist:
+	junit test is {@test}
+	complete objective "whitelist event - server" for {@test}
+
+on server whitelist enabled:
+	junit test is {@test}
+	complete objective "whitelist event - server enabled" for {@test}
+	the server will be whitelisted
+	complete objective "will be whitelisted - server enabled" for {@test}
+
+on server whitelist disabled:
+	junit test is {@test}
+	complete objective "whitelist event - server disabled" for {@test}
+	the server will not be whitelisted
+	complete objective "will be whitelisted - server disabled" for {@test}
+
+on player whitelist:
+	junit test is {@test}
+	complete objective "whitelist event - player" for {@test}
+
+on player whitelist added:
+	junit test is {@test}
+	complete objective "whitelist event - player added" for {@test}
+	the player will be whitelisted
+	complete objective "will be whitelisted - player added" for {@test}
+
+on player whitelist removed:
+	junit test is {@test}
+	complete objective "whitelist event - player removed" for {@test}
+	the player will not be whitelisted
+	complete objective "will be whitelisted - player removed" for {@test}

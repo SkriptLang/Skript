@@ -1,4 +1,4 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.whitelist.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;

@@ -1,6 +1,5 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.whitelist.elements;
 
-import ch.njol.skript.effects.EffEnforceWhitelist;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;

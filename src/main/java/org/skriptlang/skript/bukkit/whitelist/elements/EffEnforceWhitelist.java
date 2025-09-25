@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.whitelist.elements;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
