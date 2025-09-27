@@ -16,13 +16,13 @@ import ch.njol.util.Kleenean;
 @Name("Will Be Whitelisted")
 @Description("Checks whether the server or a player will be whitelisted in a <a href='events.html#whitelist'>whitelist</a> event.")
 @Keywords("server, player")
-@Examples({
+@Example("""
 	"on server whitelist:",
-		"\tsend \"Server whitelist has been set to % whether server will be whitelisted%\" to all ops",
+		"\tsend "Server whitelist has been set to % whether server will be whitelisted%" to all ops",
 	"",
 	"on player whitelist:",
-		"\tsend \"Whitelist of player % event - player % has been set to % whether server will be whitelisted%\" to all ops"
-})
+		"\tsend "Whitelist of player % event - player % has been set to % whether server will be whitelisted%" to all ops"
+""")
 @Since("INSERT VERSION")
 @RequiredPlugins("Paper")
 public class CondWillBeWhitelisted extends Condition {
