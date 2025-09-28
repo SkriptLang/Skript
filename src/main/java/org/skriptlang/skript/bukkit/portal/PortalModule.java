@@ -45,14 +45,19 @@ public class PortalModule implements AddonModule {
 
 		Skript.registerEvent("Portal Enter", SimpleEvent.class, EntityPortalEnterEvent.class, "portal enter[ing]", "entering [a] portal")
 			.description("Called when an entity enters a nether portal or an end portal. Please note that this event will be fired many times for a nether portal.")
-			.examples("on portal enter:")
+			.examples(
+				"on portal enter:",
+					"\tbroadcast \"%event-entity% is entering a %event-portaltype% at %event-location%\"")
 			.since("1.0, INSERT VERSION (event values)");
 		EventValues.registerEventValue(EntityPortalEnterEvent.class, Location.class, EntityPortalEnterEvent::getLocation);
 		EventValues.registerEventValue(EntityPortalEnterEvent.class, PortalType.class, EntityPortalEnterEvent::getPortalType);
 
 		Skript.registerEvent("Portal Exit", SimpleEvent.class, EntityPortalExitEvent.class, "portal exit[ing]", "exiting [a] portal")
 			.description("Called when an entity exits a nether portal or an end portal. Note that this event does not get called on players.")
-			.examples("on portal exit:")
+			.examples(
+				"on portal exit:",
+					"\tbroadcast \"%event-entity% is exiting a portal at %event-location%\"",
+					"\tadd 2 to vector y of event-vector")
 			.since("INSERT VERSION");
 		EventValues.registerEventValue(EntityPortalExitEvent.class, Vector.class, EntityPortalExitEvent::getBefore, EventValues.TIME_PAST);
 		EventValues.registerEventValue(EntityPortalExitEvent.class, Vector.class, new EventConverter<>() {
