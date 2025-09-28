@@ -33,7 +33,7 @@ public class PortalModule implements AddonModule {
 			.description("Called when a portal is created, either by a player or mob lighting an obsidian frame on fire, or by a nether portal creating its teleportation target in the nether/overworld.",
 				"In Minecraft 1.14+, you can use <a href='#ExprEntity'>the player</a> in this event.", "Please note that there may not always be a player (or other entity) in this event.")
 			.examples("on portal create:")
-			.since("1.0, 2.5.3 (event-entity support)");
+			.since("1.0, 2.5.3 (event-entity support), INSERT VERSION (event-portaltype support)");
 		EventValues.registerEventValue(PortalCreateEvent.class, Block[].class, event -> event.getBlocks().stream()
 			.map(BlockState::getBlock)
 			.toArray(Block[]::new));
