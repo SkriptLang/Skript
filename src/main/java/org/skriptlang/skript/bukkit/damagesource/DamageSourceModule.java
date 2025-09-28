@@ -14,6 +14,7 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.damagesource.elements.*;
@@ -70,7 +71,7 @@ public class DamageSourceModule implements AddonModule, Categorizable {
 	}
 
 	@Override
-	public @NotNull Set<Category> categories() {
+	public @Unmodifiable @NotNull Set<Category> categories() {
 		return Set.of(Category.DAMAGE_SOURCES);
 	}
 

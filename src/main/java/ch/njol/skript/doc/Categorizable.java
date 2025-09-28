@@ -1,6 +1,7 @@
 package ch.njol.skript.doc;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Set;
 
@@ -15,6 +16,6 @@ public interface Categorizable {
 	 *
 	 * @return The categories of this object.
 	 */
-	@NotNull Set<Category> categories();
+	@Unmodifiable @NotNull Set<Category> categories();
 
 }

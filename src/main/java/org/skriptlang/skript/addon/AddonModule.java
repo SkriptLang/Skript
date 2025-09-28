@@ -56,6 +56,7 @@ public interface AddonModule {
 	 * @param cls The syntax info.
 	 * @param <I> The type of syntax.
 	 */
+	@ApiStatus.Experimental
 	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, Key<I> registry, I cls) {
 		register(addon, addon.syntaxRegistry(), registry, cls);
 	}
@@ -68,6 +69,7 @@ public interface AddonModule {
 	 * @param classes The syntax infos.
 	 * @param <I> The type of syntax.
 	 */
+	@ApiStatus.Experimental
 	@SuppressWarnings("unchecked")
 	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, Key<I> registry, I... classes) {
 		SyntaxRegistry syntaxRegistry = addon.syntaxRegistry();
@@ -85,6 +87,7 @@ public interface AddonModule {
 	 * @param cls The syntax info.
 	 * @param <I> The type of syntax.
 	 */
+	@ApiStatus.Experimental
 	default <I extends SyntaxInfo<?>> void register(SkriptAddon addon, SyntaxRegistry syntaxRegistry, Key<I> registry, I cls) {
 		//noinspection unchecked
 		syntaxRegistry.register(registry, (I) cls.toBuilder()
