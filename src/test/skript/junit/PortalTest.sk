@@ -1,0 +1,33 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.EvtPortalTest"
+
+test "ExprPortalTest" when running JUnit:
+	add "portal type - nether" to {_tests::*}
+	add "portal type - end" to {_tests::*}
+	add "portal type - end gateway" to {_tests::*}
+
+	add "portal enter - event" to {_tests::*}
+	add "portal exit - vector overwrite" to {_tests::*}
+	ensure {@test} completes {_tests::*}
+
+on portal:
+	junit test is {@test}
+	if event-portaltype is nether portal:
+		complete objective "portal type - nether" for junit test {@test}
+	if event-portaltype is end portal:
+		complete objective "portal type - end" for junit test {@test}
+	if event-portaltype is end gateway:
+		complete objective "portal type - end gateway" for junit test {@test}
+
+on portal enter:
+	junit test is {@test}
+	event-portaltype is nether portal
+	complete objective "portal enter - event" for junit test {@test}
+
+on portal exit:
+	junit test is {@test}
+	set event-vector to vector(0, 0, 0)
+	assert event-vector is vector(0, 0, 0) with "event-vector failed to overwrite #1"
+	add 9 to vector x of event-vector
+	assert event-vector is vector(9, 0, 0) with "event-vector failed to overwrite #2"
+	complete objective "portal exit - vector overwrite" for junit test {@test}

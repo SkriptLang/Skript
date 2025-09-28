@@ -510,15 +510,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, Inventory.class, InventoryPickupItemEvent::getInventory);
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, Item.class, InventoryPickupItemEvent::getItem);
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack());
-		//PortalCreateEvent
-		EventValues.registerEventValue(PortalCreateEvent.class, Block[].class, event -> event.getBlocks().stream()
-			.map(BlockState::getBlock)
-			.toArray(Block[]::new));
-		EventValues.registerEventValue(PortalCreateEvent.class, Entity.class, PortalCreateEvent::getEntity);
-		EventValues.registerEventValue(PortalCreateEvent.class, PortalType.class, event -> switch (event.getReason()) {
-			case END_PLATFORM -> PortalType.ENDER;
-			case FIRE, NETHER_PAIR -> PortalType.NETHER;
-		});
 		//PlayerEditBookEvent
 		EventValues.registerEventValue(PlayerEditBookEvent.class, ItemStack.class, event -> {
 			ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
