@@ -1,10 +1,7 @@
 package org.skriptlang.skript.bukkit.portal.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.coll.CollectionUtils;
@@ -20,11 +17,11 @@ import org.jetbrains.annotations.Nullable;
 	"Players in survival/adventure get a cooldown of 0.5 seconds, while those in creative get no cooldown.",
 	"Resetting will set the cooldown back to the default 15 seconds for non-player entities and 0.5 seconds for players."
 })
-@Examples({
-	"on portal:",
-		"\twait 1 tick",
-		"\tset portal cooldown of event-entity to 5 seconds"
-})
+@Example("""
+	on portal:
+		wait 1 tick
+		set portal cooldown of event-entity to 5 seconds
+""")
 @Since("2.8.0")
 public class ExprPortalCooldown extends SimplePropertyExpression<Entity, Timespan> {
 
@@ -47,16 +44,10 @@ public class ExprPortalCooldown extends SimplePropertyExpression<Entity, Timespa
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case ADD:
-			case RESET:
-			case DELETE:
-			case REMOVE:
-				return CollectionUtils.array(Timespan.class);
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case SET, ADD, RESET, DELETE, REMOVE -> CollectionUtils.array(Timespan.class);
+			default -> null;
+		};
 	}
 
 	@Override
