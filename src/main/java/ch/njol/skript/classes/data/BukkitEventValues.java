@@ -511,7 +511,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, Item.class, InventoryPickupItemEvent::getItem);
 		EventValues.registerEventValue(InventoryPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack());
 		//PortalCreateEvent
-		EventValues.registerEventValue(PortalCreateEvent.class, World.class, WorldEvent::getWorld);
 		EventValues.registerEventValue(PortalCreateEvent.class, Block[].class, event -> event.getBlocks().stream()
 			.map(BlockState::getBlock)
 			.toArray(Block[]::new));

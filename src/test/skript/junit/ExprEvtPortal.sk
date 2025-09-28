@@ -1,5 +1,5 @@
 options:
-	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprPortalTest"
+	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprEvtPortalTest"
 
 test "ExprPortalTest" when running JUnit:
 	ensure {@test} completes "portal type - nether", "portal type - end" and "portal type - end gateway"

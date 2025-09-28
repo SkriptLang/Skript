@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 
-public class ExprPortalTest extends SkriptJUnitTest {
+public class ExprEvtPortalTest extends SkriptJUnitTest {
 
 	static {
 		setShutdownDelay(1);
