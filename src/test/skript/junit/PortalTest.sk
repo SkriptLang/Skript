@@ -1,7 +1,7 @@
 options:
 	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.EvtPortalTest"
 
-test "ExprPortalTest" when running JUnit:
+test "EvtPortalTest" when running JUnit:
 	add "portal type - nether" to {_tests::*}
 	add "portal type - end" to {_tests::*}
 	add "portal type - end gateway" to {_tests::*}
