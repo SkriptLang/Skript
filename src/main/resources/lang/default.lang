@@ -2680,6 +2680,13 @@ damage types:
 	wither: wither
 	wither_skull: wither skull
 
+# -- Portal Types --
+portal types:
+	custom: custom
+	end_gateway: end gateway
+	ender: end portal
+	nether: nether portal
+
 # -- Boolean --
 boolean:
 	true:
@@ -2797,6 +2804,7 @@ types:
 	villagercareerchangereason: villager career change reason¦s @a
 	damagesource: damage source¦s @a
 	damagetype: damage type¦s @a
+	portaltype: portal type¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
