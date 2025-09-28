@@ -104,3 +104,10 @@ test "function structure arguments":
 	parse:
 		argument_test_list(1, (2, 3))
 	assert last parse logs contain "The function argument_test_list(integer, integers) does not exist"
+
+local function argument_default(x: int, y: int = 2) -> int:
+    return {_x} + {_y}
+
+test "function default arguments":
+    assert argument_default(2, 3) = 5
+    assert argument_default(2) = 4
