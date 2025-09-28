@@ -680,11 +680,11 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 							if (info == null)
 								continue;
 
-							Object value = originalValue == null ? Arithmetics.getDefaultValue(info.getLeft()) : originalValue;
+							Object value = originalValue == null ? Arithmetics.getDefaultValue(info.left()) : originalValue;
 							if (value == null)
 								continue;
 
-							originalValue = info.getOperation().calculate(value, newValue);
+							originalValue = info.operation().calculate(value, newValue);
 							changed = true;
 						}
 						if (changed)

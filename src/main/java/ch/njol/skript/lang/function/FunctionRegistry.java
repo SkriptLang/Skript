@@ -5,6 +5,11 @@ import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.*;
+import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
@@ -50,8 +55,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
 
 	@Override
-	@UnmodifiableView
-	public @NotNull Collection<Function<?>> elements() {
+	public @Unmodifiable @NotNull Collection<Function<?>> elements() {
 		Set<Function<?>> functions = new HashSet<>();
 
 		for (Namespace namespace : namespaces.values()) {
@@ -714,11 +718,11 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.def != null) {
+				if (param.isOptional()) {
 					optionalArgs++;
 				}
 
-				Class<?> type = param.getType().getC();
+				Class<?> type = param.type();
 				if (param.isSingleValue()) {
 					parameters[i] = type;
 				} else {
