@@ -105,6 +105,16 @@ public interface PropertyHandler<Type> {
 		}
 
 		/**
+		 * Whether changing this property requires the source expression to be re-set.
+		 * For example, `set x of (velocity of player) to 1` requires the velocity to be re-set.
+		 * `set name of tool of player` does not, since the slot property updates the item.
+		 * @return Whether the source expression for this property needs to be changed.
+		 */
+		default boolean requiresSourceExprChange() {
+			return false;
+		}
+
+		/**
 		 * The return type of this property. This is used for type checking and auto-completion.
 		 * If the property can return multiple types, it should return the most general type that encompasses all
 		 * possible return types.

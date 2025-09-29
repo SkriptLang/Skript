@@ -48,10 +48,14 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	protected Class<?>[] returnTypes;
 	protected Class<?> returnType;
 	protected final Property<Handler> property = getProperty();
+	protected boolean useCIP;
 
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!LiteralUtils.canInitSafely(LiteralUtils.defendExpression(expressions[0])))
+			return false; // don't use bad types error message if it's just a nonsense expression.
+
 		this.expr = PropertyBaseSyntax.asProperty(property, expressions[0]);
 		if (expr == null) {
 			Skript.error(getBadTypesErrorMessage(expressions[0]));
@@ -63,6 +67,14 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		if (properties.isEmpty()) {
 			Skript.error(getBadTypesErrorMessage(expr));
 			return false; // no name property found
+		}
+
+		// determine CIP usage
+		for (var propertyInfo : properties.values()) {
+			if (propertyInfo.handler().requiresSourceExprChange()) {
+				useCIP = true;
+				break;
+			}
 		}
 
 		// determine possible return types
@@ -114,20 +126,28 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		return ((ExpressionPropertyHandler<T, ?>) handler).convert(source);
 	}
 
-	private Set<Class<?>> changableTypes;
-
-	@Override
+    @Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		// check for CIP acceptance
-		changableTypes = properties.keySet().stream()
-			.filter(type -> Changer.ChangerUtils.acceptsChange(expr, ChangeMode.SET, type))
-			.collect(Collectors.toSet());
+		Set<Class<?>> changableTypes = Set.of();
+		if (useCIP) {
+             changableTypes = properties.keySet().stream()
+                    .filter(type -> Changer.ChangerUtils.acceptsChange(expr, ChangeMode.SET, type))
+                    .collect(Collectors.toSet());
 
-		if (changableTypes.isEmpty())
-			return null;
+			if (changableTypes.isEmpty())
+				return null;
+		}
 
 		Set<Class<?>> allowedChangeTypes = new HashSet<>();
-		for (PropertyInfo<Handler> propertyInfo : properties.values()) {
+		for (var entry : properties.entrySet()) {
+			Class<?> propertyType = entry.getKey();
+			var propertyInfo = entry.getValue();
+			// cip check
+			if (useCIP && !changableTypes.contains(propertyType)) {
+				changeDetails.storeTypes(mode, propertyInfo, null);
+			}
+			// store change info for this class.
 			Class<?>[] types = propertyInfo.handler().acceptChange(mode);
 			changeDetails.storeTypes(mode, propertyInfo, types);
 			if (types != null) {
@@ -208,9 +228,13 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 			return null;
 		};
 
-		// Change the underlying expression to propagate changes.
-		//noinspection rawtypes,unchecked
-		expr.changeInPlace(event, (Function) updateTypeFunction);
+		if (useCIP) {
+			// Change the underlying expression to propagate changes.
+			//noinspection rawtypes,unchecked
+			expr.changeInPlace(event, (Function) updateTypeFunction);
+		} else {
+			expr.stream(event).forEach(updateTypeFunction::apply);
+		}
 	}
 
 	@Override
