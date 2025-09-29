@@ -2,12 +2,10 @@ package org.skriptlang.skript.lang.properties;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,27 +24,15 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 	 * @return An error message.
 	 */
 	default @Nullable String getBadTypesErrorMessage(@NotNull Expression<?> expr) {
-		if (expr instanceof UnparsedLiteral unparsedLiteral) {
-			//noinspection unchecked
-			var tempExpr = unparsedLiteral.getConvertedExpression(Object.class);
-			if (tempExpr != null)
-				expr = tempExpr;
-		}
-		Set<ClassInfo<?>> validClassInfos = Classes.getClassInfosByProperty(getProperty());
-		Class<?>[] validTypes = validClassInfos.stream().map(ClassInfo::getC).toArray(Class[]::new);
-		List<Class<?>> invalidTypes = new ArrayList<>();
-		nextType:
+		expr = LiteralUtils.defendExpression(expr);
+		List<ClassInfo<?>> invalidTypes = new ArrayList<>();
 		for (Class<?> type : expr.possibleReturnTypes()) {
 			ClassInfo<?> info = Classes.getSuperClassInfo(type);
 			if (info.hasProperty(getProperty()))
 				continue;
-			for (Class<?> validType : validTypes) {
-				if (Converters.converterExists(type, validType))
-					continue nextType;
-			}
-			invalidTypes.add(type);
+			invalidTypes.add(info);
 		}
-		return "The expression " + expr + " returns the following types that do not have the "
+		return "The expression '" + expr + "' returns the following types that do not have the "
 			+ getPropertyName() + " property: "
 			+ Classes.toString(invalidTypes.toArray(), true);
 	}
