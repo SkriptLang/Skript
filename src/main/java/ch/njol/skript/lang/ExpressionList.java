@@ -199,7 +199,8 @@ public class ExpressionList<T> implements Expression<T> {
 		}
 
 		// shortcut
-		if (expressionTypes.size() == 1) return expressionTypes.get(0);
+		if (expressionTypes.size() == 1)
+			return expressionTypes.get(0);
 
 		// iterate over types and keep what works
 		Set<Class<?>> acceptable = new LinkedHashSet<>(Arrays.asList(expressionTypes.get(0)));
