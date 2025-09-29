@@ -1,6 +1,7 @@
 package org.skriptlang.skript.lang.properties;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -20,6 +21,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -112,8 +114,18 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		return ((ExpressionPropertyHandler<T, ?>) handler).convert(source);
 	}
 
+	private Set<Class<?>> changableTypes;
+
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		// check for CIP acceptance
+		changableTypes = properties.keySet().stream()
+			.filter(type -> Changer.ChangerUtils.acceptsChange(expr, ChangeMode.SET, type))
+			.collect(Collectors.toSet());
+
+		if (changableTypes.isEmpty())
+			return null;
+
 		Set<Class<?>> allowedChangeTypes = new HashSet<>();
 		for (PropertyInfo<Handler> propertyInfo : properties.values()) {
 			Class<?>[] types = propertyInfo.handler().acceptChange(mode);
@@ -158,23 +170,25 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		for (Object propertyHaver : expr.getArray(event)) {
+
+		Function<Object, ?> updateTypeFunction = (propertyHaver) -> {
+
 			PropertyInfo<Handler> propertyInfo = properties.get(propertyHaver.getClass());
 			if (propertyInfo == null) {
-				continue; // no property info found, skip
+				return null; // no property info found, skip
 			}
 
 			// check against allowed change types
 			Class<?>[] allowedTypes = changeDetails.getTypes(mode, propertyInfo);
 			if (allowedTypes == null)
-				continue; // no types accepted for this mode and property info
+				return null; // no types accepted for this mode and property info
 
 			// delete and reset do not care about types
 			if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) {
 				@SuppressWarnings("unchecked")
 				var handler = (ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
 				handler.change(propertyHaver, null, mode);
-				continue;
+				return propertyHaver;
 			}
 
 			// check if delta matches any of the allowed types
@@ -187,10 +201,16 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 					@SuppressWarnings("unchecked")
 					var handler = (ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
 					handler.change(propertyHaver, delta, mode);
+					return propertyHaver;
 				}
 			}
 			// no matching types, go next
-		}
+			return null;
+		};
+
+		// Change the underlying expression to propagate changes.
+		//noinspection rawtypes,unchecked
+		expr.changeInPlace(event, (Function) updateTypeFunction);
 	}
 
 	@Override
