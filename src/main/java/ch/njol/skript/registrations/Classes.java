@@ -296,7 +296,6 @@ public abstract class Classes {
 	@Contract(pure = true, value = "!null -> !null")
 	public static <T> ClassInfo<? super T> getSuperClassInfo(final Class<T> c) {
 		assert c != null;
-		checkAllowClassInfoInteraction();
 		ClassInfo<? super T> info = getExactClassInfo(c);
 		if (info != null)
 			return info;
