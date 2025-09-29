@@ -619,7 +619,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
-		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
+		jsonDocs.add("functions", generateFunctionArray(Functions.getDefaultFunctions().iterator()));
 		// do last so properties are mapped to syntaxes
 		jsonDocs.add("properties", generatePropertiesArray(PROPERTY_REGISTRY.iterator()));
 
