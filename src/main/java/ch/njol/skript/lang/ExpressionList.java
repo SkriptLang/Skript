@@ -228,16 +228,6 @@ public class ExpressionList<T> implements Expression<T> {
 			}
 		}
 
-		// Remove supertypes
-		for (Class<?> candidate : new ArrayList<>(acceptable)) {
-			for (Class<?> other : acceptable) {
-				if (candidate != other && candidate.isAssignableFrom(other)) {
-					acceptable.remove(candidate);
-					break;
-				}
-			}
-		}
-
 		return acceptable.toArray(new Class<?>[0]);
 	}
 
