@@ -37,6 +37,12 @@ public class CondEquipCompShearable extends PropertyCondition<EquippableWrapper>
 			.supplier(CondEquipCompShearable::new)
 			.build()
 		);
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(CondEquipCompShearable.class, PropertyType.CAN, "be sheared off [of entities]", "equippablecomponents")
+				.supplier(CondEquipCompShearable::new)
+				.build()
+		);
 	}
 
 	@Override

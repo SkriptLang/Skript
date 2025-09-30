@@ -40,6 +40,7 @@ public class CondEquipCompDispensable extends PropertyCondition<EquippableWrappe
 			.addPatterns(getPatterns(PropertyType.CAN, "be dispensed", "equippablecomponents"))
 			.addPatterns(getPatterns(PropertyType.BE, "(able to be dispensed|dispensable)", "equippablecomponents"))
 			.supplier(CondEquipCompDispensable::new)
+			.priority(DEFAULT_PRIORITY)
 			.build()
 		);
 	}

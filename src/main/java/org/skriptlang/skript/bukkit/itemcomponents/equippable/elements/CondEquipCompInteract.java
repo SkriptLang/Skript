@@ -8,7 +8,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Can Equip On Entities")
@@ -22,10 +21,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondEquipCompInteract.class)
-			.addPatterns(getPatterns(PropertyType.CAN, "be (equipped|put) on[to] entities", "equippablecomponents"))
-			.supplier(CondEquipCompInteract::new)
-			.build()
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(CondEquipCompInteract.class, PropertyType.CAN, "be (equipped|put) on[to] entities", "equippablecomponents")
+				.supplier(CondEquipCompInteract::new)
+				.build()
 		);
 	}
 
