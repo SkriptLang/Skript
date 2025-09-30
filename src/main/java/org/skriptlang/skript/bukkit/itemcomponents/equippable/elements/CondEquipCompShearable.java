@@ -32,11 +32,6 @@ public class CondEquipCompShearable extends PropertyCondition<EquippableWrapper>
 	public static void register(SyntaxRegistry registry) {
 		if (!EquippableWrapper.HAS_CAN_BE_SHEARED)
 			return;
-		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondEquipCompShearable.class)
-			.addPatterns(getPatterns(PropertyType.CAN, "be sheared off [of entities]", "equippablecomponents"))
-			.supplier(CondEquipCompShearable::new)
-			.build()
-		);
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			infoBuilder(CondEquipCompShearable.class, PropertyType.CAN, "be sheared off [of entities]", "equippablecomponents")
