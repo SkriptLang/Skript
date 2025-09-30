@@ -42,10 +42,8 @@ public class CondIsSpawnable extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		datas = (Expression<EntityData<?>>) exprs[0];
-		if (exprs[1] != null) {
-			//noinspection unchecked
-			world = (Expression<World>) exprs[1];
-		}
+		//noinspection unchecked
+		world = (Expression<World>) exprs[1];
 		setNegated(matchedPattern >= 2);
 		return true;
 	}

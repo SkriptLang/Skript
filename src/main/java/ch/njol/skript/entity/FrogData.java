@@ -1,7 +1,7 @@
 package ch.njol.skript.entity;
 
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -28,7 +28,7 @@ public class FrogData extends EntityData<Frog> {
 	static {
 		EntityData.register(FrogData.class, "frog", Frog.class, 0, PATTERNS.getPatterns());
 		VARIANTS = new Variant[]{Variant.TEMPERATE, Variant.WARM, Variant.COLD};
-		ClassInfo<?> frogVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+		ClassInfo<?> frogVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Frog$Variant",
 			"FROG_VARIANT",
 			"frogvariant",

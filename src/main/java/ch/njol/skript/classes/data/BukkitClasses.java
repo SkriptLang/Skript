@@ -23,7 +23,6 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PaperUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
@@ -90,49 +89,6 @@ import java.util.regex.Pattern;
 public class BukkitClasses {
 
 	// TODO - remove unnecessary classExists checks when Spigot support is dropped
-
-	/**
-	 * Gets a {@link RegistryClassInfo} by checking if the {@link Class} from {@code classPath} exists
-	 * and {@link Registry} or {@link io.papermc.paper.registry.RegistryKey} contains {@code registryName}.
-	 * @param classPath The {@link String} representation of the desired {@link Class}.
-	 * @param registryName The {@link String} representation of the desired {@link Registry}.
-	 * @param codeName The name used in patterns.
-	 * @param languageNode The language node of the type.
-	 * @return {@link RegistryClassInfo} if the class and registry exists, otherwise {@code null}.
-	 */
-	public static <R extends Keyed> @Nullable RegistryClassInfo<?> getRegistryClassInfo(
-		String classPath,
-		String registryName,
-		String codeName,
-		String languageNode
-	) {
-		if (!Skript.classExists(classPath))
-			return null;
-		Registry<R> registry = null;
-		if (BukkitUtils.registryExists(registryName)) {
-			try {
-				//noinspection unchecked
-				registry = (Registry<R>) Registry.class.getField(registryName).get(null);
-			} catch (NoSuchFieldException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		} else if (PaperUtils.registryExists(registryName)) {
-			registry = PaperUtils.getBukkitRegistry(registryName);
-		}
-		if (registry != null) {
-			Class<R> registryClass;
-			try {
-				//noinspection unchecked
-				registryClass = (Class<R>) Class.forName(classPath);
-			} catch (ClassNotFoundException e) {
-				Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
-				throw new RuntimeException(e);
-			}
-			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
-		}
-		Skript.debug("There were no registries found for '" + registryName + "'.");
-		return null;
-	}
 
 	public BukkitClasses() {}
 

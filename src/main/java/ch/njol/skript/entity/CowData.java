@@ -1,8 +1,8 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -27,7 +27,7 @@ public class CowData extends EntityData<Cow> {
 	private static final @Nullable Method setVariantMethod;
 
 	static {
-		ClassInfo<?> cowVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+		ClassInfo<?> cowVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Cow$Variant",
 			"COW_VARIANT",
 			"cowvariant",

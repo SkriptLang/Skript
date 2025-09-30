@@ -1,8 +1,8 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -34,7 +34,7 @@ public class WolfData extends EntityData<Wolf> {
 	private static final Object[] VARIANTS;
 
 	static {
-		ClassInfo<?> wolfVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+		ClassInfo<?> wolfVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Wolf$Variant",
 			"WOLF_VARIANT",
 			"wolfvariant",

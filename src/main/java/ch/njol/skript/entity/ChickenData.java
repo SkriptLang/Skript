@@ -1,8 +1,8 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -21,7 +21,7 @@ public class ChickenData extends EntityData<Chicken> {
 	private static final Object[] VARIANTS;
 
 	static {
-		ClassInfo<?> chickenVariantClassInfo = BukkitClasses.getRegistryClassInfo(
+		ClassInfo<?> chickenVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Chicken$Variant",
 			"CHICKEN_VARIANT",
 			"chickenvariant",
