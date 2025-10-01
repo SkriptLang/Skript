@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -448,6 +449,44 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
+	 * Generates a JsonArray with all data for each {@link Experiment}.
+	 *
+	 * @return a JsonArray containing the documentation JsonObjects for each experiment
+	 */
+	private static JsonArray generateExperiments() {
+		JsonArray array = new JsonArray();
+
+		for (Experiment experiment : Skript.experiments().registered()) {
+			JsonObject object = new JsonObject();
+
+			object.addProperty("id", experiment.codeName());
+
+			if (experiment.displayName().isEmpty()) {
+				object.addProperty("name", (String) null);
+			} else {
+				object.addProperty("name", experiment.displayName());
+			}
+
+			if (experiment.description().isEmpty()) {
+				object.add("description", null);
+			} else {
+				JsonArray description = new JsonArray();
+				for (String part : experiment.description()) {
+					description.add(part);
+				}
+				object.add("description", description);
+			}
+
+			object.addProperty("pattern", experiment.pattern().toString());
+			object.addProperty("phase", experiment.phase().name().toLowerCase(Locale.ENGLISH));
+
+			array.add(object);
+		}
+
+		return array;
+	}
+
+	/**
 	 * Cleans the provided patterns
 	 *
 	 * @param strings the patterns to clean
@@ -504,6 +543,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
 		jsonDocs.add("functions", generateFunctionArray(Functions.getDefaultFunctions().iterator()));
+		jsonDocs.add("experiments", generateExperiments());
 
 		try {
 			Files.writeString(path, GSON.toJson(jsonDocs));
