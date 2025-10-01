@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -15,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Shear Off")
 @Description("""
@@ -31,13 +32,17 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class EffEquipCompShearable extends Effect implements EquippableExperimentSyntax {
 
-	static {
-		if (EquippableWrapper.HAS_CAN_BE_SHEARED) {
-			Skript.registerEffect(EffEquipCompShearable.class,
-				"(allow|force) %equippablecomponents% to be sheared off [of entities]",
+	public static void register(SyntaxRegistry registry) {
+		if (!EquippableWrapper.HAS_CAN_BE_SHEARED)
+			return;
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompShearable.class)
+			.addPatterns(
+				"allow %equippablecomponents% to be sheared off [of entities]",
 				"(disallow|prevent) %equippablecomponents% from being sheared off [of entities]"
-			);
-		}
+			)
+			.supplier(EffEquipCompShearable::new)
+			.build()
+		);
 	}
 
 	private Expression<EquippableWrapper> wrappers;

@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -9,7 +8,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -23,9 +21,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Blank Equippable Component")
 @Description("""
@@ -33,12 +32,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
-	set {_component} to a blank equippable component
-	set the equippable component of {_item} to {_component}
-	""")
-@Example("""
 	set {_component} to a blank equippable component:
+		set the camera overlay to "custom_overlay"
+		set the allowed entities to a zombie and a skeleton
+		set the equip sound to "block.note_block.pling"
+		set the equipped model id to "custom_model"
+		set the shear sound to "ui.toast.in"
 		set the equipment slot to chest slot
+		allow event-equippable component to be damage when hurt
+		allow event-equippable component to be dispensed
+		allow event-equippable component to be equipped onto entities
+		allow event-equippable component to be sheared off
+		allow event-equippable component to swap equipment
+	set the equippable component of {_item} to {_component}
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
@@ -62,9 +68,12 @@ public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> 
 		}
 	}
 
-	static {
-		Skript.registerExpression(ExprSecBlankEquipComp.class, EquippableWrapper.class, ExpressionType.SIMPLE,
-			"a (blank|empty) equippable component");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecBlankEquipComp.class, EquippableWrapper.class)
+			.addPatterns("a (blank|empty) equippable component")
+			.supplier(ExprSecBlankEquipComp::new)
+			.build()
+		);
 		EventValues.registerEventValue(BlankEquippableSectionEvent.class, EquippableWrapper.class, BlankEquippableSectionEvent::getWrapper);
 	}
 
@@ -73,7 +82,6 @@ public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> 
 	@Override
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
-			AtomicBoolean isDelayed = new AtomicBoolean(false);
 			trigger = SectionUtils.loadLinkedCode("blank equippable component", (beforeLoading, afterLoading) ->
 				loadCode(node, "blank equippable component", beforeLoading, afterLoading, BlankEquippableSectionEvent.class)
 			);

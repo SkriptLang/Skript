@@ -1,7 +1,10 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,6 +13,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Swap Equipment")
 @Description("""
@@ -25,12 +30,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class EffEquipCompSwapEquipment extends Effect implements EquippableExperimentSyntax {
 
-	static {
-		Skript.registerEffect(EffEquipCompSwapEquipment.class,
-			"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
-			"(make|let) %equippablecomponents% swap equipment [on right click|when right clicked]",
-			"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]",
-			"make %equippablecomponents% not swap equipment [on right click|when right clicked]"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompSwapEquipment.class)
+			.addPatterns(
+				"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
+				"(make|let) %equippablecomponents% swap equipment [on right click|when right clicked]",
+				"(block|prevent|disallow) %equippablecomponents% from swapping equipment [on right click|when right clicked]",
+				"make %equippablecomponents% not swap equipment [on right click|when right clicked]"
+			)
+			.supplier(EffEquipCompSwapEquipment::new)
+			.build()
 		);
 	}
 

@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Model")
 @Description("""
@@ -25,7 +26,7 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 	It can only contain one ':' to separate the namespace and the id. \
 	Only alphanumeric characters, periods, underscores, and dashes can be used.
 	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
-""")
+	""")
 @Example("set the equipped model key of {_item} to \"custom_model\"")
 @Example("""
 	set {_component} to the equippable component of {_item}
@@ -35,13 +36,17 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class ExprEquipCompModel extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
-	static {
-		registerDefault(ExprEquipCompModel.class, String.class, "equipped model (key|id)", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEquipCompModel.class, String.class, "equipped (model|asset) (key|id)", "equippablecomponents", true)
+				.supplier(ExprEquipCompModel::new)
+				.build()
+		);
 	}
 
 	@Override
 	public @Nullable String convert(EquippableWrapper wrapper) {
-		Key key = wrapper.getModel();
+		Key key = wrapper.getAssetId();
 		return key == null ? null : key.toString();
 	}
 
@@ -68,7 +73,7 @@ public class ExprEquipCompModel extends SimplePropertyExpression<EquippableWrapp
 		}
 		NamespacedKey finalKey = key;
 
-		getExpr().stream(event).forEach(wrapper -> wrapper.setModel(finalKey));
+		getExpr().stream(event).forEach(wrapper -> wrapper.setAssetId(finalKey));
 	}
 
 	@Override

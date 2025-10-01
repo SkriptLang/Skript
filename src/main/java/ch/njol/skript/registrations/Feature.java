@@ -20,7 +20,7 @@ public enum Feature implements Experiment {
 	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]"),
 	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components"),
 	CONSUMABLE_COMPONENTS("consumable components", LifeCycle.EXPERIMENTAL, "consumable components"),
-	CONSUME_EFFECTS("consume effects", LifeCycle.EXPERIMENTAL, "consume effects")
+	CONSUME_EFFECTS("consume effects", LifeCycle.EXPERIMENTAL, "consume effects"),
 	;
 
 	private final String codeName;

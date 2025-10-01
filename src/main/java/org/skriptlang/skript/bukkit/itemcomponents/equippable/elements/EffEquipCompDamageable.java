@@ -1,7 +1,10 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -11,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Lose Durability")
 @Description("""
@@ -27,12 +32,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class EffEquipCompDamageable extends Effect implements EquippableExperimentSyntax {
 
-	static {
-		Skript.registerEffect(EffEquipCompDamageable.class,
-			"(make|let) %equippablecomponents% (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
-			"(allow|force) %equippablecomponents% to (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
-			"make %equippablecomponents% not (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
-			"(disallow|prevent) %equippablecomponents% from (lose durability|being damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompDamageable.class)
+			.addPatterns(
+				"(make|let) %equippablecomponents% (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+				"(allow|force) %equippablecomponents% to (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+				"make %equippablecomponents% not (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
+				"(disallow|prevent) %equippablecomponents% from (lose durability|being damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
+			)
+			.supplier(EffEquipCompDamageable::new)
+			.build()
 		);
 	}
 

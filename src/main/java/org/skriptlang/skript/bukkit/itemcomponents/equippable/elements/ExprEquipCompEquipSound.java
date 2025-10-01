@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Equip Sound")
 @Description("""
@@ -31,8 +32,12 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class ExprEquipCompEquipSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
-	static {
-		registerDefault(ExprEquipCompEquipSound.class, String.class, "equip sound", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEquipCompEquipSound.class, String.class, "equip sound", "equippablecomponents", true)
+				.supplier(ExprEquipCompEquipSound::new)
+				.build()
+		);
 	}
 
 	@Override

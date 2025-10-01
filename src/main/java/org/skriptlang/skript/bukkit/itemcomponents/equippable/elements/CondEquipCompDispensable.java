@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -15,10 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Can Be Dispensed")
 @Description("""
@@ -38,11 +35,14 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class CondEquipCompDispensable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	static {
-		List<String> patterns = new ArrayList<>(Arrays.asList(getPatterns(PropertyType.CAN, "be dispensed", "equippablecomponents")));
-		patterns.addAll(Arrays.asList(getPatterns(PropertyType.BE, "(able to be dispensed|dispensable)", "equippablecomponents")));
-
-		Skript.registerCondition(CondEquipCompDispensable.class, ConditionType.PROPERTY, patterns.toArray(String[]::new));
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondEquipCompDispensable.class)
+			.addPatterns(getPatterns(PropertyType.CAN, "be dispensed", "equippablecomponents"))
+			.addPatterns(getPatterns(PropertyType.BE, "(able to be dispensed|dispensable)", "equippablecomponents"))
+			.supplier(CondEquipCompDispensable::new)
+			.priority(DEFAULT_PRIORITY)
+			.build()
+		);
 	}
 
 	@Override

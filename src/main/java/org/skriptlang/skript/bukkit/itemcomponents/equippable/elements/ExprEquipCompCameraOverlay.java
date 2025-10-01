@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Camera Overlay")
 @Description("""
@@ -36,8 +37,12 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
-	static {
-		registerDefault(ExprEquipCompCameraOverlay.class, String.class, "camera overlay", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEquipCompCameraOverlay.class, String.class, "camera overlay", "equippablecomponents", true)
+				.supplier(ExprEquipCompCameraOverlay::new)
+				.build()
+		);
 	}
 
 	@Override

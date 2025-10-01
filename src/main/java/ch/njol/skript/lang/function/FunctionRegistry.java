@@ -713,11 +713,11 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.def != null) {
+				if (param.isOptional()) {
 					optionalArgs++;
 				}
 
-				Class<?> type = param.getType().getC();
+				Class<?> type = param.type();
 				if (param.isSingleValue()) {
 					parameters[i] = type;
 				} else {

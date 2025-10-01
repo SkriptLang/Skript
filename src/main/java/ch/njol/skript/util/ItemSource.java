@@ -3,7 +3,6 @@ package ch.njol.skript.util;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.util.slot.Slot;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +25,7 @@ public class ItemSource<T> {
 	 */
 	public static @Nullable ItemSource<Slot> fromSlot(Slot slot) {
 		ItemStack itemStack = slot.getItem();
-		if (itemStack == null || itemStack.getType() == Material.AIR || itemStack.getItemMeta() == null)
+		if (itemStack == null || ItemUtils.isAir(itemStack.getType()) || itemStack.getItemMeta() == null)
 			return null;
 		return new ItemSource<>(slot);
 	}
