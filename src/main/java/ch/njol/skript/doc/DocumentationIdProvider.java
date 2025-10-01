@@ -103,7 +103,7 @@ public class DocumentationIdProvider {
 	 * @return the documentation ID of the function
 	 */
 	public static String getId(Function<?> function) {
-		int collisionCount = calculateCollisionCount(Functions.getJavaFunctions().iterator(),
+		int collisionCount = calculateCollisionCount(Functions.getFunctions().iterator(),
 			javaFunction -> function.getName().equals(javaFunction.getName()),
 			javaFunction -> javaFunction == function);
 		return addCollisionSuffix(function.getName(), collisionCount);
