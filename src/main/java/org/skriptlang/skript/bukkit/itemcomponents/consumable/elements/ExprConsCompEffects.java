@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,13 @@ import java.util.List;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprConsCompEffects extends PropertyExpression<ConsumableWrapper, ConsumeEffect> implements ConsumableExperimentSyntax {
 
-	static {
-		registerDefault(ExprConsCompEffects.class, ConsumeEffect.class, "consum(e|ption) effects", "consumablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprConsCompEffects.class, ConsumeEffect.class, "consum(e|ption) effects", "consumablecomponents", true)
+				.supplier(ExprConsCompEffects::new)
+				.build()
+		);
 	}
 
 	@Override

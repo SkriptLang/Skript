@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Consumable Component")
 @Description("""
@@ -34,6 +35,15 @@ public class ExprConsumableComponent extends SimplePropertyExpression<Object, Co
 
 	static {
 		register(ExprConsumableComponent.class, ConsumableWrapper.class, "consumable component[s]", "slots/itemtypes");
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprConsumableComponent.class, ConsumableWrapper.class, "consumable component[s]", "slots/itemtypes", false)
+				.supplier(ExprConsumableComponent::new)
+				.build()
+		);
 	}
 
 	@Override

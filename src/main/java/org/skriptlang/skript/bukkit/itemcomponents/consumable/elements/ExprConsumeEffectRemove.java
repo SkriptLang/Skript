@@ -1,13 +1,11 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -22,6 +20,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumeEffectExperimentalSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +41,14 @@ import java.util.List;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprConsumeEffectRemove extends SimpleExpression<ConsumeEffect> implements ConsumeEffectExperimentalSyntax {
 
-	static {
-		Skript.registerExpression(ExprConsumeEffectRemove.class, ConsumeEffect.class, ExpressionType.PROPERTY,
-			"[a] consume effect to remove %potioneffecttypes%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprConsumeEffectRemove.class, ConsumeEffect.class)
+				.addPatterns("[a] consume effect to remove %potioneffecttypes%")
+				.supplier(ExprConsumeEffectRemove::new)
+				.build()
+		);
 	}
 
 	private Expression<PotionEffectType> effectTypes;

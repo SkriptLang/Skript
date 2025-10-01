@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -15,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Consumable Component - Particles")
 @Description("""
@@ -29,9 +30,14 @@ import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
 @Since("INSERT VERSION")
 public class EffConsCompParticles extends Effect implements ConsumableExperimentSyntax {
 
-	static {
-		Skript.registerEffect(EffConsCompParticles.class,
-			"(enable|:disable) [the] consum(e|ption) particle[s] [effect[s]] (of|for) %consumablecomponents%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffConsCompParticles.class)
+				.addPatterns("(enable|:disable) [the] consum(e|ption) particle[s] [effect[s]] (of|for) %consumablecomponents%")
+				.supplier(EffConsCompParticles::new)
+				.build()
+		);
 	}
 
 	private Expression<ConsumableWrapper> wrappers;

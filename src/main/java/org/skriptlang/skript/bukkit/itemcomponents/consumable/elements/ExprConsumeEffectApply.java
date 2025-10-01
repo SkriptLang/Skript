@@ -1,13 +1,11 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -20,6 +18,8 @@ import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumeEffectExperimentalSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +40,14 @@ import java.util.List;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprConsumeEffectApply extends SimpleExpression<ConsumeEffect> implements ConsumeEffectExperimentalSyntax {
 
-	static {
-		Skript.registerExpression(ExprConsumeEffectApply.class, ConsumeEffect.class, ExpressionType.COMBINED,
-			"[a] consume effect to apply %potioneffects% with [a] probability of %number%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprConsumeEffectApply.class, ConsumeEffect.class)
+				.addPatterns("[a] consume effect to apply %potioneffects% with [a] probability of %number%")
+				.supplier(ExprConsumeEffectApply::new)
+				.build()
+		);
 	}
 
 	private Expression<PotionEffect> effects;

@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Consumable Component - Animation")
 @Description("""
@@ -26,8 +27,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprConsCompAnimation extends SimplePropertyExpression<ConsumableWrapper, ItemUseAnimation> implements ConsumableExperimentSyntax {
 
-	static {
-		registerDefault(ExprConsCompAnimation.class, ItemUseAnimation.class, "consum(e|ption) animation", "consumablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprConsCompAnimation.class, ItemUseAnimation.class, "consum(e|ption) animation", "consumablecomponents", true)
+				.supplier(ExprConsCompAnimation::new)
+				.build()
+		);
 	}
 
 	@Override

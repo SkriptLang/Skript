@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -8,7 +7,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -22,6 +20,8 @@ import org.bukkit.Sound;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumeEffectExperimentalSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Consume Effect - Play Sound")
 @Description("""
@@ -38,9 +38,14 @@ import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumeEffectExper
 @SuppressWarnings("UnstableApiUsage")
 public class ExprConsumeEffectSound extends SimpleExpression<ConsumeEffect> implements ConsumeEffectExperimentalSyntax {
 
-	static {
-		Skript.registerExpression(ExprConsumeEffectSound.class, ConsumeEffect.class, ExpressionType.PROPERTY,
-			"[a] consume effect to play [[the] sound] %string%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprConsumeEffectSound.class, ConsumeEffect.class)
+				.addPatterns("[a] consume effect to play [[the] sound] %string%")
+				.supplier(ExprConsumeEffectSound::new)
+				.build()
+		);
 	}
 
 	private Expression<String> string;

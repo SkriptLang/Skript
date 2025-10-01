@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Consumable Component - Consume Sound")
 @Description("""
@@ -28,8 +29,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
 @Since("INSERT VERSION")
 public class ExprConsCompSound extends SimplePropertyExpression<ConsumableWrapper, String> implements ConsumableExperimentSyntax {
 
-	static {
-		registerDefault(ExprConsCompSound.class, String.class, "consum(e|ption) sound", "consumablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprConsCompSound.class, String.class, "consum(e|ption) sound", "consumablecomponents", true)
+				.supplier(ExprConsCompSound::new)
+				.build()
+		);
 	}
 
 	@Override

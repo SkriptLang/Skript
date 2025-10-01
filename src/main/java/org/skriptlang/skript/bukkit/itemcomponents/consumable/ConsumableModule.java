@@ -16,12 +16,15 @@ import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.itemcomponents.consumable.elements.*;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class ConsumableModule implements AddonModule {
 
@@ -105,11 +108,30 @@ public class ConsumableModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents.consumable", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		register(addon.syntaxRegistry(),
+
+			CondConsCompParticles::register,
+
+			EffConsCompParticles::register,
+
+			ExprConsCompAnimation::register,
+			ExprConsCompEffects::register,
+			ExprConsCompSound::register,
+			ExprConsCompTime::register,
+			ExprConsumableComponent::register,
+			ExprConsumeEffectApply::register,
+			ExprConsumeEffectRemove::register,
+			ExprConsumeEffectSound::register,
+			ExprConsumeEffectTeleport::register,
+
+			ExprSecBlankConsComp::register,
+
+			LitConsumeEffectClear::register
+		);
+	}
+
+	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
+		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
 }

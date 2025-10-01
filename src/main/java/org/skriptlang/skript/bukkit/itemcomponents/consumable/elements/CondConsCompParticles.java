@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Consumable Component - Has Particles")
 @Description("""
@@ -25,8 +26,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
 @Since("INSERT VERSION")
 public class CondConsCompParticles extends PropertyCondition<ConsumableWrapper> implements ConsumableExperimentSyntax {
 
-	static {
-		register(CondConsCompParticles.class, PropertyType.HAVE, "consum(e|ption) particles [enabled|:disabled]", "consumablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(CondConsCompParticles.class, PropertyType.HAVE, "consum(e|ption) particles [enabled|:disabled]", "consumablecomponents")
+				.supplier(CondConsCompParticles::new)
+				.build()
+		);
 	}
 
 	private boolean checkEnabled;

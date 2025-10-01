@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.consumable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -9,7 +8,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -23,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,9 +63,14 @@ public class ExprSecBlankConsComp extends SectionExpression<ConsumableWrapper> i
 		}
 	}
 
-	static {
-		Skript.registerExpression(ExprSecBlankConsComp.class, ConsumableWrapper.class, ExpressionType.SIMPLE,
-			"a (blank|empty) consumable component");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprSecBlankConsComp.class, ConsumableWrapper.class)
+				.addPatterns("a (blank|empty) consumable component")
+				.supplier(ExprSecBlankConsComp::new)
+				.build()
+		);
 		EventValues.registerEventValue(BlankConsumableSectionEvent.class, ConsumableWrapper.class, BlankConsumableSectionEvent::getWrapper);
 	}
 

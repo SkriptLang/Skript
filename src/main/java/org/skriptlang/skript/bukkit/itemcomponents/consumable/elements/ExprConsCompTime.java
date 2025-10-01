@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.consumable.ConsumableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.time.temporal.ChronoUnit;
 
@@ -26,10 +27,15 @@ import java.time.temporal.ChronoUnit;
 @Example("set the consumption time of {_item} to 5 seconds")
 @RequiredPlugins("Minecraft 1.21.3+")
 @Since("INSERT VERSION")
-public class ExprConsCompSeconds extends SimplePropertyExpression<ConsumableWrapper, Timespan> implements ConsumableExperimentSyntax {
+public class ExprConsCompTime extends SimplePropertyExpression<ConsumableWrapper, Timespan> implements ConsumableExperimentSyntax {
 
-	static {
-		registerDefault(ExprConsCompSeconds.class, Timespan.class, "consum(e|ption) time", "consumablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprConsCompTime.class, Timespan.class, "consum(e|ption) time", "consumablecomponents", true)
+				.supplier(ExprConsCompTime::new)
+				.build()
+		);
 	}
 
 	@Override
