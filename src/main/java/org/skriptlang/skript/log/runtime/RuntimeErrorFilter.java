@@ -4,6 +4,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
+/**
+ * Handles filtering of runtime errors based on their level and predefined limits.
+ * Uses the concept of 'frames' to track the number of errors and warnings that are allowed in a given period.
+ * Use {@link #test(RuntimeError)} to determine if a runtime error should be printed or not.
+ * Printing the frame outputs can be done via {@link #getErrorFrame()} and {@link #getWarningFrame()}.
+ */
 public class RuntimeErrorFilter {
 
 	private Frame errorFrame, warningFrame;

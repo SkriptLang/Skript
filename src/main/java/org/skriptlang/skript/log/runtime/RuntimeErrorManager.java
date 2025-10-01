@@ -10,6 +10,7 @@ import org.skriptlang.skript.log.runtime.Frame.FrameLimit;
 
 import java.io.Closeable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -57,13 +58,13 @@ public class RuntimeErrorManager implements Closeable {
 		int errorLineLimit = SkriptConfig.runtimeErrorLimitLine.value();
 		int errorLineTimeout = SkriptConfig.runtimeErrorLimitLineTimeout.value();
 		int errorTimeoutLength = Math.max(SkriptConfig.runtimeErrorTimeoutDuration.value(), 1);
-		var errorLimits = new FrameLimit(errorLimit, errorLineLimit, errorLineTimeout, errorTimeoutLength);
+		FrameLimit errorLimits = new FrameLimit(errorLimit, errorLineLimit, errorLineTimeout, errorTimeoutLength);
 
 		int warningLimit = SkriptConfig.runtimeWarningLimitTotal.value();
 		int warningLineLimit = SkriptConfig.runtimeWarningLimitLine.value();
 		int warningLineTimeout = SkriptConfig.runtimeWarningLimitLineTimeout.value();
 		int warningTimeoutLength = Math.max(SkriptConfig.runtimeWarningTimeoutDuration.value(), 1);
-		var warningsLimits = new FrameLimit(warningLimit, warningLineLimit, warningLineTimeout, warningTimeoutLength);
+		FrameLimit warningsLimits = new FrameLimit(warningLimit, warningLineLimit, warningLineTimeout, warningTimeoutLength);
 
 		if (standardFilter == null) {
 			standardFilter = new RuntimeErrorFilter(errorLimits, warningsLimits);
@@ -75,7 +76,7 @@ public class RuntimeErrorManager implements Closeable {
 
 	private final Task task;
 
-	private final Map<RuntimeErrorFilter, Set<RuntimeErrorConsumer>> filterMap = new HashMap<>();
+	private final Map<RuntimeErrorFilter, Set<RuntimeErrorConsumer>> filterMap = new ConcurrentHashMap<>();
 
 	/**
 	 * Creates a new error manager, which also creates its own frames.
