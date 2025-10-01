@@ -8,6 +8,7 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Can Swap Equipment")
 @Description("""
@@ -28,9 +29,17 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class CondEquipCompSwapEquipment extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	static {
-		register(CondEquipCompSwapEquipment.class, PropertyType.CAN,
-			"swap equipment [on right click|when right clicked]", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(
+				CondEquipCompSwapEquipment.class,
+				PropertyType.CAN,
+				"swap equipment [on right click|when right clicked]",
+				"equippablecomponents"
+			).supplier(CondEquipCompSwapEquipment::new)
+				.build()
+		);
 	}
 
 	@Override

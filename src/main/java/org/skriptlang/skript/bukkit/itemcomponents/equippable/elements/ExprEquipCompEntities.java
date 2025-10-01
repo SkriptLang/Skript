@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,8 +39,12 @@ import java.util.List;
 @SuppressWarnings({"rawtypes", "UnstableApiUsage"})
 public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperimentSyntax {
 
-	static {
-		registerDefault(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents", true)
+				.supplier(ExprEquipCompEntities::new)
+				.build()
+		);
 	}
 
 	@Override
@@ -54,8 +59,6 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 		List<EntityData> types = new ArrayList<>();
 		for (EquippableWrapper wrapper : source) {
 			Collection<EntityType> allowed = wrapper.getAllowedEntities();
-			if (allowed.isEmpty())
-				continue;
 			allowed.forEach(entityType -> types.add(EntityUtils.toSkriptEntityData(entityType)));
 		}
 		return types.toArray(EntityData[]::new);
@@ -74,8 +77,7 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 		List<EntityType> converted = new ArrayList<>();
 		if (delta != null) {
 			for (Object object : delta) {
-				if (object instanceof EntityData<?> entityData)
-					converted.add(EntityUtils.toBukkitEntityType(entityData));
+				converted.add(EntityUtils.toBukkitEntityType((EntityData<?>) object));
 			}
 		}
 

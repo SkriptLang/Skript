@@ -1,15 +1,14 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Can Equip On Entities")
 @Description("""
@@ -21,9 +20,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @RequiredPlugins("Minecraft 1.21.5+")
 public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	static {
-		if (Skript.methodExists(EquippableComponent.class, "isEquipOnInteract"))
-			register(CondEquipCompInteract.class, PropertyType.CAN, "be (equipped|put) on[to] entities", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(CondEquipCompInteract.class, PropertyType.CAN, "be (equipped|put) on[to] entities", "equippablecomponents")
+				.supplier(CondEquipCompInteract::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import java.util.function.Consumer;
  * @param <T> The type of component
  * @param <B> The builder type of {@link T}
  */
+// Generic extension is causing 'NonExtendableApiUsage'
 @SuppressWarnings({"UnstableApiUsage", "NonExtendableApiUsage"})
 public abstract class ComponentWrapper<T, B extends DataComponentBuilder<T>> implements Cloneable {
 
