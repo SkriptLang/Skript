@@ -1,21 +1,8 @@
 package ch.njol.skript.entity;
 
-import java.util.Arrays;
-
-import java.util.Iterator;
-import java.util.function.Consumer;
-
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.FallingBlock;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.block.BlockCompat;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.Adjective;
@@ -23,49 +10,60 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.FallingBlock;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public class FallingBlockData extends EntityData<FallingBlock> {
-	static {
-		EntityData.register(FallingBlockData.class, "falling block", FallingBlock.class, "falling block");
-	}
-	
+
 	private final static Message m_not_a_block_error = new Message("entities.falling block.not a block error");
 	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
 
-	@Nullable
-	private ItemType[] types = null;
+	static {
+		EntityData.register(FallingBlockData.class, "falling block", FallingBlock.class, "falling block");
+	}
+
+	private ItemType @Nullable [] types = null;
 	
 	public FallingBlockData() {}
 	
-	public FallingBlockData(@Nullable ItemType[] types) {
+	public FallingBlockData(ItemType @Nullable [] types) {
 		this.types = types;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		if (exprs.length > 0 && exprs[0] != null) {
-			if ((types = Converters.convert(((Literal<ItemType>) exprs[0]).getAll(), ItemType.class, new Converter<ItemType, ItemType>() {
-				@Override
-				@Nullable
-				public ItemType convert(ItemType t) {
-					t = t.getBlock().clone();
-					final Iterator<ItemData> iter = t.iterator();
-					while (iter.hasNext()) {
-						final Material id = iter.next().getType();
-						if (!id.isBlock())
-							iter.remove();
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (matchedPattern == 1) {
+			assert exprs[0] != null;
+			//noinspection unchecked
+			ItemType[] itemTypes = ((Literal<ItemType>) exprs[0]).getAll();
+			types = Arrays.stream(itemTypes)
+				.map(itemType -> {
+					ItemType clone = itemType.getBlock().clone();
+					Iterator<ItemData> iterator = clone.iterator();
+					while (iterator.hasNext()) {
+						Material material = iterator.next().getType();
+						if (!material.isBlock())
+							iterator.remove();
 					}
-					if (t.numTypes() == 0)
+					if (clone.numTypes() == 0)
 						return null;
-					t.setAmount(-1);
-					t.setAll(false);
-					t.clearEnchantments();
-					return t;
-				}
-			})).length == 0) {
+					clone.setAmount(-1);
+					clone.setAll(false);
+					clone.clearEnchantments();
+					return clone;
+				})
+				.filter(Objects::nonNull)
+				.toArray(ItemType[]::new);
+			if (types.length == 0) {
 				Skript.error(m_not_a_block_error.toString());
 				return false;
 			}
@@ -74,17 +72,22 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	}
 	
 	@Override
-	protected boolean init(final @Nullable Class<? extends FallingBlock> c, final @Nullable FallingBlock e) {
-		if (e != null) // TODO material data support
-			types = new ItemType[] {new ItemType(e.getBlockData())};
+	protected boolean init(@Nullable Class<? extends FallingBlock> entityClass, @Nullable FallingBlock fallingBlock) {
+		if (fallingBlock != null) // TODO material data support
+			types = new ItemType[] {new ItemType(fallingBlock.getBlockData())};
 		return true;
 	}
-	
+
 	@Override
-	protected boolean match(final FallingBlock entity) {
+	public void set(FallingBlock fallingBlock) {
+		assert false;
+	}
+
+	@Override
+	protected boolean match(FallingBlock fallingBlock) {
 		if (types != null) {
-			for (final ItemType t : types) {
-				if (t.isOfType(entity.getBlockData()))
+			for (ItemType itemType : types) {
+				if (itemType.isOfType(fallingBlock.getBlockData()))
 					return true;
 			}
 			return false;
@@ -93,8 +96,41 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	}
 
 	@Override
-	@Nullable
-	public FallingBlock spawn(Location loc, @Nullable Consumer<FallingBlock> consumer) {
+	public Class<? extends FallingBlock> getType() {
+		return FallingBlock.class;
+	}
+
+	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new FallingBlockData();
+	}
+
+	@Override
+	protected int hashCode_i() {
+		return Arrays.hashCode(types);
+	}
+
+	@Override
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof FallingBlockData other))
+			return false;
+		return Arrays.equals(types, other.types);
+	}
+
+	@Override
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof FallingBlockData other))
+			return false;
+		if (types != null) {
+			if (other.types != null)
+				return ItemType.isSubset(types, other.types);
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public @Nullable FallingBlock spawn(Location loc, @Nullable Consumer<FallingBlock> consumer) {
 		ItemType t = types == null ? new ItemType(Material.STONE) : CollectionUtils.getRandom(types);
 		assert t != null;
 		Material material = t.getMaterial();
@@ -111,67 +147,16 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	}
 
 	@Override
-	public void set(final FallingBlock entity) {
-		assert false;
-	}
-	
-	@Override
-	public Class<? extends FallingBlock> getType() {
-		return FallingBlock.class;
-	}
-	
-	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		if (!(e instanceof FallingBlockData))
-			return false;
-		final FallingBlockData d = (FallingBlockData) e;
-		if (types != null) {
-			if (d.types != null)
-				return ItemType.isSubset(types, d.types);
-			return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
-		return new FallingBlockData(types);
-	}
-	
-	@Override
-	public String toString(final int flags) {
-		final ItemType[] types = this.types;
+	public String toString(int flags) {
+		ItemType[] types = this.types;
 		if (types == null)
 			return super.toString(flags);
-		final StringBuilder b = new StringBuilder();
-		b.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
-		b.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
-		b.append(" ");
-		b.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
-		return "" + b.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
+		builder.append(" ");
+		builder.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
+		return builder.toString();
 	}
-	
-//		return ItemType.serialize(types);
-	@Override
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	protected boolean deserialize(final String s) {
-		throw new UnsupportedOperationException("old serialization is not supported");
-//		if (s.isEmpty())
-//			return true;
-//		types = ItemType.deserialize(s);
-//		return types != null;
-	}
-	
-	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof FallingBlockData))
-			return false;
-		return Arrays.equals(types, ((FallingBlockData) obj).types);
-	}
-	
-	@Override
-	protected int hashCode_i() {
-		return Arrays.hashCode(types);
-	}
-	
+
 }
