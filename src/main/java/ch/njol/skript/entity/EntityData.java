@@ -399,7 +399,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return toString(0);
 	}
 
-	@SuppressWarnings("null")
 	protected Noun getName() {
 		return info.names[matchedPattern];
 	}
@@ -408,7 +407,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return baby.isTrue() ? m_baby : baby.isFalse() ? m_adult : null;
 	}
 
-	@SuppressWarnings("null")
 	public String toString(int flags) {
 		Noun name = info.names[matchedPattern];
 		return baby.isTrue() ? m_baby.toString(name, flags) : baby.isFalse() ? m_adult.toString(name, flags) : name.toString(flags);
@@ -511,7 +509,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param string String with optional indefinite article at the beginning
 	 * @return The parsed entity data
 	 */
-	@SuppressWarnings("null")
 	public static @Nullable EntityData<?> parse(String string) {
 		Iterator<EntityDataInfo<EntityData<?>>> it = new ArrayList<>(infos).iterator();
 		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(string), it, null);
@@ -806,15 +803,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		World world = location.getWorld();
 		if (world == null)
 			return null;
-		try {
-			if (WORLD_1_17_CONSUMER) {
-				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type,
-					(org.bukkit.util.Consumer<E>) consumer::accept);
+		if (WORLD_1_17_CONSUMER) {
+			try {
+				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type, (org.bukkit.util.Consumer<E>) consumer::accept);
+			} catch (InvocationTargetException | IllegalAccessException e) {
+				if (Skript.testing())
+					Skript.exception(e, "Can't spawn " + type.getName());
+				return null;
 			}
-		} catch (InvocationTargetException | IllegalAccessException e) {
-			if (Skript.testing())
-				Skript.exception(e, "Can't spawn " + type.getName());
-			return null;
 		}
 		return world.spawn(location, type, consumer);
 	}
