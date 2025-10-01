@@ -19,7 +19,7 @@ public interface RuntimeErrorConsumer {
 
 	/**
 	 * @return The filter to use when checking if this consumer should print an error. Defaults to the standard
-	 * 			config-driven filter. May be null if no filter should be used (also disables frame outputs). This value
+	 * 			config-driven filter. If no filter should be used, return {@link RuntimeErrorFilter#NO_FILTER}. This value
 	 * 			MUST be effectively final.
 	 */
 	default @Nullable RuntimeErrorFilter getFilter() {

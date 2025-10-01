@@ -35,7 +35,7 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 
 	@Override
 	public @Nullable RuntimeErrorFilter getFilter() {
-		return null; // no filter means everything gets printed.
+		return RuntimeErrorFilter.NO_FILTER; // no filter means everything gets printed.
 	}
 
 	/**

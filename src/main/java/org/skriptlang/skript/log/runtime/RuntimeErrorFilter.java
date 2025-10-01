@@ -12,6 +12,20 @@ import java.util.logging.Level;
  */
 public class RuntimeErrorFilter {
 
+	/**
+	 * A filter that does not filter anything, allowing all errors and warnings to be printed.
+	 * Modifications to its limits will do nothing, and the returned frames will hold no relevant data.
+	 */
+	public static final RuntimeErrorFilter NO_FILTER = new RuntimeErrorFilter(
+			new Frame.FrameLimit(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+			new Frame.FrameLimit(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
+		) {
+			@Override
+			public boolean test(@NotNull RuntimeError error) {
+				return true;
+			}
+		};
+
 	private Frame errorFrame, warningFrame;
 
 	public RuntimeErrorFilter(Frame.FrameLimit errorFrameLimits, Frame.FrameLimit warningFrameLimits) {
