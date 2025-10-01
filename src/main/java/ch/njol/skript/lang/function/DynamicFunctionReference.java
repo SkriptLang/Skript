@@ -176,7 +176,7 @@ public class DynamicFunctionReference<Result>
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> parameter = signature.parameters[varArgs ? 0 : i];
 			//noinspection unchecked
-			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type.getC());
+			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type());
 			if (expression == null) {
 				return null;
 			} else if (parameter.single && !expression.isSingle()) {

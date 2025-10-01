@@ -199,14 +199,6 @@ public class SimpleEvents {
 				.description("Called when a player is kicked from the server. You can change the <a href='#ExprMessage'>kick message</a> or <a href='#EffCancelEvent'>cancel the event</a> entirely.")
 				.examples("on kick:")
 				.since("1.0");
-		Skript.registerEvent("Entity Portal", SimpleEvent.class, EntityPortalEvent.class, "entity portal")
-				.description("Called when an entity uses a nether or end portal. <a href='#EffCancelEvent'>Cancel the event</a> to prevent the entity from teleporting.")
-				.examples("on entity portal:", "\tbroadcast \"A %type of event-entity% has entered a portal!")
-				.since("2.5.3");
-		Skript.registerEvent("Portal", SimpleEvent.class, PlayerPortalEvent.class, "[player] portal")
-				.description("Called when a player uses a nether or end portal. <a href='#EffCancelEvent'>Cancel the event</a> to prevent the player from teleporting.")
-				.examples("on player portal:")
-				.since("1.0");
 		Skript.registerEvent("Quit", SimpleEvent.class, PlayerQuitEvent.class, "(quit[ting]|disconnect[ing]|log[ ]out|logging out|leav(e|ing))")
 				.description("Called when a player leaves the server.")
 				.examples("on quit:",
