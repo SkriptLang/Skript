@@ -3,12 +3,13 @@ package ch.njol.skript.doc;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
 import ch.njol.skript.util.Version;
+import ch.njol.util.StringUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
@@ -397,15 +398,18 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param function the JavaFunction to generate the JsonObject of
 	 * @return the JsonObject of the JavaFunction
 	 */
-	private static JsonObject generateFunctionElement(JavaFunction<?> function) {
+	private static JsonObject generateFunctionElement(Function<?> function) {
 		JsonObject functionJsonObject = new JsonObject();
 		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
 		functionJsonObject.addProperty("name", function.getName());
-		functionJsonObject.addProperty("since", function.getSince());
-		functionJsonObject.add("returns", getFunctionReturnType(function));
 
-		functionJsonObject.add("description", convertToJsonArray(function.getDescription()));
-		functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
+		if (function instanceof Documentable documentable) {
+			functionJsonObject.addProperty("since", StringUtils.join(documentable.since(), "\n"));
+			functionJsonObject.add("description", convertToJsonArray(documentable.description().toArray(new String[0])));
+			functionJsonObject.add("examples", convertToJsonArray(documentable.examples().toArray(new String[0])));
+		}
+
+		functionJsonObject.add("returns", getReturnType(function));
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
@@ -418,7 +422,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param function the JavaFunction to get the return type of
 	 * @return the JsonObject representing the return type of the JavaFunction
 	 */
-	private static JsonObject getFunctionReturnType(JavaFunction<?> function) {
+	private static JsonObject getReturnType(Function<?> function) {
 		JsonObject object = new JsonObject();
 
 		ClassInfo<?> returnType = function.getReturnType();
@@ -438,7 +442,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param functions the functions to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each function
 	 */
-	private static JsonArray generateFunctionArray(Iterator<JavaFunction<?>> functions) {
+	private static JsonArray generateFunctionArray(Iterator<Function<?>> functions) {
 		JsonArray syntaxArray = new JsonArray();
 		functions.forEachRemaining(function -> syntaxArray.add(generateFunctionElement(function)));
 		return syntaxArray;
@@ -538,7 +542,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
-		jsonDocs.add("functions", generateFunctionArray(Functions.getJavaFunctions().iterator()));
+		jsonDocs.add("functions", generateFunctionArray(Functions.getDefaultFunctions().iterator()));
 		jsonDocs.add("experiments", generateExperiments());
 
 		try {

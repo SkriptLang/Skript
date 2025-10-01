@@ -45,7 +45,7 @@ public class PatternCompiler {
 	 * {@link TypePatternElement} should be initiated with.
 	 * @return The first link of the {@link PatternElement} chain
 	 */
-	private static PatternElement compile(String pattern, AtomicInteger expressionOffset) {
+	static PatternElement compile(String pattern, AtomicInteger expressionOffset) {
 		StringBuilder literalBuilder = new StringBuilder();
 		PatternElement first = null;
 

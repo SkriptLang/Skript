@@ -158,7 +158,8 @@ public enum Feature implements Experiment {
 		For more details about the syntax, visit damage source on our documentation website.
 		""",
 		LifeCycle.EXPERIMENTAL,
-		"damage source[s]");
+		"damage source[s]"),
+	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components");
 
 	private final String displayName;
 	private final String codeName;

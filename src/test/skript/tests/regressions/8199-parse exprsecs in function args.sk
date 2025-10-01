@@ -1,0 +1,6 @@
+local function f(x: worldborder):
+	assert worldborder warning time of {_x} is 1 second with "Failed to modify worldborder before calling function. Check Statement.parse() for sectioncontext handling."
+
+test "load expr secs in functions":
+    f(a worldborder):
+        set worldborder warning time to 20 ticks
