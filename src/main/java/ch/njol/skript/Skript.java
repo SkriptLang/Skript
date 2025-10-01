@@ -14,6 +14,7 @@ import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
+import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
@@ -97,6 +98,7 @@ import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
+import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -111,6 +113,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -575,7 +578,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript",
-				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
+				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
 			FishingModule.load();
@@ -585,7 +588,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
-			skript.loadModules(new DamageSourceModule());
+			skript.loadModules(new DamageSourceModule(), new ItemComponentModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -1388,6 +1391,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static void stopAcceptingRegistrations() {
 		Converters.createChainedConverters();
+		ExprArithmetic.registerExpression();
 		acceptRegistrations = false;
 		Classes.onRegistrationsStop();
 	}
@@ -1584,19 +1588,19 @@ public final class Skript extends JavaPlugin implements Listener {
 	/**
 	 * Registers an expression.
 	 *
-	 * @param expressionType The expression's class
+	 * @param expressionClass The expression's class
 	 * @param returnType The superclass of all values returned by the expression
 	 * @param type The expression's {@link ExpressionType type}. This is used to determine in which order to try to parse expressions.
 	 * @param patterns Skript patterns that match this expression
 	 * @throws IllegalArgumentException if returnType is not a normal class
 	 */
 	public static <E extends Expression<T>, T> void registerExpression(
-		Class<E> expressionType, Class<T> returnType, ExpressionType type, String... patterns
+		Class<E> expressionClass, Class<T> returnType, ExpressionType type, String... patterns
 	) throws IllegalArgumentException {
 		checkAcceptRegistrations();
-		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionType, returnType)
+		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionClass, returnType)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(expressionType))
+				.origin(getSyntaxOrigin(expressionClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1672,21 +1676,28 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerSimpleStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-			.origin(getSyntaxOrigin(structureClass))
-			.addPatterns(patterns)
-			.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
-			.build()
+				.origin(getSyntaxOrigin(structureClass))
+				.addPatterns(patterns)
+				.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
+				.build()
 		);
 	}
 
 	public static <E extends Structure> void registerStructure(
 		Class<E> structureClass, EntryValidator entryValidator, String... patterns
 	) {
+		registerStructure(structureClass, entryValidator, DefaultSyntaxInfos.Structure.NodeType.SECTION, patterns);
+	}
+
+	public static <E extends Structure> void registerStructure(
+		Class<E> structureClass, EntryValidator entryValidator, DefaultSyntaxInfos.Structure.NodeType nodeType, String... patterns
+	) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
 				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.entryValidator(entryValidator)
+				.nodeType(nodeType)
 				.build()
 		);
 	}
