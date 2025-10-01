@@ -9,6 +9,7 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
 import org.skriptlang.skript.bukkit.itemcomponents.generic.ExprItemCompCopy;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolModule;
 
 public class ItemComponentModule implements AddonModule {
 

@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -15,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Rule - Drops")
 @Description("""
@@ -32,10 +33,17 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 @Since("INSERT VERSION")
 public class EffToolRuleDrops extends Effect implements ToolExperimentalSyntax {
 
-	static {
-		Skript.registerEffect(EffToolRuleDrops.class,
-			"enable [the] tool rule drops (of|for) %toolrules%",
-			"disable [the] tool rule drops (of|for) %toolrules%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffToolRuleDrops.class)
+				.addPatterns(
+					"enable [the] tool rule drops (of|for) %toolrules%",
+					"disable [the] tool rule drops (of|for) %toolrules%"
+				)
+				.supplier(EffToolRuleDrops::new)
+				.build()
+		);
 	}
 
 	private Expression<ToolRuleWrapper> toolRules;

@@ -14,12 +14,15 @@ import io.papermc.paper.datacomponent.item.Tool.Rule;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.itemcomponents.tool.elements.*;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class ToolModule implements AddonModule {
 
@@ -107,11 +110,28 @@ public class ToolModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents.tool", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		register(addon.syntaxRegistry(),
+
+			CondToolCompCreative::register,
+			CondToolRuleDrops::register,
+
+			EffToolCompCreative::register,
+			EffToolRuleDrops::register,
+
+			ExprToolCompDamage::register,
+			ExprToolCompMiningSpeed::register,
+			ExprToolComponent::register,
+			ExprToolCompRules::register,
+			ExprToolRuleBlocks::register,
+			ExprToolRuleSpeed::register,
+
+			ExprSecBlankToolComp::register,
+			ExprSecToolRule::register
+		);
+	}
+
+	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
+		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
 }

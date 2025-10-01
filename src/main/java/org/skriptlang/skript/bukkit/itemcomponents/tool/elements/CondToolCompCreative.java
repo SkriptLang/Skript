@@ -8,6 +8,7 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Component - Can Destroy Blocks In Creative")
 @Description("""
@@ -25,6 +26,17 @@ public class CondToolCompCreative extends PropertyCondition<ToolWrapper> impleme
 	static {
 		if (ToolWrapper.HAS_CAN_DESTROY_BLOCKS_IN_CREATIVE)
 			register(CondToolCompCreative.class, PropertyType.CAN, "destroy blocks in creative", "toolcomponents");
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		if (!ToolWrapper.HAS_CAN_DESTROY_BLOCKS_IN_CREATIVE)
+			return;
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(CondToolCompCreative.class, PropertyType.CAN, "destroy blocks in creative", "toolcomponents")
+				.supplier(CondToolCompCreative::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Component - Damage Per Block")
 @Description("""
@@ -25,8 +26,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprToolCompDamage extends SimplePropertyExpression<ToolWrapper, Integer> implements ToolExperimentalSyntax {
 
-	static {
-		registerDefault(ExprToolCompDamage.class, Integer.class, "damage per block", "toolcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprToolCompDamage.class, Integer.class, "damage per block", "toolcomponents", true)
+				.supplier(ExprToolCompDamage::new)
+				.build()
+		);
 	}
 
 	@Override

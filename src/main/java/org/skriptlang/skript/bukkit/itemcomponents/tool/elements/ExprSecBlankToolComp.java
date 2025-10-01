@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -9,7 +8,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -23,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,9 +62,14 @@ public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> impleme
 		}
 	}
 
-	static {
-		Skript.registerExpression(ExprSecBlankToolComp.class, ToolWrapper.class, ExpressionType.SIMPLE,
-			"a (blank|empty) tool component");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprSecBlankToolComp.class, ToolWrapper.class)
+				.addPatterns("a (blank|empty) tool component")
+				.supplier(ExprSecBlankToolComp::new)
+				.build()
+		);
 		EventValues.registerEventValue(BlankToolSectionEvent.class, ToolWrapper.class, BlankToolSectionEvent::getWrapper);
 	}
 

@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -12,6 +11,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Rule - Drops Enabled")
 @Description("""
@@ -30,10 +31,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 @SuppressWarnings("UnstableApiUsage")
 public class CondToolRuleDrops extends PropertyCondition<ToolRuleWrapper> implements ToolExperimentalSyntax {
 
-	static {
-		Skript.registerCondition(CondToolRuleDrops.class, ConditionType.PROPERTY,
-			"[the] tool rule drops (of|for) %toolrules% (is|are) enabled",
-			"[the] tool rule drops (of|for) %toolrules% (is|are) disabled"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondToolRuleDrops.class)
+				.addPatterns(
+					"[the] tool rule drops (of|for) %toolrules% (is|are) enabled",
+					"[the] tool rule drops (of|for) %toolrules% (is|are) disabled"
+				)
+				.supplier(CondToolRuleDrops::new)
+				.build()
 		);
 	}
 

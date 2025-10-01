@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Component - Mining Speed")
 @Description("""
@@ -25,8 +26,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprToolCompMiningSpeed extends SimplePropertyExpression<ToolWrapper, Float> implements ToolExperimentalSyntax {
 
-	static {
-		registerDefault(ExprToolCompMiningSpeed.class, Float.class, "(default|base) mining speed", "toolcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprToolCompMiningSpeed.class, Float.class, "(default|base) mining speed", "toolcomponents", true)
+				.supplier(ExprToolCompMiningSpeed::new)
+				.build()
+		);
 	}
 
 	@Override

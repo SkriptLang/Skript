@@ -10,7 +10,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Trigger;
@@ -26,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,9 +65,14 @@ public class ExprSecToolRule extends SectionExpression<ToolRuleWrapper> implemen
 		}
 	}
 
-	static {
-		Skript.registerExpression(ExprSecToolRule.class, ToolRuleWrapper.class, ExpressionType.SIMPLE,
-			"a [custom] tool rule with [the] block types [of] %itemtypes%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprSecToolRule.class, ToolRuleWrapper.class)
+				.addPatterns("a [custom] tool rule with [the] block types [of] %itemtypes%")
+				.supplier(ExprSecToolRule::new)
+				.build()
+		);
 		EventValues.registerEventValue(ToolRuleSectionEvent.class, ToolRuleWrapper.class, ToolRuleSectionEvent::getToolRuleWrapper);
 	}
 

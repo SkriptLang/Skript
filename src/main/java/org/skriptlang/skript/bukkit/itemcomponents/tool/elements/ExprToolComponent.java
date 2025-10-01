@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Component")
 @Description("""
@@ -34,8 +35,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprToolComponent extends SimplePropertyExpression<Object, ToolWrapper> implements ToolExperimentalSyntax {
 
-	static {
-		register(ExprToolComponent.class, ToolWrapper.class, "tool component[s]", "slots/itemtypes");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprToolComponent.class, ToolWrapper.class, "tool component[s]", "slots/itemtypes", false)
+				.supplier(ExprToolComponent::new)
+				.build()
+		);
 	}
 
 	@Override

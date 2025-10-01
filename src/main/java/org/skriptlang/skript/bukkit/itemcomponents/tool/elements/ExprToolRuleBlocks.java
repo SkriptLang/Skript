@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,8 +48,13 @@ import java.util.List;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprToolRuleBlocks extends PropertyExpression<ToolRuleWrapper, ItemType> implements ToolExperimentalSyntax {
 
-	static {
-		registerDefault(ExprToolRuleBlocks.class, ItemType.class, "tool rule[s] block types", "toolrules");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprToolRuleBlocks.class, ItemType.class, "tool rule[s] block types", "toolrules", true)
+				.supplier(ExprToolRuleBlocks::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -15,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Component - Destroy Blocks In Creative")
 @Description("""
@@ -29,11 +30,19 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 @Since("INSERT VERSION")
 public class EffToolCompCreative extends Effect implements ToolExperimentalSyntax {
 
-	static {
-		if (ToolWrapper.HAS_CAN_DESTROY_BLOCKS_IN_CREATIVE)
-			Skript.registerEffect(EffToolCompCreative.class,
-				"allow %toolcomponents% to destroy blocks in creative",
-				"prevent %toolcomponents% from destroying blocks in creative");
+	public static void register(SyntaxRegistry registry) {
+		if (!ToolWrapper.HAS_CAN_DESTROY_BLOCKS_IN_CREATIVE)
+			return;
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffToolCompCreative.class)
+				.addPatterns(
+					"allow %toolcomponents% to destroy blocks in creative",
+					"prevent %toolcomponents% from destroying blocks in creative"
+				)
+				.supplier(EffToolCompCreative::new)
+				.build()
+		);
 	}
 
 	private Expression<ToolWrapper> tools;

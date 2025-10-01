@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Tool Rule - Speed")
 @Description("""
@@ -36,6 +37,15 @@ public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper,
 
 	static {
 		registerDefault(ExprToolRuleSpeed.class, Float.class, "tool rule speed", "toolrules");
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprToolRuleSpeed.class, Float.class, "tool rule speed", "toolrules", true)
+				.supplier(ExprToolRuleSpeed::new)
+				.build()
+		);
 	}
 
 	@Override

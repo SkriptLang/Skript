@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolRuleWrapper;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,13 @@ import java.util.List;
 @SuppressWarnings("UnstableApiUsage")
 public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRuleWrapper> implements ToolExperimentalSyntax {
 
-	static {
-		registerDefault(ExprToolCompRules.class, ToolRuleWrapper.class, "tool rules", "toolcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprToolCompRules.class, ToolRuleWrapper.class, "tool rules", "toolcomponents", true)
+				.supplier(ExprToolCompRules::new)
+				.build()
+		);
 	}
 
 	@Override
