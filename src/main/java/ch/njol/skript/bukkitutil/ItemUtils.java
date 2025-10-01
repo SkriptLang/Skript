@@ -401,8 +401,9 @@ public class ItemUtils {
 			itemType.setItemMeta(itemMeta);
 		} else if (object instanceof ItemStack itemStack) {
 			itemStack.setItemMeta(itemMeta);
+		} else {
+			throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack.");
 		}
-		throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack.");
 	}
 
 }
