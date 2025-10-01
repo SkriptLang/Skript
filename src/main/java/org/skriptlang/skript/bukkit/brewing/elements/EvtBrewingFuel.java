@@ -1,6 +1,5 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.brewing.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -11,20 +10,31 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtBrewingFuel extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Brewing Fuel", EvtBrewingFuel.class, BrewingStandFuelEvent.class,
-				"brew[ing [stand]] consum(e|ing) fuel [of %-itemtypes%]",
-				"brew[ing [stand]] fuel consumption [of %-itemtypes%]")
-			.description("Called when a brewing stand is about to use an item to increase its fuel level.")
-			.examples(
-				"on brewing consume fuel:",
-					"\tprevent the brewing stand from consuming fuel",
-				"on brewing fuel consumption of blaze powder:"
-			)
-			.since("INSERT VERSION");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			BukkitRegistryKeys.EVENT,
+			BukkitSyntaxInfos.Event.builder(EvtBrewingFuel.class, "Brewing Fuel")
+				.addEvent(BrewingStandFuelEvent.class)
+				.addPatterns(
+					"brew[ing [stand]] consum(e|ing) fuel [of %-itemtypes%]",
+					"brew[ing [stand]] fuel consumption [of %-itemtypes%]"
+				)
+				.addDescription("Called when a brewing stand is about to use an item to increase its fuel level.")
+				.addExample("""
+					on brewing consume fuel:
+						prevent the brewing stand from consuming fuel
+					on brewing fuel consumption of blaze powder:
+					""")
+				.addSince("INSERT VERSION")
+				.supplier(EvtBrewingFuel::new)
+				.build()
+		);
 
 		EventValues.registerEventValue(BrewingStandFuelEvent.class, ItemStack.class, BrewingStandFuelEvent::getFuel);
 	}

@@ -1,6 +1,5 @@
-package ch.njol.skript.events;
+package org.skriptlang.skript.bukkit.brewing.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -13,27 +12,31 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
 public class EvtBrewingComplete extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Brewing Complete", EvtBrewingComplete.class, BrewEvent.class,
-				"brew[ing] [complet[ed|ion]|finish[ed]] [(of|for) %-itemtypes/potioneffecttypes%]")
-			.description("Called when a brewing stand finishes brewing an ingredient and changes the potions.")
-			.examples("""
-				on brew:
-					broadcast event-item
-				on brewing of speed potion:
-				on brew finished for speed 2 potion:
-				""")
-			.examples(
-				"on brew:",
-					"\tbroadcast event-items",
-				"on brewing of speed potion:"
-			)
-			.since("INSERT VERSION");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			BukkitRegistryKeys.EVENT,
+			BukkitSyntaxInfos.Event.builder(EvtBrewingComplete.class, "Brewing Complete")
+				.addEvent(BrewEvent.class)
+				.addPatterns("brew[ing] [complet[ed|ion]|finish[ed]] [(of|for) %-itemtypes/potioneffecttypes%]")
+				.addDescription("Called when a brewing stand finishes brewing an ingredient and changes the potions.")
+				.addExample("""
+					on brew:
+						broadcast event-item
+					on brewing of speed potion:
+					on brew finished for speed 2 potion:
+					""")
+				.addSince("INSERT VERSION")
+				.supplier(EvtBrewingComplete::new)
+				.build()
+		);
 	}
 
 	private @Nullable Literal<?> types;

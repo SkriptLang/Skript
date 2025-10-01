@@ -1,9 +1,9 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.brewing.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
@@ -21,6 +21,7 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BrewingStartEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +30,26 @@ import java.util.function.Supplier;
 
 @Name("Brewing Time")
 @Description("The remaining brewing time of a brewing stand.")
-@Examples({
-	"set the brewing time of {_block} to 10 seconds",
-	"clear the remaining brewing time of {_block}"
-})
+@Example("set the brewing time of {_block} to 10 seconds")
+@Example("clear the remaining brewing time of {_block}")
 @Since("INSERT VERSION")
 public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 
 	private static final boolean BREWING_START_EVENT_1_21 = Skript.methodExists(BrewingStartEvent.class, "setBrewingTime", int.class);
 
-	static {
-		registerDefault(ExprBrewingTime.class, Timespan.class, "[current|remaining] brewing time", "blocks");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprBrewingTime.class,
+				Timespan.class,
+				"[current|remaining] brewing time",
+				"blocks",
+				true
+			)
+				.supplier(ExprBrewingTime::new)
+				.build()
+		);
 	}
 
 	private boolean isEvent = false;

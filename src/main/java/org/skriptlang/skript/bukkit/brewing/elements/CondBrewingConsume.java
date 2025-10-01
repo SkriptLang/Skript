@@ -1,6 +1,5 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.brewing.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
@@ -15,6 +14,8 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Brewing Will Consume Fuel")
 @Description("""
@@ -30,10 +31,17 @@ import org.jetbrains.annotations.Nullable;
 @Events("Brewing Fuel")
 public class CondBrewingConsume extends Condition implements EventRestrictedSyntax {
 
-	static {
-		Skript.registerCondition(CondBrewingConsume.class,
-			"[the] brewing stand will consume [the] fuel",
-			"[the] brewing stand (will not|won't) consume [the] fuel");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondBrewingConsume.class)
+				.addPatterns(
+					"[the] brewing stand will consume [the] fuel",
+					"[the] brewing stand (will not|won't) consume [the] fuel"
+				)
+				.supplier(CondBrewingConsume::new)
+				.build()
+		);
 	}
 
 	private boolean willConsume;

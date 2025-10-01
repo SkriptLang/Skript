@@ -1,14 +1,12 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.brewing.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.InventorySlot;
@@ -23,16 +21,16 @@ import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Name("Brewing Stand Slot")
 @Description("A slot of a brewing stand, i.e. the first, second, or third bottle slot, the fuel slot or the ingredient slot.")
-@Examples({
-	"set the 1st bottle slot of {_block} to potion of water",
-	"clear the brewing stand second bottle slot of {_block}"
-})
+@Example("set the 1st bottle slot of {_block} to potion of water")
+@Example("clear the brewing stand second bottle slot of {_block}")
 @Since("INSERT VERSION")
 public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
@@ -54,13 +52,20 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
 	private static final BrewingSlot[] BREWING_SLOTS = BrewingSlot.values();
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		String[] patterns = new String[BREWING_SLOTS.length * 2];
 		for (BrewingSlot slot : BREWING_SLOTS) {
 			patterns[2 * slot.ordinal()] = "[the] " + slot.pattern + " slot[s] [of %blocks%]";
 			patterns[(2 * slot.ordinal()) + 1] = "%blocks%'[s] " + slot.pattern + " slot[s]";
 		}
-		Skript.registerExpression(ExprBrewingSlot.class, Slot.class, ExpressionType.PROPERTY, patterns);
+
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprBrewingSlot.class, Slot.class)
+				.addPatterns(patterns)
+				.supplier(ExprBrewingSlot::new)
+				.build()
+		);
 	}
 
 	private BrewingSlot selectedSlot;
