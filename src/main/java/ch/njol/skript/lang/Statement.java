@@ -30,7 +30,13 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 
 	public static @Nullable Statement parse(String input, @Nullable String defaultError, @Nullable SectionNode node, @Nullable List<TriggerItem> items) {
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-			EffFunctionCall functionCall = EffFunctionCall.parse(input);
+			Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
+			EffFunctionCall functionCall;
+			if (node != null) {
+				functionCall = sectionContext.modify(node, items, () -> EffFunctionCall.parse(input));
+			} else {
+				functionCall = EffFunctionCall.parse(input);
+			}
 			if (functionCall != null) {
 				log.printLog();
 				return functionCall;
@@ -49,7 +55,6 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 
 			Statement statement;
 			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.STATEMENT).iterator();
-			Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
 			if (node != null) {
 				var wrappedIterator = new Iterator<>() {
 					@Override
