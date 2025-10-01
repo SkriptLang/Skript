@@ -305,7 +305,7 @@ public class Documentation {
 			Skript.warning("" + elementClass.getSimpleName() + "'s description or 'since' is invalid");
 			return;
 		}
-		final String patterns = cleanPatterns(StringUtils.join(info.patterns, "\n", 0, elementClass == CondCompare.class ? 8 : info.patterns.length));
+		String patterns = cleanPatterns(StringUtils.join(info.patterns, "\n", 0, elementClass == CondCompare.class ? 8 : info.getPatterns().length));
 		insertOnDuplicateKeyUpdate(pw, "syntax_elements",
 				"id, name, type, patterns, description, examples, since",
 				"patterns = TRIM(LEADING '\n' FROM CONCAT(patterns, '\n', '" + escapeSQL(patterns) + "'))",
@@ -337,7 +337,7 @@ public class Documentation {
 			Skript.warning("description or 'since' of " + info.getName() + " (" + info.getElementClass().getSimpleName() + ") is invalid");
 			return;
 		}
-		final String patterns = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + StringUtils.join(info.patterns, "\n[on] ") : StringUtils.join(info.patterns, "\n"));
+		String patterns = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + StringUtils.join(info.getPatterns(), "\n[on] ") : StringUtils.join(info.patterns, "\n"));
 		insertOnDuplicateKeyUpdate(pw, "syntax_elements",
 				"id, name, type, patterns, description, examples, since",
 				"patterns = '" + escapeSQL(patterns) + "'",

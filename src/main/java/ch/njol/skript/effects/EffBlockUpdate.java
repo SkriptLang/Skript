@@ -32,7 +32,7 @@ public class EffBlockUpdate extends Effect {
 
 	static {
 		Skript.registerEffect(EffBlockUpdate.class,
-			"update %blocks% (as|to be) %blockdata% [physics:without [neighbo[u]r[ing]|adjacent] [physic[s]] update[s]]");
+			"update %blocks% (as|to be) %blockdata% [physics:without [neighbo[u]r[ing]|adjacent] [physics] update[s]]");
 	}
 
 	private boolean physics;
