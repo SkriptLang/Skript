@@ -777,7 +777,6 @@ public class SimpleEvents {
 				""")
 			.since("2.12");
 
-
 	}
 
 }
