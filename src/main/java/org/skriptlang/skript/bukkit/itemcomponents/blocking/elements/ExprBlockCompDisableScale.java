@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Blocking Component - Disable Cooldown Scale")
 @Description("""
@@ -28,6 +29,21 @@ public class ExprBlockCompDisableScale extends SimplePropertyExpression<Blocking
 	static {
 		registerDefault(ExprBlockCompDisableScale.class, Float.class, "[blocking] disabl(e[d]|ing) cooldown (scale|scalar)[s]",
 			"blockingcomponents");
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprBlockCompDisableScale.class,
+				Float.class,
+				"[blocking] disabl(e[d]|ing) cooldown (scale|scalar)[s]",
+				"blockingcomponents",
+				true
+			)
+				.supplier(ExprBlockCompDisableScale::new)
+				.build()
+		);
 	}
 
 	@Override

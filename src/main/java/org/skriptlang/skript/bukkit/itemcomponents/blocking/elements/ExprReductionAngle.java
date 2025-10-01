@@ -12,6 +12,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageReductionWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Reduction - Angle")
 @Description("""
@@ -35,8 +36,19 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageReductionWrapp
 @Since("INSERT VERSION")
 public class ExprReductionAngle extends SimplePropertyExpression<DamageReductionWrapper, Float> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprReductionAngle.class, Float.class, "[damage] reduction [block[ing]] angle[s]", "damagereductions");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprReductionAngle.class,
+				Float.class,
+				"[damage] reduction [block[ing]] angle[s]",
+				"damagereductions",
+				true
+			)
+				.supplier(ExprReductionAngle::new)
+				.build()
+		);
 	}
 
 	@Override

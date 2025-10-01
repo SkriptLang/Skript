@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageFunctionWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item Damage Function - Threshold Amount")
 @Description("""
@@ -31,9 +32,19 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageFunctionWrappe
 @Since("INSERT VERSION")
 public class ExprDamageFunctionThreshold extends SimplePropertyExpression<Object, Float> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprDamageFunctionFactor.class, Float.class, "[item] damage function threshold [amount[s]]",
-			"blockingcomponents/itemdamagefunctions");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDamageFunctionThreshold.class,
+				Float.class,
+				"[item] damage function threshold [amount[s]]",
+				"blockingcomponents/itemdamagefunctions",
+				true
+			)
+				.supplier(ExprDamageFunctionThreshold::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Blocking Component - Delay Time")
 @Description("""
@@ -27,8 +28,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 @Since("INSERT VERSION")
 public class ExprBlockCompDelay extends SimplePropertyExpression<BlockingWrapper, Timespan> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprBlockCompDelay.class, Timespan.class, "blocking delay time[s]", "blockingcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprBlockCompDelay.class, Timespan.class, "blocking delay time[s]", "blockingcomponents", true)
+				.supplier(ExprBlockCompDelay::new)
+				.build()
+		);
 	}
 	
 	@Override

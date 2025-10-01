@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentUtils;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageReductionWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +47,19 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class ExprReductionDamageTypes extends PropertyExpression<DamageReductionWrapper, DamageType> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprReductionDamageTypes.class, DamageType.class, "[damage] reduction damage types", "damagereductions");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprReductionDamageTypes.class,
+				DamageType.class,
+				"[damage] reduction damage types",
+				"damagereductions",
+				true
+			)
+				.supplier(ExprReductionDamageTypes::new)
+				.build()
+		);
 	}
 
 	@Override

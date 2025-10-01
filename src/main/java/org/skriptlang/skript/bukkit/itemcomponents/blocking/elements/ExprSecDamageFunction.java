@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.blocking.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -9,7 +8,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -23,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageFunctionWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -61,9 +61,14 @@ public class ExprSecDamageFunction extends SectionExpression<DamageFunctionWrapp
 		}
 	}
 
-	static {
-		Skript.registerExpression(ExprSecDamageFunction.class, DamageFunctionWrapper.class, ExpressionType.SIMPLE,
-			"a [custom] [item] damage function");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprSecDamageFunction.class, DamageFunctionWrapper.class)
+				.addPatterns("a [custom] [item] damage function")
+				.supplier(ExprSecDamageFunction::new)
+				.build()
+		);
 		EventValues.registerEventValue(DamageFunctionSectionEvent.class, DamageFunctionWrapper.class, DamageFunctionSectionEvent::getWrapper);
 	}
 

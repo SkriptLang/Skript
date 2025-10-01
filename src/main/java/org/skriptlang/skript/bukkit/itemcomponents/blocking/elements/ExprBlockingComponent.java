@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Blocking Component")
 @Description("""
@@ -38,6 +39,21 @@ public class ExprBlockingComponent extends SimplePropertyExpression<Object, Bloc
 	static {
 		register(ExprBlockingComponent.class, BlockingWrapper.class,
 			"blocking component[s]", "slots/itemtypes");
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprBlockingComponent.class,
+				BlockingWrapper.class,
+				"blocking component[s]",
+				"slots/itemtypes",
+				false
+			)
+				.supplier(ExprBlockingComponent::new)
+				.build()
+		);
 	}
 
 	@Override

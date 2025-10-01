@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Blocking Component - Damage Type Bypass")
 @Description("""
@@ -28,8 +29,19 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 @Since("INSERT VERSION")
 public class ExprBlockCompBypass extends SimplePropertyExpression<BlockingWrapper, DamageType> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprBlockCompBypass.class, DamageType.class, "[blocking] damage type bypass[es]", "blockingcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprBlockCompBypass.class,
+				DamageType.class,
+				"[blocking] damage type bypass[es]",
+				"blockingcomponents",
+				true
+			)
+				.supplier(ExprBlockCompBypass::new)
+				.build()
+		);
 	}
 
 	@Override

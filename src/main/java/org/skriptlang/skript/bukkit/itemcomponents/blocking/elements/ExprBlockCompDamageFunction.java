@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageFunctionWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Blocking Component - Item Damage Function")
 @Description("""
@@ -25,9 +26,19 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageFunctionWrappe
 @Since("INSERT VERSION")
 public class ExprBlockCompDamageFunction extends SimplePropertyExpression<BlockingWrapper, DamageFunctionWrapper> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprBlockCompDamageFunction.class, DamageFunctionWrapper.class, "[item] damage function[s]",
-			"blockingcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprBlockCompDamageFunction.class,
+				DamageFunctionWrapper.class,
+				"[item] damage function[s]",
+				"blockingcomponents",
+				true
+			)
+				.supplier(ExprBlockCompDamageFunction::new)
+				.build()
+		);
 	}
 
 	@Override

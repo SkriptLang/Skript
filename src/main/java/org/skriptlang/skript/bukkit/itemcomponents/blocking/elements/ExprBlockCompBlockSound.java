@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Blocking Component - Blocked Sound")
 @Description("""
@@ -28,8 +29,13 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 @Since("INSERT VERSION")
 public class ExprBlockCompBlockSound extends SimplePropertyExpression<BlockingWrapper, String> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprBlockCompBlockSound.class, String.class, "blocked sound[s]", "blockingcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprBlockCompBlockSound.class, String.class, "blocked sound[s]", "blockingcomponents", true)
+				.supplier(ExprBlockCompBlockSound::new)
+				.build()
+		);
 	}
 
 	@Override

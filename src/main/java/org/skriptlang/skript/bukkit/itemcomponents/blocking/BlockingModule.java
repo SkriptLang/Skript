@@ -15,10 +15,13 @@ import io.papermc.paper.datacomponent.item.blocksattacks.ItemDamageFunction;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.itemcomponents.blocking.elements.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class BlockingModule implements AddonModule {
 
@@ -139,11 +142,32 @@ public class BlockingModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.itemcomponents.blocking", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		register(addon.syntaxRegistry(),
+
+			ExprBlockCompBlockSound::register,
+			ExprBlockCompBypass::register,
+			ExprBlockCompDamageFunction::register,
+			ExprBlockCompDelay::register,
+			ExprBlockCompDisableScale::register,
+			ExprBlockCompDisableSound::register,
+			ExprBlockCompReductions::register,
+			ExprBlockingComponent::register,
+			ExprDamageFunctionBase::register,
+			ExprDamageFunctionFactor::register,
+			ExprDamageFunctionThreshold::register,
+			ExprReductionAngle::register,
+			ExprReductionBase::register,
+			ExprReductionDamageTypes::register,
+			ExprReductionFactor::register,
+
+			ExprSecBlankBlockComp::register,
+			ExprSecDamageFunction::register,
+			ExprSecReduction::register
+		);
+	}
+
+	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
+		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
 }

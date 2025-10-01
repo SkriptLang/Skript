@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Blocking Component - Disable Sound")
 @Description("""
@@ -26,8 +27,19 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingWrapper;
 @RequiredPlugins("Minecraft 1.21.5+")
 public class ExprBlockCompDisableSound extends SimplePropertyExpression<BlockingWrapper, String> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprBlockCompDisableSound.class, String.class, "[blocking] disable[d] sound[s]", "blockingcomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprBlockCompDisableSound.class,
+				String.class,
+				"[blocking] disable[d] sound[s]",
+				"blockingcomponents",
+				true
+			)
+				.supplier(ExprBlockCompDisableSound::new)
+				.build()
+		);
 	}
 
 	@Override

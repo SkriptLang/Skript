@@ -12,6 +12,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.BlockingExperimentalSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageReductionWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Reduction - Factor Amount")
 @Description("""
@@ -32,8 +33,19 @@ import org.skriptlang.skript.bukkit.itemcomponents.blocking.DamageReductionWrapp
 @Since("INSERT VERSION")
 public class ExprReductionFactor extends SimplePropertyExpression<DamageReductionWrapper, Float> implements BlockingExperimentalSyntax {
 
-	static {
-		registerDefault(ExprReductionFactor.class, Float.class, "[damage] reduction factor [amount[s]]", "damagereductions");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprReductionFactor.class,
+				Float.class,
+				"[damage] reduction factor [amount[s]]",
+				"damagereductions",
+				true
+			)
+				.supplier(ExprReductionFactor::new)
+				.build()
+		);
 	}
 
 	@Override
