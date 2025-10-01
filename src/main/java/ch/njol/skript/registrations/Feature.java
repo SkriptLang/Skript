@@ -18,7 +18,8 @@ public enum Feature implements Experiment {
 	CATCH_ERRORS("catch runtime errors", LifeCycle.EXPERIMENTAL, "error catching [section]"),
 	TYPE_HINTS("type hints", LifeCycle.EXPERIMENTAL, "[local variable] type hints"),
 	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]"),
-	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components")
+	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components"),
+	FOOD_COMPONENTS("food components", LifeCycle.EXPERIMENTAL, "food components"),
 	;
 
 	private final String codeName;
