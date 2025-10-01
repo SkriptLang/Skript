@@ -1234,7 +1234,7 @@ public final class SkriptParser {
 				boolean trySingle = false;
 				boolean trySinglePlural = false;
 				for (var signature : signatures) {
-					trySingle |= signature.getMinParameters() == 1 || signature.getMaxParameters() == 1;
+					trySingle |= signature.getMinParameters() <= 1 || signature.getMaxParameters() == 1;
 					trySinglePlural |= trySingle && !signature.getParameter(0).isSingleValue();
 					for (int i = 0; i < signature.getMaxParameters(); i++) {
 						if (signatureDatas.size() <= i) {

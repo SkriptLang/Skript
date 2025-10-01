@@ -602,15 +602,14 @@ public class Variables {
 	 * @param value the value, or {@code null} to delete the variable.
 	 */
 	static void setVariable(String name, @Nullable Object value) {
-		boolean gotLock = variablesLock.writeLock().tryLock();
-		if (gotLock) {
+		if (variablesLock.writeLock().tryLock()) {
 			try {
-				// Set the variable
+				if (!changeQueue.isEmpty()) { // Process older, queued changes if available
+					processChangeQueue();
+				}
+				// Process and save requested change
 				variables.setVariable(name, value);
-				// ..., save the variable change
 				saveVariableChange(name, value);
-				// ..., and process all previously queued changes
-				processChangeQueue();
 			} finally {
 				variablesLock.writeLock().unlock();
 			}
