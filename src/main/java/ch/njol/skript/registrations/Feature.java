@@ -19,7 +19,7 @@ public enum Feature implements Experiment {
 	TYPE_HINTS("type hints", LifeCycle.EXPERIMENTAL, "[local variable] type hints"),
 	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]"),
 	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components"),
-	TOOL_COMPONENTS("tool components", LifeCycle.EXPERIMENTAL, "tool components")
+	TOOL_COMPONENTS("tool components", LifeCycle.EXPERIMENTAL, "tool components"),
 	;
 
 	private final String codeName;

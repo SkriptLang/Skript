@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -14,6 +13,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Equip On Entities")
 @Description("""
@@ -25,15 +26,18 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @RequiredPlugins("Minecraft 1.21.5+")
 public class EffEquipCompInteract extends Effect implements EquippableExperimentSyntax {
 
-	static {
-		if (EquippableWrapper.HAS_EQUIP_ON_INTERACT)
-			Skript.registerEffect(EffEquipCompInteract.class,
-				"(allow|force) %equippablecomponents% to be equipped on[to] entities",
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompInteract.class)
+			.addPatterns(
+				"allow %equippablecomponents% to be equipped on[to] entities",
 				"make %equippablecomponents% equippable on[to] entities",
 				"let %equippablecomponents% be equipped on[to] entities",
 				"(block|prevent|disallow) %equippablecomponents% from being equipped on[to] entities",
 				"make %equippablecomponents% not equippable on[to] entities"
-			);
+			)
+			.supplier(EffEquipCompInteract::new)
+			.build()
+		);
 	}
 
 	private boolean equip;

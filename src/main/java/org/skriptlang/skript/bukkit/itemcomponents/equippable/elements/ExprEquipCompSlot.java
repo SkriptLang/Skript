@@ -14,6 +14,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Equipment Slot")
 @Description("""
@@ -29,8 +30,12 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 @Since("INSERT VERSION")
 public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperimentSyntax {
 
-	static {
-		registerDefault(ExprEquipCompSlot.class, EquipmentSlot.class, "equipment slot", "equippablecomponents");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEquipCompSlot.class, EquipmentSlot.class, "equipment slot", "equippablecomponents", true)
+				.supplier(ExprEquipCompSlot::new)
+				.build()
+		);
 	}
 
 	@Override
