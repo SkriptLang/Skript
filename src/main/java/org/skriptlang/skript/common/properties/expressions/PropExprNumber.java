@@ -1,6 +1,5 @@
-package org.skriptlang.skript.common.expressions;
+package org.skriptlang.skript.common.properties.expressions;
 
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
@@ -27,8 +26,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
 	static {
-		if (SkriptConfig.useTypeProperties.value())
-			register(PropExprNumber.class, "number[:s]", "objects");
+		register(PropExprNumber.class, "number[:s]", "objects");
 	}
 
 	private ExpressionList<?> exprs;

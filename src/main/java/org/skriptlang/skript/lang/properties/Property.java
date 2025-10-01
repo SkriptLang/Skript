@@ -5,13 +5,15 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.base.types.InventoryClassInfo;
 import org.skriptlang.skript.bukkit.base.types.ItemStackClassInfo;
 import org.skriptlang.skript.bukkit.base.types.PlayerClassInfo;
-import org.skriptlang.skript.common.conditions.PropCondContains;
-import org.skriptlang.skript.common.expressions.PropExprName;
+import org.skriptlang.skript.common.properties.conditions.PropCondContains;
+import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
@@ -52,6 +54,7 @@ import java.util.Locale;
  *
  * @param <Handler> the type of the handler for this property
  */
+@ApiStatus.Experimental
 public record Property<Handler extends PropertyHandler<?>>(
 		String name,
 		String description,
@@ -90,10 +93,9 @@ public record Property<Handler extends PropertyHandler<?>>(
 
 	/**
 	 * Helpful registration shortcut.
-	 * @return whether the property was successfully registered.
 	 */
-	public boolean register() {
-		return PROPERTY_REGISTRY.register(this);
+	private void register() {
+		PROPERTY_REGISTRY.register(this);
 	}
 
 	/**
@@ -107,7 +109,8 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 * @param <Handler> the type of the handler
 	 * @return a new property
 	 */
-	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> Property<Handler> of(
+	@Contract("_, _, _, _, _ -> new")
+	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> @NotNull Property<Handler> of(
 			@NotNull String name,
 			@NotNull String description,
 			@NotNull String since,
@@ -129,7 +132,8 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 * @param <Handler> the type of the handler
 	 * @return a new property
 	 */
-	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> Property<Handler> of(
+	@Contract("_, _, _, _, _ -> new")
+	public static <HandlerClass extends PropertyHandler<?>, Handler extends HandlerClass> @NotNull Property<Handler> of(
 		@NotNull String name,
 		@NotNull String description,
 		@NotNull String @NotNull [] since,
@@ -138,6 +142,16 @@ public record Property<Handler extends PropertyHandler<?>>(
 		//noinspection unchecked
 		return (Property<Handler>) new Property<>(name, description, since, provider, handler);
 	}
+
+	/**
+	 * A pair of a property and a handler.
+	 *
+	 * @param property the property
+	 * @param handler a handler for the property
+	 * @param <Handler> the type of the handler
+	 */
+	public record PropertyInfo<Handler extends PropertyHandler<?>>(Property<Handler> property, Handler handler) { }
+
 
 	/* ****************************************************
 	 * DEFAULT PROPERTIES
@@ -244,12 +258,4 @@ public record Property<Handler extends PropertyHandler<?>>(
 		TYPED_VALUE.register();
 	}
 
-	/**
-	 * A pair of a property and a handler.
-	 *
-	 * @param property the property
-	 * @param handler a handler for the property
-	 * @param <Handler> the type of the handler
-	 */
-	public record PropertyInfo<Handler extends PropertyHandler<?>>(Property<Handler> property, Handler handler) { }
 }

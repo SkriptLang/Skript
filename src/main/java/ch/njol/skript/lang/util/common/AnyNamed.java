@@ -1,7 +1,7 @@
 package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.skript.common.expressions.PropExprName;
+import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.lang.properties.Property;
 
 /**

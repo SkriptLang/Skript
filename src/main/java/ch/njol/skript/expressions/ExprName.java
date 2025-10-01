@@ -37,6 +37,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.expressions.PropExprName}
+ * @deprecated This is being removed in favor of {@link PropExprName}
  */
 @Name("Name / Display Name / Tab List Name")
 @Description({

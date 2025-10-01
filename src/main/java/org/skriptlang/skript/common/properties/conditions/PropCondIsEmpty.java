@@ -1,6 +1,5 @@
-package org.skriptlang.skript.common.conditions;
+package org.skriptlang.skript.common.properties.conditions;
 
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.properties.Property;
@@ -15,8 +14,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHa
 public class PropCondIsEmpty extends PropertyBaseCondition<ConditionPropertyHandler<?>> {
 
 	static {
-		if (SkriptConfig.useTypeProperties.value())
-			register(PropCondIsEmpty.class, "empty", "objects");
+		register(PropCondIsEmpty.class, "empty", "objects");
 	}
 
 	@Override

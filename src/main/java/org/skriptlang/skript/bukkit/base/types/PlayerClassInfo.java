@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+@ApiStatus.Internal
 public class PlayerClassInfo extends ClassInfo<Player> {
 
 	public PlayerClassInfo() {

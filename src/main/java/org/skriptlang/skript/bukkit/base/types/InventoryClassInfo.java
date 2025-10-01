@@ -26,6 +26,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -36,6 +37,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiStatus.Internal
 public class InventoryClassInfo extends ClassInfo<Inventory> {
 
 	public InventoryClassInfo() {

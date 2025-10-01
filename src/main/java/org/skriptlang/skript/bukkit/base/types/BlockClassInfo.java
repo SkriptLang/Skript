@@ -21,6 +21,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -30,6 +31,7 @@ import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.Objects;
 
+@ApiStatus.Internal
 public class BlockClassInfo extends ClassInfo<Block> {
 
 	public BlockClassInfo() {

@@ -8,6 +8,7 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.Fields;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -19,6 +20,7 @@ import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.List;
 
+@ApiStatus.Internal
 public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 
 	public QueueClassInfo() {

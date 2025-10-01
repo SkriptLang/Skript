@@ -1,6 +1,5 @@
-package org.skriptlang.skript.common.expressions;
+package org.skriptlang.skript.common.properties.expressions;
 
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.*;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
@@ -43,8 +42,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 public class PropExprName extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 
 	static {
-		if (SkriptConfig.useTypeProperties.value())
-			register(PropExprName.class , "name[s]", "objects");
+		register(PropExprName.class , "name[s]", "objects");
 	}
 
 	@Override

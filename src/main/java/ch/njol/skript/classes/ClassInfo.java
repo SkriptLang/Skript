@@ -10,6 +10,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -482,6 +483,7 @@ public class ClassInfo<T> implements Debuggable {
 	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
 	private final Map<Property<?>, PropertyDocs> propertyDocumentation = new HashMap<>();
 
+	@ApiStatus.Experimental
 	public record PropertyDocs(Property<?> property, String description, SkriptAddon provider) {}
 
 	/**
@@ -493,6 +495,7 @@ public class ClassInfo<T> implements Debuggable {
  	 * @param <Handler> The type of the property handler
 	 * @throws IllegalStateException If this property is already registered for this class
 	 */
+	@ApiStatus.Experimental
 	public <Handler extends PropertyHandler<T>> ClassInfo<T> property(Property<? super Handler> property, String description, SkriptAddon addon, @NotNull Handler handler) {
 		if (propertyInfos.containsKey(property)) {
 			throw new IllegalStateException("Property " + property.name() + " is already registered for the " + c.getName() + " type.");
@@ -508,6 +511,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * @param property The property to check
 	 * @return True if this class has the property, false otherwise
 	 */
+	@ApiStatus.Experimental
 	public boolean hasProperty(Property<?> property) {
 		return propertyInfos.containsKey(property);
 	}
@@ -515,6 +519,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * @return An unmodifiable collection of all the properties this class has.
 	 */
+	@ApiStatus.Experimental
 	public @Unmodifiable Collection<Property<?>> getAllProperties() {
 		return Collections.unmodifiableCollection(propertyInfos.keySet());
 	}
@@ -525,6 +530,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * @return The property info, or null if this class does not have the property
 	 * @param <Handler> The type of the property handler
 	 */
+	@ApiStatus.Experimental
 	public <Handler extends PropertyHandler<?>> @Nullable PropertyInfo<Handler> getPropertyInfo(Property<Handler> property) {
 		if (!propertyInfos.containsKey(property)) {
 			return null;
@@ -539,6 +545,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * @param property The property to get the documentation for
 	 * @return The documentation, or null if this type does not have the property
 	 */
+	@ApiStatus.Experimental
 	public PropertyDocs getPropertyDocumentation(Property<?> property) {
 		return propertyDocumentation.get(property);
 	}

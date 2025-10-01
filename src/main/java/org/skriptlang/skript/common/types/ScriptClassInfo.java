@@ -8,6 +8,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Feature;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -18,6 +19,7 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.nio.file.Path;
 
+@ApiStatus.Internal
 public class ScriptClassInfo extends ClassInfo<Script> {
 
 	public ScriptClassInfo() {

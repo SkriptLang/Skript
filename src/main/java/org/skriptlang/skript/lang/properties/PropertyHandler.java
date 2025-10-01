@@ -8,10 +8,11 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.conditions.PropCondContains;
+import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -29,6 +30,7 @@ import java.util.function.Predicate;
  * @see ExpressionPropertyHandler
  * @param <Type> The type of object this property can be applied to.
  */
+@ApiStatus.Experimental
 public interface PropertyHandler<Type> {
 
 	/**
@@ -65,6 +67,7 @@ public interface PropertyHandler<Type> {
 	 *
 	 * @see PropertyBaseExpression
 	 */
+	@ApiStatus.Experimental
 	interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHandler<Type> {
 
 		/**
@@ -165,6 +168,7 @@ public interface PropertyHandler<Type> {
 		}
 	}
 
+	@ApiStatus.Experimental
 	interface TypedValuePropertyHandler<Type, ValueType> extends ExpressionPropertyHandler<Type, ValueType> {
 
 		/**
@@ -210,6 +214,7 @@ public interface PropertyHandler<Type> {
 	 *
 	 * @see PropertyBaseCondition
 	 */
+	@ApiStatus.Experimental
 	interface ConditionPropertyHandler<Type> extends PropertyHandler<Type> {
 		boolean check(Type propertyHolder);
 
@@ -236,6 +241,7 @@ public interface PropertyHandler<Type> {
 	 *
 	 * @see PropCondContains
 	 */
+	@ApiStatus.Experimental
 	interface ContainsHandler<Container, Element> extends PropertyHandler<Container> {
 		/**
 		 * Checks if the given container contains the given element.

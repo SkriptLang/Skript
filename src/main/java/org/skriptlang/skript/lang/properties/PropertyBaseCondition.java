@@ -8,8 +8,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.conditions.PropCondIsEmpty;
+import org.skriptlang.skript.common.properties.conditions.PropCondIsEmpty;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 
 /**
@@ -17,6 +18,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHa
  * @param <Handler> The handler type expected for this property.
  * @see PropCondIsEmpty
  */
+@ApiStatus.Experimental
 public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHandler<?>> extends Condition
 	implements PropertyBaseSyntax<Handler>{
 

@@ -4,6 +4,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +16,7 @@ import java.util.Set;
  * A base interface for syntaxes dealing with properties to extend and use for common utilities.
  * @param <Handler> The property handler used for the applicable property.
  */
+@ApiStatus.Experimental
 public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 
 	/**

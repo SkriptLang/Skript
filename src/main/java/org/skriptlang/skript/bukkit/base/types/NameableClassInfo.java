@@ -6,11 +6,13 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import org.bukkit.Nameable;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
+@ApiStatus.Internal
 public class NameableClassInfo extends ClassInfo<Nameable> {
 
 	public NameableClassInfo() {

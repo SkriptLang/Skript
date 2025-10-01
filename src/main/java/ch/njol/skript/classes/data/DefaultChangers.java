@@ -21,16 +21,8 @@ public class DefaultChangers {
 	
 	public DefaultChangers() {}
 
-	/**
-	 * @deprecated Use {@link EntityClassInfo.EntityChanger} directly.
-	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public final static Changer<Entity> entityChanger = new EntityClassInfo.EntityChanger();
 
-	/**
-	 * @deprecated Use {@link PlayerClassInfo.PlayerChanger} directly.
-	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public final static Changer<Player> playerChanger = new PlayerClassInfo.PlayerChanger();
 
 	public final static Changer<Entity> nonLivingEntityChanger = new Changer<Entity>() {
@@ -74,16 +66,8 @@ public class DefaultChangers {
 		}
 	};
 
-	/**
-	 * @deprecated Use {@link InventoryClassInfo.InventoryChanger} directly.
-	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public final static Changer<Inventory> inventoryChanger = new InventoryClassInfo.InventoryChanger();
 
-	/**
-	 * @deprecated Use {@link BlockClassInfo.BlockChanger} directly.
-	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public final static Changer<Block> blockChanger = new BlockClassInfo.BlockChanger();
 	
 }

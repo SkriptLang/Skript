@@ -12,6 +12,7 @@ import ch.njol.skript.lang.ParseContext;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -20,6 +21,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 import java.util.Arrays;
 import java.util.Map;
 
+@ApiStatus.Internal
 public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 
 	public ItemStackClassInfo() {

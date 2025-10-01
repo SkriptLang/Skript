@@ -1,10 +1,11 @@
 package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
 
 /**
  * A provider for anything with a (number) amount/size.
- * Anything implementing this (or convertible to this) can be used by the {@link org.skriptlang.skript.common.expressions.PropExprAmount}
+ * Anything implementing this (or convertible to this) can be used by the {@link PropExprAmount}
  * property expression.
  *
  * @see AnyProvider

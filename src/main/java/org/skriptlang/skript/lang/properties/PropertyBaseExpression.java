@@ -12,9 +12,10 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.expressions.PropExprName;
+import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
@@ -36,6 +37,7 @@ import java.util.stream.Stream;
  * @param <Handler> The type of ExpressionPropertyHandler used by this expression.
  * @see PropExprName PropExprName - An example implementation of this class.
  */
+@ApiStatus.Experimental
 public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyHandler<?,?>> extends SimpleExpression<Object>
 	implements PropertyBaseSyntax<Handler> {
 

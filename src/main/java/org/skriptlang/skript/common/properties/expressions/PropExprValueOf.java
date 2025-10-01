@@ -1,7 +1,6 @@
-package org.skriptlang.skript.common.expressions;
+package org.skriptlang.skript.common.properties.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
@@ -42,8 +41,7 @@ import java.util.stream.Stream;
 public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHandler<?, ?>> {
 
 	static {
-		if (SkriptConfig.useTypeProperties.value())
-			register(PropExprValueOf.class, "[%-*classinfo%] value", "objects");
+		register(PropExprValueOf.class, "[%-*classinfo%] value", "objects");
 	}
 
 	private ClassInfo<?> type;

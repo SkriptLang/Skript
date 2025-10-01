@@ -21,6 +21,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
@@ -29,6 +30,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 import java.util.Locale;
 import java.util.UUID;
 
+@ApiStatus.Internal
 public class EntityClassInfo extends ClassInfo<Entity> {
 
 	public EntityClassInfo() {

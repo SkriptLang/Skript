@@ -18,9 +18,10 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
 
 /**
- * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.expressions.PropExprAmount}
+ * @deprecated This is being removed in favor of {@link PropExprAmount}
  */
 @Name("Amount")
 @Description({"The amount or size of something.",

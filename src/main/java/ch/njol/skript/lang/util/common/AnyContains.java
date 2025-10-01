@@ -2,10 +2,11 @@ package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 
 /**
  * A provider for anything that contains other things.
- * Anything implementing this (or convertible to this) can be used by the {@link org.skriptlang.skript.common.conditions.PropCondContains}
+ * Anything implementing this (or convertible to this) can be used by the {@link PropCondContains}
  * conditions.
  *
  * @param <Type> the type of objects that this container can check for containment.

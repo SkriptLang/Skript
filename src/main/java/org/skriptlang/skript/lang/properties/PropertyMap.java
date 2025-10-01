@@ -1,5 +1,6 @@
 package org.skriptlang.skript.lang.properties;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.HashMap;
  *
  * @param <Handler> The type of PropertyHandler.
  */
+@ApiStatus.Experimental
 public class PropertyMap<Handler extends PropertyHandler<?>> extends HashMap<Class<?>, Property.PropertyInfo<Handler>> {
 
 	/**

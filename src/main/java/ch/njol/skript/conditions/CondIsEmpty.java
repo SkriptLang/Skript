@@ -11,10 +11,11 @@ import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.common.properties.conditions.PropCondIsEmpty;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 /**
- * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.conditions.PropCondIsEmpty}
+ * @deprecated This is being removed in favor of {@link PropCondIsEmpty}
  */
 @Name("Is Empty")
 @Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")

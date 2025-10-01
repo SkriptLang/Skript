@@ -12,6 +12,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
@@ -19,6 +20,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 import java.io.StreamCorruptedException;
 import java.util.UUID;
 
+@ApiStatus.Internal
 public class OfflinePlayerClassInfo extends ClassInfo<OfflinePlayer> {
 
 	public OfflinePlayerClassInfo() {

@@ -22,6 +22,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -31,7 +32,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- * @deprecated This is being removed in favor of {@link org.skriptlang.skript.common.conditions.PropCondContains}
+ * @deprecated This is being removed in favor of {@link PropCondContains}
  */
 @Name("Contains")
 @Description("Checks whether an inventory contains an item, a text contains another piece of text, "

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.lang.properties;
 
 import ch.njol.skript.Skript;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.util.Registry;
@@ -13,6 +14,7 @@ import java.util.*;
  * If a conflict does occur, your property will fail to register and return false. You should check if your property
  * has a matching handler with the already registered one. If so, you should be able to use the other property instead of your own.
  */
+@ApiStatus.Experimental
 public class PropertyRegistry implements Registry<Property<?>> {
 
 	private final Map<String, Property<?>> properties;
