@@ -27,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	prevent {_component} from swapping equipment on right click
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class EffEquipCompSwapEquipment extends Effect implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -23,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 	"knock victim (vector from attacker to victim) with strength 10"
 })
 @Since("2.7")
-@RequiredPlugins("Paper 1.19.2+")
 public class EffKnockback extends Effect {
 
 	static {

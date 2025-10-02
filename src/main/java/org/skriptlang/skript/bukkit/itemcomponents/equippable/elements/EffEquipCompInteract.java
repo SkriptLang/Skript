@@ -22,7 +22,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("allow {_item} to be equipped onto entities")
-@Since("INSERT VERSION")
+@Since("2.13")
 @RequiredPlugins("Minecraft 1.21.5+")
 public class EffEquipCompInteract extends Effect implements EquippableExperimentSyntax {
 
