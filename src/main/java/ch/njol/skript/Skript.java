@@ -7,6 +7,8 @@ import ch.njol.skript.classes.data.*;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
+import ch.njol.skript.examples.CoreExampleScripts;
+import ch.njol.skript.examples.ExampleScriptManager;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
@@ -162,6 +164,8 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static boolean disabled = false;
 	private static boolean partDisabled = false;
+
+	public static @Nullable ExampleScriptManager exampleManager;
 
 	public static Skript getInstance() {
 		if (instance == null)
@@ -398,11 +402,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists() || !aliasesFolder.exists()) {
 			ZipFile f = null;
 			try {
-				boolean populateExamples = false;
 				if (!scriptsFolder.isDirectory()) {
 					if (!scriptsFolder.mkdirs())
 						throw new IOException("Could not create the directory " + scriptsFolder);
-					populateExamples = true;
 				}
 
 				boolean populateLanguageFiles = false;
@@ -422,15 +424,9 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
-						String fileName = e.getName().substring(e.getName().indexOf("/") + 1);
-						// All example scripts must be disabled for jar security.
-						if (!fileName.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
-							fileName = ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName;
-						saveTo = new File(scriptsFolder, fileName);
-					} else if (populateLanguageFiles
-							&& e.getName().startsWith("lang/")
-							&& !e.getName().endsWith("default.lang")) {
+					if (populateLanguageFiles
+						&& e.getName().startsWith("lang/")
+						&& !e.getName().endsWith("default.lang")) {
 						String fileName = e.getName().substring(e.getName().lastIndexOf("/") + 1);
 						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
@@ -454,7 +450,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						}
 					}
 				}
-				info("Successfully generated the config and the example scripts.");
+				info("Successfully generated the config.");
 			} catch (ZipException ignored) {} catch (IOException e) {
 				error("Error generating the default files: " + ExceptionUtils.toString(e));
 			} finally {
@@ -465,6 +461,9 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			}
 		}
+
+		exampleManager = new ExampleScriptManager();
+		exampleManager.installExamples("Skript", CoreExampleScripts.all(), scriptsFolder);
 
 		// initialize the modern Skript instance
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
