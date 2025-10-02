@@ -61,12 +61,22 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			Object[] val = params[i];
 			if (parameter.single && val.length > 0) {
 				Variables.setVariable(parameter.name, val[0], event, true);
-			} else {
-				for (Object value : val) {
-					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
-					Variables.setVariable(parameter.name + "::" + keyedValue.key(), keyedValue.value(), event, true);
-				}
+				continue;
 			}
+
+			int count = 0;
+			for (Object value : val) {
+				if (value instanceof KeyedValue<?> keyedValue) {
+					Variables.setVariable(parameter.name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+					continue;
+				}
+
+				// backup for if the passed argument is not a keyed value.
+				// an example of this is passing `xs: integers = (1, 2)` as a parameter.
+				Variables.setVariable(parameter.name + "::" + count, value, event, true);
+				count++;
+			}
+
 		}
 
 		trigger.execute(event);
