@@ -25,9 +25,9 @@ public class EffAssert extends Effect {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffAssert.class,
-				"assert [:unsafely] <.+> [(1:to fail)] with [error] %string%",
-				"assert [:unsafely] <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
-				"assert [:unsafely] <.+> [(1:to fail)]");
+				"assert [:unsafely] [that] <.+> [(1:to fail)] with [error] %string%",
+				"assert [:unsafely] [that] <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
+				"assert [:unsafely] [that] <.+> [(1:to fail)]");
 	}
 
 	private @Nullable Condition condition;
