@@ -44,6 +44,10 @@ dependencies {
 		exclude group: 'org.bukkit', module: 'bukkit'
 	}
 
+	// Libraries that are installed at runtime. See plugin.yml 'libraries' section.
+	implementation group: 'com.h2database', name: 'h2', version: project.property('h2.version')
+	implementation group: 'com.zaxxer', name: 'HikariCP', version: project.property('hikaricp.version')
+
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
@@ -287,6 +291,15 @@ tasks.register('JUnit') {
 	dependsOn JUnitJava17, JUnitJava21
 }
 
+// Generic replace tokens, e.g: '@version@'
+tasks.withType(Copy).configureEach {
+	filter(ReplaceTokens, tokens: [
+		'today'            : '' + LocalTime.now(),
+		'h2.version'       : project.property('h2.version'),
+		'hikaricp.version' : project.property('hikaricp.version')
+	])
+}
+
 // Build flavor configurations
 task githubResources(type: ProcessResources) {
 	from 'src/main/resources', {
@@ -297,7 +310,6 @@ task githubResources(type: ProcessResources) {
 			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
-			'today'           : '' + LocalTime.now(),
 			'release-flavor'  : 'skriptlang-github', // SkriptLang build, distributed on Github
 			'release-channel' : channel, // Release channel, see above
 			'release-updater' : 'ch.njol.skript.update.GithubChecker', // Github API client
@@ -330,7 +342,6 @@ task spigotResources(type: ProcessResources) {
 			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
-			'today'           : '' + LocalTime.now(),
 			'release-flavor'  : 'skriptlang-spigot', // SkriptLang build, distributed on Spigot resources
 			'release-channel' : channel, // Release channel, see above
 			'release-updater' : 'ch.njol.skript.update.GithubChecker', // Github API client
@@ -361,7 +372,6 @@ task nightlyResources(type: ProcessResources) {
 		version = project.property('version') + '-nightly-' + hash
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
-			'today'           : '' + LocalTime.now(),
 			'release-flavor'  : 'skriptlang-nightly', // SkriptLang build, automatically done by CI
 			'release-channel' : 'prerelease', // No update checking, but these are VERY unstable
 			'release-updater' : 'ch.njol.skript.update.NoUpdateChecker', // No auto updates for now
