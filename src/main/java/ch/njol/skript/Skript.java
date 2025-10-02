@@ -64,6 +64,7 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
+import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
@@ -569,7 +570,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			skript.loadModules(
 					new DamageSourceModule(),
 					new ItemComponentModule(),
-					new CommonModule());
+					new BrewingModule(),
+					new CommonModule()
+				);
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -1569,19 +1572,19 @@ public final class Skript extends JavaPlugin implements Listener {
 	/**
 	 * Registers an expression.
 	 *
-	 * @param expressionType The expression's class
+	 * @param expressionClass The expression's class
 	 * @param returnType The superclass of all values returned by the expression
 	 * @param type The expression's {@link ExpressionType type}. This is used to determine in which order to try to parse expressions.
 	 * @param patterns Skript patterns that match this expression
 	 * @throws IllegalArgumentException if returnType is not a normal class
 	 */
 	public static <E extends Expression<T>, T> void registerExpression(
-		Class<E> expressionType, Class<T> returnType, ExpressionType type, String... patterns
+		Class<E> expressionClass, Class<T> returnType, ExpressionType type, String... patterns
 	) throws IllegalArgumentException {
 		checkAcceptRegistrations();
-		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionType, returnType)
+		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionClass, returnType)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(expressionType))
+				.origin(getSyntaxOrigin(expressionClass))
 				.addPatterns(patterns)
 				.build()
 		);
