@@ -13,17 +13,17 @@ package org.skriptlang.skript.lang.arithmetic;
  */
 public record DifferenceInfo<T, R>(Class<T> type, Class<R> returnType, Operation<T, T, R> operation) {
 
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Class<T> getType() {
 		return type;
 	}
 
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Class<R> getReturnType() {
 		return returnType;
 	}
 
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Operation<T, T, R> getOperation() {
 		return operation;
 	}

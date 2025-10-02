@@ -6,7 +6,7 @@ import java.nio.file.Path;
 /**
  * @deprecated Use {@link JSONGenerator} instead.
  */
-@Deprecated(forRemoval = true, since = "INSERT VERSION")
+@Deprecated(forRemoval = true, since = "2.13")
 public abstract class DocumentationGenerator {
 
 	protected File templateDir;
@@ -20,7 +20,7 @@ public abstract class DocumentationGenerator {
 	/**
 	 * Use {@link JSONGenerator#generate(Path)} instead.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	public abstract void generate();
 
 }

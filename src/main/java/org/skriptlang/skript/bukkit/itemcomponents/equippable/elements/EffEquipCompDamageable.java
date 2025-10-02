@@ -29,7 +29,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		make {_component} lose durability on injury
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class EffEquipCompDamageable extends Effect implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

@@ -1,29 +1,9 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
-import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.data.DefaultChangers;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -32,6 +12,14 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
 
 @Name("Spectator Target")
 @Description("Grabs the spectator target entity of the players.")
@@ -43,7 +31,6 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tpast spectator target was a zombie",
 		"\tset spectator target to the nearest skeleton"
 })
-@RequiredPlugins("Paper")
 @Since("2.4-alpha4, 2.7 (Paper Spectator Event)")
 public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 
@@ -57,6 +44,7 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 	}
 
 	private Expression<Player> players;
+	private static final Changer<Entity> ENTITY_CHANGER = new EntityClassInfo.EntityChanger();
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -99,7 +87,7 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		// Make 'spectator target' act as an entity changer. Will error in init for unsupported server platform.
 		if (players == null)
-			return DefaultChangers.entityChanger.acceptChange(mode);
+			return ENTITY_CHANGER.acceptChange(mode);
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(Entity.class);
 		return null;
@@ -112,7 +100,7 @@ public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 			Entity[] entities = get(event);
 			if (entities.length == 0)
 				return;
-			DefaultChangers.entityChanger.change(entities, delta, mode);
+			ENTITY_CHANGER.change(entities, delta, mode);
 			return;
 		}
 		switch (mode) {

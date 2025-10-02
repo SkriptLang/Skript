@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 	if a pig is spawnable in world "world": # true
 	if a monster can be spawned in {_world}: # false
 	""")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class CondIsSpawnable extends Condition {
 
 	static {
