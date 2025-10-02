@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.GlobalOptions;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.StringUtils;
@@ -107,7 +108,7 @@ public class StructOptions extends Structure {
 		@SuppressWarnings("ConstantConditions") // no way to get null as callback does not return null anywhere
 		public String replaceOptions(String string) {
 			return StringUtils.replaceAll(string, "\\{@(.+?)\\}", m -> {
-				String option = options.get(m.group(1));
+				String option = options.getOrDefault(m.group(1), GlobalOptions.getOptions().get(m.group(1)));
 				if (option == null) {
 					Skript.error("undefined option " + m.group());
 					return m.group();
