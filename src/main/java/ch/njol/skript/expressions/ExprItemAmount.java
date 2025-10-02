@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 
 	static {
-		register(ExprItemAmount.class, Long.class, "item[[ ]stack] (amount|size|number)", "slots/itemtypes/itemstacks");
+		registerDefault(ExprItemAmount.class, Long.class, "item[[ ]stack] (amount|size|number)", "slots/itemtypes/itemstacks");
 	}
 
 	@Override

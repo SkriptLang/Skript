@@ -26,7 +26,7 @@ public class ExprFirstEmptySlot extends SimplePropertyExpression<Inventory, Slot
 
 	static {
 		// support `first empty slot in inventory` as well as typical property syntax
-		List<String> patterns = new ArrayList<>(Arrays.asList(getPatterns("first empty slot[s]", "inventories")));
+		List<String> patterns = new ArrayList<>(Arrays.asList(getDefaultPatterns("first empty slot[s]", "inventories")));
 		patterns.add("[the] first empty slot[s] in %inventories%");
 		Skript.registerExpression(ExprFirstEmptySlot.class, Slot.class, ExpressionType.PROPERTY, patterns.toArray(new String[0]));
 	}

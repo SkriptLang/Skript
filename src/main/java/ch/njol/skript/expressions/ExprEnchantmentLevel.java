@@ -29,8 +29,8 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprEnchantmentLevel.class, Long.class, ExpressionType.PROPERTY,
-			"[the] [enchant[ment]] level[s] of %enchantments% (on|of) %itemtypes%",
-			"[the] %enchantments% [enchant[ment]] level[s] (on|of) %itemtypes%",
+			"[the] [enchant[ment]] level[s] of %enchantments% [(on|of) %itemtypes%]",
+			"[the] %enchantments% [enchant[ment]] level[s] [(on|of) %itemtypes%]",
 			"%itemtypes%'[s] %enchantments% [enchant[ment]] level[s]",
 			"%itemtypes%'[s] [enchant[ment]] level[s] of %enchantments%");
 	}

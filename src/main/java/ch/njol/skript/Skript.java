@@ -5,6 +5,7 @@ import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.data.BukkitClasses;
 import ch.njol.skript.classes.data.BukkitEventValues;
+import ch.njol.skript.classes.data.DefaultCustomizables;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.classes.data.DefaultConverters;
 import ch.njol.skript.classes.data.DefaultFunctions;
@@ -574,6 +575,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		new DefaultConverters();
 		new DefaultFunctions();
 		new DefaultOperations();
+		new DefaultCustomizables();
 
 		ChatMessages.registerListeners();
 

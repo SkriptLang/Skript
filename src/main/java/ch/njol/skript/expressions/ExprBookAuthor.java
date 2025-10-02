@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 
 	static {
-		register(ExprBookAuthor.class, String.class, "[book] (author|writer|publisher)", "itemtypes");
+		registerDefault(ExprBookAuthor.class, String.class, "[book] (author|writer|publisher)", "itemtypes");
 	}
 
 	@Nullable

@@ -35,11 +35,17 @@ public class ExpressionSection extends Section {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext context = getParser().getData(SectionContext.class);
 		assert context != null;
-		if (context.sectionNode == null && expression.isSectionOnly()) {
-			Skript.error("This expression requires a section.");
-			return false;
+		SectionNode sectionNode = context.sectionNode;
+		if (expression.isSectionOnly()) {
+			if (sectionNode == null) {
+				Skript.error("This expression requires a section.");
+				return false;
+			} else if (sectionNode.isEmpty()) {
+				Skript.error("This section must contain code.");
+				return false;
+			}
 		}
-		return this.init(expressions, matchedPattern, isDelayed, parseResult, context.sectionNode, context.triggerItems)
+		return this.init(expressions, matchedPattern, isDelayed, parseResult, sectionNode, context.triggerItems)
 			&& context.claim(expression);
 	}
 

@@ -250,17 +250,25 @@ public final class SkriptParser {
 								types = parseResult.source.getElements(TypePatternElement.class);;
 							ExprInfo exprInfo = types.get(i).getExprInfo();
 							if (!exprInfo.isOptional) {
-								List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
-								DefaultExpression<?> matchedExpr = null;
-								for (DefaultExpression<?> expr : exprs) {
-									if (expr.init()) {
-										matchedExpr = expr;
-										break;
+								ParseLogHandler defaultLog = SkriptLogger.startParseLogHandler();
+								try {
+									List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
+									DefaultExpression<?> matchedExpr = null;
+									for (DefaultExpression<?> expr : exprs) {
+										if (expr.init()) {
+											matchedExpr = expr;
+											break;
+										}
 									}
+									if (matchedExpr == null) {
+										defaultLog.printLog();
+										continue patternsLoop;
+									}
+									defaultLog.clear();
+									parseResult.exprs[i] = matchedExpr;
+								} finally {
+									defaultLog.stop();
 								}
-								if (matchedExpr == null)
-									continue patternsLoop;
-								parseResult.exprs[i] = matchedExpr;
 							}
 						}
 					}
@@ -356,8 +364,17 @@ public final class SkriptParser {
 	 */
 	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
+		List<Class<?>> dataClasses = data.getDefaultValueClasses();
 		ClassInfo<?> classInfo = exprInfo.classes[0];
 		DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
+		if (expr == null && !dataClasses.isEmpty()) {
+			for (Class<?> dataClass : dataClasses) {
+				if (classInfo.getC().isAssignableFrom(dataClass)) {
+					expr = data.getDefaultValue(dataClass);
+					break;
+				}
+			}
+		}
 		if (expr == null)
 			expr = classInfo.getDefaultExpression();
 
@@ -383,12 +400,21 @@ public final class SkriptParser {
 			return new ArrayList<>(List.of(getDefaultExpression(exprInfo, pattern)));
 
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
+		List<Class<?>> dataClasses = data.getDefaultValueClasses();
 
 		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);
 		List<DefaultExpression<?>> passed = new ArrayList<>();
 		for (int i = 0; i < exprInfo.classes.length; i++) {
 			ClassInfo<?> classInfo = exprInfo.classes[i];
 			DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
+			if (expr == null && !dataClasses.isEmpty()) {
+				for (Class<?> dataClass : dataClasses) {
+					if (classInfo.getC().isAssignableFrom(dataClass)) {
+						expr = data.getDefaultValue(dataClass);
+						break;
+					}
+				}
+			}
 			if (expr == null)
 				expr = classInfo.getDefaultExpression();
 

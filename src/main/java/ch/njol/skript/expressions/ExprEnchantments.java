@@ -1,14 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -22,6 +13,14 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Name("Item Enchantments")
 @Description("All the enchantments an <a href='#itemtype'>item type</a> has.")
@@ -30,7 +29,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprEnchantments extends SimpleExpression<EnchantmentType> {
 
 	static {
-		PropertyExpression.register(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes");
+		PropertyExpression.registerDefault(ExprEnchantments.class, EnchantmentType.class, "enchantments", "itemtypes");
 	}
 
 	@SuppressWarnings("null")

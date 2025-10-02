@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlayer> {
 
 	static {
-		register(ExprSkullOwner.class, OfflinePlayer.class, "(head|skull) owner", "slots/itemtypes/itemstacks/blocks");
+		registerDefault(ExprSkullOwner.class, OfflinePlayer.class, "(head|skull) owner", "slots/itemtypes/itemstacks/blocks");
 	}
 
 	@Override
