@@ -2,20 +2,15 @@ package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
 import ch.njol.skript.lang.util.common.AnyNamed;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.util.Validated;
+import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -144,6 +139,9 @@ public final class Script implements Validated, AnyNamed {
 		return (Value) scriptData.computeIfAbsent(dataType, clazz -> mapper.get());
 	}
 
+	/**
+	 * @return The name of this script (excluding path and file extensions)
+	 */
 	@Override
 	public String name() {
 		return config.name();

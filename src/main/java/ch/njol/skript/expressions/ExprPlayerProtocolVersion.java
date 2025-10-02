@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 	"\ttrigger:",
 	"\t\tsend \"Protocol version of %arg-1%: %protocol version of arg-1%\""})
 @Since("2.6.2")
-@RequiredPlugins("Paper 1.12.2 or newer")
 public class ExprPlayerProtocolVersion extends SimplePropertyExpression<Player, Integer> {
 
 	static {

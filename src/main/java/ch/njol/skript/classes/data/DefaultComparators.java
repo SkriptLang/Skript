@@ -10,17 +10,7 @@ import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Color;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.GameruleValue;
-import ch.njol.skript.util.StructureType;
-import ch.njol.skript.util.Time;
-import ch.njol.skript.util.Timeperiod;
-import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.WeatherType;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
@@ -33,6 +23,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -349,7 +340,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(OfflinePlayer.class, OfflinePlayer.class, new Comparator<OfflinePlayer, OfflinePlayer>() {
 			@Override
 			public Relation compare(OfflinePlayer p1, OfflinePlayer p2) {
-				return Relation.get(Objects.equals(p1.getName(), p2.getName()));
+				return Relation.get(Objects.equals(p1.getUniqueId(), p2.getUniqueId()));
 			}
 
 			@Override
@@ -361,9 +352,13 @@ public class DefaultComparators {
 		// OfflinePlayer - String
 		Comparators.registerComparator(OfflinePlayer.class, String.class, new Comparator<OfflinePlayer, String>() {
 			@Override
-			public Relation compare(OfflinePlayer p, String name) {
-				String offlineName = p.getName();
-				return offlineName == null ? Relation.NOT_EQUAL : Relation.get(offlineName.equalsIgnoreCase(name));
+			public Relation compare(OfflinePlayer player, String name) {
+				if (Utils.isValidUUID(name)) {
+					UUID uuid = UUID.fromString(name);
+					return Relation.get(player.getUniqueId().equals(uuid));
+				}
+				String playerName = player.getName();
+				return playerName == null ? Relation.NOT_EQUAL : Relation.get(playerName.equalsIgnoreCase(name));
 			}
 
 			@Override
@@ -371,6 +366,9 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		// OfflinePlayer - UUID
+		Comparators.registerComparator(OfflinePlayer.class, UUID.class, (player, uuid) -> Relation.get(player.getUniqueId().equals(uuid)));
 		
 		// World - String
 		Comparators.registerComparator(World.class, String.class, new Comparator<World, String>() {
@@ -587,6 +585,10 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		//EnchantmentType - Enchantment
+		Comparators.registerComparator(EnchantmentType.class, Enchantment.class, ((enchantmentType, enchantment) ->
+			Relation.get(enchantmentType.getType().equals(enchantment))));
 
 		Comparators.registerComparator(Inventory.class, InventoryType.class, new Comparator<Inventory, InventoryType>() {
 			@Override

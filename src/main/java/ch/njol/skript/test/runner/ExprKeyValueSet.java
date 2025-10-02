@@ -55,7 +55,21 @@ public class ExprKeyValueSet extends SimpleExpression<Object> implements KeyProv
 
 	@Override
 	public Class<?> getReturnType() {
-		return Object.class;
+		return variable == null ? String.class : variable.getReturnType();
+	}
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		if (variable == null)
+			return super.possibleReturnTypes();
+		return variable.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		if (variable == null)
+			return super.canReturn(returnType);
+		return variable.canReturn(returnType);
 	}
 
 	@Override

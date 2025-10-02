@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -32,6 +33,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -169,6 +171,8 @@ public final class BukkitEventValues {
 			"Use 'attacker' and/or 'victim' in damage/death events", EntityDamageEvent.class, EntityDeathEvent.class);
 		EventValues.registerEventValue(EntityEvent.class, World.class, event -> event.getEntity().getWorld());
 		EventValues.registerEventValue(EntityEvent.class, Location.class, event -> event.getEntity().getLocation());
+		EventValues.registerEventValue(EntityEvent.class, EntityData.class, event -> EntityData.fromEntity(event.getEntity()),
+			TIME_NOW, "Use 'type of attacker/victim' in damage/death events.", EntityDamageEvent.class, EntityDeathEvent.class);
 		// EntityDamageEvent
 		EventValues.registerEventValue(EntityDamageEvent.class, DamageCause.class, EntityDamageEvent::getCause);
 		EventValues.registerEventValue(EntityDamageByEntityEvent.class, Projectile.class, event -> {
@@ -224,10 +228,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(ProjectileLaunchEvent.class, Projectile.class, ProjectileLaunchEvent::getEntity);
 		// EntityTameEvent
 		EventValues.registerEventValue(EntityTameEvent.class, Entity.class, EntityTameEvent::getEntity);
-
-		// EntityTeleportEvent
-		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, EntityTeleportEvent::getFrom, TIME_PAST);
-		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, EntityTeleportEvent::getTo);
 
 		// EntityChangeBlockEvent
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, EntityChangeBlockEvent::getBlock, TIME_PAST);
@@ -402,11 +402,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(InventoryClickEvent.class, Player.class,
 			event -> event.getWhoClicked() instanceof Player player ? player : null);
 		EventValues.registerEventValue(InventoryClickEvent.class, World.class, event -> event.getWhoClicked().getWorld());
-		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, event -> {
-			if (event instanceof CraftItemEvent craftItemEvent)
-				return craftItemEvent.getRecipe().getResult();
-			return event.getCurrentItem();
-		});
+		EventValues.registerEventValue(InventoryClickEvent.class, ItemStack.class, InventoryClickEvent::getCurrentItem);
 		EventValues.registerEventValue(InventoryClickEvent.class, Slot.class, event -> {
 			Inventory invi = event.getClickedInventory(); // getInventory is WRONG and dangerous
 			if (invi == null)
@@ -496,7 +492,12 @@ public final class BukkitEventValues {
 			return null;
 		});
 		// CraftItemEvent
-		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> event.getRecipe().getResult());
+		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> {
+			Recipe recipe = event.getRecipe();
+			if (recipe instanceof ComplexRecipe)
+				return event.getCurrentItem();
+			return recipe.getResult();
+		});
 		//InventoryEvent
 		EventValues.registerEventValue(InventoryEvent.class, Inventory.class, InventoryEvent::getInventory);
 		//InventoryOpenEvent
@@ -755,6 +756,38 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter);
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
 		}
+
+		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
+			EventValues.registerEventValue(VaultDisplayItemEvent.class, ItemStack.class, new EventConverter<>() {
+				@Override
+				public void set(VaultDisplayItemEvent event, @Nullable ItemStack itemStack) {
+					event.setDisplayItem(itemStack);
+				}
+
+				@Override
+				public @Nullable ItemStack convert(VaultDisplayItemEvent event) {
+					return event.getDisplayItem();
+				}
+			});
+		}
+
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, VillagerCareerChangeEvent.ChangeReason.class, VillagerCareerChangeEvent::getReason);
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class, new EventConverter<>() {
+			@Override
+			public void set(VillagerCareerChangeEvent event, @Nullable Profession profession) {
+				if (profession == null)
+					return;
+				event.setProfession(profession);
+			}
+
+			@Override
+			public Profession convert(VillagerCareerChangeEvent event) {
+				return event.getProfession();
+			}
+		});
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class,
+			event -> event.getEntity().getProfession(), TIME_PAST);
+
 	}
 
 }

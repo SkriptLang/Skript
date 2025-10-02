@@ -2,6 +2,8 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -9,6 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.condition.Conditional;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.util.Priority;
 
@@ -20,7 +23,7 @@ import java.util.function.Predicate;
  *
  * @see Skript#registerCondition(Class, String...)
  */
-public abstract class Condition extends Statement implements Conditional<Event> {
+public abstract class Condition extends Statement implements Conditional<Event>, SyntaxRuntimeErrorProducer, Simplifiable<Condition> {
 
 	public enum ConditionType {
 		/**
@@ -62,6 +65,14 @@ public abstract class Condition extends Statement implements Conditional<Event> 
 
 	protected Condition() {}
 
+	private Node node;
+
+	@Override
+	public boolean preInit() {
+		node = getParser().getNode();
+		return super.preInit();
+	}
+
 	/**
 	 * Checks whether this condition is satisfied with the given event. This should not alter the event or the world in any way, as conditions are only checked until one returns
 	 * false. All subsequent conditions of the same trigger will then be omitted.<br/>
@@ -98,8 +109,18 @@ public abstract class Condition extends Statement implements Conditional<Event> 
 	}
 
 	@Override
+	public Node getNode() {
+		return node;
+	}
+
+	@Override
 	public @NotNull String getSyntaxTypeName() {
 		return "condition";
+	}
+
+	@Override
+	public Condition simplify() {
+		return this;
 	}
 
 	/**
@@ -113,8 +134,9 @@ public abstract class Condition extends Statement implements Conditional<Event> 
 		input = input.trim();
 		while (input.startsWith("(") && SkriptParser.next(input, 0, ParseContext.DEFAULT) == input.length())
 			input = input.substring(1, input.length() - 1);
+		var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.CONDITION).iterator();
 		//noinspection unchecked,rawtypes
-		return (Condition) SkriptParser.parse(input, (Iterator) Skript.getConditions().iterator(), defaultError);
+		return (Condition) SkriptParser.parse(input, (Iterator) iterator, defaultError);
 	}
 
 }
