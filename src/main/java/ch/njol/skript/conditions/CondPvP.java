@@ -1,9 +1,5 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.World;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -13,16 +9,19 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.GameRule;
+import org.bukkit.World;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("PvP")
 @Description("Checks the PvP state of a world.")
 @Examples({"PvP is enabled",
 		"PvP is disabled in \"world\""})
 @Since("1.3.4")
 public class CondPvP extends Condition {
+
+	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
 	
 	static {
 		Skript.registerCondition(CondPvP.class, "(is PvP|PvP is) enabled [in %worlds%]", "(is PvP|PvP is) disabled [in %worlds%]");
@@ -41,12 +40,15 @@ public class CondPvP extends Condition {
 	}
 	
 	@Override
-	public boolean check(final Event e) {
-		return worlds.check(e, w -> w.getPVP() == enabled, isNegated());
+	public boolean check(Event event) {
+		if (PVP_GAME_RULE_EXISTS)
+			return worlds.check(event, world -> world.getGameRuleValue(GameRule.PVP) == enabled, isNegated());
+		return worlds.check(event, world -> world.getPVP() == enabled, isNegated());
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "PvP is " + (enabled ? "enabled" : "disabled") + " in " + worlds.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "PvP is " + (enabled ? "enabled" : "disabled") + " in " + worlds.toString(event, debug);
 	}
+
 }
