@@ -67,13 +67,13 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			int count = 0;
 			for (Object value : val) {
 				if (value instanceof KeyedValue<?> keyedValue) {
-					Variables.setVariable(parameter.name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
 					continue;
 				}
 
 				// backup for if the passed argument is not a keyed value.
 				// an example of this is passing `xs: integers = (1, 2)` as a parameter.
-				Variables.setVariable(parameter.name + "::" + count, value, event, true);
+				Variables.setVariable(parameter.name + Variable.SEPARATOR + count, value, event, true);
 				count++;
 			}
 
