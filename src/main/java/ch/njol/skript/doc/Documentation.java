@@ -6,9 +6,7 @@ import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
-import org.skriptlang.skript.common.function.DefaultFunction;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -153,7 +151,7 @@ public class Documentation {
 				"examples VARCHAR(2000) NOT NULL," +
 				"since VARCHAR(100) NOT NULL" +
 				");");
-		for (ch.njol.skript.lang.function.Function<?> func : Functions.getDefaultFunctions()) {
+		for (ch.njol.skript.lang.function.Function<?> func : Functions.getFunctions()) {
 			assert func != null;
 			insertFunction(pw, func);
 		}
