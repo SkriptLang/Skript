@@ -881,8 +881,11 @@ public class ScriptLoader {
 			script.eventRegistry().events(ScriptUnloadEvent.class)
 					.forEach(event -> event.onUnload(parser, script));
 
-			for (Structure structure : script.getStructures())
-				structure.unload();
+			Stream<Structure> structuresStream = script.getStructures().stream();
+			if (isParallel())
+				structuresStream = structuresStream.parallel();
+
+			structuresStream.forEachOrdered(Structure::unload);
 		}
 
 		parser.setInactive();
