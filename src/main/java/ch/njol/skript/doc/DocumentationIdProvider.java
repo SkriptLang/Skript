@@ -12,6 +12,7 @@ import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -62,7 +63,16 @@ public class DocumentationIdProvider {
 	 * @return the ID of the syntax element
 	 */
 	public static <T> String getId(SyntaxElementInfo<? extends T> syntaxInfo) {
-		Class<?> syntaxClass = syntaxInfo.getElementClass();
+		return getId((SyntaxInfo<?>) syntaxInfo);
+	}
+
+	/**
+	 * Gets the documentation ID of a syntax element
+	 * @param syntaxInfo the SyntaxInfo to get the ID of
+	 * @return the ID of the syntax element
+	 */
+	public static <T> String getId(SyntaxInfo<? extends T> syntaxInfo) {
+		Class<?> syntaxClass = syntaxInfo.type();
 		Iterator<? extends SyntaxElementInfo<?>> syntaxElementIterator;
 		if (Effect.class.isAssignableFrom(syntaxClass)) {
 			syntaxElementIterator = Skript.getEffects().iterator();
@@ -79,7 +89,7 @@ public class DocumentationIdProvider {
 		}
 		int collisionCount = calculateCollisionCount(syntaxElementIterator,
 			elementInfo -> elementInfo.getElementClass() == syntaxClass,
-			elementInfo -> Arrays.equals(elementInfo.getPatterns(), syntaxInfo.getPatterns()));
+			elementInfo -> Arrays.equals(elementInfo.getPatterns(), syntaxInfo.patterns().toArray(new String[0])));
 		DocumentationId documentationIdAnnotation = syntaxClass.getAnnotation(DocumentationId.class);
 		if (documentationIdAnnotation == null) {
 			return addCollisionSuffix(syntaxClass.getSimpleName(), collisionCount);
@@ -93,7 +103,7 @@ public class DocumentationIdProvider {
 	 * @return the documentation ID of the function
 	 */
 	public static String getId(Function<?> function) {
-		int collisionCount = calculateCollisionCount(Functions.getJavaFunctions().iterator(),
+		int collisionCount = calculateCollisionCount(Functions.getFunctions().iterator(),
 			javaFunction -> function.getName().equals(javaFunction.getName()),
 			javaFunction -> javaFunction == function);
 		return addCollisionSuffix(function.getName(), collisionCount);
