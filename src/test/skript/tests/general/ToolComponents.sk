@@ -1,0 +1,131 @@
+
+options:
+	defaultSpeed: 20
+	damagePer: 10
+	rule: a custom tool rule with block types oak log, stone and obsidian
+
+using tool components
+
+test "tool components - new" when running minecraft "1.21.3":
+	set {_component} to a blank tool component
+	set the default mining speed of {_component} to {@defaultSpeed}
+	assert the default mining speed of {_component} is {@defaultSpeed} with "Default mining speed of component was not set"
+	set the damage per block of {_component} to {@damagePer}
+	assert the damage per block of {_component} is {@damagePer} with "Damage per block of component was not set"
+
+	add {@rule} to the tool rules of {_component}
+	assert the tool rules of {_component} contains {@rule} with "Tool rule was not added to component"
+
+	parse if running minecraft "1.21.5":
+		allow {_component} to destroy blocks in creative
+		assert {_component} can destroy blocks in creative with "Component should be able to destroy blocks in creative"
+		prevent {_component} from destroying blocks in creative
+		assert {_component} can not destroy blocks in creative with "Component should not be able to destroy blocks in creative"
+
+test "tool components - itemtype" when running minecraft "1.21.3":
+	set {_item} to an iron pickaxe (item type)
+	set the default mining speed of {_item} to {@defaultSpeed}
+	assert the default mining speed of {_item} is {@defaultSpeed} with "Default mining speed of itemtype was not set"
+	set the damage per block of {_item} to {@damagePer}
+	assert the damage per block of {_item} is {@damagePer} with "Damage per block of itemtype was not set"
+
+	add {@rule} to the tool rules of {_item}
+	assert the tool rules of {_item} contains {@rule} with "Tool rule was not added to itemtype"
+
+	parse if running minecraft "1.21.5":
+		allow {_item} to destroy blocks in creative
+		assert {_item} can destroy blocks in creative with "itemtype should be able to destroy blocks in creative"
+		prevent {_item} from destroying blocks in creative
+		assert {_item} can not destroy blocks in creative with "itemtype should not be able to destroy blocks in creative"
+
+test "tool components - itemstack" when running minecraft "1.21.3":
+	set {_item} to an iron pickaxe (item stack)
+	set the default mining speed of {_item} to {@defaultSpeed}
+	assert the default mining speed of {_item} is {@defaultSpeed} with "Default mining speed of itemstack was not set"
+	set the damage per block of {_item} to {@damagePer}
+	assert the damage per block of {_item} is {@damagePer} with "Damage per block of itemstack was not set"
+
+	add {@rule} to the tool rules of {_item}
+	assert the tool rules of {_item} contains {@rule} with "Tool rule was not added to itemstack"
+
+	parse if running minecraft "1.21.5":
+		allow {_item} to destroy blocks in creative
+		assert {_item} can destroy blocks in creative with "itemstack should be able to destroy blocks in creative"
+		prevent {_item} from destroying blocks in creative
+		assert {_item} can not destroy blocks in creative with "itemstack should not be able to destroy blocks in creative"
+
+test "tool components - slot" when running minecraft "1.21.3":
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to a netherite pickaxe
+
+	set the default mining speed of (slot 1 of {_gui}) to {@defaultSpeed}
+	assert the default mining speed of (slot 1 of {_gui}) is {@defaultSpeed} with "Default mining speed of slot was not set"
+	set the damage per block of (slot 1 of {_gui}) to {@damagePer}
+	assert the damage per block of (slot 1 of {_gui}) is {@damagePer} with "Damage per block of slot was not set"
+
+	add {@rule} to the tool rules of (slot 1 of {_gui})
+	assert the tool rules of (slot 1 of {_gui}) contains {@rule} with "Tool rule was not added to slot"
+
+	parse if running minecraft "1.21.5":
+		allow (slot 1 of {_gui}) to destroy blocks in creative
+		assert (slot 1 of {_gui}) can destroy blocks in creative with "slot should be able to destroy blocks in creative"
+		prevent (slot 1 of {_gui}) from destroying blocks in creative
+		assert (slot 1 of {_gui}) can not destroy blocks in creative with "slot should not be able to destroy blocks in creative"
+
+test "tool components - copy" when running minecraft "1.21.3":
+	set {_component} to a blank tool component
+	set the default mining speed of {_component} to {@defaultSpeed}
+	assert the default mining speed of {_component} is {@defaultSpeed} with "Default mining speed of component was not set"
+	set the damage per block of {_component} to {@damagePer}
+	assert the damage per block of {_component} is {@damagePer} with "Damage per block of component was not set"
+
+	add {@rule} to the tool rules of {_component}
+	assert the tool rules of {_component} contains {@rule} with "Tool rule was not added to component"
+
+	parse if running minecraft "1.21.5":
+		allow {_component} to destroy blocks in creative
+		assert {_component} can destroy blocks in creative with "Component should be able to destroy blocks in creative"
+		prevent {_component} from destroying blocks in creative
+		assert {_component} can not destroy blocks in creative with "Component should not be able to destroy blocks in creative"
+
+	set {_original} to {_component}
+	set {_copy} to an item component copy of {_original}
+	set the default mining speed of {_copy} to 50
+	assert the default mining speed of {_copy} is 50 with "Default mining speed of copy was not set"
+	assert the default mining speed of {_original} is {@defaultSpeed} with "Default mining speed of original should not have changed"
+	set the damage per block of {_copy} to 30
+	assert the damage per block of {_copy} is 30 with "Damage per block of copy was not set"
+	assert the damage per block of {_original} is {@damagePer} with "Damage per block of original should not have changed"
+	assert the tool rules of {_copy} contains {@rule} with "Copy should have a tool rule"
+	clear the tool rules of {_copy}
+	assert tool rules of {_copy} is not set with "Tool rules of copy should be cleared"
+	assert the tool rules of {_original} contains {@rule} with "Tool rules of original should not have changed"
+
+	parse if running minecraft "1.21.5":
+		allow {_copy} to destroy blocks in creative
+		assert {_copy} can destroy blocks in creative with "Copy should be able to destroy blocks in creative"
+		assert {_original} can not destroy blocks in creative with "Original should still not be able to destroy blocks in creative"
+		prevent {_copy} from destroying blocks in creative
+		assert {_copy} can not destroy blocks in creative with "Copy should not be able to destroy blocks in creative"
+
+test "tool components - tool rule" when running minecraft "1.21.3":
+	set {_rule} to a custom tool rule with block types stone and cobblestone
+	set the tool rule block types of {_rule} to diamond ore and gold ore
+	assert the tool rule block types of {_rule} is a diamond ore and a gold ore with "Block types of tool rule did not change"
+	set the tool rule speed of {_rule} to 50
+	assert the tool rule speed of {_rule} is 50 with "Tool rule speed did not change"
+	enable the tool rule drops for {_rule}
+	assert the tool rule drops of {_rule} is enabled with "Tool rule drops should be enabled"
+	disable the tool rule drops for {_rule}
+	assert the tool rule drops of {_rule} is disabled with "Tool rule drops should be disabled"
+
+	set {_component1} to the tool component of a leather helmet
+	set {_component2} to the tool component of an iron helmet
+
+	clear the tool rules of {_component1}
+	clear the tool rules of {_component2}
+
+	add {_rule} to the tool rules of {_component1}
+	add {_rule} to the tool rules of {_component2}
+	assert the tool rules of {_component1} contains {_rule} with "Tool rule was not added to component1"
+	assert the tool rules of {_component2} contains {_rule} with "Tool rule was not added to component2"

@@ -3122,6 +3122,8 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	toolcomponent: tool component¦s @a
+	toolrule: tool rule¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
