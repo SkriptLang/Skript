@@ -29,7 +29,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	set the equip sound of {_component} to "block.note_block.pling"
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprEquipCompEquipSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

@@ -54,7 +54,7 @@ import java.util.logging.Level;
 		recipients: "SkriptDev",  "61699b2e-d327-4a01-9f1e-0ea8c3f06bc6" and "Njol"
 		permission: "skript.reloadnotify"
 	""") // UUID is Dinnerbone's.
-@Since("INSERT VERSION")
+@Since("2.13")
 public class StructAutoReload extends Structure {
 
 	public static final Priority PRIORITY = new Priority(10);

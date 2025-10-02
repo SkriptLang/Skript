@@ -36,7 +36,6 @@ import java.util.UUID;
 		"\tadd \"&cThere are &6%online players count% &conline players!\" to the hover list"
 })
 @Since("2.3")
-@RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
 public class ExprHoverList extends SimpleExpression<String> {
 

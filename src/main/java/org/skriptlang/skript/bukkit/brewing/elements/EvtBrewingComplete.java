@@ -33,7 +33,7 @@ public class EvtBrewingComplete extends SkriptEvent {
 					on brewing of speed potion:
 					on brew finished for speed 2 potion:
 					""")
-				.addSince("INSERT VERSION")
+				.addSince("2.13")
 				.supplier(EvtBrewingComplete::new)
 				.build()
 		);

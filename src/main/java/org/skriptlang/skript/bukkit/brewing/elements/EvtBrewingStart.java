@@ -23,7 +23,7 @@ public class EvtBrewingStart extends SkriptEvent {
 					on brewing start:
 						set the brewing time to 1 second
 					""")
-				.addSince("INSERT VERSION")
+				.addSince("2.13")
 				.supplier(EvtBrewingStart::new)
 				.build()
 		);

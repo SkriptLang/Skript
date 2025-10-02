@@ -27,7 +27,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	set {_centerBlock} to the block at {_center}
 	""")
 @Example("set {_midpoint} to the mid-point of vector(20, 10, 5) and vector(3, 6, 9)")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprMidpoint extends SimpleExpression<Object> implements SyntaxRuntimeErrorProducer {
 
 	static {

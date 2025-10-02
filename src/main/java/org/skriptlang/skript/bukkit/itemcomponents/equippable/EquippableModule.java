@@ -38,7 +38,7 @@ public class EquippableModule implements AddonModule {
 				NOTE: Equippable component elements are experimental. Thus, they are subject to change and may not work as intended.
 				""")
 			.requiredPlugins("Minecraft 1.21.2+")
-			.since("INSERT VERSION")
+			.since("2.13")
 			.defaultExpression(new EventValueExpression<>(EquippableWrapper.class))
 			.parser(new Parser<>() {
 				@Override

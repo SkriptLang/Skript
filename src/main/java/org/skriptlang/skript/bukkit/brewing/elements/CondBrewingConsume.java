@@ -27,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if the brewing stand will consume the fuel:
 			prevent the brewing stand from consuming the fuel
 	""")
-@Since("INSERT VERSION")
+@Since("2.13")
 @Events("Brewing Fuel")
 public class CondBrewingConsume extends Condition implements EventRestrictedSyntax {
 

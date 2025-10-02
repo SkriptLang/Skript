@@ -80,7 +80,7 @@ public abstract class Functions {
 	/**
 	 * @deprecated Use {@link #register(DefaultFunction)} instead.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	public static JavaFunction<?> registerFunction(JavaFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 		String name = function.getName();
@@ -448,7 +448,7 @@ public abstract class Functions {
 	/**
 	 * @deprecated Use {@link #getFunctions()} instead.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	public static Collection<JavaFunction<?>> getJavaFunctions() {
 		// We know there are only Java functions in that namespace
 		return javaNamespace.getFunctions().stream()
