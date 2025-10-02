@@ -35,7 +35,7 @@ import java.util.List;
 	clear the allowed entities of {_component}
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 @SuppressWarnings({"rawtypes", "UnstableApiUsage"})
 public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperimentSyntax {
 

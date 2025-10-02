@@ -394,7 +394,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	/**
 	 * Initializes this {@link EntityData}.
 	 * <p>
-	 *     As of Skript INSERT VERSION, code names can have multiple patterns registered in the default.lang file.
+	 *     As of Skript 2.13, code names can have multiple patterns registered in the default.lang file.
 	 *     {@code matchedCodeName} will be the index of the code name the matched pattern is linked to.
 	 *     		(e.g. {@link PigData} "unsaddled pig' = 0, "pig" = 1, "saddled pig" = 2)
 	 *     {@code matchedPattern} will be the index of the pattern used from the patterns of the code name in the lang file.
@@ -483,7 +483,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return toString(0);
 	}
 
-	@SuppressWarnings("null")
 	protected Noun getName() {
 		return info.names[codeNameIndex];
 	}
@@ -497,7 +496,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return null;
 	}
 
-	@SuppressWarnings("null")
 	public String toString(int flags) {
 		Noun name = info.names[codeNameIndex];
 		if (baby.isTrue()) {
@@ -605,7 +603,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param string String with optional indefinite article at the beginning
 	 * @return The parsed entity data
 	 */
-	@SuppressWarnings("null")
 	public static @Nullable EntityData<?> parse(String string) {
 		Iterator<EntityDataInfo<EntityData<?>>> it = new ArrayList<>(infos).iterator();
 		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(string), it, null);
@@ -895,15 +892,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		World world = location.getWorld();
 		if (world == null)
 			return null;
-		try {
-			if (WORLD_1_17_CONSUMER) {
-				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type,
-					(org.bukkit.util.Consumer<E>) consumer::accept);
+		if (WORLD_1_17_CONSUMER) {
+			try {
+				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type, (org.bukkit.util.Consumer<E>) consumer::accept);
+			} catch (InvocationTargetException | IllegalAccessException e) {
+				if (Skript.testing())
+					Skript.exception(e, "Can't spawn " + type.getName());
+				return null;
 			}
-		} catch (InvocationTargetException | IllegalAccessException e) {
-			if (Skript.testing())
-				Skript.exception(e, "Can't spawn " + type.getName());
-			return null;
 		}
 		return world.spawn(location, type, consumer);
 	}
