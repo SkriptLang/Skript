@@ -25,9 +25,9 @@ public class EffAssert extends Effect {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffAssert.class,
-				"assert [that] <.+> [(1:to fail)] with [error] %string%",
-				"assert [that] <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
-				"assert [that] <.+> [(1:to fail)]");
+				"assert [:unsafely] [that] <.+> [(1:to fail)] with [error] %string%",
+				"assert [:unsafely] [that] <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
+				"assert [:unsafely] [that] <.+> [(1:to fail)]");
 	}
 
 	private @Nullable Condition condition;
@@ -42,7 +42,7 @@ public class EffAssert extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (isDelayed == Kleenean.TRUE && !TestMode.JUNIT && !TestMode.DEV_MODE) {
+		if (isDelayed == Kleenean.TRUE && !parseResult.hasTag("unsafely") && !TestMode.JUNIT && !TestMode.DEV_MODE) {
 			Skript.error("Assertions cannot be delayed");
 			return false;
 		}

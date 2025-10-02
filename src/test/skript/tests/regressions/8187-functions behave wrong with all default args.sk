@@ -1,0 +1,7 @@
+local function test(x: number = 3, y: number = 5) returns number:
+	return {_x} + {_y}
+
+test "functions behave wrong with all default args":
+	assert test() is 8 with "no args did not use both default values"
+	assert test(1) is 6 with "only one arg did not use the second default value"
+	assert test(1, 2) is 3 with "both args still used a default value"
