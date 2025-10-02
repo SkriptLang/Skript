@@ -14,7 +14,6 @@ import org.bukkit.entity.Panda;
 		force last spawned panda to stop eating
 	""")
 @Since("2.11")
-@RequiredPlugins("Paper (horse type)")
 public class CondIsEating extends PropertyCondition<LivingEntity> {
 
 	private static final boolean SUPPORTS_HORSES = Skript.methodExists(AbstractHorse.class, "isEating");

@@ -31,7 +31,6 @@ import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
 		"\tpast spectator target was a zombie",
 		"\tset spectator target to the nearest skeleton"
 })
-@RequiredPlugins("Paper")
 @Since("2.4-alpha4, 2.7 (Paper Spectator Event)")
 public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 

@@ -119,8 +119,7 @@ public class EvtItem extends SkriptEvent {
 							"on stonecutting:",
 								"\tbroadcast \"%player% is using stonecutter to craft %event-item%!\""
 					)
-					.since("2.8.0")
-					.requiredPlugins("Paper 1.16+");
+					.since("2.8.0");
 		}
 	}
 	
