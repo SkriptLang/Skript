@@ -1,15 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.List;
-import java.util.regex.MatchResult;
-
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.command.Argument;
@@ -19,6 +9,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
@@ -29,6 +20,14 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.regex.MatchResult;
 
 @Name("Argument")
 @Description({
@@ -65,7 +64,9 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 	private Argument<?> argument;
 
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
-	
+
+	private boolean couldCauseArithmeticConfusion = false;
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -81,6 +82,8 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 				break;
 			case 3:
 				what = parseResult.mark == 1 ? ALL : SINGLE;
+				if (what == SINGLE && parseResult.expr.matches("(the )?arg(ument)?"))
+					couldCauseArithmeticConfusion = true; // 'arg-1' could be parsed as 'argument - 1'
 				break;
 			case 4:
 			case 5:
@@ -245,6 +248,13 @@ public class ExprArgument extends SimpleExpression<Object> implements EventRestr
 	@Override
 	public boolean isSingle() {
 		return argument != null ? argument.isSingle() : what != ALL;
+	}
+
+	/**
+	 * @return whether the expression is 'arg', a single argument that could cause confusion with 'arg-1' being parsed as 'argument - 1'.
+	 */
+	public boolean couldCauseArithmeticConfusion() {
+		return couldCauseArithmeticConfusion;
 	}
 	
 	@Override

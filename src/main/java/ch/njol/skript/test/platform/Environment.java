@@ -1,12 +1,8 @@
 package ch.njol.skript.test.platform;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import ch.njol.skript.test.utils.TestResults;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -14,8 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -93,33 +94,26 @@ public class Environment {
 			return source;
 		}
 
-		private void generateSource() throws IOException {
+		private void generateSource() throws IOException, InterruptedException {
 			if (source != null)
 				return;
 
-			String stringUrl = "https://api.papermc.io/v2/projects/paper/versions/" + version;
-			URL url = new URL(stringUrl);
-			JsonObject jsonObject;
-			try (InputStream is = url.openStream()) {
-				InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-				jsonObject = gson.fromJson(reader, JsonObject.class);
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest buildRequest = HttpRequest.newBuilder()
+				.uri(URI.create("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/latest"))
+				.header("User-Agent", "SkriptLang/Skript/{@version} (admin@skriptlang.org)")
+				.GET()
+				.build();
+			HttpResponse<InputStream> buildResponse = client.send(buildRequest, BodyHandlers.ofInputStream());
+			JsonObject buildObject;
+			try (InputStreamReader reader = new InputStreamReader(buildResponse.body(), StandardCharsets.UTF_8)) {
+				buildObject = gson.fromJson(reader, JsonObject.class);
 			}
-
-			JsonArray jsonArray = jsonObject.get("builds").getAsJsonArray();
-
-			int latestBuild = -1;
-			for (JsonElement jsonElement : jsonArray) {
-				int build = jsonElement.getAsInt();
-				if (build > latestBuild) {
-					latestBuild = build;
-				}
-			}
-
-			if (latestBuild == -1)
-				throw new IllegalStateException("No builds for this version");
-
-			source = "https://api.papermc.io/v2/projects/paper/versions/" + version + "/builds/" + latestBuild
-				+ "/downloads/paper-" + version + "-" + latestBuild + ".jar";
+			String downloadURL = buildObject.getAsJsonObject("downloads")
+				.getAsJsonObject("server:default")
+				.get("url").getAsString();
+			assert downloadURL != null && !downloadURL.isEmpty();
+			source = downloadURL;
 		}
 	}
 

@@ -1,0 +1,15 @@
+test "ExprDefaultValue":
+
+	set {_x} to 5 otherwise 10
+	assert {_x} is 5 with "regular value was not returned"
+
+	set {_x} to length of ({_none} otherwise "Hello")
+	assert {_x} is set with "default value was not returned"
+
+	set {_y} to 5
+	set {_x} to length of ({_y} otherwise "Hello")
+	assert {_x} is not set with "invalid regular value was not returned"
+
+	parse:
+		set {_x} to length of (5 otherwise 10)
+	assert last parse logs is set with "default value returning invalid type should not parse"

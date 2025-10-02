@@ -8,8 +8,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -20,18 +18,12 @@ import java.util.List;
 
 public class StructTestEntryContainer extends Structure {
 
-	public static class TestEvent extends Event {
-		@Override
-		public @NotNull HandlerList getHandlers() {
-			throw new IllegalStateException();
-		}
-	}
-
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerStructure(StructTestEntryContainer.class,
 				EntryValidator.builder()
 					.addSection("has entry", true)
+					.addSection("has multiple entries", true, true)
 					.build(),
 				"test entry container");
 	}
@@ -39,10 +31,12 @@ public class StructTestEntryContainer extends Structure {
 	private EntryContainer entryContainer;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+	public boolean init(
+		Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer
+	) {
 		assert entryContainer != null;
 		this.entryContainer = entryContainer;
-		if (entryContainer.hasEntry("has entry")) {
+		if (entryContainer.hasEntry("has entry") && entryContainer.hasEntry("has multiple entries")) {
 			return true;
 		}
 		assert false;
@@ -55,7 +49,17 @@ public class StructTestEntryContainer extends Structure {
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(section);
 		Script script = getParser().getCurrentScript();
 		Trigger trigger = new Trigger(script, "entry container test", null, triggerItems);
-		trigger.execute(new TestEvent());
+		trigger.execute(new SkriptTestEvent());
+
+		List<SectionNode> multipleSections = entryContainer.getAll(
+			"has multiple entries", SectionNode.class, false
+		);
+		for (SectionNode multipleSection : multipleSections) {
+			triggerItems = ScriptLoader.loadItems(multipleSection);
+			trigger = new Trigger(script, "entry container test", null, triggerItems);
+			trigger.execute(new SkriptTestEvent());
+		}
+
 		return true;
 	}
 

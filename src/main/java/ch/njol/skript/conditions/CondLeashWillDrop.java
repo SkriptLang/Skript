@@ -22,11 +22,11 @@ import ch.njol.util.Kleenean;
 })
 @Keywords("lead")
 @Events("Unleash")
-@RequiredPlugins("Paper 1.16+")
 @Since("2.10")
 public class CondLeashWillDrop extends Condition {
 
 	static {
+		// TODO - remove this when Spigot support is dropped
 		if (Skript.methodExists(EntityUnleashEvent.class, "isDropLeash"))
 			Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) [item] (will|not:(won't|will not)) (drop|be dropped)");
 	}

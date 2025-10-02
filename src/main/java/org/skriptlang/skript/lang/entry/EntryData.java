@@ -28,14 +28,19 @@ import org.jetbrains.annotations.Nullable;
 public abstract class EntryData<T> {
 
 	private final String key;
-	@Nullable
-	private final T defaultValue;
+	private final @Nullable T defaultValue;
 	private final boolean optional;
+	private final boolean multiple;
 
 	public EntryData(String key, @Nullable T defaultValue, boolean optional) {
+		this(key, defaultValue, optional, false);
+	}
+
+	public EntryData(String key, @Nullable T defaultValue, boolean optional, boolean multiple) {
 		this.key = key;
 		this.defaultValue = defaultValue;
 		this.optional = optional;
+		this.multiple = multiple;
 	}
 
 	/**
@@ -49,8 +54,7 @@ public abstract class EntryData<T> {
 	 * @return The default value of this entry node to be used if {@link #getValue(Node)} is null,
 	 *  or if the user does not include an entry for this entry data within their {@link SectionNode}.
 	 */
-	@Nullable
-	public T getDefaultValue() {
+	public @Nullable T getDefaultValue() {
 		return defaultValue;
 	}
 
@@ -62,12 +66,18 @@ public abstract class EntryData<T> {
 	}
 
 	/**
+	 * @return Whether this entry data can be included repeatedly within a {@link SectionNode}.
+	 */
+	public boolean supportsMultiple() {
+		return multiple;
+	}
+
+	/**
 	 * Obtains a value from the provided node using the methods of this entry data.
 	 * @param node The node to obtain a value from.
 	 * @return The value obtained from the provided node.
 	 */
-	@Nullable
-	public abstract T getValue(Node node);
+	public abstract @Nullable T getValue(Node node);
 
 	/**
 	 * A method to be implemented by all entry data classes that determines whether

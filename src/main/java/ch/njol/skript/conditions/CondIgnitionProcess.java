@@ -16,11 +16,12 @@ import ch.njol.util.Kleenean;
 
 @Name("Ignition Process")
 @Description("Checks if a creeper is going to explode.")
-@Examples({"if the last spawned creeper is going to explode:",
-			"\tloop all players in radius 3 of the last spawned creeper",
-			"\t\tsend \"RUN!!!\" to the loop-player"})
+@Examples({
+	"if the last spawned creeper is going to explode:",
+		"\tloop all players in radius 3 of the last spawned creeper",
+		"\t\tsend \"RUN!!!\" to the loop-player"
+})
 @Since("2.5")
-@RequiredPlugins("Paper 1.13 or newer")
 public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 
 	static {
@@ -32,7 +33,7 @@ public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings({"unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<LivingEntity>) exprs[0]);
@@ -41,12 +42,13 @@ public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
-	public boolean check(LivingEntity e) {
-		return e instanceof Creeper && ((Creeper) e).isIgnited();
+	public boolean check(LivingEntity entity) {
+		return entity instanceof Creeper creeper && creeper.isIgnited();
 	}
 
 	@Override
 	protected String getPropertyName() {
 		return "going to explode";
 	}
+
 }

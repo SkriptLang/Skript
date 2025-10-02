@@ -18,6 +18,10 @@ public abstract class KeyValueEntryData<T> extends EntryData<T> {
 		super(key, defaultValue, optional);
 	}
 
+	public KeyValueEntryData(String key, @Nullable T defaultValue, boolean optional, boolean multiple) {
+		super(key, defaultValue, optional, multiple);
+	}
+
 	/**
 	 * Used to obtain and parse the value of a {@link SimpleNode}. This method accepts
 	 *  any type of node, but assumes the input to be a {@link SimpleNode}. Before calling this method,
@@ -26,13 +30,13 @@ public abstract class KeyValueEntryData<T> extends EntryData<T> {
 	 * @return The value obtained from the provided {@link SimpleNode}.
 	 */
 	@Override
-	@Nullable
-	public final T getValue(Node node) {
+	public final @Nullable T getValue(Node node) {
 		assert node instanceof SimpleNode;
 		String key = node.getKey();
 		if (key == null)
 			throw new IllegalArgumentException("EntryData#getValue() called with invalid node.");
-		return getValue(ScriptLoader.replaceOptions(key).substring(getKey().length() + getSeparator().length()));
+		return getValue(ScriptLoader.replaceOptions(key)
+			.substring(getKey().length() + getSeparator().length()));
 	}
 
 	/**
@@ -40,8 +44,7 @@ public abstract class KeyValueEntryData<T> extends EntryData<T> {
 	 * @param value The String value to parse.
 	 * @return The parsed value.
 	 */
-	@Nullable
-	protected abstract T getValue(String value);
+	protected abstract @Nullable T getValue(String value);
 
 	/**
 	 * @return The String acting as a separator between the key and the value.

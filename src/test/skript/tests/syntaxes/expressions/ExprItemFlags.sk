@@ -16,3 +16,5 @@ test "item flags":
 	set {_i} to diamond sword of unbreaking 2 with item flags hide enchants
 	assert item flags of {_i} is hide enchants with "Item does not have hide enchants item flag"
 
+	set {_i2} to unbreakable diamond sword of unbreaking 3 with all item flags
+	assert item flags of {_i2} is set with "Item does not have item flags, when using with all item flags"

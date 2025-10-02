@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 	"else:",
 		"\tsend \"You cannot partake in finding the colored word.\""
 })
-@RequiredPlugins("Paper")
 @Since("2.10")
 public class CondChatColors extends PropertyCondition<Player> {
 
@@ -26,6 +25,11 @@ public class CondChatColors extends PropertyCondition<Player> {
 	@Override
 	public boolean check(Player player) {
 		return player.getClientOption(ClientOption.CHAT_COLORS_ENABLED);
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
 	}
 
 	@Override

@@ -22,7 +22,10 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a config file.
@@ -185,7 +188,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	 * Also removes user comments.
 	 * Use {@link #updateNodes(Config)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public boolean setValues(final Config other) {
 		return getMainNode().setValues(other.getMainNode());
 	}
@@ -196,7 +199,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	 * Also removes user comments.
 	 * Use {@link #updateNodes(Config)} instead.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public boolean setValues(final Config other, final String... excluded) {
 		return getMainNode().setValues(other.getMainNode(), excluded);
 	}

@@ -27,6 +27,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Name("Metadata")
@@ -126,12 +127,12 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
                             info = Arithmetics.getOperationInfo(operator, delta[0].getClass(), delta[0].getClass());
                             if (info == null)
                                 continue;
-                            value = Arithmetics.getDefaultValue(info.getLeft());
+                            value = Arithmetics.getDefaultValue(info.left());
                             if (value == null)
                                 continue;
                         }
                         //noinspection unchecked,rawtypes
-						Object newValue = ((Operation) info.getOperation()).calculate(value, delta[0]);
+						Object newValue = ((Operation) info.operation()).calculate(value, delta[0]);
 						holder.setMetadata(key, new FixedMetadataValue(Skript.getInstance(), newValue));
 					}
                     case DELETE -> holder.removeMetadata(key, Skript.getInstance());
@@ -148,6 +149,11 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 	@Override
 	public Class<? extends T> getReturnType() {
 		return superType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return Arrays.copyOf(types, types.length);
 	}
 
 	@Override

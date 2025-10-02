@@ -15,6 +15,7 @@ import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
@@ -83,7 +84,8 @@ public class SecConditional extends Section {
 	private boolean parseIfPassed;
 	private boolean multiline;
 
-	private Kleenean hasDelayAfter;
+	private @Nullable Kleenean hasDelayBefore; // available for ConditionalType.IF
+	private @Nullable Kleenean shouldDelayAfter; // whether the code after this conditional chain, at this point, should be delayed
 	private @Nullable ExecutionIntent executionIntent;
 
 	@Override
@@ -145,6 +147,17 @@ public class SecConditional extends Section {
 					return false;
 				}
 			}
+			hasDelayBefore = parser.getHasDelayBefore();
+		}
+
+		// conditional branches are independent, so we need to use the delay state from before the conditional chain
+		// IMPORTANT: we assume that conditions cannot cause delays
+		if (!parser.getHasDelayBefore().isTrue()) { // would only be considered delayed if it was delayed before this chain
+			//noinspection ConstantConditions - chain has been verified... there is an IF
+			Kleenean wasDelayedBeforeChain = hasDelayBefore != null ? hasDelayBefore :
+				getPrecedingConditional(triggerItems, ConditionalType.IF).hasDelayBefore;
+			assert wasDelayedBeforeChain != null;
+			parser.setHasDelayBefore(wasDelayedBeforeChain);
 		}
 
 		// if this an "if" or "else if", let's try to parse the conditions right away
@@ -203,6 +216,17 @@ public class SecConditional extends Section {
 			if (conditionals.isEmpty())
 				return false;
 
+			/*
+				This allows the embedded multilined conditions to be properly debugged.
+				Debugs are caught within the RetainingLogHandler in ScriptLoader#loadItems
+				Which will be printed after the debugged section (e.g 'if all')
+			 */
+			if ((Skript.debug() || sectionNode.debug()) && conditionals.size() > 1) {
+				String indentation = parser.getIndentation() + "    ";
+				for (Conditional<?> condition : conditionals)
+					Skript.debug(indentation + SkriptColor.replaceColorChar(condition.toString(null, true)));
+			}
+
 			conditional = Conditional.compound(ifAny ? Operator.OR : Operator.AND, conditionals);
 		}
 
@@ -214,9 +238,32 @@ public class SecConditional extends Section {
 			parseIfPassed = true;
 		}
 
-		Kleenean hadDelayBefore = parser.getHasDelayBefore();
-		if (!multiline || type == ConditionalType.THEN)
+		if (!multiline || type == ConditionalType.THEN) {
+			boolean considerDelayUpdate = !parser.getHasDelayBefore().isTrue();
 			loadCode(sectionNode);
+
+			// only need to account for changing the delay if it wasn't already delayed before this chain
+			if (considerDelayUpdate) {
+				Kleenean hasDelayAfter = parser.getHasDelayBefore();
+				Kleenean preceding = getPrecedingShouldDelayAfter(triggerItems);
+				// two cases
+				// 1. if there is no prior result, just use this one
+				// 2. if the preceding overall result is the same as the just parsed section, no change is necessary
+				if (preceding == null || preceding == hasDelayAfter) {
+					shouldDelayAfter = hasDelayAfter;
+				} else { // otherwise, we cannot be sure whether a delay will occur
+					shouldDelayAfter = Kleenean.UNKNOWN;
+				}
+				// set our determined delay state
+				if (shouldDelayAfter.isTrue()) {
+					// if we should delay, but there is no else, it is not guaranteed that any branches will run
+					// thus, the delay state is not TRUE but rather UNKNOWN
+					parser.setHasDelayBefore(type == ConditionalType.ELSE ? Kleenean.TRUE : Kleenean.UNKNOWN);
+				} else {
+					parser.setHasDelayBefore(shouldDelayAfter);
+				}
+			}
+		}
 
 		// Get the execution intent of the entire conditional chain.
 		if (type == ConditionalType.ELSE) {
@@ -241,35 +288,6 @@ public class SecConditional extends Section {
 				//  then set the chain's intent to the trigger's
 				if (executionIntent == null || triggerIntent.compareTo(executionIntent) < 0)
 					executionIntent = triggerIntent;
-			}
-		}
-
-		hasDelayAfter = parser.getHasDelayBefore();
-
-		// If the code definitely has a delay before this section, or if the section did not alter the delayed Kleenean,
-		//  there's no need to change the Kleenean.
-		if (hadDelayBefore.isTrue() || hadDelayBefore.equals(hasDelayAfter))
-			return true;
-
-		if (type == ConditionalType.ELSE) {
-			SecConditional precedingIf = getPrecedingConditional(triggerItems, ConditionalType.IF);
-			assert precedingIf != null; // at this point, we've validated the section so this can't be null
-			// In an else section, ...
-			if (hasDelayAfter.isTrue()
-					&& precedingIf.hasDelayAfter.isTrue()
-					&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
-				// ... if the if section, all else-if sections and the else section have definite delays,
-				//  mark delayed as TRUE.
-				parser.setHasDelayBefore(Kleenean.TRUE);
-			} else {
-				// ... otherwise mark delayed as UNKNOWN.
-				parser.setHasDelayBefore(Kleenean.UNKNOWN);
-			}
-		} else {
-			if (!hasDelayAfter.isFalse()) {
-				// If an if section or else-if section has some delay (definite or possible) in it,
-				//  set the delayed Kleenean to UNKNOWN.
-				parser.setHasDelayBefore(Kleenean.UNKNOWN);
 			}
 		}
 
@@ -337,10 +355,6 @@ public class SecConditional extends Section {
 		};
 	}
 
-	private Kleenean getHasDelayAfter() {
-		return hasDelayAfter;
-	}
-
 	/**
 	 * Gets the closest conditional section in the list of trigger items
 	 * @param triggerItems the list of items to search for the closest conditional section in
@@ -383,17 +397,20 @@ public class SecConditional extends Section {
 		return conditionals;
 	}
 
-	private static List<SecConditional> getElseIfs(List<TriggerItem> triggerItems) {
-		List<SecConditional> list = new ArrayList<>();
+	private static @Nullable Kleenean getPrecedingShouldDelayAfter(List<TriggerItem> triggerItems) {
+		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional precedingSecConditional && precedingSecConditional.type == ConditionalType.ELSE_IF) {
-				list.add(precedingSecConditional);
-			} else {
+			if (!(triggerItem instanceof SecConditional conditional))
 				break;
-			}
+			if (conditional.type == ConditionalType.ELSE)
+				// if the conditional is an else, break because it belongs to a different condition and ends
+				// this one
+				break;
+			if (conditional.shouldDelayAfter != null)
+				return conditional.shouldDelayAfter;
 		}
-		return list;
+		return null;
 	}
 
 	private boolean checkConditions(Event event) {

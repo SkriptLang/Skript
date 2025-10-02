@@ -24,7 +24,7 @@ import ch.njol.util.Math2;
 		"Please note that changing a player's speed will change their FOV just like potions do."})
 @Examples({"set the player's walk speed to 1",
 		"increase the argument's fly speed by 0.1"})
-@Since("<i>unknown</i> (before 2.1)")
+@Since("unknown (before 2.1)")
 public class ExprSpeed extends SimplePropertyExpression<Player, Number> {
 	
 	static {

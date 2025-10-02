@@ -7,7 +7,6 @@ import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -18,12 +17,7 @@ import ch.njol.util.coll.iterator.IteratorIterable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -157,7 +151,7 @@ public class Documentation {
 				"examples VARCHAR(2000) NOT NULL," +
 				"since VARCHAR(100) NOT NULL" +
 				");");
-		for (final JavaFunction<?> func : Functions.getJavaFunctions()) {
+		for (ch.njol.skript.lang.function.Function<?> func : Functions.getFunctions()) {
 			assert func != null;
 			insertFunction(pw, func);
 		}
@@ -179,7 +173,10 @@ public class Documentation {
 	}
 
 	protected static String cleanPatterns(String patterns, boolean escapeHTML) {
+		return cleanPatterns(patterns, escapeHTML, true);
+	}
 
+	protected static String cleanPatterns(String patterns, boolean escapeHTML, boolean useLinks) {
 		String cleanedPatterns = escapeHTML ? escapeHTML(patterns) : patterns;
 
 		cleanedPatterns = CP_PARSE_MARKS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove marks
@@ -268,8 +265,13 @@ public class Documentation {
 					first = false;
 					final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
 					final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
+
 					if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
-						b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
+						if (useLinks) {
+							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
+						} else {
+							b.append(ci.getName().toString(p.getSecond()));
+						}
 					} else {
 						b.append(c);
 						if (ci != null && ci.hasDocs())
@@ -286,7 +288,12 @@ public class Documentation {
 		Class<?> elementClass = info.getElementClass();
 		if (elementClass.getAnnotation(NoDoc.class) != null)
 			return;
-		if (elementClass.getAnnotation(Name.class) == null || elementClass.getAnnotation(Description.class) == null || elementClass.getAnnotation(Examples.class) == null || elementClass.getAnnotation(Since.class) == null) {
+		if (elementClass.getAnnotation(Name.class) == null
+			|| elementClass.getAnnotation(Description.class) == null
+			|| (!elementClass.isAnnotationPresent(Examples.class)
+			&& !elementClass.isAnnotationPresent(Example.class)
+			&& !elementClass.isAnnotationPresent(Example.Examples.class))
+			|| elementClass.getAnnotation(Since.class) == null) {
 			Skript.warning("" + elementClass.getSimpleName() + " is missing information");
 			return;
 		}
@@ -296,7 +303,7 @@ public class Documentation {
 			Skript.warning("" + elementClass.getSimpleName() + "'s description or 'since' is invalid");
 			return;
 		}
-		final String patterns = cleanPatterns(StringUtils.join(info.patterns, "\n", 0, elementClass == CondCompare.class ? 8 : info.patterns.length));
+		String patterns = cleanPatterns(StringUtils.join(info.patterns, "\n", 0, elementClass == CondCompare.class ? 8 : info.getPatterns().length));
 		insertOnDuplicateKeyUpdate(pw, "syntax_elements",
 				"id, name, type, patterns, description, examples, since",
 				"patterns = TRIM(LEADING '\n' FROM CONCAT(patterns, '\n', '" + escapeSQL(patterns) + "'))",
@@ -323,12 +330,12 @@ public class Documentation {
 			}
 		}
 		final String desc = validateHTML(StringUtils.join(info.getDescription(), "<br/>"), "events");
-		final String since = validateHTML(info.getSince(), "events");
+		final String since = validateHTML(StringUtils.join(info.getSince(), "<br/>"), "events");
 		if (desc == null || since == null) {
 			Skript.warning("description or 'since' of " + info.getName() + " (" + info.getElementClass().getSimpleName() + ") is invalid");
 			return;
 		}
-		final String patterns = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + StringUtils.join(info.patterns, "\n[on] ") : StringUtils.join(info.patterns, "\n"));
+		String patterns = cleanPatterns(info.getName().startsWith("On ") ? "[on] " + StringUtils.join(info.getPatterns(), "\n[on] ") : StringUtils.join(info.patterns, "\n"));
 		insertOnDuplicateKeyUpdate(pw, "syntax_elements",
 				"id, name, type, patterns, description, examples, since",
 				"patterns = '" + escapeSQL(patterns) + "'",
@@ -368,15 +375,25 @@ public class Documentation {
 				since);
 	}
 
-	private static void insertFunction(final PrintWriter pw, final JavaFunction<?> func) {
-		final StringBuilder params = new StringBuilder();
-		for (final Parameter<?> p : func.getParameters()) {
+	private static void insertFunction(PrintWriter pw, ch.njol.skript.lang.function.Function<?> func) {
+		String[] typeSince, typeDescription, typeExamples;
+		if (func instanceof Documentable documentable) {
+			typeSince = documentable.since().toArray(new String[0]);
+			typeDescription = documentable.description().toArray(new String[0]);
+			typeExamples = documentable.examples().toArray(new String[0]);
+		} else {
+			assert false;
+			return;
+		}
+
+		StringBuilder params = new StringBuilder();
+		for (Parameter<?> p : func.getParameters()) {
 			if (params.length() != 0)
 				params.append(", ");
 			params.append(p.toString());
 		}
-		final String desc = validateHTML(StringUtils.join(func.getDescription(), "<br/>"), "functions");
-		final String since = validateHTML(func.getSince(), "functions");
+		String desc = validateHTML(StringUtils.join(typeDescription, "<br/>"), "functions");
+		String since = validateHTML(StringUtils.join(typeSince, "\n"), "functions");
 		if (desc == null || since == null) {
 			Skript.warning("Function " + func.getName() + "'s description or 'since' is invalid");
 			return;
@@ -385,7 +402,7 @@ public class Documentation {
 				escapeHTML(func.getName()),
 				escapeHTML(params.toString()),
 				desc,
-				escapeHTML(StringUtils.join(func.getExamples(), "\n")),
+				escapeHTML(StringUtils.join(typeExamples, "\n")),
 				since);
 	}
 

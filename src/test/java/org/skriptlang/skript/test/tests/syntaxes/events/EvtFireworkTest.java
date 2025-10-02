@@ -20,7 +20,7 @@ import java.util.List;
 public class EvtFireworkTest extends SkriptJUnitTest {
 
 	private EntityType entityType;
-	private List<Firework> fireworkList = new ArrayList<>();
+	private final List<Firework> fireworkList = new ArrayList<>();
 
 	@Before
 	public void getEntity() {
@@ -35,7 +35,7 @@ public class EvtFireworkTest extends SkriptJUnitTest {
 	public void callEvents() {
 		List<Event> events = new ArrayList<>();
 		for (SkriptColor color : SkriptColor.values()) {
-			Firework firework = (Firework) getTestWorld().spawnEntity(getTestLocation(), entityType);
+			Firework firework = spawnTestEntity(entityType);
 			FireworkEffect fireworkEffect = FireworkEffect.builder().withColor(color.asDyeColor().getFireworkColor()).build();
 			FireworkMeta fireworkMeta = firework.getFireworkMeta();
 			fireworkMeta.addEffects(fireworkEffect);

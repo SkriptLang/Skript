@@ -22,10 +22,15 @@ public class CondAI extends PropertyCondition<LivingEntity> {
 	public boolean check(LivingEntity entity) {
 		return entity.hasAI();
 	}
-	
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "artificial intelligence";
 	}
-	
+
 }

@@ -34,7 +34,7 @@ public class EffWorldLoad extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldLoad.class,
-				"load [[the] world[s]] %strings% [with environment %-environment%]",
+				"load [the] world[s] %strings% [with environment %-environment%]",
 				"unload [[the] world[s]] %worlds% [:without saving]"
 		);
 	}

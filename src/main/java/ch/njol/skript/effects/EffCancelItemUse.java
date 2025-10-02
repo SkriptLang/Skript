@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -25,10 +24,10 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tinterrupt the usage of the player's active item"
 })
 @Since("2.8.0")
-@RequiredPlugins("Paper 1.16+")
 public class EffCancelItemUse extends Effect {
 
 	static {
+		// TODO - remove this when Spigot support is dropped
 		if (Skript.methodExists(LivingEntity.class, "clearActiveItem"))
 			Skript.registerEffect(EffCancelItemUse.class,
 					"(cancel|interrupt) [the] us[ag]e of %livingentities%'[s] [active|current] item"

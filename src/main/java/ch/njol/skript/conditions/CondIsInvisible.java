@@ -1,6 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -18,8 +17,7 @@ import org.bukkit.entity.LivingEntity;
 public class CondIsInvisible extends PropertyCondition<LivingEntity> {
 
 	static {
-		if (Skript.methodExists(LivingEntity.class, "isInvisible"))
-			register(CondIsInvisible.class, PropertyType.BE, "(invisible|:visible)", "livingentities");
+		register(CondIsInvisible.class, "(invisible|:visible)", "livingentities");
 	}
 
 	@Override

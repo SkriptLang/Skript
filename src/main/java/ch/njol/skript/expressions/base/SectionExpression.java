@@ -91,10 +91,26 @@ public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 	}
 
 	/**
+	 * Get if this {@link SectionExpression} can only be used as a {@link Section}.
+	 */
+	public boolean isSectionOnly() {
+		return false;
+	}
+
+	/**
 	 * @return A dummy trigger item representing the section belonging to this
 	 */
 	public final Section getAsSection() {
 		return section;
+	}
+
+	/**
+	 * @deprecated Use {@link #loadCode(SectionNode, String, Runnable, Runnable, Class[])}
+	 */
+	@Deprecated(since = "2.12", forRemoval = true)
+	protected Trigger loadCode(SectionNode sectionNode, String name,
+			@Nullable Runnable afterLoading, Class<? extends Event>... events) {
+		return loadCode(sectionNode, name, null, afterLoading, events);
 	}
 
 	/**
@@ -109,15 +125,18 @@ public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 	 *
 	 * @param sectionNode The section node to load.
 	 * @param name The name of the event(s) being used.
+	 * @param beforeLoading A Runnable to execute before the SectionNode has been loaded.
+	 * This occurs after the {@link ParserInstance} context switch.
 	 * @param afterLoading A Runnable to execute after the SectionNode has been loaded.
-	 * This occurs before {@link ParserInstance} states are reset.
+	 * This occurs before {@link ParserInstance} states are reset (context switches back).
 	 * @param events The event(s) during the section's execution.
 	 * @return A trigger containing the loaded section. This should be stored and used
 	 * to run the section one or more times.
 	 */
-	protected Trigger loadCode(SectionNode sectionNode, String name,
-							   @Nullable Runnable afterLoading, Class<? extends Event>... events) {
-		return section.loadCodeTask(sectionNode, name, afterLoading, events);
+	@SafeVarargs
+	protected final Trigger loadCode(SectionNode sectionNode, String name,
+			@Nullable Runnable beforeLoading, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+		return section.loadCodeTask(sectionNode, name, beforeLoading, afterLoading, events);
 	}
 
 	/**

@@ -1,0 +1,121 @@
+
+test "ExprEntitySize - Slimes":
+
+	spawn a slime at test location:
+		make entity invulnerable
+		set {_entity} to entity
+
+	# Changer - Set
+	set entity size of {_entity} to 5
+	assert entity size of {_entity} is 5
+
+	set entity size of {_entity} to nan value
+	assert entity size of {_entity} is 5
+
+	set entity size of {_entity} to infinity value
+	assert entity size of {_entity} is 5
+
+	set entity size of {_entity} to -5
+	assert entity size of {_entity} is 0
+
+	# Changer - Add
+	add 10 to entity size of {_entity}
+	assert entity size of {_entity} is 10
+
+	add -5 to entity size of {_entity}
+	assert entity size of {_entity} is 5
+
+	add 5000000000 to entity size of {_entity}
+	assert entity size of {_entity} is 126
+
+	add nan value to entity size of {_entity}
+	assert entity size of {_entity} is 126
+
+	add infinity value to entity size of {_entity}
+	assert entity size of {_entity} is 126
+
+	# Changer - Remove
+	remove 100 from entity size of {_entity}
+	assert entity size of {_entity} is 26
+
+	remove -10 from entity size of {_entity}
+	assert entity size of {_entity} is 36
+
+	remove nan value from entity size of {_entity}
+	assert entity size of {_entity} is 36
+
+	remove infinity value from entity size of {_entity}
+	assert entity size of {_entity} is 36
+
+	remove 100 from entity size of {_entity}
+	assert entity size of {_entity} is 0
+
+	# Changer - Reset
+
+	add 3 to entity size of {_entity}
+	assert entity size of {_entity} is 3
+
+	reset entity size of {_entity}
+	assert entity size of {_entity} is 0
+
+	# Cleanup
+	delete entity within {_entity}
+
+test "ExprEntitySize - Phantoms":
+	spawn a phantom at test location:
+		make entity invulnerable
+		set {_entity} to entity
+
+	set entity size of {_entity} to 5
+	assert entity size of {_entity} is 5
+
+	set entity size of {_entity} to nan value
+	assert entity size of {_entity} is 5
+
+	set entity size of {_entity} to infinity value
+	assert entity size of {_entity} is 5
+
+	set entity size of {_entity} to -5
+	assert entity size of {_entity} is 0
+
+	# Changer - Add
+	add 10 to entity size of {_entity}
+	assert entity size of {_entity} is 10
+
+	add -5 to entity size of {_entity}
+	assert entity size of {_entity} is 5
+
+	add 5000000000 to entity size of {_entity}
+	assert entity size of {_entity} is 64
+
+	add nan value to entity size of {_entity}
+	assert entity size of {_entity} is 64
+
+	add infinity value to entity size of {_entity}
+	assert entity size of {_entity} is 64
+
+	# Changer - Remove
+	remove 40 from entity size of {_entity}
+	assert entity size of {_entity} is 24
+
+	remove -10 from entity size of {_entity}
+	assert entity size of {_entity} is 34
+
+	remove nan value from entity size of {_entity}
+	assert entity size of {_entity} is 34
+
+	remove infinity value from entity size of {_entity}
+	assert entity size of {_entity} is 34
+
+	remove 100 from entity size of {_entity}
+	assert entity size of {_entity} is 0
+
+	# Changer - Reset
+	add 3 to entity size of {_entity}
+	assert entity size of {_entity} is 3
+
+	reset entity size of {_entity}
+	assert entity size of {_entity} is 0
+
+	# Cleanup
+	delete entity within {_entity}

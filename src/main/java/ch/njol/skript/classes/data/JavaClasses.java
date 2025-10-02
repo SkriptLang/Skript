@@ -18,7 +18,12 @@ import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 
+import java.io.StreamCorruptedException;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +31,14 @@ import java.util.regex.Pattern;
 public class JavaClasses {
 
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
+
+	/**
+	 * The pattern for scientific notation.
+	 * <p>
+	 * The pattern is the letter {@code e} or {@code E} followed by a sign and one or more digits.
+	 * </p>
+	 */
+	public static final String SCIENTIFIC_PATTERN = "(?:[eE][+-]?\\d+)?";
 
 	/**
 	 * The format of an integer.
@@ -47,8 +60,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>" + INTEGER_NUMBER_PATTERN + ")" +
-			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
+			.formatted(INTEGER_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	/**
 	 * The format of a decimal number.
@@ -72,8 +85,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>" + DECIMAL_NUMBER_PATTERN + ")" +
-			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
+			.formatted(DECIMAL_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
@@ -92,7 +105,7 @@ public class JavaClasses {
 					"Please note that many expressions only need integers, i.e. " +
 						"will discard any fractional parts of any numbers without producing an error.",
 					"Radians will be converted to degrees.")
-				.usage("[-]###[.###] [[in ](rad[ian][s]|deg[ree][s])]</code> (any amount of digits; very large numbers will be truncated though)")
+				.usage("[-]###[.###] [e[+|-]###] [[in ](rad[ian][s]|deg[ree][s])]")
 				.examples(
 					"set the player's health to 5.5",
 					"set {_temp} to 2*{_temp} - 2.5",
@@ -291,7 +304,26 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}));
+				})
+				.property(Property.CONTAINS,
+					"Strings can contain other strings.",
+					Skript.instance(),
+					new ContainsHandler<String, String>() {
+						@Override
+						public boolean contains(String container, String element) {
+							return StringUtils.contains(container, element, SkriptConfig.caseSensitive.value());
+						}
+
+						@Override
+						public Class<? extends String>[] elementTypes() {
+							//noinspection unchecked
+							return new Class[]{String.class};
+						}
+				})
+			.property(Property.IS_EMPTY,
+				"Whether the string is empty, i.e. has no characters.",
+				Skript.instance(),
+				ConditionPropertyHandler.of(String::isEmpty)));
 
 		// joml type - for display entities
 		if (Skript.classExists("org.joml.Quaternionf"))
@@ -325,6 +357,19 @@ public class JavaClasses {
 						return null;
 					}
 				}));
+
+		Classes.registerClass(new ClassInfo<>(UUID.class, "uuid")
+			.user("uuids?")
+			.name("UUID")
+			.description(
+				"UUIDs are unique identifiers that ensure things can be reliably distinguished from each other. "
+					+ "They are generated in a way that makes it practically impossible for duplicates to occur.",
+				"Read more about UUIDs and how they are used in Minecraft "
+					+ "in <a href='https://minecraft.wiki/w/UUID'>the wiki entry about UUIDs</a>.")
+			.since("2.11")
+			.parser(new UUIDParser())
+			.serializer(new UUIDSerializer())
+		);
 	}
 
 	/**
@@ -788,6 +833,63 @@ public class JavaClasses {
 
 		@Override
 		public boolean mustSyncDeserialization() {
+			return false;
+		}
+
+	}
+
+	private static class UUIDParser extends Parser<UUID> {
+
+		@Override
+		public @Nullable UUID parse(String string, ParseContext context) {
+			if (Utils.isValidUUID(string))
+				return UUID.fromString(string);
+			return null;
+		}
+
+		@Override
+		public String toString(UUID uuid, int flags) {
+			return uuid.toString();
+		}
+
+		@Override
+		public String toVariableNameString(UUID uuid) {
+			return uuid.toString();
+		}
+
+	}
+
+	private static class UUIDSerializer extends Serializer<UUID> {
+
+		@Override
+		public Fields serialize(UUID uuid) {
+			Fields fields = new Fields();
+
+			fields.putPrimitive("mostsignificantbits", uuid.getMostSignificantBits());
+			fields.putPrimitive("leastsignificantbits", uuid.getLeastSignificantBits());
+
+			return fields;
+		}
+
+		@Override
+		public void deserialize(UUID o, Fields f) {
+			assert false;
+		}
+
+		@Override
+		protected UUID deserialize(Fields fields) throws StreamCorruptedException {
+			long mostSignificantBits = fields.getAndRemovePrimitive("mostsignificantbits", long.class);
+			long leastSignificantBits = fields.getAndRemovePrimitive("leastsignificantbits", long.class);
+			return new UUID(mostSignificantBits, leastSignificantBits);
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+
+		@Override
+		protected boolean canBeInstantiated() {
 			return false;
 		}
 

@@ -30,9 +30,9 @@ public interface BlockCompat {
 	 * values if needed, but cannot be used to retrieve any other data.
 	 * @param block Block state to retrieve value from.
 	 * @return Block values.
-	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
+	 * @deprecated Use {@link #getBlockValues(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	@Nullable
 	BlockValues getBlockValues(BlockState block);
 	
@@ -68,7 +68,7 @@ public interface BlockCompat {
 	 * @return Block state.
 	 * @deprecated This shouldn't be used
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	BlockState fallingBlockToState(FallingBlock entity);
 
 	@Nullable

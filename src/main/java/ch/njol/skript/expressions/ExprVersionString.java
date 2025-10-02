@@ -2,12 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -22,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"The text to show if the protocol version of the server doesn't match with protocol version of the client. " +
 	"You can check the <a href='#ExprProtocolVersion'>protocol version</a> expression for more information about this.",
-	"This can only be set in a <a href='events.html#server_list_ping'>server list ping</a> event."
+	"This can only be set in a <a href='#server_list_ping'>server list ping</a> event."
 })
 @Examples({
 	"on server list ping:",
@@ -30,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
 })
 @Since("2.3")
-@RequiredPlugins("Paper 1.12.2+")
 @Events("Server List Ping")
 public class ExprVersionString extends SimpleExpression<String> {
 

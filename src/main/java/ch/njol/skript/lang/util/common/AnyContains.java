@@ -2,15 +2,26 @@ package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 
 /**
  * A provider for anything that contains other things.
- * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.conditions.CondContains}
+ * Anything implementing this (or convertible to this) can be used by the {@link PropCondContains}
  * conditions.
  *
+ * @param <Type> the type of objects that this container can check for containment.
+ *               This represents the expected type of elements that the container
+ *               is designed to hold or work with.
+ *               When calling {@link #contains(Object)}, the parameter should be of this type,
+ *               or safely castable to it.
+ *               Implementations may use {@link #isSafeToCheck(Object)} to verify
+ *               that an object is a suitable candidate before performing a containment check.
+ *
  * @see AnyProvider
+ * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#CONTAINS} instead.
  */
 @FunctionalInterface
+@Deprecated(since="2.13", forRemoval = true)
 public interface AnyContains<Type> extends AnyProvider {
 
 	/**

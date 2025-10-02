@@ -5,7 +5,6 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -17,8 +16,7 @@ import org.bukkit.inventory.MainHand;
 
 @Name("Left Handed")
 @Description({
-	"Checks if living entities or players are left or right-handed. Armor stands are neither right nor left-handed.",
-	"Paper 1.17.1+ is required for non-player entities."
+	"Checks if living entities or players are left or right-handed. Armor stands are neither right nor left-handed."
 })
 @Examples({
 	"on damage of player:",
@@ -26,16 +24,16 @@ import org.bukkit.inventory.MainHand;
 			"\t\tcancel event"
 })
 @Since("2.8.0")
-@RequiredPlugins("Paper 1.17.1+ (entities)")
 public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
+	// TODO - remove this when Spigot support is dropped
 	private static final boolean CAN_USE_ENTITIES = Skript.methodExists(Mob.class, "isLeftHanded");
 
 	static {
 		if (CAN_USE_ENTITIES) {
-			register(CondIsLeftHanded.class, PropertyType.BE, "(:left|right)( |-)handed", "livingentities");
+			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "livingentities");
 		} else {
-			register(CondIsLeftHanded.class, PropertyType.BE, "(:left|right)( |-)handed", "players");
+			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "players");
 		}
 	}
 
@@ -50,12 +48,12 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		// check if entity is a mob and if the method exists
-		if (CAN_USE_ENTITIES && livingEntity instanceof Mob)
-			return ((Mob) livingEntity).isLeftHanded() == (hand == MainHand.LEFT);
+		if (CAN_USE_ENTITIES && livingEntity instanceof Mob mob)
+			return mob.isLeftHanded() == (hand == MainHand.LEFT);
 
 		// check if entity is a player
-		if (livingEntity instanceof HumanEntity)
-			return ((HumanEntity) livingEntity).getMainHand() == hand;
+		if (livingEntity instanceof HumanEntity humanEntity)
+			return humanEntity.getMainHand() == hand;
 
 		// invalid entity
 		return false;

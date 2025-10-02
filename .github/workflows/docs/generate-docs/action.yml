@@ -52,10 +52,8 @@ runs:
           find $1 -type f -exec sed -i -e "s/$2/$3/g" {} \;
         }
 
-        # this should be replaced with a more reliable jq command,
-        # but it can't be right now because docs.json is actually not valid json.
         get_skript_version_of_directory() {
-          grep skriptVersion "$1/docs.json" | cut -d\" -f 4
+          jq ".source.version" "$1/docs.json"
         }
 
         if [ -d "${DOCS_REPO_DIR}/docs/templates" ]
