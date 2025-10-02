@@ -125,7 +125,7 @@ public class RuntimeErrorManager implements Closeable {
 	 * @return The frame containing emitted errors.
 	 * @deprecated {@link RuntimeErrorFilter#getErrorFrame()}
 	 */
-	@Deprecated(since="INSERT VERSION", forRemoval = true)
+	@Deprecated(since="2.13", forRemoval = true)
 	public Frame getErrorFrame() {
 		return standardFilter.getErrorFrame();
 	}
@@ -134,7 +134,7 @@ public class RuntimeErrorManager implements Closeable {
 	 * @return The frame containing emitted warnings.
 	 * @deprecated {@link RuntimeErrorFilter#getWarningFrame()}
 	 */
-	@Deprecated(since="INSERT VERSION", forRemoval = true)
+	@Deprecated(since="2.13", forRemoval = true)
 	public Frame getWarningFrame() {
 		return standardFilter.getWarningFrame();
 	}

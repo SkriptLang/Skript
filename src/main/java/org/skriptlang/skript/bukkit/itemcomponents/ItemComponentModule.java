@@ -23,7 +23,7 @@ public class ItemComponentModule implements AddonModule {
 			.user("item ?components?")
 			.name("Item Component")
 			.description("Represents an item component for items. i.e. equippable components.")
-			.since("INSERT VERSION")
+			.since("2.13")
 			.requiredPlugins("Minecraft 1.21.2+")
 			.parser(new Parser<>() {
 				@Override

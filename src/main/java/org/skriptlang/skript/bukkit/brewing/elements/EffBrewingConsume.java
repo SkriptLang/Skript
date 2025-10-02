@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	on brewing fuel consumption:
 		prevent the brewing stand from consuming the fuel
 	""")
-@Since("INSERT VERSION")
+@Since("2.13")
 @Events("Brewing Fuel")
 public class EffBrewingConsume extends Effect implements EventRestrictedSyntax {
 

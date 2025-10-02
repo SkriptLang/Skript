@@ -27,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	set the equipment slot of {_component} to boots slot
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprEquipCompSlot extends SimplePropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 	This is intended to make debugging easier, not as a reliable method of getting the type of a value.
 	""")
 @Example("broadcast debug info of {list::*}")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprDebugInfo extends SimplePropertyExpression<Object, String> {
 
 	static {

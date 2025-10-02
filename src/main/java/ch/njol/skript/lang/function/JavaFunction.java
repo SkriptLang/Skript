@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @deprecated Use {@link DefaultFunction} instead.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.13", forRemoval = true)
 public abstract class JavaFunction<T> extends Function<T> implements Documentable {
 
 	private @NotNull String @Nullable [] returnedKeys;

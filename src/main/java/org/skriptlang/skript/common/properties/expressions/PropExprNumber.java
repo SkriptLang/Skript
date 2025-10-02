@@ -21,7 +21,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 	lists, use 'numbers of {list::*}'.
 	""")
 @Example("message \"There are %number of all players% players online!\"")
-@Since({"1.0", "INSERT VERSION (numbers of)"})
+@Since({"1.0", "2.13 (numbers of)"})
 @RelatedProperty("number")
 public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 

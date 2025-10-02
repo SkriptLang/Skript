@@ -16,7 +16,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Item Component - Copy")
 @Description("Grab a copy of an item component of an item. Any changes made to the copy will not be present on the item.")
 @Example("set {_component} to the item component copy of (the equippable component of {_item})")
-@Since("INSERT VERSION")
+@Since("2.13")
 @RequiredPlugins("Minecraft 1.21.2+")
 @SuppressWarnings("rawtypes")
 public class ExprItemCompCopy extends SimplePropertyExpression<ComponentWrapper, ComponentWrapper> {

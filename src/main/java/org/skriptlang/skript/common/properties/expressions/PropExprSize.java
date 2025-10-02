@@ -21,7 +21,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 	lists, use 'sizes of {list::*}'.
 	""")
 @Example("message \"There are %size of all players% players online!\"")
-@Since({"1.0", "INSERT VERSION (sizes of)"})
+@Since({"1.0", "2.13 (sizes of)"})
 @RelatedProperty("size")
 public class PropExprSize extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 

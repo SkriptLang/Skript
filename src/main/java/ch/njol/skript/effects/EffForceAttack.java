@@ -33,7 +33,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	""")
 @Examples({"spawn a wolf at player's location",
 	"make last spawned wolf attack player"})
-@Since("2.5.1, INSERT VERSION (multiple, amount)")
+@Since("2.5.1, 2.13 (multiple, amount)")
 @RequiredPlugins("Minecraft 1.15.2+")
 public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer {
 	

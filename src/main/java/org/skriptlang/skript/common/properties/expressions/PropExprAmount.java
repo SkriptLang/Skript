@@ -25,7 +25,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 @Example("message \"There are %amount of all players% players online!\"")
 @Example("if amount of player's tool > 5:")
 @Example("if amounts of player's tool and player's offhand tool > 5:")
-@Since({"1.0", "INSERT VERSION (amounts of)"})
+@Since({"1.0", "2.13 (amounts of)"})
 @RelatedProperty("amount")
 public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 

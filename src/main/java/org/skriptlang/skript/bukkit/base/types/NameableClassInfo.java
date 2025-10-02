@@ -21,7 +21,7 @@ public class NameableClassInfo extends ClassInfo<Nameable> {
 			.name("Nameable")
 			.description(
 				"A variety of Bukkit types that can have names, such as entities and some blocks."
-			).since("INSERT VERSION")
+			).since("2.13")
 			.defaultExpression(new EventValueExpression<>(Nameable.class))
 			.after("entity", "commandsender", "block", "player")
 			.property(Property.NAME,

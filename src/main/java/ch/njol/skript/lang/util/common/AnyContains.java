@@ -21,7 +21,7 @@ import org.skriptlang.skript.common.properties.conditions.PropCondContains;
  * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#CONTAINS} instead.
  */
 @FunctionalInterface
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public interface AnyContains<Type> extends AnyProvider {
 
 	/**

@@ -20,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	set the brewing stand fuel level of {_block} to 10
 	clear the brewing stand fuel level of {_block}
 	""")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Integer> {
 
 	public static void register(SyntaxRegistry registry) {

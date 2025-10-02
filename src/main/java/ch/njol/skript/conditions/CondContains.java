@@ -42,7 +42,7 @@ import java.util.StringJoiner;
 		"player has 4 flint and 2 iron ingots",
 		"{list::*} contains 5"})
 @Since("1.0")
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public class CondContains extends Condition implements VerboseAssert {
 
 	static {

@@ -31,7 +31,7 @@ public class EvtPortal extends SkriptEvent {
 					"",
 					"on entity portal:",
 						"\tbroadcast \"A %type of event-entity% has entered a portal!"
-				).since("1.0, 2.5.3 (entities), INSERT VERSION (location changers)");
+				).since("1.0, 2.5.3 (entities), 2.13 (location changers)");
 	}
 
 	private boolean isPlayer;

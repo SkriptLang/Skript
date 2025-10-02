@@ -31,7 +31,7 @@ import java.util.Objects;
 	on brew complete:
 		set {_results::*} to the brewing results
 	""")
-@Since("INSERT VERSION")
+@Since("2.13")
 @Events("Brewing Complete")
 public class ExprBrewingResults extends SimpleExpression<ItemStack> implements EventRestrictedSyntax {
 

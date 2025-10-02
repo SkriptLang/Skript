@@ -28,7 +28,7 @@ import java.util.function.Function;
 @Example("enchant the player's tool with sharpness 5")
 @Example("enchant the player's tool at level 30 ")
 @Example("disenchant the player's tool")
-@Since("2.0, INSERT VERSION (at level)")
+@Since("2.0, 2.13 (at level)")
 public class EffEnchant extends Effect {
 
 	private enum Operation {

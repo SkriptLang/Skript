@@ -31,7 +31,7 @@ import java.util.List;
 @Description("A slot of a brewing stand, i.e. the first, second, or third bottle slot, the fuel slot or the ingredient slot.")
 @Example("set the 1st bottle slot of {_block} to potion of water")
 @Example("clear the brewing stand second bottle slot of {_block}")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
 	private enum BrewingSlot {
