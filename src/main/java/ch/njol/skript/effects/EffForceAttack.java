@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -18,8 +18,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Force Attack")
 @Description("Makes a living entity attack an entity with a melee attack.")
-@Examples({"spawn a wolf at player's location",
-	"make last spawned wolf attack player"})
+@Example("""
+	spawn a wolf at player's location
+	make last spawned wolf attack player
+	""")
 @Since("2.5.1")
 @RequiredPlugins("Minecraft 1.15.2+")
 public class EffForceAttack extends Effect {
@@ -29,7 +31,7 @@ public class EffForceAttack extends Effect {
 			"make %livingentities% attack %entity%",
 			"force %livingentities% to attack %entity%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;
 	@SuppressWarnings("null")
@@ -52,7 +54,7 @@ public class EffForceAttack extends Effect {
 			}
 		}
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "make " + entities.toString(e, debug) + " attack " + target.toString(e, debug);
