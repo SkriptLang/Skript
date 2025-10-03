@@ -1,5 +1,10 @@
 package org.skriptlang.skript.bukkit.whitelist.elements;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
@@ -7,10 +12,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
