@@ -1,10 +1,7 @@
 package org.skriptlang.skript.bukkit.whitelist.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -17,11 +14,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
-@Examples({
-	"if the player is whitelisted:",
-	"if the server is whitelisted:",
-	"if the server whitelist is enforced:"
-})
+@Example("""
+	if the player is whitelisted:
+	if the server is whitelisted:
+	if the server whitelist is enforced:
+	""")
 @Since("2.5.2, 2.9.0 (enforce, offline players)")
 public class CondIsWhitelisted extends Condition {
 

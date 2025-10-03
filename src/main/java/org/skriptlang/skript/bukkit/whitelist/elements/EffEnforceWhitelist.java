@@ -9,10 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,10 +21,10 @@ import ch.njol.util.Kleenean;
 	"Enforces or un-enforce a server's whitelist.",
 	"All non-whitelisted players will be kicked upon enforcing the whitelist."
 })
-@Examples({
-	"enforce the whitelist",
-	"unenforce the whitelist"
-})
+@Example("""
+	enforce the whitelist
+	unenforce the whitelist
+	""")
 @Since("2.9.0")
 public class EffEnforceWhitelist extends Effect {
 

@@ -7,10 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,11 +21,11 @@ import ch.njol.util.coll.CollectionUtils;
 	"Players may be added and removed from the whitelist.",
 	"The whitelist can be enabled or disabled by setting the whitelist to true or false respectively."
 })
-@Examples({
-	"set the whitelist to false",
-	"add all players to whitelist",
-	"reset the whitelist"
-})
+@Example("""
+	set the whitelist to false
+	add all players to whitelist
+	reset the whitelist
+	""")
 @Since("2.5.2, 2.9.0 (delete)")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
