@@ -697,11 +697,14 @@ public final class Skript extends JavaPlugin implements Listener {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
 						World world = Bukkit.getWorlds().get(0);
-						world.setSpawnLocation(0, -60, 0);
+						world.setSpawnLocation(0, 0, 0);
 						CompletableFuture<Chunk> chunkFuture1 = PaperLib.getChunkAtAsync(world, 100, 100);
 						CompletableFuture<Chunk> chunkFuture2 = PaperLib.getChunkAtAsync(world, 0, 0);
 						Runnable runnable = () -> runTests();
-						chunkFuture1.runAfterBoth(chunkFuture2, runnable);
+						chunkFuture1.runAfterBoth(
+							chunkFuture2.thenAccept(chunk -> chunk.setForceLoaded(true)),
+							runnable
+						);
 
 					}
 				}
