@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -23,7 +23,7 @@ import static java.lang.Math.min;
 
 @Name("Respawn Anchor Charges")
 @Description("The charges of a respawn anchor.")
-@Examples({"set the charges of event-block to 3"})
+@Example("set the charges of event-block to 3")
 @RequiredPlugins("Minecraft 1.16+")
 @Since("2.7")
 public class ExprCharges extends SimplePropertyExpression<Block, Integer> {

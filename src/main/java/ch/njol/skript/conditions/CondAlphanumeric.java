@@ -18,8 +18,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Alphanumeric")
 @Description({"Checks if the given string is alphanumeric."})
-@Examples({"if the argument is not alphanumeric:",
-		"	send \"Invalid name!\""})
+@Examples("""
+	if the argument is not alphanumeric:
+		send "Invalid name!"
+	""")
 @Since("2.4")
 public class CondAlphanumeric extends Condition {
 	

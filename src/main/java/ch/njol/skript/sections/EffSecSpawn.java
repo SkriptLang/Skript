@@ -38,15 +38,16 @@ import java.util.function.Consumer;
 	"",
 	"Note that when spawning an entity via entity snapshots, the code within the section will not run instantaneously as compared to spawning normally (via 'a zombie')."
 })
-@Examples({
-	"spawn 3 creepers at the targeted block",
-	"spawn a ghast 5 meters above the player",
-	"spawn a zombie at the player:",
-		"\tset name of the zombie to \"\"",
-	"",
-	"spawn a block display of a ladder[waterlogged=true] at location above player:",
-		"\tset billboard of event-display to center # allows the display to rotate around the center axis"
-})
+@Example("spawn 3 creepers at the targeted block")
+@Example("spawn a ghast 5 meters above the player")
+@Example("""
+	spawn a zombie at the player:
+		set name of the zombie to ""
+	""")
+@Example("""
+	spawn a block display of a ladder[waterlogged=true] at location above player:
+		set billboard of event-display to center # allows the display to rotate around the center axis
+	""")
 @RequiredPlugins("Minecraft 1.20.2+ (entity snapshots)")
 @Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), 2.10 (entity snapshots)")
 public class EffSecSpawn extends EffectSection {

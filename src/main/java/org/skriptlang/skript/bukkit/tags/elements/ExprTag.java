@@ -30,16 +30,14 @@ import java.util.List;
 		"and `custom tag` will look in the \"skript\" namespace for custom tags you've registered.",
 		"You can also filter by tag types using \"item\", \"block\", or \"entity\"."
 })
-@Examples({
-		"minecraft tag \"dirt\" # minecraft:dirt",
-		"paper tag \"doors\" # paper:doors",
-		"tag \"skript:custom_dirt\" # skript:custom_dirt",
-		"custom tag \"dirt\" # skript:dirt",
-		"datapack block tag \"dirt\" # minecraft:dirt",
-		"datapack tag \"my_pack:custom_dirt\" # my_pack:custom_dirt",
-		"tag \"minecraft:mineable/pickaxe\" # minecraft:mineable/pickaxe",
-		"custom item tag \"blood_magic_sk/can_sacrifice_with\" # skript:blood_magic_sk/can_sacrifice_with"
-})
+@Example("minecraft tag \"dirt\" # minecraft:dirt")
+@Example("paper tag \"doors\" # paper:doors")
+@Example("tag \"skript:custom_dirt\" # skript:custom_dirt")
+@Example("custom tag \"dirt\" # skript:dirt")
+@Example("datapack block tag \"dirt\" # minecraft:dirt")
+@Example("datapack tag \"my_pack:custom_dirt\" # my_pack:custom_dirt")
+@Example("tag \"minecraft:mineable/pickaxe\" # minecraft:mineable/pickaxe")
+@Example("custom item tag \"blood_magic_sk/can_sacrifice_with\" # skript:blood_magic_sk/can_sacrifice_with")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTag extends SimpleExpression<Tag> {

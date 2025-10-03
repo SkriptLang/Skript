@@ -25,18 +25,24 @@ import org.jetbrains.annotations.Nullable;
 	"Represents the different items in furnace events.",
 	"Only 'smelting item' can be changed."
 })
-@Examples({
-	"on furnace smelt:",
-		"\tbroadcast smelted item",
-		"\t# Or 'result'",
-	"on furnace extract:",
-		"\tbroadcast extracted item",
-	"on fuel burn:",
-		"\tbroadcast burned fuel",
-	"on smelting start:",
-		"\tbroadcast smelting item",
-		"\tclear smelting item"
-})
+@Example("""
+	on furnace smelt:
+		broadcast smelted item
+		# Or 'result'
+	""")
+@Example("""
+	on furnace extract:
+		broadcast extracted item
+	""")
+@Example("""
+	on fuel burn:
+		broadcast burned fuel
+	""")
+@Example("""
+	on smelting start:
+		broadcast smelting item
+		clear smelting item
+	""")
 @Events({"smelt", "fuel burn", "smelting start", "furnace extract"})
 @Since("2.10")
 public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> {

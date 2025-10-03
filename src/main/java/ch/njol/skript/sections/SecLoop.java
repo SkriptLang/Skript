@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -42,30 +42,34 @@ import java.util.*;
 		"the loop. <code>loop-value</code> is the value of the currently looped variable, and <code>loop-index</code> " +
 		"is the last part of the variable's name (the part where the list variable has its asterisk *)."
 })
-@Examples({
-	"loop all players:",
-		"\tsend \"Hello %loop-player%!\" to loop-player",
-	"",
-	"loop items in player's inventory:",
-		"\tif loop-item is dirt:",
-			"\t\tset loop-item to air",
-	"",
-	"loop 10 times:",
-		"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
-		"\twait 1 second",
-	"",
-	"loop {Coins::*}:",
-		"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
-		"the player and loop-value is the number of coins for the player",
-	"",
-	"loop shuffled (integers between 0 and 8):",
-		"\tif all:",
-			"\t\tprevious loop-value = 1",
-			"\t\tloop-value = 4",
-			"\t\tnext loop-value = 8",
-		"\tthen:",
-			"\t\t kill all players"
-})
+@Example("""
+	loop all players:
+		send "Hello %loop-player%!" to loop-player
+	""")
+@Example("""
+	loop items in player's inventory:
+		if loop-item is dirt:
+			set loop-item to air
+	""")
+@Example("""
+	loop 10 times:
+		send title "%11 - loop-value%" and subtitle "seconds left until the game begins" to player for 1 second # 10, 9, 8 etc.
+		wait 1 second
+	""")
+@Example("""
+	loop {Coins::*}:
+		set {Coins::%loop-index%} to loop-value + 5 # Same as "add 5 to {Coins::%loop-index%}" where loop-index is the uuid of " +
+		"the player and loop-value is the number of coins for the player
+	""")
+@Example("""
+	loop shuffled (integers between 0 and 8):
+		if all:
+			previous loop-value = 1
+			loop-value = 4
+			next loop-value = 8
+		then:
+			kill all players
+	""")
 @Since("1.0")
 public class SecLoop extends LoopSection {
 
