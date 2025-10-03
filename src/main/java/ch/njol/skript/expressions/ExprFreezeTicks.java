@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,10 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Freeze Time")
 @Description("How much time an entity has been in powdered snow for.")
-@Examples({
-	"player's freeze time is less than 3 seconds:",
-	"\tsend \"you're about to freeze!\" to the player"
-})
+@Example("""
+	player's freeze time is less than 3 seconds:
+		send "you're about to freeze!" to the player
+	""")
 @Since("2.7")
 public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> {
 

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,11 +19,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Initiator Inventory")
 @Description("Returns the initiator inventory in an on <a href=\"?search=#inventory_item_move\">inventory item move</a> event.")
-@Examples({
-	"on inventory item move:",
-		"\tholder of event-initiator-inventory is a chest",
-		"\tbroadcast \"Item transport happening at %location at holder of event-initiator-inventory%!\""
-})
+@Example("""
+	on inventory item move:
+		holder of event-initiator-inventory is a chest
+		broadcast "Item transport happening at %location at holder of event-initiator-inventory%!"
+	""")
 @Events("Inventory Item Move")
 @Since("2.8.0")
 public class ExprEvtInitiator extends SimpleExpression<Inventory> {

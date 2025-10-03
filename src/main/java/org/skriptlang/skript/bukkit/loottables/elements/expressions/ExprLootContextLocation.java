@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,13 +16,13 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 
 @Name("Loot Location of Loot Context")
 @Description("Returns the loot location of a loot context.")
-@Examples({
-	"set {_player} to player",
-	"set {_context} to a loot context at player:",
-		"\tif {_player} is in \"world_nether\":",
-			"\t\tset loot location to location of last spawned pig",
-	"send loot location of {_context} to player"
-})
+@Example("""
+	set {_player} to player
+	set {_context} to a loot context at player:
+		if {_player} is in "world_nether":
+			set loot location to location of last spawned pig
+	send loot location of {_context} to player
+	""")
 @Since("2.10")
 public class ExprLootContextLocation extends SimplePropertyExpression<LootContext, Location> {
 

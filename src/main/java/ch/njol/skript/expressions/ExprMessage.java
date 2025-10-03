@@ -27,30 +27,35 @@ import org.jetbrains.annotations.Nullable;
 	"the death message of a death event or the broadcasted message in a broadcast event. " +
 	"This expression is mostly useful for being changed."
 )
-@Examples({
-		"on chat:",
-			"\tplayer has permission \"admin\"",
-			"\tset message to \"&c%message%\"",
-		"",
-		"on first join:",
-			"\tset join message to \"Welcome %player% to our awesome server!\"",
-		"",
-		"on join:",
-			"\tplayer has played before",
-			"\tset join message to \"Welcome back, %player%!\"",
-		"",
-		"on quit:",
-			"\tif {vanish::%player's uuid%} is set:",
-				"\t\tclear quit message",
-			"\telse:",
-				"\t\tset quit message to \"%player% left this awesome server!\"",
-		"",
-		"on death:",
-			"\tset the death message to \"%player% died!\"",
-		"",
-		"on broadcast:",
-			"\tset broadcast message to \"&a[BROADCAST] %broadcast message%\""
-})
+@Example("""
+	on chat:
+		player has permission "admin"
+		set message to "&c%message%"
+	""")
+@Example("""
+	on first join:
+		set join message to "Welcome %player% to our awesome server!"
+	""")
+@Example("""
+	on join:
+		player has played before
+		set join message to "Welcome back, %player%!"
+	""")
+@Example("""
+	on quit:
+		if {vanish::%player's uuid%} is set:
+			clear quit message
+		else:
+			set quit message to "%player% left this awesome server!"
+	""")
+@Example("""
+	on death:
+		set the death message to "%player% died!"
+	""")
+@Example("""
+	on broadcast:
+		set broadcast message to "&a[BROADCAST] %broadcast message%"
+	""")
 @Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), 2.10 (broadcasted message)")
 @Events({"chat", "join", "quit", "death", "broadcast"})
 public class ExprMessage extends SimpleExpression<String> {
