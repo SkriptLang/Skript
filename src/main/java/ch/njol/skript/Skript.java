@@ -697,7 +697,6 @@ public final class Skript extends JavaPlugin implements Listener {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
 						PaperLib.getChunkAtAsync(Bukkit.getWorlds().get(0), 0, 0)
-							.thenAccept(chunk -> chunk.setForceLoaded(true))
 							.thenRun(() -> runTests());
 					}
 				}

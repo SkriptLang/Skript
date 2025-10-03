@@ -1593,6 +1593,9 @@ entities:
 	copper golem:
 		name: copper golem¦s
 		pattern: copper golem[plural:s]
+	mannequin:
+		name: mannequin¦s
+		pattern: mannequin[plural:s]
 
 	# SuperTypes
 	human:

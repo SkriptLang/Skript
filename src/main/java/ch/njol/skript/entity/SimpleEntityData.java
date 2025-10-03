@@ -240,8 +240,10 @@ public class SimpleEntityData extends EntityData<Entity> {
 		if (Skript.isRunningMinecraft(1, 21, 6))
 			addSimpleEntity("happy ghast", HappyGhast.class);
 
-		if (Skript.isRunningMinecraft(1, 21, 9))
+		if (Skript.isRunningMinecraft(1, 21, 9)) {
 			addSimpleEntity("copper golem", CopperGolem.class);
+			addSimpleEntity("mannequin", Mannequin.class);
+		}
 
 		// SuperTypes
 		addSuperEntity("human", HumanEntity.class);
