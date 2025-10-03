@@ -32,17 +32,14 @@ import ch.njol.util.Kleenean;
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
 @Example("""
-	# Broadcast on join
 	on join:
 		log "%player% has just joined the server!"
 	""")
 @Example("""
-	# Log world changes
 	on world change:
 		log "Someone just went to %event-world%!" to file "worldlog/worlds.log"
 	""")
 @Example("""
-	# Log commands with severity
 	on command:
 		log "%player% just executed %full command%!" to file "server/commands.log" with a severity of warning
 	""")

@@ -31,8 +31,10 @@ import ch.njol.util.Kleenean;
 		projectile is arrow
 		toggle the block at the arrow
 	""")
-@Example("# With booleans")
-@Example("toggle gravity of player")
+@Example("""
+	# With booleans
+	toggle gravity of player
+	""")
 @Since("1.4, 2.12 (booleans)")
 public class EffToggle extends Effect {
 
