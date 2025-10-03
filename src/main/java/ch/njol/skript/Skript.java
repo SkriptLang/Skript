@@ -699,6 +699,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						World world = Bukkit.getWorlds().get(0);
 						world.setSpawnLocation(0, -60, 0);
 						PaperLib.getChunkAtAsync(world, 100, 100)
+							.thenAccept(chunk -> chunk.setForceLoaded(true))
 							.thenRun(() -> runTests());
 					}
 				}
