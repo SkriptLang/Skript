@@ -9,7 +9,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,8 +22,10 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Respawn location")
 @Description("The location that a player should respawn at. This is used within the respawn event.")
-@Examples({"on respawn:",
-	"	set respawn location to {example::spawn}"})
+@Example("""
+	on respawn:
+		set respawn location to {example::spawn}
+	""")
 @Since("2.2-dev35")
 public class ExprRespawnLocation extends SimpleExpression<Location> {
 
