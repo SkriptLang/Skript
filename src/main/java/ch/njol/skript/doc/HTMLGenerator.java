@@ -6,7 +6,6 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.common.function.DefaultFunction;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.io.File;
@@ -333,7 +331,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 					}
 				}
 				if (genType.equals("functions") || isDocsPage) {
-					List<Function<?>> functions = new ArrayList<>(Functions.getDefaultFunctions());
+					List<Function<?>> functions = new ArrayList<>(Functions.getFunctions());
 					functions.sort(functionComparator);
 					for (Function<?> info : functions) {
 						assert info != null;
@@ -522,7 +520,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
-			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
+			for (String line : getDefaultIfNullOrEmpty(info.getPatterns(), "Missing patterns.")) {
 				assert line != null;
 				line = cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
@@ -687,7 +685,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 			String[] split = data.split(" ");
 			String pattern = readFile(new File(templateDir + "/templates/" + split[1]));
 			StringBuilder patterns = new StringBuilder();
-			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
+			for (String line : getDefaultIfNullOrEmpty(info.getPatterns(), "Missing patterns.")) {
 				assert line != null;
 				line = "[on] " + cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);

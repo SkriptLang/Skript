@@ -18,22 +18,22 @@ import org.skriptlang.skript.lang.converter.Converters;
  */
 public record OperationInfo<L, R, T>(Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation) {
 
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Class<L> getLeft() {
 		return left;
 	}
 
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Class<R> getRight() {
 		return right;
 	}
 
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Class<T> getReturnType() {
 		return returnType;
 	}
 
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Operation<L, R, T> getOperation() {
 		return operation;
 	}
