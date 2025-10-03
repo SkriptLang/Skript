@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 	"Make a goat ram an entity.",
 	"Ramming does have a cooldown and currently no way to change it."
 })
-@Examples("make all goats ram player")
+@Example("make all goats ram player")
 @RequiredPlugins("Paper")
 @Since("2.11")
 public class EffGoatRam extends Effect {
