@@ -704,7 +704,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						} else {
 							chunkFuture = PaperLib.getChunkAtAsync(world, 100, 100);
 						}
-						chunkFuture.thenRun(() -> runTests());
+						chunkFuture.thenAccept(chunk -> chunk.setForceLoaded(true)).thenRun(() -> runTests());
 					}
 				}
 
