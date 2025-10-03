@@ -19,14 +19,14 @@ import org.jetbrains.annotations.Nullable;
 	"The angle is in degrees, with 0 being positive Z, 90 being negative X, 180 being negative Z, and 270 being positive X.",
 	"By default, returns a value between 0 and 360 degrees."
 })
-@Examples({
-	"on fish approach:",
-		"\tif any:",
-			"\t\tmaximum fishing approach angle is bigger than 300.5 degrees",
-			"\t\tmin fishing approach angle is smaller than 59.5 degrees",
-		"\tthen:",
-			"\t\tcancel event"
-})
+@Example("""
+	on fish approach:
+		if any:
+			maximum fishing approach angle is bigger than 300.5 degrees
+			min fishing approach angle is smaller than 59.5 degrees
+		then:
+			cancel event
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingApproachAngle extends SimpleExpression<Float> {

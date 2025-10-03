@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,11 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Breeding Family")
 @Description("Represents family members within a breeding event.")
-@Examples({
-	"on breeding:",
-		"\tsend \"When a %breeding mother% and %breeding father% love each other very much, " +
-		"they make a %bred offspring%\" to breeder"
-})
+@Example("""
+	on breeding:
+		send "When a %breeding mother% and %breeding father% love each other very much, they make a %bred offspring%" to breeder
+	""")
 @Since("2.10")
 public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 

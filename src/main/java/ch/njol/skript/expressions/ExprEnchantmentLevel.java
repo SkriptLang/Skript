@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,8 +22,10 @@ import java.util.stream.Stream;
 
 @Name("Enchantment Level")
 @Description("The level of a particular <a href='#enchantment'>enchantment</a> on an item.")
-@Examples({"player's tool is a sword of sharpness:",
-	"\tmessage \"You have a sword of sharpness %level of sharpness of the player's tool% equipped\""})
+@Example("""
+	player's tool is a sword of sharpness:
+		message "You have a sword of sharpness %level of sharpness of the player's tool% equipped"
+	""")
 @Since("2.0")
 public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 

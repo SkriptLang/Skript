@@ -7,17 +7,15 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
 @Name("Player Skull")
 @Description("Gets a skull item representing a player. Skulls for other entities are provided by the aliases.")
-@Examples({
-	"give the victim's skull to the attacker",
-	"set the block at the entity to the entity's skull"
-})
+@Example("give the victim's skull to the attacker")
+@Example("set the block at the entity to the entity's skull")
 @Since("2.0")
 public class ExprSkull extends SimplePropertyExpression<OfflinePlayer, ItemType> {
 

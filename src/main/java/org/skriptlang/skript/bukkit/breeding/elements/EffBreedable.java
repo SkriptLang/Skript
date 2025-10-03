@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Make Breedable")
 @Description("Sets whether or not entities will be able to breed. Only works on animals.")
-@Examples({
-	"on spawn of animal:",
-		"\tmake entity unbreedable"
-})
+@Example("""
+	on spawn of animal:
+		make entity unbreedable
+	""")
 @Since("2.10")
 public class EffBreedable extends Effect {
 

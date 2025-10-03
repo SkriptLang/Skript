@@ -26,12 +26,12 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 	"",
 	"<strong>Scripts:</strong> The name of a script, excluding its file extension."
 })
-@Examples({
-	"on join:",
-	"\tplayer has permission \"name.red\"",
-	"\tset the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
-	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
-})
+@Example("""
+	on join:
+		player has permission "name.red"
+		set the player's display name to "<red>[admin] <gold>%name of player%"
+	""")
+@Example("set the name of the player's tool to \"Legendary Sword of Awesomeness\"")
 @Since({
 	"before 2.1",
 	"2.2-dev20 (inventory name)",

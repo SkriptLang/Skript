@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,10 +19,10 @@ import org.jetbrains.annotations.Nullable;
 	"Using a value of 30 seconds is equivalent to using an item to breed them.",
 	"Only works on animals that can be bred and returns '0 seconds' for animals that can't be bred."
 })
-@Examples({
-	"on right click:",
-		"\tsend \"%event-entity% has been in love for %love time of event-entity% more than you!\" to player"
-})
+@Example("""
+	on right click:
+		send "%event-entity% has been in love for %love time of event-entity% more than you!" to player
+	""")
 @Since("2.10")
 public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,7 +20,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Dot Product")
 @Description("Gets the dot product between two vectors.")
-@Examples("set {_dot} to {_v1} dot {_v2}")
+@Example("set {_dot} to {_v1} dot {_v2}")
 @Since("2.2-dev28")
 public class ExprVectorDotProduct extends SimpleExpression<Number> {
 
