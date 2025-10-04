@@ -724,6 +724,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (TestMode.DEV_MODE) {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
+						// delay + chunk loading necessary to allow world to fully generate and start ticking before tests run.
 						World world = Bukkit.getWorlds().get(0);
 						world.setSpawnLocation(0, 0, 0);
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
