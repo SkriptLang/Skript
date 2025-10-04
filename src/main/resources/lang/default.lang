@@ -1589,6 +1589,14 @@ entities:
 			0: <age> happy ghast[plural:s]
 			1: baby:[happy] ghastling[plural:s]
 
+	# 1.21.9 Entities
+	copper golem:
+		name: copper golem¦s
+		pattern: copper golem[plural:s]
+	mannequin:
+		name: mannequin¦s
+		pattern: mannequin[plural:s]
+
 	# SuperTypes
 	human:
 		name: human¦s
@@ -2470,6 +2478,7 @@ inventory types:
 	chiseled_bookshelf: chiseled bookshelf inventory @a, bookshelf inventory @a
 	decorated_pot: decorated pot inventory @a
 	crafter: crafter inventory @a
+	shelf: shelf inventory @a
 
 	jukebox: jukebox @a
 	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
@@ -2523,6 +2532,8 @@ spawn reasons:
 	# 1.21
 	trial_spawner: trial spawner, trial mob spawner, trial creature spawner
 	enchantment: enchantment
+	rehydration: rehydration, rehydrated
+	build_coppergolem: build copper golem, built copper golem
 
 # -- Difficulties --
 difficulties:
