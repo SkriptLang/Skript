@@ -9,9 +9,26 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
-import ch.njol.util.Kleenean;
 
 public class EvtServerWhitelist extends SkriptEvent {
+
+	private enum EventState {
+
+		ON("on"),
+		OFF("off");
+
+		final String toString;
+
+		EventState(String toString) {
+			this.toString = toString;
+		}
+
+		@Override
+		public String toString() {
+			return toString;
+		}
+
+	}
 
 	static {
 		Skript.registerEvent("Whitelist Toggled", EvtServerWhitelist.class, WhitelistToggleEvent.class, "whitelist toggle[d] [:on|:off]")
@@ -24,24 +41,24 @@ public class EvtServerWhitelist extends SkriptEvent {
 				"",
 				"on whitelist toggled:",
 					"\tsend \"Server whitelist has been set to %whether server will be whitelisted%\" to all ops")
-			.since("");
+			.since("INSERT VERSION");
 	}
 
-	private Kleenean state = Kleenean.UNKNOWN;
+	private @Nullable EventState state = null;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (parseResult.hasTag("on"))
-			state = Kleenean.TRUE;
+			state = EventState.ON;
 		else if (parseResult.hasTag("off"))
-			state = Kleenean.FALSE;
+			state = EventState.OFF;
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (!state.isUnknown())
-			return state.isTrue() == ((WhitelistToggleEvent) event).isEnabled();
+		if (state != null)
+			return (state == EventState.ON) == ((WhitelistToggleEvent) event).isEnabled();
 		return true;
 	}
 
@@ -49,8 +66,8 @@ public class EvtServerWhitelist extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
 			.append("server whitelist toggled");
-		if (!state.isUnknown())
-			builder.append(state.isTrue() ? "on" : "off");
+		if (state != null)
+			builder.append(state);
 		return builder.toString();
 	}
 

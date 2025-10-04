@@ -12,13 +12,30 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.util.Kleenean;
 
 public class EvtPlayerWhitelist extends SkriptEvent {
 
+	private enum EventState {
+
+		WHITELISTED("whitelisted"),
+		UNWHITELISTED("unwhitelisted");
+
+		final String toString;
+
+		EventState(String toString) {
+			this.toString = toString;
+		}
+
+		@Override
+		public String toString() {
+			return toString;
+		}
+
+	}
+
 	static {
 		Skript.registerEvent("Player Whitelist", EvtPlayerWhitelist.class, WhitelistStateUpdateEvent.class,
-				"player whitelist [state] (change[d]|toggle[d]|update[d])",
+				"player whitelist [state] (change[d]|update[d])",
 				"player (added to whitelist|whitelist[ed])",
 				"player (removed from whitelist|unwhitelist[ed])")
 			.description(
@@ -28,28 +45,28 @@ public class EvtPlayerWhitelist extends SkriptEvent {
 				"on player whitelisted:",
 				"on player unwhitelisted:",
 				"",
-				"on player whitelist toggled:",
+				"on player whitelist state changed:",
 					"\tsend \"Whitelist of player %event-offlineplayer% has been set to %whether server will be whitelisted%\" to all ops")
-			.since("");
+			.since("INSERT VERSION");
 
 		EventValues.registerEventValue(WhitelistStateUpdateEvent.class, OfflinePlayer.class, WhitelistStateUpdateEvent::getPlayer);
 	}
 
-	private Kleenean state = Kleenean.UNKNOWN;
+	private @Nullable EventState state = null;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (matchedPattern == 1)
-			state = Kleenean.TRUE;
+			state = EventState.WHITELISTED;
 		else if (matchedPattern == 2)
-			state = Kleenean.FALSE;
+			state = EventState.UNWHITELISTED;
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (!state.isUnknown())
-			return state.isTrue() == (((WhitelistStateUpdateEvent) event).getStatus() == WhitelistStatus.ADDED);
+		if (state != null)
+			return (state == EventState.WHITELISTED) == (((WhitelistStateUpdateEvent) event).getStatus() == WhitelistStatus.ADDED);
 		return true;
 	}
 
@@ -57,11 +74,13 @@ public class EvtPlayerWhitelist extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
 			.append("player");
-		if (!state.isUnknown()) {
-			builder.append(state.isTrue() ? "added to" : "removed from")
-				.append("whitelist");
+		if (state != null) {
+			if (state == EventState.WHITELISTED)
+				builder.append("added to whitelist");
+			else
+				builder.append("removed from whitelist");
 		} else {
-			builder.append("whitelist toggled");
+			builder.append("whitelist state changed");
 		}
 		return builder.toString();
 	}
