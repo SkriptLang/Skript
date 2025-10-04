@@ -729,7 +729,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 							world.addPluginChunkTicket(0, 0, Skript.getInstance());
 							world.addPluginChunkTicket(100, 100, Skript.getInstance());
-							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> runTests(), 20);
+							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> runTests(), 100);
 						}, 5);
 					}
 				}
