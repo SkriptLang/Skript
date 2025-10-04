@@ -726,9 +726,11 @@ public final class Skript extends JavaPlugin implements Listener {
 					} else {
 						World world = Bukkit.getWorlds().get(0);
 						world.setSpawnLocation(0, 0, 0);
-						world.setChunkForceLoaded(0, 0, true);
-						world.setChunkForceLoaded(100, 100, true);
-						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> runTests(), 20);
+						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+							world.addPluginChunkTicket(0, 0, Skript.getInstance());
+							world.addPluginChunkTicket(100, 100, Skript.getInstance());
+							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> runTests(), 20);
+						}, 5);
 					}
 				}
 
