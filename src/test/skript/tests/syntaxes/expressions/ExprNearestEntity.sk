@@ -16,3 +16,10 @@ test "nearest entity does not allow duplicate entities":
 #	assert nearest entity relative to {_cow} is {_pig} with "incorrect nearest entity found"
 #	assert nearest entity relative to (location of {_cow}) is {_cow} with "incorrect nearest entity found when using location"
 #   delete all entities
+
+###
+test "closest entity":
+	spawn a pig at test-location:
+		set {_pig} to entity
+	assert closest entity of test-location is set with "syntax doesn't work :("
+###
