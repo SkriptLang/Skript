@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Minimum Long Value")
 @Description("A number representing the minimum value of a long number type.")
 @Example("if {_number} <= minimum long value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitLongMinValue extends SimpleLiteral<Long> {
 
 	static {

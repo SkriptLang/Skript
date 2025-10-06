@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Maximum Long Value")
 @Description("A number representing the maximum value of a long number type.")
 @Example("if {_number} >= maximum long value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitLongMaxValue extends SimpleLiteral<Long> {
 
 	static {
