@@ -29,14 +29,14 @@ import org.skriptlang.skript.lang.converter.ConverterInfo;
 @Example("set block below to air")
 @Example("spawn a creeper above the block")
 @Example("""
-loop blocks in radius 4:
-	loop-block is obsidian
-	set loop-block to water
-""")
+	loop blocks in radius 4:
+		loop-block is obsidian
+		set loop-block to water
+	""")
 @Example("""
-block is a chest:
-	clear the inventory of the block
-""")
+	block is a chest:
+		clear the inventory of the block
+	""")
 @Since("1.0")
 public class ExprBlock extends WrapperExpression<Block> {
 	static {

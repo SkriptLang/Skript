@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	apply drop shadow to last spawned text display
 	if {_display} has drop shadow:
 		remove drop shadow from the text of {_display}
-""")
+	""")
 @Since("2.10")
 public class EffTextDisplayDropShadow extends Effect {
 
