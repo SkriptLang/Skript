@@ -1,16 +1,6 @@
 package ch.njol.skript.examples;
 
-import ch.njol.skript.Skript;
-import org.bukkit.Bukkit;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class ExampleScriptManager {
+
 	private Set<String> installed;
 	private File installedFile;
 
@@ -101,4 +92,9 @@ public final class ExampleScriptManager {
 		if (dirty)
 			flushInstalled();
 	}
+
+	public void installExamples(String plugin, ExampleScriptProvider provider, File scriptsDir) {
+		installExamples(plugin, provider.scripts(), scriptsDir);
+	}
+
 }

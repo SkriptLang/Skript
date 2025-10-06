@@ -187,7 +187,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static boolean disabled = false;
 	private static boolean partDisabled = false;
 
-	public static @Nullable ExampleScriptManager exampleManager;
+	static @Nullable ExampleScriptManager exampleManager;
+
+	public static @Nullable ExampleScriptManager getExampleManager() {
+		return exampleManager;
+	}
 
 	public static Skript getInstance() {
 		if (instance == null)
@@ -485,7 +489,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 
 		exampleManager = new ExampleScriptManager();
-		exampleManager.installExamples("Skript", CoreExampleScripts.all(), scriptsFolder);
+		exampleManager.installExamples("Skript", CoreExampleScripts.provider(), scriptsFolder);
 
 		// initialize the modern Skript instance
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());

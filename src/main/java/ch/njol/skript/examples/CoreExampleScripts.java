@@ -23,10 +23,16 @@ public final class CoreExampleScripts {
 		load("variables.sk")
 	);
 
+	private static final ExampleScriptProvider PROVIDER = () -> EXAMPLES;
+
 	private CoreExampleScripts() {}
 
 	public static Collection<ExampleScript> all() {
 		return EXAMPLES;
+	}
+
+	public static ExampleScriptProvider provider() {
+		return PROVIDER;
 	}
 
 	private static ExampleScript load(String name) {
@@ -40,4 +46,5 @@ public final class CoreExampleScripts {
 			throw new RuntimeException("Failed to load example script " + path, e);
 		}
 	}
+
 }
