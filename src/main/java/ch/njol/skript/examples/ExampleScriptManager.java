@@ -9,6 +9,12 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Handles the installation of bundled example scripts for Skript and its addons.
+ *
+ * The manager keeps track of which examples were already installed using a file located next
+ * to the user's scripts directory.
+ */
 public final class ExampleScriptManager {
 
 	private Set<String> installed;
@@ -16,6 +22,11 @@ public final class ExampleScriptManager {
 
 	public ExampleScriptManager() {}
 
+	/**
+	 * Loads the list of already-installed example scripts for the provided scripts directory.
+	 *
+	 * @param scriptsDir the root of the scripts directory where examples are stored
+	 */
 	private void loadInstalled(File scriptsDir) {
 		File parent = scriptsDir.getParentFile();
 		installedFile = new File(parent == null ? scriptsDir : parent, ".loaded_examples");
@@ -33,6 +44,9 @@ public final class ExampleScriptManager {
 		}
 	}
 
+	/**
+	 * Persists the list of installed example scripts. Hides the metadata file on Windows systems.
+	 */
 	private void flushInstalled() {
 		if (installedFile == null || installed == null)
 			return;
@@ -72,6 +86,13 @@ public final class ExampleScriptManager {
 		}
 	}
 
+	/**
+	 * Installs the provided collection of example scripts into the user's scripts directory.
+	 *
+	 * @param plugin the name of the plugin providing the examples; used for namespacing on disk
+	 * @param scripts the examples to install
+	 * @param scriptsDir the root of the scripts directory where the examples should be written
+	 */
 	public void installExamples(String plugin, Collection<ExampleScript> scripts, File scriptsDir) {
 		loadInstalled(scriptsDir);
 		boolean dirty = false;
@@ -93,6 +114,13 @@ public final class ExampleScriptManager {
 			flushInstalled();
 	}
 
+	/**
+	 * Installs example scripts provided by an {@link ExampleScriptProvider}.
+	 *
+	 * @param plugin the name of the plugin providing the examples
+	 * @param provider a supplier of example scripts to install
+	 * @param scriptsDir the root of the scripts directory where the examples should be written
+	 */
 	public void installExamples(String plugin, ExampleScriptProvider provider, File scriptsDir) {
 		installExamples(plugin, provider.scripts(), scriptsDir);
 	}
