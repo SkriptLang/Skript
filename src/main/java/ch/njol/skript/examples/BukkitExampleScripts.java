@@ -6,22 +6,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 
-public final class CoreExampleScripts {
+/**
+ * Example scripts that rely on Bukkit-specific behaviours or APIs.
+ */
+public final class BukkitExampleScripts {
 
 	public static final List<ExampleScript> EXAMPLES = List.of(
-		load("experimental features/for loops.sk"),
-		load("experimental features/queues.sk"),
-		load("experimental features/script reflection.sk"),
-		load("functions.sk"),
-		load("loops.sk"),
-		load("options and meta.sk"),
-		load("text formatting.sk"),
-		load("variables.sk")
+		load("chest menus.sk"),
+		load("commands.sk"),
+		load("events.sk"),
+		load("timings.sk")
 	);
 
 	private static final ExampleScriptProvider PROVIDER = () -> EXAMPLES;
 
-	private CoreExampleScripts() {}
+	private BukkitExampleScripts() {}
 
 	public static Collection<ExampleScript> all() {
 		return EXAMPLES;
@@ -33,7 +32,7 @@ public final class CoreExampleScripts {
 
 	private static ExampleScript load(String name) {
 		String path = "scripts/-examples/" + name;
-		try (InputStream in = CoreExampleScripts.class.getClassLoader().getResourceAsStream(path)) {
+		try (InputStream in = BukkitExampleScripts.class.getClassLoader().getResourceAsStream(path)) {
 			if (in == null)
 				throw new IllegalStateException("Missing example script " + path);
 			String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);

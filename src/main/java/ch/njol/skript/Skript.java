@@ -14,6 +14,7 @@ import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
+import ch.njol.skript.examples.BukkitExampleScripts;
 import ch.njol.skript.examples.CoreExampleScripts;
 import ch.njol.skript.examples.ExampleScriptManager;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
@@ -489,7 +490,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 
 		exampleManager = new ExampleScriptManager();
-		exampleManager.installExamples("Skript", CoreExampleScripts.provider(), scriptsFolder);
+		exampleManager.installExamples("Skript (core)", CoreExampleScripts.provider(), scriptsFolder);
+		exampleManager.installExamples("Skript (Bukkit)", BukkitExampleScripts.provider(), scriptsFolder);
 
 		// initialize the modern Skript instance
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
