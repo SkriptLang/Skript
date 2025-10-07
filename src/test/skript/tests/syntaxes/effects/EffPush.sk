@@ -23,6 +23,6 @@ test "pushing and pulling":
 
 	set the velocity of player to vector(0,0,0)
 	pull {_e} along vector(1,2,3)
-	assert {_e}'s velocity is vector(1,2,3) with "pull syntax didn't work D:"
+	assert {_e}'s velocity is vector(1,2,3) with "pig's velocity after pull was wrong"
 
 	delete entity within {_e}
