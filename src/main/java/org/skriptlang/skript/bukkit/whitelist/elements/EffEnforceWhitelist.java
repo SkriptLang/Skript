@@ -21,10 +21,8 @@ import ch.njol.util.Kleenean;
 	"Enforces or un-enforce a server's whitelist.",
 	"All non-whitelisted players will be kicked upon enforcing the whitelist."
 })
-@Example("""
-	enforce the whitelist
-	unenforce the whitelist
-	""")
+@Example("enforce the whitelist")
+@Example("unenforce the whitelist")
 @Since("2.9.0")
 public class EffEnforceWhitelist extends Effect {
 

@@ -15,11 +15,9 @@ import ch.njol.util.Kleenean;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
-@Example("""
-	if the player is whitelisted:
-	if the server is whitelisted:
-	if the server whitelist is enforced:
-	""")
+@Example("if the player is whitelisted:")
+@Example("if the server is whitelisted:")
+@Example("if the server whitelist is enforced:")
 @Since("2.5.2, 2.9.0 (enforce, offline players)")
 public class CondIsWhitelisted extends Condition {
 
