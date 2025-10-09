@@ -12,7 +12,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 public class EvtFertilizeEgg extends SkriptEvent {
-
 	static {
 		Skript.registerEvent("Entity Fertilize", EvtFertilizeEgg.class, EntityFertilizeEggEvent.class,
 				"[entity] fertiliz(e|ing) [an] egg [of %-entitytypes%]")
