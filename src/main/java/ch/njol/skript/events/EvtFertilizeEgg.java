@@ -12,23 +12,23 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 public class EvtFertilizeEgg extends SkriptEvent {
+
 	static {
 		Skript.registerEvent("Entity Fertilize", EvtFertilizeEgg.class, EntityFertilizeEggEvent.class,
 				"[entity] fertiliz(e|ing) [an] egg [of %-entitytypes%]")
 			.description(
 				"Called whenever an entity fertilizes an egg (e.g. a turtle has an egg, a frog becomes pregnant, or a " +
 					"sniffer finds a sniffer egg).")
-			.examples(
-				"on fertilizing egg of turtles:",
-				"\tsend \"A turtle just fertilized an egg!\"",
-				"on fertilizing egg:",
-				"\tif event-entity is a frog:",
-				"\t\tsend \"A frog just became pregnant!\""
-			)
-			.since("2.14");
+			.examples("""
+				on fertilizing egg of turtles:
+					broadcast "A turtle just fertilized an egg!"
+				on fertilizing egg:
+					if event-entity is a frog:
+						broadcast "A frog just became pregnant!"
+				""")
+			.since("INSERT VERSION");
 
 		EventValues.registerEventValue(EntityFertilizeEggEvent.class, Entity.class, event -> {
-			assert false;
 			return event.getEntity();
 		}, EventValues.TIME_NOW,
 			"Use 'mother' and/or 'father' in fertilize egg events",
@@ -67,7 +67,7 @@ public class EvtFertilizeEgg extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "on fertilizing egg" + (entitiesLiteral == null ? "" : " of " + entitiesLiteral);
+		return "on fertilizing egg" + (entitiesLiteral == null ? "" : " of " + entitiesLiteral.toString(event, debug));
 	}
 
 }
