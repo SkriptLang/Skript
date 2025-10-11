@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.util.Arrays;
+
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	private final Trigger trigger;
@@ -64,19 +66,21 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 				continue;
 			}
 
-			int count = 0;
-			for (Object value : val) {
-				if (value instanceof KeyedValue<?> keyedValue) {
+			boolean keyed = Arrays.stream(val).allMatch(it -> it instanceof KeyedValue<?>);
+			if (keyed) {
+				for (Object value : val) {
+					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
 					Variables.setVariable(parameter.name + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
-					continue;
 				}
-
-				// backup for if the passed argument is not a keyed value.
-				// an example of this is passing `xs: integers = (1, 2)` as a parameter.
-				Variables.setVariable(parameter.name + Variable.SEPARATOR + count, value, event, true);
-				count++;
+			} else {
+				int count = 0;
+				for (Object value : val) {
+					// backup for if the passed argument is not a keyed value.
+					// an example of this is passing `xs: integers = (1, 2)` as a parameter.
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + count, value, event, true);
+					count++;
+				}
 			}
-
 		}
 
 		trigger.execute(event);
