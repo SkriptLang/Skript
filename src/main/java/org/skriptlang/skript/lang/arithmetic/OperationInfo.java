@@ -2,6 +2,7 @@ package org.skriptlang.skript.lang.arithmetic;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -17,7 +18,12 @@ public class OperationInfo<L, R, T> {
 	private final Class<T> returnType;
 	private final Operation<L, R, T> operation;
 
-	public OperationInfo(Class<L> left, Class<R> right, Class<T> returnType, Operation<L, R, T> operation) {
+	public OperationInfo(
+		@NotNull Class<L> left,
+		@NotNull Class<R> right,
+		@NotNull Class<T> returnType,
+		@NotNull Operation<L, R, T> operation
+	) {
 		Preconditions.checkNotNull(left, "Cannot do arithmetic with nothing and something! (left is null)");
 		Preconditions.checkNotNull(right, "Cannot do arithmetic with something and nothing! (right is null)");
 		Preconditions.checkNotNull(returnType, "Cannot have nothing as the result of arithmetic! (returnType is null)");
