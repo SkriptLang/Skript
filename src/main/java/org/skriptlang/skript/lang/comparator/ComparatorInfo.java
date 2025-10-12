@@ -1,5 +1,7 @@
 package org.skriptlang.skript.lang.comparator;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Holds information about a Comparator.
  *
@@ -13,6 +15,9 @@ public final class ComparatorInfo<T1, T2> {
 	private final Comparator<T1, T2> comparator;
 
 	ComparatorInfo(Class<T1> firstType, Class<T2> secondType, Comparator<T1, T2> comparator) {
+		Preconditions.checkNotNull(firstType, "Cannot create a comparison between nothing and something! (firstType is null)");
+		Preconditions.checkNotNull(secondType, "Cannot create a comparison between something and nothing! (secondType is null)");
+		Preconditions.checkNotNull(comparator, "Cannot create a comparison with a null comparator!");
 		this.firstType = firstType;
 		this.secondType = secondType;
 		this.comparator = comparator;
