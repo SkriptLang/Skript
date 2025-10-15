@@ -164,7 +164,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?, ?>> NAME = Property.of(
 			"name",
 			"A name, such as a script's name or a player's account name.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -175,7 +175,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?, ?>> DISPLAY_NAME = Property.of(
 			"display name",
 			"A more prominently displayed name, such as a player's display name or an entity's custom name. Often more easily changed than the regular name.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -186,7 +186,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ContainsHandler<?, ?>> CONTAINS = Property.of(
 			"contains",
 			"Something that can contain other things, such as an inventory or a string.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			ContainsHandler.class);
 
@@ -197,7 +197,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?, ?>> AMOUNT = Property.of(
 			"amount",
 			"The amount of something, say the number of items in a stack or in a queue.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -208,7 +208,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?, ?>> SIZE = Property.of(
 			"size",
 			"The size of something, say the number of elements in a queue.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -218,7 +218,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?, ?>> NUMBER = Property.of(
 			"number",
 			"The number of something, say the number of elements in a queue.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -230,7 +230,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ConditionPropertyHandler<?>> IS_EMPTY = Property.of(
 			"empty",
 			"Whether something is empty or not.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			ConditionPropertyHandler.class);
 
@@ -240,7 +240,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<TypedValuePropertyHandler<?, ?>> TYPED_VALUE = Property.of(
 			"typed value",
 			"A value of a specific type, e.g. 'string value of x'.",
-			"INSERT VERSION",
+			"2.13",
 			Skript.instance(),
 			TypedValuePropertyHandler.class);
 

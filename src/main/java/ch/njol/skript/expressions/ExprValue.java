@@ -43,7 +43,7 @@ import org.skriptlang.skript.common.properties.expressions.PropExprValueOf;
 
 })
 @Since("2.10 (Nodes), 2.10 (Any)")
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public class ExprValue extends SimplePropertyExpression<Object, Object> {
 
 	static {

@@ -29,7 +29,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		prevent {_component} from being sheared off of entities
 	""")
 @RequiredPlugins("Minecraft 1.21.6+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class EffEquipCompShearable extends Effect implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

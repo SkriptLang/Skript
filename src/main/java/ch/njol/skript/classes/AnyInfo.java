@@ -14,7 +14,7 @@ import java.util.regex.PatternSyntaxException;
  * @see AnyProvider
  * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property} instead.
  */
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public class AnyInfo<Type extends AnyProvider> extends ClassInfo<Type> {
 
 	/**

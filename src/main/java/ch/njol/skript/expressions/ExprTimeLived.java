@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 	on right click on entity:
 		send "%entity% has lived for %time lived of entity%" to player
 	""")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprTimeLived extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {

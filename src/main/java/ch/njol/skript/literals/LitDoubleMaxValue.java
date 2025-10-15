@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Maximum Double Value")
 @Description("A number representing the maximum value of a double number type.")
 @Example("if {_number} >= maximum double value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitDoubleMaxValue extends SimpleLiteral<Double> {
 
 	static {

@@ -92,7 +92,7 @@ import java.util.List;
 	"2.4 (non-living entity support, changeable inventory name)",
 	"2.7 (worlds)"
 })
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable

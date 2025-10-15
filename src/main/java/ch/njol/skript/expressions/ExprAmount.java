@@ -29,7 +29,7 @@ import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
 })
 @Example("message \"There are %number of all players% players online!\"")
 @Since("1.0")
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public class ExprAmount extends SimpleExpression<Number> {
 
 	static {

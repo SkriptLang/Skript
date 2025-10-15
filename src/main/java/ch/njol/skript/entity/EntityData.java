@@ -394,7 +394,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	/**
 	 * Initializes this {@link EntityData}.
 	 * <p>
-	 *     As of Skript INSERT VERSION, code names can have multiple patterns registered in the default.lang file.
+	 *     As of Skript 2.13, code names can have multiple patterns registered in the default.lang file.
 	 *     {@code matchedCodeName} will be the index of the code name the matched pattern is linked to.
 	 *     		(e.g. {@link PigData} "unsaddled pig' = 0, "pig" = 1, "saddled pig" = 2)
 	 *     {@code matchedPattern} will be the index of the pattern used from the patterns of the code name in the lang file.

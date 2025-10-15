@@ -32,7 +32,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		allow {_component} to be dispensed
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class CondEquipCompDispensable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

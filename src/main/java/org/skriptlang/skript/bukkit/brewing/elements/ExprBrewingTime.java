@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 @Description("The remaining brewing time of a brewing stand.")
 @Example("set the brewing time of {_block} to 10 seconds")
 @Example("clear the remaining brewing time of {_block}")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 
 	private static final boolean BREWING_START_EVENT_1_21 = Skript.methodExists(BrewingStartEvent.class, "setBrewingTime", int.class);

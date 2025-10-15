@@ -4,14 +4,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.PatternedParser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -19,8 +13,6 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -34,14 +26,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntitySnapshot;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -59,10 +44,8 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -75,12 +58,7 @@ import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
 import java.io.StreamCorruptedException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -988,7 +966,6 @@ public class BukkitClasses {
 					.user("(lunar|moon) ?phases?")
 					.name("Moon Phase")
 					.description("Represents the phase of a moon.")
-					.requiredPlugins("Paper 1.16+")
 					.since("2.7"));
 
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
@@ -996,7 +973,6 @@ public class BukkitClasses {
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
 					.description("Represents a quit reason from a <a href='/#quit'>player quit server event</a>.")
-					.requiredPlugins("Paper 1.16.5+")
 					.since("2.8.0"));
 
 		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
@@ -1004,7 +980,6 @@ public class BukkitClasses {
 					.user("inventory ?close ?reasons?")
 					.name("Inventory Close Reasons")
 					.description("The inventory close reason in an <a href='/#inventory_close'>inventory close event</a>.")
-					.requiredPlugins("Paper")
 					.since("2.8.0"));
 
 		Classes.registerClass(new EnumClassInfo<>(TransformReason.class, "transformreason", "transform reasons")
@@ -1058,7 +1033,6 @@ public class BukkitClasses {
 					"This includes all of the data associated with an entity (its name, health, attributes, etc.), at the time this expression is used. "
 						+ "Essentially, these are a way to create templates for entities.",
 					"Individual attributes of a snapshot cannot be modified or retrieved.")
-				.requiredPlugins("Minecraft 1.20.2+")
 				.since("2.10")
 				.parser(new Parser<>() {
 					@Override
@@ -1142,7 +1116,6 @@ public class BukkitClasses {
 					.user("teleport ?flags?")
 					.name("Teleport Flag")
 					.description("Teleport Flags are settings to retain during a teleport.")
-					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
 
 		Classes.registerClass(new ClassInfo<>(Vehicle.class, "vehicle")

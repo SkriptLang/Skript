@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		allow {_component} to be sheared off
 	""")
 @RequiredPlugins("Minecraft 1.21.6+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class CondEquipCompShearable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

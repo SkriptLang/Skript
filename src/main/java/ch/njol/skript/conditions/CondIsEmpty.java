@@ -21,7 +21,7 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 @Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
 @Examples("player's inventory is empty")
 @Since("unknown (before 2.1)")
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public class CondIsEmpty extends PropertyCondition<Object> {
 
 	static {

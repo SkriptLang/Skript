@@ -20,8 +20,7 @@ import java.util.function.Supplier;
 	"The simulation distance of a world or a player.",
 	"Simulation distance is the minimum distance in chunks for entities to tick.",
 	"Simulation distance is capped to the current view distance of the world or player.",
-	"The view distance is capped between 2 and 32 chunks.",
-	"Paper is required to change the simulation distance for both worlds and players."
+	"The view distance is capped between 2 and 32 chunks."
 })
 @Examples({
 	"set simulation distance of player to 10",
@@ -29,7 +28,6 @@ import java.util.function.Supplier;
 	"reset the simulation distance of player",
 	"clear the simulation distance of world \"world\""
 })
-@RequiredPlugins("Paper (change for players), Paper 1.21+ (change for worlds)")
 @Since("2.11")
 public class ExprSimulationDistance extends SimplePropertyExpression<Object, Integer> {
 

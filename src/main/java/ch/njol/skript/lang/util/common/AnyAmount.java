@@ -12,7 +12,7 @@ import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
  * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#AMOUNT} instead.
  */
 @FunctionalInterface
-@Deprecated(since="INSERT VERSION", forRemoval = true)
+@Deprecated(since="2.13", forRemoval = true)
 public interface AnyAmount extends AnyProvider {
 
 	/**

@@ -34,7 +34,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	set the camera overlay of {_component} to "custom_overlay"
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

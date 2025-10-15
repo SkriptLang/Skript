@@ -83,7 +83,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * @deprecated Use {@link #of(SkriptAddon)} instead.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
 		source = Skript.instance();
@@ -634,7 +634,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * @deprecated Use {@link #generate(Path)} instead.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	@Override
 	public void generate() {
 		try {

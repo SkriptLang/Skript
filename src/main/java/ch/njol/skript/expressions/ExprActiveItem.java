@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tinterrupt player's active item use"
 })
 @Since("2.8.0")
-@RequiredPlugins("Paper")
 public class ExprActiveItem extends SimplePropertyExpression<LivingEntity, ItemStack> {
 
 	static {

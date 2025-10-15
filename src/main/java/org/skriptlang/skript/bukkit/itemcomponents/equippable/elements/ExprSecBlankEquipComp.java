@@ -47,7 +47,7 @@ import java.util.List;
 	set the equippable component of {_item} to {_component}
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> implements EquippableExperimentSyntax {
 
 	private static class BlankEquippableSectionEvent extends Event {

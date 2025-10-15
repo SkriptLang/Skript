@@ -33,7 +33,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Example("clear the equippable component of {_item}")
 @Example("reset the equippable component of {_item}")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class ExprEquippableComponent extends SimplePropertyExpression<Object, EquippableWrapper> implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

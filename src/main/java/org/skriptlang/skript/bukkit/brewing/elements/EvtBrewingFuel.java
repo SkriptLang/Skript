@@ -31,7 +31,7 @@ public class EvtBrewingFuel extends SkriptEvent {
 						prevent the brewing stand from consuming fuel
 					on brewing fuel consumption of blaze powder:
 					""")
-				.addSince("INSERT VERSION")
+				.addSince("2.13")
 				.supplier(EvtBrewingFuel::new)
 				.build()
 		);
