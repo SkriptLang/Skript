@@ -1,5 +1,5 @@
 test "broadcast evaluates vstrings twice":
-	broadcast "%func()%"
+	broadcast func() in the world "world"
 	assert {7718::calls} is 1 with "Called func() more than once"
 	delete {7718::calls}
 

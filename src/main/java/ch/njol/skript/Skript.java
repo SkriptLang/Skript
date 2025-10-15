@@ -729,7 +729,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						try {
 							if (logHandler.getCount() == 0)
 								Skript.info(m_no_errors.toString());
-							if (scriptInfo.files == 0)
+							if (scriptInfo.files == 0 && !Skript.testing())
 								Skript.warning(m_no_scripts.toString());
 							if (Skript.logNormal() && scriptInfo.files > 0)
 								Skript.info(m_scripts_loaded.toString(
