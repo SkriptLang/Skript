@@ -11,6 +11,7 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Damage Source - Was Indirectly Caused")
 @Description({
@@ -24,14 +25,15 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
 
-	static {
-		Skript.registerCondition(CondWasIndirect.class, ConditionType.PROPERTY,
-			"%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
-			"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)"
-		);
+	public static SyntaxInfo<CondWasIndirect> info() {
+		return SyntaxInfo.builder(CondWasIndirect.class)
+				.priority(DEFAULT_PRIORITY)
+				.supplier(CondWasIndirect::new)
+				.addPatterns("%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
+						"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)")
+				.build();
 	}
 
 	private boolean indirect;

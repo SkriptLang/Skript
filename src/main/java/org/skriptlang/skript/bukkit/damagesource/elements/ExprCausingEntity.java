@@ -14,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Damage Source - Causing Entity")
 @Description({
@@ -37,8 +39,10 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprCausingEntity.class, Entity.class, "(causing|responsible) entity", "damagesources");
+	public static SyntaxInfo.Expression<ExprCausingEntity, Entity> info() {
+		return infoBuilder(ExprCausingEntity.class, Entity.class, "(causing|responsible) entity", "damagesources", true)
+				.supplier(ExprCausingEntity::new)
+				.build();
 	}
 
 	private boolean isEvent;
