@@ -188,7 +188,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	boolean releaseDocs = modifiers.contains(Modifiers.GEN_RELEASE_DOCS)
 	boolean docs = modifiers.contains(Modifiers.GEN_NIGHTLY_DOCS) || releaseDocs
 	def artifact = 'build' + File.separator + 'libs' + File.separator
-	if (junit) {
+	if (junit || modifiers.contains(Modifiers.DEV_MODE)) {
 		artifact += 'Skript-JUnit.jar'
 	} else if (releaseDocs) {
 		artifact += 'Skript-' + version + '.jar'
@@ -197,7 +197,8 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	}
 	tasks.register(name, JavaExec) {
 		description = desc
-		if (junit) {
+		boolean devMode = modifiers.contains(Modifiers.DEV_MODE)
+		if (junit || devMode) {
 			dependsOn testJar
 		} else if (releaseDocs) {
 			dependsOn githubRelease, testNaming
@@ -207,7 +208,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 		javaLauncher = javaToolchains.launcherFor {
 	        languageVersion = JavaLanguageVersion.of(javaVersion)
 	    }
-		if (modifiers.contains(Modifiers.DEV_MODE)) {
+		if (devMode) {
 			standardInput = System.in
 		}
 		group = 'execution'

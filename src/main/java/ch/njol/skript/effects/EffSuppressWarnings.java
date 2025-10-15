@@ -53,7 +53,7 @@ public class EffSuppressWarnings extends Effect {
 	}
 
 	@Override
-	protected void execute(Event event) { }
+	protected void execute(Event event) {}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
