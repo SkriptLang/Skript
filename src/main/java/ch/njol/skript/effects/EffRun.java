@@ -16,11 +16,11 @@ import org.skriptlang.skript.util.Executable;
 
 @Name("Run (Experimental)")
 @Description("Executes a task (a function). Any returned result is discarded.")
-@Examples({
-		"set {_function} to the function named \"myFunction\"",
-		"run {_function}",
-		"run {_function} with arguments {_things::*}",
-})
+@Example("""
+	set {_function} to the function named "myFunction"
+	run {_function}
+	run {_function} with arguments {_things::*}
+	""")
 @Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
 @SuppressWarnings({"rawtypes", "unchecked"})

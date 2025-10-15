@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Fishing Hooked Entity")
 @Description("Returns the hooked entity in the hooked event.")
-@Examples({
-	"on entity hooked:",
-		"\tif hooked entity is a player:",
-			"\t\tteleport hooked entity to player",
-})
+@Example("""
+	on entity hooked:
+		if hooked entity is a player:
+			teleport hooked entity to player
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingHookEntity extends SimpleExpression<Entity> {

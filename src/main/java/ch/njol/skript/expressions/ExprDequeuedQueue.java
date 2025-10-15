@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,12 +23,11 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 	The order of the list will be the same as the order of the elements in the queue.
 	If a list variable is set to this, it will use numerical indices.
 	The original queue will not be changed.""")
-@Examples({
-	"""
-		set {queue} to a new queue
-		add "hello" and "there" to {queue}
-		set {list::*} to dequeued {queue}"""
-})
+@Example("""
+	set {queue} to a new queue
+	add "hello" and "there" to {queue}
+	set {list::*} to dequeued {queue}
+	""")
 @Since("2.10 (experimental)")
 public class ExprDequeuedQueue extends SimpleExpression<Object> implements QueueExperimentSyntax {
 
