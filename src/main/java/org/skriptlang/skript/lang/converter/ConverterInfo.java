@@ -24,7 +24,7 @@ public final class ConverterInfo<F, T> {
 	) {
 		Preconditions.checkNotNull(from, "Cannot convert from nothing to something! (from is null)");
 		Preconditions.checkNotNull(to, "Cannot convert from something to nothing! (to is null)");
-		Preconditions.checkNotNull(converter, "Cannot covert using a null converter!");
+		Preconditions.checkNotNull(converter, "Cannot convert using a null converter!");
 		this.from = from;
 		this.to = to;
 		this.converter = converter;
