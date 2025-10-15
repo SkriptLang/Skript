@@ -21,6 +21,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EmptyStacktraceException;
+import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.BungeeConverter;
@@ -44,16 +45,22 @@ import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.codehaus.plexus.util.cli.Arg;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -62,150 +69,63 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * This class is used for user-defined commands.
  */
 public class ScriptCommand implements TabExecutor {
 
-	public final static Message m_executable_by_players = new Message("commands.executable by players");
-	public final static Message m_executable_by_console = new Message("commands.executable by console");
+	public static final String m_executable_by_players = new Message("commands.executable by players").toString();
+	public static final String m_executable_by_console = new Message("commands.executable by console").toString();
+	public final static int PLAYERS = 0x1, CONSOLE = 0x2, BOTH = PLAYERS | CONSOLE;
 	private static final String DEFAULT_PREFIX = "skript";
 
-	final String name;
-	private final String label;
-	private final List<String> aliases;
-	private List<String> activeAliases;
-	private String permission;
-	private final VariableString permissionMessage;
-	private final String description;
-	private final String prefix;
-	@Nullable
-	private final Timespan cooldown;
+	private @Nullable Expression<String> cooldownStorage;
+	private @Nullable List<Argument<?>> arguments;
+	private @Nullable String cooldownBypass;
+	private @Nullable List<String> aliases;
+	private @Nullable CommandUsage usage;
+	private @Nullable String description;
+	private @Nullable Timespan cooldown;
+	private @Nullable String permission;
+
 	private final Expression<String> cooldownMessage;
-	private final String cooldownBypass;
-	@Nullable
-	private final Expression<String> cooldownStorage;
-	final CommandUsage usage;
-
-	private final Trigger trigger;
-
-	private final String pattern;
-	private final List<Argument<?>> arguments;
-
-	public final static int PLAYERS = 0x1, CONSOLE = 0x2, BOTH = PLAYERS | CONSOLE;
-	final int executableBy;
-
+	private final VariableString permissionMessage;
 	private transient PluginCommand bukkitCommand;
-
-	private Map<UUID,Date> lastUsageMap = new HashMap<>();
-
-	//<editor-fold default-state="collapsed" desc="public ScriptCommand(... String usage ...)">
-	/**
-	 * Creates a new ScriptCommand.
-	 * Prefer using the CommandUsage class for the usage parameter.
-	 *
-	 * @param name /name
-	 * @param pattern the Skript pattern used to parse the input into arguments.
-	 * @param arguments the list of Arguments this command takes
-	 * @param description description to display in /help
-	 * @param prefix the prefix of the command
-	 * @param usage message to display if the command was used incorrectly
-	 * @param aliases /alias1, /alias2, ...
-	 * @param permission permission or null if none
-	 * @param permissionMessage message to display if the player doesn't have the given permission
-	 * @param node the node to parse and load into a Trigger
-	 */
-	public ScriptCommand(
-		Script script, String name, String pattern, List<Argument<?>> arguments,
-		String description, @Nullable String prefix, String usage, List<String> aliases,
-		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
-		@Nullable VariableString cooldownMessage, String cooldownBypass,
-		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
-	) {
-		this(script, name, pattern, arguments, description, prefix, new CommandUsage(null, usage),
-				aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass,
-				cooldownStorage, executableBy, node);
-	}
-	//</editor-fold>
+	private final int executableBy;
+	private final SectionNode node;
+	private final Trigger trigger;
+	private final String pattern;
+	private final String prefix;
+	private final Script script;
+	private final String name;
 
 	/**
-	 * Creates a new ScriptCommand.
-	 *
-	 * @param name /name
-	 * @param pattern the Skript pattern used to parse the input into arguments.
-	 * @param arguments the list of Arguments this command takes
-	 * @param description description to display in /help
-	 * @param prefix the prefix of the command
-	 * @param usage message to display if the command was used incorrectly
-	 * @param aliases /alias1, /alias2, ...
-	 * @param permission permission or null if none
-	 * @param permissionMessage message to display if the player doesn't have the given permission
-	 * @param node the node to parse and load into a Trigger
+	 * Constructs a ScriptCommand using the provided builder.
+	 * @param builder the builder containing all command properties
 	 */
-	public ScriptCommand(
-		Script script, String name, String pattern, List<Argument<?>> arguments,
-		String description, @Nullable String prefix, CommandUsage usage, List<String> aliases,
-		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
-		@Nullable VariableString cooldownMessage, String cooldownBypass,
-		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
-	) {
-		Preconditions.checkNotNull(name);
-		Preconditions.checkNotNull(pattern);
-		Preconditions.checkNotNull(arguments);
-		Preconditions.checkNotNull(description);
-		Preconditions.checkNotNull(usage);
-		Preconditions.checkNotNull(aliases);
-		Preconditions.checkNotNull(node);
-		this.name = name;
-		label = "" + name.toLowerCase(Locale.ENGLISH);
-		this.permission = permission;
-		if (permissionMessage == null) {
-			VariableString defaultMsg = VariableString.newInstance(Language.get("commands.no permission message"));
-			assert defaultMsg != null;
-			this.permissionMessage = defaultMsg;
-		} else {
-			this.permissionMessage = permissionMessage;
+	private ScriptCommand(Builder builder) {
+		this.permissionMessage = builder.permissionMessage != null ? builder.permissionMessage : VariableString.newInstance(Language.get("commands.no permission message"));
+		this.cooldownMessage = builder.cooldownMessage != null ? builder.cooldownMessage : new SimpleLiteral<>(Language.get("commands.cooldown message"), false);
+		this.prefix = builder.prefix != null ? builder.prefix : DEFAULT_PREFIX;
+		this.name = builder.name.toLowerCase(Locale.ROOT);
+		this.cooldownStorage = builder.cooldownStorage;
+		this.cooldownBypass = builder.cooldownBypass;
+		this.executableBy = builder.executableBy;
+		this.description = builder.description;
+		this.permission = builder.permission;
+		this.arguments = builder.arguments;
+		this.cooldown = builder.cooldown;
+		this.pattern = builder.pattern;
+		this.aliases = builder.aliases;
+		this.script = builder.script;
+		this.usage = builder.usage;
+		this.node = builder.node;
+
+		if (aliases != null) {
+			aliases.removeIf(name::equalsIgnoreCase);
 		}
-
-		if (prefix != null) {
-			for (char c : prefix.toCharArray()) {
-				if (Character.isWhitespace(c)) {
-					Skript.warning("command /" + name + " has a whitespace in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
-					prefix = ScriptCommand.DEFAULT_PREFIX;
-					break;
-				}
-				// char 167 is §
-				if (c == 167) {
-					Skript.warning("command /" + name + " has a section character in its prefix. Defaulting to '" + ScriptCommand.DEFAULT_PREFIX + "'.");
-					prefix = ScriptCommand.DEFAULT_PREFIX;
-					break;
-				}
-			}
-		} else {
-			prefix = DEFAULT_PREFIX;
-		}
-		this.prefix = prefix;
-
-		this.cooldown = cooldown;
-		this.cooldownMessage = cooldownMessage == null
-				? new SimpleLiteral<>(Language.get("commands.cooldown message"),false)
-				: cooldownMessage;
-		this.cooldownBypass = cooldownBypass;
-		this.cooldownStorage = cooldownStorage;
-
-		// remove aliases that are the same as the command
-		aliases.removeIf(label::equalsIgnoreCase);
-		this.aliases = aliases;
-		activeAliases = new ArrayList<>(aliases);
-
-		this.description = Utils.replaceEnglishChatStyles(description);
-		this.usage = usage;
-
-		this.executableBy = executableBy;
-
-		this.pattern = pattern;
-		this.arguments = arguments;
 
 		HintManager hintManager = ParserInstance.get().getHintManager();
 		try {
@@ -220,53 +140,65 @@ public class ScriptCommand implements TabExecutor {
 				}
 				hintManager.set(hintName, argument.getType());
 			}
-			trigger = new Trigger(script, "command /" + name, new SimpleEvent(), ScriptLoader.loadItems(node));
+			this.trigger = new Trigger(script, "command /" + name, new SimpleEvent(), ScriptLoader.loadItems(node));
 			trigger.setLineNumber(node.getLine());
 		} finally {
 			hintManager.exitScope();
 		}
 
-		bukkitCommand = setupBukkitCommand();
-	}
-
-	private PluginCommand setupBukkitCommand() {
 		try {
-			final Constructor<PluginCommand> c = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+			Constructor<PluginCommand> c = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
 			c.setAccessible(true);
-			final PluginCommand bukkitCommand = c.newInstance(name, Skript.getInstance());
+			PluginCommand bukkitCommand = c.newInstance(name, Skript.getInstance());
 			bukkitCommand.setAliases(aliases);
 			bukkitCommand.setDescription(description);
-			bukkitCommand.setLabel(label);
+			bukkitCommand.setLabel(name);
 			bukkitCommand.setPermission(permission);
 			// We can only set the message if it's simple (doesn't contains expressions)
 			if (permissionMessage.isSimple())
 				bukkitCommand.setPermissionMessage(permissionMessage.toString(null));
 			bukkitCommand.setUsage(usage.getUsage());
 			bukkitCommand.setExecutor(this);
-			return bukkitCommand;
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			Skript.outdatedError(e);
 			throw new EmptyStacktraceException();
 		}
 	}
 
 	@Override
-	public boolean onCommand(final @Nullable CommandSender sender, final @Nullable Command command, final @Nullable String label, final @Nullable String[] args) {
+	public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+			@NotNull String label, @NotNull String @NotNull [] args) {
+		assert args != null;
+		int argIndex = args.length - 1;
+		if (argIndex >= arguments.size())
+			return Collections.emptyList();
+
+		Argument<?> arg = arguments.get(argIndex);
+		Class<?> argType = arg.getType();
+		if (argType.equals(Player.class) || argType.equals(OfflinePlayer.class))
+			return null;
+
+		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+			@NotNull String @NotNull [] args) {
 		if (sender == null || label == null || args == null)
 			return false;
 		execute(sender, label, StringUtils.join(args, " "));
 		return true;
 	}
 
-	public boolean execute(final CommandSender sender, final String commandLabel, final String rest) {
+	public boolean execute(CommandSender sender, String commandLabel, String rest) {
 		if (sender instanceof Player) {
 			if ((executableBy & PLAYERS) == 0) {
-				sender.sendMessage("" + m_executable_by_console);
+				sender.sendMessage(m_executable_by_console);
 				return false;
 			}
 		} else {
 			if ((executableBy & CONSOLE) == 0) {
-				sender.sendMessage("" + m_executable_by_players);
+				sender.sendMessage(m_executable_by_players);
 				return false;
 			}
 		}
@@ -276,54 +208,40 @@ public class ScriptCommand implements TabExecutor {
 		if (!checkPermissions(sender, event))
 			return false;
 
-		cooldownCheck : {
-			if (sender instanceof Player && cooldown != null) {
-				Player player = ((Player) sender);
-				UUID uuid = player.getUniqueId();
-
-				// Cooldown bypass
-				if (!cooldownBypass.isEmpty() && player.hasPermission(cooldownBypass)) {
-					setLastUsage(uuid, event, null);
-					break cooldownCheck;
-				}
-
-				if (getLastUsage(uuid, event) != null) {
-					if (getRemainingMilliseconds(uuid, event) <= 0) {
-						if (!SkriptConfig.keepLastUsageDates.value())
-							setLastUsage(uuid, event, null);
-					} else {
+		if (sender instanceof Player && cooldown != null) {
+			Player player = (Player) sender;
+			UUID uuid = player.getUniqueId();
+			if (cooldownBypass != null && !cooldownBypass.isEmpty() && player.hasPermission(cooldownBypass)) {
+				setLastUsage(uuid, event, null);
+			} else {
+				Date lastUsage = getLastUsage(uuid, event);
+				if (lastUsage != null) {
+					if (getRemainingMilliseconds(uuid, event) > 0) {
 						String msg = cooldownMessage.getSingle(event);
 						if (msg != null)
 							sender.sendMessage(msg);
 						return false;
+					} else if (!SkriptConfig.keepLastUsageDates.value()) {
+						setLastUsage(uuid, event, null);
 					}
 				}
 			}
 		}
 
-		Runnable runnable = () -> {
-			// save previous last usage date to check if the execution has set the last usage date
+		Task.callSync(() -> {
 			Date previousLastUsage = null;
 			if (sender instanceof Player)
 				previousLastUsage = getLastUsage(((Player) sender).getUniqueId(), event);
 
-			// execute the command - may modify the last usage date
 			execute2(event, sender, commandLabel, rest);
 
 			if (sender instanceof Player && !event.isCooldownCancelled()) {
 				Date lastUsage = getLastUsage(((Player) sender).getUniqueId(), event);
-				// check if the execution has set the last usage date
-				// if not, set it to the current date. if it has, we leave it alone so as not to affect the remaining/elapsed time (#5862)
 				if (Objects.equals(lastUsage, previousLastUsage))
 					setLastUsage(((Player) sender).getUniqueId(), event, new Date());
 			}
-		};
-		if (Bukkit.isPrimaryThread()) {
-			runnable.run();
-		} else {
-			// must not wait for the command to complete as some plugins call commands in such a way that the server will deadlock
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), runnable);
-		}
+			return null;
+		});
 
 		return true; // Skript prints its own error message anyway
 	}
@@ -364,8 +282,7 @@ public class ScriptCommand implements TabExecutor {
 	public boolean checkPermissions(CommandSender sender, Event event) {
 		if (!permission.isEmpty() && !sender.hasPermission(permission)) {
 			if (sender instanceof Player) {
-				List<MessageComponent> components =
-					permissionMessage.getMessageComponents(event);
+				List<MessageComponent> components = permissionMessage.getMessageComponents(event);
 				((Player) sender).spigot().sendMessage(BungeeConverter.convert(components));
 			} else {
 				sender.sendMessage(permissionMessage.getSingle(event));
@@ -375,185 +292,51 @@ public class ScriptCommand implements TabExecutor {
 		return true;
 	}
 
-	public void sendHelp(final CommandSender sender) {
+	public void sendHelp(CommandSender sender) {
 		if (!description.isEmpty())
 			sender.sendMessage(description);
 		sender.sendMessage(ChatColor.GOLD + "Usage" + ChatColor.RESET + ": " + usage.getUsage());
 	}
 
-	/**
-	 * Gets the arguments this command takes.
-	 *
-	 * @return The internal list of arguments. Do not modify it!
-	 */
-	public List<Argument<?>> getArguments() {
-		return arguments;
-	}
-
-	public String getPattern() {
-		return pattern;
-	}
-
-	@Nullable
-	private transient Command overridden = null;
-	private transient Map<String, Command> overriddenAliases = new HashMap<>();
-
-	public void register(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> aliases) {
-		synchronized (commandMap) {
-			overriddenAliases.clear();
-			overridden = knownCommands.put(label, bukkitCommand);
-			if (aliases != null)
-				aliases.remove(label);
-			final Iterator<String> as = activeAliases.iterator();
-			while (as.hasNext()) {
-				final String lowerAlias = as.next().toLowerCase(Locale.ENGLISH);
-				if (knownCommands.containsKey(lowerAlias) && (aliases == null || !aliases.contains(lowerAlias))) {
-					as.remove();
-					continue;
-				}
-				overriddenAliases.put(lowerAlias, knownCommands.put(lowerAlias, bukkitCommand));
-				if (aliases != null)
-					aliases.add(lowerAlias);
-			}
-			bukkitCommand.setAliases(activeAliases);
-			commandMap.register(prefix, bukkitCommand);
-		}
-	}
-
-	public void unregister(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> aliases) {
-		synchronized (commandMap) {
-			knownCommands.remove(label);
-			knownCommands.remove(prefix + ":" + label);
-			if (aliases != null)
-				aliases.removeAll(activeAliases);
-			for (final String alias : activeAliases) {
-				knownCommands.remove(alias);
-				knownCommands.remove(prefix + ":" + alias);
-			}
-			activeAliases = new ArrayList<>(this.aliases);
-			bukkitCommand.unregister(commandMap);
-			bukkitCommand.setAliases(this.aliases);
-			if (overridden != null) {
-				knownCommands.put(label, overridden);
-				overridden = null;
-			}
-			for (final Entry<String, Command> e : overriddenAliases.entrySet()) {
-				if (e.getValue() == null)
-					continue;
-				knownCommands.put(e.getKey(), e.getValue());
-				if (aliases != null)
-					aliases.add(e.getKey());
-			}
-			overriddenAliases.clear();
-		}
-	}
-
-	private transient Collection<HelpTopic> helps = new ArrayList<>();
-
-	public void registerHelp() {
-		helps.clear();
-		final HelpMap help = Bukkit.getHelpMap();
-		final HelpTopic t = new GenericCommandHelpTopic(bukkitCommand);
-		help.addTopic(t);
-		helps.add(t);
-		final HelpTopic aliases = help.getHelpTopic("Aliases");
-		if (aliases instanceof IndexHelpTopic) {
-			aliases.getFullText(Bukkit.getConsoleSender()); // CraftBukkit has a lazy IndexHelpTopic class (org.bukkit.craftbukkit.help.CustomIndexHelpTopic) - maybe its used for aliases as well
-			try {
-				final Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
-				topics.setAccessible(true);
-				@SuppressWarnings("unchecked")
-				final ArrayList<HelpTopic> as = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
-				for (final String alias : activeAliases) {
-					final HelpTopic at = new CommandAliasHelpTopic("/" + alias, "/" + getLabel(), help);
-					as.add(at);
-					helps.add(at);
-				}
-				Collections.sort(as, HelpTopicComparator.helpTopicComparatorInstance());
-				topics.set(aliases, as);
-			} catch (final Exception e) {
-				Skript.outdatedError(e);//, "error registering aliases for /" + getName());
-			}
-		}
-	}
-
-	public void unregisterHelp() {
-		Bukkit.getHelpMap().getHelpTopics().removeAll(helps);
-		final HelpTopic aliases = Bukkit.getHelpMap().getHelpTopic("Aliases");
-		if (aliases != null && aliases instanceof IndexHelpTopic) {
-			try {
-				final Field topics = IndexHelpTopic.class.getDeclaredField("allTopics");
-				topics.setAccessible(true);
-				@SuppressWarnings("unchecked")
-				final ArrayList<HelpTopic> as = new ArrayList<>((Collection<HelpTopic>) topics.get(aliases));
-				as.removeAll(helps);
-				topics.set(aliases, as);
-			} catch (final Exception e) {
-				Skript.outdatedError(e);//, "error unregistering aliases for /" + getName());
-			}
-		}
-		helps.clear();
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getPrefix() {
-		return prefix;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	@Nullable
-	public Timespan getCooldown() {
-		return cooldown;
-	}
-
-	@Nullable
-	private String getStorageVariableName(Event event) {
-		assert cooldownStorage != null;
-		String variableString = cooldownStorage.getSingle(event);
-		if (variableString == null)
-			return null;
-		if (variableString.startsWith("{"))
-			variableString = variableString.substring(1);
-		if (variableString.endsWith("}"))
-			variableString = variableString.substring(0, variableString.length() - 1);
-		return variableString;
-	}
-
 	@Nullable
 	public Date getLastUsage(UUID uuid, Event event) {
 		if (cooldownStorage == null) {
-			return lastUsageMap.get(uuid);
-		} else {
-			String name = getStorageVariableName(event);
-			assert name != null;
-			Object variable = Variables.getVariable(name, null, false);
-			if (!(variable instanceof Date)) {
-				Skript.warning("Variable {" + name + "} was not a date! You may be using this variable elsewhere. " +
-						"This warning is letting you know that this variable is now overridden for the command storage.");
-				return null;
+			Player player = Bukkit.getPlayer(uuid);
+			if (player != null) {
+				List<MetadataValue> meta = player.getMetadata("skript_command_last_usage_" + name);
+				if (!meta.isEmpty()) {
+					return new Date(meta.get(0).asLong());
+				}
 			}
+			return null;
+		}
+		String variableName = getStorageVariableName(event);
+		if (variableName == null)
+			return null;
+		Object variable = Variables.getVariable(variableName, null, false);
+		if (variable instanceof Date) {
 			return (Date) variable;
 		}
+		Skript.warning("Variable {" + variableName + "} was not a date! It is now overridden for the command storage.");
+		return null;
 	}
 
 	public void setLastUsage(UUID uuid, Event event, @Nullable Date date) {
 		if (cooldownStorage != null) {
-			// Using a variable
-			String name = getStorageVariableName(event);
-			assert name != null;
-			Variables.setVariable(name, date, null, false);
+			String variableName = getStorageVariableName(event);
+			if (variableName != null) {
+				Variables.setVariable(variableName, date, null, false);
+			}
 		} else {
-			// Use the map
-			if (date == null)
-				lastUsageMap.remove(uuid);
-			else
-				lastUsageMap.put(uuid, date);
+			Player player = Bukkit.getPlayer(uuid);
+			if (player != null) {
+				String metaKey = "skript_command_last_usage_" + name;
+				if (date == null) {
+					player.removeMetadata(metaKey, Skript.getInstance());
+				} else {
+					player.setMetadata(metaKey, new FixedMetadataValue(Skript.getInstance(), date.getTime()));
+				}
+			}
 		}
 	}
 
@@ -589,40 +372,270 @@ public class ScriptCommand implements TabExecutor {
 		setLastUsage(uuid, event, date);
 	}
 
-	public String getCooldownBypass() {
+	@Nullable
+	private String getStorageVariableName(Event event) {
+		if (cooldownStorage == null)
+			return null;
+		String variableString = cooldownStorage.getSingle(event);
+		if (variableString == null)
+			return null;
+		if (variableString.startsWith("{"))
+			variableString = variableString.substring(1);
+		if (variableString.endsWith("}"))
+			variableString = variableString.substring(0, variableString.length() - 1);
+		return variableString;
+	}
+
+	@Nullable
+	private transient Command overridden = null;
+	private transient Map<String, Command> overriddenAliases = new HashMap<>();
+
+	public void register(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> existing) {
+		synchronized (commandMap) {
+			overriddenAliases.clear();
+			overridden = knownCommands.put(name, bukkitCommand);
+			if (existing != null)
+				existing.remove(name);
+			Iterator<String> as = aliases.iterator();
+			while (as.hasNext()) {
+				final String lowerAlias = as.next().toLowerCase(Locale.ENGLISH);
+				if (knownCommands.containsKey(lowerAlias) && (aliases == null || !aliases.contains(lowerAlias))) {
+					as.remove();
+					continue;
+				}
+				overriddenAliases.put(lowerAlias, knownCommands.put(lowerAlias, bukkitCommand));
+				if (aliases != null)
+					aliases.add(lowerAlias);
+			}
+			bukkitCommand.setAliases(aliases);
+			commandMap.register(prefix, bukkitCommand);
+		}
+	}
+
+	public void unregister(SimpleCommandMap commandMap, Map<String, Command> knownCommands, @Nullable Set<String> existing) {
+		synchronized (commandMap) {
+			knownCommands.remove(name);
+			knownCommands.remove(prefix + ":" + name);
+			if (existing != null)
+				existing.removeAll(this.aliases);
+			for (String alias : aliases) {
+				knownCommands.remove(alias);
+				knownCommands.remove(prefix + ":" + alias);
+			}
+			bukkitCommand.unregister(commandMap);
+			bukkitCommand.setAliases(this.aliases);
+			if (overridden != null) {
+				knownCommands.put(name, overridden);
+				overridden = null;
+			}
+			for (Entry<String, Command> e : overriddenAliases.entrySet()) {
+				if (e.getValue() == null)
+					continue;
+				knownCommands.put(e.getKey(), e.getValue());
+				if (aliases != null)
+					aliases.add(e.getKey());
+			}
+			overriddenAliases.clear();
+		}
+	}
+
+	public @Nullable Expression<String> getCooldownMessage() {
+		return cooldownMessage;
+	}
+
+	public @Nullable Expression<String> getCooldownStorage() {
+		return cooldownStorage;
+	}
+
+	public @Nullable VariableString getPermissionMessage() {
+		return permissionMessage;
+	}
+	
+	public @Nullable List<Argument<?>> getArguments() {
+		return arguments;
+	}
+	
+	public @Nullable String getCooldownBypass() {
 		return cooldownBypass;
 	}
-
-	public List<String> getAliases() {
+	
+	public @Nullable List<String> getAliases() {
 		return aliases;
 	}
-
-	public List<String> getActiveAliases() {
-		return activeAliases;
+	
+	public @Nullable CommandUsage getUsage() {
+		return usage;
+	}
+	
+	public @Nullable String getDescription() {
+		return description;
+	}
+	
+	public @Nullable Timespan getCooldown() {
+		return cooldown;
+	}
+	
+	public @Nullable String getPermission() {
+		return permission;
 	}
 
 	public PluginCommand getBukkitCommand() {
 		return bukkitCommand;
 	}
 
-	@Nullable
-	public Script getScript() {
-		return trigger.getScript();
+	public @Nullable String getPattern() {
+		return pattern;
 	}
 
-	@Nullable
-	@Override
-	public List<String> onTabComplete(@Nullable CommandSender sender, @Nullable Command command, @Nullable String alias, @Nullable String[] args) {
-		assert args != null;
-		int argIndex = args.length - 1;
-		if (argIndex >= arguments.size())
-			return Collections.emptyList(); // Too many arguments, nothing to complete
-		Argument<?> arg = arguments.get(argIndex);
-		Class<?> argType = arg.getType();
-		if (argType.equals(Player.class) || argType.equals(OfflinePlayer.class))
-			return null; // Default completion
+	public int getExecutableBy() {
+		return executableBy;
+	}
 
-		return Collections.emptyList(); // No tab completion here!
+	public Trigger getTrigger() {
+		return trigger;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public Script getScript() {
+		return script;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public static final class Builder {
+
+		private @Nullable Expression<String> cooldownMessage;
+		private @Nullable Expression<String> cooldownStorage;
+		private @Nullable VariableString permissionMessage;
+		private @Nullable List<Argument<?>> arguments;
+		private @Nullable String cooldownBypass;
+		private @Nullable List<String> aliases;
+		private @Nullable CommandUsage usage;
+		private @Nullable String description;
+		private @Nullable Timespan cooldown;
+		private @Nullable String permission;
+		private @Nullable String prefix;
+
+		private int executableBy = BOTH;
+		private SectionNode node;
+		private String pattern;
+		private Script script;
+		private String name;
+
+		public Builder() { }
+
+		public Builder(Script script, SectionNode node, String name, String pattern) {
+			this.pattern = pattern;
+			this.script = script;
+			this.name = name;
+			this.node = node;
+		}
+
+		public Builder permissionMessage(VariableString permissionMessage) {
+			this.permissionMessage = permissionMessage;
+			return this;
+		}
+
+		public Builder cooldownMessage(Expression<String> cooldownMessage) {
+			this.cooldownMessage = cooldownMessage;
+			return this;
+		}
+
+		public Builder cooldownStorage(Expression<String> cooldownStorage) {
+			this.cooldownStorage = cooldownStorage;
+			return this;
+		}
+
+		public Builder arguments(List<Argument<?>> arguments) {
+			this.arguments = arguments;
+			return this;
+		}
+
+		public Builder cooldownBypass(String cooldownBypass) {
+			this.cooldownBypass = cooldownBypass;
+			return this;
+		}
+
+		public Builder description(String description) {
+			this.description = description != null ? Utils.replaceEnglishChatStyles(description) : null;
+			return this;
+		}
+
+		public Builder aliases(List<String> aliases) {
+			this.aliases = aliases;
+			return this;
+		}
+
+		public Builder executableBy(int executableBy) {
+			this.executableBy = executableBy;
+			return this;
+		}
+
+		public Builder permission(String permission) {
+			this.permission = permission;
+			return this;
+		}
+
+		public Builder cooldown(Timespan cooldown) {
+			this.cooldown = cooldown;
+			return this;
+		}
+
+		public Builder usage(CommandUsage usage) {
+			this.usage = usage;
+			return this;
+		}
+
+		public Builder name(@NotNull String name) {
+			this.name = name;
+			return this;
+		}
+
+		public Builder script(@NotNull Script script) {
+			this.script = script;
+			return this;
+		}
+
+		public Builder pattern(@NotNull String pattern) {
+			this.pattern = pattern;
+			return this;
+		}
+		
+		public Builder prefix(@NotNull String prefix) {
+			for (char c : prefix.toCharArray()) {
+				if (Character.isWhitespace(c)) {
+					Skript.warning("command /" + name + " has a whitespace in its prefix. Defaulting to '" + DEFAULT_PREFIX + "'.");
+					prefix = DEFAULT_PREFIX;
+					break;
+				}
+				// char 167 is §
+				if (c == 167) {
+					Skript.warning("command /" + name + " has a section character in its prefix. Defaulting to '" + DEFAULT_PREFIX + "'.");
+					prefix = DEFAULT_PREFIX;
+					break;
+				}
+			}
+			this.prefix = prefix;
+			return this;
+		}
+
+		/**
+		 * Builds the ScriptCommand instance.
+		 * 
+		 * @return a new ScriptCommand
+		 */
+		public ScriptCommand build() {
+			Preconditions.checkNotNull(pattern, "Command pattern cannot be null");
+			Preconditions.checkNotNull(script, "Command script cannot be null");
+			Preconditions.checkNotNull(name, "Command name cannot be null");
+			Preconditions.checkNotNull(node, "Command node cannot be null");
+			return new ScriptCommand(this);
+		}
 	}
 
 }
