@@ -28,7 +28,7 @@ test "all scripts":
 	assert {_count} is greater than 1 with "not enough tests scripts found"
 	# This depends pretty heavily on the current test layout but it's just a parse trial more than anything
 
-test "scripts in directory":
+test "scripts in directory" when test modes "clean" and "dev_mode" are true and false:
 	set {_count} to 0
 	loop the scripts in folder {@misc}:
 		assert "%loop-value%" starts with {@misc} with "script from wrong directory: %loop-value%"

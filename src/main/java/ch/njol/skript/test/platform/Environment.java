@@ -204,7 +204,7 @@ public class Environment {
 
 	@Nullable
 	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean jUnit, boolean debug,
-	                            String verbosity, long timeout, Set<String> jvmArgs) throws IOException, InterruptedException {
+	                            String verbosity, long timeout, boolean clean, Set<String> jvmArgs) throws IOException, InterruptedException {
 		
 		Path env = runnerRoot.resolve(name);
 		Path resultsPath = env.resolve("test_results.json");
@@ -225,6 +225,8 @@ public class Environment {
 		args.add("-Ddisable.watchdog=true");
 		if (debug)
 			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000");
+		if (clean)
+			args.add("-Dskript.testing.clean=" + jUnit);
 		args.add("-Duser.language=en");
 		args.add("-Duser.country=US");
 		args.addAll(jvmArgs);
