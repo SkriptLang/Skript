@@ -449,11 +449,10 @@ public class SimpleEvents {
 			.description("Called when a horse jumps.")
 			.examples("on horse jump:", "\tpush event-entity upwards at speed 2")
 			.since("2.5.1");
-		Skript.registerEvent("Block Fertilize", SimpleEvent.class, BlockFertilizeEvent.class, "[block] fertilize")
-			.description("Called when a player fertilizes blocks.")
-			.requiredPlugins("Minecraft 1.13 or newer")
-			.examples("on block fertilize:",
-				"\tsend \"Fertilized %size of fertilized blocks% blocks got fertilized.\"")
+		Skript.registerEvent("Block Fertilize", SimpleEvent.class, BlockFertilizeEvent.class, "[block] (fertilize|bone[ ]meal)")
+			.description("Called when a player uses bonemeals on blocks.")
+			.examples("on block bonemeal:",
+				"\tsend \"%size of fertilized blocks% blocks got bonemealed.\"")
 			.since("2.5");
 		Skript.registerEvent("Arm Swing", SimpleEvent.class, PlayerAnimationEvent.class, "[player] arm swing")
 			.description("Called when a player swings their arm.")
