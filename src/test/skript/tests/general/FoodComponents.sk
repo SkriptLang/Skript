@@ -1,0 +1,76 @@
+options:
+	nutrition: 20
+	saturation: 30
+
+using food components
+
+test "food components - new" when running minecraft "1.21.3":
+	set {_component} to a blank food component
+	set the nutritional value of {_component} to {@nutrition}
+	assert the nutritional value of {_component} is {@nutrition} with "Nutritional value of component was not set"
+	set the saturation value of {_component} to {@saturation}
+	assert the saturation value of {_component} is {@saturation} with "Saturation value of component was not set"
+	allow {_component} to always be eaten
+	assert {_component} can always be eaten with "Component should always be eaten"
+	prevent {_component} from always being eaten
+	assert {_component} can not always be eaten with "Component should not always be eaten"
+
+test "food components - itemtype" when running minecraft "1.21.3":
+	set {_item} to a leather helmet (item type)
+	set the nutritional value of {_item} to {@nutrition}
+	assert the nutritional value of {_item} is {@nutrition} with "Nutritional value of itemtype was not set"
+	set the saturation value of {_item} to {@saturation}
+	assert the saturation value of {_item} is {@saturation} with "Saturation value of itemtype was not set"
+	allow {_item} to always be eaten
+	assert {_item} can always be eaten with "Itemtype should always be eaten"
+	prevent {_item} from always being eaten
+	assert {_item} can not always be eaten with "Itemtype should not always be eaten"
+
+test "food components - itemstack" when running minecraft "1.21.3":
+	set {_item} to an iron helmet (item stack)
+	set the nutritional value of {_item} to {@nutrition}
+	assert the nutritional value of {_item} is {@nutrition} with "Nutritional value of itemstack was not set"
+	set the saturation value of {_item} to {@saturation}
+	assert the saturation value of {_item} is {@saturation} with "Saturation value of itemstack was not set"
+	allow {_item} to always be eaten
+	assert {_item} can always be eaten with "Itemstack should always be eaten"
+	prevent {_item} from always being eaten
+	assert {_item} can not always be eaten with "Itemstack should not always be eaten"
+
+test "food components - slot" when running minecraft "1.21.3":
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to a diamond helmet
+
+	set the nutritional value of (slot 1 of {_gui}) to {@nutrition}
+	assert the nutritional value of (slot 1 of {_gui}) is {@nutrition} with "Nutritional value of slot was not set"
+	set the saturation value of (slot 1 of {_gui}) to {@saturation}
+	assert the saturation value of (slot 1 of {_gui}) is {@saturation} with "Saturation value of slot was not set"
+	allow (slot 1 of {_gui}) to always be eaten
+	assert (slot 1 of {_gui}) can always be eaten with "Slot should always be eaten"
+	prevent (slot 1 of {_gui}) from always being eaten
+	assert (slot 1 of {_gui}) can not always be eaten with "Slot should not always be eaten"
+
+test "food components - copy" when running minecraft "1.21.3":
+	set {_component} to a blank food component
+	set the nutritional value of {_component} to {@nutrition}
+	assert the nutritional value of {_component} is {@nutrition} with "Nutritional value of component was not set"
+	set the saturation value of {_component} to {@saturation}
+	assert the saturation value of {_component} is {@saturation} with "Saturation value of component was not set"
+	allow {_component} to always be eaten
+	assert {_component} can always be eaten with "Component should always be eaten"
+	prevent {_component} from always being eaten
+	assert {_component} can not always be eaten with "Component should not always be eaten"
+
+	set {_original} to {_component}
+	set {_copy} to an item component copy of {_original}
+	set the nutritional value of {_copy} to 40
+	assert the nutritional value of {_copy} is 40 with "Nutritional value of copy was not set"
+	assert the nutritional value of {_original} is {@nutrition} with "Nutritional value of original should not have changed"
+	set the saturation value of {_copy} to 50
+	assert the saturation value of {_copy} is 50 with "Saturation value of copy was not set"
+	assert the saturation value of {_original} is {@saturation} with "Saturation value of original should not have changed"
+	allow {_copy} to always be eaten
+	assert {_copy} can always be eaten with "Copy should always be eaten"
+	assert {_original} can not always be eaten with "Original should still not always be eaten"
+	prevent {_copy} from always being eaten
+	assert {_copy} can not always be eaten with "Copy should not always be eaten"
