@@ -93,6 +93,10 @@ test "spawn entities":
 		add "armadillo" to {_entities::*}
 	if running minecraft "1.21.0":
 		add "bogged", "breeze" and "wind charge" to {_entities::*}
+	if running minecraft "1.21.6":
+		add "happy ghast" and "ghastling" to {_entities::*}
+	if running minecraft "1.21.9":
+		add "copper golem" to {_entities::*}
 
 	# Note: Had to remove 'fireball' and 'wind charge'
 
