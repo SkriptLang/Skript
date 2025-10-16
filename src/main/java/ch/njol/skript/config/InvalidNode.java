@@ -17,4 +17,9 @@ public class InvalidNode extends VoidNode {
 		config.errors++;
 	}
 
+	InvalidNode(String value, String comment, String[] comments, SectionNode parent, int lineNum) {
+		super(value, comment, comments, parent, lineNum);
+		config.errors++;
+	}
+
 }
