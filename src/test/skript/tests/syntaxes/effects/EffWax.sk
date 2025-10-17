@@ -1,0 +1,26 @@
+test "wax copper golem" when running minecraft "1.21.9":
+	spawn a copper golem at test-location:
+		set {_entity} to entity
+
+	assert {_entity} is not waxed with "Copper golem should not be waxed after spawn"
+	wax {_entity}
+	assert {_entity} is waxed with "Copper golem should be waxed"
+	unwax {_entity}
+	assert {_entity} is not waxed with "Copper golem should be unwaxed"
+
+	clear entity within {_entity}
+
+test "wax copper blocks":
+	set {_old} to the block data of test-block
+
+	set {_waxTag} to paper tag "waxed_copper_blocks"
+	set {_unwaxTag} to paper tag "unwaxed_copper_blocks"
+	set {_blocks::*} to the tag contents of {_waxTag}
+	loop {_blocks::*}:
+		set test-block to loop-value
+		unwax test-block
+		assert test-block is tagged with {_unwaxTag} with "%loop-value% should be unwaxed, but was %type of test-block%"
+		wax test-block
+		assert test-block is tagged with {_waxTag} with "%loop-value% should be waxed, but was %type of test-block%"
+
+	set the block data of test-block to {_old}

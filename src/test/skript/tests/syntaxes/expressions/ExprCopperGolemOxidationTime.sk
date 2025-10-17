@@ -1,0 +1,10 @@
+test "copper golem oxidation" when running minecraft "1.21.9":
+	spawn a copper golem at test-location:
+		set {_entity} to entity
+
+	set the time until oxidation of {_entity} to 10 seconds
+	assert the time until oxidation of {_entity} is 10 seconds with "Copper golem oxidation time did not change"
+	reset the time until oxidation of {_entity}
+	assert the time until oxidation of {_entity} is not set with "Copper golem oxidation reset takes a tick to be scheduled again"
+
+	clear the entity within {_entity}
