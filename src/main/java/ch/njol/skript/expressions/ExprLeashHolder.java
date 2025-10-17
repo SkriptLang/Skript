@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
+import io.papermc.paper.entity.Leashable;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
@@ -14,15 +14,15 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("The leash holder of a living entity.")
 @Examples("set {_example} to the leash holder of the target mob")
 @Since("2.3")
-public class ExprLeashHolder extends SimplePropertyExpression<LivingEntity, Entity> {
+public class ExprLeashHolder extends SimplePropertyExpression<Leashable, Entity> {
 
 	static {
-		register(ExprLeashHolder.class, Entity.class, "leash holder[s]", "livingentities");
+		register(ExprLeashHolder.class, Entity.class, "leash holder[s]", "leashables");
 	}
 
 	@Override
 	@Nullable
-	public Entity convert(LivingEntity entity) {
+	public Entity convert(Leashable entity) {
 		return entity.isLeashed() ? entity.getLeashHolder() : null;
 	}
 
