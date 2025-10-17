@@ -11,13 +11,13 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
 @Name("Leash Holder")
-@Description("The leash holder of a living entity.")
-@Examples("set {_example} to the leash holder of the target mob")
+@Description("The leash holder of a leashable entity.")
+@Examples("set {_example} to the leash holder of the target entity")
 @Since("2.3")
 public class ExprLeashHolder extends SimplePropertyExpression<Leashable, Entity> {
 
 	static {
-		register(ExprLeashHolder.class, Entity.class, "leash holder[s]", "leashables");
+		register(ExprLeashHolder.class, Entity.class, "leash holder[s]", "entities");
 	}
 
 	@Override
