@@ -6,11 +6,14 @@ import ch.njol.skript.expressions.base.WrapperExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
 
 @Name("Keyed")
 @Description({
@@ -69,12 +72,23 @@ public class ExprKeyed extends WrapperExpression<Object> implements KeyProviderE
 
 	@Override
 	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
-		return ((KeyProviderExpression<?>) getExpr()).getArrayKeys(event);
+		return getExpr().getArrayKeys(event);
 	}
 
 	@Override
 	public @NotNull String @NotNull [] getAllKeys(Event event) {
-		return ((KeyProviderExpression<?>) getExpr()).getAllKeys(event);
+		return getExpr().getAllKeys(event);
+	}
+
+	@Override
+	public Iterator<KeyedValue<Object>> keyedIterator(Event event) {
+		//noinspection unchecked,rawtypes
+		return (Iterator) getExpr().keyedIterator(event);
+	}
+
+	@Override
+	public boolean isIndexLoop(String input) {
+		return getExpr().isIndexLoop(input);
 	}
 
 	@Override
@@ -85,6 +99,11 @@ public class ExprKeyed extends WrapperExpression<Object> implements KeyProviderE
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "keyed " + getExpr().toString(event, debug);
+	}
+
+	@Override
+	public KeyProviderExpression<?> getExpr() {
+		return (KeyProviderExpression<?>) super.getExpr();
 	}
 
 }
