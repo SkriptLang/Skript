@@ -76,4 +76,4 @@ local function duplicate_keys_test(x: strings) :: strings:
 test "duplicate keys in function arguments":
 	set {_a::foo} to "first"
 	set {_b::foo} to "second"
-	assert duplicate_keys_test(keyed {_a::foo}, keyed {_b::foo}) is "first"
+	assert duplicate_keys_test(keyed {_a::*}, keyed {_b::*}) is "first"

@@ -2,35 +2,36 @@ local function objects(objects: objects) returns objects:
 	return recursive {_objects::*}
 
 test "recursive list":
-	set {_data::a::b} to "ab"
 	set {_data::a::b::c} to "abc"
 	set {_data::a::b::d} to "abd"
+	set {_data::a::b} to "ab"
 	set {_data::a::e} to "ae"
 	set {_data::f} to "f"
 
 	set {_copy::*} to recursive {_data::*}
 	assert size of {_copy::*} is 5
 	assert {_copy} is not set
-	assert {_copy::1} is "ab"
-	assert {_copy::2} is "abc"
-	assert {_copy::3} is "abd"
+	assert {_copy::1} is "abc"
+	assert {_copy::2} is "abd"
+	assert {_copy::3} is "ab"
 	assert {_copy::4} is "ae"
 	assert {_copy::5} is "f"
 	delete {_copy::*}
 
 	set {_copy::*} to recursive keyed {_data::*}
-	assert size of {_copy::*} is 5
+	assert size of {_copy::*} is 1
+	assert recursive size of {_copy::*} is 5
 	assert {_copy} is not set
-	assert {_copy::a::b} is "ab"
 	assert {_copy::a::b::c} is "abc"
 	assert {_copy::a::b::d} is "abd"
+	assert {_copy::a::b} is "ab"
 	assert {_copy::a::e} is "ae"
 	assert {_copy::f} is "f"
 
 test "recursive function":
-	set {_data::a::b} to "ab"
 	set {_data::a::b::c} to "abc"
 	set {_data::a::b::d} to "abd"
+	set {_data::a::b} to "ab"
 	set {_data::a::e} to "ae"
 	set {_data::f} to "f"
 
@@ -43,19 +44,20 @@ test "recursive function":
 	set {_copy::*} to objects(recursive {_data::*})
 	assert size of {_copy::*} is 5
 	assert {_copy} is not set
-	assert {_copy::1} is "ab"
-	assert {_copy::2} is "abc"
-	assert {_copy::3} is "abd"
+	assert {_copy::1} is "abc"
+	assert {_copy::2} is "abd"
+	assert {_copy::3} is "ab"
 	assert {_copy::4} is "ae"
 	assert {_copy::5} is "f"
 	delete {_copy::*}
 
-	set {_copy::*} to keyed objects(recursive {_data::*})
-	assert size of {_copy::*} is 5
+	set {_copy::*} to keyed objects(keyed {_data::*})
+	assert size of {_copy::*} is 1
+	assert recursive size of {_copy::*} is 5
 	assert {_copy} is not set
-	assert {_copy::a::b} is "ab"
 	assert {_copy::a::b::c} is "abc"
 	assert {_copy::a::b::d} is "abd"
+	assert {_copy::a::b} is "ab"
 	assert {_copy::a::e} is "ae"
 	assert {_copy::f} is "f"
 	delete {_copy::*}
