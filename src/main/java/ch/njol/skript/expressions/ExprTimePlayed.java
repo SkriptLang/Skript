@@ -26,7 +26,8 @@ import org.jetbrains.annotations.Nullable;
 	"if player's time played is greater than 10 minutes:",
 	"\tgive player a diamond sword",
 	"",
-	"set player's time played to 0 seconds"
+	"set player's time played to 0 seconds",
+	"set player's playtime to 0 seconds"
 })
 @RequiredPlugins("MC 1.15+ (offline players)")
 @Since("2.5, 2.7 (offline players)")
@@ -35,7 +36,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	private static final boolean IS_OFFLINE_SUPPORTED = Skript.methodExists(OfflinePlayer.class, "getStatistic", Statistic.class);
 
 	static {
-		register(ExprTimePlayed.class, Timespan.class, "time played", "offlineplayers");
+		register(ExprTimePlayed.class, Timespan.class, "(time played|play[ ]time)", "offlineplayers");
 	}
 	
 	@Nullable
@@ -43,7 +44,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	public Timespan convert(OfflinePlayer offlinePlayer) {
 		return getTimePlayed(offlinePlayer);
 	}
-	
+
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
