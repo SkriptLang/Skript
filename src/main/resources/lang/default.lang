@@ -640,6 +640,14 @@ entities:
 			0: <age> [%-cowvariant%] cow[plural:s]
 			1: baby:[%-cowvariant%] cal(f|plural:ves)
 
+	# CopperGolemData
+	copper golem:
+		name: copper golem¦s
+		patterns:
+			0: [%-weatheringcopperstate%] copper golem[plural:s]
+			1: waxed [%-weatheringcopperstate%] copper golem[plural:s]
+			2: unwaxed [%-weatheringcopperstate%] copper golem[plural:s]
+
 	# CreeperData
 	creeper:
 		name: creeper¦s
@@ -1590,9 +1598,6 @@ entities:
 			1: baby:[happy] ghastling[plural:s]
 
 	# 1.21.9 Entities
-	copper golem:
-		name: copper golem¦s
-		pattern: copper golem[plural:s]
 	mannequin:
 		name: mannequin¦s
 		pattern: mannequin[plural:s]
@@ -3013,6 +3018,20 @@ damage types:
 	wither: wither
 	wither_skull: wither skull
 
+# -- Weathering Copper States --
+weathering copper states:
+	exposed: exposed, exposed state, exposed copper, exposed copper state
+	oxidized: oxidized, oxidized state, oxidized copper, oxidized copper state
+	unaffected: normal state, normal copper state, unaffected, unaffected state, unaffected copper, unaffected copper state
+	weathered: weathered, weathered state, weathered copper, weathered copper state
+
+# -- Copper Golem Poses --
+copper golem poses:
+	running: running, running pose, running statue pose, statue running pose
+	sitting: sitting, sitting pose, sitting statue pose, statue sitting pose
+	standing: standing, standing pose, standing statue pose, statue standing pose
+	star: star, star pose, star statue pose, statue star pose
+
 # -- Boolean --
 boolean:
 	true:
@@ -3133,6 +3152,8 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	weatheringcopperstate: weathering copper state¦s @a
+	coppergolempose: copper golem pose¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

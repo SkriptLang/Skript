@@ -1,0 +1,9 @@
+test "copper golem pose" when running minecraft "1.21.9":
+	set {_old} to the block data of test-block
+
+	set test-block to a copper golem statue
+	loop all copper golem poses:
+		set the copper golem pose of test-block to loop-value
+		assert the copper golem pose of test-block is loop-value with "Copper golem pose should be %loop-value%"
+
+	set the block data of test-block to {_old}
