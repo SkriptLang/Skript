@@ -14,7 +14,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("The leash holder of a leashable entity.")
 @Examples("set {_example} to the leash holder of the target entity")
 @Since("2.3")
-public class ExprLeashHolder extends SimplePropertyExpression<Leashable, Entity> {
+public class ExprLeashHolder extends SimplePropertyExpression<Entity, Entity> {
 
 	static {
 		register(ExprLeashHolder.class, Entity.class, "leash holder[s]", "entities");
@@ -22,8 +22,11 @@ public class ExprLeashHolder extends SimplePropertyExpression<Leashable, Entity>
 
 	@Override
 	@Nullable
-	public Entity convert(Leashable entity) {
-		return entity.isLeashed() ? entity.getLeashHolder() : null;
+	public Entity convert(Entity entity) {
+		if (entity instanceof Leashable leashable && leashable.isLeashed()) {
+			return leashable.getLeashHolder();
+		}
+		return null;
 	}
 
 	@Override
