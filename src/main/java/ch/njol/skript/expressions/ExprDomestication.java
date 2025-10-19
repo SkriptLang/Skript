@@ -23,12 +23,12 @@ import org.jetbrains.annotations.Nullable;
 	"The max domestication of a horse is how long it will take for a horse to become tame (must be greater than 0)."
 })
 @Example("""
-		function domesticateAndTame(horse: entity, p: offline player, i: int = 10):
-			add {_i} to domestication level of {_horse}
-			if domestication level of {_horse} >= max domestication level of {_horse}:
-				tame {_horse}
-				set tamer of {_horse} to {_p}
-			""")
+	function domesticateAndTame(horse: entity, p: offline player, i: int = 10):
+		add {_i} to domestication level of {_horse}
+		if domestication level of {_horse} >= max domestication level of {_horse}:
+			tame {_horse}
+			set tamer of {_horse} to {_p}
+	""")
 @Since("2.10")
 public class ExprDomestication extends SimplePropertyExpression<LivingEntity, Integer> {
 

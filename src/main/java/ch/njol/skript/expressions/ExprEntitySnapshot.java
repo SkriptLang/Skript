@@ -25,8 +25,8 @@ import org.jetbrains.annotations.Nullable;
 		set the health of entity to 20
 		set {_snapshot} to the entity snapshot of entity
 		clear entity
+	spawn {_snapshot} at location(0, 0, 0)
 	""")
-@Example("spawn {_snapshot} at location(0, 0, 0)")
 @RequiredPlugins("Minecraft 1.20.2+")
 @Since("2.10")
 public class ExprEntitySnapshot extends SimplePropertyExpression<Object, EntitySnapshot> {

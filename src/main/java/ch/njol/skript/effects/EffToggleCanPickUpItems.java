@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("send \"You can no longer pick up items!\" to player")
 @Example("""
 	on drop:
-		if player can't pick	up items:
+		if player can't pick up items:
 			allow player to pick up items
 	""")
 @Since("2.8.0")

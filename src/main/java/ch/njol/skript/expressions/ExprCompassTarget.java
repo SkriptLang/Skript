@@ -20,10 +20,10 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 	"As of Minecraft 1.21.4, the compass is controlled by the resource pack and by default will not point to " +
 		"this compass target when used outside of the overworld dimension."})
 @Example("""
-# make all player's compasses target a player stored in {compass::target::%player%}
-every 5 seconds:
-	loop all players:
-		set the loop-player's compass target to location of {compass::target::%%loop-player%}
+	# make all player's compasses target a player stored in {compass::target::%player%}
+	every 5 seconds:
+		loop all players:
+			set the loop-player's compass target to location of {compass::target::%%loop-player%}
 	""")
 @Since("2.0")
 public class ExprCompassTarget extends SimplePropertyExpression<Player, Location> {

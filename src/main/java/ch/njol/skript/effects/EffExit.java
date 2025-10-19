@@ -20,11 +20,6 @@ import java.util.List;
 @Name("Exit")
 @Description("Exits a given amount of loops and conditionals, or the entire trigger.")
 @Example("""
-	if player has any ore:
-		stop
-	message "%player% has no ores!"
-	""")
-@Example("""
 	loop blocks above the player:
 		loop-block is not air:
 			exit 2 sections

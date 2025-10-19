@@ -34,12 +34,6 @@ import ch.njol.util.Kleenean;
 		"For 1.11.2 and above, it returns a list of passengers and you can use all changers in it.",
 		"See also: <a href='#ExprVehicle'>vehicle</a>"})
 @Example("""
-	#for 1.11 and lower
-	passenger of the minecart is a creeper or a cow
-	the saddled pig's passenger is a player
-	""")
-@Example("""
-	#for 1.11.2+
 	passengers of the minecart contains a creeper or a cow
 	the boat's passenger contains a pig
 	add a cow and a zombie to passengers of last spawned boat

@@ -45,7 +45,7 @@ import java.util.Set;
 	""")
 @Example("""
 	# set all existing values of a list to 0:
-	transform {_list::*} to 0
+	transform {_list::*} with 0
 	""")
 @Since("2.10")
 @Keywords("input")

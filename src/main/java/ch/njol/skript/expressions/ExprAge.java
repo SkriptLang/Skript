@@ -27,14 +27,14 @@ import org.jetbrains.annotations.Nullable;
 	"e.g. A baby cow needs 20 minutes to become an adult which equals to 24,000 ticks so their age will be -24000 once spawned."
 })
 @Example("""
-		# Set targeted crop to fully grown crop
-		set age of targeted block to maximum age of targeted block
-		""")
+	# Set targeted crop to fully grown crop
+	set age of targeted block to maximum age of targeted block
+	""")
 @Example("""
-		# Spawn a baby cow that will only need 1 minute to become an adult
-		spawn a baby cow at player
-		set age of last spawned entity to -1200 # in ticks = 60 seconds
-		""")
+	# Spawn a baby cow that will only need 1 minute to become an adult
+	spawn a baby cow at player
+	set age of last spawned entity to -1200 # in ticks = 60 seconds
+	""")
 @Since("2.7")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 

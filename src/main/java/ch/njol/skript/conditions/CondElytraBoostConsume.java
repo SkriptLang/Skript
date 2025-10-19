@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("""
 	on elytra boost:
 		if the used firework will be consumed:
-			prevent the used firework from being consume
+			prevent the used firework from being consumed
 	""")
 @Since("2.10")
 public class CondElytraBoostConsume extends Condition {

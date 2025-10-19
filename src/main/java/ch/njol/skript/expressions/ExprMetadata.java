@@ -33,7 +33,7 @@ import java.util.List;
 @Name("Metadata")
 @Description("Metadata is a way to store temporary data on entities, blocks and more that disappears after a server restart.")
 @Example("set metadata value \"healer\" of player to true")
-@Example("broadcast \"%metadata value \"\"healer\"\" of player%\"")
+@Example("broadcast \"%metadata value \"healer\" of player%\"")
 @Example("clear metadata value \"healer\" of player")
 @Since("2.2-dev36, 2.10 (add, remove)")
 public class ExprMetadata<T> extends SimpleExpression<T> {

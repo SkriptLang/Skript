@@ -41,15 +41,15 @@ import ch.njol.util.Kleenean;
 @Example("command \"op\"'s permission message")
 @Example("command \"sk\"'s plugin owner")
 @Example("""
-		command /greet <player>:
-			usage: /greet <target>
-			trigger:
-				if arg-1 is sender:
-					send "&cYou can't greet yourself! Usage: %the usage%"
-					stop
-				send "%sender% greets you!" to arg-1
-				send "You greeted %arg-1%!"
-			""")
+	command /greet <player>:
+		usage: /greet <target>
+		trigger:
+			if arg-1 is sender:
+				send "&cYou can't greet yourself! Usage: %the usage%"
+				stop
+			send "%sender% greets you!" to arg-1
+			send "You greeted %arg-1%!"
+	""")
 @Since("2.6")
 public class ExprCommandInfo extends SimpleExpression<String> {
 
