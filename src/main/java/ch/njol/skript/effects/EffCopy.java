@@ -29,7 +29,7 @@ import java.util.*;
 @Example("""
 	set {_foo::bar} to 1
 	set {_foo::sublist::foobar} to "hey"
-	copy {_foo::*} to {_copy::*}"
+	copy {_foo::*} to {_copy::*}
 	broadcast indices of {_copy::*} # bar, sublist
 	broadcast {_copy::bar} # 1
 	broadcast {_copy::sublist::foobar} # "hey!"
