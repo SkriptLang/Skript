@@ -29,18 +29,18 @@ import org.skriptlang.skript.common.properties.expressions.PropExprValueOf;
 	"The value is automatically converted to the specified type (e.g. text, number) where possible."
 })
 @Example("""
-		set {_node} to node "language" in the skript config
-		broadcast the text value of {_node}
-		""")
+	set {_node} to node "language" in the skript config
+	broadcast the text value of {_node}
+	""")
 @Example("""
-		set {_node} to node "update check interval" in the skript config
-		
-		broadcast text value of {_node}
-		# text value of {_node} = "12 hours" (text)
-		
-		wait for {_node}'s timespan value
-		# timespan value of {_node} = 12 hours (duration)
-		""")
+	set {_node} to node "update check interval" in the skript config
+	
+	broadcast text value of {_node}
+	# text value of {_node} = "12 hours" (text)
+	
+	wait for {_node}'s timespan value
+	# timespan value of {_node} = 12 hours (duration)
+	""")
 @Since("2.10 (Nodes), 2.10 (Any)")
 @Deprecated(since="2.13", forRemoval = true)
 public class ExprValue extends SimplePropertyExpression<Object, Object> {

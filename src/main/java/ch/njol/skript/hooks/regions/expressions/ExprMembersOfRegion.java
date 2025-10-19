@@ -29,7 +29,7 @@ import java.util.ArrayList;
 })
 @Example("""
 	on entering of a region:
-	message "You're entering %region% whose owners are %owners of region%"
+		message "You're entering %region% whose owners are %owners of region%"
 	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
