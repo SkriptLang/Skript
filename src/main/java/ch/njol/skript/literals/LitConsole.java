@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,8 +21,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("Console")
 @Description("Represents the server's console which can receive messages and execute commands")
-@Examples({"execute console command \"/stop\"",
-		"send \"message to console\" to the console"})
+@Example("execute console command \"/stop\"")
+@Example("send \"message to console\" to the console")
 @Since("1.3.1")
 public class LitConsole extends SimpleLiteral<ConsoleCommandSender> {
 

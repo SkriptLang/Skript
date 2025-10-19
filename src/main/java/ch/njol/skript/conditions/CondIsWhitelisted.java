@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -17,11 +17,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
-@Examples({
-	"if the player is whitelisted:",
-	"if the server is whitelisted:",
-	"if the server whitelist is enforced:"
-})
+@Example("if the player is whitelisted:")
+@Example("if the server is whitelisted:")
+@Example("if the server whitelist is enforced:")
 @Since("2.5.2, 2.9.0 (enforce, offline players)")
 @RequiredPlugins("MC 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {

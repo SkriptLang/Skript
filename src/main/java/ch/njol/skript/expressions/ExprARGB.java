@@ -17,10 +17,8 @@ import java.util.function.Function;
 	"The alpha, red, green, or blue value of colors. Ranges from 0 to 255.",
 	"Alpha represents opacity."
 })
-@Examples({
-	"broadcast red value of rgb(100, 0, 50) # sends '100'",
-	"set {_red} to red's red value + 10"
-})
+@Example("broadcast red value of rgb(100, 0, 50) # sends '100'")
+@Example("set {_red} to red's red value + 10")
 @Keywords({"ARGB", "RGB", "color", "colour"})
 @Since("2.10")
 public class ExprARGB extends SimplePropertyExpression<Color, Integer> {

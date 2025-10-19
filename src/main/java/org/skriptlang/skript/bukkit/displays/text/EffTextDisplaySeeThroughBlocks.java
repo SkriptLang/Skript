@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.text;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display See Through Blocks")
 @Description("Forces a text display to either be or not be visible through blocks.")
-@Examples({
-	"force last spawned text display to be visible through walls",
-	"prevent all text displays from being visible through walls"
-})
+@Example("force last spawned text display to be visible through walls")
+@Example("prevent all text displays from being visible through walls")
 @Since("2.10")
 public class EffTextDisplaySeeThroughBlocks extends Effect {
 

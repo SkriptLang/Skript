@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -20,12 +20,12 @@ import org.jetbrains.annotations.Nullable;
 	"Checks whether an entity has one or both of their hands raised.",
 	"Hands are raised when an entity is using an item (eg: blocking, drawing a bow, eating)."
 })
-@Examples({
-	"on damage of player:",
-		"\tif victim's main hand is raised:",
-			"\t\tdrop player's tool at player",
-			"\t\tset player's tool to air"
-})
+@Example("""
+	on damage of player:
+		if victim's main hand is raised:
+			drop player's tool at player
+			set player's tool to air
+	""")
 @Since("2.8.0")
 
 public class CondIsHandRaised extends Condition {

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -22,12 +22,14 @@ import org.jetbrains.annotations.Nullable;
 @Name("Light Level")
 @Description({"Gets the light level at a certain location which ranges from 0 to 15.",
 		"It can be separated into sunlight (15 = direct sunlight, 1-14 = indirect) and block light (torches, glowstone, etc.). The total light level of a block is the maximum of the two different light types."})
-@Examples({"# set vampire players standing in bright sunlight on fire",
-		"every 5 seconds:",
-		"	loop all players:",
-		"		{vampire::%uuid of loop-player%} is true",
-		"		sunlight level at the loop-player is greater than 10",
-		"		ignite the loop-player for 5 seconds"})
+@Example("""
+	# set vampire players standing in bright sunlight on fire
+	every 5 seconds:
+		loop all players:
+			{vampire::%uuid of loop-player%} is true
+			sunlight level at the loop-player is greater than 10
+			ignite the loop-player for 5 seconds
+	""")
 @Since("1.3.4")
 public class ExprLightLevel extends PropertyExpression<Location, Byte> {
 	static {

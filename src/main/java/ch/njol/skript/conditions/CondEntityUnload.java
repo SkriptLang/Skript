@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.LivingEntity;
@@ -13,10 +13,10 @@ import org.bukkit.entity.LivingEntity;
 	"More information on what and when entities despawn can be found at "
 		+ "<a href=\"https://minecraft.wiki/w/Mob_spawning#Despawning\">reference</a>."
 })
-@Examples({
-	"if last spawned entity can despawn on chunk unload:",
-		"\tmake last spawned entity not despawn on chunk unload"
-})
+@Example("""
+	if last spawned entity can despawn on chunk unload:
+		make last spawned entity not despawn on chunk unload
+	""")
 @Since("2.11")
 public class CondEntityUnload extends PropertyCondition<LivingEntity> {
 

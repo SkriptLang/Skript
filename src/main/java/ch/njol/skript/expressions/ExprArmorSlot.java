@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -39,10 +39,8 @@ import java.util.stream.Stream;
 	"</ul>",
 	"Saddle is a special slot that can only be used for: pigs, striders and horse types (horse, camel, llama, mule, donkey)."
 })
-@Examples({
-	"set chestplate of the player to a diamond chestplate",
-	"helmet of player is neither tag values of tag \"paper:helmets\" nor air # player is wearing a block, e.g. from another plugin"
-})
+@Example("set chestplate of the player to a diamond chestplate")
+@Example("helmet of player is neither tag values of tag \"paper:helmets\" nor air # player is wearing a block, e.g. from another plugin")
 @Keywords("armor")
 @Since({
 	"1.0, 2.8.0 (armor), 2.10 (body armor), 2.12 (saddle)",

@@ -22,12 +22,10 @@ import java.util.function.Supplier;
 		+ "This has nothing to do with client side view distance settings.",
 	"View distance is capped between 2 to 32 chunks."
 })
-@Examples({
-	"set view distance of player to 10",
-	"add 50 to the view distance of world \"world\"",
-	"reset the view distance of player",
-	"clear the view distance of world \"world\""
-})
+@Example("set view distance of player to 10")
+@Example("add 50 to the view distance of world \"world\"")
+@Example("reset the view distance of player")
+@Example("clear the view distance of world \"world\"")
 @Since("2.4, 2.11 (worlds)")
 public class ExprViewDistance extends SimplePropertyExpression<Object, Integer> {
 

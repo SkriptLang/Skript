@@ -2,7 +2,7 @@ package ch.njol.skript.test.runner;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Test World")
 @Description("The world the testing is taking place in.")
-@Examples({
-	"test \"example\":",
-		"\tspawn zombie at test location",
-		"\tassert last spawned zombie's world is test world with \"zombie did not spawn in test world\""
-})
+@Example("""
+	test "example":
+		spawn zombie at test location
+		assert last spawned zombie's world is test world with "zombie did not spawn in test world"
+	""")
 @NoDoc
 public class ExprTestWorld extends SimpleExpression<World> {
 

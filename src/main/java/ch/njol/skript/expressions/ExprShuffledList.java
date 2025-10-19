@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,7 +22,7 @@ import java.util.List;
 
 @Name("Shuffled List")
 @Description("Shuffles given list randomly. This is done by replacing indices by random numbers in resulting list.")
-@Examples({"set {_list::*} to shuffled {_list::*}"})
+@Example("set {_list::*} to shuffled {_list::*}")
 @Since("2.2-dev32")
 public class ExprShuffledList extends SimpleExpression<Object> {
 

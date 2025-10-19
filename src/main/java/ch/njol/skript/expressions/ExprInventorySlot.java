@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,11 +25,13 @@ import ch.njol.util.Kleenean;
 
 @Name("Inventory Slot")
 @Description({"Represents a slot in an inventory. It can be used to change the item in an inventory too."})
-@Examples({"if slot 0 of player is air:",
-	"\tset slot 0 of player to 2 stones",
-	"\tremove 1 stone from slot 0 of player",
-	"\tadd 2 stones to slot 0 of player",
-	"\tclear slot 1 of player"})
+@Example("""
+	if slot 0 of player is air:
+		set slot 0 of player to 2 stones
+		remove 1 stone from slot 0 of player
+		add 2 stones to slot 0 of player
+		clear slot 1 of player
+	""")
 @Since("2.2-dev24")
 public class ExprInventorySlot extends SimpleExpression<Slot> {
 	

@@ -19,11 +19,11 @@ import org.jetbrains.annotations.Nullable;
 	"You can check the <a href='#ExprProtocolVersion'>protocol version</a> expression for more information about this.",
 	"This can only be set in a <a href='#server_list_ping'>server list ping</a> event."
 })
-@Examples({
-	"on server list ping:",
-		"\tset the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
-		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
-})
+@Example("""
+	on server list ping:
+		set the protocol version to 0 # 13w41a (1.7), so it will show the version string always
+		set the version string to "&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%"
+	""")
 @Since("2.3")
 @Events("Server List Ping")
 public class ExprVersionString extends SimpleExpression<String> {

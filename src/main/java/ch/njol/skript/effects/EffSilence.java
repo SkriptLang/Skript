@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,7 +16,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Silence Entity")
 @Description("Controls whether or not an entity is silent.")
-@Examples("make target entity silent")
+@Example("make target entity silent")
 @Since("2.5")
 public class EffSilence extends Effect {
 	

@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("PvP")
 @Description("Set the PvP state for a given world.")
-@Examples({"enable PvP #(current world only)",
-		"disable PvP in all worlds"})
+@Example("enable PvP #(current world only)")
+@Example("disable PvP in all worlds")
 @Since("1.3.4")
 public class EffPvP extends Effect {
 

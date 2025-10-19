@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -24,10 +24,8 @@ import org.jetbrains.annotations.Nullable;
 	"Using `by` adds/subtracts from the current size of the world border.",
 	"Using `to` sets to the specified size."
 })
-@Examples({
-	"expand world border of player by 100 over 5 seconds",
-	"shrink world border of world \"world\" to 100 over 10 seconds"
-})
+@Example("expand world border of player by 100 over 5 seconds")
+@Example("shrink world border of world \"world\" to 100 over 10 seconds")
 @Since("2.11")
 public class EffWorldBorderExpand extends Effect {
 

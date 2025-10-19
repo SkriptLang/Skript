@@ -10,7 +10,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Detonate Entities")
 @Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, primed TNT, wind charges and creepers.")
-@Examples("detonate last launched firework")
+@Example("detonate last launched firework")
 @Since("2.10")
 public class EffDetonate extends Effect {
 

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -18,9 +18,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Resource Pack")
 @Description("Checks state of the resource pack in a <a href='#resource_pack_request_action'>resource pack request response</a> event.")
-@Examples({"on resource pack response:",
-		"	if the resource pack wasn't accepted:",
-		"		kick the player due to \"You have to install the resource pack to play in this server!\""})
+@Example("""
+	on resource pack response:
+		if the resource pack wasn't accepted:
+			kick the player due to "You have to install the resource pack to play in this server!"
+	""")
 @Since("2.4")
 @Events("resource pack request response")
 public class CondResourcePack extends Condition {

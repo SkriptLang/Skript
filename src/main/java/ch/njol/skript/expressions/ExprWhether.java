@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.UnknownNullability;
 
 @Name("Whether")
 @Description("A shorthand for returning the result of a condition (true or false). This is functionally identical to using `true if <condition> else false`.")
-@Examples({
-	"set {fly} to whether player can fly",
-	"broadcast \"Flying: %whether player is flying%\""
-})
+@Example("set {fly} to whether player can fly")
+@Example("broadcast \"Flying: %whether player is flying%\"")
 @Since("2.9.0")
 public class ExprWhether extends SimpleExpression<Boolean> {
 

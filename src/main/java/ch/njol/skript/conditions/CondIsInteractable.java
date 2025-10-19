@@ -6,12 +6,12 @@ import ch.njol.skript.doc.*;
 
 @Name("Is Interactable")
 @Description("Checks wether or not a block is interactable.")
-@Examples({
-	"on block break:",
-		"\tif event-block is interactable:",
-			"\t\tcancel event",
-			"\t\tsend \"You cannot break interactable blocks!\""
-})
+@Example("""
+	on block break:
+		if event-block is interactable:
+			cancel event
+			send "You cannot break interactable blocks!"
+	""")
 @Since("2.5.2")
 public class CondIsInteractable extends PropertyCondition<ItemType> {
 	

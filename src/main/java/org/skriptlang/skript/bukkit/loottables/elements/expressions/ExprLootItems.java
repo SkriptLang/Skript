@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -29,13 +29,14 @@ import java.util.concurrent.ThreadLocalRandom;
 	"Returns the items of a loot table using a loot context. "
 		+ "Not specifying a loot context will use a loot context with a location at the world's origin."
 )
-@Examples({
-	"set {_items::*} to loot items of the loot table \"minecraft:chests/simple_dungeon\" with loot context {_context}",
-	"# this will set {_items::*} to the items that would be dropped from the simple dungeon loot table with the given loot context",
-	"",
-	"give player loot items of entity's loot table with loot context {_context}",
-	"# this will give the player the items that the entity would drop with the given loot context"
-})
+@Example("""
+	set {_items::*} to loot items of the loot table "minecraft:chests/simple_dungeon" with loot context {_context}
+	# this will set {_items::*} to the items that would be dropped from the simple dungeon loot table with the given loot context
+	""")
+@Example("""
+	give player loot items of entity's loot table with loot context {_context}
+	# this will give the player the items that the entity would drop with the given loot context
+	""")
 @Since("2.10")
 public class ExprLootItems extends SimpleExpression<ItemStack> {
 

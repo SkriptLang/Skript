@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -23,8 +23,10 @@ import ch.njol.util.Kleenean;
 @Name("Item with Lore")
 @Description({"Returns the given item type with the specified lore added to it.",
 		"If multiple strings are passed, each of them will be a separate line in the lore."})
-@Examples({"set {_test} to stone with lore \"line 1\" and \"line 2\"",
-		"give {_test} to player"})
+@Example("""
+		set {_test} to stone with lore "line 1" and "line 2"
+		give {_test} to player
+	""")
 @Since("2.3")
 public class ExprItemWithLore extends PropertyExpression<ItemType, ItemType> {
 

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -20,16 +20,14 @@ import ch.njol.util.Kleenean;
 
 @Name("Potion Effects")
 @Description("Apply or remove potion effects to/from entities.")
-@Examples({
-	"apply ambient swiftness 2 to the player",
-	"remove haste from the victim",
-	"",
-	"on join:",
-		"\tapply infinite potion of strength of tier {strength::%uuid of player%} to the player",
-	"",
-	"apply potion effects of player's tool to player",
-	"apply haste potion of tier 3 without any particles whilst hiding the potion icon to the player # Hide potions"
-})
+@Example("apply ambient swiftness 2 to the player")
+@Example("remove haste from the victim")
+@Example("""
+	on join:
+		apply infinite potion of strength of tier {strength::%uuid of player%} to the player
+	""")
+@Example("apply potion effects of player's tool to player")
+@Example("apply haste potion of tier 3 without any particles whilst hiding the potion icon to the player # Hide potions")
 @Since(
 	"2.0, 2.2-dev27 (ambient and particle-less potion effects), " + 
 	"2.5 (replacing existing effect), 2.5.2 (potion effects), " +

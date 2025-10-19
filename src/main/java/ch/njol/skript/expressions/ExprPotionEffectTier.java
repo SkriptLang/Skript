@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Name("Potion Effect Tier")
 @Description("An expression to obtain the amplifier of a potion effect applied to an entity.")
-@Examples("if the amplifier of haste of player >= 3:")
+@Example("if the amplifier of haste of player >= 3:")
 @Since("2.7")
 public class ExprPotionEffectTier extends SimpleExpression<Integer> {
 

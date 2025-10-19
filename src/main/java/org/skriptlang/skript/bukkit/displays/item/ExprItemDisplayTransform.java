@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.item;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,10 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Item Display Transform")
 @Description("Returns or changes the <a href='#itemdisplaytransform'>item display transform</a> of <a href='#display'>item displays</a>.")
-@Examples({
-	"set the item transform of the last spawned item display to first person left handed",
-	"set the item transform of the last spawned item display to no transform # Reset to default"
-})
+@Example("set the item transform of the last spawned item display to first person left handed")
+@Example("set the item transform of the last spawned item display to no transform # Reset to default")
 @Since("2.10")
 public class ExprItemDisplayTransform extends SimplePropertyExpression<Display, ItemDisplayTransform> {
 

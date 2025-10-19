@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -21,14 +21,12 @@ import org.jetbrains.annotations.Nullable;
 	"the main world's data folder. Changing this will also change the player's stats which can be views in the client's statistics menu.",
 	"Using this expression on offline players on Minecraft 1.14 and below will return nothing <code>&lt;none&gt;</code>."
 })
-@Examples({
-	"set {_t} to time played of player",
-	"if player's time played is greater than 10 minutes:",
-	"\tgive player a diamond sword",
-	"",
-	"set player's time played to 0 seconds",
-	"set player's playtime to 0 seconds"
-})
+@Example("set {_t} to time played of player")
+@Example("""
+	if player's time played is greater than 10 minutes:
+		give player a diamond sword
+	""")
+@Example("set player's time played to 0 seconds")
 @RequiredPlugins("MC 1.15+ (offline players)")
 @Since("2.5, 2.7 (offline players)")
 public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Timespan> {

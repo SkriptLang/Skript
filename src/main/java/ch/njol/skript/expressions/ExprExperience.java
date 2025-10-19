@@ -23,24 +23,28 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Experience")
 @Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
-@Examples({
-	"on experience spawn:",
-		"\tadd 5 to the spawned experience",
-	"",
-	"on break of coal ore:",
-		"\tclear dropped experience",
-	"",
-	"on break of diamond ore:",
-		"\tif tool of player = diamond pickaxe:",
-			"\t\tadd 100 to dropped experience",
-	"",
-	"on breed:",
-		"\tbreeding father is a cow",
-		"\tset dropped experience to 10",
-   "",
-   "on fish catch:",
-		"\tadd 70 to dropped experience",
-})
+@Example("""
+	on experience spawn:
+		add 5 to the spawned experience
+	""")
+@Example("""
+	on break of coal ore:
+		clear dropped experience
+	""")
+@Example("""
+	on break of diamond ore:
+		if tool of player = diamond pickaxe:
+			add 100 to dropped experience
+	""")
+@Example("""
+	on breed:
+		breeding father is a cow
+		set dropped experience to 10
+	""")
+@Example("""
+	on fish catch:
+		add 70 to dropped experience
+	""")
 @Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), 2.10 (breeding, fishing)")
 @Events({"experience spawn", "break / mine", "experience change", "entity breeding"})
 public class ExprExperience extends SimpleExpression<Experience> {

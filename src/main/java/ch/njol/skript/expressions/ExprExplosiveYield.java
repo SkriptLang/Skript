@@ -22,10 +22,10 @@ import java.util.function.Supplier;
 	"Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information.",
 	"The yield of ghasts can only be set to between 0 and 127."
 })
-@Examples({
-	"on spawn of a creeper:",
-		"\tset the explosive yield of the event-entity to 10"
-})
+@Example("""
+	on spawn of a creeper:
+		set the explosive yield of the event-entity to 10
+	""")
 @Since("2.5, 2.11 (ghasts)")
 public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number> {
 

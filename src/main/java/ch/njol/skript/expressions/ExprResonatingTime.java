@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 	"Returns the resonating time of a bell.",
 	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
 })
-@Examples("broadcast \"The bell has been resonating for %resonating time of target block%\"")
+@Example("broadcast \"The bell has been resonating for %resonating time of target block%\"")
 @Since("2.9.0")
 public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan> {
 

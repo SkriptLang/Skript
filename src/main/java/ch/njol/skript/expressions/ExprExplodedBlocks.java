@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,24 +24,29 @@ import ch.njol.util.Kleenean;
 
 @Name("Exploded Blocks")
 @Description("Get all the blocks that were destroyed in an explode event. Supports add/remove/set/clear/delete blocks.")
-@Examples({
-	"on explode:",
-		"\tloop exploded blocks:",
-			"\t\tadd loop-block to {exploded::blocks::*}",
-	"",
-	"on explode:",
-		"\tloop exploded blocks:",
-			"\t\tif loop-block is grass:",
-				"\t\t\tremove loop-block from exploded blocks",
-	"",
-	"on explode:",
-		"\tclear exploded blocks",
-	"",
-	"on explode:",
-		"\tset exploded blocks to blocks in radius 10 around event-entity",
-	"",
-	"on explode:",
-		"\tadd blocks above event-entity to exploded blocks"})
+@Example("""
+	on explode:
+		loop exploded blocks:
+			add loop-block to {exploded::blocks::*}
+	""")
+@Example("""
+	on explode:
+		loop exploded blocks:
+			if loop-block is grass:
+				remove loop-block from exploded blocks
+	""")
+@Example("""
+	on explode:
+		clear exploded blocks
+	""")
+@Example("""
+	on explode:
+		set exploded blocks to blocks in radius 10 around event-entity
+	""")
+@Example("""
+	on explode:
+		add blocks above event-entity to exploded blocks
+	""")
 @Events("explode")
 @Since("2.5, 2.8.6 (modify blocks)")
 public class ExprExplodedBlocks extends SimpleExpression<Block> implements EventRestrictedSyntax {

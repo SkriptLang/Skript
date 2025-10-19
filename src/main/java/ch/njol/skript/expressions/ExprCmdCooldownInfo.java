@@ -12,7 +12,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -27,12 +27,13 @@ import ch.njol.util.Kleenean;
 @Name("Cooldown Time/Remaining Time/Elapsed Time/Last Usage/Bypass Permission")
 @Description({"Only usable in command events. Represents the cooldown time, the remaining time, the elapsed time,",
 		"the last usage date, or the cooldown bypass permission."})
-@Examples({
-		"command /home:",
-		"\tcooldown: 10 seconds",
-		"\tcooldown message: You last teleported home %elapsed time% ago, you may teleport home again in %remaining time%.",
-		"\ttrigger:",
-		"\t\tteleport player to {home::%player%}"})
+@Example("""
+	command /home:
+		cooldown: 10 seconds
+		cooldown message: You last teleported home %elapsed time% ago, you may teleport home again in %remaining time%.
+		trigger:
+			teleport player to {home::%player%}
+	""")
 @Since("2.2-dev33")
 public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 

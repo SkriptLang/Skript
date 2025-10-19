@@ -4,7 +4,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -18,14 +18,12 @@ import org.jetbrains.annotations.Nullable;
 @Name("Max Durability")
 @Description({"The maximum durability of an item. Changing requires Minecraft 1.20.5+",
 	"Note: 'delete' will remove the max durability from the item (making it a non-damageable item). Delete requires Paper 1.21+"})
-@Examples({
-	"maximum durability of diamond sword",
-	"if max durability of player's tool is not 0: # Item is damageable",
-	"set max durability of player's tool to 5000",
-	"add 5 to max durability of player's tool",
-	"reset max durability of player's tool",
-	"delete max durability of player's tool"
-})
+@Example("maximum durability of diamond sword")
+@Example("if max durability of player's tool is not 0: # Item is damageable")
+@Example("set max durability of player's tool to 5000")
+@Example("add 5 to max durability of player's tool")
+@Example("reset max durability of player's tool")
+@Example("delete max durability of player's tool")
 @RequiredPlugins("Minecraft 1.20.5+ (custom amount)")
 @Since("2.5, 2.9.0 (change)")
 public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer> {

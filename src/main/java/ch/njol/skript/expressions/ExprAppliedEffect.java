@@ -14,13 +14,13 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Applied Beacon Effect")
 @Description("The type of effect applied by a beacon.")
-@Examples({
-	"on beacon effect:",
-		"\tif the applied effect is primary beacon effect:",
-			"\t\tbroadcast \"Is Primary\"",
-		"\telse if applied effect = secondary effect:",
-			"\t\tbroadcast \"Is Secondary\""
-})
+@Example("""
+	on beacon effect:
+		if the applied effect is primary beacon effect:
+			broadcast "Is Primary"
+		else if applied effect = secondary effect:
+			broadcast "Is Secondary"
+	""")
 @Events("Beacon Effect")
 @Since("2.10")
 public class ExprAppliedEffect extends SimpleExpression<PotionEffectType> {

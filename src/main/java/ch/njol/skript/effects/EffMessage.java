@@ -34,14 +34,14 @@ import java.util.UUID;
 @Example("message \"This message is a distraction. Mwahaha!\"")
 @Example("send \"Your kill streak is %{kill streak::%uuid of player%}%\" to player")
 @Example("""
-		if the targeted entity exists:
-			message "You're currently looking at a %type of the targeted entity%!"
-		""")
+	if the targeted entity exists:
+		message "You're currently looking at a %type of the targeted entity%!"
+	""")
 @Example("""
-		on chat:
-			cancel event
-			send "[%player%] >> %message%" to all players from player
-		""")
+	on chat:
+		cancel event
+		send "[%player%] >> %message%" to all players from player
+	""")
 @RequiredPlugins("Minecraft 1.16.4+ for optional sender")
 @Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {

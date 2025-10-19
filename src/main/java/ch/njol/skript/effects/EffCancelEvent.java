@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.events.EvtClick;
@@ -26,12 +26,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Cancel Event")
 @Description("Cancels the event (e.g. prevent blocks from being placed, or damage being taken).")
-@Examples({
-	"on damage:",
-		"\tvictim is a player",
-		"\tvictim has the permission \"skript.god\"",
-		"\tcancel the event"
-})
+@Example("""
+	on damage:
+		victim is a player
+		victim has the permission "skript.god"
+		cancel the event
+	""")
 @Since("1.0")
 public class EffCancelEvent extends Effect {
 

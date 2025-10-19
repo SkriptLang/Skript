@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -23,8 +23,8 @@ import ch.njol.util.Kleenean;
 		"which lists the explosion forces of TNT, creepers, etc.",
 		"Hint: use a force of 0 to create a fake explosion that does no damage whatsoever, or use the explosion effect introduced in Skript 2.0.",
 		"Starting with Bukkit 1.4.5 and Skript 2.0 you can use safe explosions which will damage entities but won't destroy any blocks."})
-@Examples({"create an explosion of force 10 at the player",
-		"create an explosion of force 0 at the victim"})
+@Example("create an explosion of force 10 at the player")
+@Example("create an explosion of force 0 at the victim")
 @Since("1.0")
 public class EffExplosion extends Effect {
 

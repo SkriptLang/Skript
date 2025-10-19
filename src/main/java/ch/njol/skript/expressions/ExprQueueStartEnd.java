@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -24,7 +24,7 @@ import java.util.Arrays;
 	
 	This is designed for use with the <code>add</code> changer: to add or remove elements from the start or the end of the queue.
 	""")
-@Examples("""
+@Example("""
 	set {queue} to a new queue
 	add "hello" to {queue}
 	add "foo" to the start of {queue}
