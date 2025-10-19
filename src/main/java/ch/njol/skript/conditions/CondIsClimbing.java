@@ -11,7 +11,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 	spawn a spider at location of spawn
 	wait a second
 	if the last spawned spider is climbing:
-		message"The spider is now climbing!"
+		message "The spider is now climbing!"
 	""")
 @RequiredPlugins("Minecraft 1.17+")
 @Since("2.8.0")

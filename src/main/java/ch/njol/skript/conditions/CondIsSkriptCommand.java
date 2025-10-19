@@ -11,13 +11,8 @@ import static ch.njol.skript.command.Commands.scriptCommandExists;
 @Name("Is a Skript command")
 @Description("Checks whether a command/string is a custom Skript command.")
 @Example("""
-	# Example 1
 	on command:
 		command is a skript command
-	""")
-@Example("""
-	# Example 2
-	"sometext" is a skript command
 	""")
 @Since("2.6")
 public class CondIsSkriptCommand extends PropertyCondition<String> {
