@@ -16,7 +16,6 @@ import org.bukkit.entity.Entity;
 	"player is in lava:",
 	"player is in bubble column"
 })
-@RequiredPlugins("Paper (in rain, lava and bubble column)")
 @Since("2.6.1")
 public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 	

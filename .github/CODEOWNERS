@@ -62,7 +62,11 @@
 /src/main/java/org/skriptlang/skript/bukkit/input/ @UnderscoreTud @skriptlang/core-developers
 
 # Documentation
-/src/main/java/ch/njol/skript/doc/ @Pikachu920 @AyhamAl-Ali @Efnilite @skriptlang/core-developers
+/src/main/java/ch/njol/skript/doc/@Efnilite @skriptlang/core-developers
 
 # Functions
 /src/main/java/ch/njol/skript/lang/function @Efnilite @skriptlang/core-developers
+/src/main/java/org/skriptlang/skript/lang/function @Efnilite @skriptlang/core-developers
+
+# EntityData
+/src/main/java/ch/njol/skript/entity @Absolutionism @skriptlang/core-developers

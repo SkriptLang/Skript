@@ -1,23 +1,17 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Protocol Version")
 @Description({"The protocol version that will be sent as the protocol version of the server in a server list ping event. " +
@@ -36,7 +30,6 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\"",
 		"\tset the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always"})
 @Since("2.3")
-@RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
 public class ExprProtocolVersion extends SimpleExpression<Long> {
 

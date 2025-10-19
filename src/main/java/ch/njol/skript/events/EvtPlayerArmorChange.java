@@ -30,7 +30,6 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 					"[player] armo[u]r change[d]",
 					"[player] %equipmentslot% change[d]")
 				.description("Called when armor pieces of a player are changed.")
-				.requiredPlugins("Paper")
 				.keywords("armor", "armour")
 				.examples(
 					"on armor change:",
