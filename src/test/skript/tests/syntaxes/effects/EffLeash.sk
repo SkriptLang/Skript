@@ -1,0 +1,120 @@
+test "leashing entities":
+	# Test leashing a living entity (cow)
+	spawn a cow at test-location:
+		set {_cow} to entity
+	spawn a player at test-location:
+		set {_player} to entity
+
+	# Leash the cow to the player
+	leash {_cow} to {_player}
+	assert {_cow} is leashed with "Cow should be leashed after leash effect"
+	assert leash holder of {_cow} is {_player} with "Cow's leash holder should be the player", expected {_player}, got leash holder of {_cow}
+
+	# Test unleashing
+	unleash {_cow}
+	assert {_cow} is not leashed with "Cow should not be leashed after unleash effect"
+	assert leash holder of {_cow} is not set with "Cow's leash holder should not be set after unleashing"
+
+	# Clean up
+	clear entity within {_cow}
+	clear entity within {_player}
+
+test "leashing boats":
+	# Test leashing a non-living entity (boat)
+	spawn a boat at test-location:
+		set {_boat} to entity
+	spawn a zombie at test-location:
+		set {_zombie} to entity
+
+	# Leash the boat to the zombie
+	leash {_boat} to {_zombie}
+	assert {_boat} is leashed with "Boat should be leashed after leash effect"
+	assert leash holder of {_boat} is {_zombie} with "Boat's leash holder should be the zombie", expected {_zombie}, got leash holder of {_boat}
+
+	# Test unleashing the boat
+	unleash {_boat}
+	assert {_boat} is not leashed with "Boat should not be leashed after unleash effect"
+
+	# Clean up
+	clear entity within {_boat}
+	clear entity within {_zombie}
+
+test "leashing non-leashable entities":
+	# Test that non-leashable entities don't throw exceptions
+	spawn an armor stand at test-location:
+		set {_armorstand} to entity
+	spawn a pig at test-location:
+		set {_pig} to entity
+
+	# Try to leash a non-leashable entity (should not throw exception)
+	leash {_armorstand} to {_pig}
+	assert {_armorstand} is not leashed with "Armor stand should not be leashed (not leashable)"
+	assert leash holder of {_armorstand} is not set with "Armor stand should have no leash holder"
+
+	# Clean up
+	clear entity within {_armorstand}
+	clear entity within {_pig}
+
+test "leashing multiple entities":
+	# Test leashing multiple entities at once
+	spawn a sheep, a cow and a pig at test-location:
+		add entity to {_animals::*}
+	spawn a villager at test-location:
+		set {_holder} to entity
+
+	# Leash all animals to the villager
+	leash {_animals::*} to {_holder}
+
+	loop {_animals::*}:
+		assert loop-value is leashed with "Animal %loop-value% should be leashed"
+		assert leash holder of loop-value is {_holder} with "Animal's leash holder should be the villager"
+
+	# Unleash all animals
+	unleash {_animals::*}
+
+	loop {_animals::*}:
+		assert loop-value is not leashed with "Animal %loop-value% should not be leashed after unleashing"
+
+	# Clean up
+	clear entities within {_animals::*}
+	clear entity within {_holder}
+
+test "alternative leash syntax":
+	# Test the alternative "make X leash Y" syntax
+	spawn a wolf at test-location:
+		set {_wolf} to entity
+	spawn a player at test-location:
+		set {_player} to entity
+
+	# Use alternative syntax
+	make {_player} leash {_wolf}
+	assert {_wolf} is leashed with "Wolf should be leashed using alternative syntax"
+	assert leash holder of {_wolf} is {_player} with "Wolf's leash holder should be the player"
+
+	# Clean up
+	unleash holder of {_wolf}
+	clear entity within {_wolf}
+	clear entity within {_player}
+
+test "leash holder returns null for non-leashable":
+	# Test that getting leash holder of non-leashable entities returns null without exception
+	spawn an ender crystal at test-location:
+		set {_crystal} to entity
+
+	set {_holder} to leash holder of {_crystal}
+	assert {_holder} is not set with "Leash holder of non-leashable entity should be null"
+
+	# Clean up
+	clear entity within {_crystal}
+
+test "leash holder returns null for unleashed entity":
+	# Test that getting leash holder of unleashed leashable entity returns null
+	spawn a horse at test-location:
+		set {_horse} to entity
+
+	set {_holder} to leash holder of {_horse}
+	assert {_holder} is not set with "Leash holder of unleashed entity should be null"
+
+	# Clean up
+	clear entity within {_horse}
+
