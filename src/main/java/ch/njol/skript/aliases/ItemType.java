@@ -422,7 +422,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 		//copy name from itemmeta to block container
 		if (itemMeta.hasDisplayName()) {
-			if (CUSTOM_NAME_EXISTS)
+			if (ITEMMETA_CUSTOMNAME_EXISTS)
 				blockContainer.customName(itemMeta.customName());
 			else
 				blockContainer.customName(itemMeta.displayName());
