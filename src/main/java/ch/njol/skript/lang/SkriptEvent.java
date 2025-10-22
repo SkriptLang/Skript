@@ -202,13 +202,6 @@ public abstract class SkriptEvent extends Structure {
 	}
 
 	/**
-	 * @return the id of the event
-	 */
-	public String getEventId() {
-		return skriptEventInfo.getId();
-	}
-
-	/**
 	 * @return the {@link EventPriority} to be used for this event.
 	 * Defined by the user-specified priority, or otherwise the default event priority.
 	 */

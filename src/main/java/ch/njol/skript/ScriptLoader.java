@@ -872,8 +872,8 @@ public class ScriptLoader {
 		}
 
 		ParserInstance parser = getParser();
-		Comparator<Structure> unloadComparator = Comparator.comparing(struct-> !(struct instanceof StructEvent structEvent
-			&& structEvent.getSkriptEvent().getEventId().equals("script_loadunload")));
+		Comparator<Structure> unloadComparator = Comparator.comparing(struct -> struct.getPriority().getPriority());
+		unloadComparator = unloadComparator.reversed();
 
 		// initial unload stage
 		for (Script script : scripts) {
@@ -888,8 +888,10 @@ public class ScriptLoader {
 			List<Structure> structures = new ArrayList<>(script.getStructures());
 			structures.sort(unloadComparator);
 
-			for (Structure structure : structures)
+			for (Structure structure : structures) {
+				Skript.adminBroadcast(structure.toString() + " - " + structure.getPriority().getPriority());
 				structure.unload();
+			}
 		}
 
 		parser.setInactive();
