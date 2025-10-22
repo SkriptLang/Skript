@@ -421,14 +421,16 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			return;
 
 		//copy name from itemmeta to block container
-		if (itemMeta.hasDisplayName()) {
-			if (ITEMMETA_CUSTOMNAME_EXISTS) {
+		if (ITEMMETA_CUSTOMNAME_EXISTS) {
+			if (itemMeta.hasCustomName()) {
 				blockContainer.customName(itemMeta.customName());
-			} else {
-				blockContainer.customName(itemMeta.displayName());
+				blockContainer.update();
 			}
-
-			blockContainer.update();
+		} else {
+			if (itemMeta.hasDisplayName()) {
+				blockContainer.customName(itemMeta.displayName());
+				blockContainer.update();
+			}
 		}
 
 		// ensure the item has a block state
