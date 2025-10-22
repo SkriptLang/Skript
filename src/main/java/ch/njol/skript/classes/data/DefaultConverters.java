@@ -1,6 +1,7 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.command.Commands;
@@ -41,6 +42,7 @@ import org.skriptlang.skript.lang.script.Script;
 
 import java.util.UUID;
 
+@SuppressWarnings("removal") // temporary due to usage of AnyX classes.
 public class DefaultConverters {
 
 	public DefaultConverters() {}
@@ -159,91 +161,94 @@ public class DefaultConverters {
 			return null;
 		}, Converter.NO_CHAINING);
 
-		// Anything with a name -> AnyNamed
-		Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, player -> player::getName, Converter.NO_RIGHT_CHAINING);
-		if (Skript.classExists("org.bukkit.generator.WorldInfo"))
-			Converters.registerConverter(World.class, AnyNamed.class, world -> world::getName, Converter.NO_RIGHT_CHAINING);
-		else //noinspection RedundantCast getName method is on World itself in older versions
-			Converters.registerConverter(World.class, AnyNamed.class, world -> () -> ((World) world).getName(), Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(GameRule.class, AnyNamed.class, rule -> rule::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Server.class, AnyNamed.class, server -> server::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Plugin.class, AnyNamed.class, plugin -> plugin::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(WorldType.class, AnyNamed.class, type -> type::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Team.class, AnyNamed.class, team -> team::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Objective.class, AnyNamed.class, objective -> objective::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			nameable -> new AnyNamed() {
-				@Override
-				public @UnknownNullability String name() {
-					//noinspection deprecation
-					return nameable.getCustomName();
-				}
 
-				@Override
-				public boolean supportsNameChange() {
-					return true;
-				}
-
-				@Override
-				public void setName(String name) {
-					//noinspection deprecation
-					nameable.setCustomName(name);
-				}
-			},
-			//</editor-fold>
-			Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Block.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			block -> new AnyNamed() {
-				@Override
-				public @UnknownNullability String name() {
-					BlockState state = block.getState();
-					if (state instanceof Nameable nameable)
+		if (!SkriptConfig.useTypeProperties.value()) {
+			// Anything with a name -> AnyNamed
+			Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, player -> player::getName, Converter.NO_RIGHT_CHAINING);
+			if (Skript.classExists("org.bukkit.generator.WorldInfo"))
+				Converters.registerConverter(World.class, AnyNamed.class, world -> world::getName, Converter.NO_RIGHT_CHAINING);
+			else //noinspection RedundantCast getName method is on World itself in older versions
+				Converters.registerConverter(World.class, AnyNamed.class, world -> () -> ((World) world).getName(), Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(GameRule.class, AnyNamed.class, rule -> rule::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(Server.class, AnyNamed.class, server -> server::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(Plugin.class, AnyNamed.class, plugin -> plugin::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(WorldType.class, AnyNamed.class, type -> type::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(Team.class, AnyNamed.class, team -> team::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(Objective.class, AnyNamed.class, objective -> objective::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+				nameable -> new AnyNamed() {
+					@Override
+					public @UnknownNullability String name() {
 						//noinspection deprecation
 						return nameable.getCustomName();
-					return null;
-				}
+					}
 
-				@Override
-				public boolean supportsNameChange() {
-					return true;
-				}
+					@Override
+					public boolean supportsNameChange() {
+						return true;
+					}
 
-				@Override
-				public void setName(String name) {
-					BlockState state = block.getState();
-					if (state instanceof Nameable nameable) {
+					@Override
+					public void setName(String name) {
 						//noinspection deprecation
 						nameable.setCustomName(name);
-						state.update(true, false);
 					}
-				}
-			},
-			//</editor-fold>
-			Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(CommandSender.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		// Command senders should be done last because there might be a better alternative above
+				},
+				//</editor-fold>
+				Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(Block.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+				block -> new AnyNamed() {
+					@Override
+					public @UnknownNullability String name() {
+						BlockState state = block.getState();
+						if (state instanceof Nameable nameable)
+							//noinspection deprecation
+							return nameable.getCustomName();
+						return null;
+					}
 
-		// Anything with an amount -> AnyAmount
-		Converters.registerConverter(ItemStack.class, AnyAmount.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			item -> new AnyAmount() {
+					@Override
+					public boolean supportsNameChange() {
+						return true;
+					}
 
-				@Override
-				public @NotNull Number amount() {
-					return item.getAmount();
-				}
+					@Override
+					public void setName(String name) {
+						BlockState state = block.getState();
+						if (state instanceof Nameable nameable) {
+							//noinspection deprecation
+							nameable.setCustomName(name);
+							state.update(true, false);
+						}
+					}
+				},
+				//</editor-fold>
+				Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(CommandSender.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+			// Command senders should be done last because there might be a better alternative above
 
-				@Override
-				public boolean supportsAmountChange() {
-					return true;
-				}
+			// Anything with an amount -> AnyAmount
+			Converters.registerConverter(ItemStack.class, AnyAmount.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+				item -> new AnyAmount() {
 
-				@Override
-				public void setAmount(Number amount) {
-					item.setAmount(amount != null ? amount.intValue() : 0);
-				}
-			},
-			//</editor-fold>
-			Converter.NO_RIGHT_CHAINING);
+					@Override
+					public @NotNull Number amount() {
+						return item.getAmount();
+					}
+
+					@Override
+					public boolean supportsAmountChange() {
+						return true;
+					}
+
+					@Override
+					public void setAmount(Number amount) {
+						item.setAmount(amount != null ? amount.intValue() : 0);
+					}
+				},
+				//</editor-fold>
+				Converter.NO_RIGHT_CHAINING);
+		}
 
 		// InventoryHolder - Location
 		// since the individual ones can't be trusted to chain.

@@ -1,84 +1,86 @@
 package ch.njol.skript.entity;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.Patterns;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.Creeper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-
-/**
- * @author Peter Güttinger
- */
 public class CreeperData extends EntityData<Creeper> {
+
+	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
+		{"creeper", Kleenean.UNKNOWN},
+		{"powered creeper", Kleenean.TRUE},
+		{"unpowered creeper", Kleenean.FALSE}
+	});
+
 	static {
-		EntityData.register(CreeperData.class, "creeper", Creeper.class, 1, "unpowered creeper", "creeper", "powered creeper");
+		EntityData.register(CreeperData.class, "creeper", Creeper.class, 0, PATTERNS.getPatterns());
 	}
 	
-	private int powered = 0;
+	private Kleenean powered = Kleenean.UNKNOWN;
+
+	public CreeperData() {}
+
+	public CreeperData(@Nullable Kleenean powered)  {
+		this.powered = powered != null ? powered : Kleenean.UNKNOWN;
+		super.codeNameIndex = PATTERNS.getMatchedPattern(this.powered, 0).orElseThrow();
+	}
 	
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		powered = matchedPattern - 1;
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		powered = PATTERNS.getInfo(matchedCodeName);
 		return true;
 	}
 	
 	@Override
-	protected boolean init(final @Nullable Class<? extends Creeper> c, final @Nullable Creeper e) {
-		powered = e == null ? 0 : e.isPowered() ? 1 : -1;
+	protected boolean init(@Nullable Class<? extends Creeper> entityClass, @Nullable Creeper creeper) {
+		if (creeper != null) {
+			powered = Kleenean.get(creeper.isPowered());
+			super.codeNameIndex = PATTERNS.getMatchedPattern(powered, 0).orElseThrow();
+		}
 		return true;
 	}
 	
 	@Override
-	public void set(final Creeper c) {
-		if (powered != 0)
-			c.setPowered(powered == 1);
+	public void set(Creeper creeper) {
+		creeper.setPowered(powered.isTrue());
 	}
 	
 	@Override
-	public boolean match(final Creeper entity) {
-		return powered == 0 || entity.isPowered() == (powered == 1);
+	public boolean match(Creeper creeper) {
+		return kleeneanMatch(powered, creeper.isPowered());
 	}
 	
 	@Override
 	public Class<Creeper> getType() {
 		return Creeper.class;
 	}
-	
+
 	@Override
-	protected int hashCode_i() {
-		return powered;
-	}
-	
-	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof CreeperData))
-			return false;
-		final CreeperData other = (CreeperData) obj;
-		return powered == other.powered;
-	}
-	
-//		return "" + powered;
-	@Override
-	protected boolean deserialize(final String s) {
-		try {
-			powered = Integer.parseInt(s);
-			return true;
-		} catch (final NumberFormatException e) {
-			return false;
-		}
-	}
-	
-	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		if (e instanceof CreeperData)
-			return powered == 0 || ((CreeperData) e).powered == powered;
-		return false;
-	}
-	
-	@Override
-	public @NotNull EntityData getSuperType() {
+	public @NotNull EntityData<?> getSuperType() {
 		return new CreeperData();
 	}
-	
+
+	@Override
+	protected int hashCode_i() {
+		return powered.hashCode();
+	}
+
+	@Override
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof CreeperData other))
+			return false;
+		return powered == other.powered;
+	}
+
+	@Override
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof CreeperData other))
+			return false;
+		return kleeneanMatch(powered, other.powered);
+	}
+
 }

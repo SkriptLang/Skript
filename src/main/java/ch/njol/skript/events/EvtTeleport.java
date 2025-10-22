@@ -5,12 +5,18 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.entity.EntityType;
+import ch.njol.skript.registrations.EventConverter;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.coll.CollectionUtils;
+
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.Nullable;
+
+import static ch.njol.skript.registrations.EventValues.TIME_PAST;
 
 public class EvtTeleport extends SkriptEvent {
 
@@ -26,6 +32,53 @@ public class EvtTeleport extends SkriptEvent {
 				"on creeper teleport:"
 			)
 			.since("1.0, 2.9.0 (entity teleport)");
+
+		EventValues.registerEventValue(PlayerTeleportEvent.class, Location.class, new EventConverter<>() {
+			@Override
+			public void set(PlayerTeleportEvent event, Location value) {
+				event.setFrom(value.clone());
+			}
+
+			@Override
+			public Location convert(PlayerTeleportEvent event) {
+				return event.getFrom();
+			}
+		}, TIME_PAST);
+		EventValues.registerEventValue(PlayerTeleportEvent.class, Location.class, new EventConverter<>() {
+			@Override
+			public void set(PlayerTeleportEvent event, Location value) {
+				event.setTo(value.clone());
+			}
+
+			@Override
+			public Location convert(PlayerTeleportEvent event) {
+				return event.getTo();
+			}
+		});
+
+		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, new EventConverter<>() {
+			@Override
+			public void set(EntityTeleportEvent event, Location value) {
+				event.setFrom(value.clone());
+			}
+
+			@Override
+			public Location convert(EntityTeleportEvent event) {
+				return event.getFrom();
+			}
+		}, TIME_PAST);
+		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, new EventConverter<>() {
+			@Override
+			public void set(EntityTeleportEvent event, Location value) {
+				event.setTo(value.clone());
+			}
+
+			@Override
+			public Location convert(EntityTeleportEvent event) {
+				return event.getTo();
+			}
+		});
+
 	}
 
 	@Nullable

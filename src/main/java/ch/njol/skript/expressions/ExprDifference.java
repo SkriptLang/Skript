@@ -150,9 +150,9 @@ public class ExprDifference extends SimpleExpression<Object> {
 		}
 
 		assert differenceInfo != null; // it cannot be null here
-		Object[] one = (Object[]) Array.newInstance(differenceInfo.getReturnType(), 1);
+		Object[] one = (Object[]) Array.newInstance(differenceInfo.returnType(), 1);
 
-		one[0] = differenceInfo.getOperation().calculate(first, second);
+		one[0] = differenceInfo.operation().calculate(first, second);
 
 		return one;
 	}
@@ -164,7 +164,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return differenceInfo == null ? Object.class : differenceInfo.getReturnType();
+		return differenceInfo == null ? Object.class : differenceInfo.returnType();
 	}
 
 	@Override

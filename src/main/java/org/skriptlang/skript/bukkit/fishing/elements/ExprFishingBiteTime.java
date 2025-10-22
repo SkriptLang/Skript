@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	"on fish approach:",
 		"\tset fishing bite time to 5 seconds",
 })
-@RequiredPlugins("Paper 1.20.6")
+@RequiredPlugins("Minecraft 1.20.6")
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {

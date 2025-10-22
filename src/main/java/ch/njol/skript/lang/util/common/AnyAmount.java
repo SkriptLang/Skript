@@ -1,15 +1,18 @@
 package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
 
 /**
  * A provider for anything with a (number) amount/size.
- * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprAmount}
+ * Anything implementing this (or convertible to this) can be used by the {@link PropExprAmount}
  * property expression.
  *
  * @see AnyProvider
+ * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#AMOUNT} instead.
  */
 @FunctionalInterface
+@Deprecated(since="2.13", forRemoval = true)
 public interface AnyAmount extends AnyProvider {
 
 	/**

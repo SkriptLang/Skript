@@ -39,11 +39,11 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		try {
 			hintManager.enterScope(false);
 			for (Parameter<?> parameter : sign.getParameters()) {
-				String hintName = parameter.getName();
+				String hintName = parameter.name();
 				if (!parameter.isSingleValue()) {
 					hintName += Variable.SEPARATOR + "*";
 				}
-				hintManager.set(hintName, parameter.getType().getC());
+				hintManager.set(hintName, parameter.type());
 			}
 			trigger = loadReturnableTrigger(node, "function " + sign.getName(), new SimpleEvent());
 		} finally {

@@ -23,8 +23,7 @@ public class EvtBeaconToggle extends SkriptEvent {
 					"on beacon activate:",
 					"on beacon deactivate:"
 				)
-				.since("2.10")
-				.requiredPlugins("Paper");
+				.since("2.10");
 	}
 
 	private boolean isActivate, isToggle;
