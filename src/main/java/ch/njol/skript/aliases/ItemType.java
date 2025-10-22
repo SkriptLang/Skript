@@ -408,6 +408,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return false;
 	}
 
+	private static final boolean CUSTOM_NAME_EXISTS = Skript.methodExists(ItemMeta.class, "customName");
+
 	/**
 	 * Copies the container state from the item meta to the block state
 	 * @param block The block to copy the state to
@@ -420,7 +422,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 		//copy name from itemmeta to block container
 		if (itemMeta.hasDisplayName()) {
-			blockContainer.customName(itemMeta.customName());
+			if(CUSTOM_NAME_EXISTS)
+				blockContainer.customName(itemMeta.customName());
+			else
+				blockContainer.customName(itemMeta.displayName());
+
 			blockContainer.update();
 		}
 
