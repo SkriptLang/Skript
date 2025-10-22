@@ -417,7 +417,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	private void copyContainerState(@NotNull Block block, @NotNull ItemMeta itemMeta) {
 		// only copy container state if block is container
-		if(!(block.getState() instanceof org.bukkit.block.Container blockContainer))
+		if (!(block.getState() instanceof org.bukkit.block.Container blockContainer))
 			return;
 
 		//copy name from itemmeta to block container
