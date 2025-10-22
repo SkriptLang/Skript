@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.data.JavaClasses;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -15,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+import java.util.Collection;
 import java.util.List;
 
 @Name("Exit")
@@ -88,6 +90,42 @@ public class EffExit extends Effect {
 				breakLevels = innerSections.size();
 			}
 		}
+
+		Collection<SectionNode> delaySections = getParser().getDelaySections();
+
+		if (getParser().getCurrentSection(TriggerSection.class) instanceof Section currentSection
+			&& currentSection.getNode() instanceof SectionNode currentNode) {
+
+			// set hasDelay to false if the only delayed section is the current one
+			if (delaySections.size() == 1 && delaySections.contains(currentNode)) {
+				getParser().setHasDelayBefore(Kleenean.FALSE);
+			}
+			// set hasDelay to false if only child sections are delayed
+			else if (delaySections.size() >= 1) {
+				boolean isOnlyChildSectionsDelayed = true;
+				for (SectionNode delaySection : delaySections) {
+					if(delaySection == null)
+						continue;
+					// check if currentNode is parent of delaySection
+					boolean isChildSection = false;
+					SectionNode section = delaySection;
+					while (section.getParent() != null) {
+						section = section.getParent();
+						if (section == currentNode) {
+							isChildSection = true;
+							break;
+						}
+					}
+					if (!isChildSection) {
+						isOnlyChildSectionsDelayed = false;
+						break;
+					}
+				}
+				if (isOnlyChildSectionsDelayed)
+					getParser().setHasDelayBefore(Kleenean.FALSE);
+			}
+		}
+
         assert innerSections != null;
 		sectionsToExit = innerSections.stream()
 			.filter(SectionExitHandler.class::isInstance)

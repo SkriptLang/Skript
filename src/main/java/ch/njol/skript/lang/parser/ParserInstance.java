@@ -5,10 +5,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.TriggerSection;
+import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.variables.HintManager;
@@ -400,6 +398,7 @@ public final class ParserInstance implements Experimented {
 	// Delay API
 
 	private Kleenean hasDelayBefore = Kleenean.FALSE;
+	private final Collection<SectionNode> delaySectionNodes = new HashSet<>();
 
 	/**
 	 * This method should be called to indicate that
@@ -409,6 +408,14 @@ public final class ParserInstance implements Experimented {
 	 */
 	public void setHasDelayBefore(Kleenean hasDelayBefore) {
 		this.hasDelayBefore = hasDelayBefore;
+		if (hasDelayBefore == Kleenean.TRUE
+			&& getCurrentSection(TriggerSection.class) instanceof Section
+			&& getCurrentSection(Section.class).getNode() instanceof SectionNode sectionNode) {
+
+			delaySectionNodes.add(sectionNode);
+		} else if (hasDelayBefore == Kleenean.FALSE) {
+			delaySectionNodes.clear();
+		}
 	}
 
 	/**
@@ -420,6 +427,13 @@ public final class ParserInstance implements Experimented {
 	 */
 	public Kleenean getHasDelayBefore() {
 		return hasDelayBefore;
+	}
+
+	/**
+	 * @return the sections from which a delay has occurred.
+	 */
+	public Collection<SectionNode> getDelaySections() {
+		return delaySectionNodes;
 	}
 
 	// Logging API
