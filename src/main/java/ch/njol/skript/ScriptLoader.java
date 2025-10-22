@@ -15,6 +15,7 @@ import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.structures.StructEvent;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
@@ -43,6 +44,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -870,6 +872,8 @@ public class ScriptLoader {
 		}
 
 		ParserInstance parser = getParser();
+		Comparator<Structure> unloadComparator = Comparator.comparing(struct-> !(struct instanceof StructEvent structEvent
+			&& structEvent.getSkriptEvent().getEventId().equals("script_loadunload")));
 
 		// initial unload stage
 		for (Script script : scripts) {
@@ -881,7 +885,10 @@ public class ScriptLoader {
 			script.eventRegistry().events(ScriptUnloadEvent.class)
 					.forEach(event -> event.onUnload(parser, script));
 
-			for (Structure structure : script.getStructures())
+			List<Structure> structures = new ArrayList<>(script.getStructures());
+			structures.sort(unloadComparator);
+
+			for (Structure structure : structures)
 				structure.unload();
 		}
 
@@ -890,7 +897,8 @@ public class ScriptLoader {
 		// finish unloading + data collection
 		ScriptInfo info = new ScriptInfo();
 		for (Script script : scripts) {
-			List<Structure> structures = script.getStructures();
+			List<Structure> structures = new ArrayList<>(script.getStructures());
+			structures.sort(unloadComparator);
 
 			info.files++;
 			info.structures += structures.size();
