@@ -408,7 +408,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return false;
 	}
 
-	private static final boolean CUSTOM_NAME_EXISTS = Skript.methodExists(ItemMeta.class, "customName");
+	private static final boolean ITEMMETA_CUSTOMNAME_EXISTS = Skript.methodExists(ItemMeta.class, "customName");
 
 	/**
 	 * Copies the container state from the item meta to the block state
