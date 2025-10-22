@@ -887,7 +887,6 @@ public class ScriptLoader {
 			structures.sort(unloadComparator);
 
 			for (Structure structure : structures) {
-				Skript.adminBroadcast(structure.toString() + " - " + structure.getPriority().getPriority());
 				structure.unload();
 			}
 		}
