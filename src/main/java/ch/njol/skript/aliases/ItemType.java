@@ -414,13 +414,22 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @param itemMeta The item meta to copy the state from
 	 */
 	private void copyContainerState(@NotNull Block block, @NotNull ItemMeta itemMeta) {
+		// only copy container state if block is container
+		if(!(block.getState() instanceof org.bukkit.block.Container blockContainer))
+			return;
+
+		//copy name from itemmeta to block container
+		if (itemMeta.hasDisplayName()) {
+			blockContainer.customName(itemMeta.customName());
+			blockContainer.update();
+		}
+
 		// ensure the item has a block state
 		if (!(itemMeta instanceof BlockStateMeta blockStateMeta) || !blockStateMeta.hasBlockState())
 			return;
 
-		// only care about container -> container copying
-		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer)
-				|| !(block.getState() instanceof org.bukkit.block.Container blockContainer))
+		// only copy inventory if itemmeta block state is a container
+		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer))
 			return;
 
 		// copy inventory from item to block
