@@ -16,6 +16,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import static ch.njol.skript.lang.SkriptParser.PARSE_EXPRESSIONS;
+import static ch.njol.skript.lang.SkriptParser.PARSE_LITERALS;
+
 public class ParsingConstraints {
 
 	private enum ExceptionMode {
@@ -158,18 +161,18 @@ public class ParsingConstraints {
 	public int asParseFlags() {
 		int flags = 0;
 		if (allowNonLiterals) {
-			flags |= SkriptParser.PARSE_EXPRESSIONS;
+			flags |= PARSE_EXPRESSIONS;
 		}
 		if (allowLiterals) {
-			flags |= SkriptParser.PARSE_LITERALS;
+			flags |= PARSE_LITERALS;
 		}
 		return flags;
 	}
 
 	@ApiStatus.Internal
 	public ParsingConstraints applyParseFlags(int flags) {
-		allowNonLiterals = (flags & SkriptParser.PARSE_EXPRESSIONS) != 0;
-		allowLiterals = (flags & SkriptParser.PARSE_LITERALS) != 0;
+		allowNonLiterals = (flags & PARSE_EXPRESSIONS) != 0;
+		allowLiterals = (flags & PARSE_LITERALS) != 0;
 		return this;
 	}
 
