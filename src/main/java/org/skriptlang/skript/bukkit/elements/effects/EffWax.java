@@ -23,7 +23,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-import org.skriptlang.skript.util.ReflectUtils;
 
 @Name("Wax")
 @Description("""
@@ -41,7 +40,6 @@ import org.skriptlang.skript.util.ReflectUtils;
 @RequiredPlugins("Minecraft 1.21.9+ (copper golems)")
 @Since("INSERT VERSION")
 public class EffWax extends Effect {
-
 
 	private static final BiMap<Material, Material> WAX_CONVERSION;
 	private static final BiMap<Material, Material> UNWAX_CONVERSION = HashBiMap.create();

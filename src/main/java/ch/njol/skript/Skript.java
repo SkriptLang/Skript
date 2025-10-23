@@ -187,7 +187,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static org.skriptlang.skript.@UnknownNullability Skript skript = null;
 	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
-	private static final ReflectUtils REFLECT_UTILS = ReflectUtils.getInstance();
+	private static ReflectUtils REFLECT_UTILS;
 
 	private static boolean disabled = false;
 	private static boolean partDisabled = false;
@@ -407,6 +407,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		handleJvmArguments(); // JVM arguments
 
 		version = new Version("" + getDescription().getVersion()); // Skript version
+		REFLECT_UTILS = new ReflectUtils();
 
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
@@ -2083,27 +2084,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * @param className The full package and class name.
-	 * @param methodName The name of the method.
-	 * @param params The {@link Class}es used as parameters for the desired method.
-	 * @return Whether the method exists.
-	 */
-	public static boolean methodExists(String className, String methodName, Class<?> @Nullable ... params) {
-		return REFLECT_UTILS.methodExists(className, methodName, params);
-	}
-
-	/**
-	 * @param className The full package and class name.
-	 * @param methodName The name of the method.
-	 * @param params The {@link Class}es used as parameters for the desired method.
-	 * @param returnType The return type of the desired method.
-	 * @return Whether the method exists.
-	 */
-	public static boolean methodExists(String className, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnType) {
-		return REFLECT_UTILS.methodExists(className, methodName, params, returnType);
-	}
-
-	/**
 	 * Tests whether a method exists in the given class.
 	 *
 	 * @param c The class
@@ -2131,27 +2111,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * @param className The full package and class name.
-	 * @param methodName The name of the method.
-	 * @param params The {@link Class}es used as parameters for the desired method.
-	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
-	 */
-	public static @Nullable Method getMethod(String className, String methodName, Class<?> @Nullable ... params) {
-		return REFLECT_UTILS.getMethod(className, methodName, params);
-	}
-
-	/**
-	 * @param className The full package and class name.
-	 * @param methodName The name of the method.
-	 * @param params The {@link Class}es used as parameters for the desired method.
-	 * @param returnType The return type of the desired method.
-	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
-	 */
-	public static @Nullable Method getMethod(String className, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnType) {
-		return REFLECT_UTILS.getMethod(className, methodName, params, returnType);
-	}
-
-	/**
 	 * @param c The {@link Class} to get the method from.
 	 * @param methodName The name of the method.
 	 * @param params The {@link Class}es used as parameters for the desired method.
@@ -2173,15 +2132,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * @param className The full package and class name.
-	 * @param fieldName The name of the field.
-	 * @return Whether the field exists.
-	 */
-	public static boolean fieldExists(String className, String fieldName) {
-		return REFLECT_UTILS.fieldExists(className, fieldName);
-	}
-
-	/**
 	 * Tests whether a field exists in the given class.
 	 *
 	 * @param c The class
@@ -2190,15 +2140,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	public static boolean fieldExists(Class<?> c, String fieldName) {
 		return REFLECT_UTILS.fieldExists(c, fieldName);
-	}
-
-	/**
-	 * @param className The full package and class name.
-	 * @param fieldName The name of the field.
-	 * @return The resulting {@link Field} if it exists, otherwise {@code null}.
-	 */
-	public static @Nullable Field getField(String className, String fieldName) {
-		return REFLECT_UTILS.getField(className, fieldName);
 	}
 
 	/**
@@ -2216,8 +2157,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return The result of the invocation if successful, otherwise {@code null}.
 	 * @param <Type> The expected return type from the invocation.
 	 */
-	public static <Type> @Nullable Type methodInvoke(Method method) {
-		return REFLECT_UTILS.methodInvoke(method);
+	public static <Type> @Nullable Type invokeMethod(Method method) {
+		return REFLECT_UTILS.invokeMethod(method);
 	}
 
 	/**
@@ -2228,8 +2169,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return The result of the invocation if successful, otherwise {@code null}.
 	 * @param <Type> The expected return type from the invocation.
 	 */
-	public static <Type> @Nullable Type methodInvoke(Method method, @Nullable Object holder, Object @Nullable ... params) {
-		return REFLECT_UTILS.methodInvoke(method, holder, params);
+	public static <Type> @Nullable Type invokeMethod(Method method, @Nullable Object holder, Object @Nullable ... params) {
+		return REFLECT_UTILS.invokeMethod(method, holder, params);
 	}
 
 	/**
@@ -2238,8 +2179,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public static <Type> @Nullable Type fieldGet(Field field) {
-		return REFLECT_UTILS.fieldGet(field);
+	public static <Type> @Nullable Type invokeField(Field field) {
+		return REFLECT_UTILS.invokeField(field);
 	}
 
 	/**
@@ -2249,8 +2190,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public static <Type> @Nullable Type fieldGet(Field field, @Nullable Object holder) {
-		return REFLECT_UTILS.fieldGet(field, holder);
+	public static <Type> @Nullable Type invokeField(Field field, @Nullable Object holder) {
+		return REFLECT_UTILS.invokeField(field, holder);
 	}
 	//</editor-fold>
 

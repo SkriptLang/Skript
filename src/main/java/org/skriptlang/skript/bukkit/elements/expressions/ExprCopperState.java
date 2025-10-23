@@ -8,7 +8,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.skriptlang.skript.bukkit.paperutil.CopperState;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.MaterialTags;
 import io.papermc.paper.world.WeatheringCopperState;
@@ -17,8 +16,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.paperutil.CopperState;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-import org.skriptlang.skript.util.ReflectUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class ExprCopperState extends SimplePropertyExpression<Object, Object> {
 
-	// TODO: Remove 'CopperState' and change all instances of 'Enum<?>' to 'WeatheringCopperState'
+	// TODO: Remove 'CopperState' and change all instances of 'Enum<?>' to 'WeatheringCopperState' when 1.21.9+ is minimum version.
 
 	private static final CopperStateMaterialMap STATE_MATERIALS = new CopperStateMaterialMap();
 	private static final List<String> STATE_REPLACEMENTS = new ArrayList<>();

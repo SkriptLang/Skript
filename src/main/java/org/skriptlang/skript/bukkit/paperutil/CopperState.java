@@ -2,11 +2,13 @@ package org.skriptlang.skript.bukkit.paperutil;
 
 import ch.njol.skript.Skript;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.skriptlang.skript.bukkit.elements.expressions.ExprCopperState;
 
 import java.lang.reflect.Method;
 
 /**
- * Temp enum to mimic 'WeatheringCopperState'.
+ * Temporary enum to mimic 'WeatheringCopperState' to utilizes copper states such as for {@link ExprCopperState}.
+ * Can be removed when 1.21.9+ is the minimum supported version.
  */
 @Internal
 public enum CopperState {
@@ -21,7 +23,7 @@ public enum CopperState {
 		WEATHERING_CLASS = Skript.getClass("io.papermc.paper.world.WeatheringCopperState");
 		if (WEATHERING_CLASS != null) {
 			Method valuesMethod = Skript.getMethod(WEATHERING_CLASS, "values");
-			WEATHERING_VALUES = Skript.methodInvoke(valuesMethod);
+			WEATHERING_VALUES = Skript.invokeMethod(valuesMethod);
 			WEATHERING_VALUE_METHOD = Skript.getMethod(WEATHERING_CLASS, "valueOf", String.class);
 		} else {
 			WEATHERING_VALUES = null;
@@ -51,7 +53,7 @@ public enum CopperState {
 	 */
 	public static Enum<?> get(CopperState state) {
 		if (WEATHERING_CLASS != null)
-			return Skript.methodInvoke(WEATHERING_VALUE_METHOD, null, state.name());
+			return Skript.invokeMethod(WEATHERING_VALUE_METHOD, null, state.name());
 		return state;
 	}
 

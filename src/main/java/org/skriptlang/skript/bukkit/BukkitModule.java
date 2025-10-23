@@ -27,9 +27,9 @@ public class BukkitModule implements AddonModule {
 			new BrewingModule()
 		);
 
-		Set<Consumer<SyntaxRegistry>> consumers = new HashSet<>();
+		Set<Consumer<SyntaxRegistry>> elementsToLoad = new HashSet<>();
 
-		consumers.addAll(Set.of(
+		elementsToLoad.addAll(Set.of(
 			CondIsWaxed::register,
 
 			EffWax::register,
@@ -38,12 +38,12 @@ public class BukkitModule implements AddonModule {
 		));
 
 		if (Skript.classExists("org.bukkit.entity.CopperGolem"))
-			consumers.add(ExprCopperGolemOxidationTime::register);
+			elementsToLoad.add(ExprCopperGolemOxidationTime::register);
 		if (Skript.classExists("org.bukkit.block.data.type.CopperGolemStatue"))
-			consumers.add(ExprCopperGolemPose::register);
+			elementsToLoad.add(ExprCopperGolemPose::register);
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
-		consumers.forEach(consumer -> consumer.accept(registry));
+		elementsToLoad.forEach(consumer -> consumer.accept(registry));
 	}
 
 }
