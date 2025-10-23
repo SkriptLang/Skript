@@ -31,9 +31,7 @@ public class BukkitModule implements AddonModule {
 
 		elementsToLoad.addAll(Set.of(
 			CondIsWaxed::register,
-
 			EffWax::register,
-
 			ExprCopperState::register
 		));
 

@@ -187,7 +187,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static org.skriptlang.skript.@UnknownNullability Skript skript = null;
 	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
-	private static ReflectUtils REFLECT_UTILS;
+	private static final ReflectUtils REFLECT_UTILS = new ReflectUtils();
 
 	private static boolean disabled = false;
 	private static boolean partDisabled = false;
@@ -407,7 +407,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		handleJvmArguments(); // JVM arguments
 
 		version = new Version("" + getDescription().getVersion()); // Skript version
-		REFLECT_UTILS = new ReflectUtils();
 
 		// Start the updater
 		// Note: if config prohibits update checks, it will NOT do network connections
@@ -2179,8 +2178,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public static <Type> @Nullable Type invokeField(Field field) {
-		return REFLECT_UTILS.invokeField(field);
+	public static <Type> @Nullable Type getFieldValue(Field field) {
+		return REFLECT_UTILS.getFieldValue(field);
 	}
 
 	/**
@@ -2190,8 +2189,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public static <Type> @Nullable Type invokeField(Field field, @Nullable Object holder) {
-		return REFLECT_UTILS.invokeField(field, holder);
+	public static <Type> @Nullable Type getFieldValue(Field field, @Nullable Object holder) {
+		return REFLECT_UTILS.getFieldValue(field, holder);
 	}
 	//</editor-fold>
 

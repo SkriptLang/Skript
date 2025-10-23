@@ -177,8 +177,8 @@ public class ReflectUtils {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public <Type> @Nullable Type invokeField(Field field) {
-		return invokeField(field, null);
+	public <Type> @Nullable Type getFieldValue(Field field) {
+		return getFieldValue(field, null);
 	}
 
 	/**
@@ -188,7 +188,7 @@ public class ReflectUtils {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public <Type> @Nullable Type invokeField(Field field, @Nullable Object holder) {
+	public <Type> @Nullable Type getFieldValue(Field field, @Nullable Object holder) {
 		field.setAccessible(true);
 		try {
 			//noinspection unchecked
