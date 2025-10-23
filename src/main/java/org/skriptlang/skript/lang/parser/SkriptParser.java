@@ -227,7 +227,7 @@ public class SkriptParser {
 	 * {@link #parse(Key)} is preferred for parsing against a specific syntax.
 	 *
 	 * @param allowedSyntaxes The iterator of {@link SyntaxElementInfo} objects to parse against.
-	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}
+	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}
 	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
 	 * @param <E> The type of {@link SyntaxElement} that will be returned.
 	 */
@@ -262,7 +262,7 @@ public class SkriptParser {
 	 *
 	 * @param expectedTypeKey A {@link Key} that determines what
 	 *                           kind of syntax is expected as a result of the parsing.
-	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}
+	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}
 	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
 	 * @param <E> The type of {@link SyntaxElement} that will be returned.
 	 */
