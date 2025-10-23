@@ -1,7 +1,6 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -10,7 +9,6 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.FunctionRegistry;
@@ -37,12 +35,8 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.parser.ParsingConstraints;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -50,7 +44,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.regex.MatchResult;
@@ -202,103 +195,6 @@ public final class SkriptParser {
 
 	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxInfo<? extends T>> source) {
 		return newParser.parse(source);
-	}
-
-	/**
-	 * Checks whether the given element is restricted to specific events, and if so, whether the current event is allowed.
-	 * Prints errors.
-	 * @param element The syntax element to check.
-	 * @param parseResult The parse result for error information.
-	 * @return True if the element is allowed in the current event, false otherwise.
-	 */
-	private static boolean checkRestrictedEvents(SyntaxElement element, ParseResult parseResult) {
-		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
-			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-			if (!getParser().isCurrentEvent(supportedEvents)) {
-				Skript.error("'" + parseResult.expr + "' can only be used in " + EventRestrictedSyntax.supportedEventsNames(supportedEvents));
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Checks that {@code element} is an {@link ExperimentalSyntax} and, if so, ensures that its requirements are satisfied by the current {@link ExperimentSet}.
-	 * @param element The {@link SyntaxElement} to check.
-	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
-	 */
-	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
-		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
-			return true;
-		ExperimentSet experiments = getParser().getExperimentSet();
-		return experimentalSyntax.isSatisfiedBy(experiments);
-	}
-
-	/**
-	 * Returns the {@link DefaultExpression} from the first {@link ClassInfo} stored in {@code exprInfo}.
-	 *
-	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}.
-	 * @param pattern The pattern used to create {@link ExprInfo}.
-	 * @return {@link DefaultExpression}.
-	 * @throws SkriptAPIException If the {@link DefaultExpression} is not valid, produces an error message for the reasoning of failure.
-	 */
-	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
-		DefaultValueData data = getParser().getData(DefaultValueData.class);
-		ClassInfo<?> classInfo = exprInfo.classes[0];
-		DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
-		if (expr == null)
-			expr = classInfo.getDefaultExpression();
-
-		DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, 0);
-		if (errorType == null) {
-			assert expr != null;
-			return expr;
-		}
-
-		throw new SkriptAPIException(errorType.getError(List.of(classInfo.getCodeName()), pattern));
-	}
-
-	/**
-	 * Returns all {@link DefaultExpression}s from all the {@link ClassInfo}s embedded in {@code exprInfo} that are valid.
-	 *
-	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}s.
-	 * @param pattern The pattern used to create {@link ExprInfo}.
-	 * @return All available {@link DefaultExpression}s.
-	 * @throws SkriptAPIException If no {@link DefaultExpression}s are valid, produces an error message for the reasoning of failure.
-	 */
-	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
-		if (exprInfo.classes.length == 1)
-			return new ArrayList<>(List.of(getDefaultExpression(exprInfo, pattern)));
-
-		DefaultValueData data = getParser().getData(DefaultValueData.class);
-
-		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);
-		List<DefaultExpression<?>> passed = new ArrayList<>();
-		for (int i = 0; i < exprInfo.classes.length; i++) {
-			ClassInfo<?> classInfo = exprInfo.classes[i];
-			DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
-			if (expr == null)
-				expr = classInfo.getDefaultExpression();
-
-			String codeName = classInfo.getCodeName();
-			DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, i);
-
-			if (errorType != null) {
-				failed.computeIfAbsent(errorType, list -> new ArrayList<>()).add(codeName);
-			} else {
-				passed.add(expr);
-			}
-		}
-
-		if (!passed.isEmpty())
-			return passed;
-
-		List<String> errors = new ArrayList<>();
-		for (Entry<DefaultExpressionError, List<String>> entry : failed.entrySet()) {
-			String error = entry.getKey().getError(entry.getValue(), pattern);
-			errors.add(error);
-		}
-		throw new SkriptAPIException(StringUtils.join(errors, "\n"));
 	}
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);
