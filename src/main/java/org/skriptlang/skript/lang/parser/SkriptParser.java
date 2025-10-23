@@ -14,14 +14,12 @@ import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.simplification.Simplifiable;
-import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.patterns.MalformedPatternException;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.patterns.TypePatternElement;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -38,16 +36,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 
 public class SkriptParser {
-
-	@Deprecated(since = "INSERT VERSION")
-	public static final int PARSE_EXPRESSIONS = 1;
-	@Deprecated(since = "INSERT VERSION")
-	public static final int PARSE_LITERALS = 2;
-	@Deprecated(since = "INSERT VERSION")
-	public static final int ALL_FLAGS = PARSE_EXPRESSIONS | PARSE_LITERALS;
 
 	private static final Map<String, SkriptPattern> patterns = new ConcurrentHashMap<>();
 
@@ -57,8 +47,6 @@ public class SkriptParser {
 	 * <p>
 	 * group 1 is null for ',', otherwise it's one of and/or/nor (not necessarily lowercase).
 	 */
-	public static final Pattern LIST_SPLIT_PATTERN = Pattern.compile("\\s*,?\\s+(and|n?or)\\s+|\\s*,\\s*", Pattern.CASE_INSENSITIVE);
-	public static final Pattern OR_PATTERN = Pattern.compile("\\sor\\s", Pattern.CASE_INSENSITIVE);
 	protected boolean suppressMissingAndOrWarnings = SkriptConfig.disableMissingAndOrWarnings.value();
 
 	protected ParsingConstraints parsingConstraints;
@@ -196,30 +184,6 @@ public class SkriptParser {
 			return null;
 		}
 	}
-
-	/**
-	 * @deprecated use {@link #parse(String, ParsingConstraints, Iterator, ParseContext, String)} with
-	 * 	{@link ParsingConstraints#allowLiterals(boolean)} set to false and {@link ParseContext#DEFAULT}.
-	 */
-	@Deprecated
-	public static <T extends SyntaxElement> @Nullable T parseStatic(
-		String expr,
-		Iterator<? extends SyntaxInfo<? extends T>> source,
-		@Nullable String defaultError
-	) {
-		return parse(expr, ParsingConstraints.all().allowNonLiterals(false), source, ParseContext.DEFAULT, defaultError);
-	}
-
-	@Deprecated
-	public static <T extends SyntaxElement> @Nullable T parseStatic(
-		String expr,
-		Iterator<? extends SyntaxInfo<? extends T>> source,
-		ParseContext parseContext,
-		@Nullable String defaultError
-	) {
-		return parse(expr, ParsingConstraints.all().allowNonLiterals(false), source, parseContext, defaultError);
-	}
-
 
 	/**
 	 * Attempts to parse this parser's input against the given syntax.
@@ -521,66 +485,6 @@ public class SkriptParser {
 	 */
 	protected static ParserInstance getParser() {
 		return ParserInstance.get();
-	}
-
-	@Contract("-> this")
-	public SkriptParser suppressMissingAndOrWarnings() {
-		suppressMissingAndOrWarnings = true;
-		return this;
-	}
-
-	/**
-	 * @param types The types to include in the message
-	 * @return "not an x" or "neither an x, a y nor a z"
-	 */
-	public static String notOfType(Class<?>... types) {
-		if (types.length == 1) {
-			Class<?> type = types[0];
-			assert type != null;
-			return Language.get("not") + " " + Classes.getSuperClassInfo(type).getName().withIndefiniteArticle();
-		} else {
-			StringBuilder message = new StringBuilder(Language.get("neither") + " ");
-			for (int i = 0; i < types.length; i++) {
-				if (i != 0) {
-					if (i != types.length - 1) {
-						message.append(", ");
-					} else {
-						message.append(" ").append(Language.get("nor")).append(" ");
-					}
-				}
-				Class<?> c = types[i];
-				assert c != null;
-				ClassInfo<?> classInfo = Classes.getSuperClassInfo(c);
-				// if there's a registered class info,
-				if (classInfo != null) {
-					// use the article,
-					message.append(classInfo.getName().withIndefiniteArticle());
-				} else {
-					// otherwise fallback to class name
-					message.append(c.getName());
-				}
-			}
-			return message.toString();
-		}
-	}
-
-	public static String notOfType(ClassInfo<?>... types) {
-		if (types.length == 1) {
-			return Language.get("not") + " " + types[0].getName().withIndefiniteArticle();
-		} else {
-			StringBuilder message = new StringBuilder(Language.get("neither") + " ");
-			for (int i = 0; i < types.length; i++) {
-				if (i != 0) {
-					if (i != types.length - 1) {
-						message.append(", ");
-					} else {
-						message.append(" ").append(Language.get("nor")).append(" ");
-					}
-				}
-				message.append(types[i].getName().withIndefiniteArticle());
-			}
-			return message.toString();
-		}
 	}
 
 }
