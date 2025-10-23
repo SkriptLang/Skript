@@ -14,7 +14,7 @@ import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.paperutil.CopperState;
+import org.skriptlang.skript.bukkit.paperutil.CopperState;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
@@ -1162,13 +1162,12 @@ public class BukkitClasses {
 			.user("(weathering ?)?copper ?states?")
 			.name("Weathering Copper State")
 			.description("The weathering state of a copper golem or copper block.")
-			.requiredPlugins("Minecraft 1.21.9+")
 			.since("INSERT VERSION")
 		);
 
 		if (Skript.classExists("org.bukkit.block.data.type.CopperGolemStatue$Pose")) {
 			Classes.registerClass(new EnumClassInfo<>(CopperGolemStatue.Pose.class, "coppergolempose", "copper golem poses")
-				.user("copper ? golem ?(statue ?)?poses?")
+				.user("copper ?golem ?(statue ?)?poses?")
 				.name("Copper Golem Pose")
 				.description("The pose of a copper golem statue.")
 				.requiredPlugins("Minecraft 1.21.9+")

@@ -1,7 +1,7 @@
-package ch.njol.skript.paperutil;
+package org.skriptlang.skript.bukkit.paperutil;
 
+import ch.njol.skript.Skript;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.skriptlang.skript.util.ReflectUtils;
 
 import java.lang.reflect.Method;
 
@@ -18,11 +18,11 @@ public enum CopperState {
 	private static final Method WEATHERING_VALUE_METHOD;
 
 	static {
-		WEATHERING_CLASS = ReflectUtils.getClass("io.papermc.paper.world.WeatheringCopperState");
+		WEATHERING_CLASS = Skript.getClass("io.papermc.paper.world.WeatheringCopperState");
 		if (WEATHERING_CLASS != null) {
-			Method valuesMethod = ReflectUtils.getMethod(WEATHERING_CLASS, "values");
-			WEATHERING_VALUES = ReflectUtils.methodInvoke(valuesMethod);
-			WEATHERING_VALUE_METHOD = ReflectUtils.getMethod(WEATHERING_CLASS, "valueOf", String.class);
+			Method valuesMethod = Skript.getMethod(WEATHERING_CLASS, "values");
+			WEATHERING_VALUES = Skript.methodInvoke(valuesMethod);
+			WEATHERING_VALUE_METHOD = Skript.getMethod(WEATHERING_CLASS, "valueOf", String.class);
 		} else {
 			WEATHERING_VALUES = null;
 			WEATHERING_VALUE_METHOD = null;
@@ -36,15 +36,22 @@ public enum CopperState {
 		return WEATHERING_CLASS != null ? WEATHERING_CLASS : CopperState.class;
 	}
 
+	/**
+	 * @return The enum values for {@link CopperState} or 'WeatheringCopperState' if it exists.
+	 */
 	public static Enum<?>[] getValues() {
 		if (WEATHERING_CLASS != null)
 			return WEATHERING_VALUES;
 		return CopperState.values();
 	}
 
+	/**
+	 * @param state The {@link CopperState} enum value.
+	 * @return {@code state} or the state in 'WeatheringCopperState' if it exists.
+	 */
 	public static Enum<?> get(CopperState state) {
 		if (WEATHERING_CLASS != null)
-			return ReflectUtils.methodInvoke(WEATHERING_VALUE_METHOD, null, state.name());
+			return Skript.methodInvoke(WEATHERING_VALUE_METHOD, null, state.name());
 		return state;
 	}
 

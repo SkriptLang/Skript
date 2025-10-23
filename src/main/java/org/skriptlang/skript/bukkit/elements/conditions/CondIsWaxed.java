@@ -1,4 +1,4 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.elements.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -11,7 +11,7 @@ import com.destroystokyo.paper.MaterialTags;
 import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.CopperGolem.Oxidizing.Waxed;
-import org.skriptlang.skript.util.ReflectUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Waxed")
 @Description("Whether a copper golem or copper block is waxed.")
@@ -27,13 +27,18 @@ import org.skriptlang.skript.util.ReflectUtils;
 @Since("INSERT VERSION")
 public class CondIsWaxed extends PropertyCondition<Object> {
 
-	private static final boolean COPPER_GOLEM_EXISTS = ReflectUtils.classExists("org.bukkit.entity.CopperGolem");
+	private static final boolean COPPER_GOLEM_EXISTS = Skript.classExists("org.bukkit.entity.CopperGolem");
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		String type = "blocks";
 		if (Skript.classExists("org.bukkit.entity.CopperGolem"))
 			type = "entities/blocks";
-		register(CondIsWaxed.class, "waxed", type);
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			infoBuilder(CondIsWaxed.class, PropertyType.BE, "waxed", type)
+				.supplier(CondIsWaxed::new)
+				.build()
+		);
 	}
 
 	@Override

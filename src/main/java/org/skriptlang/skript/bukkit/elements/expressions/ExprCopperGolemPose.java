@@ -1,6 +1,5 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -14,6 +13,7 @@ import org.bukkit.block.data.type.CopperGolemStatue;
 import org.bukkit.block.data.type.CopperGolemStatue.Pose;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Copper Golem Statue Pose")
 @Description("The pose of a copper golem statue.")
@@ -23,9 +23,18 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprCopperGolemPose extends SimplePropertyExpression<Block, Pose> {
 
-	static {
-		if (Skript.classExists("org.bukkit.block.data.type.CopperGolemStatue"))
-			register(ExprCopperGolemPose.class, Pose.class, "copper golem [statue] pose[s]", "blocks");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprCopperGolemPose.class,
+				Pose.class,
+				"copper golem [statue] pose[s]",
+				"blocks",
+				false
+			).supplier(ExprCopperGolemPose::new)
+				.build()
+		);
 	}
 
 	@Override

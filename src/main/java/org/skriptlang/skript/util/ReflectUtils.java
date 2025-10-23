@@ -13,26 +13,36 @@ import java.util.Map;
  */
 public class ReflectUtils {
 
+	private static ReflectUtils instance;
+
+	private ReflectUtils() {}
+
+	public static ReflectUtils getInstance() {
+		if (instance == null)
+			instance = new ReflectUtils();
+		return instance;
+	}
+
 	/**
 	 * Cache for classes.
 	 */
-	private static final Map<String, Class<?>> CLASSES = new HashMap<>();
+	private final Map<String, Class<?>> CLASSES = new HashMap<>();
 
 	/**
 	 * Cache for methods of classes.
 	 */
-	private static final MethodMap METHODS = new MethodMap();
+	private final MethodMap METHODS = new MethodMap();
 
 	/**
 	 * Cache for fields of classes.
 	 */
-	private static final FieldMap FIELDS = new FieldMap();
+	private final FieldMap FIELDS = new FieldMap();
 
 	/**
 	 * @param className The full package and class name.
 	 * @return Whether the class exists.
 	 */
-	public static boolean classExists(String className) {
+	public boolean classExists(String className) {
 		return getClass(className) != null;
 	}
 
@@ -40,7 +50,7 @@ public class ReflectUtils {
 	 * @param className The full package and class name.
 	 * @return The resulting {@link Class} if found, otherwise {@code null}.
 	 */
-	public static @Nullable Class<?> getClass(String className) {
+	public @Nullable Class<?> getClass(String className) {
 		if (CLASSES.containsKey(className))
 			return CLASSES.get(className);
 		Class<?> c = null;
@@ -57,11 +67,22 @@ public class ReflectUtils {
 	 * @param params The {@link Class}es used as parameters for the desired method.
 	 * @return Whether the method exists.
 	 */
-	public static boolean methodExists(String className, String methodName, Class<?> @Nullable ... params) {
+	public boolean methodExists(String className, String methodName, Class<?> @Nullable ... params) {
+		return methodExists(className, methodName, params, null);
+	}
+
+	/**
+	 * @param className The full package and class name.
+	 * @param methodName The name of the method.
+	 * @param params The {@link Class}es used as parameters for the desired method.
+	 * @param returnType The return type of the desired method.
+	 * @return Whether the method exists.
+	 */
+	public boolean methodExists(String className, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnType) {
 		Class<?> c = getClass(className);
 		if (c == null)
 			return false;
-		return methodExists(c, methodName, params);
+		return methodExists(c, methodName, params, returnType);
 	}
 
 	/**
@@ -70,8 +91,19 @@ public class ReflectUtils {
 	 * @param params The {@link Class}es used as parameters for the desired method.
 	 * @return Whether the method exists.
 	 */
-	public static boolean methodExists(Class<?> c, String methodName, Class<?> @Nullable ... params) {
-		return getMethod(c, methodName, params) != null;
+	public boolean methodExists(Class<?> c, String methodName, Class<?> @Nullable ... params) {
+		return methodExists(c, methodName, params, null);
+	}
+
+	/**
+	 * @param c The {@link Class} to check the method for.
+	 * @param methodName The name of the method.
+	 * @param params The {@link Class}es used as parameters for the desired method.
+	 * @param returnTpe The return type of the desired method.
+	 * @return Whether the method exists.
+	 */
+	public boolean methodExists(Class<?> c, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnTpe) {
+		return getMethod(c, methodName, params, returnTpe) != null;
 	}
 
 	/**
@@ -80,7 +112,18 @@ public class ReflectUtils {
 	 * @param params The {@link Class}es used as parameters for the desired method.
 	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
 	 */
-	public static @Nullable Method getMethod(String className, String methodName, Class<?> @Nullable ... params) {
+	public @Nullable Method getMethod(String className, String methodName, Class<?> @Nullable ... params) {
+		return getMethod(className, methodName, params, null);
+	}
+
+	/**
+	 * @param className The full package and class name.
+	 * @param methodName The name of the method.
+	 * @param params The {@link Class}es used as parameters for the desired method.
+	 * @param returnType The return type of the desired method.
+	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
+	 */
+	public @Nullable Method getMethod(String className, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnType) {
 		Class<?> c = getClass(className);
 		if (c == null)
 			return null;
@@ -93,16 +136,36 @@ public class ReflectUtils {
 	 * @param params The {@link Class}es used as parameters for the desired method.
 	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
 	 */
-	public static @Nullable Method getMethod(Class<?> c, String methodName, Class<?> @Nullable ... params) {
+	public @Nullable Method getMethod(Class<?> c, String methodName, Class<?> @Nullable ... params) {
+		return getMethod(c, methodName, params, null);
+	}
+
+	/**
+	 * @param c The {@link Class} to get the method from.
+	 * @param methodName The name of the method.
+	 * @param params The {@link Class}es used as parameters for the desired method.
+	 * @param returnType The return type of the desired method.
+	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
+	 */
+	public @Nullable Method getMethod(Class<?> c, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnType) {
 		MethodID methodID = new MethodID(c, methodName, params);
-		if (METHODS.contains(c, methodID))
+		if (METHODS.contains(c, methodID)) {
+			Method method = METHODS.get(c, methodID);
+			if (method != null && returnType != null) {
+				Class<?> methodType = method.getReturnType();
+				if (!returnType.isAssignableFrom(methodType) && !methodType.isAssignableFrom(returnType))
+					return null;
+			}
 			return METHODS.get(c, methodID);
+		}
 		Method method = null;
 		try {
 			method = c.getDeclaredMethod(methodName, params);
 		} catch (NoSuchMethodException ignored) {}
 
 		METHODS.put(c, methodID, method);
+		if (method != null && returnType != null && method.getReturnType() != returnType)
+			return null;
 		return method;
 	}
 
@@ -111,7 +174,7 @@ public class ReflectUtils {
 	 * @param fieldName The name of the field.
 	 * @return Whether the field exists.
 	 */
-	public static boolean fieldExists(String className, String fieldName) {
+	public boolean fieldExists(String className, String fieldName) {
 		Class<?> c = getClass(className);
 		if (c == null)
 			return false;
@@ -123,7 +186,7 @@ public class ReflectUtils {
 	 * @param fieldName The name of the field.
 	 * @return Whether the field exists.
 	 */
-	public static boolean fieldExists(Class<?> c, String fieldName) {
+	public boolean fieldExists(Class<?> c, String fieldName) {
 		return getField(c, fieldName) != null;
 	}
 
@@ -132,7 +195,7 @@ public class ReflectUtils {
 	 * @param fieldName The name of the field.
 	 * @return The resulting {@link Field} if it exists, otherwise {@code null}.
 	 */
-	public static @Nullable Field getField(String className, String fieldName) {
+	public @Nullable Field getField(String className, String fieldName) {
 		Class<?> c = getClass(className);
 		if (c == null)
 			return null;
@@ -144,7 +207,7 @@ public class ReflectUtils {
 	 * @param fieldName The name of the field.
 	 * @return The resulting {@link Field} if it exists, otherwise {@code null}.
 	 */
-	public static @Nullable Field getField(Class<?> c, String fieldName) {
+	public @Nullable Field getField(Class<?> c, String fieldName) {
 		if (FIELDS.contains(c, fieldName))
 			return FIELDS.get(c, fieldName);
 		Field field = null;
@@ -162,7 +225,7 @@ public class ReflectUtils {
 	 * @return The result of the invocation if successful, otherwise {@code null}.
 	 * @param <Type> The expected return type from the invocation.
 	 */
-	public static <Type> @Nullable Type methodInvoke(Method method) {
+	public <Type> @Nullable Type methodInvoke(Method method) {
 		return methodInvoke(method, null);
 	}
 
@@ -174,7 +237,7 @@ public class ReflectUtils {
 	 * @return The result of the invocation if successful, otherwise {@code null}.
 	 * @param <Type> The expected return type from the invocation.
 	 */
-	public static <Type> @Nullable Type methodInvoke(Method method, @Nullable Object holder, Object @Nullable ... params) {
+	public <Type> @Nullable Type methodInvoke(Method method, @Nullable Object holder, Object @Nullable ... params) {
 		method.setAccessible(true);
 		try {
 			//noinspection unchecked
@@ -189,7 +252,7 @@ public class ReflectUtils {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public static <Type> @Nullable Type fieldGet(Field field) {
+	public <Type> @Nullable Type fieldGet(Field field) {
 		return fieldGet(field, null);
 	}
 
@@ -200,7 +263,7 @@ public class ReflectUtils {
 	 * @return The value of the {@link Field}.
 	 * @param <Type> The expected return type.
 	 */
-	public static <Type> @Nullable Type fieldGet(Field field, @Nullable Object holder) {
+	public <Type> @Nullable Type fieldGet(Field field, @Nullable Object holder) {
 		field.setAccessible(true);
 		try {
 			//noinspection unchecked
@@ -215,7 +278,7 @@ public class ReflectUtils {
 	 * @param methodName The name of the method.
 	 * @param params The types of parameters for the method.
 	 */
-	private record MethodID(Class<?> c, String methodName, Class<?> @Nullable ... params) {}
+	private record MethodID(Class<?> c, String methodName, Class<?> @Nullable [] params) {}
 
 	/**
 	 * Custom map for correlating a {@link Class} to a {@link Method}.

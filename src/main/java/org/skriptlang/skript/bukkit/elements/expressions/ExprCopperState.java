@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -8,7 +8,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.paperutil.CopperState;
+import org.skriptlang.skript.bukkit.paperutil.CopperState;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.MaterialTags;
 import io.papermc.paper.world.WeatheringCopperState;
@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.ReflectUtils;
 
 import java.util.ArrayList;
@@ -44,15 +45,9 @@ public class ExprCopperState extends SimplePropertyExpression<Object, Object> {
 
 	private static final CopperStateMaterialMap STATE_MATERIALS = new CopperStateMaterialMap();
 	private static final List<String> STATE_REPLACEMENTS = new ArrayList<>();
-	private static final boolean COPPER_GOLEM_EXISTS = ReflectUtils.classExists("org.bukkit.entity.CopperGolem");
+	private static final boolean COPPER_GOLEM_EXISTS = Skript.classExists("org.bukkit.entity.CopperGolem");
 
 	static {
-		String type = "blocks";
-		if (Skript.classExists("org.bukkit.entity.CopperGolem"))
-			type = "entities/blocks";
-
-		register(ExprCopperState.class, Object.class, "[weathering] copper state[s]", type);
-
 		for (Enum<?> state : CopperState.getValues()) {
 			if (state.name().equals("UNAFFECTED"))
 				continue;
@@ -65,6 +60,24 @@ public class ExprCopperState extends SimplePropertyExpression<Object, Object> {
 			String blockType = getBlockType(material);
 			STATE_MATERIALS.putMaterial(blockType, state, material);
 		}
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		String type = "blocks";
+		if (Skript.classExists("org.bukkit.entity.CopperGolem"))
+			type = "entities/blocks";
+
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprCopperState.class,
+				Object.class,
+				"[weathering] copper state[s]",
+				type,
+				false
+			).supplier(ExprCopperState::new)
+				.build()
+		);
 	}
 
 	/**

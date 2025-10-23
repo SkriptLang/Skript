@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -21,6 +21,8 @@ import org.bukkit.entity.CopperGolem.Oxidizing;
 import org.bukkit.entity.CopperGolem.Oxidizing.Waxed;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.ReflectUtils;
 
 @Name("Wax")
@@ -43,19 +45,28 @@ public class EffWax extends Effect {
 
 	private static final BiMap<Material, Material> WAX_CONVERSION;
 	private static final BiMap<Material, Material> UNWAX_CONVERSION = HashBiMap.create();
-	private static final boolean COPPER_GOLEM_EXISTS = ReflectUtils.classExists("org.bukkit.entity.CopperGolem");
+	private static final boolean COPPER_GOLEM_EXISTS = Skript.classExists("org.bukkit.entity.CopperGolem");
 
 	static {
-		String type = "%blocks%";
-		if (COPPER_GOLEM_EXISTS)
-			type = "%entities/blocks%";
-		Skript.registerEffect(EffWax.class, "[:un]wax " + type);
-
 		for (Material waxed : MaterialTags.WAXED_COPPER_BLOCKS.getValues()) {
 			Material unwaxed = Material.valueOf(waxed.name().replaceAll("WAXED_", ""));
 			UNWAX_CONVERSION.put(waxed, unwaxed);
 		}
 		WAX_CONVERSION = UNWAX_CONVERSION.inverse();
+	}
+
+	public static void register(SyntaxRegistry registry) {
+		String type = "%blocks%";
+		if (COPPER_GOLEM_EXISTS)
+			type = "%entities/blocks%";
+
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffWax.class)
+				.addPatterns("[:un]wax " + type)
+				.supplier(EffWax::new)
+				.build()
+		);
 	}
 
 	private boolean wax;
