@@ -15,7 +15,6 @@ import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -49,23 +48,14 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
-import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -138,7 +128,7 @@ public final class SkriptParser {
 
 		public ParseResult(SkriptParser parser, String pattern) {
 			expr = parser.expr;
-			exprs = new Expression<?>[countUnescaped(pattern, '%') / 2];
+			exprs = new Expression<?>[StringUtils.countUnescaped(pattern, '%') / 2];
 		}
 
 		public ParseResult(String expr, Expression<?>[] expressions) {
@@ -305,33 +295,11 @@ public final class SkriptParser {
 		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
 			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
 			if (!getParser().isCurrentEvent(supportedEvents)) {
-				Skript.error("'" + parseResult.expr + "' can only be used in " + supportedEventsNames(supportedEvents));
+				Skript.error("'" + parseResult.expr + "' can only be used in " + EventRestrictedSyntax.supportedEventsNames(supportedEvents));
 				return false;
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Returns a string with the names of the supported skript events for the given class array.
-	 * If no events are found, returns an empty string.
-	 * @param supportedEvents The array of supported event classes.
-	 * @return A string with the names of the supported skript events, or an empty string if none are found.
-	 */
-	private static @NotNull String supportedEventsNames(Class<? extends Event>[] supportedEvents) {
-		List<String> names = new ArrayList<>();
-
-		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
-			for (Class<? extends Event> eventClass : supportedEvents) {
-				for (Class<? extends Event> event : eventInfo.events) {
-					if (event.isAssignableFrom(eventClass)) {
-						names.add("the %s event".formatted(eventInfo.getName().toLowerCase()));
-					}
-				}
-			}
-		}
-
-		return StringUtils.join(names, ", ", " or ");
 	}
 
 	/**
@@ -446,7 +414,7 @@ public final class SkriptParser {
 			Skript.error("Pretty quotes are not allowed, change to regular quotes (\")");
 			return null;
 		}
-		if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
+		if (expr.startsWith("\"") && expr.length() != 1 && StringUtils.nextQuote(expr, 1) == expr.length() - 1) {
 			return VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 		} else {
 			var iterator = new CheckedIterator<>(Skript.instance().syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION).iterator(), info -> {
@@ -1410,83 +1378,6 @@ public final class SkriptParser {
 	}
 
 	/**
-	 * Gets the next occurrence of a character in a string that is not escaped with a preceding backslash.
-	 *
-	 * @param pattern The string to search in
-	 * @param character The character to search for
-	 * @param from The index to start searching from
-	 * @return The next index where the character occurs unescaped or -1 if it doesn't occur.
-	 */
-	private static int nextUnescaped(String pattern, char character, int from) {
-		for (int i = from; i < pattern.length(); i++) {
-			if (pattern.charAt(i) == '\\') {
-				i++;
-			} else if (pattern.charAt(i) == character) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * Counts how often the given character occurs in the given string, ignoring any escaped occurrences of the character.
-	 *
-	 * @param haystack The string to search in
-	 * @param needle The character to search for
-	 * @return The number of unescaped occurrences of the given character
-	 */
-	static int countUnescaped(String haystack, char needle) {
-		return countUnescaped(haystack, needle, 0, haystack.length());
-	}
-
-	/**
-	 * Counts how often the given character occurs between the given indices in the given string,
-	 * ignoring any escaped occurrences of the character.
-	 *
-	 * @param haystack The string to search in
-	 * @param needle The character to search for
-	 * @param start The index to start searching from (inclusive)
-	 * @param end The index to stop searching at (exclusive)
-	 * @return The number of unescaped occurrences of the given character
-	 */
-	static int countUnescaped(String haystack, char needle, int start, int end) {
-		assert start >= 0 && start <= end && end <= haystack.length() : start + ", " + end + "; " + haystack.length();
-		int count = 0;
-		for (int i = start; i < end; i++) {
-			char character = haystack.charAt(i);
-			if (character == '\\') {
-				i++;
-			} else if (character == needle) {
-				count++;
-			}
-		}
-		return count;
-	}
-
-	/**
-	 * Find the next unescaped (i.e. single) double quote in the string.
-	 *
-	 * @param string The string to search in
-	 * @param start Index after the starting quote
-	 * @return Index of the end quote
-	 */
-	private static int nextQuote(String string, int start) {
-		boolean inExpression = false;
-		int length = string.length();
-		for (int i = start; i < length; i++) {
-			char character = string.charAt(i);
-			if (character == '"' && !inExpression) {
-				if (i == length - 1 || string.charAt(i + 1) != '"')
-					return i;
-				i++;
-			} else if (character == '%') {
-				inExpression = !inExpression;
-			}
-		}
-		return -1;
-	}
-
-	/**
 	 * @param types The types to include in the message
 	 * @return "not an x" or "neither an x, a y nor a z"
 	 */
@@ -1566,7 +1457,7 @@ public final class SkriptParser {
 		int index;
 		switch (expr.charAt(startIndex)) {
 			case '"':
-				index = nextQuote(expr, startIndex + 1);
+				index = StringUtils.nextQuote(expr, startIndex + 1);
 				return index < 0 ? -1 : index + 1;
 			case '{':
 				index = VariableString.nextVariableBracket(expr, startIndex + 1);
@@ -1624,7 +1515,7 @@ public final class SkriptParser {
 
 			switch (character) {
 				case '"':
-					startIndex = nextQuote(haystack, startIndex + 1);
+					startIndex = StringUtils.nextQuote(haystack, startIndex + 1);
 					if (startIndex < 0)
 						return -1;
 					break;
