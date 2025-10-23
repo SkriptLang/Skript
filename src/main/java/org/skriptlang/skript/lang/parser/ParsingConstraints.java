@@ -67,14 +67,16 @@ public class ParsingConstraints {
 				return false;
 			}
 
-			// check literals
-			if (!allowsLiterals() && Literal.class.isAssignableFrom(elementClass)) {
-				return false;
-			}
-			// check non-literals
-			// TODO: allow simplification
-			if (!allowsNonLiterals() && !Literal.class.isAssignableFrom(elementClass)) {
-				return false;
+			if (info instanceof ExpressionInfo<?, ?>) {
+				// check literals
+				if (!allowsLiterals() && Literal.class.isAssignableFrom(elementClass)) {
+					return false;
+				}
+				// check non-literals
+				// TODO: allow simplification
+				if (!allowsNonLiterals() && !Literal.class.isAssignableFrom(elementClass)) {
+					return false;
+				}
 			}
 
 			// check exceptions

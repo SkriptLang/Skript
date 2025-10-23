@@ -64,7 +64,7 @@ public class SkriptParser {
 	 *
 	 * @param input The text to parse.
 	 */
-	protected SkriptParser(String input) {
+	public SkriptParser(String input) {
 		this(input, ParsingConstraints.all());
 	}
 
@@ -77,7 +77,7 @@ public class SkriptParser {
 	 * @param constraints The constraints under which to parse.
 	 * @param input The text to parse.
 	 */
-	protected SkriptParser(String input, ParsingConstraints constraints) {
+	public SkriptParser(String input, ParsingConstraints constraints) {
 		this(input, constraints, ParseContext.DEFAULT);
 	}
 
@@ -90,7 +90,7 @@ public class SkriptParser {
 	 * @param constraints The constraints under which to parse.
 	 * @param context The parse context.
 	 */
-	protected SkriptParser(@NotNull String input, ParsingConstraints constraints, ParseContext context) {
+	public SkriptParser(@NotNull String input, ParsingConstraints constraints, ParseContext context) {
 		this.input = input.trim();
 		this.parsingConstraints = constraints;
 		this.context = context;

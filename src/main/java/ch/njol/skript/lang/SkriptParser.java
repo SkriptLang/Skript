@@ -16,10 +16,7 @@ import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.parser.DefaultValueData;
-import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.parser.ParsingStack;
-import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -31,7 +28,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.patterns.MalformedPatternException;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
-import ch.njol.skript.patterns.TypePatternElement;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -42,12 +38,12 @@ import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.parser.ParsingConstraints;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -83,6 +79,8 @@ public final class SkriptParser {
 
 	public final ParseContext context;
 
+	private final org.skriptlang.skript.lang.parser.SkriptParser newParser;
+
 	public SkriptParser(String expr) {
 		this(expr, ALL_FLAGS);
 	}
@@ -106,6 +104,9 @@ public final class SkriptParser {
 		this.expr = "" + expr.trim();
 		this.flags = flags;
 		this.context = context;
+
+		ParsingConstraints constraints = ParsingConstraints.all().applyParseFlags(flags);
+		this.newParser = new org.skriptlang.skript.lang.parser.SkriptParser(this.expr, constraints, context);
 	}
 
 	public SkriptParser(SkriptParser other, String expr) {
@@ -200,88 +201,7 @@ public final class SkriptParser {
 	}
 
 	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxInfo<? extends T>> source) {
-		ParsingStack parsingStack = getParser().getParsingStack();
-		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-			while (source.hasNext()) {
-				SyntaxInfo<? extends T> info = source.next();
-				int matchedPattern = -1; // will increment at the start of each iteration
-				patternsLoop: for (String pattern : info.patterns()) {
-					matchedPattern++;
-					log.clear();
-					ParseResult parseResult;
-
-					try {
-						parsingStack.push(new ParsingStack.Element(info, matchedPattern));
-						parseResult = parse_i(pattern);
-					} catch (MalformedPatternException e) {
-						String message = "pattern compiling exception, element class: " + info.type().getName();
-						try {
-							JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.type());
-							message += " (provided by " + providingPlugin.getName() + ")";
-						} catch (IllegalArgumentException | IllegalStateException ignored) { }
-						throw new RuntimeException(message, e);
-					} catch (StackOverflowError e) {
-						// Parsing caused a stack overflow, possibly due to too long lines
-						throw new ParseStackOverflowException(e, new ParsingStack(parsingStack));
-					} finally {
-						// Recursive parsing call done, pop the element from the parsing stack
-						ParsingStack.Element stackElement = parsingStack.pop();
-						assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == matchedPattern;
-					}
-
-					if (parseResult == null)
-						continue;
-
-					assert parseResult.source != null; // parse results from parse_i have a source
-					List<TypePatternElement> types = null;
-					for (int i = 0; i < parseResult.exprs.length; i++) {
-						if (parseResult.exprs[i] == null) {
-							if (types == null)
-								types = parseResult.source.getElements(TypePatternElement.class);;
-							ExprInfo exprInfo = types.get(i).getExprInfo();
-							if (!exprInfo.isOptional) {
-								List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
-								DefaultExpression<?> matchedExpr = null;
-								for (DefaultExpression<?> expr : exprs) {
-									if (expr.init()) {
-										matchedExpr = expr;
-										break;
-									}
-								}
-								if (matchedExpr == null)
-									continue patternsLoop;
-								parseResult.exprs[i] = matchedExpr;
-							}
-						}
-					}
-					T element = info.instance();
-
-					if (!checkRestrictedEvents(element, parseResult))
-						continue;
-
-					if (!checkExperimentalSyntax(element))
-						continue;
-
-					boolean success = element.preInit() && element.init(parseResult.exprs, matchedPattern, getParser().getHasDelayBefore(), parseResult);
-					if (success) {
-						// Check if any expressions are 'UnparsedLiterals' and if applicable for multiple info warning.
-						for (Expression<?> expr : parseResult.exprs) {
-							if (expr instanceof UnparsedLiteral unparsedLiteral && unparsedLiteral.multipleWarning())
-								break;
-						}
-						log.printLog();
-						if (doSimplification && element instanceof Simplifiable<?> simplifiable)
-							//noinspection unchecked
-							return (T) simplifiable.simplify();
-						return element;
-					}
-				}
-			}
-
-			// No successful syntax elements parsed, print errors and return
-			log.printError();
-			return null;
-		}
+		return newParser.parse(source);
 	}
 
 	/**
