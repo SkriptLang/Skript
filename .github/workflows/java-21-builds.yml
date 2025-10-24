@@ -22,10 +22,16 @@ jobs:
                   # Define environments and number of splits
                   ENVIRONMENTS="1.20.6,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10"
                   N=3  # Change this to your desired number of parallel jobs
+                  JAVA_VERSION=21  # Java version for the transformation
                   
-                  # Convert to array
+                  # Convert to array and transform
                   IFS=',' read -ra ENVS <<< "$ENVIRONMENTS"
-                  TOTAL=${#ENVS[@]}
+                  TRANSFORMED=()
+                  for env in "${ENVS[@]}"; do
+                      TRANSFORMED+=("java${JAVA_VERSION}/paper-${env}")
+                  done
+                  
+                  TOTAL=${#TRANSFORMED[@]}
                   
                   # Calculate actual number of jobs (min of N and total environments)
                   JOBS=$((TOTAL < N ? TOTAL : N))
@@ -48,7 +54,7 @@ jobs:
                           if [ -n "$GROUP" ]; then
                               GROUP="$GROUP,"
                           fi
-                          GROUP="$GROUP${ENVS[$INDEX]}"
+                          GROUP="$GROUP${TRANSFORMED[$INDEX]}"
                           INDEX=$((INDEX + 1))
                       done
                   
