@@ -1,14 +1,9 @@
-
 package org.skriptlang.skript.lang.parser;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
-import ch.njol.skript.lang.SkriptParser.ExprInfo;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -22,25 +17,30 @@ import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.patterns.TypePatternElement;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry.Key;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SkriptParser {
+/**
+ * A parser with configurable constraints and context for parsing Skript syntax elements.
+ * Implementations should use {@link SyntaxParserImpl} as a base class, which provides default implementations for {@link SyntaxParser}.
+ * @param <P> the type of the parser subclass
+ */
+public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser<P> {
 
 	private static final Map<String, SkriptPattern> patterns = new ConcurrentHashMap<>();
-
 
 	/**
 	 * Matches ',', 'and', 'or', etc. as well as surrounding whitespace.
@@ -48,156 +48,33 @@ public class SkriptParser {
 	 * group 1 is null for ',', otherwise it's one of and/or/nor (not necessarily lowercase).
 	 */
 	protected boolean suppressMissingAndOrWarnings = SkriptConfig.disableMissingAndOrWarnings.value();
-
-	protected ParsingConstraints parsingConstraints;
-	protected final String input;
-	public final ParseContext context;
-
 	public final boolean doSimplification = SkriptConfig.simplifySyntaxesOnParse.value();
 
+	protected ParsingConstraints constraints;
+	protected ParseContext context;
+	protected String input;
+	protected String defaultError;
+	protected final Skript skript;
 
-	/**
-	 * Constructs a new SkriptParser object that can be used to parse the given expression.
-	 * Parses expressions and literals using {@link ParseContext#DEFAULT}.
-	 * <p>
-	 * A SkriptParser can be re-used indefinitely for the given expression, but to parse a new expression a new SkriptParser has to be created.
-	 *
-	 * @param input The text to parse.
-	 */
-	public SkriptParser(String input) {
-		this(input, ParsingConstraints.all());
+	protected SyntaxParserImpl(Skript skript) {
+		this.constraints = ParsingConstraints.all();
+		this.context = ParseContext.DEFAULT;
+		this.skript = skript;
 	}
 
-	/**
-	 * Constructs a new SkriptParser object that can be used to parse the given expression.
-	 * Parses using {@link ParseContext#DEFAULT}.
-	 * <p>
-	 * A SkriptParser can be re-used indefinitely for the given expression, but to parse a new expression a new SkriptParser has to be created.
-	 *
-	 * @param constraints The constraints under which to parse.
-	 * @param input The text to parse.
-	 */
-	public SkriptParser(String input, ParsingConstraints constraints) {
-		this(input, constraints, ParseContext.DEFAULT);
+	public SyntaxParserImpl(@NotNull SyntaxParser<?> other) {
+		this.constraints = other.constraints();
+		this.context = other.parseContext();
+		this.input = other.input();
+		this.defaultError = other.defaultError();
+		this.skript = other.skript();
+		if (other instanceof SyntaxParserImpl<?> otherImpl)
+			this.suppressMissingAndOrWarnings = otherImpl.suppressMissingAndOrWarnings;
 	}
 
-	/**
-	 * Constructs a new SkriptParser object that can be used to parse the given expression.
-	 * <p>
-	 * A SkriptParser can be re-used indefinitely for the given expression, but to parse a new expression a new SkriptParser has to be created.
-	 *
-	 * @param input The text to parse.
-	 * @param constraints The constraints under which to parse.
-	 * @param context The parse context.
-	 */
-	public SkriptParser(@NotNull String input, ParsingConstraints constraints, ParseContext context) {
-		this.input = input.trim();
-		this.parsingConstraints = constraints;
-		this.context = context;
-	}
-
-	/**
-	 * Constructs a new SkriptParser object that can be used to parse the given expression.
-	 * <p>
-	 * A SkriptParser can be re-used indefinitely for the given expression, but to parse a new expression a new SkriptParser has to be created.
-	 *
-	 * @param other The other SkriptParser to copy input, constraints, and context from.
-	 */
-	protected SkriptParser(@NotNull SkriptParser other) {
-		this(other.input, other.parsingConstraints, other.context);
-		this.suppressMissingAndOrWarnings = other.suppressMissingAndOrWarnings;
-	}
-
-	protected SkriptParser(@NotNull SkriptParser other, String input) {
-		this(input, other.parsingConstraints, other.context);
-		this.suppressMissingAndOrWarnings = other.suppressMissingAndOrWarnings;
-	}
-
-	/**
-	 * Parses a string as one of the given syntax elements.
-	 * <p>
-	 * Can print an error.
-	 *
-	 * @param <I> The {@link SyntaxInfo} type associated with the given
-	 * 			{@link Key}.
-	 * @param <E> The type of the returned {@link SyntaxElement}, which should be equivalent to the class
-	 *              returned by {@link SyntaxInfo#type()}.
-	 * @param input The raw string input to be parsed.
-	 * @param parsingConstraints A {@link ParsingConstraints} object containing all the allowed syntaxes.
-	 * @param expectedTypeKey A {@link Key} that determines what
-	 *                           kind of syntax is expected as a result of the parsing.
-	 * @param context The context under which to parse this string.
-	 * @param defaultError The default error to use if no other error is encountered during parsing.
-	 * @return A parsed, initialized {@link SyntaxElement}, or null if parsing failed.
-	 */
-	public static <E extends SyntaxElement, I extends SyntaxInfo<E>> @Nullable E parse(
-		String input,
-		@NotNull ParsingConstraints parsingConstraints,
-		Key<I> expectedTypeKey,
-		ParseContext context,
-		@Nullable String defaultError
-	) {
-		Iterator<I> uncheckedIterator = Skript.instance().syntaxRegistry().syntaxes(expectedTypeKey).iterator();
-
-		return SkriptParser.parse(
-			input,
-			parsingConstraints,
-			uncheckedIterator,
-			context,
-			defaultError
-		);
-	}
-
-	/**
-	 * Parses a string as one of the given syntax elements.
-	 * <p>
-	 * Can print an error.
-	 *
-	 * @param <E> The type of the returned {@link SyntaxElement}, which should be equivalent to the class
-	 *              returned by {@link SyntaxInfo#type()}.
-	 * @param input The raw string input to be parsed.
-	 * @param parsingConstraints A {@link ParsingConstraints} object containing all the allowed syntaxes.
-	 * @param allowedSyntaxes An {@link Iterator} over {@link SyntaxElementInfo} objects that represent the allowed syntaxes.
-	 * @param context The context under which to parse this string.
-	 * @param defaultError The default error to use if no other error is encountered during parsing.
-	 * @return A parsed, initialized {@link SyntaxElement}, or null if parsing failed.
-	 */
-	public static <E extends SyntaxElement> @Nullable E parse(
-		String input,
-		@NotNull ParsingConstraints parsingConstraints,
-		Iterator<? extends SyntaxInfo<? extends E>> allowedSyntaxes,
-		ParseContext context,
-		@Nullable String defaultError
-	) {
-		input = input.trim();
-		if (input.isEmpty()) {
-			Skript.error(defaultError);
-			return null;
-		}
-		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-			E element = new SkriptParser(input, parsingConstraints, context).parse(allowedSyntaxes);
-			if (element != null) {
-				log.printLog();
-				return element;
-			}
-			log.printError(defaultError);
-			return null;
-		}
-	}
-
-	/**
-	 * Attempts to parse this parser's input against the given syntax.
-	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
-	 * {@link #parse(Key)} is preferred for parsing against a specific syntax.
-	 *
-	 * @param allowedSyntaxes The iterator of {@link SyntaxElementInfo} objects to parse against.
-	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}
-	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
-	 * @param <E> The type of {@link SyntaxElement} that will be returned.
-	 */
-	@ApiStatus.Internal
+	@Override
 	public <E extends SyntaxElement> @Nullable E parse(@NotNull Iterator<? extends SyntaxInfo<? extends E>> allowedSyntaxes) {
-		allowedSyntaxes = parsingConstraints.constrainIterator(allowedSyntaxes);
+		allowedSyntaxes = constraints.constrainIterator(allowedSyntaxes);
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			// for each allowed syntax
 			while (allowedSyntaxes.hasNext()) {
@@ -220,47 +97,120 @@ public class SkriptParser {
 		}
 	}
 
-	/**
-	 * Attempts to parse this parser's input against the given syntax type.
-	 * Prints parse errors (i.e. must start a ParseLog before calling this method).
-	 *
-	 * @param expectedTypeKey A {@link Key} that determines what
-	 *                           kind of syntax is expected as a result of the parsing.
-	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}
-	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
-	 * @param <E> The type of {@link SyntaxElement} that will be returned.
-	 */
-	@ApiStatus.Internal
-	public <E extends SyntaxElement, I extends SyntaxInfo<? extends E>> @Nullable E parse(Key<I> expectedTypeKey) {
-		Iterator<SyntaxElementInfo<E>> uncheckedIterator = new Iterator<>() {
-
-			private final Iterator<I> iterator = Skript.instance().syntaxRegistry().syntaxes(expectedTypeKey).iterator();
-
-			@Override
-			public boolean hasNext() {
-				return iterator.hasNext();
-			}
-
-			@Override
-			@Contract(" -> new")
-			public @NotNull SyntaxElementInfo<E> next() {
-				return SyntaxElementInfo.fromModern(iterator.next());
-			}
-		};
-
-		return parse(uncheckedIterator);
+	@Override
+	public <E extends SyntaxElement, I extends SyntaxInfo<? extends E>> @Nullable E parse(SyntaxRegistry.Key<I> expectedTypeKey) {
+		Iterator<? extends I> candidateSyntaxes = skript.syntaxRegistry().syntaxes(expectedTypeKey).iterator();
+		return parse(candidateSyntaxes);
 	}
+
+	/**
+	 * Asserts that the parser is ready to parse. Implementations should call this method before attempting to parse.
+	 */
+	protected void assertReadyToParse() {
+		Preconditions.checkNotNull(input, "Input string must be set before parsing.");
+		Preconditions.checkNotNull(constraints, "Parsing constraints must be set before parsing.");
+		Preconditions.checkNotNull(context, "Parse context must be set before parsing.");
+	}
+
+	/**
+	 * @return the input string to be parsed
+	 */
+	@Contract(pure = true)
+	public String input() {
+		return input;
+	}
+
+	/**
+	 * Sets the input string to be parsed.
+	 * @param input the new input string
+	 * @return this parser instance
+	 */
+	@Contract("_ -> this")
+	@SuppressWarnings("unchecked")
+	public P input(@NotNull String input) {
+		this.input = input;
+		return (P) this;
+	}
+
+	/**
+	 * @return the current parsing constraints
+	 */
+	@Contract(pure = true)
+	public ParsingConstraints constraints() {
+		return constraints;
+	}
+
+	/**
+	 * Sets the parsing constraints.
+	 * @param constraints the new parsing constraints
+	 * @return this parser instance
+	 */
+	@Contract("_ -> this")
+	@SuppressWarnings("unchecked")
+	public P constraints(@NotNull ParsingConstraints constraints) {
+		this.constraints = constraints;
+		return (P) this;
+	}
+
+	/**
+	 * @return the current parse context
+	 */
+	@Contract(pure = true)
+	public ParseContext parseContext() {
+		return context;
+	}
+
+	/**
+	 * Sets the parse context.
+	 * @param context the new parse context
+	 * @return this parser instance
+	 */
+	@Contract("_ -> this")
+	@SuppressWarnings("unchecked")
+	public P parseContext(@NotNull ParseContext context) {
+		this.context = context;
+		return (P) this;
+	}
+
+	/**
+	 * @return the default error message to use if parsing fails
+	 */
+	@Contract(pure = true)
+	public @Nullable String defaultError() {
+		return defaultError;
+	}
+
+	/**
+	 * Sets the default error message to use if parsing fails.
+	 * @param defaultError the new default error message
+	 * @return this parser instance
+	 */
+	@Contract("_ -> this")
+	@SuppressWarnings("unchecked")
+	public P defaultError(@Nullable String defaultError) {
+		this.defaultError = defaultError;
+		return (P) this;
+	}
+
+	@Override
+	public Skript skript() {
+		return skript;
+	}
+
+	// --------------------------------------------------------------------------------
+	// PARSING LOGIC
+	// --------------------------------------------------------------------------------
 
 	/**
 	 * Attempts to parse this parser's input against the given pattern.
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method).
-	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}
+	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}
 	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
 	 * @param <E> The type of {@link SyntaxElement} that will be returned.
 	 */
 	private <E extends SyntaxElement> @Nullable E parse(@NotNull SyntaxInfo<? extends E> info, String pattern, int patternIndex) {
 		ParsingStack parsingStack = getParser().getParsingStack();
-		ParseResult parseResult;
+		SkriptParser.ParseResult parseResult;
 		try {
 			// attempt to parse with the given pattern
 			parsingStack.push(new ParsingStack.Element(info, patternIndex));
@@ -307,13 +257,13 @@ public class SkriptParser {
 	}
 
 	/**
-	 * Runs through all the initialization checks and steps for the given element, finalizing in a call to {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}.
+	 * Runs through all the initialization checks and steps for the given element, finalizing in a call to {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}.
 	 * @param element The element to initialize.
 	 * @param patternIndex The index of the pattern that was matched.
 	 * @param parseResult The parse result from parsing this element.
 	 * @return Whether the element was successfully initialized.
 	 */
-	private boolean initializeElement(SyntaxElement element, int patternIndex, ParseResult parseResult) {
+	private boolean initializeElement(SyntaxElement element, int patternIndex, SkriptParser.ParseResult parseResult) {
 		if (!checkRestrictedEvents(element, parseResult))
 			return false;
 
@@ -337,12 +287,12 @@ public class SkriptParser {
 	 * Attempts to match this parser's input against the given pattern. Any sub-elements (expressions) will be
 	 * parsed and initialized. Default values will not be populated.
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method).
-	 * @return A {@link ParseResult} containing the results of the parsing, if successful. Null otherwise.
+	 * @return A {@link SkriptParser.ParseResult} containing the results of the parsing, if successful. Null otherwise.
 	 * @see #parse(SyntaxInfo, String, int)
 	 */
-	private @Nullable ParseResult parseAgainstPattern(String pattern) throws MalformedPatternException {
+	private @Nullable SkriptParser.ParseResult parseAgainstPattern(String pattern) throws MalformedPatternException {
 		SkriptPattern skriptPattern = patterns.computeIfAbsent(pattern, PatternCompiler::compile);
-		ch.njol.skript.patterns.MatchResult matchResult = skriptPattern.match(input, parsingConstraints.asParseFlags(), context);
+		ch.njol.skript.patterns.MatchResult matchResult = skriptPattern.match(input, constraints.asParseFlags(), context);
 		if (matchResult == null)
 			return null;
 		return matchResult.toParseResult();
@@ -355,14 +305,14 @@ public class SkriptParser {
 	 * @param pattern The pattern to use to locate required default expressions.
 	 * @return true if population was successful, false otherwise.
 	 */
-	private boolean populateDefaultExpressions(@NotNull ParseResult parseResult, String pattern) {
+	private boolean populateDefaultExpressions(@NotNull SkriptParser.ParseResult parseResult, String pattern) {
 		assert parseResult.source != null; // parse results from parseAgainstPattern have a source
 		List<TypePatternElement> types = null;
 		for (int i = 0; i < parseResult.exprs.length; i++) {
 			if (parseResult.exprs[i] == null) {
 				if (types == null)
 					types = parseResult.source.getElements(TypePatternElement.class);
-				ExprInfo exprInfo = types.get(i).getExprInfo();
+				SkriptParser.ExprInfo exprInfo = types.get(i).getExprInfo();
 				if (!exprInfo.isOptional) {
 					List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
 					DefaultExpression<?> matchedExpr = null;
@@ -381,23 +331,22 @@ public class SkriptParser {
 		return true;
 	}
 
-
 	/**
 	 * Returns the {@link DefaultExpression} from the first {@link ClassInfo} stored in {@code exprInfo}.
 	 *
-	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}.
-	 * @param pattern The pattern used to create {@link ExprInfo}.
+	 * @param exprInfo The {@link SkriptParser.ExprInfo} to check for {@link DefaultExpression}.
+	 * @param pattern The pattern used to create {@link SkriptParser.ExprInfo}.
 	 * @return {@link DefaultExpression}.
 	 * @throws SkriptAPIException If the {@link DefaultExpression} is not valid, produces an error message for the reasoning of failure.
 	 */
-	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
+	private static @NotNull DefaultExpression<?> getDefaultExpression(SkriptParser.ExprInfo exprInfo, String pattern) {
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
 		ClassInfo<?> classInfo = exprInfo.classes[0];
 		DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
 		if (expr == null)
 			expr = classInfo.getDefaultExpression();
 
-		DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, 0);
+		DefaultExpressionUtils.DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, 0);
 		if (errorType == null) {
 			assert expr != null;
 			return expr;
@@ -409,18 +358,18 @@ public class SkriptParser {
 	/**
 	 * Returns all {@link DefaultExpression}s from all the {@link ClassInfo}s embedded in {@code exprInfo} that are valid.
 	 *
-	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}s.
-	 * @param pattern The pattern used to create {@link ExprInfo}.
+	 * @param exprInfo The {@link SkriptParser.ExprInfo} to check for {@link DefaultExpression}s.
+	 * @param pattern The pattern used to create {@link SkriptParser.ExprInfo}.
 	 * @return All available {@link DefaultExpression}s.
 	 * @throws SkriptAPIException If no {@link DefaultExpression}s are valid, produces an error message for the reasoning of failure.
 	 */
-	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
+	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(SkriptParser.ExprInfo exprInfo, String pattern) {
 		if (exprInfo.classes.length == 1)
 			return new ArrayList<>(List.of(getDefaultExpression(exprInfo, pattern)));
 
 		DefaultValueData data = getParser().getData(DefaultValueData.class);
 
-		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);
+		EnumMap<DefaultExpressionUtils.DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionUtils.DefaultExpressionError.class);
 		List<DefaultExpression<?>> passed = new ArrayList<>();
 		for (int i = 0; i < exprInfo.classes.length; i++) {
 			ClassInfo<?> classInfo = exprInfo.classes[i];
@@ -429,7 +378,7 @@ public class SkriptParser {
 				expr = classInfo.getDefaultExpression();
 
 			String codeName = classInfo.getCodeName();
-			DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, i);
+			DefaultExpressionUtils.DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, i);
 
 			if (errorType != null) {
 				failed.computeIfAbsent(errorType, list -> new ArrayList<>()).add(codeName);
@@ -442,7 +391,7 @@ public class SkriptParser {
 			return passed;
 
 		List<String> errors = new ArrayList<>();
-		for (Map.Entry<DefaultExpressionError, List<String>> entry : failed.entrySet()) {
+		for (Map.Entry<DefaultExpressionUtils.DefaultExpressionError, List<String>> entry : failed.entrySet()) {
 			String error = entry.getKey().getError(entry.getValue(), pattern);
 			errors.add(error);
 		}
@@ -456,12 +405,12 @@ public class SkriptParser {
 	 * @param parseResult The parse result for error information.
 	 * @return True if the element is allowed in the current event, false otherwise.
 	 */
-	private static boolean checkRestrictedEvents(SyntaxElement element, ParseResult parseResult) {
+	private static boolean checkRestrictedEvents(SyntaxElement element, SkriptParser.ParseResult parseResult) {
 		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
 			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
 			if (!getParser().isCurrentEvent(supportedEvents)) {
-				Skript.error("'" + parseResult.expr + "' can only be used in "
-						+ EventRestrictedSyntax.supportedEventsNames(supportedEvents));
+				ch.njol.skript.Skript.error("'" + parseResult.expr + "' can only be used in "
+					+ EventRestrictedSyntax.supportedEventsNames(supportedEvents));
 				return false;
 			}
 		}

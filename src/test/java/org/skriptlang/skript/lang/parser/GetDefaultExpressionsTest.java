@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static org.skriptlang.skript.lang.parser.SkriptParser.getDefaultExpressions;
+import static org.skriptlang.skript.lang.parser.SyntaxParserImpl.getDefaultExpressions;
 
 public class GetDefaultExpressionsTest extends SkriptJUnitTest {
 

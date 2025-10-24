@@ -38,6 +38,7 @@ import com.google.common.primitives.Booleans;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.parser.ParsingConstraints;
+import org.skriptlang.skript.lang.parser.SyntaxParser;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -72,7 +73,7 @@ public final class SkriptParser {
 
 	public final ParseContext context;
 
-	private final org.skriptlang.skript.lang.parser.SkriptParser newParser;
+	private final SyntaxParser<?> newParser;
 
 	public SkriptParser(String expr) {
 		this(expr, ALL_FLAGS);
@@ -99,7 +100,10 @@ public final class SkriptParser {
 		this.context = context;
 
 		ParsingConstraints constraints = ParsingConstraints.all().applyParseFlags(flags);
-		this.newParser = new org.skriptlang.skript.lang.parser.SkriptParser(this.expr, constraints, context);
+		this.newParser = SyntaxParser.from(Skript.instance())
+				.input(this.expr)
+				.parseContext(this.context)
+				.constraints(constraints);
 	}
 
 	public SkriptParser(SkriptParser other, String expr) {
