@@ -268,6 +268,7 @@ compileTestJava.options.encoding = 'UTF-8'
 String environments = 'src/test/skript/environments/';
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + env, latestJava, 0)
+createTestTask('specificTest', 'Runs tests on a specific environment defined in \'testEnv\' project property using the java version defined in the \'testEnvJavaVersion\' property.', environments + env, envJava, 0)
 createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
 createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)

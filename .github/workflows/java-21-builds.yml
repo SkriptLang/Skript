@@ -11,6 +11,9 @@ jobs:
     build:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                minecraft-version: [1.20.6, 1.21.3, 1.21.4, 1.21.5, 1.21.8, 1.21.10]
         steps:
             - uses: actions/checkout@v5
               with:
@@ -26,7 +29,7 @@ jobs:
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
             - name: Build Skript and run test scripts
-              run: ./gradlew clean skriptTestJava21
+              run: ./gradlew clean specificTest -PtestEnv=java21/${{ matrix.minecraft-version }} -PtestEnvJavaVersion=21
             - name: Upload Nightly Build
               uses: actions/upload-artifact@v4
               if: success()
