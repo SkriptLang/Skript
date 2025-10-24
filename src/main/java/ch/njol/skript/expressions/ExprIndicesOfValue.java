@@ -118,7 +118,7 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		Object[] needle = this.needle.getArray(event);
+		Object[] needle = this.needle.getAll(event);
 		if (needle.length == 0)
 			return position ? new Long[0] : new String[0];
 
@@ -137,6 +137,12 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 		return getStringPositions(haystack, (String[]) needle);
 	}
 
+	/**
+	 * Get the positions of needles in a haystack string
+	 * @param haystack the haystack
+	 * @param needles the needles
+	 * @return the found positions
+	 */
 	private Long[] getStringPositions(String haystack, String[] needles) {
 		boolean caseSensitive = SkriptConfig.caseSensitive.value();
 
@@ -160,6 +166,18 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 		return positions.toArray(Long[]::new);
 	}
 
+	/**
+	 * Generic method to get the positions/indices of needles in a haystack
+	 * @param haystackIterator the haystack
+	 * @param needles the values to look for in the haystack
+	 * @param valueMapper maps an item in the haystack to its value
+	 * @param indexMapper maps an item in the haystack to its index/position
+	 * @param arrayFactory factory to create the resulting array
+	 * @return the found indices/positions
+	 * @param <Item> the type of items in the haystack
+	 * @param <Index> the type of the resulting indices/positions
+	 * @param <Value> the type of values to look for
+	 */
 	private <Item, Index, Value> Index[] getMatches(
 		Iterator<Item> haystackIterator,
 		Value[] needles,
@@ -202,6 +220,13 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 			.toArray(arrayFactory);
 	}
 
+	/**
+	 * Get the positions of needles in a haystack list
+	 * @param haystack the haystack
+	 * @param needles the needles
+	 * @param event the event
+	 * @return the found positions
+	 */
 	private Long[] getListPositions(Expression<?> haystack, Object[] needles, Event event) {
 		Iterator<?> haystackIterator = haystack.iterator(event);
 		if (haystackIterator == null)
@@ -210,6 +235,13 @@ public class ExprIndicesOfValue extends SimpleExpression<Object> {
 		return getMatches(haystackIterator, needles, item -> item, (item, index) -> index, Long[]::new);
 	}
 
+	/**
+	 * Get the indices of needles in a haystack keyed list
+	 * @param haystack the haystack
+	 * @param needles the needles
+	 * @param event the event
+	 * @return the found indices
+	 */
 	private String[] getIndices(KeyProviderExpression<?> haystack, Object[] needles, Event event) {
 		Iterator<? extends KeyedValue<?>> haystackIterator = haystack.keyedIterator(event);
 		if (haystackIterator == null)
