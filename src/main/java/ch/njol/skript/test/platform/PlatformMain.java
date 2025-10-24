@@ -28,7 +28,14 @@ public class PlatformMain {
 		Path runnerRoot = Paths.get(args[0]);
 		Path testsRoot = Paths.get(args[1]).toAbsolutePath();
 		Path dataRoot = Paths.get(args[2]);
-		Path envsRoot = Paths.get(args[3]);
+		// allow multiple environments separated by commas
+		List<Path> envPaths = new ArrayList<>();
+		String envsArg = args[3];
+		envsArg = envsArg.trim();
+		String[] envPathStrings = envsArg.split(",");
+		for (String envPath : envPathStrings) {
+			envPaths.add(Paths.get(envPath.trim()));
+		}
 		boolean devMode = "true".equals(args[4]);
 		boolean genDocs = "true".equals(args[5]);
 		boolean jUnit = "true".equals(args[6]);
@@ -43,19 +50,22 @@ public class PlatformMain {
 			jvmArgs.add("-Xmx5G");
 
 		// Load environments
-		List<Environment> envs;
-		if (Files.isDirectory(envsRoot)) {
-			envs = Files.walk(envsRoot).filter(path -> !Files.isDirectory(path))
+		List<Environment> envs = new ArrayList<>();
+		for (Path envPath : envPaths) {
+			if (Files.isDirectory(envPath)) {
+				envs.addAll(Files.walk(envPath).filter(path -> !Files.isDirectory(path))
 					.map(path -> {
 						try {
 							return gson.fromJson(Files.readString(path), Environment.class);
 						} catch (JsonSyntaxException | IOException e) {
 							throw new RuntimeException(e);
 						}
-					}).collect(Collectors.toList());
-		} else {
-			envs = Collections.singletonList(gson.fromJson(Files.readString(envsRoot), Environment.class));
+					}).toList());
+			} else {
+				envs.add(gson.fromJson(Files.readString(envPath), Environment.class));
+			}
 		}
+
 		System.out.println("Test environments: " + envs.stream().map(Environment::getName).collect(Collectors.joining(", ")));
 		
 		Set<String> allTests = new HashSet<>();

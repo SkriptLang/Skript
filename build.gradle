@@ -267,7 +267,7 @@ compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
 // Register different Skript testing tasks
-String environments = 'src/test/skript/environments/';
+String environments = 'src/test/skript/environments/'
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + env, latestJava, 0)
 createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
@@ -288,6 +288,34 @@ tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
 	dependsOn JUnitJava17, JUnitJava21
 }
+
+// custom test task
+// usage: gradle customTest -PtestEnvs=<environment files, comma separated list.> -PtestEnvJavaVersion=<java version> -Ptimeout=<timeout in ms> -Pjunit=[true|false] -Pparallel=[true|false]
+// defaults: testEnvJavaVersion=latestJava, timeout=0, junit=false, parallel=false
+// example: gradle customTest -PtestEnvs=java21/1.21.4,java21/1.21.6 -PtestEnvJavaVersion=21 -Ptimeout=600000 -Pjunit=true -Pparallel=true
+
+// get environments
+String propEnvs = project.hasProperty('testEnvs') ? project.property('testEnvs') as String : project.testEnv
+String[] envList = propEnvs != null ? propEnvs.split(',') : [env]
+StringBuilder customEnvironmentsBuilder = new StringBuilder()
+for (int i = 0; i < envList.length; i++) {
+	customEnvironmentsBuilder.append(environments).append(envList[i]).append('.json')
+	if (i < envList.length - 1) {
+		customEnvironmentsBuilder.append(',') // use ',' as separator for multiple environments
+	}
+}
+String customEnvironments = customEnvironmentsBuilder.toString()
+
+long customTimeout = project.hasProperty('timeout') ? Long.parseLong(project.property('timeout') as String) : 0
+List<Modifiers> customModifiers = new ArrayList<>()
+if (project.hasProperty('junit') && (project.property('junit') as String).toLowerCase() == 'true') {
+	customModifiers.add(Modifiers.JUNIT)
+}
+if (project.hasProperty('parallel') && (project.property('parallel') as String).toLowerCase() == 'true') {
+	customModifiers.add(Modifiers.PARALLEL)
+}
+createTestTask('customTest', 'Runs tests based on provided parameters.', customEnvironments, envJava, customTimeout, customModifiers.toArray(new Modifiers[0]) as Modifiers[])
+
 
 // Build flavor configurations
 task githubResources(type: ProcessResources) {
