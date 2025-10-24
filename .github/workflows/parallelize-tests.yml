@@ -7,8 +7,9 @@ on:
                 required: true
                 type: string
             parallel_jobs:
-                required: true
+                required: false
                 type: number
+                default: 2
             java_version:
                 required: true
                 type: number
@@ -19,6 +20,7 @@ on:
 
 jobs:
     prepare:
+        name: ""
         runs-on: ubuntu-latest
         outputs:
             matrix: ${{ steps.set-matrix.outputs.matrix }}
