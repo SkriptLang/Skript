@@ -5,10 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,12 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * Test environment information.
@@ -158,7 +150,7 @@ public class Environment {
 		return name;
 	}
 
-	public void initialize(Path dataRoot, Path runnerRoot, boolean remake) throws IOException {
+	public void initialize(Path dataRoot, Path runnerRoot, boolean remake, int parallelPort) throws IOException {
 		Path env = runnerRoot.resolve(name);
 		boolean onlyCopySkript = Files.exists(env) && !remake;
 
@@ -181,6 +173,21 @@ public class Environment {
 			Path source = dataRoot.resolve(resource.getSource());
 			Path target = env.resolve(resource.getTarget());
 			Files.createDirectories(target.getParent());
+			// Copy file, but if the resource is server.properties, modify it to use a different port for parallel tests
+			if (resource.getTarget().endsWith("server.properties") && parallelPort > 0) {
+				List<String> lines = Files.readAllLines(source, StandardCharsets.UTF_8);
+				List<String> modifiedLines = new ArrayList<>();
+				for (String line : lines) {
+					if (line.startsWith("server-port=")) {
+						modifiedLines.add("server-port=" + parallelPort);
+					} else {
+						modifiedLines.add(line);
+					}
+				}
+				Files.write(target, modifiedLines, StandardCharsets.UTF_8);
+				continue;
+			}
+			// normal copy
 			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 		}
 
@@ -232,8 +239,8 @@ public class Environment {
 
 		Process process = new ProcessBuilder(args)
 				.directory(env.toFile())
-				.redirectOutput(Redirect.INHERIT)
-				.redirectError(Redirect.INHERIT)
+//				.redirectOutput(Redirect.INHERIT)
+//				.redirectError(Redirect.INHERIT)
 				.redirectInput(Redirect.INHERIT)
 				.start();
 
@@ -253,7 +260,37 @@ public class Environment {
 			}, timeout);
 		}
 
+		// Create threads to read and prefix the output
+		Thread outThread = new Thread(() -> {
+			try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(process.getInputStream()))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					System.out.println("[" + this.getName() + "] " + line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+
+		Thread errThread = new Thread(() -> {
+			try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(process.getErrorStream()))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					System.err.println("[" + this.getName() + "] " + line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+
+		outThread.start();
+		errThread.start();
+
 		int code = process.waitFor();
+		outThread.join();
+		errThread.join();
 		if (code != 0)
 			throw new IOException("environment returned with code " + code);
 

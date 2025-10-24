@@ -26,4 +26,4 @@ jobs:
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
             - name: Build Skript and run JUnit
-              run: ./gradlew clean JUnitJava21
+              run: ./gradlew clean JUnitJava21 -PparallelTests=true
