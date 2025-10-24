@@ -7,24 +7,27 @@ on:
             - 'dev/**'
     pull_request:
 
+env:
+    ENVIRONMENTS: 1.20.6,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10
+    PARALLEL_JOBS: 3
+    JAVA_VERSION: 21
+
 jobs:
     prepare:
         name: Java ${{ env.JAVA_VERSION }} CI - Parallelize Tests
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         uses: ./.github/workflows/parallelize-tests.yml
         with:
-            environments: 1.20.6,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10
-            parallel_jobs: 3
-            java_version: 21
+            environments: ${{ env.ENVIRONMENTS }}
+            parallel_jobs: ${{ env.PARALLEL_JOBS }}
+            java_version: ${{ env.JAVA_VERSION }}
 
     build:
-        name: Java ${{ needs.prepare.outputs.java_version }} CI (${{ matrix.display }})
+        name: Java ${{ env.JAVA_VERSION }} CI (${{ matrix.display }})
         needs: prepare
         runs-on: ubuntu-latest
         strategy:
             matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
-        env:
-            JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
         steps:
             - uses: actions/checkout@v5
               with:

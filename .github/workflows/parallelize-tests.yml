@@ -16,16 +16,12 @@ on:
             matrix:
                 description: "Generated test matrix"
                 value: ${{ jobs.prepare.outputs.matrix }}
-            java_version:
-                description: "Java version passed through"
-                value: ${{ jobs.prepare.outputs.java_version }}
 
 jobs:
     prepare:
         runs-on: ubuntu-latest
         outputs:
             matrix: ${{ steps.set-matrix.outputs.matrix }}
-            java_version: ${{ inputs.java_version }}
         steps:
             - name: Generate matrix
               id: set-matrix
