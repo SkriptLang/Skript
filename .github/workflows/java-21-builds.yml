@@ -7,10 +7,14 @@ on:
             - 'dev/**'
     pull_request:
 
-# environments = 1.20.6,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10
+env:
+    ENVIRONMENTS: 1.20.6,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10
+    PARALLEL_JOBS: 3
+    JAVA_VERSION: 21
 
 jobs:
     prepare:
+        name: Java ${{ env.JAVA_VERSION }} CI - Parallelize Tests
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         runs-on: ubuntu-latest
         outputs:
@@ -19,13 +23,12 @@ jobs:
             - name: Generate matrix
               id: set-matrix
               run: |
-                  # Define environments and number of splits
-                  ENVIRONMENTS="1.20.6,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10"
-                  N=3  # Change this to your desired number of parallel jobs
-                  JAVA_VERSION=21  # Java version for the transformation
+                  # Use environment variables
+                  N=${{ env.PARALLEL_JOBS }}
+                  JAVA_VERSION=${{ env.JAVA_VERSION }}
                   
                   # Convert to array and transform
-                  IFS=',' read -ra ENVS <<< "$ENVIRONMENTS"
+                  IFS=',' read -ra ENVS <<< "${{ env.ENVIRONMENTS }}"
                   TRANSFORMED=()
                   for env in "${ENVS[@]}"; do
                       TRANSFORMED+=("java${JAVA_VERSION}/paper-${env}")
@@ -33,35 +36,43 @@ jobs:
                   
                   TOTAL=${#TRANSFORMED[@]}
                   
-                  # Calculate actual number of jobs (min of N and total environments)
+                  # avoid creating more jobs than needed
                   JOBS=$((TOTAL < N ? TOTAL : N))
-                  
-                  # Calculate environments per job
+                  # environments per job
                   BASE=$((TOTAL / JOBS))
                   EXTRA=$((TOTAL % JOBS))
                   
                   # Build matrix JSON
+                  # Format is:
+                  # [{"id":1,"envs":"java21/paper-1.20.6,java21/paper-1.21.3","display":"1.20.6, 1.21.3"},...]
+                  # Where "envs" is the actual environment strings and "display" is for easier identification
                   MATRIX="["
                   INDEX=0
                   for ((i=0; i<JOBS; i++)); do
+                      # Determine count for this job (BASE + 1 if i < EXTRA)
                       COUNT=$BASE
                       if [ $i -lt $EXTRA ]; then
                           COUNT=$((COUNT + 1))
                       fi
                   
+                      # Build envs and display strings
                       GROUP=""
+                      DISPLAY_GROUP=""
                       for ((j=0; j<COUNT; j++)); do
                           if [ -n "$GROUP" ]; then
                               GROUP="$GROUP,"
+                              DISPLAY_GROUP="$DISPLAY_GROUP, "
                           fi
                           GROUP="$GROUP${TRANSFORMED[$INDEX]}"
+                          DISPLAY_GROUP="$DISPLAY_GROUP${ENVS[$INDEX]}"
                           INDEX=$((INDEX + 1))
                       done
                   
+                      # add to matrix with separating comma if needed
                       if [ $i -gt 0 ]; then
                           MATRIX="$MATRIX,"
                       fi
-                      MATRIX="$MATRIX{\"id\":$((i+1)),\"envs\":\"$GROUP\"}"
+                      MATRIX="$MATRIX{\"id\":$((i+1)),\"envs\":\"$GROUP\",\"display\":\"$DISPLAY_GROUP\"}"
                   done
                   MATRIX="$MATRIX]"
                   
@@ -69,6 +80,7 @@ jobs:
                   echo "Generated matrix: {\"include\":$MATRIX}"
 
     build:
+        name: Java ${{ env.JAVA_VERSION }} CI (${{ matrix.display }})
         needs: prepare
         runs-on: ubuntu-latest
         strategy:
@@ -79,19 +91,19 @@ jobs:
                   submodules: recursive
             - name: validate gradle wrapper
               uses: gradle/actions/wrapper-validation@v4
-            - name: Set up JDK 21
+            - name: Set up JDK ${{ env.JAVA_VERSION }}
               uses: actions/setup-java@v5
               with:
-                  java-version: '21'
+                  java-version: '${{ env.JAVA_VERSION }}'
                   distribution: 'adopt'
                   cache: gradle
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
             - name: Build Skript and run test scripts
-              run: ./gradlew clean customTest -PtestEnvs="${{ matrix.envs }}" -PtestEnvJavaVersion=21
+              run: ./gradlew clean customTest -PtestEnvs="${{ matrix.envs }}" -PtestEnvJavaVersion=${{ env.JAVA_VERSION }}
             - name: Upload Nightly Build
               uses: actions/upload-artifact@v4
-              if: success()
+              if: success() && matrix.id == 1
               with:
-                  name: skript-nightly-${{ matrix.id }}
+                  name: skript-nightly
                   path: build/libs/*
