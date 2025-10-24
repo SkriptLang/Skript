@@ -1,4 +1,4 @@
-name: Java 21 CI (MC 1.20.6+)
+name: Java 21 CI
 
 on:
     push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
     prepare:
-        name: Java 21 CI - Parallelize Tests
+        name: Parallelize Tests
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         uses: ./.github/workflows/parallelize-tests.yml
         with:
@@ -18,7 +18,7 @@ jobs:
             java_version: 21
 
     build:
-        name: Java 21 CI (${{ matrix.display }})
+        name: ${{ matrix.display }}
         needs: prepare
         runs-on: ubuntu-latest
         strategy:
