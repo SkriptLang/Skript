@@ -29,7 +29,7 @@ jobs:
             - name: Grant execute permission for gradlew
               run: chmod +x gradlew
             - name: Build Skript and run test scripts
-              run: ./gradlew clean specificTest -PtestEnv=java21/${{ matrix.minecraft-version }} -PtestEnvJavaVersion=21
+              run: ./gradlew clean specificTest -PtestEnv=java21/paper-${{ matrix.minecraft-version }} -PtestEnvJavaVersion=21
             - name: Upload Nightly Build
               uses: actions/upload-artifact@v4
               if: success()
