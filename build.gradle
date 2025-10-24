@@ -269,13 +269,9 @@ compileTestJava.options.encoding = 'UTF-8'
 // Register different Skript testing tasks
 String environments = 'src/test/skript/environments/';
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
-
-boolean useParallelExecution = project.hasProperty('parallelTests') && project.property('parallelTests').toString().toLowerCase() == 'true'
-Modifiers[] parallel = useParallelExecution ? [Modifiers.PARALLEL] as Modifiers[] : [] as Modifiers[]
-
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + env, latestJava, 0)
-createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0, parallel)
-createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0, parallel)
+createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
+createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + env, latestJava, -1, Modifiers.PROFILE)
 createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
@@ -285,10 +281,9 @@ tasks.register('skriptTest') {
 	dependsOn skriptTestJava17, skriptTestJava21
 }
 
-Modifiers[] junitParallel = useParallelExecution ? [Modifiers.JUNIT, Modifiers.PARALLEL] as Modifiers[] : [Modifiers.JUNIT] as Modifiers[]
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, junitParallel)
-createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, junitParallel)
+createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
+createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
 	dependsOn JUnitJava17, JUnitJava21
