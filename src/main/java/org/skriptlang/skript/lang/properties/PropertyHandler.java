@@ -9,6 +9,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -277,6 +278,23 @@ public interface PropertyHandler<Type> {
 			}
 			return false;
 		}
+	}
+
+	/**
+	 * A handler for executing an effect on an object.
+	 * @param <Type> The type of object.
+	 *
+	 * @see PropertyBaseEffect
+	 */
+	@Experimental
+	interface EffectHandler<Type> extends PropertyHandler<Type> {
+
+		/**
+		 * To execute an effect on the value.
+		 * @param type The value.
+		 */
+		void execute(Type type);
+
 	}
 
 }

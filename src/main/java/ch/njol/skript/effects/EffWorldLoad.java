@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,58 +17,58 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Load World")
-@Description({
-		"Load your worlds or unload your worlds",
-		"The load effect will create a new world if world doesn't already exist.",
-		"When attempting to load a normal vanilla world you must define it's environment i.e \"world_nether\" must be loaded with nether environment"
-})
-@Examples({
-		"load world \"world_nether\" with environment nether",
-		"load the world \"myCustomWorld\"",
-		"unload \"world_nether\"",
-		"unload \"world_the_end\" without saving",
-		"unload all worlds"
-})
+@Description("""
+	Load or unload a world.
+	Loading a world that does not already exist will create a new one.
+	When attempting to load a normal vanilla world, you must define it's environment. Such as "world_nether" would need \
+	to be loaded with the 'nether' environment.
+	""")
+@Example("load world \"world_nether\" with environment nether")
+@Example("load the world \"myCustomWorld\"")
+@Example("unload \"world_the_end\" without saving")
 @Since("2.8.0")
 public class EffWorldLoad extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldLoad.class,
 				"load [the] world[s] %strings% [with environment %-environment%]",
-				"unload [[the] world[s]] %worlds% [:without saving]"
+				"unload [[the] world[s]] %worlds% without saving"
 		);
 	}
 
-	private boolean save, load;
-	private Expression<?> worlds;
-	@Nullable
-	private Expression<Environment> environment;
+	private boolean load;
+	private Expression<String> strings;
+	private Expression<World> worlds;
+	private @Nullable Expression<Environment> environment;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		worlds = exprs[0];
 		load = matchedPattern == 0;
 		if (load) {
+			//noinspection unchecked
+			strings = (Expression<String>) exprs[0];
+			//noinspection unchecked
 			environment = (Expression<Environment>) exprs[1];
 		} else {
-			save = !parseResult.hasTag("without saving");
+			//noinspection unchecked
+			worlds = (Expression<World>) exprs[0];
 		}
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		Environment environment = this.environment != null ? this.environment.getSingle(event) : null;
-		for (Object world : worlds.getArray(event)) {
-			if (load && world instanceof String) {
-				WorldCreator worldCreator = new WorldCreator((String) world);
+		if (load) {
+			Environment environment = this.environment != null ? this.environment.getSingle(event) : null;
+			for (String string : strings.getArray(event)) {
+				WorldCreator worldCreator = new WorldCreator(string);
 				if (environment != null)
 					worldCreator.environment(environment);
 				worldCreator.createWorld();
-			} else if (!load && world instanceof World) {
-				Bukkit.unloadWorld((World) world, save);
 			}
+		} else {
+			for (World world : worlds.getArray(event))
+				Bukkit.unloadWorld(world, false);
 		}
 	}
 
@@ -76,7 +76,7 @@ public class EffWorldLoad extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		if (load)
 			return "load the world(s) " + worlds.toString(event, debug) + (environment == null ? "" : " with environment " + environment.toString(event, debug));
-		return "unload the world(s) " + worlds.toString(event, debug) + " " + (save ? "with saving" : "without saving");
+		return "unload the world(s) " + worlds.toString(event, debug) + " without saving";
 	}
 
 }

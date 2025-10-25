@@ -42,8 +42,9 @@ public class ExprScript extends SimpleExpression<Script> {
 
 	static {
 		Skript.registerExpression(ExprScript.class, Script.class, ExpressionType.SIMPLE,
-			"[the] [current] script",
-			"[the] script[s] [named] %strings%",
+			"[the] [current] script [file]",
+			"[the] script[s] [file[s]] [named] %strings%",
+			"[the] skript file[s] %strings%",
 			"[the] scripts in [directory|folder] %string%"
 		);
 	}
@@ -54,7 +55,7 @@ public class ExprScript extends SimpleExpression<Script> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.isDirectory = matchedPattern == 2;
+		this.isDirectory = matchedPattern == 3;
 		if (matchedPattern == 0) {
 			ParserInstance parser = this.getParser();
 			if (!parser.isActive()) {

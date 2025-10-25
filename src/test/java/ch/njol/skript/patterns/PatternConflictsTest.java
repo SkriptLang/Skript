@@ -6,8 +6,6 @@ import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.conditions.CondDate;
 import ch.njol.skript.conditions.CondIsLoaded;
 import ch.njol.skript.conditions.CondScriptLoaded;
-import ch.njol.skript.effects.EffScriptFile;
-import ch.njol.skript.effects.EffWorldLoad;
 import ch.njol.skript.expressions.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
@@ -424,7 +422,6 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		// Exclusions by amount of conflicts
 		// 1 conflict
 		EXCLUSIONS.add(new Exclusion("formatted %*%", ExprFormatDate.class, ExprColoured.class));
-		EXCLUSIONS.add(new Exclusion("unload %*%", EffScriptFile.class, EffWorldLoad.class));
 		EXCLUSIONS.add(new Exclusion("the %*% of %*%", ExprArmorSlot.class, ExprEntities.class));
 		EXCLUSIONS.add(new Exclusion("%*% of %*%", ExprArmorSlot.class, ExprEntities.class, ExprXOf.class));
 

@@ -8,16 +8,21 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Feature;
+import ch.njol.skript.util.FileUtils;
+import ch.njol.util.OpenCloseable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.EffectHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Set;
 
 @ApiStatus.Internal
 public class ScriptClassInfo extends ClassInfo<Script> {
@@ -37,7 +42,31 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 					+ "this will return the resolved name of the script, otherwise it returns the file "
 					+ "name with path relative to the scripts folder. Cannot be changed.",
 				Skript.instance(),
-				new ScriptNameHandler());
+				new ScriptNameHandler())
+			.property(Property.LOAD,
+				"Loads a script if not already loaded.",
+				Skript.instance(),
+				new ScriptLoadHandler())
+			.property(Property.ENABLE,
+				"Enables a script if not already enabled.",
+				Skript.instance(),
+				new ScriptLoadHandler())
+			.property(Property.RELOAD,
+				"Reloads a script.",
+				Skript.instance(),
+				new ScriptReloadHandler())
+			.property(Property.UNLOAD,
+				"Unloads a script and removes it from memory.",
+				Skript.instance(),
+				new ScriptUnloadHandler())
+			.property(Property.DISABLE,
+				"""
+					Disables a script if not already disabled.
+					Disabling a script unloads it and prepends "-" to the file name so it will not be loaded the next time \
+					the server restarts.
+					""",
+				Skript.instance(),
+				new ScriptDisableHandler());
 	}
 
 	private static class ScriptParser extends Parser<Script> {
@@ -56,10 +85,10 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		public @Nullable Script parse(final String name, final ParseContext context) {
 			return switch (context) {
 				case PARSE, COMMAND -> {
-					@Nullable File file = ScriptLoader.getScriptFromName(name);
+					@Nullable File file = ch.njol.skript.ScriptLoader.getScriptFromName(name);
 					if (file == null || !file.isFile())
 						yield null;
-					yield ScriptLoader.getScript(file);
+					yield ch.njol.skript.ScriptLoader.getScript(file);
 				}
 				default -> null;
 			};
@@ -108,6 +137,110 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 			return String.class;
 		}
 		//</editor-fold>
+	}
+
+	public static class ScriptLoadHandler implements EffectHandler<Script> {
+		//<editor-fold desc="load property handler" defaultstate="collapsed">
+		@Override
+		public void execute(Script script) {
+			execute(script, OpenCloseable.EMPTY);
+		}
+
+		public void execute(Script script, OpenCloseable closeable) {
+			File file = script.getConfig().getFile();
+			if (file == null || !file.exists())
+				return;
+			if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(file)))
+				return;
+			if (ScriptLoader.getDisabledScriptsFilter().accept(file)) {
+				try {
+					file = FileUtils.move(
+						file,
+						new File(file.getParentFile(), file.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH)),
+						false
+					);
+				} catch (IOException e) {
+					Skript.exception("Error while enabling script file: " + script.name());
+					return;
+				}
+			}
+			ScriptLoader.loadScripts(file, closeable);
+		}
+		//</editor-fold>
+	}
+
+	public static class ScriptReloadHandler implements EffectHandler<Script> {
+		//<editor-fold desc="reload property handler" defaultstate="collapsed">
+		@Override
+		public void execute(Script script) {
+			execute(script, OpenCloseable.EMPTY);
+		}
+
+		public void execute(Script script, OpenCloseable closeable) {
+			File file = script.getConfig().getFile();
+			if (file == null || !file.exists())
+				return;
+			if (ScriptLoader.getDisabledScriptsFilter().accept(file))
+				return;
+			unloadScripts(file);
+			ScriptLoader.loadScripts(file, closeable);
+		}
+		//</editor-fold>
+	}
+
+	private static class ScriptUnloadHandler implements EffectHandler<Script> {
+		//<editor-fold desc="unload property handler" defaultstate="collapsed">
+		@Override
+		public void execute(Script script) {
+			File file = script.getConfig().getFile();
+			if (file == null || !file.exists())
+				return;
+			if (!ScriptLoader.getLoadedScriptsFilter().accept(file))
+				return;
+			unloadScripts(file);
+		}
+		//</editor-fold>
+	}
+
+	private static class ScriptDisableHandler implements EffectHandler<Script> {
+		//<editor-fold desc="disable property handler" defaultstate="collapsed">
+		@Override
+		public void execute(Script script) {
+			File file = script.getConfig().getFile();
+			if (file == null || !file.exists())
+				return;
+			if (ScriptLoader.getDisabledScriptsFilter().accept(file))
+				return;
+			unloadScripts(file);
+
+			try {
+				FileUtils.move(
+					file,
+					new File(file.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + file.getName()),
+					false
+				);
+			} catch (IOException e) {
+				Skript.exception(e, "Error while disabling script file: " + script.name());
+			}
+		}
+		//</editor-fold>
+	}
+
+	private static void unloadScripts(File file) {
+		Set<Script> loaded = ScriptLoader.getLoadedScripts();
+		if (file.isDirectory()) {
+			Set<Script> scripts = ScriptLoader.getScripts(file);
+			if (scripts.isEmpty())
+				return;
+			scripts.retainAll(loaded); // skip any that are not loaded (avoid throwing error)
+			ScriptLoader.unloadScripts(scripts);
+		} else {
+			Script script = ScriptLoader.getScript(file);
+			if (!loaded.contains(script))
+				return; // don't need to unload if not loaded (avoid throwing error)
+			if (script != null)
+				ScriptLoader.unloadScript(script);
+		}
 	}
 
 }
