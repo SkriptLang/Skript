@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
@@ -78,11 +79,22 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	 * @param codeName The name used in patterns
 	 */
 	public ClassInfo(final Class<T> c, final String codeName) {
+		this(c, codeName, true);
+	}
+
+	public ClassInfo(Class<T> c, String codeName, boolean checkTypes) {
+		assert !c.isArray() && !c.isAnnotation();
+
 		this.c = c;
 		if (!isValidCodeName(codeName))
 			throw new IllegalArgumentException("Code names for classes must be lowercase and only consist of latin letters and arabic numbers, found %s".formatted(codeName));
 		this.codeName = codeName;
-		name = new Noun("types." + codeName);
+
+		if (checkTypes) {
+			name = new Noun("types." + codeName);
+		} else {
+			name = null;
+		}
 	}
 
 	public static boolean isValidCodeName(final String name) {
@@ -169,8 +181,9 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 		if (serializeAs != null)
 			throw new IllegalStateException("Can't set a serializer if this class is set to be serialized as another one");
 		this.serializer = serializer;
-		if (serializer != null) {
+		if (serializer != null && !Classes.serializers.containsKey(c)) {
 			serializer.register(this);
+			Classes.serializers.put(c, serializer);
 		}
 		return this;
 	}
@@ -497,6 +510,7 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 		}
 
 		Set<String> patterns = new HashSet<>();
+		patterns.add(codeName);
 		for (Pattern pattern : userInputPatterns) {
 			patterns.addAll(PatternGenerator.generate(pattern.toString()));
 		}

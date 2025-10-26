@@ -161,6 +161,8 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		TypeInfoBuilderImpl(SkriptAddon source, Class<T> type, String name, String... patterns) {
 			Preconditions.checkNotNull(source, "source cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
+			Preconditions.checkArgument(!type.isArray(), "type cannot be an array");
+			Preconditions.checkArgument(!type.isAnnotation(), "type cannot be an annotation");
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(patterns, "patterns cannot be null");
 			checkNotNull(patterns, "patterns contents cannot be null");
@@ -308,6 +310,8 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		) {
 			Preconditions.checkNotNull(source, "source cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
+			Preconditions.checkArgument(!type.isArray(), "type cannot be an array");
+			Preconditions.checkArgument(!type.isAnnotation(), "type cannot be an annotation");
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(patterns, "patterns cannot be null");
 			Preconditions.checkNotNull(registry, "registry cannot be null");
@@ -443,6 +447,8 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		) {
 			Preconditions.checkNotNull(source, "source cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
+			Preconditions.checkArgument(!type.isArray(), "type cannot be an array");
+			Preconditions.checkArgument(!type.isAnnotation(), "type cannot be an annotation");
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(patterns, "patterns cannot be null");
 			Preconditions.checkNotNull(langNode, "langNode cannot be null");

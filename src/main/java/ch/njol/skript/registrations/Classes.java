@@ -52,7 +52,7 @@ public abstract class Classes {
 
 	private static final TypeRegistry registry = Skript.getAddonInstance().registry(TypeRegistry.class);
 
-	private static final Pattern CODENAME_PATTERN = Pattern.compile("[a-z0-9]+");
+	public static final Map<Class<?>, Serializer<?>> serializers = new HashMap<>();
 
 	/**
 	 * Converts a {@link TypeInfo} into a {@link ClassInfo}, for backwards compatibility.
@@ -66,23 +66,26 @@ public abstract class Classes {
 			return null;
 		}
 
-		Optional<String> codename = info.patterns().stream()
-				.filter(it -> CODENAME_PATTERN.matcher(it).matches())
-				.findFirst();
+		if (!exactClassInfos.containsKey(info.type())) {
+			ClassInfo<T> simulated = new ClassInfo<>(info.type(), info.type().getSimpleName().toLowerCase())
+					.name(info.name())
+					.description(info.description().toArray(new String[0]))
+					.since(String.join("\n", info.since()))
+					.examples(info.examples().toArray(new String[0]))
+					.requiredPlugins(info.requires().toArray(new String[0]))
+					.serializer(info.serializer())
+					.parser(info.parser())
+					.defaultExpression(info.defaultExpression())
+					.supplier(info.values())
+					.cloner(info.cloner());
 
-		assert codename.isPresent() : "%s failed to match codename pattern with %s".formatted(info.name(), Arrays.toString(info.patterns().toArray()));
+			exactClassInfos.put(info.type(), simulated);
 
-		return new ClassInfo<>(info.type(), codename.orElse(null))
-				.name(info.name())
-				.description(info.description().toArray(new String[0]))
-				.since(String.join("\n", info.since()))
-				.examples(info.examples().toArray(new String[0]))
-				.requiredPlugins(info.requires().toArray(new String[0]))
-				.serializer(info.serializer())
-				.parser(info.parser())
-				.defaultExpression(info.defaultExpression())
-				.supplier(info.values())
-				.cloner(info.cloner());
+			return simulated;
+		}
+
+		//noinspection unchecked
+		return (ClassInfo<T>) exactClassInfos.get(info.type());
 	}
 
 	private Classes() {}
@@ -128,7 +131,7 @@ public abstract class Classes {
 
 	public static void onRegistrationsStop() {
 
-//		sortClassInfos();
+		sortClassInfos();
 
 		// validate serializeAs
 		for (final ClassInfo<?> ci : getClassInfos()) {
@@ -143,8 +146,8 @@ public abstract class Classes {
 		}
 
 		// register to Yggdrasil
-		for (final ClassInfo<?> ci : getClassInfos()) {
-			final Serializer<?> s = ci.getSerializer();
+		for (TypeInfo<?> ci : registry.elements()) {
+			Serializer<?> s = ci.serializer();
 			if (s != null)
 				Variables.yggdrasil.registerClassResolver(s);
 		}
@@ -235,7 +238,7 @@ public abstract class Classes {
 					b.append(", ");
 				b.append(c.getCodeName() + " (after: " + StringUtils.join(c.after(), ", ") + ")");
 			}
-			throw new IllegalStateException("ClassInfos with circular dependencies detected: " + b.toString());
+//			throw new IllegalStateException("ClassInfos with circular dependencies detected: " + b.toString());
 		}
 
 		// debug message
@@ -282,6 +285,7 @@ public abstract class Classes {
 	public static List<ClassInfo<?>> getClassInfos() {
 		return registry.elements().stream()
 				.map(Classes::toClassInfo)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
@@ -402,17 +406,8 @@ public abstract class Classes {
 	@Nullable
 	public static ClassInfo<?> getClassInfoFromUserInput(String name) {
 		checkAllowClassInfoInteraction();
-		name = "" + name.toLowerCase(Locale.ENGLISH);
-		for (final ClassInfo<?> ci : getClassInfos()) {
-			final Pattern[] uip = ci.getUserInputPatterns();
-			if (uip == null)
-				continue;
-			for (final Pattern pattern : uip) {
-				if (pattern.matcher(name).matches())
-					return ci;
-			}
-		}
-		return null;
+
+		return toClassInfo(registry.fromPattern(name));
 	}
 
 	/**
