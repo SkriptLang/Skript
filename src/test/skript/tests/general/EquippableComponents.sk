@@ -1,0 +1,275 @@
+options:
+	equipSound: "minecraft:item.armor.equip_generic"
+	slot: chest slot
+	model: "skript:model_key"
+	camera: "skript:camera_key"
+	allowed: a zombie and a skeleton
+	shearSound: "minecraft:block.note_block.pling"
+
+using equippable components
+
+test "equippable components - new" when running minecraft "1.21.2":
+	set {_component} to a blank equippable component
+	set the equip sound of {_component} to {@equipSound}
+	assert the equip sound of {_component} is {@equipSound} with "Equip sound of component was not set"
+	set the equipment slot of {_component} to {@slot}
+	assert the equipment slot of {_component} is {@slot} with "Equipment slot of component was not set"
+	set the equipped model key of {_component} to {@model}
+	assert the equipped model key of {_component} is {@model} with "Model of component was not set"
+	set the allowed entities of {_component} to {@allowed}
+	assert the allowed entities of {_component} is {@allowed} with "Allowed entities of component was not set"
+	set the camera overlay of {_component} to {@camera}
+	assert the camera overlay of {_component} is {@camera} with "Camera overlay of component was not set"
+	allow {_component} to swap equipment
+	assert {_component} can swap equipment with "Component should be swappable"
+	prevent {_component} from swapping equipment
+	assert {_component} can not swap equipment with "Component should not be swappable"
+	allow {_component} to be dispensed
+	assert {_component} can be dispensed with "Component should be dispensable"
+	prevent {_component} from being dispensed
+	assert {_component} can not be dispensed with "Component should not be dispensable"
+	make {_component} lose durability when hurt
+	assert {_component} will lose durability when hurt with "Component should lose durability when hurt"
+	make {_component} not lose durability when hurt
+	assert {_component} will not lose durability when hurt with "Component should not lose durability when hurt"
+
+	parse if running minecraft "1.21.5":
+		allow {_component} to be equipped onto entities
+		assert {_component} can be equipped onto entities with "Component should equip onto entities"
+		prevent {_component} from being equipped onto entities
+		assert {_component} can not be equipped onto entities with "Component should not equip onto entities"
+		
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_component} to {@shearSound}
+		assert the shear sound of {_component} is {@shearSound} with "Shear sound of component was not set"
+		allow {_component} to be sheared off
+		assert {_component} can be sheared off with "Component should be shearable"
+		prevent {_component} from being sheared off
+		assert {_component} can not be sheared off with "Component should not be shearable"
+
+test "equippable components - itemtype" when running minecraft "1.21.2":
+	set {_item} to a leather helmet (item type)
+	set the equip sound of {_item} to {@equipSound}
+	assert the equip sound of {_item} is {@equipSound} with "Equip sound of itemtype was not set"
+	set the equipment slot of {_item} to {@slot}
+	assert the equipment slot of {_item} is {@slot} with "Equipment slot of itemtype was not set"
+	set the equipped model key of {_item} to {@model}
+	assert the equipped model key of {_item} is {@model} with "Model of itemtype was not set"
+	set the allowed entities of {_item} to {@allowed}
+	assert the allowed entities of {_item} is {@allowed} with "Allowed entities of itemtype was not set"
+	set the camera overlay of {_item} to {@camera}
+	assert the camera overlay of {_item} is {@camera} with "Camera overlay of itemtype was not set"
+	allow {_item} to swap equipment
+	assert {_item} can swap equipment with "ItemType should be swappable"
+	prevent {_item} from swapping equipment
+	assert {_item} can not swap equipment with "ItemType should not be swappable"
+	allow {_item} to be dispensed
+	assert {_item} can be dispensed with "ItemType should be dispensable"
+	prevent {_item} from being dispensed
+	assert {_item} can not be dispensed with "ItemType should not be dispensable"
+	make {_item} lose durability when hurt
+	assert {_item} will lose durability when hurt with "ItemType should lose durability when hurt"
+	make {_item} not lose durability when hurt
+	assert {_item} will not lose durability when hurt with "ItemType should not lose durability when hurt"
+
+	parse if running minecraft "1.21.5":
+		allow {_item} to be equipped onto entities
+		assert {_item} can be equipped onto entities with "ItemType should equip onto entities"
+		prevent {_item} from being equipped onto entities
+		assert {_item} can not be equipped onto entities with "ItemType should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_item} to {@shearSound}
+		assert the shear sound of {_item} is {@shearSound} with "Shear sound of itemtype was not set"
+		allow {_item} to be sheared off
+		assert {_item} can be sheared off with "ItemType should be shearable"
+		prevent {_item} from being sheared off
+		assert {_item} can not be sheared off with "ItemType should not be shearable"
+
+test "equippable components - itemstack" when running minecraft "1.21.2":
+	set {_item} to a iron helmet (item stack)
+	set the equip sound of {_item} to {@equipSound}
+	assert the equip sound of {_item} is {@equipSound} with "Equip sound of itemstack was not set"
+	set the equipment slot of {_item} to {@slot}
+	assert the equipment slot of {_item} is {@slot} with "Equipment slot of itemstack was not set"
+	set the equipped model key of {_item} to {@model}
+	assert the equipped model key of {_item} is {@model} with "Model of itemstack was not set"
+	set the allowed entities of {_item} to {@allowed}
+	assert the allowed entities of {_item} is {@allowed} with "Allowed entities of itemstack was not set"
+	set the camera overlay of {_item} to {@camera}
+	assert the camera overlay of {_item} is {@camera} with "Camera overlay of itemstack was not set"
+	allow {_item} to swap equipment
+	assert {_item} can swap equipment with "ItemStack should be swappable"
+	prevent {_item} from swapping equipment
+	assert {_item} can not swap equipment with "ItemStack should not be swappable"
+	allow {_item} to be dispensed
+	assert {_item} can be dispensed with "ItemStack should be dispensable"
+	prevent {_item} from being dispensed
+	assert {_item} can not be dispensed with "ItemStack should not be dispensable"
+	make {_item} lose durability when hurt
+	assert {_item} will lose durability when hurt with "ItemStack should lose durability when hurt"
+	make {_item} not lose durability when hurt
+	assert {_item} will not lose durability when hurt with "ItemStack should not lose durability when hurt"
+
+	parse if running minecraft "1.21.5":
+		allow {_item} to be equipped onto entities
+		assert {_item} can be equipped onto entities with "ItemStack should equip onto entities"
+		prevent {_item} from being equipped onto entities
+		assert {_item} can not be equipped onto entities with "ItemStack should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_item} to {@shearSound}
+		assert the shear sound of {_item} is {@shearSound} with "Shear sound of itemstack was not set"
+		allow {_item} to be sheared off
+		assert {_item} can be sheared off with "ItemStack should be shearable"
+		prevent {_item} from being sheared off
+		assert {_item} can not be sheared off with "ItemStack should not be shearable"
+
+test "equippable components - copy" when running minecraft "1.21.2":
+	set {_component} to a blank equippable component
+	set the equip sound of {_component} to {@equipSound}
+	assert the equip sound of {_component} is {@equipSound} with "Equip sound of component was not set"
+	set the equipment slot of {_component} to {@slot}
+	assert the equipment slot of {_component} is {@slot} with "Equipment slot of component was not set"
+	set the equipped model key of {_component} to {@model}
+	assert the equipped model key of {_component} is {@model} with "Model of component was not set"
+	set the allowed entities of {_component} to {@allowed}
+	assert the allowed entities of {_component} is {@allowed} with "Allowed entities of component was not set"
+	set the camera overlay of {_component} to {@camera}
+	assert the camera overlay of {_component} is {@camera} with "Camera overlay of component was not set"
+	allow {_component} to swap equipment
+	assert {_component} can swap equipment with "Component should be swappable"
+	prevent {_component} from swapping equipment
+	assert {_component} can not swap equipment with "Component should not be swappable"
+	allow {_component} to be dispensed
+	assert {_component} can be dispensed with "Component should be dispensable"
+	prevent {_component} from being dispensed
+	assert {_component} can not be dispensed with "Component should not be dispensable"
+	make {_component} lose durability when hurt
+	assert {_component} will lose durability when hurt with "Component should lose durability when hurt"
+	make {_component} not lose durability when hurt
+	assert {_component} will not lose durability when hurt with "Component should not lose durability when hurt"
+
+	parse if running minecraft "1.21.5":
+		allow {_component} to be equipped onto entities
+		assert {_component} can be equipped onto entities with "Component should equip onto entities"
+		prevent {_component} from being equipped onto entities
+		assert {_component} can not be equipped onto entities with "Component should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_component} to {@shearSound}
+		assert the shear sound of {_component} is {@shearSound} with "Shear sound of component was not set"
+		allow {_component} to be sheared off
+		assert {_component} can be sheared off with "Component should be shearable"
+		prevent {_component} from being sheared off
+		assert {_component} can not be sheared off with "Component should not be shearable"
+	set {_original} to {_component}
+
+	set {_copy} to a item component copy of {_original}
+	set the equip sound of {_copy} to "minecraft:item.armor.equip_diamond"
+	assert the equip sound of {_copy} is "minecraft:item.armor.equip_diamond" with "Equip sound of copy was not set"
+	assert the equip sound of {_original} is {@equipSound} with "Equip sound of original should not have changed"
+	set the equipment slot of {_copy} to helmet slot
+	assert the equipment slot of {_copy} is helmet slot with "Equipment slot of copy was not set"
+	assert the equipment slot of {_original} is {@slot} with "Equipment slot of original should not have changed"
+	set the equipped model key of {_copy} to "skript:model_key_copy"
+	assert the equipped model key of {_copy} is "skript:model_key_copy" with "Model of copy was not set"
+	assert the equipped model key of {_original} is {@model} with "Model of original should not have changed"
+	set the allowed entities of {_copy} to a villager and a zombie villager
+	assert the allowed entities of {_copy} is a villager and a zombie villager with "Allowed entities of copy was not set"
+	assert the allowed entities of {_original} is {@allowed} with "Allowed entities of original should not have changed"
+	set the camera overlay of {_copy} to "skript:camera_key_copy"
+	assert the camera overlay of {_copy} is "skript:camera_key_copy" with "Camera overlay of copy was not set"
+	assert the camera overlay of {_original} is {@camera} with "Camera overlay of original should not have changed"
+	allow {_copy} to swap equipment
+	assert {_copy} can swap equipment with "Copy should be swappable"
+	assert {_original} can not swap equipment with "Original should still be non swappable"
+	prevent {_copy} from swapping equipment
+	assert {_copy} can not swap equipment with "Copy should not be swappable"
+	allow {_copy} to be dispensed
+	assert {_copy} can be dispensed with "Copy should be dispensable"
+	assert {_original} can not be dispensed with "Original should still be non dispensable"
+	prevent {_copy} from being dispensed
+	assert {_copy} can not be dispensed with "Copy should not be dispensable"
+	make {_copy} lose durability when hurt
+	assert {_copy} will lose durability when hurt with "Copy should lose durability when hurt"
+	assert {_original} will not lose durability when hurt with "Original should still not lose durability"
+	make {_copy} not lose durability when hurt
+	assert {_copy} will not lose durability when hurt with "Copy should not lose durability when hurt"
+
+	parse if running minecraft "1.21.5":
+		allow {_copy} to be equipped onto entities
+		assert {_copy} can be equipped onto entities with "Copy should equip onto entities"
+		assert {_original} can not be equipped onto entities with "Original should still not equip onto entities"
+		prevent {_copy} from being equipped onto entities
+		assert {_copy} can not be equipped onto entities with "Copy should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of {_copy} to "minecraft:block.note_block.snare"
+		assert the shear sound of {_copy} is "minecraft:block.note_block.snare" with "Shear sound of copy was not set"
+		assert the shear sound of {_original} is {@shearSound} with "Shear sound of original should not have changed"
+		allow {_copy} to be sheared off
+		assert {_copy} can be sheared off with "Copy should be shearable"
+		assert {_original} can not be sheared off with "Original should still not be shearable"
+		prevent {_copy} from being sheared off
+		assert {_copy} can not be sheared off with "Copy should not be shearable"
+
+test "equippable components - slot" when running minecraft "1.21.2":
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to a diamond helmet
+
+	set the equip sound of (slot 1 of {_gui}) to {@equipSound}
+	assert the equip sound of (slot 1 of {_gui}) is {@equipSound} with "Equip sound of slot was not set"
+	set the equipment slot of (slot 1 of {_gui}) to {@slot}
+	assert the equipment slot of (slot 1 of {_gui}) is {@slot} with "Equipment slot of slot was not set"
+	set the equipped model key of (slot 1 of {_gui}) to {@model}
+	assert the equipped model key of (slot 1 of {_gui}) is {@model} with "Model of slot was not set"
+	set the allowed entities of (slot 1 of {_gui}) to {@allowed}
+	assert the allowed entities of (slot 1 of {_gui}) is {@allowed} with "Allowed entities of slot was not set"
+	set the camera overlay of (slot 1 of {_gui}) to {@camera}
+	assert the camera overlay of (slot 1 of {_gui}) is {@camera} with "Camera overlay of slot was not set"
+	allow (slot 1 of {_gui}) to swap equipment
+	assert (slot 1 of {_gui}) can swap equipment with "Slot should be swappable"
+	prevent (slot 1 of {_gui}) from swapping equipment
+	assert (slot 1 of {_gui}) can not swap equipment with "Slot should not be swappable"
+	allow (slot 1 of {_gui}) to be dispensed
+	assert (slot 1 of {_gui}) can be dispensed with "Slot should be dispensable"
+	prevent (slot 1 of {_gui}) from being dispensed
+	assert (slot 1 of {_gui}) can not be dispensed with "Slot should not be dispensable"
+	make (slot 1 of {_gui}) lose durability when hurt
+	assert (slot 1 of {_gui}) will lose durability when hurt with "Slot should lose durability when hurt"
+	make (slot 1 of {_gui}) not lose durability when hurt
+	assert (slot 1 of {_gui}) will not lose durability when hurt with "Slot should not lose durability when hurt"
+
+	parse if running minecraft "1.21.5":
+		allow (slot 1 of {_gui}) to be equipped onto entities
+		assert (slot 1 of {_gui}) can be equipped onto entities with "Slot should equip onto entities"
+		prevent (slot 1 of {_gui}) from being equipped onto entities
+		assert (slot 1 of {_gui}) can not be equipped onto entities with "Slot should not equip onto entities"
+
+	parse if running minecraft "1.21.6":
+		set the shear sound of (slot 1 of {_gui}) to {@shearSound}
+		assert the shear sound of (slot 1 of {_gui}) is {@shearSound} with "Shear sound of slot was not set"
+		allow (slot 1 of {_gui}) to be sheared off
+		assert (slot 1 of {_gui}) can be sheared off with "Slot should be shearable"
+		prevent (slot 1 of {_gui}) from being sheared off
+		assert (slot 1 of {_gui}) can not be sheared off with "Slot should not be shearable"
+
+test "equippable components - source" when running minecraft "1.21.2":
+	set {_itemType} to a diamond helmet
+	set {_itemStack} to a netherite helmet (item stack)
+
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to an iron helmet
+
+	set {_typeComponent} to equippable component of {_itemType}
+	set {_stackComponent} to equippable component of {_itemStack}
+	set {_slotComponent} to equippable component of (slot 1 of {_gui})
+
+	set the equipment slot of {_typeComponent} to chest slot
+	set the equipment slot of {_stackComponent} to chest slot
+	set the equipment slot of {_slotComponent} to chest slot
+
+	assert the equipment slot of {_itemType} is chest slot with "ItemType did not retain changes from component"
+	assert the equipment slot of {_itemStack} is chest slot with "ItemStack did not retain changes from component"
+	assert the equipment slot of (slot 1 of {_gui}) is chest slot with "Slot did not retain changes from component"

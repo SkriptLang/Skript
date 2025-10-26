@@ -1,0 +1,14 @@
+test "brewing fuel level":
+	set {_old} to blockdata of test-block
+	set test-block to brewing stand
+	set the brewing stand fuel level of test-block to 20
+	assert the brewing stand fuel level of test-block is 20 with "Brewing stand fuel level was not set"
+	add 100 to the brewing stand fuel level of test-block
+	assert the brewing stand fuel level of test-block is 120 with "Brewing stand fuel level did not have 100 added"
+	remove 50 from the brewing stand fuel level of test-block
+	assert the brewing stand fuel level of test-block is 70 with "Brewing stand fuel level did not have 50 removed"
+	clear the brewing stand fuel level of test-block
+	assert the brewing stand fuel level of test-block is 0 with "Brewing stand fuel level did not get cleared"
+	set the brewing stand fuel level of test-block to infinity value
+	assert the brewing stand fuel level of test-block is not infinity value with "Brewing stand fuel level should be capped to integer max value"
+	set blockdata of test-block to {_old}

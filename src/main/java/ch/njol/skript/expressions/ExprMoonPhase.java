@@ -1,11 +1,10 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.World;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 		"\tsend \"Watch for the wolves!\""
 })
 @Since("2.7")
-@RequiredPlugins("Paper 1.16+")
 public class ExprMoonPhase extends SimplePropertyExpression<World, MoonPhase> {
 
 	static {
