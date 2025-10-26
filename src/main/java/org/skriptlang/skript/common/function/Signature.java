@@ -31,8 +31,10 @@ public interface Signature<T> extends Documentable {
 	 */
 	@Unmodifiable @NotNull SequencedMap<String, Parameter<?>> parameters();
 
+	@Experimental
 	Contract contract();
 
+	@Experimental
 	void addCall(FunctionReference<?> reference);
 
 	/**

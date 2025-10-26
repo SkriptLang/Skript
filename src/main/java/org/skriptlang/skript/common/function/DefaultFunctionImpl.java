@@ -104,7 +104,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	}
 
 	@Override
-	public T execute(FunctionEvent<?> event, FunctionArguments arguments) {
+	public T execute(@NotNull FunctionEvent<?> event, @NotNull FunctionArguments arguments) {
 		for (String name : arguments.names()) {
 			if (arguments.get(name) == null && !parameters.get(name).hasModifier(Modifier.OPTIONAL)) {
 				return null;

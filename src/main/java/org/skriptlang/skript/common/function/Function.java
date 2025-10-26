@@ -25,15 +25,17 @@ public interface Function<T> {
 	 * @param arguments The arguments to execute the function with.
 	 * @return The return value.
 	 */
-	T execute(FunctionEvent<?> event, FunctionArguments arguments);
+	T execute(@NotNull FunctionEvent<?> event, @NotNull FunctionArguments arguments);
 
 	/**
 	 * @return The signature belonging to this function.
 	 */
 	@NotNull Signature<T> signature();
 
+	@Experimental
 	boolean resetReturnValue();
 
+	@Experimental
 	@NotNull String @Nullable [] returnedKeys();
 
 }
