@@ -40,7 +40,7 @@ public class FrogData extends EntityData<Frog> {
 			.name("Frog Variant")
 			.description("Represents the variant of a frog entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
-			.since("INSERT VERSION")
+			.since("2.13")
 			.documentationId("FrogVariant")
 		);
 	}

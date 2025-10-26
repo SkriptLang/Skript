@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 	"Ramming does have a cooldown and currently no way to change it."
 })
 @Examples("make all goats ram player")
-@RequiredPlugins("Paper")
 @Since("2.11")
 public class EffGoatRam extends Effect {
 

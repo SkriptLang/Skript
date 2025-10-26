@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -24,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 	"make all zombies in radius 10 of player right handed"
 })
 @Since("2.8.0")
-@RequiredPlugins("Paper 1.17.1+")
 public class EffHandedness extends Effect {
 
 	static {

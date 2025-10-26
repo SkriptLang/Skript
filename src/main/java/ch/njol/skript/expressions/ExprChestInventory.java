@@ -1,17 +1,9 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -24,6 +16,12 @@ import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Custom Chest Inventory")
 @Description("Returns a chest inventory with the given amount of rows and the name. Use the <a href=#EffOpenInventory>open inventory</a> effect to open it.")
@@ -36,7 +34,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"",
 	"open chest inventory named \"<#00ff00>hex coloured title!\" with 6 rows to player",
 })
-@RequiredPlugins("Paper 1.16+ (chat format)")
 @Since("2.2-dev34, 2.8.0 (chat format)")
 public class ExprChestInventory extends SimpleExpression<Inventory> {
 

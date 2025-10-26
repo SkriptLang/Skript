@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -184,20 +185,50 @@ public class ExpressionList<T> implements Expression<T> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		Class<?>[] exprClasses = expressions[0].acceptChange(mode);
-		if (exprClasses == null)
-			return null;
-		ArrayList<Class<?>> acceptedClasses = new ArrayList<>(Arrays.asList(exprClasses));
-		for (int i = 1; i < expressions.length; i++) {
-			exprClasses = expressions[i].acceptChange(mode);
-			if (exprClasses == null)
-				return null;
 
-			acceptedClasses.retainAll(Arrays.asList(exprClasses));
-			if (acceptedClasses.isEmpty())
+		// given X: Object.class, Y: Vector.class, Number.class, Z: Integer.class
+		// output should be Integer.class.
+
+		// get all accepted type arrays.
+		List<Class<?>[]> expressionTypes = new ArrayList<>();
+		for (Expression<?> expr : expressions) {
+			Class<?>[] exprTypes = expr.acceptChange(mode);
+			if (exprTypes == null)
 				return null;
+			expressionTypes.add(exprTypes);
 		}
-		return acceptedClasses.toArray(new Class[0]);
+
+		// shortcut
+		if (expressionTypes.size() == 1)
+			return expressionTypes.get(0);
+
+		// iterate over types and keep what works
+		Set<Class<?>> acceptable = new LinkedHashSet<>(Arrays.asList(expressionTypes.get(0)));
+		for (int i = 1; i < expressionTypes.size(); i++) {
+			Set<Class<?>> newAcceptable = new LinkedHashSet<>();
+
+			// Check if each existing acceptable types can be matched to this expr's accepted types
+			for (Class<?> candidate : acceptable) {
+				for (Class<?> accepted : expressionTypes.get(i)) {
+					// keep the more specific version
+					if (accepted.isAssignableFrom(candidate)) {
+						newAcceptable.add(candidate);
+						break;
+					} else if (candidate.isAssignableFrom(accepted)) {
+						newAcceptable.add(accepted);
+						break;
+					}
+				}
+			}
+
+			acceptable = newAcceptable;
+
+			if (acceptable.isEmpty()) {
+				return new Class<?>[0]; // Early exit if no common types
+			}
+		}
+
+		return acceptable.toArray(new Class<?>[0]);
 	}
 
 	@Override
@@ -209,6 +240,20 @@ public class ExpressionList<T> implements Expression<T> {
 		} else {
 			int i = ThreadLocalRandom.current().nextInt(expressions.length);
 			expressions[i].change(event, delta, mode);
+		}
+	}
+
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+		if (and || getAll) {
+			for (Expression<?> expr : expressions) {
+				//noinspection unchecked,rawtypes
+				expr.changeInPlace(event, (Function) changeFunction, getAll);
+			}
+		} else {
+			int i = ThreadLocalRandom.current().nextInt(expressions.length);
+			//noinspection unchecked,rawtypes
+			expressions[i].changeInPlace(event, (Function) changeFunction, false);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -10,16 +11,22 @@ import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.common.properties.conditions.PropCondIsEmpty;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
+/**
+ * @deprecated This is being removed in favor of {@link PropCondIsEmpty}
+ */
 @Name("Is Empty")
 @Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
 @Examples("player's inventory is empty")
 @Since("unknown (before 2.1)")
+@Deprecated(since="2.13", forRemoval = true)
 public class CondIsEmpty extends PropertyCondition<Object> {
 
 	static {
-		register(CondIsEmpty.class, "empty", "inventories/slots/strings/numbered");
+		if (!SkriptConfig.useTypeProperties.value())
+			register(CondIsEmpty.class, "empty", "inventories/slots/strings/numbered");
 	}
 
 	@Override

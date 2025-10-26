@@ -41,7 +41,6 @@ import java.util.stream.Stream;
 		"\tcancel event",
 		"\tteleport the player to {server::spawn} retaining vehicle and passengers"
 })
-@RequiredPlugins("Paper 1.19+ (teleport flags)")
 @Since("1.0, 2.10 (flags)")
 public class EffTeleport extends Effect {
 
