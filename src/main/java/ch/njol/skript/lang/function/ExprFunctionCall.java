@@ -52,10 +52,13 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	@Override
 	protected T @Nullable [] get(Event event) {
 		Object[] values;
-		if (reference.single()) {
-			values = new Object[] { reference.execute(event) };
+		Object execute = reference.execute(event);
+		if (execute == null) {
+			values = null;
+		} else if (!execute.getClass().isArray()) {
+			values = new Object[] {execute};
 		} else {
-			values = (Object[]) reference.execute(event);
+			values = (Object[]) execute;
 		}
 
 		String[] keys = reference.function().returnedKeys();

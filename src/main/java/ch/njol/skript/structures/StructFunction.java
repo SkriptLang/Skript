@@ -60,16 +60,16 @@ public class StructFunction extends Structure {
 	/**
 	 * Represents a function signature pattern.
 	 * <p>
-	 * <b>Name</b>
+	 * <h3>Name</h3>
 	 * The name may start with any Unicode alphabetic character or an underscore.
 	 * Any character following it should be any Unicode alphabetic character, an underscore, or a number.
 	 * </p>
 	 * <p>
-	 * <b>Args</b>
+	 * <h3>Args</h3>
 	 * The arguments that can be passed to this function.
 	 * </p>
 	 * <p>
-	 * <b>Returns</b>
+	 * <h3>Returns</h3>
 	 * The type that this function returns, if any.
 	 * Acceptable return type prefixes are as follows.
 	 * <ul>

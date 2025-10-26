@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpression;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.*;
@@ -80,7 +81,7 @@ public final class FunctionReference<T> implements Debuggable {
 				if (argument.type == ArgumentType.NAMED) {
 					target = targetParameters.get(argument.name);
 				} else {
-					Entry<String, Parameter<?>> first = targetParameters.entrySet().iterator().next();
+					Entry<String, Parameter<?>> first = targetParameters.firstEntry();
 
 					if (first == null) {
 						return false;
@@ -101,6 +102,11 @@ public final class FunctionReference<T> implements Debuggable {
 					conversionTarget = target.type();
 				}
 
+				if (argument.value instanceof EmptyExpression) {
+					targetParameters.remove(target.name());
+					continue;
+				}
+
 				//noinspection unchecked
 				Expression<?> converted = argument.value.getConvertedExpression(conversionTarget);
 
@@ -109,7 +115,7 @@ public final class FunctionReference<T> implements Debuggable {
 					return false;
 				}
 
-				if (mix && !targetParameters.entrySet().iterator().next().getKey().equals(target.name())) {
+				if (mix && !targetParameters.firstEntry().getKey().equals(target.name())) {
 					Skript.error(Language.get("functions.mixing named and unnamed arguments"));
 					return false;
 				}

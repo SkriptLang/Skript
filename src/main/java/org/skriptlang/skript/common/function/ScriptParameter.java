@@ -71,11 +71,6 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 			}
 		}
 
-
-		if (type.isArray() && defaultValue != null && defaultValue.isSingle()) {
-			defaultValue = new ExpressionList<>(new Expression[] { defaultValue }, defaultValue.getReturnType(), true);
-		}
-
 		Set<Modifier> modifiers = new HashSet<>();
 		if (defaultValue != null) {
 			modifiers.add(Modifier.OPTIONAL);

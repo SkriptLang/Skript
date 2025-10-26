@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
 import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -239,6 +241,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				Expression<?> fallback;
 				if (parameter instanceof ScriptParameter<?> sp) {
 					fallback = sp.defaultValue();
+				} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
+					fallback = new EmptyExpression();
 				} else {
 					fallback = null;
 				}
@@ -304,6 +308,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Expression<?> fallback;
 			if (parameter instanceof ScriptParameter<?> sp) {
 				fallback = sp.defaultValue();
+			} else if (parameter.hasModifier(Modifier.OPTIONAL)) {
+				fallback = new EmptyExpression();
 			} else {
 				fallback = null;
 			}
@@ -331,7 +337,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 			if (result.type() == ArgumentParseResultType.OK) {
 				// avoid allowing lists inside lists
-				if ( result.parsed().length == 1 && result.parsed()[0].value() instanceof ExpressionList<?> list) {
+				if (result.parsed().length == 1 && result.parsed()[0].value() instanceof ExpressionList<?> list) {
 					for (Expression<?> expression : list.getExpressions()) {
 						if (expression instanceof ExpressionList<?>) {
 							doesNotExist(name, arguments);
@@ -512,4 +518,16 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 		return new ArgumentParseResult(ArgumentParseResultType.OK, parsed);
 	}
+
+	/**
+	 * Represents an empty value used to make DefaultFunction calling work correctly.
+	 */
+	public static class EmptyExpression extends SimpleLiteral<Integer> {
+
+		public EmptyExpression() {
+			super(1, true);
+		}
+
+	}
+
 }
