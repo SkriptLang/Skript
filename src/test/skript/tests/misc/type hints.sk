@@ -157,8 +157,8 @@ local function type_hint_argument_test(number: number):
 	stop
 
 test "function structure type hints":
-	assert {StructFunction::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::1::*}%)"
-	assert {StructFunction::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::2::*}%)"
+	assert {type hints::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::1::*}%)"
+	assert {type hints::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::2::*}%)"
 	set {_number} to true
 	parse:
 		type_hint_argument_test({_number})
