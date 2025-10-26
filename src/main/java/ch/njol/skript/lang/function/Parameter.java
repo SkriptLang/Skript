@@ -69,7 +69,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	/**
 	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def) {
 		this(name, type, single, def, false);
 	}
@@ -79,7 +79,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
 		this.name = name;
 		this.type = type;
@@ -101,7 +101,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
 	 * instead.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.13", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed, boolean optional) {
 		this.name = name;
 		this.type = type;

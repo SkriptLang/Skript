@@ -226,7 +226,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	/**
 	 * @deprecated Unused.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	public String getOriginClassPath() {
 		return "";
 	}

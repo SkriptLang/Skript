@@ -2,12 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -30,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
 })
 @Since("2.3")
-@RequiredPlugins("Paper 1.12.2+")
 @Events("Server List Ping")
 public class ExprVersionString extends SimpleExpression<String> {
 

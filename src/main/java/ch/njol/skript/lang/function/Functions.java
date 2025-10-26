@@ -17,6 +17,7 @@ import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Static methods to work with functions.
@@ -80,7 +81,7 @@ public abstract class Functions {
 	/**
 	 * @deprecated Use {@link #register(DefaultFunction)} instead.
 	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	public static JavaFunction<?> registerFunction(JavaFunction<?> function) {
 		Skript.checkAcceptRegistrations();
 		String name = function.getName();
@@ -421,13 +422,15 @@ public abstract class Functions {
 	}
 
 	/**
-	 * @deprecated Use {@link #getDefaultFunctions()} instead.
+	 * @deprecated Use {@link #getFunctions()} instead.
 	 */
-	@SuppressWarnings({"unchecked"})
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Deprecated(forRemoval = true, since = "2.13")
 	public static Collection<JavaFunction<?>> getJavaFunctions() {
 		// We know there are only Java functions in that namespace
-		return (Collection<JavaFunction<?>>) (Object) javaNamespace.getFunctions();
+		return javaNamespace.getFunctions().stream()
+				.filter(it -> it instanceof JavaFunction<?>)
+				.map(it -> (JavaFunction<?>) it)
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -435,7 +438,7 @@ public abstract class Functions {
 	 *
 	 * @return All {@link JavaFunction} or {@link DefaultFunction} functions.
 	 */
-	public static Collection<Function<?>> getDefaultFunctions() {
+	public static Collection<Function<?>> getFunctions() {
 		return javaNamespace.getFunctions();
 	}
 

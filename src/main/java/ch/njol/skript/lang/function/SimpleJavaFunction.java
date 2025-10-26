@@ -9,7 +9,7 @@ import org.skriptlang.skript.common.function.DefaultFunction;
 /**
  * @deprecated Use {@link DefaultFunction} instead.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.13", forRemoval = true)
 public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 	
 	public SimpleJavaFunction(Signature<T> sign) {

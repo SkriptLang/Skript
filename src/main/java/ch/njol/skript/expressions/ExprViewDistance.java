@@ -20,8 +20,7 @@ import java.util.function.Supplier;
 	"The view distance of a world or a player.",
 	"The view distance of a player is the distance in chunks sent by the server to the player. "
 		+ "This has nothing to do with client side view distance settings.",
-	"View distance is capped between 2 to 32 chunks.",
-	"Paper is required to change the view distance for both worlds and players."
+	"View distance is capped between 2 to 32 chunks."
 })
 @Examples({
 	"set view distance of player to 10",
@@ -29,7 +28,6 @@ import java.util.function.Supplier;
 	"reset the view distance of player",
 	"clear the view distance of world \"world\""
 })
-@RequiredPlugins("Paper (change for players), Paper 1.21+ (change for worlds)")
 @Since("2.4, 2.11 (worlds)")
 public class ExprViewDistance extends SimplePropertyExpression<Object, Integer> {
 

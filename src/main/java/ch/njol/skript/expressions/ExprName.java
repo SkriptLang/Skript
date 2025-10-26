@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -36,12 +37,16 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @deprecated This is being removed in favor of {@link PropExprName}
+ */
 @Name("Name / Display Name / Tab List Name")
 @Description({
 	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, "
@@ -87,24 +92,26 @@ import java.util.List;
 	"2.4 (non-living entity support, changeable inventory name)",
 	"2.7 (worlds)"
 })
+@Deprecated(since="2.13", forRemoval = true)
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
 	private static BungeeComponentSerializer serializer;
 
 	static {
-		// Check for Adventure API
-		if (Skript.classExists("net.kyori.adventure.text.Component") &&
-			Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
-			serializer = BungeeComponentSerializer.get();
+		if (!SkriptConfig.useTypeProperties.value()) {
+			// Check for Adventure API
+			if (Skript.classExists("net.kyori.adventure.text.Component") &&
+				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
+				serializer = BungeeComponentSerializer.get();
 
-		List<String> patterns = new ArrayList<>();
-		patterns.addAll(Arrays.asList(getPatterns("name[s]", "offlineplayers/entities/nameds/inventories")));
-		patterns.addAll(Arrays.asList(getPatterns("(display|nick|chat|custom)[ ]name[s]", "offlineplayers/entities/nameds/inventories")));
-		patterns.addAll(Arrays.asList(getPatterns("(player|tab)[ ]list name[s]", "players")));
+			List<String> patterns = new ArrayList<>();
+			patterns.addAll(Arrays.asList(getPatterns("name[s]", "offlineplayers/entities/nameds/inventories")));
+			patterns.addAll(Arrays.asList(getPatterns("(display|nick|chat|custom)[ ]name[s]", "offlineplayers/entities/nameds/inventories")));
 
-		Skript.registerExpression(ExprName.class, String.class, ExpressionType.COMBINED, patterns.toArray(new String[0]));
-		// we keep the entity input because we want to do something special with entities
+			Skript.registerExpression(ExprName.class, String.class, ExpressionType.COMBINED, patterns.toArray(new String[0]));
+			// we keep the entity input because we want to do something special with entities
+		}
 	}
 
 	/*
