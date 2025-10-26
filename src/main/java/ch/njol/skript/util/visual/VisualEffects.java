@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 public class VisualEffects {
 
 	private static final boolean NEW_EFFECT_DATA = Skript.classExists("org.bukkit.block.data.BlockData");
+	private static final boolean SPELL_CLASS_EXISTS = Skript.classExists("org.bukkit.Particle$Spell");
 
 	private static final Map<String, Consumer<VisualEffectType>> effectTypeModifiers = new HashMap<>();
 	private static SyntaxElementInfo<VisualEffect> elementInfo;
@@ -225,6 +226,17 @@ public class VisualEffects {
 			});
 
 			registerDataSupplier("Particle.VIBRATION", (raw, location) -> VibrationUtils.buildVibration((Object[]) raw, location));
+
+			if (SPELL_CLASS_EXISTS) {
+				registerDataSupplier("Particle.EFFECT", (input, location) ->
+					new Particle.Spell(org.bukkit.Color.WHITE, 1f));
+				registerDataSupplier("Particle.INSTANT_EFFECT", (input, location) ->
+					new Particle.Spell(org.bukkit.Color.WHITE, 1f));
+
+				registerDataSupplier("Particle.DRAGON_BREATH", (input, location) -> 1f);
+
+				registerDataSupplier("Particle.FLASH", (input, location) -> org.bukkit.Color.WHITE);
+			}
 
 			generateTypes();
 		});

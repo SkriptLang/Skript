@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Minimum Double Value")
 @Description("A number representing the minimum value of a double number type.")
 @Example("if {_number} <= minimum double value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitDoubleMinValue extends SimpleLiteral<Double> {
 
 	static {

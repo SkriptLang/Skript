@@ -18,6 +18,9 @@ import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.UUID;
@@ -301,7 +304,26 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}));
+				})
+				.property(Property.CONTAINS,
+					"Strings can contain other strings.",
+					Skript.instance(),
+					new ContainsHandler<String, String>() {
+						@Override
+						public boolean contains(String container, String element) {
+							return StringUtils.contains(container, element, SkriptConfig.caseSensitive.value());
+						}
+
+						@Override
+						public Class<? extends String>[] elementTypes() {
+							//noinspection unchecked
+							return new Class[]{String.class};
+						}
+				})
+			.property(Property.IS_EMPTY,
+				"Whether the string is empty, i.e. has no characters.",
+				Skript.instance(),
+				ConditionPropertyHandler.of(String::isEmpty)));
 
 		// joml type - for display entities
 		if (Skript.classExists("org.joml.Quaternionf"))

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Maximum Integer Value")
 @Description("A number representing the maximum value of an integer number type.")
 @Example("if {_number} >= maximum integer value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitIntMaxValue extends SimpleLiteral<Integer> {
 
 	static {

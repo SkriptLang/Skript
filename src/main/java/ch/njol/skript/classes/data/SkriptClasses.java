@@ -1,13 +1,10 @@
 package ch.njol.skript.classes.data;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemData;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.config.Config;
+import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -21,25 +18,25 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.*;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.util.SkriptQueue;
+import org.skriptlang.skript.bukkit.base.types.ItemTypeClassInfo;
+import org.skriptlang.skript.bukkit.base.types.SlotClassInfo;
+import org.skriptlang.skript.common.types.QueueClassInfo;
+import org.skriptlang.skript.common.types.ScriptClassInfo;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -100,7 +97,7 @@ public class SkriptClasses {
 					}
 
 					@Override
-					public void deserialize(final ClassInfo o, final Fields f) throws StreamCorruptedException {
+					public void deserialize(final ClassInfo o, final Fields f) {
 						assert false;
 					}
 
@@ -113,13 +110,6 @@ public class SkriptClasses {
 						if (ci == null)
 							throw new StreamCorruptedException("Invalid ClassInfo " + codeName);
 						return ci;
-					}
-
-//					return c.getCodeName();
-					@Override
-					@Nullable
-					public ClassInfo deserialize(final String s) {
-						return Classes.getClassInfoNoError(s);
 					}
 
 					@Override
@@ -158,66 +148,7 @@ public class SkriptClasses {
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
 
-		Classes.registerClass(new ClassInfo<>(ItemType.class, "itemtype")
-				.user("item ?types?", "materials?")
-				.name("Item Type")
-				.description("An item type is an alias that can result in different items when added to an inventory, " +
-						"and unlike <a href='#itemstack'>items</a> they are well suited for checking whether an inventory contains a certain item or whether a certain item is of a certain type.",
-						"An item type can also have one or more <a href='#enchantmenttype'>enchantments</a> with or without a specific level defined, " +
-								"and can optionally start with 'all' or 'every' to make this item type represent <i>all</i> types that the alias represents, including data ranges.")
-				.usage("[<number> [of]] [all/every] <alias> [of <enchantment> [<level>] [,/and <more enchantments...>]]")
-				.examples("give 4 torches to the player",
-						"add oak slab to the inventory of the block",
-						"player's tool is a diamond sword of sharpness",
-						"block is dirt or farmland")
-				.since("1.0")
-				.before("itemstack", "entitydata", "entitytype")
-				.after("number", "integer", "long", "time")
-				.supplier(() -> Arrays.stream(Material.values())
-					.map(ItemType::new)
-					.iterator())
-				.parser(new Parser<ItemType>() {
-					@Override
-					@Nullable
-					public ItemType parse(final String s, final ParseContext context) {
-						return Aliases.parseItemType(s);
-					}
-
-					@Override
-					public String toString(final ItemType t, final int flags) {
-						return t.toString(flags);
-					}
-
-					@Override
-					public String getDebugMessage(final ItemType t) {
-						return t.getDebugMessage();
-					}
-
-					@Override
-					public String toVariableNameString(final ItemType t) {
-						final StringBuilder b = new StringBuilder("itemtype:");
-						b.append(t.getInternalAmount());
-						b.append("," + t.isAll());
-						// TODO this is missing information
-						for (final ItemData d : t.getTypes()) {
-							b.append("," + d.getType());
-						}
-						final EnchantmentType[] enchs = t.getEnchantmentTypes();
-						if (enchs != null) {
-							b.append("|");
-							for (final EnchantmentType ench : enchs) {
-								Enchantment e = ench.getType();
-								if (e == null)
-									continue;
-								b.append("#" + e.getKey().toString());
-								b.append(":" + ench.getLevel());
-							}
-						}
-						return "" + b.toString();
-					}
-				})
-				.cloner(ItemType::clone)
-				.serializer(new YggdrasilSerializer<>()));
+		Classes.registerClass(new ItemTypeClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Time.class, "time")
 				.user("times?")
@@ -420,122 +351,7 @@ public class SkriptClasses {
 				})
 				.serializer(new YggdrasilSerializer<>()));
 
-		Classes.registerClass(new ClassInfo<>(Slot.class, "slot")
-				.user("(inventory )?slots?")
-				.name("Slot")
-				.description("Represents a single slot of an <a href='#inventory'>inventory</a>. " +
-						"Notable slots are the <a href='#ExprArmorSlot'>armour slots</a> and <a href='./expressions/#ExprFurnaceSlot'>furnace slots</a>. ",
-						"The most important property that distinguishes a slot from an <a href='#itemstack'>item</a> is its ability to be changed, e.g. it can be set, deleted, enchanted, etc. " +
-								"(Some item expressions can be changed as well, e.g. items stored in variables. " +
-								"For that matter: slots are never saved to variables, only the items they represent at the time when the variable is set).",
-						"Please note that <a href='#ExprTool'>tool</a> can be regarded a slot, but it can actually change it's position, i.e. doesn't represent always the same slot.")
-				.usage("")
-				.examples("set tool of player to dirt",
-						"delete helmet of the victim",
-						"set the color of the player's tool to green",
-						"enchant the player's chestplate with projectile protection 5")
-				.since("")
-				.defaultExpression(new EventValueExpression<>(Slot.class))
-				.changer(new Changer<Slot>() {
-					@SuppressWarnings("unchecked")
-					@Override
-					@Nullable
-					public Class<Object>[] acceptChange(final ChangeMode mode) {
-						if (mode == ChangeMode.RESET)
-							return null;
-						if (mode == ChangeMode.SET)
-							return new Class[] {ItemType[].class, ItemStack[].class};
-						return new Class[] {ItemType.class, ItemStack.class};
-					}
-
-					@Override
-					public void change(final Slot[] slots, final @Nullable Object[] deltas, final ChangeMode mode) {
-						if (mode == ChangeMode.SET) {
-							if (deltas != null) {
-								if (deltas.length == 1) {
-									final Object delta = deltas[0];
-									for (final Slot slot : slots) {
-										slot.setItem(delta instanceof ItemStack ? (ItemStack) delta : ((ItemType) delta).getItem().getRandom());
-									}
-								} else if (deltas.length == slots.length) {
-									for (int i = 0; i < slots.length; i++) {
-										final Object delta = deltas[i];
-										slots[i].setItem(delta instanceof ItemStack ? (ItemStack) delta : ((ItemType) delta).getItem().getRandom());
-									}
-								}
-							}
-							return;
-						}
-						final Object delta = deltas == null ? null : deltas[0];
-						for (final Slot slot : slots) {
-							switch (mode) {
-								case ADD:
-									assert delta != null;
-									if (delta instanceof ItemStack) {
-										final ItemStack i = slot.getItem();
-										if (i == null || i.getType() == Material.AIR || ItemUtils.itemStacksEqual(i, (ItemStack) delta)) {
-											if (i != null && i.getType() != Material.AIR) {
-												i.setAmount(Math.min(i.getAmount() + ((ItemStack) delta).getAmount(), i.getMaxStackSize()));
-												slot.setItem(i);
-											} else {
-												slot.setItem((ItemStack) delta);
-											}
-										}
-									} else {
-										slot.setItem(((ItemType) delta).getItem().addTo(slot.getItem()));
-									}
-									break;
-								case REMOVE:
-								case REMOVE_ALL:
-									assert delta != null;
-									if (delta instanceof ItemStack) {
-										final ItemStack i = slot.getItem();
-										if (i != null && ItemUtils.itemStacksEqual(i, (ItemStack) delta)) {
-											final int a = mode == ChangeMode.REMOVE_ALL ? 0 : i.getAmount() - ((ItemStack) delta).getAmount();
-											if (a <= 0) {
-												slot.setItem(null);
-											} else {
-												i.setAmount(a);
-												slot.setItem(i);
-											}
-										}
-									} else {
-										if (mode == ChangeMode.REMOVE)
-											slot.setItem(((ItemType) delta).removeFrom(slot.getItem()));
-										else
-											// REMOVE_ALL
-											slot.setItem(((ItemType) delta).removeAll(slot.getItem()));
-									}
-									break;
-								case DELETE:
-									slot.setItem(null);
-									break;
-								case RESET:
-									assert false;
-							}
-						}
-					}
-				})
-				.parser(new Parser<Slot>() {
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(Slot o, int flags) {
-						ItemStack i = o.getItem();
-						if (i == null)
-							return new ItemType(Material.AIR).toString(flags);
-						return ItemType.toString(i, flags);
-					}
-
-					@Override
-					public String toVariableNameString(Slot o) {
-						return "slot:" + o.toString();
-					}
-				})
-				.serializeAs(ItemStack.class));
+		Classes.registerClass(new SlotClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Color.class, "color")
 				.user("colou?rs?")
@@ -698,90 +514,7 @@ public class SkriptClasses {
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
 
-		Classes.registerClass(new ClassInfo<>(SkriptQueue.class, "queue")
-				.user("queues?")
-				.name("Queue")
-				.description("A queued list of values. Entries are removed from a queue when they are queried.")
-				.examples(
-					"set {queue} to a new queue",
-					"add \"hello\" to {queue}",
-					"broadcast the 1st element of {queue}"
-				)
-				.since("2.10")
-				.changer(new Changer<>() {
-					@Override
-					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-						return switch (mode) {
-							case ADD, REMOVE, DELETE -> new Class[] {Object.class};
-							case RESET -> new Class[0];
-							default -> null;
-						};
-					}
-
-					@Override
-					public void change(SkriptQueue[] what, Object @Nullable [] delta, ChangeMode mode) {
-						for (SkriptQueue queue : what) {
-							switch (mode) {
-								case RESET, DELETE -> queue.clear();
-								case ADD -> {
-									assert delta != null;
-									queue.addAll(Arrays.asList(delta));
-								}
-								case REMOVE -> {
-									assert delta != null;
-									queue.removeAll(Arrays.asList(delta));
-								}
-							}
-						}
-					}
-				})
-				.parser(new Parser<SkriptQueue>() {
-
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(SkriptQueue queue, int flags) {
-						return Classes.toString(queue.toArray(), flags, true);
-					}
-
-					@Override
-					public String toVariableNameString(SkriptQueue queue) {
-						return this.toString(queue, 0);
-					}
-
-				})
-				.serializer(new Serializer<SkriptQueue>() {
-					@Override
-					public Fields serialize(SkriptQueue queue) throws NotSerializableException {
-						Fields fields = new Fields();
-						fields.putObject("contents", queue.toArray());
-						return fields;
-					}
-
-					@Override
-					public void deserialize(SkriptQueue queue, Fields fields)
-						throws StreamCorruptedException, NotSerializableException {
-						Object[] contents = fields.getObject("contents", Object[].class);
-						queue.clear();
-						if (contents != null)
-							queue.addAll(List.of(contents));
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-
-					@Override
-					protected boolean canBeInstantiated() {
-						return true;
-					}
-				})
-		);
-
+		Classes.registerClass(new QueueClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Config.class, "config")
 			.user("configs?")
@@ -811,7 +544,11 @@ public class SkriptClasses {
 				public String toVariableNameString(Config config) {
 					return this.toString(config, 0);
 				}
-			}));
+			})
+			.property(Property.NAME,
+				"The filename of the Config, as text.",
+				Skript.instance(),
+				ExpressionPropertyHandler.of(Config::name, String.class)));
 
 		Classes.registerClass(new ClassInfo<>(Node.class, "node")
 			.user("nodes?")
@@ -838,53 +575,30 @@ public class SkriptClasses {
 					return this.toString(node, 0);
 				}
 
-			}));
-
-		Classes.registerClass(new ClassInfo<>(Script.class, "script")
-				.user("scripts?")
-				.name("Script")
-				.description("A script loaded by Skript.",
-					"Disabled scripts will report as being empty since their content has not been loaded.")
-				.usage("")
-				.examples("the current script")
-				.since("2.10")
-				.parser(new Parser<Script>() {
-					final Path path = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
+			})
+			.property(Property.NAME,
+				"The key of the node, as text.",
+				Skript.instance(),
+				ExpressionPropertyHandler.of(Node::getKey, String.class))
+			.property(Property.TYPED_VALUE,
+				"The value of the node, if it is an entry node, as text.",
+				Skript.instance(),
+				new TypedValuePropertyHandler<Node, String>() {
 
 					@Override
-					public boolean canParse(final ParseContext context) {
-						return switch (context) {
-							case PARSE, COMMAND -> true;
-							default -> false;
-						};
+					public @Nullable String convert(Node propertyHolder) {
+						if (propertyHolder instanceof EntryNode entryNode)
+							return entryNode.getValue();
+						return null;
 					}
 
 					@Override
-					@Nullable
-					public Script parse(final String name, final ParseContext context) {
-						return switch (context) {
-							case PARSE, COMMAND -> {
-								@Nullable File file = ScriptLoader.getScriptFromName(name);
-								if (file == null || !file.isFile())
-									yield null;
-								yield ScriptLoader.getScript(file);
-							}
-							default -> null;
-						};
-					}
-
-					@Override
-					public String toString(final Script script, final int flags) {
-						@Nullable File file = script.getConfig().getFile();
-						if (file == null)
-							return script.getConfig().getFileName();
-						return path.relativize(file.toPath().toAbsolutePath()).toString();
-					}
-					@Override
-					public String toVariableNameString(final Script script) {
-						return this.toString(script, 0);
+					public @NotNull Class<String> returnType() {
+						return String.class;
 					}
 				}));
+
+		Classes.registerClass(new ScriptClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(Executable.class, "executable")
 			.user("executables?")
@@ -930,32 +644,147 @@ public class SkriptClasses {
 				public String toVariableNameString(DynamicFunctionReference<?> function) {
 					return this.toString(function, 0);
 				}
-			}));
+			}).property(Property.NAME,
+				"The function's name, as text.",
+				Skript.instance(),
+				ExpressionPropertyHandler.of(DynamicFunctionReference::name, String.class)));
 
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
 				.name("Any Named Thing")
 				.description("Something that has a name (e.g. an item).")
 				.usage("")
 				.examples("{thing}'s name")
 				.since("2.10")
+				.property(Property.NAME,
+					"The name of the thing, as text. Can be set if supported.",
+					Skript.instance(),
+					new ExpressionPropertyHandler<AnyNamed, String>() {
+
+					@Override
+					public @NotNull Class<String> returnType() {
+						return String.class;
+					}
+
+					@Override
+					public String convert(AnyNamed anyNamed) {
+						return anyNamed.name();
+					}
+
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						if (mode == ChangeMode.SET)
+							return new Class[] {String.class};
+						return null;
+					}
+
+					@Override
+					public void change(AnyNamed named, Object @Nullable [] delta, ChangeMode mode) {
+						if (mode == ChangeMode.SET && named.supportsNameChange()) {
+							assert delta != null;
+							named.setName((String) delta[0]);
+						}
+					}
+				})
 		);
 
+		//noinspection deprecation
+		ExpressionPropertyHandler<AnyAmount, Number> amountHandler = new ExpressionPropertyHandler<>() {
+			//<editor-fold desc="amount property for anyAmount" defaultstate="collapsed">
+			@Override
+			public Number convert(AnyAmount anyNamed) {
+				return anyNamed.amount();
+			}
+
+			@Override
+			public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+				if (mode == ChangeMode.SET)
+					return new Class[]{String.class};
+				return null;
+			}
+
+			@Override
+			public void change(AnyAmount named, Object @Nullable [] delta, ChangeMode mode) {
+				if (mode == ChangeMode.SET && named.supportsAmountChange()) {
+					assert delta != null;
+					named.setAmount((Number) delta[0]);
+				}
+			}
+
+			@Override
+			public @NotNull Class<Number> returnType() {
+				return Number.class;
+			}
+			//</editor-fold>
+		};
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
 				.name("Any Numbered/Sized Thing")
 				.description("Something that has an amount or size.")
 				.usage("")
 				.examples("the size of {thing}", "the amount of {thing}")
 				.since("2.10")
-		);
+				.property(Property.AMOUNT,
+					"The amount of a thing",
+					Skript.instance(),
+					amountHandler)
+				.property(Property.SIZE,
+					"The size of a thing",
+					Skript.instance(),
+					amountHandler)
+				.property(Property.NUMBER,
+					"The number of a thing",
+					Skript.instance(),
+					amountHandler)
+				.property(Property.IS_EMPTY,
+					"Whether this thing is empty, i.e. has an amount of 0.",
+					Skript.instance(),
+					ConditionPropertyHandler.of(AnyAmount::isEmpty)));
 
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyValued.class, "valued")
 			.name("Any Valued Thing")
 			.description("Something that has a value.")
 			.usage("")
 			.examples("the text of {node}")
 			.since("2.10")
+			.property(Property.TYPED_VALUE,
+				"The value of something. Can be set.",
+				Skript.instance(),
+				new TypedValuePropertyHandler<AnyValued, Object>() {
+					@Override
+					public Object convert(AnyValued propertyHolder) {
+						return propertyHolder.value();
+					}
+
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						return switch (mode) {
+							case SET, RESET, DELETE -> new Class[]{Object.class};
+							default -> null;
+						};
+					}
+
+					@Override
+					public void change(AnyValued propertyHolder, Object @Nullable [] delta, ChangeMode mode) {
+						if (propertyHolder.supportsValueChange()) {
+							if (delta != null) {
+								//noinspection unchecked
+								propertyHolder.changeValue(delta[0]);
+							} else {
+								propertyHolder.resetValue();
+							}
+						}
+					}
+
+					@Override
+					public @NotNull Class<Object> returnType() {
+						return Object.class;
+					}
+				})
 		);
 
+		//noinspection deprecation
 		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
 				.user("any container")
 				.name("Anything with Contents")
@@ -963,6 +792,20 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{a} contains {b}")
 				.since("2.10")
+				.property(Property.CONTAINS,
+					"AnyContains can contain other things depending on its type.",
+					Skript.instance(),
+					new ContainsHandler<AnyContains, Object>() {
+						@Override
+						public boolean contains(AnyContains anyContains, Object object) {
+							return anyContains.checkSafely(object);
+						}
+
+						@Override
+						public Class<?>[] elementTypes() {
+							return new Class[]{Object.class};
+						}
+				})
 		);
 	}
 

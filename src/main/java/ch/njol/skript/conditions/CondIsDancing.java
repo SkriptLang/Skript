@@ -14,7 +14,6 @@ import org.bukkit.entity.Piglin;
 	"if last spawned allay is dancing:",
 		"\tbroadcast \"Dance Party!\""
 })
-@RequiredPlugins("Paper 1.20.1+ (piglins)")
 @Since("2.11")
 public class CondIsDancing extends PropertyCondition<LivingEntity> {
 
