@@ -39,7 +39,7 @@ public class EffTestPluralClassInfos extends Effect {
 				.user("example3")
 				.name(ClassInfo.NO_DOC));
 			Classes.registerClass(new ClassInfo<>(Example4.class, "hoof")
-				.user("example3")
+				.user("example4")
 				.name(ClassInfo.NO_DOC));
 			Skript.registerEffect(EffTestPluralClassInfos.class,
 				"classinfo test for %testgui%",

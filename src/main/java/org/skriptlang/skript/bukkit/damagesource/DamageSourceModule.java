@@ -27,9 +27,7 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void init(SkriptAddon addon) {
-		TypeRegistry registry = Skript.getAddonInstance().registry(TypeRegistry.class);
-
-		registry.register(TypeInfo.builder(addon, DamageSource.class, "Damage Source", "damage ?sources?")
+		Skript.registerType(TypeInfo.builder(addon, DamageSource.class, "Damage Source", "damage ?sources?")
 				.description(
 						"Represents the source from which an entity was damaged.",
 						"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event."
@@ -39,7 +37,7 @@ public class DamageSourceModule implements AddonModule {
 				.defaultExpression(new EventValueExpression<>(DamageSource.class))
 				.build());
 
-		registry.register(TypeInfo.builder(addon, DamageType.class, "Damage Type", Registry.DAMAGE_TYPE, "damage types", "damage ?types?")
+		Skript.registerType(TypeInfo.builder(addon, DamageType.class, "Damage Type", Registry.DAMAGE_TYPE, "damage types", "damage ?types?")
 				.description("References a damage type of a damage source.")
 				.since("2.12")
 				.requires("Minecraft 1.20.4+")

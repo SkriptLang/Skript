@@ -80,7 +80,7 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	public ClassInfo(final Class<T> c, final String codeName) {
 		this.c = c;
 		if (!isValidCodeName(codeName))
-			throw new IllegalArgumentException("Code names for classes must be lowercase and only consist of latin letters and arabic numbers");
+			throw new IllegalArgumentException("Code names for classes must be lowercase and only consist of latin letters and arabic numbers, found %s".formatted(codeName));
 		this.codeName = codeName;
 		name = new Noun("types." + codeName);
 	}
@@ -132,7 +132,7 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	 */
 	public ClassInfo<T> defaultExpression(final DefaultExpression<T> defaultExpression) {
 		assert this.defaultExpression == null;
-		if (!defaultExpression.isDefault())
+		if (defaultExpression != null && !defaultExpression.isDefault())
 			throw new IllegalArgumentException("defaultExpression.isDefault() must return true for the default expression of a class");
 		this.defaultExpression = defaultExpression;
 		return this;
@@ -169,7 +169,9 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 		if (serializeAs != null)
 			throw new IllegalStateException("Can't set a serializer if this class is set to be serialized as another one");
 		this.serializer = serializer;
-		serializer.register(this);
+		if (serializer != null) {
+			serializer.register(this);
+		}
 		return this;
 	}
 
@@ -491,7 +493,7 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	@Override
 	public @Unmodifiable @NotNull Collection<String> patterns() {
 		if (userInputPatterns == null) {
-			return Collections.emptyList();
+			return List.of(codeName);
 		}
 
 		Set<String> patterns = new HashSet<>();
@@ -561,40 +563,125 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	public static class PatternGenerator {
 
 		public static Set<String> generate(String regex) {
-			Set<String> results = new HashSet<>();
-			expandHelper(regex, 0, "", results);
-			return results;
+			return new HashSet<>(expandSequence(regex, regex.length()));
 		}
 
-		private static void expandHelper(String regex, int index, String current, Set<String> results) {
-			if (index >= regex.length()) {
-				results.add(current);
-				return;
-			}
+		private static List<String> expandSequence(String regex, int end) {
+			List<String> current = new ArrayList<>();
+			current.add("");
+			int i = 0;
+			while (i < end) {
+				char c = regex.charAt(i);
+				List<String> options;
 
-			char c = regex.charAt(index);
+				if (c == '\\') {
+					// escaped character
+					if (i + 1 < end) {
+						options = List.of(String.valueOf(regex.charAt(i + 1)));
+						i += 2;
+					} else {
+						options = List.of("\\");
+						i++;
+					}
+				} else if (c == '[') {
+					// character class (treat each char as an option; simple handling)
+					int j = findClosingBracket(regex, i + 1, end, ']');
+					String content = regex.substring(i + 1, j);
+					List<String> opts = new ArrayList<>();
+					for (int k = 0; k < content.length(); k++) {
+						char ch = content.charAt(k);
+						if (ch == '\\' && k + 1 < content.length()) {
+							opts.add(String.valueOf(content.charAt(k + 1)));
+							k++;
+						} else {
+							opts.add(String.valueOf(ch));
+						}
+					}
+					options = opts;
+					i = j + 1;
+				} else if (c == '(') {
+					// group: parse contents recursively and treat '|' as alternation
+					int j = findClosingBracket(regex, i + 1, end, ')');
+					String inside = regex.substring(i + 1, j);
+					// Split top-level '|' in the group
+					List<String> groupOptions = splitTopLevelAlternation(inside);
+					List<String> expanded = new ArrayList<>();
+					for (String opt : groupOptions) {
+						expanded.addAll(expandSequence(opt, opt.length()));
+					}
+					options = expanded;
+					i = j + 1;
+				} else {
+					// literal char (skip special quantifiers as literals if they appear alone)
+					options = List.of(String.valueOf(c));
+					i++;
+				}
 
-			if (c == '[') {
-				int end = regex.indexOf(']', index);
-				String chars = regex.substring(index + 1, end);
-				for (char option : chars.toCharArray()) {
-					expandHelper(regex, end + 1, current + option, results);
+				// handle optional '?'
+				if (i < end && regex.charAt(i) == '?') {
+					List<String> withEmpty = new ArrayList<>(options.size() + 1);
+					withEmpty.add(""); // the empty option for '?'
+					withEmpty.addAll(options);
+					options = withEmpty;
+					i++;
 				}
-			} else if (c == '(') {
-				int end = regex.indexOf(')', index);
-				String inside = regex.substring(index + 1, end);
-				String[] options = inside.split("\\|");
-				for (String option : options) {
-					expandHelper(regex, end + 1, current + option, results);
+
+				// cross product
+				List<String> next = new ArrayList<>(current.size() * Math.max(1, options.size()));
+				for (String prefix : current) {
+					for (String opt : options) {
+						next.add(prefix + opt);
+					}
 				}
-			} else if (index + 1 < regex.length() && regex.charAt(index + 1) == '?') {
-				// include char
-				expandHelper(regex, index + 2, current + c, results);
-				// skip char
-				expandHelper(regex, index + 2, current, results);
-			} else {
-				expandHelper(regex, index + 1, current + c, results);
+				current = next;
 			}
+			return current;
+		}
+
+		private static int findClosingBracket(String s, int start, int end, char closing) {
+			int depth = 0;
+			for (int i = start; i < end; i++) {
+				char c = s.charAt(i);
+				if (c == '\\') {
+					i++; // skip escaped char
+					continue;
+				}
+				if (c == '(' || c == '[') {
+					depth++;
+				} else if (c == ')' || c == ']') {
+					if (depth == 0 && (c == closing)) {
+						return i;
+					} else if (depth > 0) {
+						depth--;
+					}
+				}
+				if (c == closing && depth == 0) {
+					return i;
+				}
+			}
+			// fallback: return end-1 if not found
+			return end - 1;
+		}
+
+		private static List<String> splitTopLevelAlternation(String s) {
+			List<String> parts = new ArrayList<>();
+			int last = 0;
+			int depth = 0;
+			for (int i = 0; i < s.length(); i++) {
+				char c = s.charAt(i);
+				if (c == '\\') {
+					i++; // skip escaped
+					continue;
+				}
+				if (c == '(' || c == '[') depth++;
+				else if (c == ')' || c == ']') depth = Math.max(0, depth - 1);
+				else if (c == '|' && depth == 0) {
+					parts.add(s.substring(last, i));
+					last = i + 1;
+				}
+			}
+			parts.add(s.substring(last));
+			return parts;
 		}
 
 	}

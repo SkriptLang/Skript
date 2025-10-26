@@ -25,7 +25,7 @@ public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 	protected ClassInfo<? extends T> info = null;
 	
 	void register(final ClassInfo<? extends T> info) {
-		assert this.info == null && info != null;
+		assert info != null;
 		this.info = info;
 	}
 	

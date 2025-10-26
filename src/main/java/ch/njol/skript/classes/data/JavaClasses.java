@@ -115,7 +115,6 @@ public class JavaClasses {
 				.serializer(new NumberSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Long.class, "long")
-				.user("int(eger)?s?")
 				.name(ClassInfo.NO_DOC)
 				.before("integer", "short", "byte")
 				.defaultExpression(new SimpleLiteral<>((long) 1, true))
@@ -123,6 +122,7 @@ public class JavaClasses {
 				.serializer(new LongSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Integer.class, "integer")
+				.user("int(eger)?s?")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1, true))
 				.parser(new IntegerParser())
