@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Maximum Float Value")
 @Description("A number representing the maximum value of a float number type.")
 @Example("if {_number} >= maximum float value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitFloatMaxValue extends SimpleLiteral<Float> {
 
 	static {

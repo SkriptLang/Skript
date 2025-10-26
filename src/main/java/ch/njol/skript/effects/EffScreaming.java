@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 		force {_enderman} to stop screaming
 	"""
 )
-@RequiredPlugins("Paper (endermen)")
 @Since("2.11")
 public class EffScreaming extends Effect {
 

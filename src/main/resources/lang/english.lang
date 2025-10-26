@@ -227,6 +227,11 @@ io exceptions:
 	unknownhostexception: Cannot connect to %s
 	accessdeniedexception: Access denied for %s
 
+# -- Misc --
+misc:
+	namespacedutils:
+		format: A namespaced key can be formatted as 'namespace:id' or 'id'. It can only contain one ':' to separate the namespace and the id. Only alphanumeric characters, periods, underscores, and dashes can be used.
+
 # -- Functions --
 functions:
 	or in arguments: Function arguments cannot be seperated by an 'or'. Put the 'or' into a second set of parentheses if you want to make it a single parameter, e.g. 'give(player, (sword or axe))'

@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 	"By default, the bell will ring in the direction it is facing.",
 })
 @Examples({"make player ring target-block"})
-@RequiredPlugins("Spigot 1.19.4+")
 @Since("2.9.0")
 public class EffRing extends Effect {
 
