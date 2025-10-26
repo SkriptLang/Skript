@@ -1,10 +1,12 @@
 package ch.njol.skript.registrations;
 
 import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.doc.Documentable;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
@@ -15,7 +17,7 @@ import java.util.List;
 /**
  * Experimental feature toggles as provided by Skript itself.
  */
-public enum Feature implements Experiment {
+public enum Feature implements Experiment, Documentable {
 
 	EXAMPLES("examples",
 		"Examples",
@@ -159,7 +161,29 @@ public enum Feature implements Experiment {
 		""",
 		LifeCycle.EXPERIMENTAL,
 		"damage source[s]"),
-	EQUIPPABLE_COMPONENTS("equippable components", LifeCycle.EXPERIMENTAL, "equippable components");
+	EQUIPPABLE_COMPONENTS("equippable components", "Equippable Components",
+		"""
+		Equippable components allow retrieving and changing the data of an item in the usage as equipment/armor.
+		
+		Below is an example of creating a blank equippable component, modifying it, and applying it to an item:
+		
+		```
+		set {_component} to a blank equippable component:
+			set the camera overlay to "custom_overlay"
+			set the allowed entities to a zombie and a skeleton
+			set the equip sound to "block.note_block.pling"
+			set the equipped model id to "custom_model"
+			set the shear sound to "ui.toast.in"
+			set the equipment slot to chest slot
+			allow event-equippable component to be damage when hurt
+			allow event-equippable component to be dispensed
+			allow event-equippable component to be equipped onto entities
+			allow event-equippable component to be sheared off
+			allow event-equippable component to swap equipment
+		set the equippable component of {_item} to {_component}
+		```
+		""",
+		LifeCycle.EXPERIMENTAL, "equippable components");
 
 	private final String displayName;
 	private final String codeName;
@@ -191,14 +215,8 @@ public enum Feature implements Experiment {
 		}
 	}
 
-	@Override
 	public @NotNull String displayName() {
 		return displayName;
-	}
-
-	@Override
-	public @NotNull Collection<String> description() {
-		return List.of(description);
 	}
 
 	@Override
@@ -214,6 +232,31 @@ public enum Feature implements Experiment {
 	@Override
 	public SkriptPattern pattern() {
 		return compiledPattern;
+	}
+
+	@Override
+	public @NotNull List<String> description() {
+		return List.of(description);
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> since() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> examples() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> keywords() {
+		return List.of();
+	}
+
+	@Override
+	public @Unmodifiable @NotNull List<String> requires() {
+		return List.of();
 	}
 
 }

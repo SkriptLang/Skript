@@ -8,6 +8,7 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.Version;
 import ch.njol.util.StringUtils;
 import com.google.common.base.Preconditions;
@@ -575,19 +576,23 @@ public class JSONGenerator extends DocumentationGenerator {
 		for (Experiment experiment : Skript.experiments().registered()) {
 			JsonObject object = new JsonObject();
 
-			object.addProperty("id", experiment.codeName());
-
-			if (experiment.displayName().isEmpty()) {
-				object.addProperty("name", (String) null);
-			} else {
-				object.addProperty("name", experiment.displayName());
+			if (!(experiment instanceof Feature feature)) {
+				continue;
 			}
 
-			if (experiment.description().isEmpty()) {
+			object.addProperty("id", experiment.codeName());
+
+			if (feature.displayName().isEmpty()) {
+				object.addProperty("name", (String) null);
+			} else {
+				object.addProperty("name", feature.displayName());
+			}
+
+			if (feature.description().isEmpty()) {
 				object.add("description", null);
 			} else {
 				JsonArray description = new JsonArray();
-				for (String part : experiment.description()) {
+				for (String part : feature.description()) {
 					description.add(part);
 				}
 				object.add("description", description);
@@ -658,8 +663,8 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));
-		jsonDocs.add("functions", generateFunctionArray(Functions.getDefaultFunctions().iterator()));
-    jsonDocs.add("experiments", generateExperiments());
+		jsonDocs.add("functions", generateFunctionArray(Functions.getFunctions().iterator()));
+    	jsonDocs.add("experiments", generateExperiments());
 		// do last so properties are mapped to syntaxes
 		jsonDocs.add("properties", generatePropertiesArray(PROPERTY_REGISTRY.iterator()));
 

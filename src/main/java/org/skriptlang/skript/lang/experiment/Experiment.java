@@ -60,20 +60,6 @@ public interface Experiment {
 	SkriptPattern pattern();
 
 	/**
-	 * @return The display name for this experiment.
-	 */
-	default @NotNull String displayName() {
-		return codeName();
-	}
-
-	/**
-	 * @return The description for this experiment.
-	 */
-	default @NotNull Collection<String> description() {
-		return List.of();
-	}
-
-	/**
 	 * @return Whether the usage pattern of this experiment matches the input text
 	 */
 	default boolean matches(String text) {
