@@ -1,13 +1,12 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.expressions.ExprBlockSound.SoundType;
-import ch.njol.skript.expressions.ExprKeyed;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.function.*;
+import ch.njol.skript.lang.function.FunctionEvent;
+import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
+import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;

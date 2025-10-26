@@ -15,6 +15,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
 import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
 
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 public record FunctionReferenceParser(ParseContext context, int flags) {
 
 	private final static Pattern FUNCTION_CALL_PATTERN =
-		Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");
+			Pattern.compile("(?<name>[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*)\\((?<args>.*)\\)");
 
 	/**
 	 * Attempts to parse {@code expr} as a function reference.
@@ -91,19 +93,19 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		// avoid assigning values to a parameter multiple times
 		Set<String> named = new HashSet<>();
 		for (Argument<String> argument : arguments) {
-            if (argument.type() != ArgumentType.NAMED) {
-                continue;
-            }
+			if (argument.type() != ArgumentType.NAMED) {
+				continue;
+			}
 
-            boolean added = named.add(argument.name());
-            if (added) {
-                continue;
-            }
+			boolean added = named.add(argument.name());
+			if (added) {
+				continue;
+			}
 
-            Skript.error(Language.get("functions.already assigned value to parameter"), argument.name());
-            log.printError();
-            return null;
-        }
+			Skript.error(Language.get("functions.already assigned value to parameter"), argument.name());
+			log.printError();
+			return null;
+		}
 
 		String namespace;
 		if (ParserInstance.get().isActive()) {
@@ -184,8 +186,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @return All possible exact {@link FunctionReference FunctionReferences}.
 	 */
 	private <T> Set<FunctionReference<T>> getExactReferences(
-		String namespace, String name,
-		Set<Signature<?>> signatures, Argument<String>[] arguments
+			String namespace, String name,
+			Set<Signature<?>> signatures, Argument<String>[] arguments
 	) {
 		Set<FunctionReference<T>> exactReferences = new HashSet<>();
 
@@ -198,44 +200,60 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 			// all remaining arguments to parse
 			// if a passed argument is named it bypasses the regular argument order of unnamed arguments
-			LinkedHashSet<String> remaining = new LinkedHashSet<>(signature.parameters().keySet());
+			SequencedMap<String, Parameter<?>> parameters = signature.parameters();
+			LinkedHashSet<String> remaining = new LinkedHashSet<>(parameters.keySet());
 
-			Class<?>[] targets = new Class<?>[arguments.length];
-			for (int i = 0; i < arguments.length; i++) {
-				Argument<String> argument = arguments[i];
-
+			// if a parameter is not passed, we need to create a dummy argument to allow parsing in parseFunctionArguments
+			//noinspection unchecked
+			FunctionReference.Argument<String>[] parseArguments = (FunctionReference.Argument<String>[]) new FunctionReference.Argument[parameters.size()];
+			ArgumentParseTarget[] parseTargets = new ArgumentParseTarget[parameters.size()];
+			for (int i = 0; i < parameters.size(); i++) {
 				if (remaining.isEmpty()) {
 					break;
 				}
 
 				Parameter<?> parameter;
-				if (argument.type() == ArgumentType.NAMED) {
-					parameter = signature.getParameter(argument.name());
+				if (i < arguments.length && arguments[i].type() == ArgumentType.NAMED) {
+					parameter = parameters.get(arguments[i].name());
 				} else {
-					parameter = signature.getParameter(remaining.getFirst());
+					parameter = parameters.get(remaining.getFirst());
 				}
 
 				if (parameter == null) {
 					continue signatures;
 				}
 
-				if (parameter.type().isArray()) {
-					targets[i] = parameter.type().componentType();
+				if (i < arguments.length) {
+					parseArguments[i] = arguments[i];
 				} else {
-					targets[i] = parameter.type();
+					parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, parameter.name(), null);
 				}
+
+				Class<?> targetType;
+				if (parameter.type().isArray()) {
+					targetType = parameter.type().componentType();
+				} else {
+					targetType = parameter.type();
+				}
+
+				Expression<?> fallback;
+				if (parameter instanceof ScriptParameter<?> sp) {
+					fallback = sp.defaultValue();
+				} else {
+					fallback = null;
+				}
+				parseTargets[i] = new ArgumentParseTarget(targetType, fallback);
 
 				remaining.remove(parameter.name());
 			}
 
-			//noinspection DuplicatedCode
-			FunctionArgumentParseResult result = parseFunctionArguments(arguments, targets);
+			ArgumentParseResult result = parseFunctionArguments(parseArguments, parseTargets);
 
-			if (result.type() == FunctionArgumentParseResultType.LIST_ERROR) {
+			if (result.type() == ArgumentParseResultType.LIST_ERROR) {
 				return null;
 			}
 
-			if (result.type() == FunctionArgumentParseResultType.OK) {
+			if (result.type() == ArgumentParseResultType.OK) {
 				//noinspection unchecked
 				FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
@@ -261,19 +279,19 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @return All possible {@link FunctionReference FunctionReferences} which contain a single list parameter.
 	 */
 	private <T> Set<FunctionReference<T>> getListReferences(
-		String namespace, String name,
-		Set<Signature<?>> signatures, Argument<String>[] arguments
+			String namespace, String name,
+			Set<Signature<?>> signatures, Argument<String>[] arguments
 	) {
 		// disallow naming any arguments other than the first
 		if (arguments.length > 1) {
 			for (Argument<String> argument : arguments) {
-                if (argument.type() != ArgumentType.NAMED) {
-                    continue;
-                }
+				if (argument.type() != ArgumentType.NAMED) {
+					continue;
+				}
 
-                doesNotExist(name, arguments);
-                return null;
-            }
+				doesNotExist(name, arguments);
+				return null;
+			}
 		}
 
 		Set<FunctionReference<T>> references = new HashSet<>();
@@ -282,8 +300,14 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		for (Signature<?> signature : signatures) {
 			Parameter<?> parameter = signature.parameters().firstEntry().getValue();
 
-			Class<?> target = parameter.type().componentType();
-			Class<?>[] targets = new Class<?>[]{target};
+			Class<?> targetType = parameter.type().componentType();
+			Expression<?> fallback;
+			if (parameter instanceof ScriptParameter<?> sp) {
+				fallback = sp.defaultValue();
+			} else {
+				fallback = null;
+			}
+			ArgumentParseTarget[] parseTargets = new ArgumentParseTarget[]{new ArgumentParseTarget(targetType, fallback)};
 
 			if (arguments.length == 1 && arguments[0].type() == ArgumentType.NAMED) {
 				if (!arguments[0].name().equals(parameter.name())) {
@@ -293,21 +317,21 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			}
 
 			// join all args to a single arg
-			String joined = Arrays.stream(arguments).map(Argument::value)
-				.collect(Collectors.joining(", "));
+			String joined = arguments.length == 0 ? null : Arrays.stream(arguments).map(Argument::value)
+					.collect(Collectors.joining(", "));
 			Argument<String> argument = new Argument<>(ArgumentType.NAMED, parameter.name(), joined);
 			Argument<String>[] array = CollectionUtils.array(argument);
 
 			//noinspection DuplicatedCode
-			FunctionArgumentParseResult result = parseFunctionArguments(array, targets);
+			ArgumentParseResult result = parseFunctionArguments(array, parseTargets);
 
-			if (result.type() == FunctionArgumentParseResultType.LIST_ERROR) {
+			if (result.type() == ArgumentParseResultType.LIST_ERROR) {
 				return null;
 			}
 
-			if (result.type() == FunctionArgumentParseResultType.OK) {
+			if (result.type() == ArgumentParseResultType.OK) {
 				// avoid allowing lists inside lists
-				if (result.parsed.length == 1 && result.parsed[0].value() instanceof ExpressionList<?> list) {
+				if ( result.parsed().length == 1 && result.parsed()[0].value() instanceof ExpressionList<?> list) {
 					for (Expression<?> expression : list.getExpressions()) {
 						if (expression instanceof ExpressionList<?>) {
 							doesNotExist(name, arguments);
@@ -342,23 +366,23 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 		for (FunctionReference<T> reference : references) {
 			String builder = reference.name() +
-				"(" +
-				reference.signature().parameters().values().stream()
-					.map(it -> {
-						if (it.type().isArray()) {
-							return Classes.getSuperClassInfo(it.type().componentType()).getName().getPlural();
-						} else {
-							return Classes.getSuperClassInfo(it.type()).getName().getSingular();
-						}
-					})
-					.collect(Collectors.joining(", ")) +
-				")";
+					"(" +
+					reference.signature().parameters().values().stream()
+							.map(it -> {
+								if (it.type().isArray()) {
+									return Classes.getSuperClassInfo(it.type().componentType()).getName().getPlural();
+								} else {
+									return Classes.getSuperClassInfo(it.type()).getName().getSingular();
+								}
+							})
+							.collect(Collectors.joining(", ")) +
+					")";
 
 			parts.add(builder);
 		}
 
 		Skript.error(Language.get("functions.ambiguous function call"),
-			name, StringUtils.join(parts, ", ", " or "));
+				name, StringUtils.join(parts, ", ", " or "));
 	}
 
 	/**
@@ -400,7 +424,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	/**
 	 * The type of result from attempting to parse function arguments.
 	 */
-	private enum FunctionArgumentParseResultType {
+	private enum ArgumentParseResultType {
 
 		/**
 		 * All arguments were successfully parsed to the specified type.
@@ -425,8 +449,19 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @param type   The type of result.
 	 * @param parsed The resulting parsed arguments, or null if parsing was not successful.
 	 */
-	private record FunctionArgumentParseResult(FunctionArgumentParseResultType type,
-											   FunctionReference.Argument<Expression<?>>[] parsed) {
+	private record ArgumentParseResult(
+			@NotNull ArgumentParseResultType type,
+			FunctionReference.Argument<Expression<?>>[] parsed) {
+
+	}
+
+	/**
+	 * Represents the data related to parsing an argument to a target type.
+	 *
+	 * @param type     The target type.
+	 * @param fallback If the argument cannot be parsed as the target type, the expression to use as fallback.
+	 */
+	private record ArgumentParseTarget(@NotNull Class<?> type, @Nullable Expression<?> fallback) {
 
 	}
 
@@ -435,35 +470,46 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 *
 	 * @param arguments The arguments to parse.
 	 * @param targets   The target classes to parse.
-	 * @return A {@link FunctionArgumentParseResult} with the results.
+	 * @return A {@link ArgumentParseResult} with the results.
 	 */
-	private FunctionArgumentParseResult parseFunctionArguments(FunctionReference.Argument<String>[] arguments, Class<?>[] targets) {
+	private ArgumentParseResult parseFunctionArguments(FunctionReference.Argument<String>[] arguments, ArgumentParseTarget[] targets) {
 		assert arguments.length == targets.length;
-		assert Arrays.stream(targets).noneMatch(Class::isArray);
+		assert Arrays.stream(targets).map(ArgumentParseTarget::type).noneMatch(Class::isArray);
 
 		//noinspection unchecked
 		FunctionReference.Argument<Expression<?>>[] parsed = (FunctionReference.Argument<Expression<?>>[])
-			new FunctionReference.Argument[arguments.length];
+				new FunctionReference.Argument[arguments.length];
 
 		for (int i = 0; i < arguments.length; i++) {
 			FunctionReference.Argument<String> argument = arguments[i];
+			ArgumentParseTarget targetData = targets[i];
 
-			SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
+			Expression<?> expression;
+			if (argument.value() != null) { // if passed, attempt to parse
+				SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
 
-			Expression<?> expression = parser.parseExpression(targets[i]);
+				Expression<?> attempt = parser.parseExpression(targetData.type());
+				if (attempt != null) {
+					expression = attempt;
+				} else {
+					expression = targetData.fallback;
+				}
+			} else {
+				expression = targetData.fallback;
+			}
 
 			if (expression == null) {
-				return new FunctionArgumentParseResult(FunctionArgumentParseResultType.PARSE_FAIL, null);
+				return new ArgumentParseResult(ArgumentParseResultType.PARSE_FAIL, null);
 			}
 
 			if (expression instanceof ExpressionList<?> list && !list.getAnd()) {
 				Skript.error(Language.get("functions.or in arguments"));
-				return new FunctionArgumentParseResult(FunctionArgumentParseResultType.LIST_ERROR, null);
+				return new ArgumentParseResult(ArgumentParseResultType.LIST_ERROR, null);
 			}
 
 			parsed[i] = new FunctionReference.Argument<>(argument.type(), argument.name(), expression);
 		}
 
-		return new FunctionArgumentParseResult(FunctionArgumentParseResultType.OK, parsed);
+		return new ArgumentParseResult(ArgumentParseResultType.OK, parsed);
 	}
 }

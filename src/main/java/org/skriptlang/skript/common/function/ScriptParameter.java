@@ -1,10 +1,7 @@
 package org.skriptlang.skript.common.function;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.LiteralUtils;
@@ -72,6 +69,11 @@ public record ScriptParameter<T>(String name, Class<T> type, Set<Modifier> modif
 				log.printLog();
 				log.stop();
 			}
+		}
+
+
+		if (type.isArray() && defaultValue != null && defaultValue.isSingle()) {
+			defaultValue = new ExpressionList<>(new Expression[] { defaultValue }, defaultValue.getReturnType(), true);
 		}
 
 		Set<Modifier> modifiers = new HashSet<>();

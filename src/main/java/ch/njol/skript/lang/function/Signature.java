@@ -208,7 +208,7 @@ public class Signature<T> implements org.skriptlang.skript.common.function.Signa
 	/**
 	 * @return The namespace of this signature.
 	 */
-	String namespace() {
+	public String namespace() {
 		return script;
 	}
 

@@ -1159,12 +1159,9 @@ public final class SkriptParser {
 	private final static Pattern FUNCTION_CALL_PATTERN = Pattern.compile("(" + Functions.functionNamePattern + ")\\((.*)\\)");
 
 	/**
-	 * Attempts to parse {@link SkriptParser#expr} as a function reference.
-	 *
-	 * @param <T> The return type of the function.
-	 * @return A {@link FunctionReference} if a function is found, or {@code null} if none is found.
+	 * @deprecated Use {{@link #parseFunctionReference()}} instead.
 	 */
-	@SuppressWarnings("unchecked")
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public <T> @Nullable FunctionReference<T> parseFunction(@Nullable Class<? extends T>... types) {
 		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
 			return null;
@@ -1297,6 +1294,10 @@ public final class SkriptParser {
 		}
 	}
 
+	/**
+	 * @deprecated Use {@link #parseFunctionReference()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	private Expression<?> @Nullable [] getFunctionArguments(Supplier<Expression<?>> parsing, String args) {
 		if (args.isEmpty()) {
 			return new Expression[0];
