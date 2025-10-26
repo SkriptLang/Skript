@@ -1,6 +1,5 @@
 package org.skriptlang.skript.common.types;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -8,7 +7,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.util.FileUtils;
 import ch.njol.util.OpenCloseable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +18,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyH
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Set;
 
 @ApiStatus.Internal
 public class ScriptClassInfo extends ClassInfo<Script> {
@@ -143,47 +139,7 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		//<editor-fold desc="load property handler" defaultstate="collapsed">
 		@Override
 		public void execute(Script script) {
-			execute(script, OpenCloseable.EMPTY);
-		}
-
-		public void execute(Script script, OpenCloseable closeable) {
-			File file = script.getConfig().getFile();
-			if (file == null || !file.exists())
-				return;
-			if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(file)))
-				return;
-			if (ScriptLoader.getDisabledScriptsFilter().accept(file)) {
-				try {
-					file = FileUtils.move(
-						file,
-						new File(file.getParentFile(), file.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH)),
-						false
-					);
-				} catch (IOException e) {
-					Skript.exception("Error while enabling script file: " + script.name());
-					return;
-				}
-			}
-			ScriptLoader.loadScripts(file, closeable);
-		}
-		//</editor-fold>
-	}
-
-	public static class ScriptReloadHandler implements EffectHandler<Script> {
-		//<editor-fold desc="reload property handler" defaultstate="collapsed">
-		@Override
-		public void execute(Script script) {
-			execute(script, OpenCloseable.EMPTY);
-		}
-
-		public void execute(Script script, OpenCloseable closeable) {
-			File file = script.getConfig().getFile();
-			if (file == null || !file.exists())
-				return;
-			if (ScriptLoader.getDisabledScriptsFilter().accept(file))
-				return;
-			unloadScripts(file);
-			ScriptLoader.loadScripts(file, closeable);
+			script.load(OpenCloseable.EMPTY);
 		}
 		//</editor-fold>
 	}
@@ -192,12 +148,16 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		//<editor-fold desc="unload property handler" defaultstate="collapsed">
 		@Override
 		public void execute(Script script) {
-			File file = script.getConfig().getFile();
-			if (file == null || !file.exists())
-				return;
-			if (!ScriptLoader.getLoadedScriptsFilter().accept(file))
-				return;
-			unloadScripts(file);
+			script.unload();
+		}
+		//</editor-fold>
+	}
+
+	public static class ScriptReloadHandler implements EffectHandler<Script> {
+		//<editor-fold desc="reload property handler" defaultstate="collapsed">
+		@Override
+		public void execute(Script script) {
+			script.reload(OpenCloseable.EMPTY);
 		}
 		//</editor-fold>
 	}
@@ -206,41 +166,9 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		//<editor-fold desc="disable property handler" defaultstate="collapsed">
 		@Override
 		public void execute(Script script) {
-			File file = script.getConfig().getFile();
-			if (file == null || !file.exists())
-				return;
-			if (ScriptLoader.getDisabledScriptsFilter().accept(file))
-				return;
-			unloadScripts(file);
-
-			try {
-				FileUtils.move(
-					file,
-					new File(file.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + file.getName()),
-					false
-				);
-			} catch (IOException e) {
-				Skript.exception(e, "Error while disabling script file: " + script.name());
-			}
+			script.disable();
 		}
 		//</editor-fold>
-	}
-
-	private static void unloadScripts(File file) {
-		Set<Script> loaded = ScriptLoader.getLoadedScripts();
-		if (file.isDirectory()) {
-			Set<Script> scripts = ScriptLoader.getScripts(file);
-			if (scripts.isEmpty())
-				return;
-			scripts.retainAll(loaded); // skip any that are not loaded (avoid throwing error)
-			ScriptLoader.unloadScripts(scripts);
-		} else {
-			Script script = ScriptLoader.getScript(file);
-			if (!loaded.contains(script))
-				return; // don't need to unload if not loaded (avoid throwing error)
-			if (script != null)
-				ScriptLoader.unloadScript(script);
-		}
 	}
 
 }

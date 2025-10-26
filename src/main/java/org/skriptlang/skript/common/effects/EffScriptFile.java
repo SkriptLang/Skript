@@ -13,8 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.types.ScriptClassInfo.ScriptLoadHandler;
-import org.skriptlang.skript.common.types.ScriptClassInfo.ScriptReloadHandler;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -25,9 +23,9 @@ import java.util.stream.Collectors;
 @Name("Enable/Reload Script With Errors")
 @Description("""
 	Enables or reloads a script.
-	Any errors occurred will be printed to console and all players with the permission 'skript.reloadnotify'.
+	Any errors occurred will be printed to console and to all players with the permission 'skript.reloadnotify'.
 	
-	Disabling a script unloads it and prepends - to its name so it will not be loaded the next time the server restarts.
+	See 'load/enable' and 'reload' for loading or reloading a script without any errors being printed.
 	""")
 @Example("reload script \"test\"")
 @Example("enable script file \"testing\"")
@@ -42,9 +40,6 @@ public class EffScriptFile extends Effect {
 				.supplier(EffScriptFile::new)
 				.build());
 	}
-
-	private static final ScriptLoadHandler LOAD_HANDLER = new ScriptLoadHandler();
-	private static final ScriptReloadHandler RELOAD_HANDLER = new ScriptReloadHandler();
 
 	private Expression<Script> scriptExpression;
 	private boolean isEnable;
@@ -66,11 +61,11 @@ public class EffScriptFile extends Effect {
 
 		if (isEnable) {
 			for (Script script : scriptExpression.getArray(event)) {
-				LOAD_HANDLER.execute(script, logHandler);
+				script.load(logHandler);
 			}
 		} else {
 			for (Script script : scriptExpression.getArray(event)) {
-				RELOAD_HANDLER.execute(script, logHandler);
+				script.reload(logHandler);
 			}
 		}
 		logHandler.close();
