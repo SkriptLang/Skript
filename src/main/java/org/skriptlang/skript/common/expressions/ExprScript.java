@@ -150,7 +150,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		return "the scripts named " + name.toString(event, debug);
 	}
 
-	static @Nullable Script getHandle(@Nullable File file) {
+	public static @Nullable Script getHandle(@Nullable File file) {
 		if (file == null || file.isDirectory())
 			return null;
 		Script script = ScriptLoader.getScript(file);
