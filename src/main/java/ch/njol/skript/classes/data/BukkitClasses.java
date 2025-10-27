@@ -728,7 +728,7 @@ public class BukkitClasses {
 				.before("enchantmenttype"));
 
 		Material[] allMaterials = Material.values();
-		Classes.registerClass(new ClassInfo<>(Material.class, "material")
+		Classes.registerClass(new ClassInfo<>(Material.class, "xmaterial")
 				.name(ClassInfo.NO_DOC)
 				.since("aliases-rework")
 				.serializer(new Serializer<Material>() {

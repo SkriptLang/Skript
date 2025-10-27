@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.registration.TypeInfoImpl.EnumInfoBuilderImpl;
-import org.skriptlang.skript.registration.TypeInfoImpl.RegistryInfoBuilderImpl;
 import org.skriptlang.skript.registration.TypeInfoImpl.TypeInfoBuilderImpl;
 
 import java.util.Collection;
@@ -41,59 +39,17 @@ public interface TypeInfo<T> extends Documentable {
 	static <T> Builder<T> builder(
 			@NotNull SkriptAddon source,
 			@NotNull Class<T> type,
+			@NotNull String codename,
 			@NotNull String name,
 			@NotNull String... patterns
 	) {
-		return new TypeInfoBuilderImpl<>(source, type, name, patterns);
+		return new TypeInfoBuilderImpl<>(source, type, codename, name, patterns);
 	}
 
 	/**
-	 * Creates a new builder for a type backed by a {@link Registry}.
-	 *
-	 * @param source The source addon.
-	 * @param type The class this type belongs to.
-	 * @param name The display name of this type.
-	 * @param registry The registry to extract values from.
-	 * @param langNode The node in the {@code default.lang} file used
-	 *                 to associate the values from the registry to a value that
-	 *                 can be used in scripts.
-	 * @param patterns The patterns that the user can enter to reference this type.
-	 * @return A new builder.
-	 * @param <T> The type.
+	 * @return The internal code name.
 	 */
-	static <T extends @NotNull Keyed> RestrictedBuilder<T> builder(
-			@NotNull SkriptAddon source,
-			@NotNull Class<T> type,
-			@NotNull String name,
-			@NotNull Registry<T> registry,
-			@NotNull String langNode,
-			@NotNull String @NotNull ... patterns
-	) {
-		return new RegistryInfoBuilderImpl<>(source, type, name, registry, langNode, patterns);
-	}
-
-	/**
-	 * Creates a new builder for a type backed by an {@link Enum}.
-	 *
-	 * @param source The source addon.
-	 * @param type The class this type belongs to.
-	 * @param name The display name of this type.
-	 * @param langNode The node in the {@code default.lang} file used
-	 *                 to associate the values from the enum to a value that
-	 *                 can be used in scripts.
-	 * @param patterns The patterns that the user can enter to reference this type.
-	 * @return A new builder.
-	 * @param <T> The type.
-	 */
-	static <T extends Enum<T>> RestrictedBuilder<T> builder(
-			@NotNull SkriptAddon source,
-			@NotNull Class<T> type,
-			@NotNull String name,
-			@NotNull String langNode,
-			@NotNull String @NotNull ... patterns
-	) {
-		return new EnumInfoBuilderImpl<>(source, type, name, langNode, patterns);
-	}
+	@NotNull String codename();
 
 	/**
 	 * @return The source of this type.
@@ -142,6 +98,31 @@ public interface TypeInfo<T> extends Documentable {
 	 * @param <T> The class of the type.
 	 */
 	interface Builder<T> {
+
+		/**
+		 * Fills in available data and returns the remaining builder.
+		 *
+		 * @param registry The registry to extract values from.
+		 * @param langNode The node in the {@code default.lang} file used
+		 *                 to associate the values from the registry to a value that
+		 *                 can be used in scripts.
+		 *
+		 * @return A {@link RestrictedBuilder}.
+		 */
+		@Contract("_, _ -> new")
+		<KT extends Keyed> RestrictedBuilder<KT> fromKeyed(@NotNull Registry<@NotNull KT> registry, @NotNull String langNode);
+
+		/**
+		 * Fills in available data and returns the remaining builder.
+		 *
+		 * @param langNode The node in the {@code default.lang} file used
+		 *                 to associate the values from the registry to a value that
+		 *                 can be used in scripts.
+		 *
+		 * @return A {@link RestrictedBuilder}.
+		 */
+		@Contract("_ -> new")
+		<ET extends Enum<ET>> RestrictedBuilder<ET> fromEnum(@NotNull String langNode);
 
 		/**
 		 * Sets this type builder's description.

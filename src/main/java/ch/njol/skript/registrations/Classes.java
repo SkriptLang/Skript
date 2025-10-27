@@ -67,7 +67,7 @@ public abstract class Classes {
 		}
 
 		if (!exactClassInfos.containsKey(info.type())) {
-			ClassInfo<T> simulated = new ClassInfo<>(info.type(), info.type().getSimpleName().toLowerCase())
+			ClassInfo<T> simulated = new ClassInfo<>(info.type(), info.codename())
 					.name(info.name())
 					.description(info.description().toArray(new String[0]))
 					.since(String.join("\n", info.since()))

@@ -19,6 +19,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 
 	private final SkriptAddon source;
 	private final String name;
+	private final String codename;
 	private final Class<T> type;
 	private final Set<String> patterns;
 	private final List<String> description;
@@ -34,8 +35,9 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 
 	TypeInfoImpl(
 			SkriptAddon source,
-			String name,
 			Class<T> type,
+			String codename,
+			String name,
 			String[] patterns,
 			String[] description,
 			String[] since,
@@ -50,6 +52,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 	) {
 		this.source = source;
 		this.name = name;
+		this.codename = codename;
 		this.type = type;
 		this.description = description != null ? List.of(description) : Collections.emptyList();
 		this.since = since != null ? List.of(since) : Collections.emptyList();
@@ -67,6 +70,11 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 			generated.addAll(ClassInfo.PatternGenerator.generate(pattern));
 		}
 		this.patterns = Set.copyOf(generated);
+	}
+
+	@Override
+	public @NotNull String codename() {
+		return codename;
 	}
 
 	@Override
@@ -143,6 +151,7 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 
 		private final SkriptAddon source;
 		private final Class<T> type;
+		private final String codename;
 		private final String name;
 		private final String[] pattern;
 
@@ -158,19 +167,33 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		private Supplier<Iterator<T>> values;
 		private Cloner<T> cloner;
 
-		TypeInfoBuilderImpl(SkriptAddon source, Class<T> type, String name, String... patterns) {
+		TypeInfoBuilderImpl(SkriptAddon source, Class<T> type, String codename, String name, String... patterns) {
 			Preconditions.checkNotNull(source, "source cannot be null");
 			Preconditions.checkNotNull(type, "type cannot be null");
 			Preconditions.checkArgument(!type.isArray(), "type cannot be an array");
 			Preconditions.checkArgument(!type.isAnnotation(), "type cannot be an annotation");
+			Preconditions.checkNotNull(codename, "codename cannot be null");
 			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(patterns, "patterns cannot be null");
 			checkNotNull(patterns, "patterns contents cannot be null");
 
 			this.source = source;
 			this.type = type;
+			this.codename = codename;
 			this.name = name;
 			this.pattern = patterns;
+		}
+
+		@Override
+		public <KT extends Keyed> RestrictedBuilder<KT> fromKeyed(@NotNull Registry<@NotNull KT> registry, @NotNull String langNode) {
+			// noinspection unchecked
+			return new RegistryInfoBuilderImpl<>(source, (Class<KT>) type, codename, name, registry, langNode, pattern);
+		}
+
+		@Override
+		public <ET extends Enum<ET>> RestrictedBuilder<ET> fromEnum(@NotNull String langNode) {
+			// noinspection unchecked
+			return new EnumInfoBuilderImpl<>(source, (Class<ET>) type, codename,name, langNode, pattern);
 		}
 
 		@Override
@@ -263,8 +286,9 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		public TypeInfo<T> build() {
 			return new TypeInfoImpl<>(
 					source,
-					name,
 					type,
+					codename,
+					name,
 					pattern,
 					description,
 					since,
@@ -281,11 +305,12 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 
 	}
 
-	static final class RegistryInfoBuilderImpl<T extends @NotNull Keyed> implements RestrictedBuilder<T> {
+	private static final class RegistryInfoBuilderImpl<T extends @NotNull Keyed> implements RestrictedBuilder<T> {
 
 		private final SkriptAddon source;
 		private final Class<T> type;
 		private final String name;
+		private final String codename;
 		private final String[] patterns;
 
 		private String[] description;
@@ -303,23 +328,19 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		RegistryInfoBuilderImpl(
 				SkriptAddon source,
 				Class<T> type,
+				String codename,
 				String name,
 				Registry<T> registry,
 				String langNode,
 				String... patterns
 		) {
-			Preconditions.checkNotNull(source, "source cannot be null");
-			Preconditions.checkNotNull(type, "type cannot be null");
-			Preconditions.checkArgument(!type.isArray(), "type cannot be an array");
-			Preconditions.checkArgument(!type.isAnnotation(), "type cannot be an annotation");
-			Preconditions.checkNotNull(name, "name cannot be null");
-			Preconditions.checkNotNull(patterns, "patterns cannot be null");
 			Preconditions.checkNotNull(registry, "registry cannot be null");
 			Preconditions.checkNotNull(langNode, "langNode cannot be null");
 
 			this.source = source;
 			this.type = type;
 			this.name = name;
+			this.codename = codename;
 			this.patterns = patterns;
 
 			this.values = registry::iterator;
@@ -401,8 +422,9 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		public TypeInfo<T> build() {
 			return new TypeInfoImpl<>(
 					source,
-					name,
 					type,
+					codename,
+					name,
 					patterns,
 					description,
 					since,
@@ -419,11 +441,12 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 
 	}
 
-	static final class EnumInfoBuilderImpl<T extends Enum<T>> implements RestrictedBuilder<T> {
+	private static final class EnumInfoBuilderImpl<T extends Enum<T>> implements RestrictedBuilder<T> {
 
 		private final SkriptAddon source;
 		private final Class<T> type;
 		private final String name;
+		private final String codename;
 		private final String[] patterns;
 
 		private String[] description;
@@ -441,20 +464,17 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		EnumInfoBuilderImpl(
 				SkriptAddon source,
 				Class<T> type,
+				String codename,
 				String name,
 				String langNode,
 				String... patterns
 		) {
-			Preconditions.checkNotNull(source, "source cannot be null");
-			Preconditions.checkNotNull(type, "type cannot be null");
-			Preconditions.checkArgument(!type.isArray(), "type cannot be an array");
-			Preconditions.checkArgument(!type.isAnnotation(), "type cannot be an annotation");
-			Preconditions.checkNotNull(name, "name cannot be null");
 			Preconditions.checkNotNull(patterns, "patterns cannot be null");
 			Preconditions.checkNotNull(langNode, "langNode cannot be null");
 
 			this.source = source;
 			this.type = type;
+			this.codename = codename;
 			this.name = name;
 			this.patterns = patterns;
 
@@ -537,8 +557,9 @@ final class TypeInfoImpl<T> implements TypeInfo<T> {
 		public TypeInfo<T> build() {
 			return new TypeInfoImpl<>(
 					source,
-					name,
 					type,
+					name,
+					codename,
 					patterns,
 					description,
 					since,

@@ -381,7 +381,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param type the ClassInfo to generate the documentation of
 	 * @return the documentation Jsonobject of the ClassInfo
 	 */
-	private static JsonObject generateClassInfoElement(TypeInfo<?> type) {
+	private static JsonObject generateTypeElement(TypeInfo<?> type) {
 		if (type.name().isEmpty() || type.name().equals("?"))
 			return null;
 
@@ -395,7 +395,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(type.requires()));
 		syntaxJsonObject.add("examples", convertToJsonArray(type.examples()));
 
-		syntaxJsonObject.add("properties", getClassInfoProperties(classInfo));
+//		TODO syntaxJsonObject.add("properties", getClassInfoProperties(classInfo));
 
 		return syntaxJsonObject;
 	}
@@ -430,7 +430,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	private static JsonArray generateTypeArray(@NotNull Collection<TypeInfo<?>> infos) {
 		JsonArray syntaxArray = new JsonArray();
 		infos.forEach(classInfo -> {
-			JsonObject classInfoElement = generateClassInfoElement(classInfo);
+			JsonObject classInfoElement = generateTypeElement(classInfo);
 			if (classInfoElement != null)
 				syntaxArray.add(classInfoElement);
 		});
@@ -636,7 +636,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("events", generateStructureElementArray(source.syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT)));
 		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
-		jsonDocs.add("types", generateClassInfoArray(source.registry(TypeRegistry.class).elements()));
+		jsonDocs.add("types", generateTypeArray(source.registry(TypeRegistry.class).elements()));
 		jsonDocs.add("functions", generateFunctionArray(Functions.getFunctions().iterator()));
 		// do last so properties are mapped to syntaxes
 		jsonDocs.add("properties", generatePropertiesArray(PROPERTY_REGISTRY.iterator()));

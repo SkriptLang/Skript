@@ -19,8 +19,6 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler;
-import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.registration.TypeInfo;
 
 import java.util.*;
@@ -569,7 +567,12 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 		return propertyDocumentation.get(property);
 	}
 
-		@Override
+	@Override
+	public @NotNull String codename() {
+		return codeName;
+	}
+
+	@Override
 	public @NotNull SkriptAddon source() {
 		return Skript.getAddonInstance();
 	}
@@ -582,11 +585,10 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 	@Override
 	public @Unmodifiable @NotNull Collection<String> patterns() {
 		if (userInputPatterns == null) {
-			return List.of(codeName);
+			return Collections.emptyList();
 		}
 
 		Set<String> patterns = new HashSet<>();
-		patterns.add(codeName);
 		for (Pattern pattern : userInputPatterns) {
 			patterns.addAll(PatternGenerator.generate(pattern.toString()));
 		}
