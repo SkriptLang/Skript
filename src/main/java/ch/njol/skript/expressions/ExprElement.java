@@ -1,14 +1,13 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
@@ -20,7 +19,6 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.lang.reflect.Array;
@@ -61,7 +59,7 @@ public class ExprElement<T> extends SimpleExpression<T> {
 
 	static {
 		//noinspection unchecked
-		Skript.registerExpression(ExprElement.class, Object.class, ExpressionType.PROPERTY, PATTERNS.getPatterns());
+		//Skript.registerExpression(ExprElement.class, Object.class, ExpressionType.PROPERTY, PATTERNS.getPatterns());
 	}
 
 	private enum ElementType {

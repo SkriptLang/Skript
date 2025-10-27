@@ -7,18 +7,24 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ElementsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.RangedElementsHandler;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @ApiStatus.Internal
 public class QueueClassInfo extends ClassInfo<SkriptQueue> {
@@ -48,7 +54,39 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 			.property(Property.IS_EMPTY,
 				"Whether a queue is empty, i.e. whether there are no elements in the queue.",
 				Skript.instance(),
-				ConditionPropertyHandler.of(SkriptQueue::isEmpty));
+				ConditionPropertyHandler.of(SkriptQueue::isEmpty))
+			.property(Property.FIRST_ELEMENT,
+				"",
+				Skript.instance(),
+				new QueueFirstElementHandler())
+			.property(Property.LAST_ELEMENT,
+				"",
+				Skript.instance(),
+				new QueueLastElementHandler())
+			.property(Property.RANDOM_ELEMENT,
+				"",
+				Skript.instance(),
+				new QueueRandomElementHandler())
+			.property(Property.ORDINAL_ELEMENT,
+				"",
+				Skript.instance(),
+				new QueueOrdinalElementHandler())
+			.property(Property.END_ORDINAL_ELEMENT,
+				"",
+				Skript.instance(),
+				new QueueEndOrdinalElementHandler())
+			.property(Property.FIRST_X_ELEMENTS,
+				"",
+				Skript.instance(),
+				new QueueFirstXElementsHandler())
+			.property(Property.LAST_X_ELEMENTS,
+				"",
+				Skript.instance(),
+				new QueueLastXElementsHandler())
+			.property(Property.RANGED_ELEMENTS,
+				"",
+				Skript.instance(),
+				new QueueRangedElementsHandler());
 	}
 
 	private static class QueueChanger implements Changer<SkriptQueue> {
@@ -139,6 +177,122 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 		@Override
 		public @NotNull Class<Integer> returnType() {
 			return Integer.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueFirstElementHandler implements ElementHandler<SkriptQueue, Object> {
+		//<editor-fold desc="first element handler" defaultstate="collapsed">
+		@Override
+		public @Nullable Object getElement(SkriptQueue queue) {
+			return queue.pollFirst();
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueLastElementHandler implements ElementHandler<SkriptQueue, Object> {
+		//<editor-fold desc="last element handler" defaultstate="collapsed">
+		@Override
+		public @Nullable Object getElement(SkriptQueue queue) {
+			return queue.pollLast();
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueRandomElementHandler implements ElementHandler<SkriptQueue, Object> {
+		//<editor-fold desc="random element handler" defaultstate="collapsed">
+		@Override
+		public @Nullable Object getElement(SkriptQueue queue) {
+			return queue.removeSafely(ThreadLocalRandom.current().nextInt(0, queue.size()));
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueFirstXElementsHandler implements ElementsHandler<SkriptQueue, Object> {
+		//<editor-fold desc="first x elements handler" defaultstate="collapsed">
+		@Override
+		public Object @Nullable [] getElements(SkriptQueue queue, Integer index) {
+			return CollectionUtils.array(queue.removeRangeSafely(0, index));
+		}
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueLastXElementsHandler implements ElementsHandler<SkriptQueue, Object> {
+		//<editor-fold desc="last x elements handler" defaultstate="collapsed">
+		@Override
+		public Object @Nullable [] getElements(SkriptQueue queue, Integer index) {
+			return CollectionUtils.array(queue.removeRangeSafely(queue.size() - index, queue.size()));
+		}
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueOrdinalElementHandler implements ElementsHandler<SkriptQueue, Object> {
+		//<editor-fold desc="ordinal element handler" defaultstate="collapsed">
+		@Override
+		public Object @Nullable [] getElements(SkriptQueue queue, Integer index) {
+			return CollectionUtils.array(queue.removeSafely(index - 1));
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueEndOrdinalElementHandler implements ElementsHandler<SkriptQueue, Object> {
+		//<editor-fold desc="end ordinal element handler" defaultstate="collapsed">
+		@Override
+		public Object @Nullable [] getElements(SkriptQueue queue, Integer index) {
+			return CollectionUtils.array(queue.removeSafely(queue.size() - index));
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueRangedElementsHandler implements RangedElementsHandler<SkriptQueue, Object> {
+		//<editor-fold desc="ranged element property handler" defaultstate="collapsed">
+		@Override
+		public Object @Nullable [] getElements(SkriptQueue queue, Integer start, Integer end) {
+			boolean reverse = start > end;
+			int from = Math.min(start, end) - 1;
+			int to = Math.max(start, end);
+			Object[] elements = CollectionUtils.array(queue.removeRangeSafely(from , to));
+			if (reverse)
+				ArrayUtils.reverse(elements);
+			return elements;
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
 		}
 		//</editor-fold>
 	}

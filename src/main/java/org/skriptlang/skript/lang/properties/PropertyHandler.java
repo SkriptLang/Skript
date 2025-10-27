@@ -279,4 +279,52 @@ public interface PropertyHandler<Type> {
 		}
 	}
 
+	interface ElementHandler<Type, ReturnType> extends PropertyHandler<Type> {
+
+		@Nullable ReturnType getElement(Type type);
+
+		/**
+		 * The return type of this property. This is used for type checking and auto-completion.
+		 * If the property can return multiple types, it should return the most general type that encompasses all
+		 * possible return types.
+		 *
+		 * @return The return type of this property.
+		 */
+		@NotNull Class<ReturnType> returnType();
+
+		/**
+		 * The possible return types of this property. This is used for type checking and auto-completion.
+		 * The default implementation returns an array containing the type returned by {@link #returnType()}.
+		 * If the property can return multiple types, it should return all possible return types.
+		 *
+		 * @return The possible return types of this property.
+		 */
+		default Class<?> @NotNull [] possibleReturnTypes() {
+			return new Class[]{ returnType() };
+		}
+
+	}
+
+	interface ElementsHandler<Type, ReturnType> extends ElementHandler<Type, ReturnType> {
+
+		ReturnType @Nullable [] getElements(Type type, Integer integer);
+
+		@Override
+		default @Nullable ReturnType getElement(Type type) {
+			return null;
+		}
+
+	}
+
+	interface RangedElementsHandler<Type, ReturnType> extends ElementsHandler<Type, ReturnType> {
+
+		ReturnType @Nullable [] getElements(Type type, Integer from, Integer to);
+
+		@Override
+		default ReturnType @Nullable [] getElements(Type type, Integer integer) {
+			return null;
+		}
+
+	}
+
 }
