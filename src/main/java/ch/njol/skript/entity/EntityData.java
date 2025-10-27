@@ -6,19 +6,31 @@ import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.*;
+import ch.njol.skript.localization.Adjective;
+import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
+import ch.njol.skript.localization.LanguageChangeListener;
+import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import com.google.common.base.Preconditions;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.RegionAccessor;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -30,7 +42,11 @@ import java.io.StreamCorruptedException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -139,8 +155,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 						"spawn a creeper")
 				.since("1.3")
 				.defaultExpression(new SimpleLiteral<EntityData>(new SimpleEntityData(Entity.class), true))
+				.before("entitytype")
 				.supplier(ALL_ENTITY_DATAS::iterator)
-				.parser(new Parser<>() {
+				.parser(new Parser<EntityData>() {
 					@Override
 					public String toString(EntityData entityData, int flags) {
 						return entityData.toString(flags);
@@ -267,7 +284,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		infos.add((EntityDataInfo<EntityData<?>>) entityDataInfo);
 	}
 
-	private int amount = 1;
 	transient EntityDataInfo<?> info;
 	protected int matchedPattern = 0;
 	private Kleenean plural = Kleenean.UNKNOWN;
@@ -830,22 +846,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		if (world == null)
 			return null;
 		return world.createEntity(location, type);
-	}
-
-	/**
-	 * Sets the amount of entities.
-	 * @param amount The amount.
-	 */
-	public void setAmount(int amount) {
-		Preconditions.checkArgument(amount >= 0, "amount cannot be negative");
-		this.amount = amount;
-	}
-
-	/**
-	 * @return The amount of entities.
-	 */
-	public int getAmount() {
-		return amount;
 	}
 
 }

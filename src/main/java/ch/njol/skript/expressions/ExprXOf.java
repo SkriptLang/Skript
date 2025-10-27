@@ -2,8 +2,12 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -56,8 +60,8 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 		if (type.canReturn(ItemType.class)) {
 			possibleReturnTypes.add(ItemType.class);
 		}
-		if (type.canReturn(EntityData.class)) {
-			possibleReturnTypes.add(EntityData.class);
+		if (type.canReturn(EntityType.class)) {
+			possibleReturnTypes.add(EntityType.class);
 		}
 		this.possibleReturnTypes = possibleReturnTypes.toArray(new Class[0]);
 
@@ -80,8 +84,8 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 				type.setAmount(amount.intValue());
 				return type;
 			} else {
-				EntityData<?> entityType = (EntityData<?>) object;
-				entityType.setAmount(amount.intValue());
+				EntityType entityType = ((EntityType) object).clone();
+				entityType.amount = amount.intValue();
 				return entityType;
 			}
 		});

@@ -7,6 +7,7 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
@@ -117,6 +118,9 @@ public class DefaultConverters {
 
 		// Entity - EntityData
 		Converters.registerConverter(Entity.class, EntityData.class, EntityData::fromEntity, Commands.CONVERTER_NO_COMMAND_ARGUMENTS | Converter.NO_RIGHT_CHAINING);
+
+		// EntityData - EntityType
+		Converters.registerConverter(EntityData.class, EntityType.class, data -> new EntityType(data, -1));
 
 		// ItemType - ItemStack
 		Converters.registerConverter(ItemType.class, ItemStack.class, ItemType::getRandom);
