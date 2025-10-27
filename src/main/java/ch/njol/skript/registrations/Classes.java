@@ -131,8 +131,6 @@ public abstract class Classes {
 
 	public static void onRegistrationsStop() {
 
-		sortClassInfos();
-
 		// validate serializeAs
 		for (final ClassInfo<?> ci : getClassInfos()) {
 			if (ci.getSerializeAs() != null) {
@@ -153,115 +151,6 @@ public abstract class Classes {
 		}
 
 		EntityData.onRegistrationStop();
-	}
-
-	/**
-	 * Sorts the class infos according to sub/superclasses and relations set with {@link ClassInfo#before(String...)} and {@link ClassInfo#after(String...)}.
-	 */
-	@SuppressFBWarnings("LI_LAZY_INIT_STATIC")
-	private static void sortClassInfos() {
-		assert classInfos == null;
-
-		if (!Skript.testing() && SkriptConfig.addonSafetyChecks.value())
-			removeNullElements();
-
-		// merge before, after & sub/supertypes in after
-		for (final ClassInfo<?> ci : tempClassInfos) {
-			final Set<String> before = ci.before();
-			if (before != null && !before.isEmpty()) {
-				for (final ClassInfo<?> ci2 : tempClassInfos) {
-					if (before.contains(ci2.getCodeName())) {
-						ci2.after().add(ci.getCodeName());
-						before.remove(ci2.getCodeName());
-						if (before.isEmpty())
-							break;
-					}
-				}
-			}
-		}
-		for (final ClassInfo<?> ci : tempClassInfos) {
-			for (final ClassInfo<?> ci2 : tempClassInfos) {
-				if (ci == ci2)
-					continue;
-				if (ci.getC().isAssignableFrom(ci2.getC()))
-					ci.after().add(ci2.getCodeName());
-			}
-		}
-
-		// remove unresolvable dependencies (and print a warning if testing)
-		for (final ClassInfo<?> ci : tempClassInfos) {
-			final Set<String> s = new HashSet<>();
-			final Set<String> before = ci.before();
-			if (before != null) {
-				for (final String b : before) {
-					if (getClassInfoNoError(b) == null) {
-						s.add(b);
-					}
-				}
-				before.removeAll(s);
-			}
-			for (final String a : ci.after()) {
-				if (getClassInfoNoError(a) == null) {
-					s.add(a);
-				}
-			}
-			ci.after().removeAll(s);
-			if (!s.isEmpty() && Skript.testing())
-				Skript.warning(s.size() + " dependency/ies could not be resolved for " + ci + ": " + StringUtils.join(s, ", "));
-		}
-
-		final List<ClassInfo<?>> classInfos = new ArrayList<>(tempClassInfos.size());
-
-		boolean changed = true;
-		while (changed) {
-			changed = false;
-			for (int i = 0; i < tempClassInfos.size(); i++) {
-				final ClassInfo<?> ci = tempClassInfos.get(i);
-				if (ci.after().isEmpty()) {
-					classInfos.add(ci);
-					tempClassInfos.remove(i);
-					i--;
-					for (final ClassInfo<?> ci2 : tempClassInfos)
-						ci2.after().remove(ci.getCodeName());
-					changed = true;
-				}
-			}
-		}
-
-		Classes.classInfos = classInfos.toArray(new ClassInfo[classInfos.size()]);
-
-		// check for circular dependencies
-		if (!tempClassInfos.isEmpty()) {
-			final StringBuilder b = new StringBuilder();
-			for (final ClassInfo<?> c : tempClassInfos) {
-				if (b.length() != 0)
-					b.append(", ");
-				b.append(c.getCodeName() + " (after: " + StringUtils.join(c.after(), ", ") + ")");
-			}
-//			throw new IllegalStateException("ClassInfos with circular dependencies detected: " + b.toString());
-		}
-
-		// debug message
-		if (Skript.debug()) {
-			final StringBuilder b = new StringBuilder();
-			for (final ClassInfo<?> ci : classInfos) {
-				if (b.length() != 0)
-					b.append(", ");
-				b.append(ci.getCodeName());
-			}
-			Skript.info("All registered classes in order: " + b.toString());
-		}
-
-	}
-
-	@SuppressWarnings({"null", "unused"})
-	private static void removeNullElements() {
-		Iterator<ClassInfo<?>> it = tempClassInfos.iterator();
-		while (it.hasNext()) {
-			ClassInfo<?> ci = it.next();
-			if (ci.getC() == null)
-				it.remove();
-		}
 	}
 
 	private static void checkAllowClassInfoInteraction() {
@@ -504,9 +393,9 @@ public abstract class Classes {
 	public static <T> T parseSimple(final String s, final Class<T> c, final ParseContext context) {
 		final ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			for (final ClassInfo<?> info : getClassInfos()) {
-				final Parser<?> parser = info.getParser();
-				if (parser == null || !parser.canParse(context) || !c.isAssignableFrom(info.getC()))
+			for (TypeInfo<?> info : registry.elements()) {
+				final Parser<?> parser = info.parser();
+				if (parser == null || !parser.canParse(context) || !c.isAssignableFrom(info.type()))
 					continue;
 				log.clear();
 				@SuppressWarnings("unchecked")

@@ -1,17 +1,16 @@
 package ch.njol.skript.entity;
 
-import org.bukkit.entity.Entity;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -19,7 +18,8 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 public class EntityType implements Cloneable, YggdrasilSerializable {
 
 	static {
-		Classes.registerClass(new ClassInfo<>(EntityType.class, "entitytype")
+		// initialize serializer to allow conversions but don't register to avoid being able to reference type
+		new ClassInfo<>(EntityType.class, "entitytype")
 				.name("Entity Type with Amount")
 				.description("An <a href='#entitydata'>entity type</a> with an amount, e.g. '2 zombies'. I might remove this type in the future and make a more general 'type' type, i.e. a type that has a number and a type.")
 				.usage("&lt;<a href='#number'>number</a>&gt; &lt;entity type&gt;")
@@ -43,7 +43,7 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 						return "entitytype:" + t.toString();
 					}
 				})
-				.serializer(new YggdrasilSerializer<>()));
+				.serializer(new YggdrasilSerializer<>());
 	}
 
 	public int amount = -1;
