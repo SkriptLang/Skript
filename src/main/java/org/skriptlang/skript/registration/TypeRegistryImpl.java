@@ -63,15 +63,40 @@ final class TypeRegistryImpl implements TypeRegistry {
 	public @NotNull <T> TypeInfo<? extends T> superTypeFromClass(@NotNull Class<T> cls) {
 		Preconditions.checkNotNull(cls, "cls cannot be null");
 
-		TypeInfo<?> info = classToSuper.get(cls);
-		if (info != null) {
-			//noinspection unchecked
-			return (TypeInfo<? extends T>) info;
+		// check existing
+		{
+			TypeInfo<?> info = classToSuper.get(cls);
+			if (info != null) {
+				//noinspection unchecked
+				return (TypeInfo<? extends T>) info;
+			}
 		}
 
+		{
+			TypeInfo<?> info = classToType.get(cls);
+			if (info != null) {
+				//noinspection unchecked
+				return (TypeInfo<? extends T>) info;
+			}
+		}
+
+		// not stored, so first try to match exact
 		for (Entry<Class<?>, TypeInfo<?>> entry : classToType.entrySet()) {
 			Class<?> k = entry.getKey();
 			TypeInfo<?> v = entry.getValue();
+
+			if (k == cls) {
+				classToSuper.put(k, v);
+				//noinspection unchecked
+				return (TypeInfo<? extends T>) v;
+			}
+		}
+
+		// then try to match supers
+		for (Entry<Class<?>, TypeInfo<?>> entry : classToType.entrySet()) {
+			Class<?> k = entry.getKey();
+			TypeInfo<?> v = entry.getValue();
+
 			if (k.isAssignableFrom(cls)) {
 				classToSuper.put(k, v);
 				//noinspection unchecked
