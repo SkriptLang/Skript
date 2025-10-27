@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Minimum Float Value")
 @Description("A number representing the minimum value of a float number type.")
 @Example("if {_number} <= minimum float value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitFloatMinValue extends SimpleLiteral<Float> {
 
 	static {

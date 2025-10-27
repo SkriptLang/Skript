@@ -74,7 +74,6 @@ public class EvtFish extends SkriptEvent {
 						"\t\tbroadcast \"A fish has been caught!\""
 					
 			)
-			.requiredPlugins("Paper (bobber lured)")
 			.since("2.10, 2.11 (state change)");
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);

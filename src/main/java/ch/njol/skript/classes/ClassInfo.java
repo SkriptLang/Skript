@@ -11,8 +11,14 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
+import org.skriptlang.skript.lang.properties.PropertyHandler;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.registration.TypeInfo;
@@ -44,7 +50,7 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 
 	Pattern @Nullable [] userInputPatterns = null;
 	private Set<String> userInputs;
-  
+
 	@Nullable
 	private Changer<? super T> changer = null;
 
@@ -493,7 +499,77 @@ public class ClassInfo<T> implements Debuggable, TypeInfo<T> {
 		return getName().getSingular();
 	}
 
-	@Override
+	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
+	private final Map<Property<?>, PropertyDocs> propertyDocumentation = new HashMap<>();
+
+	@ApiStatus.Experimental
+	public record PropertyDocs(Property<?> property, String description, SkriptAddon provider) {}
+
+	/**
+	 * Registers this class as having the given property, using the given property handler.
+	 * @param property The property this class should have
+	 * @param description A short description of the property for documentation
+	 * @param handler The handler for this property
+	 * @return This ClassInfo object
+ 	 * @param <Handler> The type of the property handler
+	 * @throws IllegalStateException If this property is already registered for this class
+	 */
+	@ApiStatus.Experimental
+	public <Handler extends PropertyHandler<T>> ClassInfo<T> property(Property<? super Handler> property, String description, SkriptAddon addon, @NotNull Handler handler) {
+		if (propertyInfos.containsKey(property)) {
+			throw new IllegalStateException("Property " + property.name() + " is already registered for the " + c.getName() + " type.");
+		}
+		propertyInfos.put(property, new PropertyInfo<>(property, handler));
+		Classes.hasProperty(property, this);
+		propertyDocumentation.put(property, new PropertyDocs(property, description, addon));
+		return this;
+	}
+
+	/**
+	 * Checks whether this class already has the given property registered.
+	 * @param property The property to check
+	 * @return True if this class has the property, false otherwise
+	 */
+	@ApiStatus.Experimental
+	public boolean hasProperty(Property<?> property) {
+		return propertyInfos.containsKey(property);
+	}
+
+	/**
+	 * @return An unmodifiable collection of all the properties this class has.
+	 */
+	@ApiStatus.Experimental
+	public @Unmodifiable Collection<Property<?>> getAllProperties() {
+		return Collections.unmodifiableCollection(propertyInfos.keySet());
+	}
+
+	/**
+	 * Gets the property info for the given property, or null if this class does not have the property.
+	 * @param property The property to get the info for
+	 * @return The property info, or null if this class does not have the property
+	 * @param <Handler> The type of the property handler
+	 */
+	@ApiStatus.Experimental
+	public <Handler extends PropertyHandler<?>> @Nullable PropertyInfo<Handler> getPropertyInfo(Property<Handler> property) {
+		if (!propertyInfos.containsKey(property)) {
+			return null;
+		}
+		//noinspection unchecked
+		return (PropertyInfo<Handler>) propertyInfos.get(property);
+	}
+
+	/**
+	 * Gets the type-specific documentation for the given property, or null if this type does not have the property.
+	 * Meant to be used for documentation.
+	 * @param property The property to get the documentation for
+	 * @return The documentation, or null if this type does not have the property
+	 */
+	@ApiStatus.Experimental
+	public PropertyDocs getPropertyDocumentation(Property<?> property) {
+		return propertyDocumentation.get(property);
+	}
+
+		@Override
 	public @NotNull SkriptAddon source() {
 		return Skript.getAddonInstance();
 	}

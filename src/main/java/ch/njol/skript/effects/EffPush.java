@@ -30,7 +30,7 @@ public class EffPush extends Effect {
 
 	static {
 		Skript.registerEffect(EffPush.class,
-			"(push|thrust) %entities% [along] %direction% [(at|with) [a] (speed|velocity|force) [of] %-number%]",
+			"(push|thrust|pull) %entities% [along] %direction% [(at|with) [a] (speed|velocity|force) [of] %-number%]",
 			"(push|thrust|pull) %entities% (towards|away:away from) %location% [(at|with) [a] (speed|velocity|force) [of] %-number%]");
 	}
 

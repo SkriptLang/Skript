@@ -11,6 +11,8 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.TypeInfo;
@@ -104,7 +106,7 @@ public class DocumentationIdProvider {
 	 * @return the documentation ID of the function
 	 */
 	public static String getId(Function<?> function) {
-		int collisionCount = calculateCollisionCount(Functions.getJavaFunctions().iterator(),
+		int collisionCount = calculateCollisionCount(Functions.getFunctions().iterator(),
 			javaFunction -> function.getName().equals(javaFunction.getName()),
 			javaFunction -> javaFunction == function);
 		return addCollisionSuffix(function.getName(), collisionCount);
@@ -165,6 +167,19 @@ public class DocumentationIdProvider {
 			otherEventInfo -> eventId.equals(getEventId(otherEventInfo)),
 			otherEventInfo -> Arrays.equals(otherEventInfo.getPatterns(), eventInfo.getPatterns()));
 		return addCollisionSuffix(eventId, collisionCount);
+	}
+
+	/**
+	 * Gets the documentation ID of a property
+	 * @param property the property to get the ID of
+	 * @return the ID of the property
+	 */
+	public static String getId(Property<?> property) {
+		String propertyId = property.getDocumentationID();
+		int collisionCount = calculateCollisionCount(Skript.instance().registry(PropertyRegistry.class).iterator(),
+			otherProperty -> propertyId.equals(otherProperty.getDocumentationID()),
+			otherProperty -> property == otherProperty);
+		return addCollisionSuffix(propertyId, collisionCount);
 	}
 
 }

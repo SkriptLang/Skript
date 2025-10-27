@@ -12,9 +12,6 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 public class EntityType implements Cloneable, YggdrasilSerializable {
 
 	static {
