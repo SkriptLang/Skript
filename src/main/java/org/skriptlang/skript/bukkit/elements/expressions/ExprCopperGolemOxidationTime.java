@@ -20,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Time Until Oxidation")
 @Description("""
-	The time until a copper golem oxidizes to its next state. (Normal -> Exposed -> Weathered -> Oxidized)
+	The time until a copper golem oxidizes to its next state. (Normal -> Exposed -> Weathered -> Oxidized).
 	Copper golems that are waxed do not go through oxidation.
 	Setting or resetting the time until oxidation on a waxed copper golem will remove the waxed state.
 	Resetting the time until oxidation uses vanilla behavior of generating a random time between 7 hours and 7 hours 40 minutes.
@@ -48,16 +48,15 @@ public class ExprCopperGolemOxidationTime extends SimplePropertyExpression<Entit
 
 	@Override
 	public @Nullable Timespan convert(Entity entity) {
-		if (entity instanceof CopperGolem golem) {
-			if (!(golem.getOxidizing() instanceof AtTime atTime))
-				return null;
-			long worldTime = golem.getWorld().getGameTime();
-			long oxidationTime = atTime.time();
-			if (worldTime > oxidationTime)
-				return null;
-			return new Timespan(TimePeriod.TICK, oxidationTime - worldTime);
-		}
-		return null;
+		if (!(entity instanceof CopperGolem golem))
+			return null;
+		if (!(golem.getOxidizing() instanceof AtTime atTime))
+			return null;
+		long worldTime = golem.getWorld().getGameTime();
+		long oxidationTime = atTime.time();
+		if (worldTime > oxidationTime)
+			return null;
+		return new Timespan(TimePeriod.TICK, oxidationTime - worldTime);
 	}
 
 	@Override

@@ -13,23 +13,22 @@ import java.util.Map;
  */
 public class ReflectUtils {
 
-
 	public ReflectUtils() {}
 
 	/**
 	 * Cache for classes.
 	 */
-	private final Map<String, Class<?>> CLASSES = new HashMap<>();
+	private final Map<String, Class<?>> classes = new HashMap<>();
 
 	/**
 	 * Cache for methods of classes.
 	 */
-	private final MethodMap METHODS = new MethodMap();
+	private final MethodMap methods = new MethodMap();
 
 	/**
 	 * Cache for fields of classes.
 	 */
-	private final FieldMap FIELDS = new FieldMap();
+	private final FieldMap fields = new FieldMap();
 
 	/**
 	 * @param className The full package and class name.
@@ -44,13 +43,13 @@ public class ReflectUtils {
 	 * @return The resulting {@link Class} if found, otherwise {@code null}.
 	 */
 	public @Nullable Class<?> getClass(String className) {
-		if (CLASSES.containsKey(className))
-			return CLASSES.get(className);
+		if (classes.containsKey(className))
+			return classes.get(className);
 		Class<?> c = null;
 		try {
 			c = Class.forName(className);
 		} catch (ClassNotFoundException ignored) {}
-		CLASSES.put(className, c);
+		classes.put(className, c);
 		return c;
 	}
 
@@ -94,21 +93,21 @@ public class ReflectUtils {
 	 */
 	public @Nullable Method getMethod(Class<?> c, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnType) {
 		MethodID methodID = new MethodID(c, methodName, params);
-		if (METHODS.contains(c, methodID)) {
-			Method method = METHODS.get(c, methodID);
+		if (methods.contains(c, methodID)) {
+			Method method = methods.get(c, methodID);
 			if (method != null && returnType != null) {
 				Class<?> methodType = method.getReturnType();
 				if (!returnType.isAssignableFrom(methodType) && !methodType.isAssignableFrom(returnType))
 					return null;
 			}
-			return METHODS.get(c, methodID);
+			return methods.get(c, methodID);
 		}
 		Method method = null;
 		try {
 			method = c.getDeclaredMethod(methodName, params);
 		} catch (NoSuchMethodException ignored) {}
 
-		METHODS.put(c, methodID, method);
+		methods.put(c, methodID, method);
 		if (method != null && returnType != null) {
 			Class<?> methodType = method.getReturnType();
 			if (!returnType.isAssignableFrom(methodType) && !methodType.isAssignableFrom(returnType))
@@ -116,7 +115,6 @@ public class ReflectUtils {
 		}
 		return method;
 	}
-
 
 	/**
 	 * @param c The {@link Class} to check the field for.
@@ -133,14 +131,14 @@ public class ReflectUtils {
 	 * @return The resulting {@link Field} if it exists, otherwise {@code null}.
 	 */
 	public @Nullable Field getField(Class<?> c, String fieldName) {
-		if (FIELDS.contains(c, fieldName))
-			return FIELDS.get(c, fieldName);
+		if (fields.contains(c, fieldName))
+			return fields.get(c, fieldName);
 		Field field = null;
 		try {
 			field = c.getDeclaredField(fieldName);
 		} catch (NoSuchFieldException ignored) {}
 
-		FIELDS.put(c, fieldName, field);
+		fields.put(c, fieldName, field);
 		return field;
 	}
 

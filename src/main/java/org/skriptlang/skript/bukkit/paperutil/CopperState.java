@@ -7,7 +7,7 @@ import org.skriptlang.skript.bukkit.elements.expressions.ExprCopperState;
 import java.lang.reflect.Method;
 
 /**
- * Temporary enum to mimic 'WeatheringCopperState' to utilizes copper states such as for {@link ExprCopperState}.
+ * Temporary enum to mimic `WeatheringCopperState`, which represents copper states, used in elements such as for {@link ExprCopperState}.
  * Can be removed when 1.21.9+ is the minimum supported version.
  */
 @Internal
