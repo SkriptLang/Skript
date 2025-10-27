@@ -35,7 +35,7 @@ public class ExprFoodCompSaturation extends SimplePropertyExpression<FoodWrapper
 			infoBuilder(
 				ExprFoodCompSaturation.class,
 				Float.class,
-				"[food] saturation value",
+				"saturation value",
 				"foodcomponents",
 				true
 			)

@@ -64,7 +64,7 @@ public class ExprSecBlankFoodComp extends SectionExpression<FoodWrapper> impleme
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprSecBlankFoodComp.class, FoodWrapper.class)
-				.addPatterns("a (blank|empty) food component")
+				.addPatterns("[a] (blank|empty) food component")
 				.supplier(ExprSecBlankFoodComp::new)
 				.build()
 		);

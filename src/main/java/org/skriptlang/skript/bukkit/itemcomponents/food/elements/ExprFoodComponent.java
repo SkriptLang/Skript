@@ -23,7 +23,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Food Component")
 @Description("""
-	The food component of an item. Any changes made to the food component will be present on the item.
+	The food component of an item. Any changes made to the food component will also change the item.
 	NOTE: Food component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""

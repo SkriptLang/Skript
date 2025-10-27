@@ -17,9 +17,9 @@ import org.skriptlang.skript.bukkit.itemcomponents.food.FoodWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Food Component - Always Be Eaten")
+@Name("Food Component - Can Always Be Eaten")
 @Description("""
-	Whether an item should be eaten when the player's hunger bar is full.
+	Whether an item can be eaten when the player's hunger bar is full.
 	NOTE: Food component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""

@@ -35,7 +35,7 @@ public class ExprFoodCompNutrition extends SimplePropertyExpression<FoodWrapper,
 			infoBuilder(
 				ExprFoodCompNutrition.class,
 				Integer.class,
-				"[food] nutritional value",
+				"nutritional value",
 				"foodcomponents",
 				true
 			)
