@@ -115,14 +115,14 @@ public class JavaClasses {
 				.serializer(new NumberSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Long.class, "long")
-				.user("int(eger)?s?")
+				.user("longs?")
 				.name(ClassInfo.NO_DOC)
-				.before("integer", "short", "byte")
 				.defaultExpression(new SimpleLiteral<>((long) 1, true))
 				.parser(new LongParser())
 				.serializer(new LongSerializer()));
 
-		Classes.registerClass(new ClassInfo<>(Integer.class, "intg")
+		Classes.registerClass(new ClassInfo<>(Integer.class, "integer")
+				.user("int(eger)?s?")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1, true))
 				.parser(new IntegerParser())
@@ -131,7 +131,6 @@ public class JavaClasses {
 		Classes.registerClass(new ClassInfo<>(Double.class, "double")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1., true))
-				.after("long")
 				.before("float", "integer", "short", "byte")
 				.parser(new DoubleParser())
 				.serializer(new DoubleSerializer()));

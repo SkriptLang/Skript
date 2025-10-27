@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.entity.EntityType;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,14 +24,14 @@ public class EvtBreed extends SkriptEvent {
 			.since("2.10");
 	}
 
-	private @Nullable Literal<EntityType> entitiesLiteral;
-	private EntityType @Nullable [] entities;
+	private @Nullable Literal<EntityData<?>> entitiesLiteral;
+	private EntityData<?> @Nullable [] entities;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
 			//noinspection unchecked
-			entitiesLiteral = ((Literal<EntityType>) args[0]);
+			entitiesLiteral = ((Literal<EntityData<?>>) args[0]);
 			entities = entitiesLiteral.getAll();
 		}
 		return true;
@@ -44,7 +44,7 @@ public class EvtBreed extends SkriptEvent {
 
 	private boolean checkEntity(Entity entity) {
 		if (entities != null) {
-			for (EntityType entityType : entities) {
+			for (EntityData<?> entityType : entities) {
 				if (entityType.isInstance(entity))
 					return true;
 			}

@@ -1,10 +1,10 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.entity.EntityType;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -29,13 +29,13 @@ public class EvtTeleport extends SkriptEvent {
 	}
 
 	@Nullable
-	private Literal<EntityType> entitiesLiteral;
-	private EntityType @Nullable [] entities;
+	private Literal<EntityData<?>> entitiesLiteral;
+	private EntityData<?> @Nullable [] entities;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
-			entitiesLiteral = ((Literal<EntityType>) args[0]); // evaluate only once
+			entitiesLiteral = ((Literal<EntityData<?>>) args[0]); // evaluate only once
 			entities = entitiesLiteral.getAll();
 		}
 		return true;
@@ -57,7 +57,7 @@ public class EvtTeleport extends SkriptEvent {
 
 	private boolean checkEntity(Entity entity) {
 		if (entities != null) {
-			for (EntityType entType : entities) {
+			for (EntityData<?> entType : entities) {
 				if (entType.isInstance(entity))
 					return true;
 			}

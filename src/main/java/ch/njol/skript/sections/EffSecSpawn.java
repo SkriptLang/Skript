@@ -3,7 +3,7 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.entity.EntityType;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -133,14 +133,14 @@ public class EffSecSpawn extends EffectSection {
 			Object[] types = this.types.getArray(event);
 			for (Location location : locations.getArray(event)) {
 				for (Object type : types) {
-					if (type instanceof EntityType entityType) {
+					if (type instanceof EntityData<?> entityType) {
 						double typeAmount = amount * entityType.getAmount();
 						for (int i = 0; i < typeAmount; i++) {
 							if (consumer != null) {
 								//noinspection unchecked,rawtypes
-								entityType.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
+								entityType.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
 							} else {
-								lastSpawned = entityType.data.spawn(location);
+								lastSpawned = entityType.spawn(location);
 							}
 						}
 					} else if (type instanceof EntitySnapshot snapshot) {

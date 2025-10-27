@@ -18,6 +18,7 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.SQLStorage;
 import ch.njol.skript.variables.SerializedVariable;
+import ch.njol.skript.variables.StorageMigration;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
@@ -131,7 +132,7 @@ public abstract class Classes {
 
 	public static void onRegistrationsStop() {
 
-		sortClassInfos();
+//		sortClassInfos();
 
 		// validate serializeAs
 		for (final ClassInfo<?> ci : getClassInfos()) {
@@ -738,11 +739,11 @@ public abstract class Classes {
 	@SuppressWarnings("null")
 	private final static Charset UTF_8 = Charset.forName("UTF-8");
 
-	private static byte[] getYggdrasilStart(final ClassInfo<?> c) throws NotSerializableException {
-		assert Enum.class.isAssignableFrom(Kleenean.class) && Tag.getType(Kleenean.class) == Tag.T_ENUM : Tag.getType(Kleenean.class); // TODO why is this check here?
-		final Tag t = Tag.getType(c.getC());
+	private static byte[] getYggdrasilStart(Class<?> c) throws NotSerializableException {
+		assert Tag.getType(Kleenean.class) == Tag.T_ENUM : Tag.getType(Kleenean.class); // TODO why is this check here?
+		final Tag t = Tag.getType(c);
 		assert t.isWrapper() || t == Tag.T_STRING || t == Tag.T_OBJECT || t == Tag.T_ENUM;
-		final byte[] cn = t == Tag.T_OBJECT || t == Tag.T_ENUM ? Variables.yggdrasil.getID(c.getC()).getBytes(UTF_8) : null;
+		final byte[] cn = t == Tag.T_OBJECT || t == Tag.T_ENUM ? Variables.yggdrasil.getID(c).getBytes(UTF_8) : null;
 		final byte[] r = new byte[YGGDRASIL_START.length + 1 + (cn == null ? 0 : 1 + cn.length)];
 		int i = 0;
 		for (; i < YGGDRASIL_START.length; i++)
@@ -750,11 +751,16 @@ public abstract class Classes {
 		r[i++] = t.tag;
 		if (cn != null) {
 			r[i++] = (byte) cn.length;
-			for (int j = 0; j < cn.length; j++)
-				r[i++] = cn[j];
+			for (byte b : cn) {
+				r[i++] = b;
+			}
 		}
 		assert i == r.length;
 		return r;
+	}
+
+	private static byte[] getYggdrasilStart(final ClassInfo<?> c) throws NotSerializableException {
+		return getYggdrasilStart(c.getC());
 	}
 
 	/**
@@ -827,26 +833,42 @@ public abstract class Classes {
 
 	@Nullable
 	public static Object deserialize(final ClassInfo<?> type, final byte[] value) {
-		return deserialize(type, new ByteArrayInputStream(value));
+		return deserialize(type.getC(), new ByteArrayInputStream(value));
 	}
 
 	@Nullable
 	public static Object deserialize(final String type, final byte[] value) {
-		final ClassInfo<?> ci = getClassInfoNoError(type);
-		if (ci == null)
-			return null;
-		return deserialize(ci, new ByteArrayInputStream(value));
+		ClassInfo<?> ci = getClassInfoNoError(type);
+		if (ci != null) {
+			return deserialize(ci, new ByteArrayInputStream(value));
+		}
+
+		// fallback to migrations
+		Class<?> cls = StorageMigration.fromMigration(type);
+		if (cls != null) {
+			return deserialize(cls, new ByteArrayInputStream(value));
+		}
+
+		return null;
 	}
 
 	@Nullable
 	public static Object deserialize(final ClassInfo<?> type, InputStream value) {
-		Serializer<?> s;
-		assert (s = type.getSerializer()) != null && (s.mustSyncDeserialization() ? Bukkit.isPrimaryThread() : true) : type + "; " + s + "; " + Bukkit.isPrimaryThread();
+		return deserialize(type.getC(), value);
+	}
+
+	private static Object deserialize(Class<?> source, InputStream value) {
 		YggdrasilInputStream in = null;
 		try {
-			value = new SequenceInputStream(new ByteArrayInputStream(getYggdrasilStart(type)), value);
+			value = new SequenceInputStream(new ByteArrayInputStream(getYggdrasilStart(source)), value);
 			in = Variables.yggdrasil.newInputStream(value);
-			return in.readObject();
+			Object read = in.readObject();
+
+			if (StorageMigration.hasMigration(source)) {
+				return StorageMigration.migrate(source, read);
+			}  else {
+				return read;
+			}
 		} catch (final IOException e) { // i.e. invalid save
 			if (Skript.testing())
 				e.printStackTrace();
@@ -855,11 +877,11 @@ public abstract class Classes {
 			if (in != null) {
 				try {
 					in.close();
-				} catch (final IOException e) {}
+				} catch (final IOException ignored) {}
 			}
 			try {
 				value.close();
-			} catch (final IOException e) {}
+			} catch (final IOException ignored) {}
 		}
 	}
 
