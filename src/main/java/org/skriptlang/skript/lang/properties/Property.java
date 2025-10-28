@@ -250,7 +250,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<ElementHandler<?, ?>> ELEMENT = Property.of(
 		"element",
-		"something that contains elements.",
+		"Something that contains elements.",
 		"INSERT VERSION",
 		Skript.instance(),
 		ElementHandler.class

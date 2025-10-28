@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
@@ -208,6 +209,14 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 		return elements;
 	}
 
+	/**
+	 * Helper method for getting values from properties.
+	 * @param event The current {@link Event}.
+	 * @param start The start index. Used for FIRST_X, LAST_X, ORDINAL, END_ORDINAL and RANGE.
+	 * @param end The end index. Used for RANGE
+	 * @return The returned objects from the property handlers.
+	 * @param <Type> The type of handler and object.
+	 */
 	private <Type> Object @Nullable [] getFromProperty(Event event, int start, int end) {
 		BiFunction<ElementHandler<Type, ?>, Type, Object[]> function = getHandlerFunction(start, end);
 		return objects.stream(event)
@@ -225,9 +234,16 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 			.toArray(size -> (Object[]) Array.newInstance(getReturnType(), size));
 	}
 
+	/**
+	 * Helper method for grabbing the function that handles how the property handler should be called based on the {@link ElementsType}.
+	 * @param start The start index. Used for FIRST_X, LAST_X, ORDINAL, END_ORDINAL and RANGE.
+	 * @param end The end index. Used for RANGE
+	 * @return The function used for handlers.
+	 * @param <Type> The type of handler and object.
+	 */
 	private <Type> BiFunction<ElementHandler<Type, ?>, Type, Object[]> getHandlerFunction(Integer start, Integer end) {
 		return switch (elementsType) {
-			case FIRST -> ( handler, type) ->
+			case FIRST -> (handler, type) ->
 				CollectionUtils.array(handler.get(type, 0));
 			case LAST -> (handler, type) ->
 				CollectionUtils.array(handler.get(type, handler.size(type) - 1));
@@ -247,7 +263,7 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 			case RANGE -> {
 				boolean reverse = start > end;
 				int from = Math.min(start, end) - 1;
-				int to = (Math.max(start, end));
+				int to = Math.max(start, end);
 				yield (handler, type) -> {
 					int size = handler.size(type);
 					if (from > size)
@@ -287,7 +303,20 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "";
+		SyntaxStringBuilder builder =  new SyntaxStringBuilder(event, debug);
+		builder.append("the");
+		switch (elementsType) {
+			case FIRST -> builder.append("first element");
+			case LAST -> builder.append("last element");
+			case RANDOM -> builder.append("random element");
+			case ORDINAL -> builder.append(startIndex, "element");
+			case END_ORDINAL -> builder.append(startIndex, "last element");
+			case FIRST_X -> builder.append("first", startIndex, "elements");
+			case LAST_X -> builder.append("last", startIndex, "elements");
+			case RANGE -> builder.append("elements between", startIndex, "and", endIndex);
+		}
+		builder.append("out of", objects);
+		return builder.toString();
 	}
 
 }

@@ -152,8 +152,13 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 	}
 
 	private static class QueueElementHandler implements ElementHandler<SkriptQueue, Object> {
+		//<editor-fold desc="element property handler" defaultstate="collapsed">
 		@Override
 		public @Nullable Object get(SkriptQueue queue, Integer index) {
+			if (index == 0)
+				return queue.pollFirst();
+			if (index == queue.size() - 1)
+				return queue.pollLast();
 			return queue.removeSafely(index);
 		}
 
@@ -171,6 +176,7 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 		public @NotNull Class<Object> returnType() {
 			return Object.class;
 		}
+		//</editor-fold>
 	}
 
 }

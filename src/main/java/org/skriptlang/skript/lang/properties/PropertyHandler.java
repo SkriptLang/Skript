@@ -59,6 +59,36 @@ public interface PropertyHandler<Type> {
 	}
 
 	/**
+	 * A handler to specify that it can return something and what can be returned.
+	 *
+	 * @param <Type> The type of object this property can be applied to.
+	 * @param <ReturnType> The type of object that is returned by this property.
+	 */
+	interface ReturnablePropertyHandler<Type, ReturnType> extends PropertyHandler<Type> {
+
+		/**
+		 * The return type of this property. This is used for type checking and auto-completion.
+		 * If the property can return multiple types, it should return the most general type that encompasses all
+		 * possible return types.
+		 *
+		 * @return The return type of this property.
+		 */
+		@NotNull Class<ReturnType> returnType();
+
+		/**
+		 * The possible return types of this property. This is used for type checking and auto-completion.
+		 * The default implementation returns an array containing the type returned by {@link #returnType()}.
+		 * If the property can return multiple types, it should return all possible return types.
+		 *
+		 * @return The possible return types of this property.
+		 */
+		default Class<?> @NotNull [] possibleReturnTypes() {
+			return new Class[]{ returnType() };
+		}
+
+	}
+
+	/**
 	 * A handler that can get and optionally change a property value. This interface is suitable for properties that act
 	 * like expressions, such as "name", "display name", etc. Properties that use this interface should also use
 	 * {@link PropertyBaseExpression} for the parent expression.
@@ -68,7 +98,7 @@ public interface PropertyHandler<Type> {
 	 * @see PropertyBaseExpression
 	 */
 	@ApiStatus.Experimental
-	interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHandler<Type> {
+	interface ExpressionPropertyHandler<Type, ReturnType> extends ReturnablePropertyHandler<Type, ReturnType> {
 
 		/**
 		 * Converts the given object to the property value. This method may return arrays if the property is multi-valued.
@@ -115,26 +145,6 @@ public interface PropertyHandler<Type> {
 		 */
 		default boolean requiresSourceExprChange() {
 			return false;
-		}
-
-		/**
-		 * The return type of this property. This is used for type checking and auto-completion.
-		 * If the property can return multiple types, it should return the most general type that encompasses all
-		 * possible return types.
-		 *
-		 * @return The return type of this property.
-		 */
-		@NotNull Class<ReturnType> returnType();
-
-		/**
-		 * The possible return types of this property. This is used for type checking and auto-completion.
-		 * The default implementation returns an array containing the type returned by {@link #returnType()}.
-		 * If the property can return multiple types, it should return all possible return types.
-		 *
-		 * @return The possible return types of this property.
-		 */
-		default Class<?> @NotNull [] possibleReturnTypes() {
-			return new Class[]{ returnType() };
 		}
 
 		/**
@@ -279,34 +289,41 @@ public interface PropertyHandler<Type> {
 		}
 	}
 
-	interface ElementHandler<Type, ReturnType> extends PropertyHandler<Type> {
-		//<editor-fold desc="element property handler" defaultstate="collapsed">
+	/**
+	 * A handler for getting elements/objects contains within another object.
+	 *
+	 * @param <Type> The type of object this property can be applied to.
+	 * @param <ReturnType> The type of object that is returned by this property.
+	 */
+	interface ElementHandler<Type, ReturnType> extends ReturnablePropertyHandler<Type, ReturnType> {
+
+		/**
+		 * Retrieve an element at the specified {@code index}.
+		 *
+		 * @param type The object that contains elements.
+		 * @param index The index to retrieve an element from.
+		 * @return The retrieved element.
+		 */
 		@Nullable ReturnType get(Type type, Integer index);
 
+		/**
+		 * Retrieve elements from {@code start} to {@code end}.
+		 *
+		 * @param type The object that contains elements.
+		 * @param start The starting index.
+		 * @param end The end index.
+		 * @return The retrieved elements.
+		 */
 		ReturnType @Nullable [] get(Type type, Integer start, Integer end);
 
+		/**
+		 * Retrieve the number of elements.
+		 *
+		 * @param type The object that contains elements.
+		 * @return The number of elements contained.
+		 */
 		int size(Type type);
 
-		/**
-		 * The return type of this property. This is used for type checking and auto-completion.
-		 * If the property can return multiple types, it should return the most general type that encompasses all
-		 * possible return types.
-		 *
-		 * @return The return type of this property.
-		 */
-		@NotNull Class<ReturnType> returnType();
-
-		/**
-		 * The possible return types of this property. This is used for type checking and auto-completion.
-		 * The default implementation returns an array containing the type returned by {@link #returnType()}.
-		 * If the property can return multiple types, it should return all possible return types.
-		 *
-		 * @return The possible return types of this property.
-		 */
-		default Class<?> @NotNull [] possibleReturnTypes() {
-			return new Class[]{ returnType() };
-		}
-		//</editor-fold>
 	}
 
 }
