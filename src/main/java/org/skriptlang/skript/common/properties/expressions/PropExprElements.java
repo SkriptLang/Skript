@@ -26,12 +26,10 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
 import org.skriptlang.skript.lang.properties.PropertyMap;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Name("Elements")
@@ -123,7 +121,7 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 			return LiteralUtils.canInitSafely(objects);
 		}
 
-		returnTypes = getPropertyReturnTypes(properties, ElementHandler::possibleReturnTypes);
+		returnTypes = PropertyBaseSyntax.getPropertyReturnTypes(properties);
 		if (returnTypes.length == 0) {
 			returnType = Object.class;
 			returnTypes = new Class[] {returnType};
@@ -133,16 +131,6 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 		useProperty = true;
 
 		return LiteralUtils.canInitSafely(objects);
-	}
-
-	protected Class<?> @NotNull [] getPropertyReturnTypes(
-		@NotNull PropertyMap<ElementHandler<?, ?>> properties,
-		Function<ElementHandler<?, ?>, Class<?>[]> getReturnType
-	) {
-		return properties.values().stream()
-			.flatMap((propertyInfo) -> Arrays.stream(getReturnType.apply(propertyInfo.handler())))
-			.filter(type -> type != Object.class)
-			.toArray(Class<?>[]::new);
 	}
 
 	@Override

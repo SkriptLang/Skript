@@ -7,10 +7,13 @@ import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ReturnablePropertyHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A base interface for syntaxes dealing with properties to extend and use for common utilities.
@@ -139,6 +142,39 @@ public interface PropertyBaseSyntax<Handler extends PropertyHandler<?>> {
 			propertyInfos.put(closestInfo.getC(), propertyInfo);
 		}
 		return propertyInfos;
+	}
+
+
+	/**
+	 * Get all possible return types from the properties contained in {@code properties}.
+	 * Uses {@link ReturnablePropertyHandler#possibleReturnTypes()}
+	 *
+	 * @param properties A {@link PropertyMap} containing the possible properties.
+	 * @return All possible return types.
+	 * @param <Handler> the type of returnable property handler.
+	 */
+	static <Handler extends ReturnablePropertyHandler<?, ?>> Class<?> @NotNull [] getPropertyReturnTypes(
+		@NotNull PropertyMap<Handler> properties
+	) {
+		return getPropertyReturnTypes(properties, ReturnablePropertyHandler::possibleReturnTypes);
+	}
+
+	/**
+	 * Get all possible return types from the properties contained in {@code properties}.
+	 *
+	 * @param properties A {@link PropertyMap} containing the possible properties.
+	 * @param getReturnType The function used to get the return types from {@link Handler}.
+	 * @return All possible return types.
+	 * @param <Handler> the type of property handler.
+	 */
+	static <Handler extends PropertyHandler<?>> Class<?> @NotNull [] getPropertyReturnTypes(
+		@NotNull PropertyMap<Handler> properties,
+		Function<Handler, Class<?>[]> getReturnType
+	) {
+		return properties.values().stream()
+			.flatMap((propertyInfo) -> Arrays.stream(getReturnType.apply(propertyInfo.handler())))
+			.filter(type -> type != Object.class)
+			.toArray(Class<?>[]::new);
 	}
 
 }
