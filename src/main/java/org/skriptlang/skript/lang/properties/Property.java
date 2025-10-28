@@ -19,9 +19,7 @@ import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ElementsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.RangedElementsHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
 
 import java.util.Locale;
@@ -247,68 +245,15 @@ public record Property<Handler extends PropertyHandler<?>>(
 			Skript.instance(),
 			TypedValuePropertyHandler.class);
 
-	public static final Property<ElementHandler<?, ?>> FIRST_ELEMENT = Property.of(
-		"first element",
-		"The first element of something.",
+	/**
+	 * A property for something that can contain things.
+	 */
+	public static final Property<ElementHandler<?, ?>> ELEMENT = Property.of(
+		"element",
+		"something that contains elements.",
 		"INSERT VERSION",
 		Skript.instance(),
 		ElementHandler.class
-	);
-
-	public static final Property<ElementHandler<?, ?>> LAST_ELEMENT = Property.of(
-		"last element",
-		"The last element of something.",
-		"INSERT VERSION",
-		Skript.instance(),
-		ElementHandler.class
-	);
-
-	public static final Property<ElementsHandler<?, ?>> FIRST_X_ELEMENTS = Property.of(
-		"first x elements",
-		"The first x elements of something.",
-		"INSERT VERSION",
-		Skript.instance(),
-		ElementsHandler.class
-	);
-
-	public static final Property<ElementsHandler<?, ?>> LAST_X_ELEMENTS = Property.of(
-		"last x elements",
-		"The last x elements of something.",
-		"INSERT VERSION",
-		Skript.instance(),
-		ElementsHandler.class
-	);
-
-	public static final Property<ElementHandler<?, ?>> RANDOM_ELEMENT = Property.of(
-		"random element",
-		"A random element of something.",
-		"INSERT VERSION",
-		Skript.instance(),
-		ElementHandler.class
-	);
-
-	public static final Property<ElementsHandler<?, ?>> ORDINAL_ELEMENT = Property.of(
-		"ordinal element",
-		"The element at a index x of something.",
-		"INSERT VERSION",
-		Skript.instance(),
-		ElementsHandler.class
-	);
-
-	public static final Property<ElementsHandler<?, ?>> END_ORDINAL_ELEMENT = Property.of(
-		"end ordinal element",
-		"The element at a index x to last of something.",
-		"INSERT VERSION",
-		Skript.instance(),
-		ElementsHandler.class
-	);
-
-	public static final Property<RangedElementsHandler<?, ?>> RANGED_ELEMENTS = Property.of(
-		"ranged elements",
-		"The element between x and y of something.",
-		"INSERT VERSION",
-		Skript.instance(),
-		RangedElementsHandler.class
 	);
 
 	/**
@@ -323,6 +268,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 		NUMBER.register();
 		IS_EMPTY.register();
 		TYPED_VALUE.register();
+		ELEMENT.register();
 	}
 
 }

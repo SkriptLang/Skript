@@ -1,6 +1,10 @@
 package org.skriptlang.skript.common.properties.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -18,17 +22,31 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ElementsHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.RangedElementsHandler;
 import org.skriptlang.skript.lang.properties.PropertyMap;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+@Name("Elements")
+@Description("""
+	The first, last, random, or ranged elements of a list or container object such as a queue.
+	Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.
+	See also: <a href='#ExprRandom'>random expression</a>
+	""")
+@Example("broadcast the first 3 elements of {top players::*}")
+@Example("set {_last} to last element of {top players::*}")
+@Example("set {_random player} to random element out of all players")
+@Example("send 2nd last element of {top players::*} to player")
+@Example("set {page2::*} to elements from 11 to 20 of {top players::*}")
+@Example("broadcast the 1st element in {queue}")
+@Example("broadcast the first 3 elements in {queue}")
+@Since("2.0, 2.7 (relative to last element), 2.8.0 (range of elements)")
 public class PropExprElements extends SimpleExpression<Object> implements PropertyBaseSyntax<ElementHandler<?, ?>> {
 
 	private static final Patterns<ElementsType> PATTERNS = new Patterns<>(new Object[][]{
@@ -47,25 +65,18 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 	}
 
 	private enum ElementsType {
-		FIRST(Property.FIRST_ELEMENT),
-		LAST(Property.LAST_ELEMENT),
-		FIRST_X(Property.FIRST_X_ELEMENTS),
-		LAST_X(Property.LAST_X_ELEMENTS),
-		RANDOM(Property.RANDOM_ELEMENT),
-		ORDINAL(Property.ORDINAL_ELEMENT),
-		END_ORDINAL(Property.END_ORDINAL_ELEMENT),
-		RANGE(Property.RANGED_ELEMENTS);
-
-		private final Property<? extends ElementHandler<?, ?>> property;
-
-		ElementsType(Property<? extends ElementHandler<?, ?>> property) {
-			this.property = property;
-		}
-
+		FIRST,
+		LAST,
+		FIRST_X,
+		LAST_X,
+		RANDOM,
+		ORDINAL,
+		END_ORDINAL,
+		RANGE;
 	}
+
 	private ElementsType elementsType;
 
-	private Property<? extends ElementHandler<?, ?>> property;
 	private Expression<?> objects;
 	private @Nullable Expression<Integer> startIndex;
 	private @Nullable Expression<Integer> endIndex;
@@ -78,7 +89,6 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		elementsType = PATTERNS.getInfo(matchedPattern);
-		property = elementsType.property;
 		int objectIndex = 0;
 		switch (elementsType) {
 			case FIRST_X, LAST_X, ORDINAL, END_ORDINAL -> {
@@ -101,14 +111,13 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 			return LiteralUtils.canInitSafely(objects);
 		}
 
-		objects = PropertyBaseSyntax.asProperty(property, defendedObjects);
+		objects = PropertyBaseSyntax.asProperty(Property.ELEMENT, objects);
 		if (objects == null) {
 			objects = defendedObjects;
 			return LiteralUtils.canInitSafely(objects);
 		}
 
-		//noinspection unchecked
-		properties = (PropertyMap<ElementHandler<?, ?>>) PropertyBaseSyntax.getPossiblePropertyInfos(property, objects);
+		properties = PropertyBaseSyntax.getPossiblePropertyInfos(Property.ELEMENT, objects);
 		if (properties.isEmpty()) {
 			return LiteralUtils.canInitSafely(objects);
 		}
@@ -137,67 +146,6 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		if (useProperty) {
-			switch (elementsType) {
-				case FIRST_X, LAST_X, ORDINAL, END_ORDINAL -> {
-					assert startIndex != null;
-					Integer start = startIndex.getSingle(event);
-					if (start == null)
-						return null;
-					return objects.stream(event)
-						.flatMap(source -> {
-							ElementsHandler<?, ?> handler = (ElementsHandler<?, ?>) properties.getHandler(source.getClass());
-							if (handler == null)
-								return null;
-							Object[] elements = getElements(handler, source, start);
-							if (elements == null)
-								return null;
-							return Stream.of(elements);
-						})
-						.filter(Objects::nonNull)
-						.toArray(size -> (Object[]) Array.newInstance(getReturnType(), size));
-				}
-				case RANGE -> {
-					assert startIndex != null;
-					assert endIndex != null;
-					Integer start = startIndex.getSingle(event);
-					if (start == null)
-						return null;
-					Integer end = endIndex.getSingle(event);
-					if (end == null)
-						return null;
-					return objects.stream(event)
-						.flatMap(source -> {
-							RangedElementsHandler<?, ?> handler = (RangedElementsHandler<?, ?>) properties.getHandler(source.getClass());
-							if (handler == null)
-								return null;
-							Object[] elements = getElements(handler, source, start, end);
-							if (elements == null)
-								return null;
-							return Stream.of(elements);
-						})
-						.filter(Objects::nonNull)
-						.toArray(size -> (Object[]) Array.newInstance(getReturnType(), size));
-				}
-				default -> {
-					return objects.stream(event)
-						.flatMap(source -> {
-							ElementHandler<?, ?> handler = properties.getHandler(source.getClass());
-							if (handler == null)
-								return null;
-							Object element = getElement(handler, source);
-							if (element == null)
-								return null;
-							return Stream.of(element);
-						})
-						.filter(Objects::nonNull)
-						.toArray(size -> (Object[]) Array.newInstance(getReturnType(), size));
-				}
-			}
-		}
-		Iterator<?> iterator = objects.iterator(event);
-		if (iterator == null || !iterator.hasNext())
-			return null;
 		Integer start = 0;
 		Integer end = 0;
 		if (startIndex != null) {
@@ -210,6 +158,14 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 			if (end == null)
 				return null;
 		}
+
+		if (useProperty) {
+			return getFromProperty(event, start, end);
+		}
+
+		Iterator<?> iterator = objects.iterator(event);
+		if (iterator == null || !iterator.hasNext())
+			return null;
 		Object element = null;
 		Object[] elements;
 		switch (elementsType) {
@@ -252,19 +208,58 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 		return elements;
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> @Nullable Object getElement(ElementHandler<?, ?> handler, T source) {
-		return ((ElementHandler<T, ?>) handler).getElement(source);
+	private <Type> Object @Nullable [] getFromProperty(Event event, int start, int end) {
+		BiFunction<ElementHandler<Type, ?>, Type, Object[]> function = getHandlerFunction(start, end);
+		return objects.stream(event)
+			.flatMap(source -> {
+				ElementHandler<?, ?> handler = properties.getHandler(source.getClass());
+				if (handler == null)
+					return null;
+				//noinspection unchecked
+				Object[] elements = function.apply((ElementHandler<Type, ?>) handler, (Type) source);
+				if (elements == null || elements.length == 0)
+					return null;
+				return Stream.of(elements);
+			})
+			.filter(Objects::nonNull)
+			.toArray(size -> (Object[]) Array.newInstance(getReturnType(), size));
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> Object @Nullable [] getElements(ElementsHandler<?, ?> handler, T source, int start) {
-		return ((ElementsHandler<T, ?>) handler).getElements(source, start);
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T> Object @Nullable [] getElements(RangedElementsHandler<?, ?> handler, T source, int start, int end) {
-		return ((RangedElementsHandler<T, ?>) handler).getElements(source, start, end);
+	private <Type> BiFunction<ElementHandler<Type, ?>, Type, Object[]> getHandlerFunction(Integer start, Integer end) {
+		return switch (elementsType) {
+			case FIRST -> ( handler, type) ->
+				CollectionUtils.array(handler.get(type, 0));
+			case LAST -> (handler, type) ->
+				CollectionUtils.array(handler.get(type, handler.size(type) - 1));
+			case ORDINAL -> (handler, type) ->
+				CollectionUtils.array(handler.get(type, start - 1));
+			case END_ORDINAL -> (handler, type) ->
+				CollectionUtils.array(handler.get(type, handler.size(type) - start));
+			case RANDOM -> (handler, type) ->
+				CollectionUtils.array(handler.get(type, ThreadLocalRandom.current().nextInt(0, handler.size(type))));
+			case FIRST_X -> (handler, type) ->
+				handler.get(type, 0, Math.min(handler.size(type), start));
+			case LAST_X -> (handler, type) -> {
+				int size = handler.size(type);
+				int lastStart = Math.min(start, size);
+				return handler.get(type, size - lastStart, size);
+			};
+			case RANGE -> {
+				boolean reverse = start > end;
+				int from = Math.min(start, end) - 1;
+				int to = (Math.max(start, end));
+				yield (handler, type) -> {
+					int size = handler.size(type);
+					if (from > size)
+						return null;
+					int stop = Math.min(to, size);
+					Object[] objects = handler.get(type, from, stop);
+					if (reverse)
+						ArrayUtils.reverse(objects);
+					return objects;
+				};
+			}
+		};
 	}
 
 	@Override
@@ -287,8 +282,7 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 
 	@Override
 	public @NotNull Property<ElementHandler<?, ?>> getProperty() {
-		//noinspection unchecked
-		return (Property<ElementHandler<?, ?>>) property;
+		return Property.ELEMENT;
 	}
 
 	@Override

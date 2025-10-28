@@ -280,8 +280,12 @@ public interface PropertyHandler<Type> {
 	}
 
 	interface ElementHandler<Type, ReturnType> extends PropertyHandler<Type> {
+		//<editor-fold desc="element property handler" defaultstate="collapsed">
+		@Nullable ReturnType get(Type type, Integer index);
 
-		@Nullable ReturnType getElement(Type type);
+		ReturnType @Nullable [] get(Type type, Integer start, Integer end);
+
+		int size(Type type);
 
 		/**
 		 * The return type of this property. This is used for type checking and auto-completion.
@@ -302,29 +306,7 @@ public interface PropertyHandler<Type> {
 		default Class<?> @NotNull [] possibleReturnTypes() {
 			return new Class[]{ returnType() };
 		}
-
-	}
-
-	interface ElementsHandler<Type, ReturnType> extends ElementHandler<Type, ReturnType> {
-
-		ReturnType @Nullable [] getElements(Type type, Integer integer);
-
-		@Override
-		default @Nullable ReturnType getElement(Type type) {
-			return null;
-		}
-
-	}
-
-	interface RangedElementsHandler<Type, ReturnType> extends ElementsHandler<Type, ReturnType> {
-
-		ReturnType @Nullable [] getElements(Type type, Integer from, Integer to);
-
-		@Override
-		default ReturnType @Nullable [] getElements(Type type, Integer integer) {
-			return null;
-		}
-
+		//</editor-fold>
 	}
 
 }
