@@ -11,6 +11,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 
 	static {
-		String types = Skript.isRunningMinecraft(1, 19, 4) ? "blocks/displays" : "blocks";
+		String types = Skript.isRunningMinecraft(1, 19, 4) ? "blocks/displays/entities" : "blocks/entities";
 		register(ExprBlockData.class, BlockData.class, "block[ ]data", types);
 	}
 
@@ -39,6 +40,8 @@ public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 			return block.getBlockData();
 		if (object instanceof BlockDisplay blockDisplay)
 			return blockDisplay.getBlock();
+		if (object instanceof FallingBlock fallingBlock)
+			return fallingBlock.getBlockData();
 		return null;
 
 	}
@@ -59,6 +62,8 @@ public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 				block.setBlockData(blockData);
 			} else if (object instanceof BlockDisplay blockDisplay) {
 				blockDisplay.setBlock(blockData);
+			} else if (object instanceof FallingBlock fallingBlock) {
+				fallingBlock.setBlockData(blockData);
 			}
 		}
 	}
