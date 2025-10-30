@@ -75,7 +75,6 @@ public class EffTeleport extends Effect {
 
 		if (async)
 			getParser().setHasDelayBefore(Kleenean.UNKNOWN); // UNKNOWN because it isn't async if the chunk is already loaded.
-
 		return true;
 	}
 
