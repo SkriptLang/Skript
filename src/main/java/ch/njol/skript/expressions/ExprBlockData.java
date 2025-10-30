@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -30,8 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 
 	static {
-		String types = Skript.isRunningMinecraft(1, 19, 4) ? "blocks/displays/entities" : "blocks/entities";
-		register(ExprBlockData.class, BlockData.class, "block[ ]data", types);
+		register(ExprBlockData.class, BlockData.class, "block[ ]data", "blocks/displays/entities");
 	}
 
 	@Override
