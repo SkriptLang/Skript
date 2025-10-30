@@ -1,4 +1,4 @@
-test "EffMakeEggHatchJUnit" when running JUnit:
+test "EffElytraBoostConsumeTest" when running JUnit:
 	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.effects.EffElytraBoostConsumeTest" completes "check boost consume"
 
 on elytra boost:
