@@ -94,3 +94,801 @@ Server files are located at <code>build/test_runners</code>.
 
 To run individual test files, use <code>/sk test \<file\></code>. To run last
 used file again, just use <code>/sk test</code>.
+
+## Test Coverage
+
+| Type        | Coverage | Percent |
+|-------------|----------|---------|
+| Expressions | 159/463  | 34%     |
+| Conditions  | 34/157   | 22%     |
+| Effects     | 61/140   | 44%     |
+| Sections    | 8/8      | 100%    |
+
+### Expressions
+
+---
+
+- [ ] ExprAppliedEffect
+- [ ] ExprTPS
+- [ ] ExprDamage
+- [ ] ExprExplosionYield
+- [ ] ExprAppliedEnchantments
+- [x] ExprMessage
+- [ ] ExprInventoryCloseReason
+- [ ] ExprCmdCooldownInfo
+- [x] ExprDrops
+- [ ] LitNaN
+- [ ] ExprHatchingNumber
+- [ ] ExprRandomUUID
+- [ ] LitFloatMinValue
+- [x] ExprWhitelist
+- [ ] LitIntMaxValue
+- [ ] LitDoubleMinValue
+- [ ] ExprPushedBlocks
+- [ ] ExprEnchantingExpCost
+- [ ] ExprSecCreateWorldBorder
+- [ ] ExprHotbarButton
+- [ ] ExprPortal
+- [ ] ExprWorlds
+- [ ] ExprEvtInitiator
+- [ ] ExprAbsorbedBlocks
+- [ ] LitConsole
+- [x] ExprVectorRandom
+- [ ] ExprParseError
+- [ ] LitNewLine
+- [ ] ExprOnScreenKickMessage
+- [ ] ExprSentCommands
+- [ ] ExprLastLoadedServerIcon
+- [ ] LitFloatMaxValue
+- [ ] LitLongMinValue
+- [ ] ExprSourceBlock
+- [ ] ExprOfflinePlayers
+- [ ] ExprFertilizedBlocks
+- [ ] ExprAttacked
+- [ ] ExprBarterInput
+- [ ] ExprProtocolVersion
+- [ ] ExprAttacker
+- [ ] ExprAffectedEntities
+- [ ] ExprHanging
+- [ ] ExprEnchantmentBonus
+- [ ] ExprProjectileForce
+- [ ] ExprRespawnLocation
+- [ ] ExprHatchingType
+- [ ] ExprUnleashReason
+- [ ] ExprLoot
+- [ ] ExprCaughtErrors
+- [ ] LitAt
+- [ ] ExprHostname
+- [x] ExprHoverList
+- [ ] ExprPlugins
+- [ ] ExprOps
+- [ ] ExprTransformReason
+- [ ] ExprExperience
+- [ ] ExprMendingRepairAmount
+- [ ] ExprBreedingFamily
+- [ ] ExprEnchantItem
+- [ ] ExprHealAmount
+- [ ] ExprAllCommands
+- [ ] ExprCommand
+- [x] ExprLoopValue
+- [x] ExprConfig
+- [ ] ExprBarterDrops
+- [ ] LitPi
+- [ ] ExprMOTD
+- [ ] LitLongMaxValue
+- [ ] ExprTamer
+- [x] LitEternity
+- [ ] ExprReadiedArrow
+- [ ] LitNegativeInfinity
+- [ ] ExprConsumedItem
+- [x] ExprTagsOfType
+- [ ] ExprScripts
+- [ ] ExprChatRecipients
+- [ ] ExprScriptsOld
+- [ ] ExprVersionString
+- [ ] LitIntMinValue
+- [ ] LitDoubleMaxValue
+- [ ] ExprAllBannedEntries
+- [ ] ExprMemory
+- [ ] ExprVersion
+- [ ] ExprChatFormat
+- [ ] ExprMe
+- [ ] LitInfinity
+- [ ] ExprNow
+- [ ] ExprFinalDamage
+- [x] ExprNumberOfCharacters
+- [ ] ExprShooter
+- [ ] ExprClicked
+- [ ] ExprAngle
+- [x] ExprStringCase
+- [ ] ExprWorldFromName
+- [x] ExprTimes
+- [ ] ExprLastSpawnedEntity
+- [ ] ExprLoopIteration
+- [ ] ExprArgument
+- [x] ExprScript
+- [ ] ExprRawName
+- [ ] ExprEnchantmentOffer
+- [x] ExprVectorSpherical
+- [x] ExprVectorCylindrical
+- [x] ExprRotate
+- [x] ExprLootContext
+- [ ] ExprSpawnReason
+- [ ] ExprHealReason
+- [ ] ExprDamageCause
+- [ ] ExprCommandSender
+- [ ] ExprFishingWaitTime
+- [ ] ExprItem
+- [ ] ExprInventoryAction
+- [ ] ExprFishingHook
+- [ ] ExprEgg
+- [ ] ExprCreatedDamageSource
+- [ ] ExprTeleportCause
+- [ ] ExprFishingBiteTime
+- [ ] ExprFishingHookEntity
+- [ ] ExprQuitReason
+- [ ] ExprFishingApproachAngle
+- [ ] ExprArmorChangeItem
+- [ ] ExprExperienceCooldownChangeReason
+- [ ] ExprSecBlankEquipComp
+- [ ] ExprExplodedBlocks
+- [ ] ExprBrewingResults
+- [ ] ExprInverse
+- [ ] ExprTargetedBlock
+- [x] ExprKeyed
+- [x] ExprBrewingSlot
+- [ ] ExprDequeuedQueue
+- [x] ExprColoured
+- [ ] ExprShuffledList
+- [x] ExprFilter
+- [x] ExprHash
+- [ ] ExprTag
+- [ ] ExprSecDamageSource
+- [ ] ExprReversedList
+- [x] ExprIndices
+- [x] ExprName
+- [ ] ExprAlphabetList
+- [ ] ExprItems
+- [x] ExprQueue
+- [ ] ExprItemCompCopy
+- [ ] ExprLootTableFromString
+- [ ] ExprRawString
+- [x] ExprBannerItem
+- [ ] ExprPlain
+- [ ] ExprInput
+- [x] ExprVectorNormalize
+- [ ] ExprDistance
+- [x] ExprResult
+- [ ] ExprDirection
+- [x] ExprVectorCrossProduct
+- [x] ExprNearestEntity
+- [x] ExprVectorAngleBetween
+- [x] ExprTernary
+- [x] ExprEntitySound
+- [x] ExprVectorBetweenLocations
+- [ ] ExprInventorySlot
+- [x] ExprDifference
+- [x] ExprExcept
+- [ ] ExprDateAgoLater
+- [ ] ExprGameRule
+- [x] ExprIndicesOfValue
+- [x] ExprJoinSplit
+- [x] ExprEntityAttribute
+- [x] ExprMidpoint
+- [ ] ExprRandom
+- [x] ExprNewBannerPattern
+- [x] ExprWardenEntityAnger
+- [x] ExprRepeat
+- [ ] ExprItemCooldown
+- [ ] ExprNumbers
+- [ ] ExprBreakSpeed
+- [ ] ExprChestInventory
+- [x] ExprVectorDotProduct
+- [ ] ExprDamagedItem
+- [ ] ExprBlockSphere
+- [x] ExprLootItems
+- [x] ExprFunction
+- [x] ExprVectorFromYawAndPitch
+- [x] ExprDefaultValue
+- [x] ExprCharacters
+- [x] ExprParse
+- [ ] ExprPotionEffectTier
+- [ ] ExprWithItemFlags
+- [ ] ExprVectorProjection
+- [ ] ExprFireworkEffect
+- [ ] ExprPotionEffect
+- [ ] ExprRandomCharacter
+- [ ] ExprSubstring
+- [x] ExprVectorFromXYZ
+- [ ] ExprDropsOfBlock
+- [x] ExprRandomNumber
+- [ ] ExprSecCreateLootContext
+- [x] ExprBlocks
+- [x] ExprLocationFromVector
+- [x] ExprLocation
+- [x] ExprBlock
+- [ ] ExprChunk
+- [ ] ExprLocationAt
+- [x] ExprPercent
+- [ ] ExprOnlinePlayersCount
+- [ ] ExprServerIcon
+- [ ] ExprFurnaceEventItems
+- [ ] ExprExplosionBlockYield
+- [x] ExprMaxPlayers
+- [x] ExprUUID
+- [x] ExprUnbreakable
+- [ ] ExprGravity
+- [ ] ExprAllayJukebox
+- [ ] ExprDirectEntity
+- [x] ExprVillagerProfession
+- [x] ExprLastDamage
+- [ ] ExprBeaconRange
+- [x] ExprExplosiveYield
+- [x] ExprBrewingFuelLevel
+- [x] ExprBookTitle
+- [ ] ExprLastDeathLocation
+- [ ] ExprSeaLevel
+- [ ] ExprEyeLocation
+- [ ] ExprAnvilText
+- [x] ExprNoDamageTicks
+- [x] ExprBeehiveFlower
+- [ ] ExprWardenAngryAt
+- [x] ExprVillagerLevel
+- [ ] ExprExperienceCooldown
+- [x] ExprTextDisplayLineWidth
+- [x] ExprWorldBorderSize
+- [ ] ExprHealth
+- [x] ExprDisplayShadow
+- [ ] ExprEventExpression
+- [ ] ExprBeaconTier
+- [ ] ExprMinecartDerailedFlyingVelocity
+- [x] ExprDisplayViewRange
+- [ ] ExprVehicle
+- [ ] ExprCharacterFromCodepoint
+- [ ] ExprLootContextLocation
+- [x] ExprExactItem
+- [ ] ExprScoreboardTags
+- [x] ExprAmount
+- [ ] ExprInventoryInfo
+- [ ] ExprQueueStartEnd
+- [x] ExprDomestication
+- [x] ExprLastDamageCause
+- [x] ExprPotionEffects
+- [ ] ExprDifficulty
+- [ ] ExprAI
+- [ ] ExprMiddleOfLocation
+- [ ] ExprEquippableComponent
+- [ ] ExprLevelProgress
+- [ ] ExprFoodLevel
+- [ ] ExprResonatingTime
+- [x] ExprTextOf
+- [ ] ExprLastAttacker
+- [ ] ExprEquipCompShearSound
+- [ ] ExprFurnaceTime
+- [ ] ExprTablistedPlayers
+- [ ] ExprFlightMode
+- [ ] ExprLootContextLuck
+- [ ] ExprFurnaceSlot
+- [ ] ExprSeaPickles
+- [ ] ExprLocationOf
+- [ ] ExprIP
+- [ ] ExprUnixTicks
+- [x] ExprMaxDurability
+- [ ] ExprRedstoneBlockPower
+- [x] ExprDisplayInterpolation
+- [ ] ExprPermissions
+- [ ] ExprLevel
+- [x] ExprWorldBorderWarningTime
+- [ ] ExprWorld
+- [x] ExprUnixDate
+- [ ] ExprTimePlayed
+- [x] ExprMaxStack
+- [x] ExprFirstEmptySlot
+- [x] ExprVectorOfLocation
+- [ ] ExprAnvilRepairCost
+- [x] ExprItemWithEnchantmentGlint
+- [x] ExprBookAuthor
+- [x] ExprEntityStorageEntityCount
+- [x] ExprCarryingBlockData
+- [x] ExprXYZComponent
+- [ ] ExprFoodExhaustion
+- [ ] ExprCausingEntity
+- [ ] ExprRecursiveSize
+- [x] ExprFreezeTicks
+- [x] ExprEntityOwner
+- [x] ExprQuaternionAxisAngle
+- [x] ExprSkullOwner
+- [ ] ExprProjectileCriticalState
+- [x] ExprCustomModelData
+- [x] ExprColorOf
+- [x] ExprWorldBorderDamageAmount
+- [x] ExprEntitySize
+- [ ] ExprEnchantmentOfferCost
+- [ ] ExprBlockHardness
+- [ ] ExprSaturation
+- [x] ExprTextDisplayOpacity
+- [x] ExprTimeSince
+- [ ] ExprSpawn
+- [x] ExprDisplayGlowOverride
+- [ ] ExprMaxHealth
+- [ ] ExprTime
+- [x] ExprBlockData
+- [x] ExprItemThrower
+- [ ] ExprCommandInfo
+- [ ] ExprLastResourcePackResponse
+- [ ] ExprWorldBorder
+- [x] ExprItemWithTooltip
+- [ ] ExprSpectatorTarget
+- [ ] ExprBeaconEffects
+- [x] ExprTagContents
+- [ ] ExprEnderChest
+- [ ] ExprGlowing
+- [ ] ExprSimulationDistance
+- [x] ExprSortedList
+- [ ] ExprAttackCooldown
+- [x] ExprTool
+- [x] ExprCodepoint
+- [ ] ExprCharges
+- [ ] ExprAge
+- [x] ExprLootTable
+- [ ] ExprEntityItemUseTime
+- [ ] ExprFromUUID
+- [ ] ExprPlayerlistHeaderFooter
+- [x] ExprItemFlags
+- [ ] ExprDisplayTransformationRotation
+- [ ] ExprEquipCompEntities
+- [ ] ExprTemperature
+- [ ] ExprDamageLocation
+- [ ] ExprMaxItemUseTime
+- [x] ExprTextDisplayAlignment
+- [ ] ExprMaxFreezeTicks
+- [ ] ExprNoDamageTime
+- [ ] ExprDebugInfo
+- [ ] ExprPing
+- [ ] ExprBrewingTime
+- [ ] ExprSourceLocation
+- [x] ExprSpawnerType
+- [x] ExprItemOwner
+- [ ] ExprEquipCompEquipSound
+- [x] ExprDurability
+- [ ] ExprGlidingState
+- [ ] ExprTimeState
+- [ ] ExprLootContextEntity
+- [ ] ExprGameMode
+- [x] ExprBeehiveHoneyLevel
+- [ ] ExprActiveItem
+- [ ] ExprPickupDelay
+- [ ] ExprHumidity
+- [ ] ExprLength
+- [ ] ExprPassenger
+- [x] ExprYawPitch
+- [ ] ExprMaxMinecartSpeed
+- [ ] ExprSkull
+- [x] ExprPandaGene
+- [ ] ExprCoordinate
+- [x] ExprDuplicateCooldown
+- [ ] ExprCompassTarget
+- [ ] ExprBed
+- [ ] ExprVelocity
+- [x] ExprInventory
+- [x] ExprDisplayHeightWidth
+- [ ] ExprTablistName
+- [x] ExprCommandBlockCommand
+- [ ] ExprClientViewDistance
+- [ ] ExprCursorSlot
+- [x] ExprTotalExperience
+- [ ] ExprExhaustion
+- [ ] ExprTagKey
+- [ ] ExprCurrentInputKeys
+- [ ] ExprPlayerProtocolVersion
+- [ ] ExprSlotIndex
+- [x] ExprBlockSound
+- [ ] ExprLastLoginTime
+- [ ] ExprHiddenPlayers
+- [x] ExprTagsOf
+- [ ] ExprItemOfEntity
+- [x] ExprVectorSquaredLength
+- [ ] ExprDustedStage
+- [ ] ExprEquipCompSlot
+- [ ] ExprSpeed
+- [x] ExprDisplayBrightness
+- [ ] ExprFireTicks
+- [x] ExprEntitySnapshot
+- [ ] ExprRingingTime
+- [ ] ExprFacing
+- [x] ExprWorldBorderWarningDistance
+- [x] ExprItemAmount
+- [x] ExprItemDisplayTransform
+- [ ] ExprStringColor
+- [ ] ExprDamageType
+- [ ] ExprFallDistance
+- [x] ExprTypeOf
+- [x] ExprWorldBorderCenter
+- [ ] ExprBrushableItem
+- [x] ExprLoveTime
+- [x] ExprWorldEnvironment
+- [ ] ExprMoonPhase
+- [ ] ExprEquipCompCameraOverlay
+- [x] ExprWithFireResistance
+- [ ] ExprArrowKnockbackStrength
+- [ ] ExprAltitude
+- [x] ExprVectorLength
+- [x] ExprLowestHighestSolidBlock
+- [ ] ExprDisplayTeleportDuration
+- [x] ExprArrowsStuck
+- [ ] ExprSpawnEggEntity
+- [ ] ExprLootContextLooter
+- [ ] ExprAttachedBlock
+- [x] ExprARGB
+- [x] ExprWorldBorderDamageBuffer
+- [ ] ExprLanguage
+- [ ] ExprSeed
+- [x] ExprPortalCooldown
+- [ ] ExprHotbarSlot
+- [ ] ExprOpenedInventory
+- [ ] ExprDisplayTransformationScaleTranslation
+- [x] ExprVillagerType
+- [ ] ExprVectorFromDirection
+- [x] ExprRound
+- [x] ExprDisplayBillboard
+- [ ] ExprPlayerChatCompletions
+- [ ] ExprLeashHolder
+- [ ] ExprEnchantments
+- [ ] ExprEquipCompModel
+- [x] ExprRemainingAir
+- [ ] ExprTimeLived
+- [x] ExprViewDistance
+- [x] ExprLootTableSeed
+- [x] ExprWeather
+- [ ] ExprTimespanDetails
+- [x] ExprItemWithCustomModelData
+- [ ] ExprSignText
+- [x] ExprItemWithLore
+- [ ] ExprLore
+- [ ] ExprNamed
+- [x] ExprItemsIn
+- [x] ExprArmorSlot
+- [x] ExprLocationVectorOffset
+- [ ] ExprFormatDate
+- [x] ExprNode
+- [ ] ExprValue
+- [x] ExprBookPages
+- [x] ExprValueWithin
+- [ ] ExprEnchantmentLevel
+- [ ] ExprBannerPatterns
+- [x] ExprMetadata
+- [x] ExprAmountOfItems
+- [ ] ExprTarget
+- [x] ExprElement
+- [ ] ExprSubnodeValue
+- [ ] ExprBiome
+- [ ] ExprLightLevel
+- [x] ExprWhether
+- [ ] ExprEntity
+- [x] ExprAnyOf
+- [x] ExprTransform
+- [x] ExprSets
+- [x] ExprXOf
+- [x] ExprArithmetic
+- [x] ExprEntities
+
+
+### Conditions
+
+---
+
+- [ ] CondWillHatch
+- [ ] CondFishingLure
+- [ ] CondRespawnLocation
+- [ ] CondElytraBoostConsume
+- [ ] CondLeashWillDrop
+- [ ] CondCancelled
+- [ ] CondBrewingConsume
+- [ ] CondAlphanumeric
+- [x] CondIsCustomNameVisible
+- [ ] CondDamageCause
+- [ ] CondIncendiary
+- [ ] CondAnchorWorks
+- [ ] CondTextDisplayHasDropShadow
+- [ ] CondPlayedBefore
+- [ ] CondIsHandRaised
+- [ ] CondIsSet
+- [ ] CondScriptLoaded
+- [ ] CondFromMobSpawner
+- [ ] CondMinecraftVersion
+- [ ] CondIsBlockRedstonePowered
+- [ ] CondIsBanned
+- [x] CondChatVisibility
+- [ ] CondResourcePack
+- [ ] CondEquipCompDamage
+- [x] CondPastFuture
+- [ ] CondIsPluginEnabled
+- [x] CondTooltip
+- [ ] CondScalesWithDifficulty
+- [ ] CondIsWhitelisted
+- [ ] CondPvP
+- [ ] CondIgnitionProcess
+- [ ] CondChance
+- [ ] CondIsUsingFeature
+- [x] CondStartsEndsWith
+- [ ] CondItemInHand
+- [ ] CondHasMetadata
+- [x] CondHasLineOfSight
+- [ ] CondIsPressingKey
+- [ ] CondHasItemCooldown
+- [ ] CondDate
+- [x] CondHasPotion
+- [ ] CondPermission
+- [ ] CondIsSpawnable
+- [x] CondContains
+- [x] CondMatches
+- [ ] CondCanHold
+- [ ] CondCanSee
+- [x] CondIsPreferredTool
+- [x] CondIsWithin
+- [x] CondIsDivisibleBy
+- [x] CondIsLoaded
+- [x] CondHasCustomModelData
+- [ ] CondEquipCompInteract
+- [x] CondIsFlammable
+- [ ] CondIsValid
+- [ ] CondIsChargingFireball
+- [ ] CondEquipCompSwapEquipment
+- [ ] CondGoatHasHorns
+- [ ] CondEndermanStaredAt
+- [ ] CondGlowingText
+- [ ] CondPandaIsScared
+- [x] CondIsVectorNormalized
+- [ ] CondCanAge
+- [ ] CondIsOp
+- [ ] CondIsEmpty
+- [ ] CondIsJumping
+- [ ] CondPandaIsRolling
+- [ ] CondEquipCompDispensable
+- [ ] CondItemDespawn
+- [ ] CondIsOnGround
+- [ ] CondIsPlayingDead
+- [ ] CondIsSilent
+- [ ] CondPandaIsOnBack
+- [ ] CondHasResourcePack
+- [ ] CondIsInOpenWater
+- [ ] CondIsRiptiding
+- [ ] CondIsDancing
+- [ ] CondTextDisplaySeeThroughBlocks
+- [ ] CondIsTameable
+- [x] CondIsCommandBlockConditional
+- [ ] CondLidState
+- [x] CondIsTamed
+- [ ] CondIsGliding
+- [ ] CondAI
+- [ ] CondIsPoisoned
+- [ ] CondChatFiltering
+- [ ] CondIsStackable
+- [ ] CondIsEating
+- [ ] CondEntityIsWet
+- [ ] CondItemDespawn
+- [ ] CondEntityStorageIsFull
+- [ ] CondIsPassable
+- [ ] CondIsAlive
+- [ ] CondIsSlimeChunk
+- [ ] CondIsSleeping
+- [ ] CondIsSkriptCommand
+- [ ] CondIsFlying
+- [ ] CondPandaIsSneezing
+- [x] CondIsInvulnerable
+- [ ] CondIsScreaming
+- [ ] CondIsPersistent
+- [ ] CondIsUnbreakable
+- [ ] CondIsInvisible
+- [ ] CondAllayCanDuplicate
+- [ ] CondCanPickUpItems
+- [ ] CondStriderIsShivering
+- [ ] CondIsSprinting
+- [x] CondIsTransparent
+- [ ] CondIsBurning
+- [ ] CondIsBlocking
+- [ ] CondHasClientWeather
+- [ ] CondIsSedated
+- [ ] CondIsOccluding
+- [x] CondIsEdible
+- [ ] CondIsAdult
+- [x] CondIsSaddled
+- [x] CondIsLootable
+- [ ] CondIsSwimming
+- [ ] CondIsDashing
+- [ ] CondIsResonating
+- [ ] CondIsInteractable
+- [ ] CondItemEnchantmentGlint
+- [ ] CondIsLeftHanded
+- [ ] CondIsSheared
+- [ ] CondIsOnline
+- [ ] CondItemEnchantmentGlint
+- [ ] CondIsFuel
+- [x] CondIsBlock
+- [ ] CondEntityUnload
+- [ ] CondIsSneaking
+- [ ] CondCanFly
+- [x] CondHasLootTable
+- [ ] CondIsRinging
+- [ ] CondIsInfinite
+- [x] CondIsFireResistant
+- [ ] CondIsFrozen
+- [ ] CondIsClimbing
+- [ ] CondWasIndirect
+- [ ] CondEquipCompShearable
+- [ ] CondChatColors
+- [x] CondIsInLove
+- [ ] CondLeashed
+- [ ] CondCanBreed
+- [ ] CondIsBaby
+- [x] CondIsTicking
+- [ ] CondEntityIsInLiquid
+- [x] CondIsCharged
+- [x] CondIsSolid
+- [x] CondIsTagged
+- [ ] CondHasScoreboardTag
+- [x] CondIsOfType
+- [ ] CondIsPathfinding
+- [ ] CondIsRiding
+- [x] CondIsEnchanted
+- [ ] CondIsWearing
+- [ ] CondWithinRadius
+- [x] CondCompare
+
+### Effects
+
+---
+
+- [x] EffMakeEggHatch
+- [x] EffCancelEvent
+- [x] EffElytraBoostConsume
+- [ ] EffSuppressTypeHints
+- [x] EffDoIf
+- [ ] EffFishingLure
+- [ ] EffExceptionDebug
+- [ ] EffCancelDrops
+- [x] EffExit
+- [ ] EffCancelCooldown
+- [ ] EffEnforceWhitelist
+- [ ] EffPullHookedEntity
+- [ ] EffBrewingConsume
+- [ ] EffStopServer
+- [ ] EffSuppressWarnings
+- [ ] EffDropLeash
+- [x] EffContinue
+- [ ] EffPlayerInfoVisibility
+- [ ] EffKeepInventory
+- [ ] EffClearEntityStorage
+- [x] EffGoatHorns
+- [ ] EffAllayCanDuplicate
+- [x] EffReturn
+- [x] EffExplodeCreeper
+- [ ] EffToggleCanPickUpItems
+- [ ] EffEquipCompDamageable
+- [x] EffGlowingText
+- [x] EffDetonate
+- [ ] EffEntityUnload
+- [x] EffLidState
+- [ ] EffEquipCompInteract
+- [x] EffAllowAging
+- [x] EffInvisible
+- [ ] EffCancelItemUse
+- [ ] EffCommandBlockConditional
+- [ ] EffSwingHand
+- [x] EffScriptFile
+- [ ] EffOp
+- [x] EffPandaRolling
+- [ ] EffCustomName
+- [ ] EffToggleFlight
+- [ ] EffMakeFly
+- [x] EffTransform
+- [x] EffHandedness
+- [ ] Delay
+- [x] EffInvulnerability
+- [ ] EffResetTitle
+- [ ] EffCharge
+- [x] EffFireResistant
+- [x] EffMakeAdultOrBaby
+- [ ] EffWorldSave
+- [ ] EffAllayDuplicate
+- [x] EffSort
+- [x] EffScreaming
+- [ ] EffLoadServerIcon
+- [x] EffPandaSneezing
+- [x] EffPlayingDead
+- [x] EffKill
+- [ ] EffIncendiary
+- [x] EffTextDisplaySeeThroughBlocks
+- [ ] EffRespawn
+- [ ] EffItemDespawn
+- [x] EffEating
+- [ ] EffHidePlayerFromServerList
+- [ ] EffEquipCompDispensable
+- [ ] EffEquipCompSwapEquipment
+- [x] EffTextDisplayDropShadow
+- [ ] EffSprinting
+- [x] EffPvP
+- [x] EffBreedable
+- [x] EffTame
+- [x] EffSilence
+- [ ] EffTooltip
+- [x] EffPersistent
+- [ ] EffEquipCompShearable
+- [ ] EffShear
+- [x] EffStriderShivering
+- [ ] EffForceEnchantmentGlint
+- [x] EffPandaOnBack
+- [x] EffToggle
+- [x] EffActionBar
+- [ ] EffApplyBoneMeal
+- [ ] EffWorldLoad
+- [ ] EffGoatRam
+- [x] EffCopy
+- [ ] EffLeash
+- [x] EffRegisterTag
+- [x] EffEnchant
+- [ ] EffLog
+- [x] EffBlockUpdate
+- [x] EffZombify
+- [ ] EffInsertEntityStorage
+- [ ] EffPoison
+- [ ] EffMakeSay
+- [ ] EffReleaseEntityStorage
+- [ ] EffEndermanTeleport
+- [x] EffFeed
+- [ ] EffBreakNaturally
+- [ ] EffKick
+- [ ] EffIgnite
+- [x] EffVehicle
+- [ ] EffBroadcast
+- [x] EffRun
+- [x] EffCommand
+- [ ] EffOpenInventory
+- [ ] EffOpenBook
+- [ ] EffEntityVisibility
+- [x] EffEquip
+- [ ] EffStopSound
+- [x] EffReplace
+- [ ] EffGenerateLoot
+- [x] EffForceAttack
+- [ ] EffRing
+- [ ] EffSendResourcePack
+- [ ] EffFireworkLaunch
+- [ ] EffBan
+- [ ] EffPathfind
+- [x] EffHealth
+- [x] EffWorldBorderExpand
+- [x] EffPush
+- [ ] EffSendBlockChange
+- [ ] EffConnect
+- [ ] EffMessage
+- [x] EffPotion
+- [x] EffRotate
+- [ ] EffLightning
+- [x] EffChange
+- [ ] EffKnockback
+- [x] EffWakeupSleep
+- [ ] EffWardenDisturbance
+- [ ] EffLook
+- [x] EffTeleport
+- [ ] EffSendTitle
+- [x] EffDancing
+- [ ] EffExplosion
+- [x] EffPlaySound
+- [ ] EffDrop
+- [ ] EffTree
+- [ ] EffColorItems
+- [x] EffVisualEffect
+
+### Sections
+
+---
+
+- [x] SecConditional
+- [x] SecWhile
+- [x] SecCatchErrors
+- [x] SecLoop
+- [x] SecFilter
+- [x] SecFor
+- [x] EffSecShoot
+- [x] EffSecSpawn
