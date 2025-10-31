@@ -492,6 +492,16 @@ public class DefaultFunctions {
 				args.<Number>get("z").doubleValue()
 			)));
 
+		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
+			.description("Creates a new vector with all components equal to the given value. Equivalent to vector(n, n, n).")
+			.examples("vector(5) # same as vector(5, 5, 5)")
+			.since("2.13")
+			.parameter("n", Number.class)
+			.build(args -> {
+				double value = args.<Number>get("n").doubleValue();
+				return new Vector(value, value, value);
+			}));
+
 		Functions.registerFunction(new SimpleJavaFunction<Long>("calcExperience", new Parameter[] {
 			new Parameter<>("level", DefaultClasses.LONG, true, null)
 		}, DefaultClasses.LONG, true) {
