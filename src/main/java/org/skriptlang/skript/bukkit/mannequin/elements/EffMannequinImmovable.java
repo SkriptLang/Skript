@@ -59,9 +59,9 @@ public class EffMannequinImmovable extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String move = immovable ? "immovable" : "movable";
 		return new SyntaxStringBuilder(event, debug)
-			.append("make", entities, move)
+			.append("make", entities)
+			.append(immovable ? "immovable" : "movable")
 			.toString();
 	}
 
