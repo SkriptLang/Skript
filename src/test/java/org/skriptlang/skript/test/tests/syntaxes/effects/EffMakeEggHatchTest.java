@@ -24,8 +24,7 @@ public class EffMakeEggHatchTest extends SkriptJUnitTest {
 		PlayerEggThrowEvent event = new PlayerEggThrowEvent(player, egg, false, (byte) 0, EntityType.CHICKEN);
 		Bukkit.getPluginManager().callEvent(event);
 
-		if(!event.isHatching())
-			Assert.fail("Egg should be hatching");
+		assert event.isHatching() : "Egg should be hatching";
 	}
 
 }
