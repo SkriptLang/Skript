@@ -43,4 +43,18 @@ public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 		this.simple = nodeType.canBeSimple();
 	}
 
+	public StructureInfo(SyntaxInfo.Structure<E> source) {
+		super(source);
+		this.entryValidator = source.entryValidator();
+		this.nodeType = source.nodeType();
+		this.simple = source.nodeType().canBeSimple();
+	}
+
+	protected StructureInfo(SyntaxInfo<E> source) {
+		super(source);
+		this.entryValidator = null;
+		this.nodeType = Structure.NodeType.SIMPLE;
+		this.simple = nodeType.canBeSimple();
+	}
+
 }
