@@ -9,3 +9,12 @@ test "left handedness":
 		make entity left handed
 		assert entity is left handed with "zombie is not left handed after being made left handed again"
 		delete entity
+
+test "mannequin handedness" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	make {_entity} right handed
+	assert {_entity} is right handed with "Mannequin should be right handed"
+	make {_entity} left handed
+	assert {_entity} is left handed with "Mannequin should be left handed"

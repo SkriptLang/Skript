@@ -1,0 +1,12 @@
+test "mannequin body" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	loop "custom:body1", "custom:body2" and "custom:body3":
+		set the mannequin body of {_entity} to loop-value
+		assert the mannequin body of {_entity} is loop-value with "Mannequin body should be '%loop-value%'"
+
+	clear the mannequin body of {_entity}
+	assert the mannequin body of {_entity} is not set with "Mannequin body was not cleared"
+
+	clear entity within {_entity}

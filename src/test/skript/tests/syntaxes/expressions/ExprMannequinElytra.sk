@@ -1,0 +1,12 @@
+test "mannequin elytra" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	loop "custom:elytra1", "custom:elytra2" and "custom:elytra3":
+		set the mannequin elytra of {_entity} to loop-value
+		assert the mannequin elytra of {_entity} is loop-value with "Mannequin elytra should be '%loop-value%'"
+
+	clear the mannequin elytra of {_entity}
+	assert the mannequin elytra of {_entity} is not set with "Mannequin elytra was not cleared"
+
+	clear entity within {_entity}

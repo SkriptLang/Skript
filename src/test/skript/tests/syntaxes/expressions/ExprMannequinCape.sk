@@ -1,0 +1,12 @@
+test "mannequin cape" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	loop "custom:cape1", "custom:cape2" and "custom:cape3":
+		set the mannequin cape of {_entity} to loop-value
+		assert the mannequin cape of {_entity} is loop-value with "Mannequin cape should be '%loop-value%'"
+
+	clear the mannequin cape of {_entity}
+	assert the mannequin cape of {_entity} is not set with "Mannequin cape was not cleared"
+
+	clear entity within {_entity}

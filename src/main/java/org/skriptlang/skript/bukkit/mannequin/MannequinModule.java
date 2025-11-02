@@ -3,13 +3,11 @@ package org.skriptlang.skript.bukkit.mannequin;
 import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.mannequin.elements.CondMannequinImmovable;
-import org.skriptlang.skript.bukkit.mannequin.elements.CondMannequinParts;
-import org.skriptlang.skript.bukkit.mannequin.elements.EffMannequinImmovable;
-import org.skriptlang.skript.bukkit.mannequin.elements.EffMannequinParts;
-import org.skriptlang.skript.bukkit.mannequin.elements.ExprMannequinDesc;
-import org.skriptlang.skript.bukkit.mannequin.elements.ExprMannequinSkin;
+import org.skriptlang.skript.bukkit.mannequin.elements.*;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import java.util.Set;
+import java.util.function.Consumer;
 
 public class MannequinModule implements AddonModule {
 
@@ -20,14 +18,21 @@ public class MannequinModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		SyntaxRegistry registry = addon.syntaxRegistry();
+		Set<Consumer<SyntaxRegistry>> elementsToLoad = Set.of(
+			CondMannequinImmovable::register,
+			CondMannequinParts::register,
+			EffMannequinImmovable::register,
+			EffMannequinParts::register,
+			ExprMannequinBody::register,
+			ExprMannequinCape::register,
+			ExprMannequinDesc::register,
+			ExprMannequinElytra::register,
+			ExprMannequinModel::register,
+			ExprMannequinSkin::register
+		);
 
-		CondMannequinParts.register(registry);
-		CondMannequinImmovable.register(registry);
-		EffMannequinParts.register(registry);
-		EffMannequinImmovable.register(registry);
-		ExprMannequinDesc.register(registry);
-		ExprMannequinSkin.register(registry);
+		SyntaxRegistry registry = addon.syntaxRegistry();
+		elementsToLoad.forEach(element -> element.accept(registry));
 
 		MannequinData.register();
 	}

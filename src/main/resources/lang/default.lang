@@ -3018,6 +3018,11 @@ damage types:
 	wither: wither
 	wither_skull: wither skull
 
+# -- Skin Models --
+skin models:
+	classic: classic, classic skin, classic skin model, classic model
+	slim: slim, slim skin, slim skin model, slim model
+
 # -- Boolean --
 boolean:
 	true:
@@ -3138,6 +3143,7 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	skinmodel: skin model¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
