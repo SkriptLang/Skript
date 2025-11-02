@@ -24,7 +24,14 @@ import java.util.function.Function;
 
 @Name("Mannequin Skin Part is Enabled")
 @Description("Whether a specific skin part of a mannequin is enabled or disabled.")
-@Example("")
+@Example("""
+	if the mannequin cape of {_mannequin} is disabled:
+		enable the mannequin cape of {_mannequin}
+	""")
+@Example("""
+	if all of the mannequin skin parts of last spawned mannequin is revealed:
+		hide all of the mannequin skin parts for last spawned mannequin
+	""")
 @RequiredPlugins("Minecraft 1.21.9+")
 @Since("INSERT VERSION")
 public class CondMannequinParts extends Condition {
