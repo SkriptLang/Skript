@@ -1,0 +1,10 @@
+test "change effect":
+	set {_var} to 10
+	assert {_var} = 10 with "value should be 10"
+	add 1 to {_var}
+	assert {_var} = 11 with "value should be 11 after addition"
+	subtract 2 from {_var}
+	assert {_var} = 9 with "value should be 9 after subtraction"
+
+	delete {_var}
+	assert {_var} is not set with "variable should be deleted"

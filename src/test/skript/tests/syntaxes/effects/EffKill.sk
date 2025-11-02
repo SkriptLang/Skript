@@ -1,0 +1,7 @@
+test "kill effect":
+	set {_loc} to location(10,10,10, world "world")
+	spawn 1 pig at {_loc}
+	set {_pig} to last spawned pig
+	assert {_pig} is alive with "pig should be alive after spawn"
+	kill {_pig}
+	assert {_pig} is not alive with "pig should be dead after kill"
