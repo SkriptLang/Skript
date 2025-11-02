@@ -33,8 +33,7 @@ public class EffElytraBoostConsumeTest extends SkriptJUnitTest {
 		PlayerElytraBoostEvent event = new PlayerElytraBoostEvent(player,  fireworkItemStack,firework, EquipmentSlot.HAND);
 		Bukkit.getPluginManager().callEvent(event);
 
-		if(event.shouldConsume())
-			Assert.fail("Firework should not be consumed");
+		assert !event.shouldConsume()) : "Firework should not be consumed";
 	}
 
 }
