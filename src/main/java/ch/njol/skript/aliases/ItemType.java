@@ -408,19 +408,37 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return false;
 	}
 
+	private static final boolean ITEMMETA_CUSTOMNAME_EXISTS = Skript.methodExists(ItemMeta.class, "customName");
+
 	/**
 	 * Copies the container state from the item meta to the block state
 	 * @param block The block to copy the state to
 	 * @param itemMeta The item meta to copy the state from
 	 */
 	private void copyContainerState(@NotNull Block block, @NotNull ItemMeta itemMeta) {
+		// only copy container state if block is container
+		if (!(block.getState() instanceof org.bukkit.block.Container blockContainer))
+			return;
+
+		//copy name from itemmeta to block container
+		if (ITEMMETA_CUSTOMNAME_EXISTS) {
+			if (itemMeta.hasCustomName()) {
+				blockContainer.customName(itemMeta.customName());
+				blockContainer.update();
+			}
+		} else {
+			if (itemMeta.hasDisplayName()) {
+				blockContainer.customName(itemMeta.displayName());
+				blockContainer.update();
+			}
+		}
+
 		// ensure the item has a block state
 		if (!(itemMeta instanceof BlockStateMeta blockStateMeta) || !blockStateMeta.hasBlockState())
 			return;
 
-		// only care about container -> container copying
-		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer)
-				|| !(block.getState() instanceof org.bukkit.block.Container blockContainer))
+		// only copy inventory if itemmeta block state is a container
+		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer))
 			return;
 
 		// copy inventory from item to block
