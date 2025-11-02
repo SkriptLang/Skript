@@ -1,4 +1,4 @@
-package ch.njol.skript.lang;
+package org.skriptlang.skript.lang.parser;
 
 import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
