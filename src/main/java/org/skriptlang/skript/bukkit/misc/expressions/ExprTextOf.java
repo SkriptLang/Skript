@@ -15,6 +15,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import java.util.Arrays;
 
 @Name("Text Of")
 @Description("""
@@ -51,14 +52,14 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case RESET -> CollectionUtils.array();
-			case SET -> CollectionUtils.array(String.class);
+			case SET -> CollectionUtils.array(String[].class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		String value = delta == null ? null : (String) delta[0];
+		String value = delta == null ? null : String.join("\n", Arrays.copyOf(delta, delta.length, String[].class));
 		for (Object object : getExpr().getArray(event)) {
 			if (!(object instanceof TextDisplay textDisplay))
 				continue;
