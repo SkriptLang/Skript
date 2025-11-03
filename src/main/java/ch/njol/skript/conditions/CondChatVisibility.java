@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 	"if player can't see any messages:",
 		"\tsend action bar \"Server shutting down in 5 minutes!\""
 })
-@RequiredPlugins("Paper")
 @Since("2.10")
 public class CondChatVisibility extends Condition {
 

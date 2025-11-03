@@ -509,6 +509,8 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				// make sure all types in the passed array are valid for the array parameter
 				Class<?> arrayType = candidate.args[0].componentType();
 				for (Class<?> arrayArg : provided.args) {
+					if (arrayArg.isArray())
+						arrayArg = arrayArg.getComponentType();
 					if (!Converters.converterExists(arrayArg, arrayType)) {
 						continue candidates;
 					}
@@ -713,11 +715,11 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.def != null) {
+				if (param.isOptional()) {
 					optionalArgs++;
 				}
 
-				Class<?> type = param.getType().getC();
+				Class<?> type = param.type();
 				if (param.isSingleValue()) {
 					parameters[i] = type;
 				} else {
