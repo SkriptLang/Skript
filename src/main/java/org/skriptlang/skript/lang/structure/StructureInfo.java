@@ -43,6 +43,7 @@ public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 		this.simple = nodeType.canBeSimple();
 	}
 
+	@ApiStatus.Internal
 	public StructureInfo(SyntaxInfo.Structure<E> source) {
 		super(source);
 		this.entryValidator = source.entryValidator();
