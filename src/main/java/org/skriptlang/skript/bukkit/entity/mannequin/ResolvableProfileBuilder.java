@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.mannequin;
+package org.skriptlang.skript.bukkit.entity.mannequin;
 
 import com.destroystokyo.paper.profile.ProfileProperty;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;

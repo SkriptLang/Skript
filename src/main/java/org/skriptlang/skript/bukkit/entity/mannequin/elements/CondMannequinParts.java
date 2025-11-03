@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.mannequin.elements;
+package org.skriptlang.skript.bukkit.entity.mannequin.elements;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -16,7 +16,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mannequin;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.mannequin.elements.EffMannequinParts.MannequinPart;
+import org.skriptlang.skript.bukkit.entity.mannequin.elements.EffMannequinParts.MannequinPart;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 

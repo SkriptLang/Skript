@@ -1,5 +1,6 @@
-package org.skriptlang.skript.bukkit.mannequin.elements;
+package org.skriptlang.skript.bukkit.entity.mannequin.elements;
 
+import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -7,70 +8,91 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.util.ValidationResult;
 import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import io.papermc.paper.datacomponent.item.ResolvableProfile.SkinPatch;
+import net.kyori.adventure.key.Key;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mannequin;
 import org.bukkit.event.Event;
-import org.bukkit.profile.PlayerTextures.SkinModel;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.mannequin.ResolvableProfileBuilder;
-import org.skriptlang.skript.bukkit.mannequin.SkinPatchBuilder;
+import org.skriptlang.skript.bukkit.entity.mannequin.ResolvableProfileBuilder;
+import org.skriptlang.skript.bukkit.entity.mannequin.SkinPatchBuilder;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Mannequin Model")
-@Description("The skin model of a mannequin.")
-@Example("set the mannequin model to classic")
-@Example("set the mannequin skin model to slim")
+@Name("Mannequin Cape")
+@Description("""
+	The cape texture displayed on a mannequin.
+	The cape key is represented as a namespaced key.
+	A namespaced key can be formatted as 'namespace:id' or 'id'. \
+	It can only contain one ':' to separate the namespace and the id. \
+	Only alphanumeric characters, periods, underscores, and dashes can be used.
+	""")
+@Example("set the mannequin cape of {_mannequin} to \"custom:cape\"")
+@Example("clear the mannequin cape key of last spawned mannequin")
 @RequiredPlugins("Minecraft 1.21.9+")
 @Since("INSERT VERSION")
-public class ExprMannequinModel extends SimplePropertyExpression<Entity, SkinModel> {
+public class ExprMannequinCape extends SimplePropertyExpression<Entity, String> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
-				ExprMannequinModel.class,
-				SkinModel.class,
-				"mannequin [skin] model",
+				ExprMannequinCape.class,
+				String.class,
+				"mannequin cape [texture] [key]",
 				"entities",
 				false
-			).supplier(ExprMannequinModel::new)
+			).supplier(ExprMannequinCape::new)
 				.build()
 		);
 	}
 
 	@Override
 	@SuppressWarnings("UnstableApiUsage")
-	public @Nullable SkinModel convert(Entity entity) {
+	public @Nullable String convert(Entity entity) {
 		if (!(entity instanceof Mannequin mannequin))
 			return null;
 		SkinPatch skinPatch = mannequin.getProfile().skinPatch();
-		return skinPatch.model();
+		Key key = skinPatch.cape();
+		return key == null ? null : key.asString();
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
-			return CollectionUtils.array(SkinModel.class);
+			return CollectionUtils.array(String.class);
 		return null;
 	}
 
 	@Override
 	@SuppressWarnings("UnstableApiUsage")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		SkinModel model = delta == null ? null : (SkinModel) delta[0];
+		Key key = null;
+		if (delta != null) {
+			String string = (String) delta[0];
+			ValidationResult<NamespacedKey> result = NamespacedUtils.checkValidation(string);
+			String message = result.message();
+			if (!result.valid()) {
+				error(message + ". " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
+				return;
+			} else if (message != null) {
+				warning(message);
+			}
+			key = result.data();
+		}
 
 		for (Entity entity : getExpr().getArray(event)) {
 			if (!(entity instanceof Mannequin mannequin))
 				continue;
 			ResolvableProfile profile = mannequin.getProfile();
 			SkinPatch skinPatch = profile.skinPatch();
-			if (skinPatch.model() == model)
+			if (skinPatch.cape() == key)
 				continue;
 			SkinPatch newPatch = new SkinPatchBuilder(skinPatch)
-				.model(model)
+				.cape(key)
 				.build();
 			ResolvableProfile newProfile = new ResolvableProfileBuilder(profile)
 				.skinPatch(newPatch)
@@ -81,13 +103,13 @@ public class ExprMannequinModel extends SimplePropertyExpression<Entity, SkinMod
 	}
 
 	@Override
-	public Class<? extends SkinModel> getReturnType() {
-		return SkinModel.class;
+	public Class<? extends String> getReturnType() {
+		return String.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "mannequin model";
+		return "mannequin cape";
 	}
 
 }

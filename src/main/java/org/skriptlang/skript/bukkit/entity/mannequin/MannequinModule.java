@@ -1,9 +1,9 @@
-package org.skriptlang.skript.bukkit.mannequin;
+package org.skriptlang.skript.bukkit.entity.mannequin;
 
 import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.mannequin.elements.*;
+import org.skriptlang.skript.bukkit.entity.mannequin.elements.*;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Set;

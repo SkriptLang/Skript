@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.mannequin;
+package org.skriptlang.skript.bukkit.entity.mannequin;
 
 import io.papermc.paper.datacomponent.item.ResolvableProfile.SkinPatch;
 import net.kyori.adventure.key.Key;

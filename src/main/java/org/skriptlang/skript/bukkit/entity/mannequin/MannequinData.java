@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.mannequin;
+package org.skriptlang.skript.bukkit.entity.mannequin;
 
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;

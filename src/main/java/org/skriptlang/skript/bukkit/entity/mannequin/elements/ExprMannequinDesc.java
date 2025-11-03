@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.mannequin.elements;
+package org.skriptlang.skript.bukkit.entity.mannequin.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;

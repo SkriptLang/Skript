@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.mannequin.elements;
+package org.skriptlang.skript.bukkit.entity.mannequin.elements;
 
 import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -18,34 +18,34 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mannequin;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.mannequin.ResolvableProfileBuilder;
-import org.skriptlang.skript.bukkit.mannequin.SkinPatchBuilder;
+import org.skriptlang.skript.bukkit.entity.mannequin.ResolvableProfileBuilder;
+import org.skriptlang.skript.bukkit.entity.mannequin.SkinPatchBuilder;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Mannequin Body")
+@Name("Mannequin Elytra")
 @Description("""
-	The body texture displayed on a mannequin.
-	The body key is represented as a namespaced key.
+	The elytra texture displayed on a mannequin.
+	The elytra key is represented as a namespaced key.
 	A namespaced key can be formatted as 'namespace:id' or 'id'. \
 	It can only contain one ':' to separate the namespace and the id. \
 	Only alphanumeric characters, periods, underscores, and dashes can be used.
 	""")
-@Example("set the mannequin body of {_mannequin} to \"custom:body\"")
-@Example("clear the mannequin body key of last spawned mannequin")
+@Example("set the mannequin elytra of {_mannequin} to \"custom:elytra\"")
+@Example("clear the mannequin elytra key of last spawned mannequin")
 @RequiredPlugins("Minecraft 1.21.9+")
 @Since("INSERT VERSION")
-public class ExprMannequinBody extends SimplePropertyExpression<Entity, String> {
+public class ExprMannequinElytra extends SimplePropertyExpression<Entity, String> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
-				ExprMannequinBody.class,
+				ExprMannequinElytra.class,
 				String.class,
-				"mannequin body [texture] [key]",
+				"mannequin elytra [texture] [key]",
 				"entities",
 				false
-			).supplier(ExprMannequinBody::new)
+			).supplier(ExprMannequinElytra::new)
 				.build()
 		);
 	}
@@ -56,7 +56,7 @@ public class ExprMannequinBody extends SimplePropertyExpression<Entity, String> 
 		if (!(entity instanceof Mannequin mannequin))
 			return null;
 		SkinPatch skinPatch = mannequin.getProfile().skinPatch();
-		Key key = skinPatch.body();
+		Key key = skinPatch.elytra();
 		return key == null ? null : key.asString();
 	}
 
@@ -89,10 +89,10 @@ public class ExprMannequinBody extends SimplePropertyExpression<Entity, String> 
 				continue;
 			ResolvableProfile profile = mannequin.getProfile();
 			SkinPatch skinPatch = profile.skinPatch();
-			if (skinPatch.body() == key)
+			if (skinPatch.elytra() == key)
 				continue;
 			SkinPatch newPatch = new SkinPatchBuilder(skinPatch)
-				.body(key)
+				.elytra(key)
 				.build();
 			ResolvableProfile newProfile = new ResolvableProfileBuilder(profile)
 				.skinPatch(newPatch)
@@ -109,7 +109,7 @@ public class ExprMannequinBody extends SimplePropertyExpression<Entity, String> 
 
 	@Override
 	protected String getPropertyName() {
-		return "mannequin body";
+		return "mannequin elytra";
 	}
 
 }
