@@ -24,7 +24,6 @@ public class EvtSpectate extends SkriptEvent {
 						"[player] start spectating [of %-*entitydatas%]")
 					.description("Called with a player starts, stops or swaps spectating an entity.")
 					.examples("on player start spectating of a zombie:")
-					.requiredPlugins("Paper")
 					.since("2.7");
 	}
 

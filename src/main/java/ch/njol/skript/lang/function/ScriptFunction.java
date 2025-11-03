@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.util.Arrays;
+
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	private final Trigger trigger;
@@ -37,11 +39,11 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		try {
 			hintManager.enterScope(false);
 			for (Parameter<?> parameter : sign.getParameters()) {
-				String hintName = parameter.getName();
+				String hintName = parameter.name();
 				if (!parameter.isSingleValue()) {
 					hintName += Variable.SEPARATOR + "*";
 				}
-				hintManager.set(hintName, parameter.getType().getC());
+				hintManager.set(hintName, parameter.type());
 			}
 			trigger = loadReturnableTrigger(node, "function " + sign.getName(), new SimpleEvent());
 		} finally {
@@ -61,10 +63,22 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			Object[] val = params[i];
 			if (parameter.single && val.length > 0) {
 				Variables.setVariable(parameter.name, val[0], event, true);
-			} else {
+				continue;
+			}
+
+			boolean keyed = Arrays.stream(val).allMatch(it -> it instanceof KeyedValue<?>);
+			if (keyed) {
 				for (Object value : val) {
 					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
-					Variables.setVariable(parameter.name + "::" + keyedValue.key(), keyedValue.value(), event, true);
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
+				}
+			} else {
+				int count = 0;
+				for (Object value : val) {
+					// backup for if the passed argument is not a keyed value.
+					// an example of this is passing `xs: integers = (1, 2)` as a parameter.
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + count, value, event, true);
+					count++;
 				}
 			}
 		}

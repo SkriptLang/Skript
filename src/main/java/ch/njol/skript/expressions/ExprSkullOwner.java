@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Name("Skull Owner")
@@ -39,13 +40,25 @@ public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlay
 	@Override
 	public @Nullable OfflinePlayer convert(Object object) {
 		if (object instanceof Block block && block.getState() instanceof Skull skull) {
-			return skull.getOwningPlayer();
+			return getOfflinePlayer(skull.getPlayerProfile());
 		} else {
 			ItemStack skullItem = ItemUtils.asItemStack(object);
 			if (skullItem == null || !(skullItem.getItemMeta() instanceof SkullMeta skullMeta))
 				return null;
-			return skullMeta.getOwningPlayer();
+			return getOfflinePlayer(skullMeta.getPlayerProfile());
 		}
+	}
+
+	private @Nullable OfflinePlayer getOfflinePlayer(com.destroystokyo.paper.profile.PlayerProfile profile) {
+		if (profile == null)
+			return null;
+		UUID uuid = profile.getId();
+		if (uuid != null)
+			return Bukkit.getOfflinePlayer(uuid);
+		String name = profile.getName();
+		if (name != null)
+			return Bukkit.getOfflinePlayer(name);
+		return null;
 	}
 
 	@Override

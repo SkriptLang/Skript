@@ -10,6 +10,7 @@ import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
@@ -38,8 +39,7 @@ public class DisplayData extends EntityData<Display> {
 		ITEM("org.bukkit.entity.ItemDisplay", "item display"),
 		TEXT("org.bukkit.entity.TextDisplay", "text display");
 
-		@Nullable
-		private Class<? extends Display> displaySubClass;
+		private @Nullable Class<? extends Display> displaySubClass;
 		private final String codeName;
 		
 		@SuppressWarnings("unchecked")
@@ -68,33 +68,29 @@ public class DisplayData extends EntityData<Display> {
 
 	private DisplayType type = DisplayType.ANY;
 
-	@Nullable
-	private BlockData blockData;
+	private @Nullable BlockData blockData;
 
-	@Nullable
-	private ItemStack item;
+	private @Nullable ItemStack item;
 
-	@Nullable
-	private String text;
+	private @Nullable String text;
 
 	public DisplayData() {}
 
 	public DisplayData(DisplayType type) {
 		this.type = type;
-		this.matchedPattern = type.ordinal();
+		this.codeNameIndex = type.ordinal();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		type = DisplayType.values()[matchedPattern];
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		type = DisplayType.values()[matchedCodeName];
 		// default to 0, use 1 for alternate pattern: %x% display instead of display of %x%
-		int exprIndex = parseResult.hasTag("alt") ? 1 : 0;
-		if (exprs.length == 0 || exprs[exprIndex] == null)
+		if (exprs.length == 0 || exprs[0] == null)
 			return true;
 
 		if (type == DisplayType.BLOCK) {
-			Object object = ((Literal<Object>) exprs[exprIndex]).getSingle();
+			Object object = ((Literal<Object>) exprs[0]).getSingle();
 			if (object instanceof ItemType itemType) {
 				if (!itemType.hasBlock()) {
 					Skript.error("A block display must be of a block item. " + Classes.toString(itemType.getMaterial()) + " is not a block. If you want to display an item, use an 'item display'.");
@@ -105,7 +101,7 @@ public class DisplayData extends EntityData<Display> {
 				blockData = (BlockData) object;
 			}
 		} else if (type == DisplayType.ITEM) {
-			ItemType itemType = ((Literal<ItemType>) exprs[exprIndex]).getSingle();
+			ItemType itemType = ((Literal<ItemType>) exprs[0]).getSingle();
 			if (!itemType.hasItem()) {
 				Skript.error("An item display must be of a valid item. " + Classes.toString(itemType.getMaterial()) + " is not a valid item. If you want to display a block, use a 'block display'.");
 				return false;
@@ -192,13 +188,18 @@ public class DisplayData extends EntityData<Display> {
 	}
 
 	@Override
+	public @NotNull EntityData<?> getSuperType() {
+		return new DisplayData(DisplayType.ANY);
+	}
+
+	@Override
 	protected int hashCode_i() {
 		return type.hashCode();
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (obj instanceof DisplayData other)
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (entityData instanceof DisplayData other)
 			return type == other.type;
 		return false;
 	}
@@ -211,8 +212,8 @@ public class DisplayData extends EntityData<Display> {
 	}
 
 	@Override
-	public @NotNull EntityData<?> getSuperType() {
-		return new DisplayData(DisplayType.ANY);
+	public boolean canSpawn(@Nullable World world) {
+		return type != DisplayType.ANY;
 	}
 
 }

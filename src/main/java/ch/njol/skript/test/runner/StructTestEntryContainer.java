@@ -23,6 +23,7 @@ public class StructTestEntryContainer extends Structure {
 			Skript.registerStructure(StructTestEntryContainer.class,
 				EntryValidator.builder()
 					.addSection("has entry", true)
+					.addSection("has multiple entries", true, true)
 					.build(),
 				"test entry container");
 	}
@@ -30,10 +31,12 @@ public class StructTestEntryContainer extends Structure {
 	private EntryContainer entryContainer;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+	public boolean init(
+		Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer
+	) {
 		assert entryContainer != null;
 		this.entryContainer = entryContainer;
-		if (entryContainer.hasEntry("has entry")) {
+		if (entryContainer.hasEntry("has entry") && entryContainer.hasEntry("has multiple entries")) {
 			return true;
 		}
 		assert false;
@@ -47,6 +50,16 @@ public class StructTestEntryContainer extends Structure {
 		Script script = getParser().getCurrentScript();
 		Trigger trigger = new Trigger(script, "entry container test", null, triggerItems);
 		trigger.execute(new SkriptTestEvent());
+
+		List<SectionNode> multipleSections = entryContainer.getAll(
+			"has multiple entries", SectionNode.class, false
+		);
+		for (SectionNode multipleSection : multipleSections) {
+			triggerItems = ScriptLoader.loadItems(multipleSection);
+			trigger = new Trigger(script, "entry container test", null, triggerItems);
+			trigger.execute(new SkriptTestEvent());
+		}
+
 		return true;
 	}
 
