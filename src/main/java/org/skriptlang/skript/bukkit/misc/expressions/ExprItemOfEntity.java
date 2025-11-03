@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.misc.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,25 +16,32 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.ThrowableProjectile;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item of an Entity")
-@Description({
-	"An item associated with an entity. For dropped item entities, it gets the item that was dropped.",
-	"For item frames, the item inside the frame is returned.",
-	"For throwable projectiles (snowballs, enderpearls etc.) or item displays, it gets the displayed item.",
-	"Other entities do not have items associated with them."
-})
-@Examples({
-	"item of event-entity",
-	"",
-	"set the item inside of event-entity to a diamond sword named \"Example\""
-})
+@Description("""
+	An item associated with an entity. For dropped item entities, it gets the item that was dropped.
+	For item frames, the item inside the frame is returned.
+	For throwable projectiles (snowballs, enderpearls etc.) or item displays, it gets the displayed item.
+	Other entities do not have items associated with them.
+	""")
+@Example("item of event-entity")
+@Example("set the item inside of event-entity to a diamond sword named \"Example\"")
 @Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), 2.10 (item displays)")
 public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
-
-	static {
-		register(ExprItemOfEntity.class, Slot.class, "item [inside]", "entities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprItemOfEntity.class,
+				Slot.class,
+				"item [inside]",
+				"entities",
+				false
+			).supplier(ExprItemOfEntity::new)
+				.build()
+		);
 	}
 
 	@Override

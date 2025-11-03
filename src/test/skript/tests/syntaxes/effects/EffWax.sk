@@ -24,3 +24,16 @@ test "wax copper blocks":
 		assert test-block is tagged with {_waxTag} with "%loop-value% should be waxed, but was %type of test-block%"
 
 	set the block data of test-block to {_old}
+
+test "wax copper chest" when running minecraft "1.21.9":
+	set {_old} to the block data of test-block
+
+	set test-block to a copper chest
+	set slot 1 of inventory of test-block to a diamond
+	assert slot 1 of inventory of test-block is a diamond with "Diamond was not initially set into inventory"
+	wax test-block
+	assert slot 1 of inventory of test-block is a diamond with "Inventory did not retain items when being waxed"
+	unwax test-block
+	assert slot 1 of inventory of test-block is a diamond with "Inventory did not retain items when being unwaxed"
+
+	set the block data of test-block to {_old}

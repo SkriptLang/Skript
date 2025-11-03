@@ -4,17 +4,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.PatternedParser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import org.skriptlang.skript.bukkit.paperutil.CopperState;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
@@ -28,16 +23,10 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.CopperGolemStatue;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.EntitySnapshot;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -63,14 +52,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.BlockClassInfo;
-import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
+import org.skriptlang.skript.bukkit.base.types.*;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
-import org.skriptlang.skript.bukkit.base.types.InventoryClassInfo;
-import org.skriptlang.skript.bukkit.base.types.ItemStackClassInfo;
-import org.skriptlang.skript.bukkit.base.types.NameableClassInfo;
-import org.skriptlang.skript.bukkit.base.types.OfflinePlayerClassInfo;
-import org.skriptlang.skript.bukkit.base.types.PlayerClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
@@ -1156,24 +1139,6 @@ public class BukkitClasses {
 			.description("Represents a reason why a villager changed its career.")
 			.since("2.12")
 		);
-
-		//noinspection unchecked,rawtypes
-		Classes.registerClass(new EnumClassInfo<>((Class) CopperState.getStateClass(), "weatheringcopperstate", "weathering copper states")
-			.user("(weathering ?)?copper ?states?")
-			.name("Weathering Copper State")
-			.description("The weathering state of a copper golem or copper block.")
-			.since("INSERT VERSION")
-		);
-
-		if (Skript.classExists("org.bukkit.block.data.type.CopperGolemStatue$Pose")) {
-			Classes.registerClass(new EnumClassInfo<>(CopperGolemStatue.Pose.class, "coppergolempose", "copper golem poses")
-				.user("copper ?golem ?(statue ?)?poses?")
-				.name("Copper Golem Pose")
-				.description("The pose of a copper golem statue.")
-				.requiredPlugins("Minecraft 1.21.9+")
-				.since("INSERT VERSION")
-			);
-		}
 
 	}
 }

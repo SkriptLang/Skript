@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Utility class for reflection.
  */
-public class ReflectUtils {
+public final class ReflectUtils {
 
 	public ReflectUtils() {}
 

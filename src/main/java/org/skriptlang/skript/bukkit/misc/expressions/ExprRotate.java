@@ -1,14 +1,13 @@
 package org.skriptlang.skript.bukkit.misc.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -21,37 +20,43 @@ import org.skriptlang.skript.bukkit.misc.rotation.NonMutatingQuaternionRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.NonMutatingVectorRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator.Axis;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Locale;
 import java.util.Objects;
 
 @Name("Rotated Quaternion/Vector")
-@Description({
-	"Rotates a quaternion or vector around an axis a set amount of degrees, or around all 3 axes at once.",
-	"Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.",
-	"Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axes at once.",
-	"Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.",
-	"",
-	"Note that rotating a quaternion around a vector results in a rotation around the local vector, so results may not be what you expect. " +
-	"For example, rotating around vector(1, 0, 0) is the same as rotating around the local X axis.",
-	"The same applies to rotations by all three axes at once. " +
-	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
-})
-@Examples({
-	"set {_new} to {_quaternion} rotated around x axis by 10 degrees",
-	"set {_new} to {_vector} rotated around vector(1, 1, 1) by 45",
-	"set {_new} to {_quaternion} rotated by x 45, y 90, z 135"
-})
+@Description("""
+	Rotates a quaternion or vector around an axis a set amount of degrees, or around all 3 axes at once.
+	Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.
+	Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axes at once.
+	Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.
+	
+	Note that rotating a quaternion around a vector results in a rotation around the local vector, so results may not be what you expect.
+	For example, rotating around vector(1, 0, 0) is the same as rotating around the local X axis.
+	The same applies to rotations by all three axes at once.
+	In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last.
+	""")
+@Example("set {_new} to {_quaternion} rotated around x axis by 10 degrees")
+@Example("set {_new} to {_vector} rotated around vector(1, 1, 1) by 45")
+@Example("set {_new} to {_quaternion} rotated by x 45, y 90, z 135")
 @Since("2.10")
 public class ExprRotate extends SimpleExpression<Object> {
 
-	static {
-		Skript.registerExpression(ExprRotate.class, Object.class, ExpressionType.SIMPLE,
-				"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number%",
-				"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
-				"%quaternions/vectors% rotated around [the] %vector% by %number%",
-				"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprRotate.class, Object.class)
+				.addPatterns(
+					"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number%",
+					"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
+					"%quaternions/vectors% rotated around [the] %vector% by %number%",
+					"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%"
+				)
+				.supplier(ExprRotate::new)
+				.build()
+		);
 	}
 
 	private Expression<?> toRotate;

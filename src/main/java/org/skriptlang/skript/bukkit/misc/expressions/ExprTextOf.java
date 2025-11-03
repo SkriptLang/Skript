@@ -1,14 +1,8 @@
 package org.skriptlang.skript.bukkit.misc.expressions;
 
-import org.bukkit.entity.TextDisplay;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.ServerPlatform;
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -17,30 +11,34 @@ import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Of")
-@Description({
-	"Returns or changes the <a href='#string'>text/string</a> of <a href='#display'>displays</a>.",
-	"Note that currently you can only use Skript chat codes when running Paper."
-})
-@Examples("set text of the last spawned text display to \"example\"")
+@Description("""
+	Returns or changes the <a href='#string'>text/string</a> of <a href='#display'>displays</a>.
+	Note that currently you can only use Skript chat codes when running Paper.
+	""")
+@Example("set text of the last spawned text display to \"example\"")
 @Since("2.10")
 public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 
-	private static final boolean IS_RUNNING_PAPER = Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER;
-	private static BungeeComponentSerializer serializer;
+	private static final BungeeComponentSerializer SERIALIZER = BungeeComponentSerializer.get();
 
-	static {
-		String types = "";
-		if (Skript.classExists("org.bukkit.entity.Display")) {
-			if (IS_RUNNING_PAPER)
-				serializer = BungeeComponentSerializer.get();
-			types += "displays";
-		}
-		// This is because this expression is setup to support future types.
-		// Remove this if non-versioning.
-		if (!types.isEmpty())
-			register(ExprTextOf.class, String.class, "text[s]", types);
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprTextOf.class,
+				String.class,
+				"text[s]",
+				"displays",
+				false
+			).supplier(ExprTextOf::new)
+				.build()
+		);
 	}
 
 	@Override
@@ -64,9 +62,9 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 		for (Object object : getExpr().getArray(event)) {
 			if (!(object instanceof TextDisplay textDisplay))
 				continue;
-			if (IS_RUNNING_PAPER && serializer != null && value != null) {
+			if (SERIALIZER != null && value != null) {
 				BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(value));
-				textDisplay.text(serializer.deserialize(components));
+				textDisplay.text(SERIALIZER.deserialize(components));
 			} else {
 				textDisplay.setText(value);
 			}

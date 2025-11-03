@@ -1,6 +1,6 @@
-package ch.njol.skript.entity;
+package org.skriptlang.skript.bukkit.entity.coppergolem;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.Language;
@@ -15,9 +15,8 @@ import java.util.Objects;
 
 public class CopperGolemData extends EntityData<CopperGolem> {
 
-	static {
-		if (Skript.classExists("org.bukkit.entity.CopperGolem"))
-			register(CopperGolemData.class, "copper golem", CopperGolem.class, 0, "copper golem");
+	public static void register() {
+		register(CopperGolemData.class, "copper golem", CopperGolem.class, 0, "copper golem");
 	}
 
 	private Kleenean waxed = Kleenean.UNKNOWN;

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.elements.conditions;
+package org.skriptlang.skript.bukkit.misc.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -30,12 +30,12 @@ public class CondIsWaxed extends PropertyCondition<Object> {
 	private static final boolean COPPER_GOLEM_EXISTS = Skript.classExists("org.bukkit.entity.CopperGolem");
 
 	public static void register(SyntaxRegistry registry) {
-		String type = "blocks";
+		String types = "blocks";
 		if (Skript.classExists("org.bukkit.entity.CopperGolem"))
-			type = "entities/blocks";
+			types = "entities/blocks";
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			infoBuilder(CondIsWaxed.class, PropertyType.BE, "waxed", type)
+			infoBuilder(CondIsWaxed.class, PropertyType.BE, "waxed", types)
 				.supplier(CondIsWaxed::new)
 				.build()
 		);

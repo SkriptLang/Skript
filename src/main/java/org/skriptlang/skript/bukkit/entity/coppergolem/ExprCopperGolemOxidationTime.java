@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.elements.expressions;
+package org.skriptlang.skript.bukkit.entity.coppergolem;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;

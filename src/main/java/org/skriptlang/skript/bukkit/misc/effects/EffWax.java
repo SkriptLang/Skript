@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.elements.effects;
+package org.skriptlang.skript.bukkit.misc.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -14,12 +14,14 @@ import ch.njol.util.Kleenean;
 import com.destroystokyo.paper.MaterialTags;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import io.papermc.paper.block.TileStateInventoryHolder;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.CopperGolem.Oxidizing;
 import org.bukkit.entity.CopperGolem.Oxidizing.Waxed;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -44,6 +46,7 @@ public class EffWax extends Effect {
 	private static final BiMap<Material, Material> WAX_CONVERSION;
 	private static final BiMap<Material, Material> UNWAX_CONVERSION = HashBiMap.create();
 	private static final boolean COPPER_GOLEM_EXISTS = Skript.classExists("org.bukkit.entity.CopperGolem");
+	private static final boolean COPPER_CHEST_EXISTS = Skript.fieldExists(Material.class, "COPPER_CHEST");
 
 	static {
 		for (Material waxed : MaterialTags.WAXED_COPPER_BLOCKS.getValues()) {
@@ -54,32 +57,32 @@ public class EffWax extends Effect {
 	}
 
 	public static void register(SyntaxRegistry registry) {
-		String type = "%blocks%";
+		String types = "%blocks%";
 		if (COPPER_GOLEM_EXISTS)
-			type = "%entities/blocks%";
+			types = "%entities/blocks%";
 
 		registry.register(
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffWax.class)
-				.addPatterns("[:un]wax " + type)
+				.addPatterns("[:un]wax " + types)
 				.supplier(EffWax::new)
 				.build()
 		);
 	}
 
 	private boolean wax;
-	private Expression<?> objects;
+	private Expression<?> waxables;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		objects = exprs[0];
+		waxables = exprs[0];
 		wax = !parseResult.hasTag("un");
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (Object object : objects.getArray(event)) {
+		for (Object object : waxables.getArray(event)) {
 			if (COPPER_GOLEM_EXISTS && object instanceof CopperGolem golem) {
 				boolean isWaxed = golem.getOxidizing() instanceof Waxed;
 				if (wax == isWaxed)
@@ -93,7 +96,14 @@ public class EffWax extends Effect {
 				if (conversion.containsKey(block.getType())) {
 					Material material = conversion.get(block.getType());
 					assert material != null;
-					block.setType(material);
+					if (COPPER_CHEST_EXISTS && block.getState() instanceof TileStateInventoryHolder inventoryHolder) {
+						Inventory inventory = inventoryHolder.getInventory();
+						block.setType(material);
+						TileStateInventoryHolder newHolder = (TileStateInventoryHolder) block.getState();
+						newHolder.getInventory().setStorageContents(inventory.getContents());
+					} else {
+						block.setType(material);
+					}
 				}
 			}
 		}
@@ -107,7 +117,7 @@ public class EffWax extends Effect {
 		} else {
 			builder.append("unwax");
 		}
-		builder.append(objects);
+		builder.append(waxables);
 		return builder.toString();
 	}
 

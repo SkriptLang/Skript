@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.paperutil;
 
 import ch.njol.skript.Skript;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.skriptlang.skript.bukkit.elements.expressions.ExprCopperState;
+import org.skriptlang.skript.bukkit.misc.expressions.ExprCopperState;
 
 import java.lang.reflect.Method;
 

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.elements.expressions;
+package org.skriptlang.skript.bukkit.misc.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -10,11 +10,13 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.MaterialTags;
+import io.papermc.paper.block.TileStateInventoryHolder;
 import io.papermc.paper.world.WeatheringCopperState;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.paperutil.CopperState;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -45,6 +47,7 @@ public class ExprCopperState extends SimplePropertyExpression<Object, Object> {
 	private static final CopperStateMaterialMap STATE_MATERIALS = new CopperStateMaterialMap();
 	private static final List<String> STATE_REPLACEMENTS = new ArrayList<>();
 	private static final boolean COPPER_GOLEM_EXISTS = Skript.classExists("org.bukkit.entity.CopperGolem");
+	private static final boolean COPPER_CHEST_EXISTS = Skript.fieldExists(Material.class, "COPPER_CHEST");
 
 	static {
 		for (Enum<?> state : CopperState.getValues()) {
@@ -143,8 +146,16 @@ public class ExprCopperState extends SimplePropertyExpression<Object, Object> {
 				golem.setWeatheringState((WeatheringCopperState) state);
 			} else if (object instanceof Block block) {
 				Material material = getConvertedCopperMaterial(block.getType(), state);
-				if (material != null)
-					block.setType(material);
+				if (material != null) {
+					if (COPPER_CHEST_EXISTS && block.getState() instanceof TileStateInventoryHolder inventoryHolder) {
+						Inventory inventory = inventoryHolder.getInventory();
+						block.setType(material);
+						TileStateInventoryHolder newHolder = (TileStateInventoryHolder) block.getState();
+						newHolder.getInventory().setStorageContents(inventory.getStorageContents());
+					} else {
+						block.setType(material);
+					}
+				}
 			}
 		}
 	}
