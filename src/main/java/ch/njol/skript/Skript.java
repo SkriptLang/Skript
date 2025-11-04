@@ -124,11 +124,13 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.ClassLoader;
+import org.skriptlang.skript.util.ReflectUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -189,6 +191,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static org.skriptlang.skript.@UnknownNullability Skript skript = null;
 	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
+	private static final ReflectUtils REFLECT_UTILS = new ReflectUtils();
 
 	private static boolean disabled = false;
 	private static boolean partDisabled = false;
@@ -854,7 +857,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			};
 		}
-  	}
+	}
 
 	private void runTests() {
 		info("Skript testing environment enabled, starting...");
@@ -1126,80 +1129,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			updateMinecraftVersion();
 		}
 		return minecraftVersion.compareTo(v) >= 0;
-	}
-
-	/**
-	 * Tests whether a given class exists in the classpath.
-	 *
-	 * @param className The {@link Class#getCanonicalName() canonical name} of the class
-	 * @return Whether the given class exists.
-	 */
-	public static boolean classExists(final String className) {
-		try {
-			Class.forName(className);
-			return true;
-		} catch (final ClassNotFoundException e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Tests whether a method exists in the given class.
-	 *
-	 * @param c The class
-	 * @param methodName The name of the method
-	 * @param parameterTypes The parameter types of the method
-	 * @return Whether the given method exists.
-	 */
-	public static boolean methodExists(final Class<?> c, final String methodName, final Class<?>... parameterTypes) {
-		try {
-			c.getDeclaredMethod(methodName, parameterTypes);
-			return true;
-		} catch (final NoSuchMethodException e) {
-			return false;
-		} catch (final SecurityException e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Tests whether a method exists in the given class, and whether the return type matches the expected one.
-	 * <p>
-	 * Note that this method doesn't work properly if multiple methods with the same name and parameters exist but have different return types.
-	 *
-	 * @param c The class
-	 * @param methodName The name of the method
-	 * @param parameterTypes The parameter types of the method
-	 * @param returnType The expected return type
-	 * @return Whether the given method exists.
-	 */
-	public static boolean methodExists(final Class<?> c, final String methodName, final Class<?>[] parameterTypes, final Class<?> returnType) {
-		try {
-			final Method m = c.getDeclaredMethod(methodName, parameterTypes);
-			return m.getReturnType() == returnType;
-		} catch (final NoSuchMethodException e) {
-			return false;
-		} catch (final SecurityException e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Tests whether a field exists in the given class.
-	 *
-	 * @param c The class
-	 * @param fieldName The name of the field
-	 * @return Whether the given field exists.
-	 */
-	public static boolean fieldExists(final Class<?> c, final String fieldName) {
-		try {
-			c.getDeclaredField(fieldName);
-			return true;
-		} catch (final NoSuchFieldException e) {
-			return false;
-		} catch (final SecurityException e) {
-			return false;
-		}
 	}
 
 	@Nullable
@@ -2140,5 +2069,136 @@ public final class Skript extends JavaPlugin implements Listener {
 	public SkriptUpdater getUpdater() {
 		return updater;
 	}
+
+	//<editor-fold desc="Reflect Utils">
+	/**
+	 * Tests whether a given class exists in the classpath.
+	 *
+	 * @param className The {@link Class#getCanonicalName() canonical name} of the class
+	 * @return Whether the given class exists.
+	 */
+	public static boolean classExists(String className) {
+		return REFLECT_UTILS.classExists(className);
+	}
+
+	/**
+	 * @param className The full package and class name.
+	 * @return The resulting {@link Class} if found, otherwise {@code null}.
+	 */
+	public static @Nullable Class<?> getClass(String className) {
+		return REFLECT_UTILS.getClass(className);
+	}
+
+	/**
+	 * Tests whether a method exists in the given class.
+	 *
+	 * @param c The class
+	 * @param methodName The name of the method
+	 * @param parameterTypes The parameter types of the method
+	 * @return Whether the given method exists.
+	 */
+	public static boolean methodExists(Class<?> c, String methodName, Class<?> @Nullable ... parameterTypes) {
+		return REFLECT_UTILS.methodExists(c, methodName, parameterTypes);
+	}
+
+	/**
+	 * Tests whether a method exists in the given class, and whether the return type matches the expected one.
+	 * <p>
+	 * Note that this method doesn't work properly if multiple methods with the same name and parameters exist but have different return types.
+	 *
+	 * @param c The class
+	 * @param methodName The name of the method
+	 * @param parameterTypes The parameter types of the method
+	 * @param returnType The expected return type
+	 * @return Whether the given method exists.
+	 */
+	public static boolean methodExists(Class<?> c, String methodName, Class<?> @Nullable [] parameterTypes, Class<?> returnType) {
+		return REFLECT_UTILS.methodExists(c, methodName, parameterTypes, returnType);
+	}
+
+	/**
+	 * @param c The {@link Class} to get the method from.
+	 * @param methodName The name of the method.
+	 * @param params The {@link Class}es used as parameters for the desired method.
+	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
+	 */
+	public static @Nullable Method getMethod(Class<?> c, String methodName, Class<?> @Nullable ... params) {
+		return REFLECT_UTILS.getMethod(c, methodName, params);
+	}
+
+	/**
+	 * @param c The {@link Class} to get the method from.
+	 * @param methodName The name of the method.
+	 * @param params The {@link Class}es used as parameters for the desired method.
+	 * @param returnType The return type of the desired method.
+	 * @return The resulting {@link Method} if it exists, otherwise {@code null}.
+	 */
+	public static @Nullable Method getMethod(Class<?> c, String methodName, Class<?> @Nullable [] params, @Nullable Class<?> returnType) {
+		return REFLECT_UTILS.getMethod(c, methodName, params, returnType);
+	}
+
+	/**
+	 * Tests whether a field exists in the given class.
+	 *
+	 * @param c The class
+	 * @param fieldName The name of the field
+	 * @return Whether the given field exists.
+	 */
+	public static boolean fieldExists(Class<?> c, String fieldName) {
+		return REFLECT_UTILS.fieldExists(c, fieldName);
+	}
+
+	/**
+	 * @param c The {@link Class} to get the field from.
+	 * @param fieldName The name of the field.
+	 * @return The resulting {@link Field} if it exists, otherwise {@code null}.
+	 */
+	public static @Nullable Field getField(Class<?> c, String fieldName) {
+		return REFLECT_UTILS.getField(c, fieldName);
+	}
+
+	/**
+	 * Invoke a static {@link Method}.
+	 * @param method The {@link Method} to invoke.
+	 * @return The result of the invocation if successful, otherwise {@code null}.
+	 * @param <Type> The expected return type from the invocation.
+	 */
+	public static <Type> @Nullable Type invokeMethod(Method method) {
+		return REFLECT_UTILS.invokeMethod(method);
+	}
+
+	/**
+	 * Invoke a {@link Method}.
+	 * @param method The {@link Method} to invoke.
+	 * @param holder The holder object to invoke for.
+	 * @param params The parameters to pass into the invocation.
+	 * @return The result of the invocation if successful, otherwise {@code null}.
+	 * @param <Type> The expected return type from the invocation.
+	 */
+	public static <Type> @Nullable Type invokeMethod(Method method, @Nullable Object holder, Object @Nullable ... params) {
+		return REFLECT_UTILS.invokeMethod(method, holder, params);
+	}
+
+	/**
+	 * Gets the values of a static {@link Field}.
+	 * @param field The {@link Field} to get from.
+	 * @return The value of the {@link Field}.
+	 * @param <Type> The expected return type.
+	 */
+	public static <Type> @Nullable Type getFieldValue(Field field) {
+		return REFLECT_UTILS.getFieldValue(field);
+	}
+
+	/**
+	 * Gets the values of a {@link Field}.
+	 * @param field The {@link Field} to get from.
+	 * @param holder The holder object to get the field for.
+	 * @return The value of the {@link Field}.
+	 * @param <Type> The expected return type.
+	 */
+	public static <Type> @Nullable Type getFieldValue(Field field, @Nullable Object holder) {
+		return REFLECT_UTILS.getFieldValue(field, holder);
+	}
+	//</editor-fold>
 
 }
