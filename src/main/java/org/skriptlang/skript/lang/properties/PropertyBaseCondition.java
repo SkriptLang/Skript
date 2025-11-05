@@ -11,7 +11,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.properties.conditions.PropCondIsEmpty;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
 
 /**
  * A helper class for implementing property-driven conditions. Only {@link #getProperty()} needs to be implemented.

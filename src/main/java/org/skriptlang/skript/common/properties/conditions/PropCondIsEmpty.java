@@ -4,7 +4,7 @@ import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseCondition;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
 
 @Name("Is Empty")
 @Description("Checks whether something is empty.")
