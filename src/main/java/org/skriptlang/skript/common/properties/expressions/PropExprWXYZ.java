@@ -16,7 +16,7 @@ import java.util.Locale;
 public class PropExprWXYZ extends PropertyBaseExpression<WXYZHandler<?, ?>> {
 
 	static {
-		register(PropExprWXYZ.class, "(:x|:y|:z|:w)( |-)[component[s]|coord[inate][s]]", "objects");
+		register(PropExprWXYZ.class, "(:x|:y|:z|:w)( |-)[component[s]|coord[inate][s]|dep:(pos[ition[s]]|loc[ation][s])]", "objects");
 	}
 
 	private Axis axis;
@@ -42,12 +42,12 @@ public class PropExprWXYZ extends PropertyBaseExpression<WXYZHandler<?, ?>> {
 
 		// ensure we have at least one handler left
 		if (properties.isEmpty()) {
-			Skript.error("None of the types returned by " + expr + " support the " + axis.name().toLowerCase(Locale.ENGLISH) + " axis.");
+			Skript.error("None of the types returned by " + expr + " have an " + axis.name().toLowerCase(Locale.ENGLISH) + " axis component.");
 			return false;
 		}
-		// warn about deprecated syntax
+		// warn about deprecated syntax (remove in INSERT VERSION + 2)
 		if (parseResult.hasTag("dep")) {
-			Skript.warning("Using 'pos[ition]' or 'loc[ation]' to refer to specific coordinates is deprecated. " +
+			Skript.warning("Using 'pos[ition]' or 'loc[ation]' to refer to specific coordinates is deprecated and will be removed. " +
 							"Please use 'coord[inate]', 'component[s]' or just the axis name 'x of {loc}' instead.");
 		}
 		return true;

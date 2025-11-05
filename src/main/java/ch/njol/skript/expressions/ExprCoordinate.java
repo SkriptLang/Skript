@@ -29,7 +29,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Location, Number> {
 	
 	static {
 		if (!SkriptConfig.useTypeProperties.value())
-			register(ExprCoordinate.class, Number.class, "(0¦x|1¦y|2¦z)(-| )()[s]", "locations");
+			register(ExprCoordinate.class, Number.class, "(0¦x|1¦y|2¦z)(-| )(coord[inate]|pos[ition]|loc[ation])[s]", "locations");
 	}
 	
 	private final static char[] axes = {'x', 'y', 'z'};
