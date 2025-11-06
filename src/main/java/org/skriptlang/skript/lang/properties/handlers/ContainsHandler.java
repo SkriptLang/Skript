@@ -15,6 +15,7 @@ import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
  */
 @ApiStatus.Experimental
 public interface ContainsHandler<Container, Element> extends PropertyHandler<Container> {
+
 	/**
 	 * Checks if the given container contains the given element.
 	 *
@@ -49,4 +50,5 @@ public interface ContainsHandler<Container, Element> extends PropertyHandler<Con
 		}
 		return false;
 	}
+
 }

@@ -18,6 +18,7 @@ import java.util.function.Predicate;
  */
 @ApiStatus.Experimental
 public interface ConditionPropertyHandler<Type> extends PropertyHandler<Type> {
+
 	boolean check(Type propertyHolder);
 
 	/**
@@ -33,4 +34,5 @@ public interface ConditionPropertyHandler<Type> extends PropertyHandler<Type> {
 	) {
 		return predicate::test;
 	}
+
 }

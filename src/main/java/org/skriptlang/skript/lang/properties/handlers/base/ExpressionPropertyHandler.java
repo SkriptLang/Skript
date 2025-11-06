@@ -119,4 +119,5 @@ public interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHan
 			}
 		};
 	}
+
 }

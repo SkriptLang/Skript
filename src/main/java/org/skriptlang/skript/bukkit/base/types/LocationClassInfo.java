@@ -38,7 +38,7 @@ public class LocationClassInfo extends ClassInfo<Location> {
 			.serializer(new LocationSerializer())
 			.cloner(Location::clone)
 			.property(Property.WXYZ,
-				"X, Y, or Z coordinate of the location.",
+				"The X, Y, or Z coordinate of the location.",
 				Skript.instance(),
 				new LocationWXYZHandler());
 

@@ -251,7 +251,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	 */
 	public static final Property<WXYZHandler<?, ?>> WXYZ = Property.of(
 			"wxyz component",
-			"The W, X, Y, or Z components of something, say the x coordinate of a location or vector.",
+			"The W, X, Y, or Z components of something, e.g. the x coordinate of a location or vector.",
 			"INSERT VERSION",
 			Skript.instance(),
 			WXYZHandler.class);

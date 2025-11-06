@@ -46,4 +46,5 @@ public interface TypedValueHandler<Type, ValueType> extends ExpressionPropertyHa
 			return Converters.convert(value, typeClass);
 		}
 	}
+
 }
