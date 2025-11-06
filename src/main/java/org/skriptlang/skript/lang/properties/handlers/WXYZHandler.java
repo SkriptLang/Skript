@@ -34,5 +34,4 @@ public abstract class WXYZHandler<Type, ValueType> implements ExpressionProperty
 		return axis;
 	}
 
-
 }
