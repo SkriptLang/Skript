@@ -37,8 +37,8 @@ public class ExprNearestEntity extends SimpleExpression<Entity> {
 
 	static {
 		Skript.registerExpression(ExprNearestEntity.class, Entity.class, ExpressionType.COMBINED,
-				"[the] nearest %*entitydatas% [[relative] to %entity/location%]",
-				"[the] %*entitydatas% nearest [to %entity/location%]");
+				"[the] (nearest|closest) %*entitydatas% [[relative] to %entity/location%]",
+				"[the] %*entitydatas% (nearest|closest) [to %entity/location%]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
