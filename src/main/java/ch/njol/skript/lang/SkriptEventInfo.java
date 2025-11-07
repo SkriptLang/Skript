@@ -59,6 +59,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
 	}
 
+	@ApiStatus.Internal
 	protected SkriptEventInfo(BukkitSyntaxInfos.Event<E> source) {
 		super(source);
 		//noinspection unchecked

@@ -48,7 +48,8 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 		}
 	}
 
-	public SyntaxElementInfo(SyntaxInfo<E> source) throws IllegalArgumentException {
+	@ApiStatus.Internal
+	protected SyntaxElementInfo(SyntaxInfo<E> source) throws IllegalArgumentException {
 		this.source = source;
 		this.patterns = source.patterns().toArray(new String[0]);
 		this.elementClass = source.type();

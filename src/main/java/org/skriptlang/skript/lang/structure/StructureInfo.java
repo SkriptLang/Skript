@@ -51,6 +51,7 @@ public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 		this.simple = source.nodeType().canBeSimple();
 	}
 
+	@ApiStatus.Internal
 	protected StructureInfo(SyntaxInfo<E> source) {
 		super(source);
 		this.entryValidator = null;

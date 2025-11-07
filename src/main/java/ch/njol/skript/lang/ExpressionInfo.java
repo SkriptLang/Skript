@@ -1,5 +1,6 @@
 package ch.njol.skript.lang;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
@@ -21,6 +22,7 @@ public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInf
 		this.expressionType = expressionType;
 	}
 
+	@ApiStatus.Internal
 	protected ExpressionInfo(SyntaxInfo.Expression<E, T> source) {
 		super(source);
 		this.returnType = source.returnType();
