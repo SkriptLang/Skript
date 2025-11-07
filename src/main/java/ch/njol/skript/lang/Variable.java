@@ -701,7 +701,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public boolean allowNestedStructures() {
 		if (!canReturnKeys())
 			return false;
-		listProvider = new DeepListProvider();
+		listProvider = new RecursiveListProvider();
 		return true;
 	}
 
@@ -823,7 +823,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	}
 
-	class DeepListProvider implements ListProvider {
+	class RecursiveListProvider implements ListProvider {
 
 		@Override
 		public KeyedValue<?>[] getValues(Event event) {

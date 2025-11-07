@@ -28,6 +28,16 @@ test "recursive list":
 	assert {_copy::a::e} is "ae"
 	assert {_copy::f} is "f"
 
+	set {_copy::*} to keyed recursive {_data::*}
+	assert size of {_copy::*} is 1
+	assert recursive size of {_copy::*} is 5
+	assert {_copy} is not set
+	assert {_copy::a::b::c} is "abc"
+	assert {_copy::a::b::d} is "abd"
+	assert {_copy::a::b} is "ab"
+	assert {_copy::a::e} is "ae"
+	assert {_copy::f} is "f"
+
 test "recursive function":
 	set {_data::a::b::c} to "abc"
 	set {_data::a::b::d} to "abd"
