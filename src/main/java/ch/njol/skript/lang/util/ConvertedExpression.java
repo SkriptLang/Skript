@@ -250,6 +250,11 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
+	public boolean allowNestedStructures() {
+		return source.allowNestedStructures();
+	}
+
+	@Override
 	public boolean isDefault() {
 		return source.isDefault();
 	}

@@ -240,6 +240,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T>, S
 	int getTime();
 
 	/**
+	 * Allows nested structures for this expression, i.e. lists of lists.
+	 * <p>
+	 * <b>Note</b>:
+	 * Nested structures must be flattened in {@link #getArray(Event)} and {@link #getAll(Event)},
+	 * i.e. if this expression returns a list of lists of players,
+	 * {@link #getArray(Event)} must return a single array containing all players of all lists
+	 *
+	 * @return Whether this expression allows nested structures.
+	 */
+	default boolean allowNestedStructures() {
+		return false;
+	}
+
+	/**
 	 * Returns whether this value represents the default value of its type for the event, i.e. it can be replaced with a call to event.getXyz() if one knows the event & value type.
 	 * <p>
 	 * This method might be removed in the future as it's better to check whether value == event.getXyz() for every value an expression returns.

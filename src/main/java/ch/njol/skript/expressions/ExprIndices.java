@@ -94,6 +94,11 @@ public class ExprIndices extends SimpleExpression<String> {
 	}
 
 	@Override
+	public boolean allowNestedStructures() {
+		return keyedExpression.allowNestedStructures();
+	}
+
+	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		String text = "indices of " + keyedExpression.toString(e, debug);
 
