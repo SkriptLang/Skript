@@ -1,5 +1,6 @@
 package org.skriptlang.skript.common.types;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -7,7 +8,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.util.OpenCloseable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,27 +42,27 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 			.property(Property.LOAD,
 				"Loads a script if not already loaded.",
 				Skript.instance(),
-				new ScriptLoadHandler())
+				EffectHandler.of(Script::load))
 			.property(Property.ENABLE,
 				"Enables a script if not already enabled.",
 				Skript.instance(),
-				new ScriptLoadHandler())
+				EffectHandler.of(Script::load))
 			.property(Property.RELOAD,
 				"Reloads a script.",
 				Skript.instance(),
-				new ScriptReloadHandler())
+				EffectHandler.of(Script::reload))
 			.property(Property.UNLOAD,
 				"Unloads a script and removes it from memory.",
 				Skript.instance(),
-				new ScriptUnloadHandler())
+				EffectHandler.of(Script::unload))
 			.property(Property.DISABLE,
 				"""
-					Disables a script if not already disabled.
-					Disabling a script unloads it and prepends "-" to the file name so it will not be loaded the next time \
-					the server restarts.
-					""",
+				Disables a script if not already disabled.
+				Disabling a script unloads it and prepends "-" to the file name so it will not be loaded the next time \
+				the server restarts.
+				""",
 				Skript.instance(),
-				new ScriptDisableHandler());
+				EffectHandler.of(Script::disable));
 	}
 
 	private static class ScriptParser extends Parser<Script> {
@@ -81,10 +81,10 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		public @Nullable Script parse(final String name, final ParseContext context) {
 			return switch (context) {
 				case PARSE, COMMAND -> {
-					@Nullable File file = ch.njol.skript.ScriptLoader.getScriptFromName(name);
+					@Nullable File file = ScriptLoader.getScriptFromName(name);
 					if (file == null || !file.isFile())
 						yield null;
-					yield ch.njol.skript.ScriptLoader.getScript(file);
+					yield ScriptLoader.getScript(file);
 				}
 				default -> null;
 			};
@@ -131,42 +131,6 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 		@Override
 		public @NotNull Class<String> returnType() {
 			return String.class;
-		}
-		//</editor-fold>
-	}
-
-	public static class ScriptLoadHandler implements EffectHandler<Script> {
-		//<editor-fold desc="load property handler" defaultstate="collapsed">
-		@Override
-		public void execute(Script script) {
-			script.load(OpenCloseable.EMPTY);
-		}
-		//</editor-fold>
-	}
-
-	private static class ScriptUnloadHandler implements EffectHandler<Script> {
-		//<editor-fold desc="unload property handler" defaultstate="collapsed">
-		@Override
-		public void execute(Script script) {
-			script.unload();
-		}
-		//</editor-fold>
-	}
-
-	public static class ScriptReloadHandler implements EffectHandler<Script> {
-		//<editor-fold desc="reload property handler" defaultstate="collapsed">
-		@Override
-		public void execute(Script script) {
-			script.reload(OpenCloseable.EMPTY);
-		}
-		//</editor-fold>
-	}
-
-	private static class ScriptDisableHandler implements EffectHandler<Script> {
-		//<editor-fold desc="disable property handler" defaultstate="collapsed">
-		@Override
-		public void execute(Script script) {
-			script.disable();
 		}
 		//</editor-fold>
 	}

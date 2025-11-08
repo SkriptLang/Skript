@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	When attempting to load a normal vanilla world, you must define it's environment. Such as "world_nether" would need \
 	to be loaded with the 'nether' environment.
 	
-	See 'unload' to unload and save a world.
+	See also: the generic 'unload' effect, which will save and unload a world.
 	""")
 @Example("load world \"world_nether\" with environment nether")
 @Example("load the world \"myCustomWorld\"")

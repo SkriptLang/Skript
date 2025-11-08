@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 	Enables or reloads a script.
 	Any errors occurred will be printed to console and to all players with the permission 'skript.reloadnotify'.
 	
-	See 'load/enable' and 'reload' for loading or reloading a script without any errors being printed.
+	See also: the generic 'load/enable' and 'reload' effects for loading or reloading a script without any errors being printed.
 	""")
 @Example("reload script \"test\"")
 @Example("enable script file \"testing\"")

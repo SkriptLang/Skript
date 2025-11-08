@@ -223,6 +223,13 @@ public final class Script implements Validated, AnyNamed {
 
 	/**
 	 * Enables and Loads this {@link Script} if it is not already loaded.
+	 */
+	public void load() {
+		load(OpenCloseable.EMPTY);
+	}
+
+	/**
+	 * Enables and Loads this {@link Script} if it is not already loaded.
 	 * @param closeable A handler for catching any errors while loading.
 	 */
 	public void load(OpenCloseable closeable) {
@@ -256,6 +263,13 @@ public final class Script implements Validated, AnyNamed {
 		if (!ScriptLoader.getLoadedScriptsFilter().accept(file))
 			return;
 		unloadScripts(file);
+	}
+
+	/**
+	 * Reloads this {@link Script}.
+	 */
+	public void reload() {
+		reload(OpenCloseable.EMPTY);
 	}
 
 	/**

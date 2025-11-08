@@ -2,6 +2,7 @@ package org.skriptlang.skript.common.properties.effects;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RelatedProperty;
 import ch.njol.skript.doc.Since;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.EffectHandler;
 	Disables something.
 	""")
 @Since("INSERT VERSION")
+@RelatedProperty("disable")
 public class PropEffDisable extends PropertyBaseEffect<EffectHandler<?>> {
 
 	static {

@@ -2,6 +2,7 @@ package org.skriptlang.skript.common.properties.effects;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RelatedProperty;
 import ch.njol.skript.doc.Since;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,7 @@ import org.skriptlang.skript.lang.properties.PropertyHandler.EffectHandler;
 	Reloads something.
 	""")
 @Since("INSERT VERSION")
+@RelatedProperty("reload")
 public class PropEffReload extends PropertyBaseEffect<EffectHandler<?>> {
 
 	static {
