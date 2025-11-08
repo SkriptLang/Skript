@@ -64,7 +64,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 			Object[] val = params[i];
 			if (parameter.single() && val.length > 0) {
-				Variables.setVariable(parameter.name, val[0], event, true);
+				Variables.setVariable(parameter.name(), val[0], event, true);
 				continue;
 			}
 
@@ -72,14 +72,14 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			if (keyed) {
 				for (Object value : val) {
 					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
-					Variables.setVariable(parameter.name + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
+					Variables.setVariable(parameter.name() + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
 				}
 			} else {
 				int count = 0;
 				for (Object value : val) {
 					// backup for if the passed argument is not a keyed value.
 					// an example of this is passing `xs: integers = (1, 2)` as a parameter.
-					Variables.setVariable(parameter.name + Variable.SEPARATOR + count, value, event, true);
+					Variables.setVariable(parameter.name() + Variable.SEPARATOR + count, value, event, true);
 					count++;
 				}
 			}
