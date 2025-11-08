@@ -85,7 +85,7 @@ public class ExprFoodComponent extends SimplePropertyExpression<Object, FoodWrap
 		}
 	}
 
-	public void changeItemType(ItemType itemType, ChangeMode mode, FoodProperties component) {
+	private void changeItemType(ItemType itemType, ChangeMode mode, FoodProperties component) {
 		for (ItemData itemData : itemType) {
 			ItemStack dataStack = itemData.getStack();
 			if (dataStack == null)
@@ -94,7 +94,7 @@ public class ExprFoodComponent extends SimplePropertyExpression<Object, FoodWrap
 		}
 	}
 
-	public void changeSlot(Slot slot, ChangeMode mode, FoodProperties component) {
+	private void changeSlot(Slot slot, ChangeMode mode, FoodProperties component) {
 		ItemStack itemStack = slot.getItem();
 		if (itemStack == null)
 			return;
@@ -103,7 +103,7 @@ public class ExprFoodComponent extends SimplePropertyExpression<Object, FoodWrap
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
-	public ItemStack changeItemStack(ItemStack itemStack, ChangeMode mode, FoodProperties component) {
+	private ItemStack changeItemStack(ItemStack itemStack, ChangeMode mode, FoodProperties component) {
 		switch (mode) {
 			case SET -> itemStack.setData(DataComponentTypes.FOOD, component);
 			case DELETE -> itemStack.unsetData(DataComponentTypes.FOOD);

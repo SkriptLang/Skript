@@ -19,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Food Component - Can Always Be Eaten")
 @Description("""
-	Whether an item can be eaten when the player's hunger bar is full.
+	Sets whether an item can be eaten when the player's hunger bar is full.
 	NOTE: Food component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
