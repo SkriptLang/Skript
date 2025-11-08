@@ -76,8 +76,7 @@ public class EffMannequinParts extends Effect {
 		RIGHT_SLEEVE("right sleeve"),
 		PANTS("pants"),
 		SLEEVES("sleeves"),
-		ALL("all")
-		;
+		ALL("all");
 
 		public final String part;
 

@@ -86,6 +86,8 @@ public class ExprMannequinSkin extends SimplePropertyExpression<Entity, Object> 
 				playerProfile.complete();
 				profile = ResolvableProfile.resolvableProfile(playerProfile);
 			} else if (delta[0] instanceof String string) {
+				if (string.length() < 10 || string.contains(" "))
+					return;
 				Builder builder = ResolvableProfile.resolvableProfile();
 				ProfileProperty property = new ProfileProperty("textures", string);
 				builder.addProperty(property);

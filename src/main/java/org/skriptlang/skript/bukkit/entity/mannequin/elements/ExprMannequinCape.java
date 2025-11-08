@@ -8,12 +8,10 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.util.ValidationResult;
 import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import io.papermc.paper.datacomponent.item.ResolvableProfile.SkinPatch;
 import net.kyori.adventure.key.Key;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mannequin;
 import org.bukkit.event.Event;
@@ -29,6 +27,8 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	A namespaced key can be formatted as 'namespace:id' or 'id'. \
 	It can only contain one ':' to separate the namespace and the id. \
 	Only alphanumeric characters, periods, underscores, and dashes can be used.
+	Example: "minecraft:diamond_axe", namespace is "minecraft, and id is "diamond_axe".
+	Doing just "diamond_axe" is acceptable as well, as it defaults to the minecraft namespace.
 	""")
 @Example("set the mannequin cape of {_mannequin} to \"custom:cape\"")
 @Example("clear the mannequin cape key of last spawned mannequin")
@@ -42,7 +42,7 @@ public class ExprMannequinCape extends SimplePropertyExpression<Entity, String> 
 			infoBuilder(
 				ExprMannequinCape.class,
 				String.class,
-				"mannequin cape [texture] [key]",
+				"[mannequin] cape [texture] (key|id)",
 				"entities",
 				false
 			).supplier(ExprMannequinCape::new)
@@ -72,16 +72,9 @@ public class ExprMannequinCape extends SimplePropertyExpression<Entity, String> 
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Key key = null;
 		if (delta != null) {
-			String string = (String) delta[0];
-			ValidationResult<NamespacedKey> result = NamespacedUtils.checkValidation(string);
-			String message = result.message();
-			if (!result.valid()) {
-				error(message + ". " + NamespacedUtils.NAMEDSPACED_FORMAT_MESSAGE);
+			key = NamespacedUtils.getKeyWithErrors(this, (String) delta[0]);
+			if (key == null)
 				return;
-			} else if (message != null) {
-				warning(message);
-			}
-			key = result.data();
 		}
 
 		for (Entity entity : getExpr().getArray(event)) {
