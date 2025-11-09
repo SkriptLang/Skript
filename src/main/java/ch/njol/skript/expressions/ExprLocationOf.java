@@ -1,6 +1,8 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player; // add this import if not present
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,4 +44,17 @@ public class ExprLocationOf extends WrapperExpression<Location> {
 		return "the location of " + getExpr().toString(e, debug);
 	}
 	
+	@Override
+	public Location[] get(final Event e) {
+		final Object obj = getExpr().getSingle(e);
+		if (obj instanceof Player) {
+			final Location loc = ((Player) obj).getLocation();
+			return loc != null ? new Location[] { loc } : null;
+		}
+		if (obj instanceof OfflinePlayer off) {
+			final Location loc = off.getLocation();
+			return loc != null ? new Location[] { loc } : null;
+		}
+		return null;
+	}
 }
