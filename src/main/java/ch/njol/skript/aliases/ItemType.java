@@ -408,19 +408,37 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		return false;
 	}
 
+	private static final boolean ITEMMETA_CUSTOMNAME_EXISTS = Skript.methodExists(ItemMeta.class, "customName");
+
 	/**
 	 * Copies the container state from the item meta to the block state
 	 * @param block The block to copy the state to
 	 * @param itemMeta The item meta to copy the state from
 	 */
 	private void copyContainerState(@NotNull Block block, @NotNull ItemMeta itemMeta) {
+		// only copy container state if block is container
+		if (!(block.getState() instanceof org.bukkit.block.Container blockContainer))
+			return;
+
+		//copy name from itemmeta to block container
+		if (ITEMMETA_CUSTOMNAME_EXISTS) {
+			if (itemMeta.hasCustomName()) {
+				blockContainer.customName(itemMeta.customName());
+				blockContainer.update();
+			}
+		} else {
+			if (itemMeta.hasDisplayName()) {
+				blockContainer.customName(itemMeta.displayName());
+				blockContainer.update();
+			}
+		}
+
 		// ensure the item has a block state
 		if (!(itemMeta instanceof BlockStateMeta blockStateMeta) || !blockStateMeta.hasBlockState())
 			return;
 
-		// only care about container -> container copying
-		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer)
-				|| !(block.getState() instanceof org.bukkit.block.Container blockContainer))
+		// only copy inventory if itemmeta block state is a container
+		if (!(blockStateMeta.getBlockState() instanceof org.bukkit.block.Container itemContainer))
 			return;
 
 		// copy inventory from item to block
@@ -522,25 +540,30 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	@Override
 	public Iterator<ItemStack> containerIterator() {
 		return new Iterator<ItemStack>() {
-			@SuppressWarnings("null")
-			Iterator<ItemData> iter = types.iterator();
+
+			final Iterator<ItemData> iter = types.iterator();
+			ItemStack nextItem = null;
 
 			@Override
 			public boolean hasNext() {
-				return iter.hasNext();
+				while (nextItem == null && iter.hasNext()) {
+					ItemData data = iter.next();
+					ItemStack is = data.getStack();
+					if (is != null) {
+						nextItem = is.clone();
+						nextItem.setAmount(getAmount());
+					}
+				}
+				return nextItem != null;
 			}
 
 			@Override
 			public ItemStack next() {
-				ItemStack is = null;
-				while (is == null) {
-					if (!hasNext())
-						throw new NoSuchElementException();
-					is = iter.next().getStack();
-				}
-				is = is.clone();
-				is.setAmount(getAmount());
-				return is;
+				if (!hasNext())
+					throw new NoSuchElementException();
+				ItemStack result = nextItem;
+				nextItem = null;
+				return result;
 			}
 
 			@Override
@@ -557,17 +580,10 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public Iterable<ItemStack> getAll() {
 		if (!isAll()) {
-			final ItemStack i = getRandom();
-			if (i == null)
-				return EmptyIterable.get();
-			return new SingleItemIterable<>(i);
+			ItemStack i = getRandom();
+			return (i == null) ? EmptyIterable.get() : new SingleItemIterable<>(i);
 		}
-		return new Iterable<ItemStack>() {
-			@Override
-			public Iterator<ItemStack> iterator() {
-				return containerIterator();
-			}
-		};
+		return this::containerIterator;
 	}
 
 	/**

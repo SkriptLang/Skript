@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
-@Name("Result (Experimental)")
+@Name("Result")
 @Description({
 	"Runs something (like a function) and returns its result.",
 	"If the thing is expected to return multiple values, use 'results' instead of 'result'."

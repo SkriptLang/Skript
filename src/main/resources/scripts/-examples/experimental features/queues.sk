@@ -129,7 +129,6 @@ example: # Peeking at a queue without removing items
 	# The queue is now 'well,', 'hello'
 
 
-using for loops
 example: # Continuous processing of a queue
 
 	# Create a queue of all players (now) and some items

@@ -1,15 +1,19 @@
 package ch.njol.skript.lang.util.common;
 
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.common.properties.expressions.PropExprName;
+import org.skriptlang.skript.lang.properties.Property;
 
 /**
  * A provider for anything with a (text) name.
- * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprName}
+ * Anything implementing this (or convertible to this) can be used by the {@link PropExprName}
  * property expression.
  *
  * @see AnyProvider
+ * @deprecated Use {@link Property#NAME} instead.
  */
 @FunctionalInterface
+@Deprecated(since="2.13", forRemoval = true)
 public interface AnyNamed extends AnyProvider {
 
 	/**

@@ -30,7 +30,20 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 
 	public static @Nullable Statement parse(String input, @Nullable String defaultError, @Nullable SectionNode node, @Nullable List<TriggerItem> items) {
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-			EffFunctionCall functionCall = EffFunctionCall.parse(input);
+			Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
+			EffFunctionCall functionCall;
+			if (node != null) {
+				functionCall = sectionContext.modify(node, items, () -> {
+					EffFunctionCall parsed = EffFunctionCall.parse(input);
+					if (parsed != null && !sectionContext.claimed()) {
+						Skript.error("The line '" + input + "' is a valid function call but cannot function as a section (:) because there is no parameter to manage it.");
+						return null;
+					}
+					return parsed;
+				});
+			} else {
+				functionCall = EffFunctionCall.parse(input);
+			}
 			if (functionCall != null) {
 				log.printLog();
 				return functionCall;
@@ -40,7 +53,7 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			}
 			log.clear();
 
-			EffectSection section = EffectSection.parse(input, null, null, items);
+			EffectSection section = EffectSection.parse(input, null, node, false, items);
 			if (section != null) {
 				log.printLog();
 				return new EffectSectionEffect(section);
@@ -49,11 +62,24 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 
 			Statement statement;
 			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.STATEMENT).iterator();
-			Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
 			if (node != null) {
+				var wrappedIterator = new Iterator<>() {
+					@Override
+					public boolean hasNext() {
+						return iterator.hasNext();
+					}
+
+					@Override
+					public org.skriptlang.skript.registration.SyntaxInfo<? extends Statement> next() {
+						// it is possible that the section would have been claimed during the attempt to parse the previous info
+						// as a result, we need to "unclaim" it
+						sectionContext.owner = null;
+						return iterator.next();
+					}
+				};
 				statement = sectionContext.modify(node, items, () -> {
 						//noinspection unchecked,rawtypes
-						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) iterator, defaultError);
+						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) wrappedIterator, defaultError);
 						if (parsed != null && !sectionContext.claimed()) {
 							Skript.error("The line '" + input + "' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it.");
 							return null;

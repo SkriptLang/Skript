@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
 })
 @Examples("broadcast \"The bell has been resonating for %resonating time of target block%\"")
-@RequiredPlugins("Spigot 1.19.4+")
 @Since("2.9.0")
 public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan> {
 

@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tset player's tool to air"
 })
 @Since("2.8.0")
-@RequiredPlugins("Paper")
+
 public class CondIsHandRaised extends Condition {
 
 	static {
