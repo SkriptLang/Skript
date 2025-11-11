@@ -68,7 +68,9 @@ public abstract class Functions {
 		if (!name.matches(functionNamePattern))
 			throw new SkriptAPIException("Invalid function name '%s'".formatted(name));
 
-		javaNamespace.addSignature((Signature<?>) function.signature());
+		if (javaNamespace.getSignature(name) == null) {
+			javaNamespace.addSignature((Signature<?>) function.signature());
+		}
 		javaNamespace.addFunction((Function<?>) function);
 		globalFunctions.put(function.name(), javaNamespace);
 
