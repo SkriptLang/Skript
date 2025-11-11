@@ -3133,6 +3133,9 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	blockingcomponent: blocking component¦s @a
+	damagereduction: damage reduction¦s @a
+	itemdamagefunction: item damage function¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
