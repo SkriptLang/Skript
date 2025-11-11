@@ -4,6 +4,8 @@ import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.util.ValidationResult;
 import org.bukkit.NamespacedKey;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.RuntimeErrorProducer;
 
 /**
  * Utility class for {@link NamespacedKey}
@@ -87,6 +89,25 @@ public class NamespacedUtils {
 	 */
 	public static boolean isValid(String string) {
 		return checkValidation(string).valid();
+	}
+
+	/**
+	 * Helper method for converting a {@link String} to {@link NamespacedKey} during runtime, and printing
+	 * errors or warnings.
+	 * @param producer The {@link RuntimeErrorProducer} instance to print an error or warning.
+	 * @param string The {@link String} to convert to {@link NamespacedKey}.
+	 * @return The resulting {@link NamespacedKey} if valid, otherwise {@code null}.
+	 */
+	public static @Nullable NamespacedKey getKeyWithErrors(RuntimeErrorProducer producer, String string) {
+		ValidationResult<NamespacedKey> result = checkValidation(string);
+		String message = result.message();
+		if (!result.valid()) {
+			producer.error(message);
+			return null;
+		} else if (message != null) {
+			producer.warning(message);
+		}
+		return result.data();
 	}
 
 }

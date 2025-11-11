@@ -1,0 +1,13 @@
+options:
+	texture: "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWJjNzNlN2VlNzA4ZTQ3NjU4YWY3YzMzMTZkY2VkNzk5NDUyNTg3NDg1NjM5ODA4ZDQ3OTVkMjNmYzY4NDU1MCJ9fX0="
+
+test "mannequin skin" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	set the mannequin skin of {_entity} to test-offline-player
+	assert the mannequin skin of {_entity} is test-offline-player with "Mannequin skin was not set to test offline player"
+	set the mannequin skin of {_entity} to {@texture}
+	assert the mannequin skin of {_entity} is {@texture} with "Mannequin skin was not set to texture value"
+
+	clear entity within {_entity}

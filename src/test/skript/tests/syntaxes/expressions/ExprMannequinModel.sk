@@ -1,0 +1,10 @@
+test "mannequin elytra" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	set the mannequin model of {_entity} to classic
+	assert the mannequin model of {_entity} is classic with "Mannequin model should be classic"
+	set the mannequin model of {_entity} to slim
+	assert the mannequin model of {_entity} is slim with "Mannequin model should be slim"
+
+	clear entity within {_entity}
