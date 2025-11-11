@@ -23,11 +23,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("INSERT VERSION")
 public class CondToolCompCreative extends PropertyCondition<ToolWrapper> implements ToolExperimentalSyntax {
 
-	static {
-		if (ToolWrapper.HAS_CAN_DESTROY_BLOCKS_IN_CREATIVE)
-			register(CondToolCompCreative.class, PropertyType.CAN, "destroy blocks in creative", "toolcomponents");
-	}
-
 	public static void register(SyntaxRegistry registry) {
 		if (!ToolWrapper.HAS_CAN_DESTROY_BLOCKS_IN_CREATIVE)
 			return;

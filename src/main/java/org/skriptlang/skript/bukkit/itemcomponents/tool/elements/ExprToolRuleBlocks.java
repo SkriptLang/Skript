@@ -91,7 +91,9 @@ public class ExprToolRuleBlocks extends PropertyExpression<ToolRuleWrapper, Item
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
-		ItemType[] types = (ItemType[]) delta;
+		ItemType[] types = Arrays.stream(delta)
+			.map(o -> (ItemType) o)
+			.toArray(ItemType[]::new);
 		List<BlockType> blockTypes = Arrays.stream(types)
 			.map(ItemType::getMaterial)
 			.filter(Material::isBlock)

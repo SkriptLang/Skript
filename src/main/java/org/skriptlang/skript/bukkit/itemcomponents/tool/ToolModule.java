@@ -15,8 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.tool.elements.*;
-import org.skriptlang.skript.lang.comparator.Comparators;
-import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -104,8 +102,6 @@ public class ToolModule implements AddonModule {
 			return new ToolWrapper(itemSource);
 		}, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Rule.class, ToolRuleWrapper.class, ToolRuleWrapper::new, Converter.NO_RIGHT_CHAINING);
-		Comparators.registerComparator(ToolRuleWrapper.class, ToolRuleWrapper.class,
-			(wrapper1, wrapper2) -> Relation.get(wrapper1.equals(wrapper2)));
 	}
 
 	@Override

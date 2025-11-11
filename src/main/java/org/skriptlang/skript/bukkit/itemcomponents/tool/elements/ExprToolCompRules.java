@@ -21,11 +21,16 @@ import org.skriptlang.skript.bukkit.itemcomponents.tool.ToolWrapper;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Name("Tool Component - Tool Rules")
 @Description("""
 	The tool rules of a tool component.
+	A tool rule consists of:
+		- Block types that the rule should be applied to
+		- Mining speed for the blocks
+		- Whether the blocks should drop their respective items
 	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("set {_rules::*} to the tool rules of {_item}")
@@ -63,7 +68,7 @@ public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRuleW
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, DELETE, ADD, REMOVE -> CollectionUtils.array(ToolRuleWrapper[].class);
+			case SET, DELETE, RESET, ADD, REMOVE -> CollectionUtils.array(ToolRuleWrapper[].class);
 			default -> null;
 		};
 	}
@@ -71,20 +76,17 @@ public class ExprToolCompRules extends PropertyExpression<ToolWrapper, ToolRuleW
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		List<ToolRuleWrapper> ruleWrappers = new ArrayList<>();
+		List<Rule> rules = new ArrayList<>();
 		if (delta != null) {
-			for (Object object : delta) {
-				if (object instanceof ToolRuleWrapper ruleWrapper)
-					ruleWrappers.add(ruleWrapper);
-			}
+			rules.addAll(Arrays.stream(delta)
+				.map(o -> ((ToolRuleWrapper) o).getRule())
+				.toList());
 		}
-		List<Rule> rules = ruleWrappers.stream()
-			.map(ToolRuleWrapper::getRule)
-			.toList();
 
 		for (ToolWrapper wrapper : getExpr().getArray(event)) {
 			wrapper.editBuilder(toolBuilder -> {
 				switch (mode) {
-					case SET, DELETE -> toolBuilder.setRules(rules);
+					case SET, DELETE, RESET -> toolBuilder.setRules(rules);
 					case ADD -> toolBuilder.addRules(rules);
 					case REMOVE -> toolBuilder.removeRules(rules);
 				}

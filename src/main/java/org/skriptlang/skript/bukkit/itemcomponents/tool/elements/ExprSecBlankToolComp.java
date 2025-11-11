@@ -25,7 +25,6 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Blank Tool Component")
 @Description("""
@@ -78,7 +77,6 @@ public class ExprSecBlankToolComp extends SectionExpression<ToolWrapper> impleme
 	@Override
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
-			AtomicBoolean isDelayed = new AtomicBoolean(false);
 			trigger = SectionUtils.loadLinkedCode("blank tool component", (beforeLoading, afterLoading) ->
 				loadCode(node, "blank tool component", beforeLoading, afterLoading, BlankToolSectionEvent.class)
 			);

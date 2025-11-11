@@ -56,7 +56,7 @@ public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper,
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, DELETE, REMOVE, ADD -> CollectionUtils.array(Number.class);
+			case SET, DELETE, RESET, REMOVE, ADD -> CollectionUtils.array(Number.class);
 			default -> null;
 		};
 	}
@@ -66,6 +66,8 @@ public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper,
 		float speed;
 		if (delta != null) {
 			speed = Math2.fit(0, ((Number) delta[0]).floatValue(), Float.MAX_VALUE);
+		} else if (mode == ChangeMode.RESET) {
+			speed = 1;
 		} else {
 			speed = 0;
 		}
@@ -76,12 +78,12 @@ public class ExprToolRuleSpeed extends SimplePropertyExpression<ToolRuleWrapper,
 				case ADD -> {
 					if (currentSpeed == null)
 						yield speed;
-					yield Math2.fit(0, currentSpeed + speed, Float.MAX_VALUE);
+					yield Math2.fitOverflowMax(0, currentSpeed, speed);
 				}
 				case REMOVE -> {
 					if (currentSpeed == null)
 						yield 0;
-					yield Math2.fit(0, currentSpeed - speed, Float.MAX_VALUE);
+					yield Math2.fitOverflowMax(0, currentSpeed, -speed);
 				}
 				default -> currentSpeed;
 			};

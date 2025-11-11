@@ -57,9 +57,9 @@ public class ExprToolCompMiningSpeed extends SimplePropertyExpression<ToolWrappe
 		for (ToolWrapper wrapper : getExpr().getArray(event)) {
 			float newSpeed;
 			if (mode == ChangeMode.ADD) {
-				newSpeed = Math2.fit(0, wrapper.getComponent().defaultMiningSpeed() + speed, Float.MAX_VALUE);
+				newSpeed = Math2.fitOverflowMax(0, wrapper.getComponent().defaultMiningSpeed(), speed);
 			} else if (mode == ChangeMode.REMOVE) {
-				newSpeed = Math2.fit(0, wrapper.getComponent().defaultMiningSpeed() - speed, Float.MAX_VALUE);
+				newSpeed = Math2.fitOverflowMax(0, wrapper.getComponent().defaultMiningSpeed(), -speed);
 			} else {
 				newSpeed = speed;
 			}

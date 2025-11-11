@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.itemcomponents.tool.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
@@ -14,6 +13,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.util.SectionUtils;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -29,11 +29,14 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Custom Tool Rule")
 @Description("""
 	Create a custom tool rule with provided block types.
+	A tool rule consists of:
+		- Block types that the rule should be applied to
+		- Mining speed for the blocks
+		- Whether the blocks should drop their respective items
 	NOTE: A tool rule must have at least one block type or will be considered invalid.
 	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
@@ -84,13 +87,10 @@ public class ExprSecToolRule extends SectionExpression<ToolRuleWrapper> implemen
 		//noinspection unchecked
 		types = (Expression<ItemType>) exprs[0];
 		if (node != null) {
-			AtomicBoolean isDelayed = new AtomicBoolean(false);
-			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
-			trigger = loadCode(node, "tool rule", afterLoading, ToolRuleSectionEvent.class);
-			if (isDelayed.get()) {
-				Skript.error("Delays cannot be used within a 'custom tool rule' section.");
-				return false;
-			}
+			trigger = SectionUtils.loadLinkedCode("tool rule", (beforeLoading, afterLoading) ->
+				loadCode(node, "tool rule", beforeLoading, afterLoading, ToolRuleSectionEvent.class)
+			);
+			return trigger != null;
 		}
 		return true;
 	}
@@ -104,7 +104,7 @@ public class ExprSecToolRule extends SectionExpression<ToolRuleWrapper> implemen
 			.toList();
 		if (blocks.isEmpty()) {
 			error("You must provide block types to create a custom tool rule.");
-			return null;
+			return new ToolRuleWrapper[0];
 		}
 		ToolRuleWrapper wrapper = new ToolRuleWrapper();
 		wrapper.modify(builder -> builder.blocks(blocks));

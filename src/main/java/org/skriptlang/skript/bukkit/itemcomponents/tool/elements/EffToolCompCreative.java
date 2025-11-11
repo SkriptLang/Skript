@@ -38,7 +38,7 @@ public class EffToolCompCreative extends Effect implements ToolExperimentalSynta
 			SyntaxInfo.builder(EffToolCompCreative.class)
 				.addPatterns(
 					"allow %toolcomponents% to destroy blocks in creative",
-					"prevent %toolcomponents% from destroying blocks in creative"
+					"(prevent|block|disallow) %toolcomponents% from destroying blocks in creative"
 				)
 				.supplier(EffToolCompCreative::new)
 				.build()
@@ -64,14 +64,14 @@ public class EffToolCompCreative extends Effect implements ToolExperimentalSynta
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		if (enable) {
-			return new SyntaxStringBuilder(event, debug)
-				.append("allow", tools, "to destroy blocks in creative")
-				.toString();
+			builder.append("allow", tools, "to destroy");
+		} else {
+			builder.append("prevent",  tools, "from destroying");
 		}
-		return new SyntaxStringBuilder(event, debug)
-			.append("prevent", tools, "from destroying blocks in creative")
-			.toString();
+		builder.append("blocks in creative");
+		return builder.toString();
 	}
 
 }

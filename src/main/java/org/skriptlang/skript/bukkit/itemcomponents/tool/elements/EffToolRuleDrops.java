@@ -21,6 +21,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("""
 	Whether the block types set in the tool rule should drop their respective items, \
 	when mined with the item the tool rule is applied to.
+	A tool rule consists of:
+		- Block types that the rule should be applied to
+		- Mining speed for the blocks
+		- Whether the blocks should drop their respective items
 	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""

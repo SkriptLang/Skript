@@ -18,6 +18,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("""
 	Whether the block types set in the tool rule should drop their respective items, \
 	when mined with the item the tool rule is applied to.
+	A tool rule consists of:
+		- Block types that the rule should be applied to
+		- Mining speed for the blocks
+		- Whether the blocks should drop their respective items
 	NOTE: Tool component elements are experimental. Thus, they are subject to change and may not work as intended.
 	""")
 @Example("""
@@ -46,10 +50,7 @@ public class CondToolRuleDrops extends PropertyCondition<ToolRuleWrapper> implem
 
 	@Override
 	public boolean check(ToolRuleWrapper wrapper) {
-		Boolean correct = wrapper.getRule().correctForDrops().toBoolean();
-		if (correct != null)
-			return correct;
-		return false;
+		return wrapper.getRule().correctForDrops().toBooleanOrElse(false);
 	}
 
 	@Override
@@ -60,7 +61,12 @@ public class CondToolRuleDrops extends PropertyCondition<ToolRuleWrapper> implem
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("the tool rule drops of", getExpr(), "are");
+		builder.append("the tool rule drops of", getExpr());
+		if (getExpr().isSingle()) {
+			builder.append("is");
+		} else {
+			builder.append("are");
+		}
 		if (!isNegated()) {
 			builder.append("enabled");
 		} else {

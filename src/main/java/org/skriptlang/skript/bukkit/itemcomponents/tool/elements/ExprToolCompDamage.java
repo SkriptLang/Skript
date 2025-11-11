@@ -57,9 +57,9 @@ public class ExprToolCompDamage extends SimplePropertyExpression<ToolWrapper, In
 		for (ToolWrapper wrapper : getExpr().getArray(event)) {
 			int newDamage;
 			if (mode == ChangeMode.ADD) {
-				newDamage = Math2.fit(0, wrapper.getComponent().damagePerBlock() + damage, Integer.MAX_VALUE);
+				newDamage = Math2.fitOverflowMax(0, wrapper.getComponent().damagePerBlock(), damage);
 			} else if (mode == ChangeMode.REMOVE) {
-				newDamage = Math2.fit(0, wrapper.getComponent().damagePerBlock() + damage, Integer.MAX_VALUE);
+				newDamage = Math2.fitOverflowMax(0, wrapper.getComponent().damagePerBlock(), -damage);
 			} else {
 				newDamage = damage;
 			}
