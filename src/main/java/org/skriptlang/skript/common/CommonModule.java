@@ -3,6 +3,8 @@ package org.skriptlang.skript.common;
 import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.common.effects.EffScriptFile;
+import org.skriptlang.skript.common.expressions.ExprScript;
 import org.skriptlang.skript.common.properties.PropertiesModule;
 
 import java.io.IOException;
@@ -15,6 +17,9 @@ public class CommonModule implements AddonModule {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		EffScriptFile.register(addon.syntaxRegistry());
+		ExprScript.register(addon.syntaxRegistry());
 
 		addon.loadModules(new PropertiesModule());
 	}

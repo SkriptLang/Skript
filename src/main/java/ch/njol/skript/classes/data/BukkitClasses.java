@@ -4,7 +4,11 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
-import ch.njol.skript.classes.*;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.PatternedParser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -26,7 +30,12 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntitySnapshot;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -52,15 +61,20 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.base.types.*;
+import org.skriptlang.skript.bukkit.base.types.BlockClassInfo;
+import org.skriptlang.skript.bukkit.base.types.EntityClassInfo;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
+import org.skriptlang.skript.bukkit.base.types.InventoryClassInfo;
+import org.skriptlang.skript.bukkit.base.types.ItemStackClassInfo;
+import org.skriptlang.skript.bukkit.base.types.NameableClassInfo;
+import org.skriptlang.skript.bukkit.base.types.OfflinePlayerClassInfo;
+import org.skriptlang.skript.bukkit.base.types.PlayerClassInfo;
+import org.skriptlang.skript.bukkit.base.types.WorldClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class BukkitClasses {
 
@@ -331,87 +345,7 @@ public class BukkitClasses {
 				})
 				.cloner(Vector::clone));
 
-		Classes.registerClass(new ClassInfo<>(World.class, "world")
-				.user("worlds?")
-				.name("World")
-				.description("One of the server's worlds. Worlds can be put into scripts by surrounding their name with double quotes, e.g. \"world_nether\", " +
-						"but this might not work reliably as <a href='#string'>text</a> uses the same syntax.")
-				.usage("<code>\"world_name\"</code>, e.g. \"world\"")
-				.examples("broadcast \"Hello!\" to the world \"world_nether\"")
-				.since("1.0, 2.2 (alternate syntax)")
-				.after("string")
-				.defaultExpression(new EventValueExpression<>(World.class))
-				.parser(new Parser<World>() {
-					@SuppressWarnings("null")
-					private final Pattern parsePattern = Pattern.compile("(?:(?:the )?world )?\"(.+)\"", Pattern.CASE_INSENSITIVE);
-
-					@Override
-					@Nullable
-					public World parse(final String s, final ParseContext context) {
-						// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
-						if (context == ParseContext.COMMAND || context == ParseContext.PARSE || context == ParseContext.CONFIG)
-							return Bukkit.getWorld(s);
-						final Matcher m = parsePattern.matcher(s);
-						if (m.matches())
-							return Bukkit.getWorld(m.group(1));
-						return null;
-					}
-
-					@Override
-					public String toString(final World w, final int flags) {
-						return "" + w.getName();
-					}
-
-					@Override
-					public String toVariableNameString(final World w) {
-						return "" + w.getName();
-					}
-				}).serializer(new Serializer<World>() {
-					@Override
-					public Fields serialize(final World w) {
-						final Fields f = new Fields();
-						f.putObject("name", w.getName());
-						return f;
-					}
-
-					@Override
-					public void deserialize(final World o, final Fields f) {
-						assert false;
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-
-					@Override
-					protected World deserialize(final Fields fields) throws StreamCorruptedException {
-						final String name = fields.getObject("name", String.class);
-						assert name != null;
-						final World w = Bukkit.getWorld(name);
-						if (w == null)
-							throw new StreamCorruptedException("Missing world " + name);
-						return w;
-					}
-
-					// return w.getName();
-					@Override
-					@Nullable
-					public World deserialize(final String s) {
-						return Bukkit.getWorld(s);
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-				})
-				.property(Property.NAME,
-					"A world's name, as text. Cannot be changed.",
-					Skript.instance(),
-					ExpressionPropertyHandler.of(World::getName, String.class))
-		);
-
+		Classes.registerClass(new WorldClassInfo());
 		Classes.registerClass(new InventoryClassInfo());
 
 		Classes.registerClass(new EnumClassInfo<>(InventoryAction.class, "inventoryaction", "inventory actions")

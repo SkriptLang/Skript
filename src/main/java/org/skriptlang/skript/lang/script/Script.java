@@ -1,7 +1,11 @@
 package org.skriptlang.skript.lang.script;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.util.FileUtils;
+import ch.njol.util.OpenCloseable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -10,7 +14,12 @@ import org.skriptlang.skript.util.Validated;
 import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -210,6 +219,113 @@ public final class Script implements Validated, AnyNamed {
 			// immediately obtained.
 		}
 		return false;
+	}
+
+	/**
+	 * Enables and Loads this {@link Script} if it is not already loaded.
+	 */
+	public void load() {
+		load(OpenCloseable.EMPTY);
+	}
+
+	/**
+	 * Enables and Loads this {@link Script} if it is not already loaded.
+	 * @param closeable A handler for catching any errors while loading.
+	 */
+	public void load(OpenCloseable closeable) {
+		File file = getConfig().getFile();
+		if (file == null || !file.exists())
+			return;
+		if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(file)))
+			return;
+		if (ScriptLoader.getDisabledScriptsFilter().accept(file)) {
+			try {
+				file = FileUtils.move(
+					file,
+					new File(file.getParentFile(), file.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH)),
+					false
+				);
+			} catch (IOException e) {
+				Skript.exception("Error while enabling script file: " + name());
+				return;
+			}
+		}
+		ScriptLoader.loadScripts(file, closeable);
+	}
+
+	/**
+	 * Unloads this {@link Script} if it is loaded.
+	 */
+	public void unload() {
+		File file = getConfig().getFile();
+		if (file == null || !file.exists())
+			return;
+		if (!ScriptLoader.getLoadedScriptsFilter().accept(file))
+			return;
+		unloadScripts(file);
+	}
+
+	/**
+	 * Reloads this {@link Script}.
+	 */
+	public void reload() {
+		reload(OpenCloseable.EMPTY);
+	}
+
+	/**
+	 * Reloads this {@link Script}.
+	 * @param closeable A handler for catching any errors while reloading.
+	 */
+	public void reload(OpenCloseable closeable) {
+		File file = getConfig().getFile();
+		if (file == null || !file.exists())
+			return;
+		if (ScriptLoader.getDisabledScriptsFilter().accept(file))
+			return;
+		unloadScripts(file);
+		ScriptLoader.loadScripts(file, closeable);
+	}
+
+	/**
+	 * Disables this {@link Script} by unloading and disabling the file.
+	 */
+	public void disable() {
+		File file = getConfig().getFile();
+		if (file == null || !file.exists())
+			return;
+		if (ScriptLoader.getDisabledScriptsFilter().accept(file))
+			return;
+		unloadScripts(file);
+
+		try {
+			FileUtils.move(
+				file,
+				new File(file.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + file.getName()),
+				false
+			);
+		} catch (IOException e) {
+			Skript.exception(e, "Error while disabling script file: " + name());
+		}
+	}
+
+	/**
+	 * Helper method for unloading a script.
+	 */
+	private static void unloadScripts(File file) {
+		Set<Script> loaded = ScriptLoader.getLoadedScripts();
+		if (file.isDirectory()) {
+			Set<Script> scripts = ScriptLoader.getScripts(file);
+			if (scripts.isEmpty())
+				return;
+			scripts.retainAll(loaded); // skip any that are not loaded (avoid throwing error)
+			ScriptLoader.unloadScripts(scripts);
+		} else {
+			Script script = ScriptLoader.getScript(file);
+			if (!loaded.contains(script))
+				return; // don't need to unload if not loaded (avoid throwing error)
+			if (script != null)
+				ScriptLoader.unloadScript(script);
+		}
 	}
 
 }
