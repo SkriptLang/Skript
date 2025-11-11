@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 import org.skriptlang.skript.util.Executable;
 
-@Name("Run (Experimental)")
+@Name("Run")
 @Description("Executes a task (a function). Any returned result is discarded.")
 @Examples({
 		"set {_function} to the function named \"myFunction\"",

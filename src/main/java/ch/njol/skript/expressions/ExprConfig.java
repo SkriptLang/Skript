@@ -16,7 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 
-@Name("Config (Experimental)")
+@Name("Config")
 @Description({
 	"The Skript config.",
 	"This can be reloaded, or navigated to retrieve options."
