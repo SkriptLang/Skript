@@ -268,3 +268,47 @@ test "spawn baby cow by variant" when running minecraft "1.21.5":
 	assert size of all calves is 5 with "Only temperate calves should have been deleted"
 	delete all warm calves
 	assert size of all warm calves is 0 with "Warm calves were not deleted"
+
+test "spawn copper golems" when running minecraft "1.21.9":
+	clear all copper golems
+	spawn 2 copper golems at test-location
+	spawn 2 waxed copper golems at test-location
+	spawn 2 unwaxed copper golems at test-location
+
+	spawn 2 unaffected copper golems at test-location
+	spawn 2 waxed unaffected copper golems at test-location
+	spawn 2 unwaxed unaffected copper golems at test-location
+
+	spawn 2 exposed copper golems at test-location
+	spawn 2 waxed exposed copper golems at test-location
+	spawn 2 unwaxed exposed copper golems at test-location
+
+	spawn 2 weathered copper golems at test-location
+	spawn 2 waxed weathered copper golems at test-location
+	spawn 2 unwaxed weathered copper golems at test-location
+
+	spawn 2 oxidized copper golems at test-location
+	spawn 2 waxed oxidized copper golems at test-location
+	spawn 2 unwaxed oxidized copper golems at test-location
+
+	assert size of all copper golems is 30 with "Size of all copper golems is not 30"
+	assert size of all waxed copper golems is 10 with "Size of all waxed copper golems is not 10"
+	assert size of all unwaxed copper golems is 20 with "Size of all unwaxed copper golems is not 20"
+
+	assert size of all unaffected copper golems is 12 with "Size of all unaffected copper golems is not 12"
+	assert size of all waxed unaffected copper golems is 4 with "Size of all waxed unaffected copper golems is not 4"
+	assert size of all unwaxed unaffected copper golems is 8 with "Size of all unwaxed unaffected copper golems is not 8"
+
+	assert size of all exposed copper golems is 6 with "Size of all exposed copper golems is not 6"
+	assert size of all waxed exposed copper golems is 2 with "Size of all waxed exposed copper golems is not 2"
+	assert size of all unwaxed exposed copper golems is 4 with "Size of all unwaxed exposed copper golems is not 4"
+
+	assert size of all weathered copper golems is 6 with "Size of all weathered copper golems is not 6"
+	assert size of all waxed weathered copper golems is 2 with "Size of all waxed weathered copper golems is not 2"
+	assert size of all unwaxed weathered copper golems is 4 with "Size of all unwaxed weathered copper golems is not 4"
+
+	assert size of all oxidized copper golems is 6 with "Size of all oxidized copper golems is not 6"
+	assert size of all waxed oxidized copper golems is 2 with "Size of all waxed oxidized copper golems is not 2"
+	assert size of all unwaxed oxidized copper golems is 4 with "Size of all unwaxed oxidized copper golems is not 4"
+
+	clear all copper golems

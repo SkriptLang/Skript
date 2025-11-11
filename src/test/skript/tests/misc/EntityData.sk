@@ -233,6 +233,50 @@ test "chicken data":
 		testData(temperate chick)
 		testData(cold chick)
 
+test "copper golem data" when running minecraft "1.21.9":
+	setSuperTypes(copper golem)
+	testData(copper golem)
+	testData(waxed copper golem)
+	testData(unwaxed copper golem)
+	testData(unaffected copper golem)
+	testData(exposed copper golem)
+	testData(weathered copper golem)
+	testData(oxidized copper golem)
+
+	setSuperTypes(waxed copper golem)
+	testData(waxed copper golem)
+	testData(waxed unaffected copper golem)
+	testData(waxed exposed copper golem)
+	testData(waxed weathered copper golem)
+	testData(waxed oxidized copper golem)
+
+	setSuperTypes(unwaxed copper golem)
+	testData(unwaxed copper golem)
+	testData(unwaxed unaffected copper golem)
+	testData(unwaxed exposed copper golem)
+	testData(unwaxed weathered copper golem)
+	testData(unwaxed oxidized copper golem)
+
+	setSuperTypes(unaffected copper golem)
+	testData(unaffected copper golem)
+	testData(waxed unaffected copper golem)
+	testData(unwaxed unaffected copper golem)
+
+	setSuperTypes(exposed copper golem)
+	testData(exposed copper golem)
+	testData(waxed exposed copper golem)
+	testData(unwaxed exposed copper golem)
+
+	setSuperTypes(weathered copper golem)
+	testData(weathered copper golem)
+	testData(waxed weathered copper golem)
+	testData(unwaxed weathered copper golem)
+
+	setSuperTypes(oxidized copper golem)
+	testData(oxidized copper golem)
+	testData(waxed oxidized copper golem)
+	testData(unwaxed oxidized copper golem)
+
 test "cow data":
 	setSuperTypes(cow)
 	testData(cow)

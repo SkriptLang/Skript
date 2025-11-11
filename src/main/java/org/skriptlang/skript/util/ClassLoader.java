@@ -192,7 +192,7 @@ public class ClassLoader {
 				if (this.forEachClass != null) {
 					this.forEachClass.accept(clazz);
 				}
-			} catch (ClassNotFoundException ex) {
+			} catch (ClassNotFoundException | NoClassDefFoundError ex) {
 				throw new RuntimeException("Failed to load class: " + className, ex);
 			} catch (ExceptionInInitializerError err) {
 				throw new RuntimeException(className + " generated an exception while loading", err.getCause());

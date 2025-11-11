@@ -1,0 +1,51 @@
+test "copper state of copper golem" when running minecraft "1.21.9":
+	spawn a copper golem at test-location:
+		set {_entity} to entity
+
+	loop all weathering copper states:
+		set the copper state of {_entity} to loop-value
+		assert the copper state of {_entity} is loop-value with "Copper state of copper golem did not change"
+
+	clear entity within {_entity}
+
+test "copper state of copper blocks":
+	set {_old} to the block data of test-block
+
+	set {_exposedTag} to paper tag "exposed_copper_blocks"
+	set {_weatheredTag} to paper tag "weathered_copper_blocks"
+	set {_oxidizedTag} to paper tag "oxidized_copper_blocks"
+	set {_blocks::*} to the tag contents of paper tag "copper_blocks"
+	filter {_blocks::*} to match:
+		input is not tagged with {_exposedTag}
+		input is not tagged with {_weatheredTag}
+		input is not tagged with {_oxidizedTag}
+
+	parse if running minecraft "1.21.9":
+		filter {_blocks::*} to match:
+			input is not a copper torch
+			input is not a copper wall torch
+
+	loop {_blocks::*}:
+		set test-block to loop-value
+
+		assert the copper state of test-block is normal copper state with "Copper block should be normal copper state, but was %type of test-block%"
+		set the copper state of test-block to exposed copper state
+		assert the copper state of test-block is exposed copper state with "Copper block should be exposed copper state, but was %type of test-block%"
+		set the copper state of test-block to weathered copper state
+		assert the copper state of test-block is weathered copper state with "Copper block should be weathered copper state, but was %type of test-block%"
+		set the copper state of test-block to oxidized copper state
+		assert the copper state of test-block is oxidized copper state with "Copper block should be oxidized copper state, but was %type of test-block%"
+
+	set the block data of test-block to {_old}
+
+test "copper state of chests" when running minecraft "1.21.9":
+	set {_old} to the block data of test-block
+
+	set test-block to a copper chest
+	set slot 1 of inventory of test-block to a diamond
+	assert slot 1 of inventory of test-block is a diamond with "Diamond was not initially set into inventory"
+	loop all copper states:
+		set copper state of test-block to loop-value
+		assert slot 1 of inventory of test-block is a diamond with "Inventory did not retain items when being changed to %loop-value%"
+
+	set the block data of test-block to {_old}
