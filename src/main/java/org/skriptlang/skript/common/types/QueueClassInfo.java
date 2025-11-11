@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
@@ -48,7 +49,14 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 			.property(Property.IS_EMPTY,
 				"Whether a queue is empty, i.e. whether there are no elements in the queue.",
 				Skript.instance(),
-				ConditionPropertyHandler.of(SkriptQueue::isEmpty));
+				ConditionPropertyHandler.of(SkriptQueue::isEmpty))
+			.property(Property.ELEMENT,
+				"""
+					Elements of a queue.
+					Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.
+					""",
+				Skript.instance(),
+				new QueueElementHandler());
 	}
 
 	private static class QueueChanger implements Changer<SkriptQueue> {
@@ -139,6 +147,34 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 		@Override
 		public @NotNull Class<Integer> returnType() {
 			return Integer.class;
+		}
+		//</editor-fold>
+	}
+
+	private static class QueueElementHandler implements ElementHandler<SkriptQueue, Object> {
+		//<editor-fold desc="element property handler" defaultstate="collapsed">
+		@Override
+		public @Nullable Object get(SkriptQueue queue, Integer index) {
+			if (index == 0)
+				return queue.pollFirst();
+			if (index == queue.size() - 1)
+				return queue.pollLast();
+			return queue.removeSafely(index);
+		}
+
+		@Override
+		public Object @Nullable [] get(SkriptQueue queue, Integer start, Integer end) {
+			return queue.removeRangeSafely(start, end);
+		}
+
+		@Override
+		public int size(SkriptQueue queue) {
+			return queue.size();
+		}
+
+		@Override
+		public @NotNull Class<Object> returnType() {
+			return Object.class;
 		}
 		//</editor-fold>
 	}

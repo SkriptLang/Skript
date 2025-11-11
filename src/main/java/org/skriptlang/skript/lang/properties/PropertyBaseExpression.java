@@ -20,7 +20,13 @@ import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,16 +86,13 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 		}
 
 		// determine possible return types
-		returnTypes = getPropertyReturnTypes(properties, Handler::possibleReturnTypes);
+		returnTypes = getPropertyReturnTypes(properties);
 		returnType = Utils.getSuperType(returnTypes);
 		return LiteralUtils.canInitSafely(expr);
 	}
 
-	protected Class<?> @NotNull [] getPropertyReturnTypes(@NotNull PropertyMap<Handler> properties, Function<Handler, Class<?>[]> getReturnType) {
-		return properties.values().stream()
-			.flatMap((propertyInfo) -> Arrays.stream(getReturnType.apply(propertyInfo.handler())))
-			.filter(type -> type != Object.class)
-			.toArray(Class<?>[]::new);
+	protected Class<?> @NotNull [] getPropertyReturnTypes(PropertyMap<Handler> properties) {
+		return PropertyBaseSyntax.getPropertyReturnTypes(properties);
 	}
 
 	@Override

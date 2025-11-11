@@ -18,6 +18,7 @@ import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
 
@@ -245,6 +246,17 @@ public record Property<Handler extends PropertyHandler<?>>(
 			TypedValuePropertyHandler.class);
 
 	/**
+	 * A property for something that can contain things.
+	 */
+	public static final Property<ElementHandler<?, ?>> ELEMENT = Property.of(
+		"element",
+		"Something that contains elements.",
+		"INSERT VERSION",
+		Skript.instance(),
+		ElementHandler.class
+	);
+
+	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
 	 */
 	public static void registerDefaultProperties() {
@@ -256,6 +268,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 		NUMBER.register();
 		IS_EMPTY.register();
 		TYPED_VALUE.register();
+		ELEMENT.register();
 	}
 
 }
