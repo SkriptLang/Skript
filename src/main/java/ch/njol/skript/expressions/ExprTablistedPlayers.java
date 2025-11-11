@@ -26,12 +26,12 @@ import ch.njol.util.coll.CollectionUtils;
 	"`reset` will reset the tab list to the default state, which makes all players visible again."
 })
 @Example("tablist players of player")
-@Since("INSERT VERSION")
+@Since("2.13")
 @Keywords("tablist")
 public class ExprTablistedPlayers extends PropertyExpression<Player, Player> {
 
 	static {
-		registerDefault(ExprTablistedPlayers.class, Player.class, "[the] (tablist[ed]|listed) players", "players");
+		registerDefault(ExprTablistedPlayers.class, Player.class, "(tablist[ed]|listed) players", "players");
 	}
 
 	@Override

@@ -13,8 +13,8 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
 public enum Feature implements Experiment {
 	EXAMPLES("examples", LifeCycle.STABLE),
 	QUEUES("queues", LifeCycle.EXPERIMENTAL),
-	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]"),
-	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection"),
+	FOR_EACH_LOOPS("for loop", LifeCycle.MAINSTREAM, "for [each] loop[s]"),
+	SCRIPT_REFLECTION("reflection", LifeCycle.STABLE, "[script] reflection"),
 	CATCH_ERRORS("catch runtime errors", LifeCycle.EXPERIMENTAL, "error catching [section]"),
 	TYPE_HINTS("type hints", LifeCycle.EXPERIMENTAL, "[local variable] type hints"),
 	DAMAGE_SOURCE("damage source", LifeCycle.EXPERIMENTAL, "damage source[s]"),

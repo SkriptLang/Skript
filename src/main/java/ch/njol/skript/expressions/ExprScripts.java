@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Name("All Scripts (Experimental)")
+@Name("All Scripts")
 @Description("Returns all of the scripts, or just the enabled or disabled ones.")
 @Examples({
 	"command /scripts:",

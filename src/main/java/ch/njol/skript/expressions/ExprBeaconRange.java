@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 		set the beacon effect range of the clicked block to 100
 	"""
 )
-@RequiredPlugins("Paper")
 @Since("2.10")
 public class ExprBeaconRange extends SimplePropertyExpression<Block, Double> {
 

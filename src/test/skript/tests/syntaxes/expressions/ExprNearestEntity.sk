@@ -1,5 +1,6 @@
 test "nearest entity does not allow duplicate entities":
 	assert nearest cow and cow relative to {_null} to fail with "duplicate entities were allowed in nearest entity expr"
+	assert closest cow and cow relative to {_null} to fail with "duplicate entities were allowed in nearest entity expr"
 
 # server doesn't spawn the entities until the next tick, and we can't wait in the test system so... commented for now
 #test "nearest entity":

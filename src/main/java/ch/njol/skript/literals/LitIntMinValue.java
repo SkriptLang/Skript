@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Minimum Integer Value")
 @Description("A number representing the minimum value of an integer number type.")
 @Example("if {_number} <= minimum integer value:")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class LitIntMinValue extends SimpleLiteral<Integer> {
 
 	static {

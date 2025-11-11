@@ -27,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	prevent {_component} from being dispensed
 	""")
 @RequiredPlugins("Minecraft 1.21.2+")
-@Since("INSERT VERSION")
+@Since("2.13")
 public class EffEquipCompDispensable extends Effect implements EquippableExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {
