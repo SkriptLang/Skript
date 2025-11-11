@@ -9,23 +9,20 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.variables.HintManager;
-import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.ContainerExpression;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.ExperimentData;
-import org.skriptlang.skript.lang.experiment.SimpleExperimentalSyntax;
 
 import java.util.List;
 
-@Name("For Each Loop (Experimental)")
+@Name("For Each Loop")
 @Description("""
 	A specialised loop section run for each element in a list.
 	Unlike the basic loop, this is designed for extracting the key & value from pairs.
@@ -49,10 +46,8 @@ import java.util.List;
 	"for each {_index}, {_value} in {my list::*}:",
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
-@Since("2.10")
-public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
-
-	private static final ExperimentData EXPERIMENT_DATA = ExperimentData.createSingularData(Feature.FOR_EACH_LOOPS);
+@Since("2.10, INSERT VERSION (stable release)")
+public class SecFor extends SecLoop {
 
 	static {
 		Skript.registerSection(SecFor.class,
@@ -140,11 +135,6 @@ public class SecFor extends SecLoop implements SimpleExperimentalSyntax {
 		this.loadOptionalCode(sectionNode);
 		this.setInternalNext(this);
 		return true;
-	}
-
-	@Override
-	public ExperimentData getExperimentData() {
-		return EXPERIMENT_DATA;
 	}
 
 	@Override

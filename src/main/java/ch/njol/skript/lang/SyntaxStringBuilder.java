@@ -37,6 +37,7 @@ public class SyntaxStringBuilder {
 	 *
 	 * @param object The object to add.
 	 * @return The builder.
+	 * @see #appendIf(boolean, Object) 
 	 */
 	public SyntaxStringBuilder append(@NotNull Object object) {
 		Preconditions.checkNotNull(object);
@@ -54,10 +55,45 @@ public class SyntaxStringBuilder {
 	 *
 	 * @param objects The objects to add.
 	 * @return The builder.
+	 * @see #appendIf(boolean, Object...) 
 	 */
 	public SyntaxStringBuilder append(@NotNull Object... objects) {
 		for (Object object : objects) {
 			append(object);
+		}
+		return this;
+	}
+
+	/**
+	 * Adds an object to the string and returns the builder, if the given condition is true.
+	 * Spaces are automatically added between the provided objects.
+	 * If the object is a {@link Debuggable} it will be formatted using
+	 * {@link Debuggable#toString(Event, boolean)}.
+	 * 
+	 * @param condition The condition.
+	 * @param object The object to add.
+	 * @return The builder.
+	 * @see #append(Object) 
+	 */
+	public SyntaxStringBuilder appendIf(boolean condition, @NotNull Object object) {
+		if (condition) {
+			append(object);
+		}
+		return this;
+	}
+
+	/**
+	 * Adds multiple objects to the string and returns the builder, if the given condition is true.
+	 * Spaces are automatically added between the provided objects.
+	 *
+	 * @param condition The condition.
+	 * @param objects The objects to add.
+	 * @return The builder.
+	 * @see #append(Object...) 
+	 */
+	public SyntaxStringBuilder appendIf(boolean condition, @NotNull Object... objects) {
+		if (condition) {
+			append(objects);
 		}
 		return this;
 	}
