@@ -4,10 +4,11 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
 /**
  * A registry for functions.
  */
-final class FunctionRegistry implements Registry<Function<?>> {
+@ApiStatus.Internal
+public final class FunctionRegistry implements Registry<Function<?>> {
 
 	private static FunctionRegistry registry;
 
@@ -51,8 +53,7 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	private final Map<NamespaceIdentifier, Namespace> namespaces = new ConcurrentHashMap<>();
 
 	@Override
-	@UnmodifiableView
-	public @NotNull Collection<Function<?>> elements() {
+	public @Unmodifiable @NotNull Collection<Function<?>> elements() {
 		Set<Function<?>> functions = new HashSet<>();
 
 		for (Namespace namespace : namespaces.values()) {
@@ -396,6 +397,44 @@ final class FunctionRegistry implements Registry<Function<?>> {
 	}
 
 	/**
+	 * Gets every signature with the name {@code name}.
+	 * This includes global functions and, if {@code namespace} is not null, functions under that namespace (if valid).
+	 * @param namespace The additional namespace to obtain signatures from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name      The name of the signature(s) to obtain.
+	 * @return A list of all signatures named {@code name}.
+	 */
+	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+
+		ImmutableSet.Builder<Signature<?>> setBuilder = ImmutableSet.builder();
+
+		// obtain all global functions of "name"
+		Namespace globalNamespace = namespaces.get(GLOBAL_NAMESPACE);
+		Set<FunctionIdentifier> globalIdentifiers = globalNamespace.identifiers.get(name);
+		if (globalIdentifiers != null) {
+			for (FunctionIdentifier identifier : globalIdentifiers) {
+				setBuilder.add(globalNamespace.signatures.get(identifier));
+			}
+		}
+
+		// obtain all local functions of "name"
+		if (namespace != null) {
+			Namespace localNamespace = namespaces.get(new NamespaceIdentifier(namespace));
+			if (localNamespace != null) {
+				Set<FunctionIdentifier> localIdentifiers = localNamespace.identifiers.get(name);
+				if (localIdentifiers != null) {
+					for (FunctionIdentifier identifier : localIdentifiers) {
+						setBuilder.add(localNamespace.signatures.get(identifier));
+					}
+				}
+			}
+		}
+
+		return setBuilder.build();
+	}
+
+	/**
 	 * Gets the signature for a function with the given name and arguments.
 	 *
 	 * @param namespace The namespace to get the function from.
@@ -470,6 +509,8 @@ final class FunctionRegistry implements Registry<Function<?>> {
 				// make sure all types in the passed array are valid for the array parameter
 				Class<?> arrayType = candidate.args[0].componentType();
 				for (Class<?> arrayArg : provided.args) {
+					if (arrayArg.isArray())
+						arrayArg = arrayArg.getComponentType();
 					if (!Converters.converterExists(arrayArg, arrayType)) {
 						continue candidates;
 					}
@@ -674,11 +715,11 @@ final class FunctionRegistry implements Registry<Function<?>> {
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.def != null) {
+				if (param.isOptional()) {
 					optionalArgs++;
 				}
 
-				Class<?> type = param.getType().getC();
+				Class<?> type = param.type();
 				if (param.isSingleValue()) {
 					parameters[i] = type;
 				} else {

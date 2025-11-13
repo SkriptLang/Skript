@@ -222,10 +222,6 @@ public final class BukkitEventValues {
 		// EntityTameEvent
 		EventValues.registerEventValue(EntityTameEvent.class, Entity.class, EntityTameEvent::getEntity);
 
-		// EntityTeleportEvent
-		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, EntityTeleportEvent::getFrom, TIME_PAST);
-		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, EntityTeleportEvent::getTo);
-
 		// EntityChangeBlockEvent
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, EntityChangeBlockEvent::getBlock, TIME_PAST);
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, EntityChangeBlockEvent::getBlock);
@@ -272,7 +268,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerBucketFillEvent.class, Block.class, event -> {
 			BlockState state = event.getBlockClicked().getState();
 			state.setType(Material.AIR);
-			state.setRawData((byte) 0);
 			return new BlockStateBlock(state, true);
 		}, TIME_FUTURE);
 		EventValues.registerEventValue(PlayerBucketEmptyEvent.class, Block.class,
@@ -280,7 +275,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerBucketEmptyEvent.class, Block.class, event -> {
 			BlockState state = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
 			state.setType(event.getBucket() == Material.WATER_BUCKET ? Material.WATER : Material.LAVA);
-			state.setRawData((byte) 0);
 			return new BlockStateBlock(state, true);
 		});
 		// PlayerDropItemEvent
