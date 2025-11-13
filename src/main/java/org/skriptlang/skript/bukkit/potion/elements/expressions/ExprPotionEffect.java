@@ -49,7 +49,7 @@ public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEff
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffect.class, SkriptPotionEffect.class,
-			"[:active|:hidden|both:active and hidden|both:hidden and active] %potioneffecttypes% [potion] effect[s]",
+			"[:active|:hidden|both:(active and hidden|hidden and active)] %potioneffecttypes% [potion] effect[s]",
 			"livingentities/itemtypes",
 			false)
 				.supplier(ExprPotionEffect::new)

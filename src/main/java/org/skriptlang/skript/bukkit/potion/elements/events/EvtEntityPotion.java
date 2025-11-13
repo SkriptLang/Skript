@@ -10,15 +10,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
-
-import static ch.njol.skript.registrations.EventValues.TIME_PAST;
 
 public class EvtEntityPotion extends SkriptEvent {
 
@@ -42,7 +39,7 @@ public class EvtEntityPotion extends SkriptEvent {
 				.build());
 
 		// Entity Potion Effect
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getOldEffect, TIME_PAST);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getOldEffect, EventValues.TIME_PAST);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getNewEffect);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, EntityPotionEffectEvent::getModifiedType);
 		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, EntityPotionEffectEvent::getCause);

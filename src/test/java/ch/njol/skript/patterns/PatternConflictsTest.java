@@ -435,7 +435,6 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 
 		// 4 conflicts
 		EXCLUSIONS.add(new Exclusion(ExprEntitySound.class, ExprBlockSound.class));
-		EXCLUSIONS.add(new Exclusion(ExprEnchantmentLevel.class, ExprPotionEffectTier.class));
 
 		// 5 conflicts
 		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprSets.class));

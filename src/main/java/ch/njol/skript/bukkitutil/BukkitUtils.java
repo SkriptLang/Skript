@@ -43,7 +43,7 @@ public class BukkitUtils {
 	 * <p>Paper/Bukkit have 2 different names for the same registry.</p>
 	 *
 	 * @return PotionEffectType Registry
-	 * @deprecated Use {@link org.skriptlang.skript.bukkit.potion.util.PotionUtils#getPotionEffectTypeRegistry()}
+	 * @deprecated Use {@link Registry#MOB_EFFECT} or {@link Registry#EFFECT} depending on your version.
 	 */
 	@SuppressWarnings("NullableProblems")
 	@Deprecated(since = "INSERT VERSION", forRemoval = true)

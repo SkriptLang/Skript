@@ -57,6 +57,12 @@ public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEff
 		}
 	}
 
+	/**
+	 * Changes the duration of a potion effect while accounting for bounds and properties such as infinite durations.
+	 * @param potionEffect The potion effect to change.
+	 * @param change The timespan delta.
+	 * @param mode The mode of change to perform.
+	 */
 	static void changeSafe(SkriptPotionEffect potionEffect, Timespan change, ChangeMode mode) {
 		Timespan duration;
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
