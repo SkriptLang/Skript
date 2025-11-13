@@ -3,6 +3,7 @@ package org.skriptlang.skript.common.function;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Signature;
 import com.google.common.base.Preconditions;
+import org.enginehub.piston.converter.MapArgumentConverter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -16,7 +17,7 @@ import java.util.function.Function;
 final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function<T> implements DefaultFunction<T> {
 
 	private final SkriptAddon source;
-	private final Parameter<?>[] parameters;
+	private final SequencedMap<String, Parameter<?>> parameters;
 	private final Function<FunctionArguments, T> execute;
 
 	private final List<String> description;
@@ -27,14 +28,15 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 	DefaultFunctionImpl(
 			SkriptAddon source,
-			String name, Parameter<?>[] parameters,
+			String name,
+			SequencedMap<String, Parameter<?>> parameters,
 			Class<T> returnType, boolean single,
 			@Nullable ch.njol.skript.util.Contract contract,
 			Function<FunctionArguments, T> execute,
 			String[] description, String[] since, String[] examples,
 			String[] keywords, String[] requires
 	) {
-		super(new Signature<>(null, name, parameters, returnType, single, contract));
+		super(new Signature<>(null, name, parameters.values().toArray(new Parameter[0]), returnType, single, contract));
 
 		Preconditions.checkNotNull(source, "source cannot be null");
 		Preconditions.checkNotNull(name, "name cannot be null");
@@ -56,10 +58,11 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
 		Map<String, Object> args = new LinkedHashMap<>();
 
-		int length = Math.min(parameters.length, params.length);
+		int length = Math.min(parameters.size(), params.length);
+		Parameter<?>[] arrayParams = parameters.values().toArray(new Parameter[0]);
 		for (int i = 0; i < length; i++) {
 			Object[] arg = params[i];
-			Parameter<?> parameter = parameters[i];
+			Parameter<?> parameter = arrayParams[i];
 
 			if (arg == null || arg.length == 0) {
 				if (parameter.hasModifier(Modifier.OPTIONAL)) {
@@ -98,6 +101,17 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			array[0] = result;
 			return array;
 		}
+	}
+
+	@Override
+	public T execute(@NotNull FunctionEvent<?> event, @NotNull FunctionArguments arguments) {
+		for (String name : arguments.names()) {
+			if (arguments.get(name) == null && !parameters.get(name).hasModifier(Modifier.OPTIONAL)) {
+				return null;
+			}
+		}
+
+		return execute.apply(arguments);
 	}
 
 	@Override
@@ -150,7 +164,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		private final SkriptAddon source;
 		private final String name;
 		private final Class<T> returnType;
-		private final Map<String, DefaultParameter<?>> parameters = new LinkedHashMap<>();
+		private final SequencedMap<String, Parameter<?>> parameters = new LinkedHashMap<>();
 
 		private ch.njol.skript.util.Contract contract = null;
 
@@ -236,7 +250,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 		public DefaultFunction<T> build(@NotNull Function<FunctionArguments, T> execute) {
 			Preconditions.checkNotNull(execute, "execute cannot be null");
 
-			return new DefaultFunctionImpl<>(source, name, parameters.values().toArray(new Parameter[0]),
+			return new DefaultFunctionImpl<>(source, name, parameters,
 					returnType, !returnType.isArray(), contract, execute,
 					description, since, examples, keywords, requires);
 		}
