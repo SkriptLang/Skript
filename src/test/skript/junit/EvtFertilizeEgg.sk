@@ -1,0 +1,21 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtFertilizeEggTest"
+
+test "EvtFertilizeEggTest" when running Junit:
+	add "fertilize egg event - general" to {_evt::*}
+	add "fertilize egg event - specified entity" to {_evt::*}
+	add "fertilize egg event - mother" to {_evt::*}
+	add "fertilize egg event - father" to {_evt::*}
+	ensure junit test {@test} completes {_evt::*}
+
+on fertilize:
+	junit test is {@test}
+	complete objective "fertilize egg event - general" for {@test}
+
+on fertilize of frog:
+	junit test is {@test}
+	complete objective "fertilize egg event - specified entity" for {@test}
+	breeding mother is frog
+	complete objective "fertilize egg event - mother" for {@test}
+	breeding father is frog
+	complete objective "fertilize egg event - father" for {@test}
