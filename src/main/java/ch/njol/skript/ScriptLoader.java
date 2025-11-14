@@ -5,11 +5,8 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.ExecutionIntent;
-import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.globals.GlobalOptions;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
@@ -971,7 +968,7 @@ public class ScriptLoader {
 			return string;
 		OptionsData optionsData = parser.getCurrentScript().getData(OptionsData.class);
 		if (optionsData == null)
-			return string;
+			return GlobalOptions.replaceOptions(string);
 		return optionsData.replaceOptions(string);
 	}
 

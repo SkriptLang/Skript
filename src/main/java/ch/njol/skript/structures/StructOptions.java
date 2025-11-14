@@ -8,13 +8,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.globals.GlobalOptions;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -63,7 +63,7 @@ public class StructOptions extends Structure {
 		return true;
 	}
 
-	private void loadOptions(SectionNode sectionNode, String prefix, Map<String, String> options) {
+	public static void loadOptions(SectionNode sectionNode, String prefix, Map<String, String> options) {
 		for (Node node : sectionNode) {
 			if (node instanceof EntryNode) {
 				options.put(prefix + node.getKey(), ((EntryNode) node).getValue());
@@ -107,7 +107,7 @@ public class StructOptions extends Structure {
 		@SuppressWarnings("ConstantConditions") // no way to get null as callback does not return null anywhere
 		public String replaceOptions(String string) {
 			return StringUtils.replaceAll(string, "\\{@(.+?)\\}", m -> {
-				String option = options.get(m.group(1));
+				String option = options.getOrDefault(m.group(1), GlobalOptions.getOptions().get(m.group(1)));
 				if (option == null) {
 					Skript.error("undefined option " + m.group());
 					return m.group();

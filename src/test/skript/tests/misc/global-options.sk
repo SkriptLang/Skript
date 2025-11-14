@@ -1,0 +1,6 @@
+options:
+	GlobalOptionOverrideTest: overridden!
+
+test "global options":
+	assert "{@GlobalOptionTest}" is "works!!!" with "global option didn't work"
+	assert "{@GlobalOptionOverrideTest}" is "overridden!" with "overriding global option didn't work"

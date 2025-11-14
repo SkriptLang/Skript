@@ -1,0 +1,13 @@
+#
+# This file lets you set options globally.
+# Options here will be available across all scripts.
+# Scripts can override a global option by creating an option with the same name as the global one.
+# When you edit this file, you must first reload global-options and then reload all the script files that use global options.
+#
+# Example usage of this file:
+#
+# server name: SkriptLand   # {@server name}
+# join messages:
+#   first join: %player% joined for the first time!   # {@join messages.first join}
+#   welcome back: Welcome back %player%!   # {@join messages.welcome back}
+#
