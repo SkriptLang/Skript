@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.generic;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	"Returns or changes the glowing color override of <a href='#display'>displays</a>.",
 	"This overrides whatever color is already set for the scoreboard team of the displays."
 })
-@Examples("set glow color override of the last spawned text display to blue")
+@Example("set glow color override of the last spawned text display to blue")
 @Since("2.10")
 public class ExprDisplayGlowOverride extends SimplePropertyExpression<Display, Color> {
 

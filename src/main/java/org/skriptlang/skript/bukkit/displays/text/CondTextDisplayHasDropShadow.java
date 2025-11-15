@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.displays.text;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -14,10 +14,10 @@ import org.bukkit.entity.TextDisplay;
 
 @Name("Text Display Has Drop Shadow")
 @Description("Returns whether the text of a display has drop shadow applied.")
-@Examples({
-	"if {_display} has drop shadow:",
-		"\tremove drop shadow from the text of {_display}"
-})
+@Example("""
+	if {_display} has drop shadow:
+		remove drop shadow from the text of {_display}
+	""")
 @Since("2.10")
 public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 

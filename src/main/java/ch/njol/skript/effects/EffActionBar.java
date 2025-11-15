@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -20,7 +20,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 @Name("Action Bar")
 @Description("Sends an action bar message to the given player(s).")
-@Examples("send action bar \"Hello player!\" to player")
+@Example("send action bar \"Hello player!\" to player")
 @Since("2.3")
 public class EffActionBar extends Effect {
 

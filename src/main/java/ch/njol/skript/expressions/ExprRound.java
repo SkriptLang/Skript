@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -20,11 +20,9 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Rounding")
 @Description("Rounds numbers normally, up (ceiling) or down (floor) respectively.")
-@Examples({
-	"set {var} to rounded health of player",
-	"set line 1 of the block to rounded \"%(1.5 * player's level)%\"",
-	"add rounded down argument to the player's health"
-})
+@Example("set {var} to rounded health of player")
+@Example("set line 1 of the block to \"%rounded (1.5 * player's level)%\"")
+@Example("add rounded down argument to the player's health")
 @Since("2.0")
 public class ExprRound extends PropertyExpression<Number, Long> {
 
