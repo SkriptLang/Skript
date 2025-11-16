@@ -191,7 +191,7 @@ public class ItemUtils {
 	 * @return Item version of material or null.
 	 * @deprecated This just returns itself and has no use
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	public static Material asItem(Material type) {
 		// Assume (naively) that all types are valid items
 		return type;
@@ -401,8 +401,9 @@ public class ItemUtils {
 			itemType.setItemMeta(itemMeta);
 		} else if (object instanceof ItemStack itemStack) {
 			itemStack.setItemMeta(itemMeta);
+		} else {
+			throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack.");
 		}
-		throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack.");
 	}
 
 }

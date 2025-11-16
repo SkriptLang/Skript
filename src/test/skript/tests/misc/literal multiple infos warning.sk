@@ -1,0 +1,69 @@
+options:
+	error: "'unknown' has multiple types \(.*\)\. Consider specifying which type to use: 'unknown \(.*\)'"
+
+parse:
+	results: {LiteralMultipleWarn::FunctionObject}
+	code:
+		function a():: object:
+			return unknown
+
+test "literal multiple infos warning":
+	parse:
+		set {_test} to unknown
+	assert last parse logs matches {@error} with "Setting variable should throw warning"
+
+	parse:
+		if {_list::*} contains unknown:
+			broadcast "Filler"
+	assert last parse logs matches {@error} with "Contains should throw warning"
+
+	parse:
+		if the 1st element of {_list::*} is unknown:
+			broadcast "filler"
+	assert last parse logs matches {@error} with "Element of should throw warning"
+
+	parse:
+		filter {_list::*} to match:
+			input is unknown
+	assert last parse logs matches {@error} with "Filtering should throw warning"
+
+	parse:
+		for each {_value} in {_list::*}:
+			if {_value} is unknown:
+				broadcast "filler"
+	assert last parse logs matches {@error} with "For each should throw warning"
+
+	assert {LiteralMultipleWarn::FunctionObject} matches {@error} with "Function with Object return type should throw warning"
+	clear {LiteralMultipleWarn::*}
+
+parse:
+	results: {LiteralMultipleNoWarn::Damage}
+	code:
+		on damage:
+			if damage cause is unknown:
+				broadcast "filler"
+
+parse:
+	results: {LiteralMultipleNoWarn::FunctionDamageCause}
+	code:
+		function a():: damage cause:
+			return unknown
+
+test "literal multiple infos no warning":
+	if all:
+		{LiteralMultipleNoWarn::Damage} is set
+		{LiteralMultipleNoWarn::Damage} matches {@error}
+	then:
+		assert true is false with "Condition check against shared type should not throw warning"
+
+	if all:
+		{LiteralMultipleNoWarn::FunctionDamageCause} is set
+		{LiteralMultipleNoWarn::FunctionDamageCause} matches {@error}
+	then:
+		assert true is false with "Function with shared return type should not throw warning"
+	clear {LiteralMultipleNoWarn::*}
+
+	parse:
+		filter {_list::*} to match:
+			damage cause input is unknown
+	assert last parse logs is not set with "Filtering with specified input type should not throw warning"

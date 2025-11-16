@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.base.Preconditions;
@@ -59,8 +60,12 @@ public final class ParserInstance implements Experimented {
 	 */
 	@ApiStatus.Internal
 	public void setActive(Script script) {
-		this.isActive = true;
 		reset(); // just to be safe
+
+		// Needs to be explicitly marked as it will be false from the 'reset' call
+		this.hintManager.setActive(true);
+
+		this.isActive = true; // we want it to be active for script events
 		setCurrentScript(script);
 	}
 
@@ -85,6 +90,7 @@ public final class ParserInstance implements Experimented {
 		this.currentSections = new ArrayList<>();
 		this.hasDelayBefore = Kleenean.FALSE;
 		this.node = null;
+		this.hintManager = new HintManager(this.hintManager.isActive());
 		dataMap.clear();
 	}
 
@@ -512,9 +518,12 @@ public final class ParserInstance implements Experimented {
 	 * This is safe to retain during runtime (e.g. to defer a check) but will
 	 * not see changes, such as if a script subsequently 'uses' another experiment.
 	 *
-	 * @return A snapshot of the current experiment flags in use
+	 * @return A snapshot of the current experiment flags in use,
+	 *  or an empty experiment set if not {@link #isActive()}.
 	 */
 	public Experimented experimentSnapshot() {
+		if (!this.isActive())
+			return new ExperimentSet();
 		Script script = this.getCurrentScript();
 		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
 		if (set == null)
@@ -524,13 +533,29 @@ public final class ParserInstance implements Experimented {
 
 	/**
 	 * Get the {@link ExperimentSet} of the current {@link Script}
+	 * @return Experiment set of {@link #getCurrentScript()},
+	 *  or an empty experiment set if not {@link #isActive()}.
 	 */
 	public ExperimentSet getExperimentSet() {
+		if (!this.isActive())
+			return new ExperimentSet();
 		Script script = this.getCurrentScript();
 		ExperimentSet set = script.getData(ExperimentSet.class);
 		if (set == null)
 			return new ExperimentSet();
 		return set;
+	}
+
+	// Type Hints
+
+	private HintManager hintManager = new HintManager(true);
+
+	/**
+	 * @return The local variable type hint manager for the active parsing process.
+	 */
+	@ApiStatus.Experimental
+	public HintManager getHintManager() {
+		return hintManager;
 	}
 
 	// ParserInstance Data API
@@ -555,9 +580,9 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptLoader.LoaderEvent}.
+		 * @deprecated See {@link ScriptLoader.LoaderEvent} instead.
 		 */
-		@Deprecated
+		@Deprecated(since = "2.11.0", forRemoval = true)
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
 		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
@@ -588,7 +613,7 @@ public final class ParserInstance implements Experimented {
 	 * or null (after {@code false} has been asserted) if the given data class isn't registered.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends Data> T getData(Class<T> dataClass) {
+	public @NotNull <T extends Data> T getData(Class<T> dataClass) {
 		if (dataMap.containsKey(dataClass)) {
 			return (T) dataMap.get(dataClass);
 		} else if (dataRegister.containsKey(dataClass)) {
@@ -600,14 +625,13 @@ public final class ParserInstance implements Experimented {
 		return null;
 	}
 
-	private List<? extends Data> getDataInstances() {
+	private @NotNull List<? extends Data> getDataInstances() {
 		// List<? extends Data> gave errors, so using this instead
 		List<Data> dataList = new ArrayList<>();
 		for (Class<? extends Data> dataClass : dataRegister.keySet()) {
 			// This will include all registered data, even if not already initiated
 			Data data = getData(dataClass);
-			if (data != null)
-				dataList.add(data);
+			dataList.add(data);
 		}
 		return dataList;
 	}
@@ -654,6 +678,7 @@ public final class ParserInstance implements Experimented {
 		private final Class<? extends Event> @Nullable [] currentEvents;
 		private final List<TriggerSection> currentSections;
 		private final Kleenean hasDelayBefore;
+		private final HintManager hintManager;
 		private final Map<Class<? extends Data>, Data> dataMap;
 
 		private Backup(ParserInstance parser) {
@@ -666,16 +691,18 @@ public final class ParserInstance implements Experimented {
 				: null;
 			this.currentSections = new ArrayList<>(parser.currentSections);
 			this.hasDelayBefore = parser.hasDelayBefore;
+			this.hintManager = parser.hintManager;
 			this.dataMap = new HashMap<>(parser.dataMap);
 		}
 
 		private void apply(ParserInstance parser) {
-			parser.setCurrentScript(currentScript);
+			parser.setCurrentScript(this.currentScript);
 			parser.currentStructure = this.currentStructure;
 			parser.currentEventName = this.currentEventName;
 			parser.currentEvents = this.currentEvents;
 			parser.currentSections = this.currentSections;
 			parser.hasDelayBefore = this.hasDelayBefore;
+			parser.hintManager = this.hintManager;
 			parser.dataMap.clear();
 			parser.dataMap.putAll(this.dataMap);
 		}
@@ -706,10 +733,10 @@ public final class ParserInstance implements Experimented {
 	// Deprecated API
 
 	/**
-	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained.
+	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained. 
 	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);
@@ -720,9 +747,9 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
-	 * @deprecated Use {@link #getCurrentStructure()}
+	 * @deprecated Use {@link #getCurrentStructure()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
 		if (structure instanceof SkriptEvent event)
@@ -731,17 +758,17 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)}.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
 		this.setCurrentStructure(currentSkriptEvent);
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null'.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null' instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void deleteCurrentSkriptEvent() {
 		this.setCurrentStructure(null);
 	}
@@ -749,7 +776,7 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @deprecated Addons should no longer be modifying this.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentScript(@Nullable Config currentScript) {
 		if (currentScript == null)
 			return;

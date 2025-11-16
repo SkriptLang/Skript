@@ -1,21 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.function.Predicate;
-
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -32,12 +16,29 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Predicate;
 
 @Name("Target")
 @Description({
 	"For players this is the entity at the crosshair.",
 	"For mobs and experience orbs this is the entity they are attacking/following (if any).",
-	"Display entities have a hit box of 0, so you should use 'target display' to collect Display entities",
+	"The 'ray size' and 'ignoring blocks' options are only valid for players' targets.",
+	"The 'ray size' option effectively increases the area around the crosshair an entity can be in. It does so " +
+	"by expanding the hitboxes of entities by the given amount. Display entities have a hit box of 0, " +
+	"so using the 'ray size' option can be helpful when targeting them.",
 	"May grab entities in unloaded chunks."
 })
 @Examples({
@@ -49,13 +50,13 @@ import ch.njol.util.coll.CollectionUtils;
 	"delete targeted entity of player # for players it will delete the target",
 	"delete target of last spawned zombie # for entities it will make them target-less"
 })
-@Since("1.4.2, 2.7 (Reset), 2.8.0 (ignore blocks)")
+@Since("1.4.2, 2.7 (Reset), 2.8.0 (ignore blocks, ray size)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
 		Skript.registerExpression(ExprTarget.class, Entity.class, ExpressionType.PROPERTY,
-				"[the] target[[ed] %-*entitydata%] [of %livingentities%] [blocks:ignoring blocks] [[with|at] ray[ ]size %-number%]", // TODO add a where filter when extendable https://github.com/SkriptLang/Skript/issues/4856
-				"%livingentities%'[s] target[[ed] %-*entitydata%] [blocks:ignoring blocks] [[with|at] ray[ ]size %-number%]"
+				"[the] target[[ed] %-*entitydata%] [of %livingentities%] [blocks:ignoring blocks] [[with|at] [a] ray[ ]size [of] %-number%]", // TODO add a filter section
+				"%livingentities%'[s] target[[ed] %-*entitydata%] [blocks:ignoring blocks] [[with|at] [a] ray[ ]size [of] %-number%]"
 		);
 	}
 

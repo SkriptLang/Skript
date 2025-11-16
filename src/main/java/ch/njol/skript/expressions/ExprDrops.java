@@ -3,25 +3,18 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockDropItemEvent;
-import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -29,14 +22,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Drops")
-@Description("Only works in death events. Holds the drops of the dying creature. Drops can be prevented by removing them with " +
-		"\"remove ... from drops\", e.g. \"remove all pickaxes from the drops\", or \"clear drops\" if you don't want any drops at all.")
-@Examples({"clear drops",
-		"remove 4 planks from the drops"})
+@Description({
+	"This expression only works in death and harvest events.",
+	"In a death event, will hold the drops of the dying creature.",
+	"Drops can be prevented by removing them with \"remove ... from drops\", "
+		+ "e.g. \"remove all pickaxes from the drops\", or \"clear drops\" if you don't want any drops at all."
+})
+@Examples({
+	"clear drops",
+	"remove 4 planks from the drops"
+})
 @Since("1.0")
 @Events("death")
 public class ExprDrops extends SimpleExpression<ItemType> implements EventRestrictedSyntax {
@@ -56,7 +52,7 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(EntityDeathEvent.class, BlockDropItemEvent.class);
+		return CollectionUtils.array(EntityDeathEvent.class, PlayerHarvestBlockEvent.class);
 	}
 
 	@Override
@@ -66,10 +62,9 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 				.stream()
 				.map(ItemType::new)
 				.toArray(ItemType[]::new);
-		} else if (event instanceof BlockDropItemEvent blockDropItemEvent) {
-			return blockDropItemEvent.getItems()
+		} else if (event instanceof PlayerHarvestBlockEvent harvestBlockEvent) {
+			return harvestBlockEvent.getItemsHarvested()
 				.stream()
-				.map(Item::getItemStack)
 				.map(ItemType::new)
 				.toArray(ItemType[]::new);
 		}
@@ -83,19 +78,14 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 			Skript.error("Can't change the drops after the event has already passed");
 			return null;
 		}
-		switch (mode) {
-			case ADD:
-			case REMOVE:
-			case SET:
+		return switch (mode) {
+			case SET, ADD, REMOVE -> {
 				if (isDeathEvent)
-					return CollectionUtils.array(ItemType[].class, Inventory[].class, Experience[].class);
-				else
-					return CollectionUtils.array(ItemType[].class, Inventory[].class);
-			case DELETE: // handled by EffClearDrops
-			case RESET:
-			default:
-				return null;
-		}
+					yield CollectionUtils.array(ItemType[].class, Inventory[].class, Experience[].class);
+				yield CollectionUtils.array(ItemType[].class, Inventory[].class);
+			}
+			default -> null;
+		};
 	}
 
 	@Override
@@ -105,11 +95,8 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 		if (event instanceof EntityDeathEvent entityDeathEvent) {
 			drops = entityDeathEvent.getDrops();
 			originalExperience = entityDeathEvent.getDroppedExp();
-		} else if (event instanceof BlockDropItemEvent blockDropItemEvent) {
-			drops = blockDropItemEvent.getItems()
-				.stream()
-				.map(Item::getItemStack)
-				.toList();
+		} else if (event instanceof PlayerHarvestBlockEvent harvestBlockEvent) {
+			drops = harvestBlockEvent.getItemsHarvested();
 		} else {
 			return;
 		}
@@ -120,8 +107,8 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 		int deltaExperience = -1; // Skript does not support negative experience, so -1 is a safe "unset" value
 		boolean removeAllExperience = false;
 		List<ItemType> deltaDrops = new ArrayList<>();
-		for (Object o : delta) {
-			if (o instanceof Experience experience) {
+		for (Object object : delta) {
+			if (object instanceof Experience experience) {
 				// Special case for `remove xp from the drops`
 				if ((experience.getInternalXP() == -1 && mode == ChangeMode.REMOVE) || mode == ChangeMode.REMOVE_ALL) {
 					removeAllExperience = true;
@@ -132,13 +119,13 @@ public class ExprDrops extends SimpleExpression<ItemType> implements EventRestri
 				} else {
 					deltaExperience += experience.getXP();
 				}
-			} else if (o instanceof Inventory inventory) {
+			} else if (object instanceof Inventory inventory) {
 				// inventories are unrolled into their contents
 				for (ItemStack item : inventory.getContents()) {
 					if (item != null)
 						deltaDrops.add(new ItemType(item));
 				}
-			} else if (o instanceof ItemType itemType) {
+			} else if (object instanceof ItemType itemType) {
 				deltaDrops.add(itemType);
 			} else {
 				assert false;

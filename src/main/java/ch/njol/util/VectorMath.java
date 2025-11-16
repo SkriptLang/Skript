@@ -6,7 +6,7 @@ import ch.njol.skript.expressions.ExprVectorSpherical;
 import ch.njol.skript.expressions.ExprYawPitch;
 import org.bukkit.util.Vector;
 
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public final class VectorMath {
 
 	public static final double PI = Math.PI;

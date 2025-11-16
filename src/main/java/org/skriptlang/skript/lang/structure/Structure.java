@@ -11,14 +11,17 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -77,7 +80,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * If the EntryContainer is needed outside of {@link #init(Literal[], int, ParseResult, EntryContainer)},
 	 * the Structure should keep a reference to it.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public final EntryContainer getEntryContainer() {
 		if (entryContainer == null)
 			throw new IllegalStateException("This Structure hasn't been initialized!");
@@ -86,10 +89,9 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Override
 	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		StructureData structureData = getParser().getData(StructureData.class);
-
 		Literal<?>[] literals = Arrays.copyOf(expressions, expressions.length, Literal[].class);
 
+		StructureData structureData = getParser().getData(StructureData.class);
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
 
@@ -115,11 +117,16 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * The initialization phase of a Structure.
 	 * Typically, this should be used for preparing fields (e.g. handling arguments, parse tags)
 	 * Logic such as trigger loading should be saved for a loading phase (e.g. {@link #load()}).
+	 * 
+	 * @param args The arguments of the Structure.
+	 * @param matchedPattern The matched pattern of the Structure.
+	 * @param parseResult The parse result of the Structure.
+	 * @param entryContainer The EntryContainer of the Structure. Will not be null if the Structure provides a {@link EntryValidator}.
 	 * @return Whether initialization was successful.
 	 */
 	public abstract boolean init(
 		Literal<?>[] args, int matchedPattern, ParseResult parseResult,
-		@Nullable EntryContainer entryContainer
+		@UnknownNullability EntryContainer entryContainer
 	);
 
 	/**
@@ -182,7 +189,28 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Nullable
 	public static Structure parse(String expr, Node node, @Nullable String defaultError) {
-		return parse(expr, node, defaultError, Skript.getStructures().iterator());
+		if (!(node instanceof SimpleNode) && !(node instanceof SectionNode))
+			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
+		ParserInstance.get().getData(StructureData.class).node = node;
+
+		var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.STRUCTURE).iterator();
+		if (node instanceof SimpleNode) { // filter out section only structures
+			iterator = new CheckedIterator<>(iterator, info -> info != null && info.nodeType().canBeSimple());
+		} else { // filter out simple only structures
+			iterator = new CheckedIterator<>(iterator, info -> info != null && info.nodeType().canBeSection());
+		}
+		iterator = new ConsumingIterator<>(iterator, info -> ParserInstance.get().getData(StructureData.class).structureInfo =
+			(StructureInfo<?>) SyntaxElementInfo.fromModern(info));
+
+		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
+			Structure structure = SkriptParser.parseStatic(expr, iterator, ParseContext.EVENT, defaultError);
+			if (structure != null) {
+				parseLogHandler.printLog();
+				return structure;
+			}
+			parseLogHandler.printError();
+			return null;
+		}
 	}
 
 	@Nullable
@@ -216,16 +244,16 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
 
-		private Node node;
-		@Nullable
-		private StructureInfo<? extends Structure> structureInfo;
+		@ApiStatus.Internal
+		public Node node;
+		@ApiStatus.Internal
+		public @Nullable StructureInfo<? extends Structure> structureInfo;
 
 		public StructureData(ParserInstance parserInstance) {
 			super(parserInstance);
 		}
 
-		@Nullable
-		public StructureInfo<? extends Structure> getStructureInfo() {
+		public @Nullable StructureInfo<? extends Structure> getStructureInfo() {
 			return structureInfo;
 		}
 

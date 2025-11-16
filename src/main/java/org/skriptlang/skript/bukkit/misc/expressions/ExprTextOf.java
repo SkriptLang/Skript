@@ -17,10 +17,11 @@ import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import java.util.Arrays;
 
 @Name("Text Of")
 @Description({
-	"Returns or changes the <a href='classes.html#string'>text/string</a> of <a href='classes.html#display'>displays</a>.",
+	"Returns or changes the <a href='#string'>text/string</a> of <a href='#display'>displays</a>.",
 	"Note that currently you can only use Skript chat codes when running Paper."
 })
 @Examples("set text of the last spawned text display to \"example\"")
@@ -53,14 +54,14 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case RESET -> CollectionUtils.array();
-			case SET -> CollectionUtils.array(String.class);
+			case SET -> CollectionUtils.array(String[].class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		String value = delta == null ? null : (String) delta[0];
+		String value = delta == null ? null : String.join("\n", Arrays.copyOf(delta, delta.length, String[].class));
 		for (Object object : getExpr().getArray(event)) {
 			if (!(object instanceof TextDisplay textDisplay))
 				continue;

@@ -3,16 +3,17 @@ package ch.njol.skript.lang;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -44,7 +45,7 @@ public class ExpressionList<T> implements Expression<T> {
 		assert expressions != null;
 		this.expressions = expressions;
 		this.returnType = returnType;
-		this.possibleReturnTypes = possibleReturnTypes;
+		this.possibleReturnTypes = ImmutableSet.copyOf(possibleReturnTypes).toArray(new Class[0]);
 		this.and = and;
 		if (and) {
 			single = false;
@@ -149,13 +150,14 @@ public class ExpressionList<T> implements Expression<T> {
 	@SuppressWarnings("unchecked")
 	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		Expression<? extends R>[] exprs = new Expression[expressions.length];
-		Class<?>[] returnTypes = new Class[expressions.length];
+		Set<Class<?>> possibleReturnTypeSet = new HashSet<>();
 		for (int i = 0; i < exprs.length; i++) {
 			if ((exprs[i] = expressions[i].getConvertedExpression(to)) == null)
 				return null;
-			returnTypes[i] = exprs[i].getReturnType();
+			possibleReturnTypeSet.addAll(Arrays.asList(exprs[i].possibleReturnTypes()));
 		}
-		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(returnTypes).getC(), returnTypes, and, this);
+		Class<?>[] possibleReturnTypes = possibleReturnTypeSet.toArray(new Class[0]);
+		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(possibleReturnTypes).getC(), possibleReturnTypes, and, this);
 	}
 
 	@Override
@@ -183,20 +185,50 @@ public class ExpressionList<T> implements Expression<T> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		Class<?>[] exprClasses = expressions[0].acceptChange(mode);
-		if (exprClasses == null)
-			return null;
-		ArrayList<Class<?>> acceptedClasses = new ArrayList<>(Arrays.asList(exprClasses));
-		for (int i = 1; i < expressions.length; i++) {
-			exprClasses = expressions[i].acceptChange(mode);
-			if (exprClasses == null)
-				return null;
 
-			acceptedClasses.retainAll(Arrays.asList(exprClasses));
-			if (acceptedClasses.isEmpty())
+		// given X: Object.class, Y: Vector.class, Number.class, Z: Integer.class
+		// output should be Integer.class.
+
+		// get all accepted type arrays.
+		List<Class<?>[]> expressionTypes = new ArrayList<>();
+		for (Expression<?> expr : expressions) {
+			Class<?>[] exprTypes = expr.acceptChange(mode);
+			if (exprTypes == null)
 				return null;
+			expressionTypes.add(exprTypes);
 		}
-		return acceptedClasses.toArray(new Class[0]);
+
+		// shortcut
+		if (expressionTypes.size() == 1)
+			return expressionTypes.get(0);
+
+		// iterate over types and keep what works
+		Set<Class<?>> acceptable = new LinkedHashSet<>(Arrays.asList(expressionTypes.get(0)));
+		for (int i = 1; i < expressionTypes.size(); i++) {
+			Set<Class<?>> newAcceptable = new LinkedHashSet<>();
+
+			// Check if each existing acceptable types can be matched to this expr's accepted types
+			for (Class<?> candidate : acceptable) {
+				for (Class<?> accepted : expressionTypes.get(i)) {
+					// keep the more specific version
+					if (accepted.isAssignableFrom(candidate)) {
+						newAcceptable.add(candidate);
+						break;
+					} else if (candidate.isAssignableFrom(accepted)) {
+						newAcceptable.add(accepted);
+						break;
+					}
+				}
+			}
+
+			acceptable = newAcceptable;
+
+			if (acceptable.isEmpty()) {
+				return new Class<?>[0]; // Early exit if no common types
+			}
+		}
+
+		return acceptable.toArray(new Class<?>[0]);
 	}
 
 	@Override
@@ -208,6 +240,20 @@ public class ExpressionList<T> implements Expression<T> {
 		} else {
 			int i = ThreadLocalRandom.current().nextInt(expressions.length);
 			expressions[i].change(event, delta, mode);
+		}
+	}
+
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+		if (and || getAll) {
+			for (Expression<?> expr : expressions) {
+				//noinspection unchecked,rawtypes
+				expr.changeInPlace(event, (Function) changeFunction, getAll);
+			}
+		} else {
+			int i = ThreadLocalRandom.current().nextInt(expressions.length);
+			//noinspection unchecked,rawtypes
+			expressions[i].changeInPlace(event, (Function) changeFunction, false);
 		}
 	}
 
@@ -299,17 +345,9 @@ public class ExpressionList<T> implements Expression<T> {
 	@SuppressWarnings("unchecked")
 	public Expression<T> simplify() {
 		boolean isLiteralList = true;
-		boolean isSimpleList = true;
 		for (int i = 0; i < expressions.length; i++) {
 			expressions[i] = expressions[i].simplify();
 			isLiteralList &= expressions[i] instanceof Literal;
-			isSimpleList &= expressions[i].isSingle();
-		}
-		if (isLiteralList && isSimpleList) {
-			T[] values = (T[]) Array.newInstance(returnType, expressions.length);
-			for (int i = 0; i < values.length; i++)
-				values[i] = ((Literal<? extends T>) expressions[i]).getSingle();
-			return new SimpleLiteral<>(values, returnType, and);
 		}
 		if (isLiteralList) {
 			Literal<? extends T>[] ls = Arrays.copyOf(expressions, expressions.length, Literal[].class);

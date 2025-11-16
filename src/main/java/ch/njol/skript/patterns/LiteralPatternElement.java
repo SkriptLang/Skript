@@ -2,7 +2,9 @@ package ch.njol.skript.patterns;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * A {@link PatternElement} that contains a literal string to be matched, for example {@code hello world}.
@@ -50,6 +52,11 @@ public class LiteralPatternElement extends PatternElement {
 	@Override
 	public String toString() {
 		return new String(literal);
+	}
+
+	@Override
+	public Set<String> getCombinations(boolean clean) {
+		return new HashSet<>(Set.of(toString()));
 	}
 
 }

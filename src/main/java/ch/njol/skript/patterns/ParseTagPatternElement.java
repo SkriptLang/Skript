@@ -2,7 +2,9 @@ package ch.njol.skript.patterns;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link PatternElement} that applies a parse mark when matched.
@@ -80,6 +82,18 @@ public class ParseTagPatternElement extends PatternElement {
 		} else {
 			return mark + "¦";
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @param clean Whether the parse mark/tag should be excluded.
+	 */
+	@Override
+	public Set<String> getCombinations(boolean clean) {
+		Set<String> combinations = new HashSet<>();
+		if (!clean)
+			combinations.add(toString());
+		return combinations;
 	}
 
 }

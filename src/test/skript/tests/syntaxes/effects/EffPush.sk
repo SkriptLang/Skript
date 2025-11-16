@@ -1,0 +1,28 @@
+test "pushing and pulling":
+	spawn a pig at test-location:
+		set {_e} to entity
+	assert {_e} is a pig with "failed to spawn a pig"
+
+	set the velocity of {_e} to vector(0,0,0)
+	assert {_e}'s velocity is vector(0,0,0) with "pig's starting velocity was not 0"
+
+	push {_e} upwards
+	assert {_e}'s velocity is vector(0,1,0) with "pig's velocity after push was wrong"
+
+	push {_e} left at speed 2
+	assert {_e}'s velocity is vector(2,1,0) with "pig's velocity after push was wrong"
+
+	push {_e} towards ({_e} ~  vector(0,0,3))
+	assert {_e}'s velocity is vector(2,1,3) with "pig's velocity after push was wrong"
+
+	push {_e} away from ({_e} ~  vector(0,0,3)) with speed 2
+	assert {_e}'s velocity is vector(2,1,1) with "pig's velocity after push was wrong"
+
+	push {_e} along vector(-2,-1,-1)
+	assert {_e}'s velocity is vector(0,0,0) with "pig's velocity after push was wrong"
+
+	set the velocity of {_e} to vector(0,0,0)
+	pull {_e} along vector(1,2,3)
+	assert {_e}'s velocity is vector(1,2,3) with "pig's velocity after pull was wrong"
+
+	delete entity within {_e}

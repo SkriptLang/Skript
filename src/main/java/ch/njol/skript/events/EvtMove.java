@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class EvtMove extends SkriptEvent {
 
+	// TODO - remove this when Spigot support is dropped
 	private static final boolean HAS_ENTITY_MOVE = Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent");
 
 	static {
@@ -40,7 +41,6 @@ public class EvtMove extends SkriptEvent {
 								"\t\tkill event-entity",
 						"on player turning around:",
 							"\tsend action bar \"You are currently turning your head around!\" to player")
-				.requiredPlugins("Paper 1.16.5+ (entity move)")
 				.since("2.6, 2.8.0 (turn around)");
 	}
 

@@ -7,16 +7,12 @@ import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprInput;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.InputSource;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -69,19 +65,27 @@ public class EffTransform extends Effect implements InputSource {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (expressions[0].isSingle() || !(expressions[0] instanceof Variable)) {
+		if (parseResult.regexes.isEmpty()) {
+			return false;
+		}
+
+		if (expressions[0].isSingle() || !(expressions[0] instanceof Variable<?> variable)) {
 			Skript.error("You can only transform list variables!");
 			return false;
 		}
-		unmappedObjects = (Variable<?>) expressions[0];
+		unmappedObjects = variable;
 
-		//noinspection DuplicatedCode
-		if (!parseResult.regexes.isEmpty()) {
-			@Nullable String unparsedExpression = parseResult.regexes.get(0).group();
-			assert unparsedExpression != null;
-			mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
-			return mappingExpr != null;
+		String unparsedExpression = parseResult.regexes.get(0).group();
+		mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
+		if (mappingExpr == null) {
+			return false;
 		}
+
+		// type hints
+		if (HintManager.canUseHints(variable)) {
+			getParser().getHintManager().set(variable, mappingExpr.possibleReturnTypes());
+		}
+
 		return true;
 	}
 
@@ -96,10 +100,10 @@ public class EffTransform extends Effect implements InputSource {
 		boolean local = unmappedObjects.isLocal();
 
 		int i = 1;
-		for (Iterator<Pair<String, Object>> it = unmappedObjects.variablesIterator(event); it.hasNext(); ) {
-			Pair<String, Object> pair = it.next();
-			currentIndex = pair.getKey();
-			currentValue = pair.getValue();
+		for (Iterator<? extends KeyedValue<?>> it = unmappedObjects.keyedIterator(event); it.hasNext(); ) {
+			KeyedValue<?> keyedValue = it.next();
+			currentIndex = keyedValue.key();
+			currentValue = keyedValue.value();
 
 			if (isSingle) {
 				mappedValues.put(currentIndex, mappingExpr.getSingle(event));

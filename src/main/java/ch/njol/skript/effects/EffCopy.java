@@ -13,6 +13,7 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -64,6 +65,16 @@ public class EffCopy extends Effect {
 				return false;
 			}
 		}
+
+		// set type hints for destination(s) if applicable
+		Class<?>[] sourceHints = source.possibleReturnTypes();
+		HintManager hintManager = getParser().getHintManager();
+		for (Variable<?> destination : destinations) {
+			if (HintManager.canUseHints(destination)) {
+				hintManager.set(destination, sourceHints);
+			}
+		}
+
 		return true;
 	}
 

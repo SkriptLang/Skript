@@ -18,6 +18,9 @@ import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.skriptlang.skript.lang.properties.Property;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.UUID;
@@ -28,6 +31,14 @@ import java.util.regex.Pattern;
 public class JavaClasses {
 
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
+
+	/**
+	 * The pattern for scientific notation.
+	 * <p>
+	 * The pattern is the letter {@code e} or {@code E} followed by a sign and one or more digits.
+	 * </p>
+	 */
+	public static final String SCIENTIFIC_PATTERN = "(?:[eE][+-]?\\d+)?";
 
 	/**
 	 * The format of an integer.
@@ -49,8 +60,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>" + INTEGER_NUMBER_PATTERN + ")" +
-			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
+			.formatted(INTEGER_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	/**
 	 * The format of a decimal number.
@@ -74,8 +85,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>" + DECIMAL_NUMBER_PATTERN + ")" +
-			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>%s%s)(?: (?:in )?(?:(?<rad>rad(?:ian)?)|deg(?:ree)?)s?)?"
+			.formatted(DECIMAL_NUMBER_PATTERN, SCIENTIFIC_PATTERN));
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
@@ -94,7 +105,7 @@ public class JavaClasses {
 					"Please note that many expressions only need integers, i.e. " +
 						"will discard any fractional parts of any numbers without producing an error.",
 					"Radians will be converted to degrees.")
-				.usage("[-]###[.###] [[in ](rad[ian][s]|deg[ree][s])]</code> (any amount of digits; very large numbers will be truncated though)")
+				.usage("[-]###[.###] [e[+|-]###] [[in ](rad[ian][s]|deg[ree][s])]")
 				.examples(
 					"set the player's health to 5.5",
 					"set {_temp} to 2*{_temp} - 2.5",
@@ -293,7 +304,26 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}));
+				})
+				.property(Property.CONTAINS,
+					"Strings can contain other strings.",
+					Skript.instance(),
+					new ContainsHandler<String, String>() {
+						@Override
+						public boolean contains(String container, String element) {
+							return StringUtils.contains(container, element, SkriptConfig.caseSensitive.value());
+						}
+
+						@Override
+						public Class<? extends String>[] elementTypes() {
+							//noinspection unchecked
+							return new Class[]{String.class};
+						}
+				})
+			.property(Property.IS_EMPTY,
+				"Whether the string is empty, i.e. has no characters.",
+				Skript.instance(),
+				ConditionPropertyHandler.of(String::isEmpty)));
 
 		// joml type - for display entities
 		if (Skript.classExists("org.joml.Quaternionf"))

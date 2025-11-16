@@ -2,15 +2,18 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ReturnHandler;
-import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleEvent;
+import ch.njol.skript.variables.HintManager;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+
+import java.util.Arrays;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
@@ -18,22 +21,33 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	private boolean returnValueSet;
 	private T @Nullable [] returnValues;
+	private String @Nullable [] returnKeys;
 
 	/**
-	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)}
+	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	public ScriptFunction(Signature<T> sign, Script script, SectionNode node) {
 		this(sign, node);
 	}
-	
+
 	public ScriptFunction(Signature<T> sign, SectionNode node) {
 		super(sign);
 
 		Functions.currentFunction = this;
+		HintManager hintManager = ParserInstance.get().getHintManager();
 		try {
+			hintManager.enterScope(false);
+			for (Parameter<?> parameter : sign.getParameters()) {
+				String hintName = parameter.name();
+				if (!parameter.isSingleValue()) {
+					hintName += Variable.SEPARATOR + "*";
+				}
+				hintManager.set(hintName, parameter.type());
+			}
 			trigger = loadReturnableTrigger(node, "function " + sign.getName(), new SimpleEvent());
 		} finally {
+			hintManager.exitScope();
 			Functions.currentFunction = null;
 		}
 		trigger.setLineNumber(node.getLine());
@@ -49,22 +63,40 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			Object[] val = params[i];
 			if (parameter.single && val.length > 0) {
 				Variables.setVariable(parameter.name, val[0], event, true);
+				continue;
+			}
+
+			boolean keyed = Arrays.stream(val).allMatch(it -> it instanceof KeyedValue<?>);
+			if (keyed) {
+				for (Object value : val) {
+					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
+				}
 			} else {
-				for (int j = 0; j < val.length; j++) {
-					Variables.setVariable(parameter.name + "::" + (j + 1), val[j], event, true);
+				int count = 0;
+				for (Object value : val) {
+					// backup for if the passed argument is not a keyed value.
+					// an example of this is passing `xs: integers = (1, 2)` as a parameter.
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + count, value, event, true);
+					count++;
 				}
 			}
 		}
-		
+
 		trigger.execute(event);
 		ClassInfo<T> returnType = getReturnType();
 		return returnType != null ? returnValues : null;
 	}
 
+	@Override
+	public @NotNull String @Nullable [] returnedKeys() {
+		return returnKeys;
+	}
+
 	/**
-	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)}
+	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	@ApiStatus.Internal
 	public final void setReturnValue(@Nullable T[] values) {
 		assert !returnValueSet;
@@ -76,6 +108,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	public boolean resetReturnValue() {
 		returnValueSet = false;
 		returnValues = null;
+		returnKeys = null;
 		return true;
 	}
 
@@ -84,6 +117,8 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		assert !returnValueSet;
 		returnValueSet = true;
 		this.returnValues = value.getArray(event);
+		if (KeyProviderExpression.canReturnKeys(value))
+			this.returnKeys = ((KeyProviderExpression<?>) value).getArrayKeys(event);
 	}
 
 	@Override

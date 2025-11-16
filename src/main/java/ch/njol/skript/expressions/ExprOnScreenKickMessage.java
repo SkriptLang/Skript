@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 		"\ton-screen kick message is \"Invalid hotbar selection (Hacking?)\"",
 		"\tcancel event"
 })
-@Since("INSERT VERSION")
+@Since("2.12")
 @Events("Kick")
 public class ExprOnScreenKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {
 

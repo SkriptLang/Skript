@@ -56,12 +56,15 @@ public class DynamicFunctionReference<Result>
 		this.name = name;
 		Function<? extends Result> function;
 		if (source != null) {
+			// will return the first function found that matches name.
+			// TODO: add a way to specify param types
 			//noinspection unchecked
 			function = (Function<? extends Result>) Functions.getFunction(name, source.getConfig().getFileName());
 		} else {
 			//noinspection unchecked
 			function = (Function<? extends Result>) Functions.getFunction(name, null);
 		}
+
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);
 		if (resolved) {
@@ -173,7 +176,7 @@ public class DynamicFunctionReference<Result>
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> parameter = signature.parameters[varArgs ? 0 : i];
 			//noinspection unchecked
-			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type.getC());
+			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type());
 			if (expression == null) {
 				return null;
 			} else if (parameter.single && !expression.isSingle()) {
