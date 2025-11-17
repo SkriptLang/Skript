@@ -79,7 +79,7 @@ public enum Feature implements Experiment, Documentable {
 		
 		All existing loop features are also available in this section.
 		""",
-		LifeCycle.EXPERIMENTAL,
+		LifeCycle.MAINSTREAM,
 		"for [each] loop[s]"),
 	SCRIPT_REFLECTION("reflection",
 		"Script Reflection",
@@ -90,7 +90,7 @@ public enum Feature implements Experiment, Documentable {
 		- Finding and running functions by name.
 		- Reading configuration files and values.
 		""",
-		LifeCycle.EXPERIMENTAL,
+		LifeCycle.STABLE,
 		"[script] reflection"),
 	CATCH_ERRORS("catch runtime errors",
 		"Runtime Error Catching",
