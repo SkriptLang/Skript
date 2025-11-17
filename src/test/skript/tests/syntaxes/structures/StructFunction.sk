@@ -69,3 +69,11 @@ test "literal type parsing":
 			literal_test_projectile(projectile)
 	assert last parse logs are not set
 	clear entity within {_entity}
+
+local function duplicate_keys_test(x: strings) :: strings:
+	return {_x::*}
+
+test "duplicate keys in function arguments":
+	set {_a::foo} to "first"
+	set {_b::foo} to "second"
+	assert duplicate_keys_test(keyed {_a::*}, keyed {_b::*}) is "first"

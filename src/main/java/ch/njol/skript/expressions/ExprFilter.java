@@ -124,7 +124,7 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource,
 
 	@Override
 	public boolean areKeysRecommended() {
-		return false;
+		return KeyProviderExpression.areKeysRecommended(unfilteredObjects);
 	}
 
 	@Override
