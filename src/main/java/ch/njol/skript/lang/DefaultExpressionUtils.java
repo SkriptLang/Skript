@@ -3,6 +3,7 @@ package ch.njol.skript.lang;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.SkriptParser.ExprInfo;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -10,7 +11,8 @@ import java.util.List;
 /**
  * Utility class for {@link DefaultExpression}.
  */
-final class DefaultExpressionUtils {
+@ApiStatus.Internal
+public final class DefaultExpressionUtils {
 
 	/**
 	 * Check if {@code expr} is valid with the settings from {@code exprInfo}.
@@ -20,7 +22,8 @@ final class DefaultExpressionUtils {
 	 * @param index The index of the {@link ClassInfo} in {@code exprInfo} used to grab {@code expr}.
 	 * @return {@link DefaultExpressionError} if it's not valid, otherwise {@code null}.
 	 */
-	static @Nullable DefaultExpressionError isValid(DefaultExpression<?> expr, ExprInfo exprInfo, int index) {
+	@ApiStatus.Internal
+	public static @Nullable DefaultExpressionError isValid(DefaultExpression<?> expr, ExprInfo exprInfo, int index) {
 		if (expr == null) {
 			return DefaultExpressionError.NOT_FOUND;
 		} else if (!(expr instanceof Literal<?>) && (exprInfo.flagMask & SkriptParser.PARSE_EXPRESSIONS) == 0) {
@@ -35,7 +38,8 @@ final class DefaultExpressionUtils {
 		return null;
 	}
 
-	enum DefaultExpressionError {
+	@ApiStatus.Internal
+	public enum DefaultExpressionError {
 		/**
 		 * Error type for when a {@link DefaultExpression} can not be found for a {@link Class}.
 		 */
@@ -132,6 +136,7 @@ final class DefaultExpressionUtils {
 		 * @param pattern The pattern to include in the error message.
 		 * @return error message.
 		 */
+		@ApiStatus.Internal
 		public abstract String getError(List<String> codeNames, String pattern);
 
 		/**
