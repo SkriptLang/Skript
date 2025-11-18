@@ -91,6 +91,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.ban.BanModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
@@ -599,7 +600,8 @@ public final class Skript extends JavaPlugin implements Listener {
 					new DamageSourceModule(),
 					new ItemComponentModule(),
 					new BrewingModule(),
-					new CommonModule()
+					new CommonModule(),
+					new BanModule()
 				);
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
