@@ -14,6 +14,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Damage Source - Damage Type")
 @Description({
@@ -34,11 +36,12 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprDamageType.class, DamageType.class, "damage type", "damagesources");
+	public static SyntaxInfo.Expression<ExprDamageType, DamageType> info() {
+		return infoBuilder(ExprDamageType.class, DamageType.class, "damage type", "damagesources", true)
+				.supplier(ExprDamageType::new)
+				.build();
 	}
 
 	private boolean isEvent;
