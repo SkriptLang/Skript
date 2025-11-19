@@ -50,12 +50,11 @@ import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.base.types.*;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
@@ -164,172 +163,8 @@ public class BukkitClasses {
 					}
 				}).cloner(BlockData::clone));
 
-		Classes.registerClass(new ClassInfo<>(Location.class, "location")
-				.user("locations?")
-				.name("Location")
-				.description("A location in a <a href='#world'>world</a>. Locations are world-specific and even store a <a href='#direction'>direction</a>, " +
-						"e.g. if you save a location and later teleport to it you will face the exact same direction you did when you saved the location.")
-				.usage("")
-				.examples("teleport player to location at 0, 69, 0",
-						  "set {home::%uuid of player%} to location of the player")
-				.since("1.0")
-				.defaultExpression(new EventValueExpression<>(Location.class))
-				.parser(new Parser<Location>() {
-					@Override
-					@Nullable
-					public Location parse(final String s, final ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(final Location l, final int flags) {
-						String worldPart = l.getWorld() == null ? "" : " in '" + l.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by spigot
-						return "x: " + Skript.toString(l.getX()) + ", y: " + Skript.toString(l.getY()) + ", z: " + Skript.toString(l.getZ()) + ", yaw: " + Skript.toString(l.getYaw()) + ", pitch: " + Skript.toString(l.getPitch()) + worldPart;
-					}
-
-					@Override
-					public String toVariableNameString(final Location l) {
-						return l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ();
-					}
-
-					@Override
-					public String getDebugMessage(final Location l) {
-						return "(" + l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ() + "|yaw=" + l.getYaw() + "/pitch=" + l.getPitch() + ")";
-					}
-				}).serializer(new Serializer<Location>() {
-					@Override
-					public Fields serialize(Location location) {
-						Fields fields = new Fields();
-						World world = null;
-						try {
-							world = location.getWorld();
-						} catch (IllegalArgumentException exception) {
-							Skript.warning("A location failed to serialize with its defined world, as the world was unloaded.");
-						}
-						fields.putObject("world", world);
-						fields.putPrimitive("x", location.getX());
-						fields.putPrimitive("y", location.getY());
-						fields.putPrimitive("z", location.getZ());
-						fields.putPrimitive("yaw", location.getYaw());
-						fields.putPrimitive("pitch", location.getPitch());
-						return fields;
-					}
-
-					@Override
-					public void deserialize(final Location o, final Fields f) {
-						assert false;
-					}
-
-					@Override
-					public Location deserialize(final Fields f) throws StreamCorruptedException {
-						return new Location(f.getObject("world", World.class),
-								f.getPrimitive("x", double.class), f.getPrimitive("y", double.class), f.getPrimitive("z", double.class),
-								f.getPrimitive("yaw", float.class), f.getPrimitive("pitch", float.class));
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false; // no nullary constructor - also, saving the location manually prevents errors should Location ever be changed
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-
-					// return l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ() + "|" + l.getYaw() + "/" + l.getPitch();
-					@Override
-					@Nullable
-					public Location deserialize(final String s) {
-						final String[] split = s.split("[:,|/]");
-						if (split.length != 6)
-							return null;
-						final World w = Bukkit.getWorld(split[0]);
-						if (w == null)
-							return null;
-						try {
-							final double[] l = new double[5];
-							for (int i = 0; i < 5; i++)
-								l[i] = Double.parseDouble(split[i + 1]);
-							return new Location(w, l[0], l[1], l[2], (float) l[3], (float) l[4]);
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				})
-				.cloner(Location::clone));
-
-		Classes.registerClass(new ClassInfo<>(Vector.class, "vector")
-				.user("vectors?")
-				.name("Vector")
-				.description("Vector is a collection of numbers. In Minecraft, 3D vectors are used to express velocities of entities.")
-				.usage("vector(x, y, z)")
-				.examples("")
-				.since("2.2-dev23")
-				.defaultExpression(new EventValueExpression<>(Vector.class))
-				.parser(new Parser<Vector>() {
-					@Override
-					@Nullable
-					public Vector parse(final String s, final ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(final Vector vec, final int flags) {
-						return "x: " + Skript.toString(vec.getX()) + ", y: " + Skript.toString(vec.getY()) + ", z: " + Skript.toString(vec.getZ());
-					}
-
-					@Override
-					public String toVariableNameString(final Vector vec) {
-						return "vector:" + vec.getX() + "," + vec.getY() + "," + vec.getZ();
-					}
-
-					@Override
-					public String getDebugMessage(final Vector vec) {
-						return "(" + vec.getX() + "," + vec.getY() + "," + vec.getZ() + ")";
-					}
-				})
-				.serializer(new Serializer<Vector>() {
-					@Override
-					public Fields serialize(Vector o) {
-						Fields f = new Fields();
-						f.putPrimitive("x", o.getX());
-						f.putPrimitive("y", o.getY());
-						f.putPrimitive("z", o.getZ());
-						return f;
-					}
-
-					@Override
-					public void deserialize(Vector o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					public Vector deserialize(final Fields f) throws StreamCorruptedException {
-						return new Vector(f.getPrimitive("x", double.class), f.getPrimitive("y", double.class), f.getPrimitive("z", double.class));
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-
-					@Override
-					protected boolean canBeInstantiated() {
-						return false;
-					}
-				})
-				.cloner(Vector::clone));
+		Classes.registerClass(new LocationClassInfo());
+		Classes.registerClass(new VectorClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")
