@@ -194,7 +194,7 @@ public class StructAutoReload extends Structure {
 			if (recipients != null) {
 				for (String recipient : recipients) {
 					if (recipient != null)
-						this.recipients.add(recipient.toLowerCase());
+						this.recipients.add(recipient.toLowerCase(Locale.ENGLISH));
 				}
 			}
 
@@ -212,7 +212,7 @@ public class StructAutoReload extends Structure {
 			List<CommandSender> senders = Lists.newArrayList(Bukkit.getConsoleSender());
 			if (!recipients.isEmpty()) {
 				Bukkit.getOnlinePlayers().stream()
-					.filter(p -> recipients.contains(p.getName().toLowerCase()) || recipients.contains(p.getUniqueId().toString()))
+					.filter(p -> recipients.contains(p.getName().toLowerCase(Locale.ENGLISH)) || recipients.contains(p.getUniqueId().toString()))
 					.forEach(senders::add);
 				return Collections.unmodifiableList(senders);
 			}
