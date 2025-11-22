@@ -69,7 +69,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	private final boolean list;
 
 	private final @Nullable Variable<?> source;
-	private final Map<Event, String[]> cache = new WeakHashMap<>();
+	private final Map<Event, String[]> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
 	@SuppressWarnings("unchecked")
 	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean ephemeral, boolean list, @Nullable Variable<?> source) {
