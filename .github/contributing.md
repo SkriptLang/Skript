@@ -77,7 +77,7 @@ project!
 ### Getting Started
 
 We welcome contributions from everyone. To get started, please fork the repository 
-and clone it to your local machine. If you are unfamiliar with Git, please refer to
+and clone it to your local machine. If you are unfamiliar with Git, please refer to the
 [Git documentation](https://git-scm.com/learn).
 ```
 git clone https://github.com/SkriptLang/Skript
@@ -92,7 +92,7 @@ git checkout -b feature/your-feature-name dev/feature
 git checkout -b patch/fix-issue-number dev/patch
 ```
 
-We recommend using an IDE such as IntelliJ or Eclipse. 
+We recommend using an IDE such as IntelliJ (recommended) or Eclipse. 
 Please also make sure to follow our [code conventions](https://github.com/SkriptLang/Skript/blob/master/code-conventions.md).
 
 Building Skript requires Gradle. You can use the Gradle wrapper included in the
