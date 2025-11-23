@@ -231,8 +231,8 @@ public abstract class Commands {
 
 	public static void registerCommand(ScriptCommand command) {
 		// Validate that there are no duplicates
-		ScriptCommand existingCommand = commands.get(command.getLabel());
-		if (existingCommand != null && existingCommand.getLabel().equals(command.getLabel())) {
+		ScriptCommand existingCommand = commands.get(command.getName());
+		if (existingCommand != null && existingCommand.getName().equals(command.getName())) {
 			Script script = existingCommand.getScript();
 			Skript.error("A command with the name /" + existingCommand.getName() + " is already defined"
 				+ (script != null ? (" in " + script.getConfig().getFileName()) : "")
@@ -244,11 +244,10 @@ public abstract class Commands {
 			assert cmKnownCommands != null;// && cmAliases != null;
 			command.register(commandMap, cmKnownCommands, cmAliases);
 		}
-		commands.put(command.getLabel(), command);
-		for (String alias : command.getActiveAliases()) {
+		commands.put(command.getName(), command);
+		for (String alias : command.getAliases()) {
 			commands.put(alias.toLowerCase(Locale.ENGLISH), command);
 		}
-		command.registerHelp();
 	}
 
 	@Deprecated(since = "2.7.0", forRemoval = true)
@@ -264,7 +263,6 @@ public abstract class Commands {
 	}
 
 	public static void unregisterCommand(ScriptCommand scriptCommand) {
-		scriptCommand.unregisterHelp();
 		if (commandMap != null) {
 			assert cmKnownCommands != null;// && cmAliases != null;
 			scriptCommand.unregister(commandMap, cmKnownCommands, cmAliases);
