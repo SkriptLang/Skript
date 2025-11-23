@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,11 +21,11 @@ import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
 	"The Skript config.",
 	"This can be reloaded, or navigated to retrieve options."
 })
-@Examples({"""
+@Example("""
 	set {_node} to node "language" in the skript config
 	if text value of {_node} is "french":
 		broadcast "Bonjour!"
-	"""})
+	""")
 @Since("2.10")
 public class ExprConfig extends SimpleExpression<Config> implements ReflectionExperimentSyntax {
 

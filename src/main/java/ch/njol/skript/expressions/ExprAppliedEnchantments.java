@@ -9,7 +9,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,8 +24,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Applied Enchantments")
 @Description({"The applied enchantments in an enchant event.",
 				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
-@Examples({"on enchant:",
-			"\tset the applied enchantments to sharpness 10 and fire aspect 5"})
+@Example("""
+    on enchant:
+    	set the applied enchantments to sharpness 10 and fire aspect 5
+    """)
 @Events("enchant")
 @Since("2.5")
 public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {

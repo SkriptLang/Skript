@@ -15,10 +15,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Unleash Reason")
 @Description("The unleash reason in an unleash event.")
-@Examples({
-	"if the unleash reason is distance:",
-		"\tbroadcast \"The leash was snapped in half.\""
-})
+@Example("""
+	if the unleash reason is distance:
+		broadcast "The leash was snapped in half."
+	""")
 @Events("Unleash")
 @Since("2.10")
 public class ExprUnleashReason extends EventValueExpression<UnleashReason> {

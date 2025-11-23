@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -32,10 +32,8 @@ import java.util.Set;
 	"the condition would be checked twice, using \"something\" and \"something else\" as the inputs.",
 	"The 'input index' pattern can be used when acting on a variable to access the index of the input."
 })
-@Examples({
-	"send \"congrats on being staff!\" to all players where [input has permission \"staff\"]",
-	"sort {_list::*} based on length of input index"
-})
+@Example("send \"congrats on being staff!\" to all players where [input has permission \"staff\"]")
+@Example("sort {_list::*} based on length of input index")
 @Since("2.2-dev36, 2.9.0 (input index)")
 public class ExprInput<T> extends SimpleExpression<T> {
 

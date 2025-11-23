@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -28,11 +28,9 @@ import java.util.*;
 	"Gets the item from a banner pattern type.",
 	"Note that not all banner pattern types have an item.",
 })
-@Examples({
-	"set {_item} to creeper charged banner pattern item",
-	"set {_item} to snout banner pattern item",
-	"set {_item} to thing banner pattern item"
-})
+@Example("set {_item} to creeper charged banner pattern item")
+@Example("set {_item} to snout banner pattern item")
+@Example("set {_item} to thing banner pattern item")
 @Since("2.10")
 // TODO: turn this into a Literal
 public class ExprBannerItem extends SimpleExpression<ItemType> {

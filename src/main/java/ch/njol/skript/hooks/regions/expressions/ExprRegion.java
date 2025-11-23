@@ -1,7 +1,7 @@
 package ch.njol.skript.hooks.regions.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -13,11 +13,11 @@ import ch.njol.skript.hooks.regions.classes.Region;
 	"The <a href='#region'>region</a> involved in an event.",
 	"This expression requires a supported regions plugin to be installed."
 })
-@Examples({
-	"on region enter:",
-		"\tregion is {forbidden region}",
-		"\tcancel the event"
-})
+@Example("""
+	on region enter:
+		region is {forbidden region}
+		cancel the event
+	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprRegion extends EventValueExpression<Region> {

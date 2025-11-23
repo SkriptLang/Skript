@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -20,10 +20,8 @@ import ch.njol.util.Kleenean;
 
 @Name("Ignite/Extinguish")
 @Description("Lights entities on fire or extinguishes them.")
-@Examples({
-	"ignite the player",
-	"extinguish the player"
-})
+@Example("ignite the player")
+@Example("extinguish the player")
 @Since("1.4")
 public class EffIgnite extends Effect {
 

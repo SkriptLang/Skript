@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -31,14 +31,18 @@ import ch.njol.util.Kleenean;
 @Name("Log")
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
-@Examples({
-	"on join:",
-		"\tlog \"%player% has just joined the server!\"",
-	"on world change:",
-		"\tlog \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
-	"on command:",
-		"\tlog \"%player% just executed %full command%!\" to file \"server/commands.log\" with a severity of warning"
-})
+@Example("""
+	on join:
+		log "%player% has just joined the server!"
+	""")
+@Example("""
+	on world change:
+		log "Someone just went to %event-world%!" to file "worldlog/worlds.log"
+	""")
+@Example("""
+	on command:
+		log "%player% just executed %full command%!" to file "server/commands.log" with a severity of warning
+	""")
 @Since("2.0, 2.9.0 (severities)")
 public class EffLog extends Effect {
 	static {

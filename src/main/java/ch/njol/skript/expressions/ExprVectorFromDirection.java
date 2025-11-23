@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,13 +20,11 @@ import org.jetbrains.annotations.Nullable;
 	"Creates vectors from given directions.",
 	"Relative directions are relative to the origin, (0, 0, 0). Therefore, the vector from the direction 'forwards' is (0, 0, 1)."
 })
-@Examples({
-	"set {_v} to vector from direction upwards",
-	"set {_v} to vector in direction of player",
-	"set {_v} to vector in horizontal direction of player",
-	"set {_v} to vector from facing of player",
-	"set {_v::*} to vectors from north, south, east, and west"
-})
+@Example("set {_v} to vector from direction upwards")
+@Example("set {_v} to vector in direction of player")
+@Example("set {_v} to vector in horizontal direction of player")
+@Example("set {_v} to vector from facing of player")
+@Example("set {_v::*} to vectors from north, south, east, and west")
 @Since("2.8.0")
 public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 

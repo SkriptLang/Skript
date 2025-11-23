@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -34,8 +34,10 @@ import java.util.List;
 	"Types of potion effects are potion effect types.",
 	"Types of enchantment types are enchantments."
 })
-@Examples({"on rightclick on an entity:",
-	"\tmessage \"This is a %type of clicked entity%!\""})
+@Example("""
+	on rightclick on an entity:
+		message "This is a %type of clicked entity%!"
+	""")
 @Since("1.4, 2.5.2 (potion effect), 2.7 (block datas), 2.10 (enchantment type)")
 public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 

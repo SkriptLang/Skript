@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.text;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display Alignment")
 @Description("Returns or changes the <a href='#textalignment'>alignment</a> setting of <a href='#display'>text displays</a>.")
-@Examples("set text alignment of the last spawned text display to left aligned")
+@Example("set text alignment of the last spawned text display to left aligned")
 @Since("2.10")
 public class ExprTextDisplayAlignment extends SimplePropertyExpression<Display, TextAlignment> {
 

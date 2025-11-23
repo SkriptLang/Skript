@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.generic;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -21,7 +21,7 @@ import org.joml.Quaternionf;
         "Returns or changes the transformation rotation of <a href='#display'>displays</a>.",
         "The left rotation is applied first, with the right rotation then being applied based on the rotated axis."
 })
-@Examples("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # reset block display")
+@Example("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # reset block display")
 @Since("2.10")
 public class ExprDisplayTransformationRotation extends SimplePropertyExpression<Display, Quaternionf> {
 

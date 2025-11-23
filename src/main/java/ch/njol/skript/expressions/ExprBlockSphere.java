@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -27,8 +27,10 @@ import ch.njol.util.coll.iterator.IteratorIterable;
  */
 @Name("Block Sphere")
 @Description("All blocks in a sphere around a center, mostly useful for looping.")
-@Examples({"loop blocks in radius 5 around the player:",
-			"\tset loop-block to air"})
+@Example("""
+	loop blocks in radius 5 around the player:
+		set loop-block to air
+	""")
 @Since("1.0")
 public class ExprBlockSphere extends SimpleExpression<Block> {
 	static {

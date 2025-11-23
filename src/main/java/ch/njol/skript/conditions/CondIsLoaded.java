@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -24,11 +24,10 @@ import org.skriptlang.skript.lang.script.Script;
 		"Checks whether a world, chunk or script is loaded.",
 		"'chunk at 1, 1' uses chunk coordinates, which are location coords divided by 16."
 })
-@Examples({"if chunk at {home::%player's uuid%} is loaded:",
-		"if chunk 1, 10 in world \"world\" is loaded:",
-		"if world(\"lobby\") is loaded:",
-		"if script named \"MyScript.sk\" is loaded:"
-})
+@Example("if chunk at {home::%player's uuid%} is loaded:")
+@Example("if chunk 1, 10 in world \"world\" is loaded:")
+@Example("if world(\"lobby\") is loaded:")
+@Example("if script named \"MyScript.sk\" is loaded:")
 @Since("2.3, 2.5 (revamp with chunk at location/coords), 2.10 (Scripts)")
 @SuppressWarnings("unchecked")
 public class CondIsLoaded extends Condition {

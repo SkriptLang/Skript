@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Vehicle")
 @Description("Makes an entity ride another entity, e.g. a minecart, a saddled pig, an arrow, etc.")
-@Examples({
-	"make the player ride a saddled pig",
-	"make the attacker ride the victim"
-})
+@Example("make the player ride a saddled pig")
+@Example("make the attacker ride the victim")
 @Since("2.0")
 public class EffVehicle extends Effect {
 

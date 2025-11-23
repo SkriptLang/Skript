@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -26,14 +26,18 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("IP")
 @Description("The IP address of a player, or the connected player in a <a href='#connect'>connect</a> event, " +
 		"or the pinger in a <a href='#server_list_ping'>server list ping</a> event.")
-@Examples({"ban the IP address of the player",
-		"broadcast \"Banned the IP %IP of player%\"",
-		"",
-		"on connect:",
-		"\tlog \"[%now%] %player% (%ip%) is connected to the server.\"",
-		"",
-		"on server list ping:",
-		"\tsend \"%IP-address%\" to the console"})
+@Example("""
+	ban the IP address of the player")
+	broadcast "Banned the IP %IP of player%"
+	""")
+@Example("""
+	on connect:
+		log "[%now%] %player% (%ip%) is connected to the server."
+	""")
+@Example("""
+	on server list ping:
+		send "%IP-address%" to the console
+	""")
 @Since("1.4, 2.2-dev26 (when used in connect event), 2.3 (when used in server list ping event)")
 public class ExprIP extends SimpleExpression<String> {
 

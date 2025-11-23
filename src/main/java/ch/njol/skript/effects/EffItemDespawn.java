@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Item Despawn")
 @Description("Prevent a dropped item from naturally despawning through Minecraft's timer.")
-@Examples({
-	"prevent all dropped items from naturally despawning",
-	"allow all dropped items to naturally despawn"
-})
+@Example("prevent all dropped items from naturally despawning")
+@Example("allow all dropped items to naturally despawn")
 @Since("2.11")
 public class EffItemDespawn extends Effect {
 

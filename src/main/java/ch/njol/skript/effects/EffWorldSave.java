@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -18,10 +18,8 @@ import org.jetbrains.annotations.Nullable;
 	"Save all worlds or a given world manually.",
 	"Note: saving many worlds at once may possibly cause the server to freeze."
 })
-@Examples({
-	"save \"world_nether\"",
-	"save all worlds"
-})
+@Example("save \"world_nether\"")
+@Example("save all worlds")
 @Since("2.8.0")
 public class EffWorldSave extends Effect {
 

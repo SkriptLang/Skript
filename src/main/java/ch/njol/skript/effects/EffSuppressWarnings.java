@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,10 +16,8 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
 @Description("Suppresses target warnings from the current script.")
-@Examples({
-	"locally suppress missing conjunction warnings",
-	"suppress the variable save warnings"
-})
+@Example("locally suppress missing conjunction warnings")
+@Example("suppress the variable save warnings")
 @Since("2.3")
 public class EffSuppressWarnings extends Effect {
 

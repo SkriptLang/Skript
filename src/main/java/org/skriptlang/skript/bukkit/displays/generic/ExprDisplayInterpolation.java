@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.generic;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	"Setting to 0 seconds will make it immediate.",
 	"Resetting either value will return that value to 0."
 })
-@Examples("set interpolation delay of the last spawned text display to 2 ticks")
+@Example("set interpolation delay of the last spawned text display to 2 ticks")
 @Since("2.10")
 public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, Timespan> {
 

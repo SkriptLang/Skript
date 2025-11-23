@@ -37,12 +37,10 @@ import java.util.OptionalLong;
 	"",
 	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself.",
 })
-@Examples({
-	"play sound \"block.note_block.pling\"",
-	"play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player",
-	"play sound \"custom.music.1\" in jukebox category at {speakerBlock}",
-	"play sound \"BLOCK_AMETHYST_BLOCK_RESONATE\" with seed 1 on target entity for the player"
-})
+@Example("play sound \"block.note_block.pling\"")
+@Example("play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player")
+@Example("play sound \"custom.music.1\" in jukebox category at {speakerBlock}")
+@Example("play sound \"BLOCK_AMETHYST_BLOCK_RESONATE\" with seed 1 on target entity for the player")
 @Since("2.2-dev28, 2.4 (sound categories), 2.9 (sound seed & entity emitter)")
 public class EffPlaySound extends Effect {
 

@@ -24,10 +24,8 @@ import java.util.List;
 	"When using beehives, providing a timespan will prevent the released bees from re-entering the beehive for that amount of time.",
 	"Due to unstable behaviour on older versions, this effect requires Minecraft version 1.21+."
 })
-@Examples({
-	"release the stored entities of {_beehive}",
-	"release the entity storage of {_hive} for 5 seconds"
-})
+@Example("release the stored entities of {_beehive}")
+@Example("release the entity storage of {_hive} for 5 seconds")
 @RequiredPlugins("Minecraft 1.21")
 @Since("2.11")
 public class EffReleaseEntityStorage extends Effect {

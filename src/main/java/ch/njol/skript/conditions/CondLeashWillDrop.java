@@ -13,13 +13,13 @@ import ch.njol.util.Kleenean;
 
 @Name("Leash Will Drop")
 @Description("Checks whether the leash item will drop during the leash detaching in an unleash event.")
-@Examples({
-	"on unleash:",
-		"\tif the leash will drop:",
-			"\t\tprevent the leash from dropping",
-		"\telse:",
-			"\t\tallow the leash to drop"
-})
+@Example("""
+	on unleash:
+		if the leash will drop:
+			prevent the leash from dropping
+		else:
+			allow the leash to drop
+	""")
 @Keywords("lead")
 @Events("Unleash")
 @Since("2.10")

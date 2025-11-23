@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -12,11 +12,11 @@ import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 
 @Name("Heal Reason")
 @Description("The <a href='#healreason'>heal reason</a> of a <a href='#heal'>heal event</a>.")
-@Examples({
-	"on heal:",
-		"\theal reason is satiated",
-		"\tsend \"You ate enough food and gained full health back!\""
-})
+@Example("""
+	on heal:
+		heal reason is satiated
+		send "You ate enough food and gained full health back!"
+	""")
 @Events("heal")
 @Since("2.5")
 public class ExprHealReason extends EventValueExpression<RegainReason> {

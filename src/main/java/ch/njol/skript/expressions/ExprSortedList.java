@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,7 +24,7 @@ import java.lang.reflect.Array;
 
 @Name("Sorted List")
 @Description("Sorts given list in natural order. All objects in list must be comparable; if they're not, this expression will return nothing.")
-@Examples("set {_sorted::*} to sorted {_players::*}")
+@Example("set {_sorted::*} to sorted {_players::*}")
 @Since("2.2-dev19")
 public class ExprSortedList extends SimpleExpression<Object> {
 

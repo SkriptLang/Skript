@@ -13,14 +13,18 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Can See Messages")
 @Description("Checks whether a player can see specific message types in chat.")
-@Examples({
-	"if player can see all messages:",
-		"\tsend \"You can see all messages.\"",
-	"if player can only see commands:",
-		"\tsend \"This game doesn't work with commands-only chat.\"",
-	"if player can't see any messages:",
-		"\tsend action bar \"Server shutting down in 5 minutes!\""
-})
+@Example("""
+	if player can see all messages:
+		send "You can see all messages."
+	""")
+@Example("""
+	if player can only see commands:
+		send "This game doesn't work with commands-only chat."
+	""")
+@Example("""
+	if player can't see any messages:
+		send action bar "Server shutting down in 5 minutes!"
+	""")
 @Since("2.10")
 public class CondChatVisibility extends Condition {
 

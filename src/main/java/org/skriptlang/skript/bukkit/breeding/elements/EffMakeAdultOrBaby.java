@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Make Adult/Baby")
 @Description("Force a animal to become an adult or baby.")
-@Examples({
-	"on spawn of mob:",
-	"\tentity is not an adult",
-	"\tmake entity an adult",
-})
+@Example("""
+	on spawn of mob:
+		entity is not an adult
+		make entity an adult
+	""")
 @Since("2.10")
 public class EffMakeAdultOrBaby extends Effect {
 

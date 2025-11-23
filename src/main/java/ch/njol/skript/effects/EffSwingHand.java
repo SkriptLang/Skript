@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -17,7 +17,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Swing Hand")
 @Description("Makes an entity swing their hand. This does nothing if the entity does not have an animation for swinging their hand.")
-@Examples("make player swing their main hand")
+@Example("make player swing their main hand")
 @Since("2.5.1")
 @RequiredPlugins("Minecraft 1.15.2+")
 public class EffSwingHand extends Effect {

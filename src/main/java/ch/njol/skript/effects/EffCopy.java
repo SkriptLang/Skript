@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -26,14 +26,14 @@ import java.util.*;
 	"Copies objects into a variable. When copying a list over to another list, the source list and its sublists are also copied over.",
 	"<strong>Note: Copying a value into a variable/list will overwrite the existing data.</strong>"
 })
-@Examples({
-	"set {_foo::bar} to 1",
-	"set {_foo::sublist::foobar} to \"hey\"",
-	"copy {_foo::*} to {_copy::*}",
-	"broadcast indices of {_copy::*} # bar, sublist",
-	"broadcast {_copy::bar} # 1",
-	"broadcast {_copy::sublist::foobar} # \"hey!\""
-})
+@Example("""
+	set {_foo::bar} to 1
+	set {_foo::sublist::foobar} to "hey"
+	copy {_foo::*} to {_copy::*}
+	broadcast indices of {_copy::*} # bar, sublist
+	broadcast {_copy::bar} # 1
+	broadcast {_copy::sublist::foobar} # "hey!"
+	""")
 @Since("2.8.0")
 @Keywords({"clone", "variable", "list"})
 public class EffCopy extends Effect {

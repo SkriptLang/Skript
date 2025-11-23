@@ -5,7 +5,7 @@ import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -22,10 +22,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Hatching Entity Type")
 @Description("The type of the entity that will be hatched in a Player Egg Throw event.")
-@Examples({
-	"on player egg throw:",
-		"\tset the hatching entity type to a primed tnt"
-})
+@Example("""
+	on player egg throw:
+		set the hatching entity type to a primed tnt
+	""")
 @Events("Egg Throw")
 @Since("2.7")
 public class ExprHatchingType extends SimpleExpression<EntityData<?>> {

@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -32,25 +32,24 @@ import ch.njol.util.Kleenean;
 
 @Name("Command Info")
 @Description("Get information about a command.")
-@Examples({
-	"main command label of command \"skript\"",
-	"description of command \"help\"",
-	"label of command \"pl\"",
-	"usage of command \"help\"",
-	"aliases of command \"bukkit:help\"",
-	"permission of command \"/op\"",
-	"command \"op\"'s permission message",
-	"command \"sk\"'s plugin owner",
-	"",
-	"command /greet <player>:",
-		"\tusage: /greet <target>",
-		"\ttrigger:",
-			"\t\tif arg-1 is sender:",
-				"\t\t\tsend \"&cYou can't greet yourself! Usage: %the usage%\"",
-				"\t\t\tstop",
-			"\t\tsend \"%sender% greets you!\" to arg-1",
-			"\t\tsend \"You greeted %arg-1%!\""
-})
+@Example("main command label of command \"skript\"")
+@Example("description of command \"help\"")
+@Example("label of command \"pl\"")
+@Example("usage of command \"help\"")
+@Example("aliases of command \"bukkit:help\"")
+@Example("permission of command \"/op\"")
+@Example("command \"op\"'s permission message")
+@Example("command \"sk\"'s plugin owner")
+@Example("""
+	command /greet <player>:
+		usage: /greet <target>
+		trigger:
+			if arg-1 is sender:
+				send "&cYou can't greet yourself! Usage: %the usage%"
+				stop
+			send "%sender% greets you!" to arg-1
+			send "You greeted %arg-1%!"
+	""")
 @Since("2.6")
 public class ExprCommandInfo extends SimpleExpression<String> {
 

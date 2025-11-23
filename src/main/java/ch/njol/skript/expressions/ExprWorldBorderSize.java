@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"The size of a world border.",
 	"The size can not be smaller than 1."
 })
-@Examples("set world border radius of {_worldborder} to 10")
+@Example("set world border radius of {_worldborder} to 10")
 @Since("2.11")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 

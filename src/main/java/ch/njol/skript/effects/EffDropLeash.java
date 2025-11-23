@@ -13,13 +13,13 @@ import ch.njol.util.Kleenean;
 
 @Name("Allow / Prevent Leash Drop")
 @Description("Allows or prevents the leash from being dropped in an unleash event.")
-@Examples({
-	"on unleash:",
-		"\tif player is not set:",
-			"\t\tprevent the leash from dropping",
-		"\telse if player is op:",
-			"\t\tallow the leash to drop"
-})
+@Example("""
+	on unleash:
+		if player is not set:
+			prevent the leash from dropping
+		else if player is op:
+			allow the leash to drop
+	""")
 @Keywords("lead")
 @Events("Unleash")
 @Since("2.10")

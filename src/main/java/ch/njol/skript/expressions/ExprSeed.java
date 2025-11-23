@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("World Seed")
 @Description("The seed of given world. Note that it will be returned as Minecraft internally treats seeds, not as you specified it in world configuration.")
-@Examples("broadcast \"Seed: %seed of player's world%\"")
+@Example("broadcast \"Seed: %seed of player's world%\"")
 @Since("2.2-dev35")
 public class ExprSeed extends PropertyExpression<World, Long> {
 

@@ -15,10 +15,8 @@ import ch.njol.util.Kleenean;
 
 @Name("Item with Enchantment Glint")
 @Description("Get an item with or without enchantment glint.")
-@Examples({
-	"set {_item with glint} to diamond with enchantment glint",
-	"set {_item without glint} to diamond without enchantment glint"
-})
+@Example("set {_item with glint} to diamond with enchantment glint")
+@Example("set {_item without glint} to diamond without enchantment glint")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
 public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, ItemType> {

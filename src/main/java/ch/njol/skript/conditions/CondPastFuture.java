@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprNow;
@@ -22,21 +22,23 @@ import org.jetbrains.annotations.Nullable;
 	"Checks whether a date is in the past or future.",
 	"Note that using the 'now' expression will not be in the past or future when used directly in the condition."
 })
-@Examples({
-	"set {_date} to now",
-	"wait 5 seconds",
-	"if {_date} is in the past:",
-		"\t# this will be true",
-	"",
-	"if now is in the future:",
-		"\t# this will be false",
-	"",
-	"set {_dates::*} to 1 day from now, 12 days from now, and 1 year from now",
-	"if {_dates::*} are in the future:",
-		"\t# this will be true",
-	"if {_dates::*} have passed:",
-		"\t# this will be false"
-})
+@Example("""
+	set {_date} to now
+	wait 5 seconds
+	if {_date} is in the past:
+		# this will be true
+	""")
+@Example("""
+	if now is in the future:
+		# this will be false
+	""")
+@Example("""
+	set {_dates::*} to 1 day from now, 12 days from now, and 1 year from now
+	if {_dates::*} are in the future:
+		# this will be true
+	if {_dates::*} have passed:
+		# this will be false
+	""")
 @Since("2.10")
 public class CondPastFuture extends Condition {
 

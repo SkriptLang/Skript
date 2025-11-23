@@ -22,12 +22,10 @@ import java.util.function.Supplier;
 	"Simulation distance is capped to the current view distance of the world or player.",
 	"The view distance is capped between 2 and 32 chunks."
 })
-@Examples({
-	"set simulation distance of player to 10",
-	"add 50 to the simulation distance of world \"world\"",
-	"reset the simulation distance of player",
-	"clear the simulation distance of world \"world\""
-})
+@Example("set simulation distance of player to 10")
+@Example("add 50 to the simulation distance of world \"world\"")
+@Example("reset the simulation distance of player")
+@Example("clear the simulation distance of world \"world\"")
 @Since("2.11")
 public class ExprSimulationDistance extends SimplePropertyExpression<Object, Integer> {
 

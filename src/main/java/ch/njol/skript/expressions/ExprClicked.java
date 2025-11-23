@@ -19,7 +19,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -35,11 +35,11 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Clicked Block/Entity/Inventory/Slot")
 @Description("The clicked block, entity, inventory, inventory slot, inventory click type or inventory action.")
-@Examples({
-	"message \"You clicked on a %type of clicked entity%!\"",
-	"if the clicked block is a chest:",
-		"\tshow the inventory of the clicked block to the player"
-})
+@Example("""
+	message "You clicked on a %type of clicked entity%!"
+	if the clicked block is a chest:
+		show the inventory of the clicked block to the player
+	""")
 @Since("1.0, 2.2-dev35 (more clickable things)")
 @Events({"click", "inventory click"})
 public class ExprClicked extends SimpleExpression<Object> {

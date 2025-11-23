@@ -12,11 +12,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Fishing Lure Applied")
 @Description("Checks if the lure enchantment is applied to the current fishing event.")
-@Examples({
-	"on fishing line cast:",
-		"\tif lure enchantment bonus is applied:",
-			"\t\tcancel event"
-})
+@Example("""
+	on fishing line cast:
+		if lure enchantment bonus is applied:
+			cancel event
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class CondFishingLure extends Condition {

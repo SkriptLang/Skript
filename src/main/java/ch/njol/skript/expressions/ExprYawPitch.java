@@ -24,13 +24,11 @@ import org.jetbrains.annotations.Nullable;
 	"A pitch of 90 represents the negative y direction, or downward facing. A pitch of -90 represents upward facing. Adding a positive number to the pitch will rotate the direction downwards.",
 	"Only Paper 1.19+ users may directly change the yaw/pitch of players."
 })
-@Examples({
-	"log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"",
-	"set {_yaw} to yaw of player",
-	"set {_p} to pitch of target entity",
-	"set pitch of player to -90 # Makes the player look upwards, Paper 1.19+ only",
-	"add 180 to yaw of target of player # Makes the target look behind themselves"
-})
+@Example("log \"%player%: %location of player%, %player's yaw%, %player's pitch%\" to \"playerlocs.log\"")
+@Example("set {_yaw} to yaw of player")
+@Example("set {_p} to pitch of target entity")
+@Example("set pitch of player to -90 # Makes the player look upwards, Paper 1.19+ only")
+@Example("add 180 to yaw of target of player # Makes the target look behind themselves")
 @Since("2.0, 2.2-dev28 (vector yaw/pitch), 2.9.0 (entity changers)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 

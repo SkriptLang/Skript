@@ -4,7 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
@@ -28,16 +28,18 @@ import java.util.regex.Pattern;
 	"They can also return a value to the trigger that is executing the function.",
 	"Note that local functions come before global functions execution"
 })
-@Examples({
-	"function sayMessage(message: text):",
-	"\tbroadcast {_message} # our message argument is available in '{_message}'",
-	"",
-	"local function giveApple(amount: number) :: item:",
-	"\treturn {_amount} of apple",
-	"",
-	"function getPoints(p: player) returns number:",
-	"\treturn {points::%{_p}%}"
-})
+@Example("""
+	function sayMessage(message: text):
+		broadcast {_message} # our message argument is available in '{_message}'
+	""")
+@Example("""
+	local function giveApple(amount: number) :: item:
+		return {_amount} of apple
+	""")
+@Example("""
+	function getPoints(p: player) returns number:
+		return {points::%{_p}%}
+	""")
 @Since("2.2, 2.7 (local functions)")
 public class StructFunction extends Structure {
 

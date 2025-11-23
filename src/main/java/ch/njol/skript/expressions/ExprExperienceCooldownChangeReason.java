@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -14,13 +14,13 @@ import org.jetbrains.annotations.Nullable;
 	"The <a href='#experiencechangereason'>experience change reason</a> within an " +
 	"<a href='#experience%20cooldown%20change%20event'>experience cooldown change event</a>."
 })
-@Examples({
-	"on player experience cooldown change:",
-		"\tif xp cooldown change reason is plugin:",
-			"\t\t#Changed by a plugin",
-		"\telse if xp cooldown change reason is orb pickup:",
-			"\t\t#Changed by picking up xp orb"
-})
+@Example("""
+	on player experience cooldown change:
+		if xp cooldown change reason is plugin:
+			#Changed by a plugin
+		else if xp cooldown change reason is orb pickup:
+			#Changed by picking up xp orb
+	""")
 @Since("2.10")
 public class ExprExperienceCooldownChangeReason extends EventValueExpression<ChangeReason> {
 

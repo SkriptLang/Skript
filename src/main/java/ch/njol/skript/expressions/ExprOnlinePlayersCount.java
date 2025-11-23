@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,11 +24,11 @@ import org.jetbrains.annotations.Nullable;
 		"<a href='#server_list_ping'>server list ping</a> event only to show fake online player amount.",
 		"<code>real online player count</code> always return the real count of online players and can't be changed."
 })
-@Examples({
-		"on server list ping:",
-			"\t# This will make the max players count 5 if there are 4 players online.",
-			"\tset the fake max players count to (online player count + 1)"
-})
+@Example("""
+	on server list ping:
+		# This will make the max players count 5 if there are 4 players online.
+		set the fake max players count to (online player count + 1)
+	""")
 @Since("2.3")
 public class ExprOnlinePlayersCount extends SimpleExpression<Long> {
 

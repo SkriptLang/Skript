@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 	"The current or max honey level of a beehive.",
 	"The max level is 5, which cannot be changed."
 })
-@Examples("set the honey level of {_beehive} to the max honey level of {_beehive}")
+@Example("set the honey level of {_beehive} to the max honey level of {_beehive}")
 @Since("2.11")
 public class ExprBeehiveHoneyLevel extends SimplePropertyExpression<Block, Integer> {
 

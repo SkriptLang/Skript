@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.misc.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -39,12 +39,10 @@ import java.util.Locale;
 	"The same applies to rotations by all three axes at once. " +
 	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
 })
-@Examples({
-	"rotate {_quaternion} around x axis by 10 degrees",
-	"rotate last spawned block display around y axis by 10 degrees",
-	"rotate {_vector} around vector(1, 1, 1) by 45",
-	"rotate {_quaternion} by x 45, y 90, z 135"
-})
+@Example("rotate {_quaternion} around x axis by 10 degrees")
+@Example("rotate last spawned block display around y axis by 10 degrees")
+@Example("rotate {_vector} around vector(1, 1, 1) by 45")
+@Example("rotate {_quaternion} by x 45, y 90, z 135")
 @Since("2.2-dev28, 2.10 (quaternions, displays)")
 public class EffRotate extends Effect {
 

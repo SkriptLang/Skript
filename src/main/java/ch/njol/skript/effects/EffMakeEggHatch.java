@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Make Egg Hatch")
 @Description("Makes the egg hatch in a Player Egg Throw event.")
-@Examples({
-	"on player egg throw:",
-		"\t# EGGS FOR DAYZ!",
-		"\tmake the egg hatch"
-})
+@Example("""
+	on player egg throw:
+		# EGGS FOR DAYZ!
+		make the egg hatch
+	""")
 @Events("Egg Throw")
 @Since("2.7")
 public class EffMakeEggHatch extends Effect {

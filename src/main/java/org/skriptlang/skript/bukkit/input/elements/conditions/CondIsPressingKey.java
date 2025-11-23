@@ -18,11 +18,11 @@ import org.skriptlang.skript.bukkit.input.InputKey;
 
 @Name("Is Pressing Key")
 @Description("Checks if a player is pressing a certain input key.")
-@Examples({
-	"on player input:",
-	"\tif player is pressing forward movement key:",
-		"\t\tsend \"You are moving forward!\""
-})
+@Example("""
+	on player input:
+		if player is pressing forward movement key:
+			send "You are moving forward!"
+	""")
 @Since("2.10")
 @Keywords({"press", "input"})
 @RequiredPlugins("Minecraft 1.21.2+")

@@ -10,10 +10,10 @@ import org.bukkit.entity.Piglin;
 
 @Name("Is Dancing")
 @Description("Checks to see if an entity is dancing, such as allays, parrots, or piglins.")
-@Examples({
-	"if last spawned allay is dancing:",
-		"\tbroadcast \"Dance Party!\""
-})
+@Example("""
+	if last spawned allay is dancing:
+		broadcast "Dance Party!"
+	""")
 @Since("2.11")
 public class CondIsDancing extends PropertyCondition<LivingEntity> {
 

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -29,10 +29,8 @@ import java.util.stream.StreamSupport;
 	"For example, if you ran 'broadcast \"something\" and \"something else\" where [string input is \"something\"]', ",
 	"only \"something\" would be broadcast as it is the only string that matched the condition."
 })
-@Examples({
-	"send \"congrats on being staff!\" to all players where [player input has permission \"staff\"]",
-	"loop (all blocks in radius 5 of player) where [block input is not air]:"
-})
+@Example("send \"congrats on being staff!\" to all players where [player input has permission \"staff\"]")
+@Example("loop (all blocks in radius 5 of player) where [block input is not air]:")
 @Since("2.2-dev36, 2.10 (parenthesis pattern)")
 public class ExprFilter extends SimpleExpression<Object> implements InputSource, KeyProviderExpression<Object> {
 

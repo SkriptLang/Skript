@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,7 +25,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
  */
 @Name("Vectors - Location Vector Offset")
 @Description("Returns the location offset by vectors.")
-@Examples({"set {_loc} to {_loc} ~ {_v}"})
+@Example("set {_loc} to {_loc} ~ {_v}")
 @Since("2.2-dev28")
 public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 

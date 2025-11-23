@@ -5,7 +5,7 @@ import ch.njol.skript.lang.Literal;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -14,7 +14,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Unix Date")
 @Description("Converts given Unix timestamp to a date. The Unix timespan represents the number of seconds elapsed since 1 January 1970.")
-@Examples("unix date of 946684800 #1 January 2000 12:00 AM (UTC Time)")
+@Example("unix date of 946684800 #1 January 2000 12:00 AM (UTC Time)")
 @Since("2.5")
 public class ExprUnixDate extends SimplePropertyExpression<Number, Date> {
 	

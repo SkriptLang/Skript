@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -11,10 +11,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("World Environment")
 @Description("The environment of a world")
-@Examples({
-	"if environment of player's world is nether:",
-	"\tapply fire resistance to player for 10 minutes"
-})
+@Example("""
+	if environment of player's world is nether:
+		apply fire resistance to player for 10 minutes
+	""")
 @Since("2.7")
 public class ExprWorldEnvironment extends SimplePropertyExpression<World, Environment> {
 

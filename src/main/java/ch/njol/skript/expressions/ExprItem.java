@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -16,11 +16,11 @@ import ch.njol.skript.util.slot.Slot;
 
 @Name("Item")
 @Description("The item involved in an event, e.g. in a drop, dispense, pickup or craft event.")
-@Examples({
-	"on dispense:",
-		"\titem is a clock",
-		"\tset the time to 6:00"
-})
+@Example("""
+	on dispense:
+		item is a clock
+		set the time to 6:00
+	""")
 @Since("unknown (before 2.1)")
 public class ExprItem extends EventValueExpression<ItemStack> {
 

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -25,11 +25,11 @@ import java.util.ArrayList;
 	"breaking the block each tick. When the total breaking progress reaches 1.0, the block is broken. Note that the " +
 	"break speed can change in the course of breaking a block, e.g. if a potion effect is applied or expires, or the " +
 	"player jumps/enters water.")
-@Examples({
-	"on left click using diamond pickaxe:",
-		"\tevent-block is set",
-		"\tsend \"Break Speed: %break speed for player%\" to player"
-})
+@Example("""
+	on left click using diamond pickaxe:
+		event-block is set
+		send "Break Speed: %break speed for player%" to player
+	""")
 @Since("2.7")
 @RequiredPlugins("1.17+")
 public class ExprBreakSpeed extends SimpleExpression<Float> {

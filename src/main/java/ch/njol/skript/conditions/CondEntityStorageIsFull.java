@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,10 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Storage Is Full")
 @Description("Checks to see if the an entity block storage (i.e beehive) is full.")
-@Examples({
-	"if the entity storage of {_beehive} is full:",
-		"\trelease the entity storage of {_beehive}"
-})
+@Example("""
+	if the entity storage of {_beehive} is full:
+		release the entity storage of {_beehive}
+	""")
 @Since("2.11")
 public class CondEntityStorageIsFull extends Condition {
 

@@ -2,7 +2,7 @@ package ch.njol.skript.hooks.permission.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -17,10 +17,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("All Groups")
 @Description("All the groups a player can have. This expression requires Vault and a compatible permissions plugin to be installed.")
-@Examples({"command /group &lt;text&gt;:",
-		"\ttrigger:",
-		"\t\tif argument is \"list\":",
-		"\t\t\tsend \"%all groups%\""})
+@Example("""
+	command /group &lt;text&gt;:
+		trigger:
+			if argument is "list":
+				send "%all groups%"
+	""")
 @Since("2.2-dev35")
 @RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
 public class ExprAllGroups extends SimpleExpression<String> {

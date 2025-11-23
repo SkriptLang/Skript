@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,7 +20,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Create from XYZ")
 @Description("Creates a vector from x, y and z values.")
-@Examples("set {_v} to vector 0, 1, 0")
+@Example("set {_v} to vector 0, 1, 0")
 @Since("2.2-dev28")
 public class ExprVectorFromXYZ extends SimpleExpression<Vector> {
 

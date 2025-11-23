@@ -5,7 +5,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -39,20 +39,18 @@ import java.util.List;
 	"else parse if: another special case of 'else if' condition that its code will not be parsed if all previous chained " +
 		"conditionals weren't executed, and its condition is true",
 })
-@Examples({
-	"if player's health is greater than or equal to 4:",
-	"\tsend \"Your health is okay so far but be careful!\"",
-	"",
-	"else if player's health is greater than 2:",
-	"\tsend \"You need to heal ASAP, your health is very low!\"",
-	"",
-	"else: # Less than 2 hearts",
-	"\tsend \"You are about to DIE if you don't heal NOW. You have only %player's health% heart(s)!\"",
-	"",
-	"parse if plugin \"SomePluginName\" is enabled: # parse if %condition%",
-	"\t# This code will only be executed if the condition used is met otherwise Skript will not parse this section therefore will not give any errors/info about this section",
-	""
-})
+@Example("""
+	if player's health is greater than or equal to 4:
+		send "Your health is okay so far but be careful!"
+	else if player's health is greater than 2:
+		send "You need to heal ASAP, your health is very low!"
+	else: # Less than 2 hearts
+		send "You are about to DIE if you don't heal NOW. You have only %player's health% heart(s)!"
+	""")
+@Example("""
+	parse if plugin "SomePluginName" is enabled: # parse if %condition%
+		# This code will only be executed if the condition used is met otherwise Skript will not parse this section therefore will not give any errors/info about this section
+	""")
 @Since("1.0")
 public class SecConditional extends Section {
 

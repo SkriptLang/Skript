@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -20,9 +20,9 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Player List Header and Footer")
 @Description("The message above and below the player list in the tab menu.")
-@Examples({"set all players' tab list header to \"Welcome to the Server!\"",
-			"send \"%the player's tab list header%\" to player",
-			"reset all players' tab list header"})
+@Example("set all players' tab list header to \"Welcome to the Server!\"")
+@Example("send \"%the player's tab list header%\" to player")
+@Example("reset all players' tab list header")
 @Since("2.4")
 @RequiredPlugins("Minecraft 1.13 or newer")
 public class ExprPlayerlistHeaderFooter extends SimplePropertyExpression<Player, String> {

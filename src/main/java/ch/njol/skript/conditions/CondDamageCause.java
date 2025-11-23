@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -20,19 +20,23 @@ import ch.njol.util.Kleenean;
  */
 @Name("Damage Cause")
 @Description("Tests what kind of damage caused a <a href='#damage'>damage event</a>. Refer to the <a href='#damagecause'>Damage Cause</a> type for a list of all possible causes.")
-@Examples({"# make players use their potions of fire resistance whenever they take any kind of fire damage",
-		"on damage:",
-		"\tdamage was caused by lava, fire or burning",
-		"\tvictim is a player",
-		"\tvictim has a potion of fire resistance",
-		"\tcancel event",
-		"\tapply fire resistance to the victim for 30 seconds",
-		"\tremove 1 potion of fire resistance from the victim",
-		"# prevent mobs from dropping items under certain circumstances",
-		"on death:",
-		"\tentity is not a player",
-		"\tdamage wasn't caused by a block explosion, an attack, a projectile, a potion, fire, burning, thorns or poison",
-		"\tclear drops"})
+@Example("""
+	# make players use their potions of fire resistance whenever they take any kind of fire damage
+	on damage:
+		damage was caused by lava, fire or burning
+		victim is a player
+		victim has a potion of fire resistance
+		cancel event
+		apply fire resistance to the victim for 30 seconds
+		remove 1 potion of fire resistance from the victim
+	""")
+@Example("""
+	# prevent mobs from dropping items under certain circumstances
+	on death:
+		entity is not a player
+		damage wasn't caused by a block explosion, an attack, a projectile, a potion, fire, burning, thorns or poison
+		clear drops
+	""")
 @Since("2.0")
 public class CondDamageCause extends Condition {
 	

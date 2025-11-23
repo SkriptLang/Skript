@@ -31,8 +31,6 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	spawn a zombie at location(0, 0, 0)
 	make player damage last spawned zombie by 2
 	""")
-@Examples({"spawn a wolf at player's location",
-	"make last spawned wolf attack player"})
 @Since("2.5.1, 2.13 (multiple, amount)")
 @RequiredPlugins("Minecraft 1.15.2+")
 public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer {

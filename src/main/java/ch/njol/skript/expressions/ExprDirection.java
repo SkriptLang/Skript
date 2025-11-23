@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -26,20 +26,22 @@ import ch.njol.util.Math2;
  */
 @Name("Direction")
 @Description("A helper expression for the <a href='#direction'>direction type</a>.")
-@Examples({"thrust the player upwards",
-		"set the block behind the player to water",
-		"loop blocks above the player:",
-		"	set {_rand} to a random integer between 1 and 10",
-		"	set the block {_rand} meters south east of the loop-block to stone",
-		"block in horizontal facing of the clicked entity from the player is air",
-		"spawn a creeper 1.5 meters horizontally behind the player",
-		"spawn a TNT 5 meters above and 2 meters horizontally behind the player",
-		"thrust the last spawned TNT in the horizontal direction of the player with speed 0.2",
-		"push the player upwards and horizontally forward at speed 0.5",
-		"push the clicked entity in in the direction of the player at speed -0.5",
-		"open the inventory of the block 2 blocks below the player to the player",
-		"teleport the clicked entity behind the player",
-		"grow a regular tree 2 meters horizontally behind the player"})
+@Example("thrust the player upwards")
+@Example("set the block behind the player to water")
+@Example("""
+	loop blocks above the player:
+		set {_rand} to a random integer between 1 and 10
+		set the block {_rand} meters south east of the loop-block to stone
+	""")
+@Example("block in horizontal facing of the clicked entity from the player is air")
+@Example("spawn a creeper 1.5 meters horizontally behind the player")
+@Example("spawn a TNT 5 meters above and 2 meters horizontally behind the player")
+@Example("thrust the last spawned TNT in the horizontal direction of the player with speed 0.2")
+@Example("push the player upwards and horizontally forward at speed 0.5")
+@Example("push the clicked entity in in the direction of the player at speed -0.5")
+@Example("open the inventory of the block 2 blocks below the player to the player")
+@Example("teleport the clicked entity behind the player")
+@Example("grow a regular tree 2 meters horizontally behind the player")
 @Since("1.0 (basic), 2.0 (extended)")
 public class ExprDirection extends SimpleExpression<Direction> {
 	

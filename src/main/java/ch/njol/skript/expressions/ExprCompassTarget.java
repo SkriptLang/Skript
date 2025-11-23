@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,10 +19,12 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description({"The location a player's compass is pointing at.",
 	"As of Minecraft 1.21.4, the compass is controlled by the resource pack and by default will not point to " +
 		"this compass target when used outside of the overworld dimension."})
-@Examples({"# make all player's compasses target a player stored in {compass::target::%player%}",
-		"every 5 seconds:",
-		"\tloop all players:",
-		"\t\tset the loop-player's compass target to location of {compass::target::%%loop-player%}"})
+@Example("""
+	# make all player's compasses target a player stored in {compass::target::%player%}
+	every 5 seconds:
+		loop all players:
+			set the loop-player's compass target to location of {compass::target::%%loop-player%}
+	""")
 @Since("2.0")
 public class ExprCompassTarget extends SimplePropertyExpression<Player, Location> {
 	

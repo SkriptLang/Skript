@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -28,12 +28,12 @@ import ch.njol.util.coll.CollectionUtils;
 	"You can clear all potion effects of an entity/itemtype and add/remove a potion effect/type to/from an entity/itemtype.",
 	"Do note you will not be able to clear the base potion effects of a potion item. In that case, just set the item to a water bottle.",
 	"When adding a potion effect type (rather than a potion effect), it will default to 15 seconds with tier 1."})
-@Examples({"set {_p::*} to active potion effects of player",
-	"clear all the potion effects of player",
-	"clear all the potion effects of player's tool",
-	"add potion effects of player to potion effects of player's tool",
-	"add speed to potion effects of target entity",
-	"remove speed and night vision from potion effects of player"})
+@Example("set {_p::*} to active potion effects of player")
+@Example("clear all the potion effects of player")
+@Example("clear all the potion effects of player's tool")
+@Example("add potion effects of player to potion effects of player's tool")
+@Example("add speed to potion effects of target entity")
+@Example("remove speed and night vision from potion effects of player")
 @Since("2.5.2")
 public class ExprPotionEffects extends SimpleExpression<PotionEffect> {
 	

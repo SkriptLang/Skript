@@ -21,12 +21,10 @@ import org.skriptlang.skript.util.Executable;
 	"Runs something (like a function) and returns its result.",
 	"If the thing is expected to return multiple values, use 'results' instead of 'result'."
 })
-@Examples({
-	"set {_function} to the function named \"myFunction\"",
-	"set {_result} to the result of {_function}",
-	"set {_list::*} to the results of {_function}",
-	"set {_result} to the result of {_function} with arguments 13 and true"
-})
+@Example("set {_function} to the function named \"myFunction\"")
+@Example("set {_result} to the result of {_function}")
+@Example("set {_list::*} to the results of {_function}")
+@Example("set {_result} to the result of {_function} with arguments 13 and true")
 @Since("2.10")
 @Keywords({"run", "result", "execute", "function", "reflection"})
 public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> implements ReflectionExperimentSyntax {

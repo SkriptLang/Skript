@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,7 +18,7 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @Name("Vectors - Velocity")
 @Description("Gets or changes velocity of an entity.")
-@Examples({"set player's velocity to {_v}"})
+@Example("set player's velocity to {_v}")
 @Since("2.2-dev31")
 public class ExprVelocity extends SimplePropertyExpression<Entity, Vector> {
 
