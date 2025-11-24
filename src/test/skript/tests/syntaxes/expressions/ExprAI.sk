@@ -1,0 +1,51 @@
+test "Entity AI Expression Functionality":
+	spawn a cow at test-location:
+		set {_cow} to entity
+
+	assert ai of {_cow} is true with "A cow's AI should be true by default"
+
+	set ai of {_cow} to false
+	assert ai of {_cow} is false with "AI should be set to false"
+
+	set ai of {_cow} to true
+	assert ai of {_cow} is true with "AI should be set back to true"
+
+	set {_cow}'s ai to false
+	assert {_cow}'s ai is false with "Possessive syntax setter should work"
+
+	set artificial intelligence of {_cow} to true
+	assert artificial intelligence of {_cow} is true with "Alias syntax setter should work"
+
+	set ai of {_cow} to no
+	assert ai of {_cow} is false with "'no' alias should set AI to false"
+	set ai of {_cow} to yes
+	assert ai of {_cow} is true with "'yes' alias should set AI to true"
+
+	clear entity within {_cow}
+
+test "Entity AI with multiple entities":
+	spawn 2 cows at test-location:
+		add entity to {_cows::*}
+
+	set ai of {_cows::*} to false
+	assert ai of {_cows::*} is false with "AI for all entities in a list should be set to false"
+
+	clear entities within {_cows::*}
+
+test "Setting AI to an unset value":
+	spawn a cow at test-location:
+		set {_cow} to entity
+	
+	set ai of {_cow} to {_undefined}
+
+	assert ai of {_cow} is true with "Setting AI to an unset value should not change it"
+
+	clear entity within {_cow}
+
+test "Getting AI of a dead entity":
+	spawn a cow at test-location:
+		set {_cow} to entity
+
+	clear entity within {_cow}
+	
+	assert ai of {_cow} is true with "AI of a dead entity should report its last known state (true)"
