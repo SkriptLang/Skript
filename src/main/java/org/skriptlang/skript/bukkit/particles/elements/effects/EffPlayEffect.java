@@ -24,8 +24,8 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer {
 	static {
 		Skript.registerEffect(EffPlayEffect.class,
-		"[:force] (play|show|draw) %gameeffects% %directions% %locations%",
-			"[:force] (play|show|draw) %gameeffects% %directions% %locations% (for|to) %-players%",
+		"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations%",
+			"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations% (for|to) %-players%",
 			"(play|show|draw) %gameeffects% %directions% %locations% (in|with) [a] [view] (radius|range) of %-number%)",
 			"(play|show|draw) %entityeffects% on %entities%");
 	}

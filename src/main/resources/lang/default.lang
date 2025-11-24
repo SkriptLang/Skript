@@ -1616,6 +1616,9 @@ entities:
 	animal:
 		name: animal¦s
 		pattern: animal[plural:s]
+	tameable:
+		name: tameable creature¦s
+		pattern: tameable creature[1¦s]
 	fish:
 		name: fish¦es
 		pattern: fish[plural:es]
@@ -2890,6 +2893,7 @@ entity effect:
 	hoglin_attack: hoglin attack animation
 	iron_golen_attack: iron golem attack animation
 	ravager_attack: ravager attack animation
+	ravager_roared: ravager roared animation
 	warden_attack: warden attack animation
 	zoglin_attack: zoglin attack animation
 	entity_attack: entity attack animation
@@ -2931,7 +2935,9 @@ entity effect:
 	break_equipment_chestplate: break chestplate effect
 	break_equipment_leggings: break leggings effect
 	break_equipment_boots: break boots effect
+	break_equipment_saddle: break saddle effect
 	body_break: break body armor effect, break body armour effect
+	break_equipment_body: break body armor effect, break body armour effect
 	honey_block_slide_particles: honey block slide effect
 	honey_block_fall_particles: honey block fall effect
 	swap_hand_items: swap hands effect # this actually makes players swap hands
@@ -2943,6 +2949,10 @@ entity effect:
 	sniffer_dig: sniffer dig sound effect # only if the sniffer is already in search/dig state
 	armadillo_peek: armadillo peek animation
 	shake: creaking shake animation
+	
+	
+	hurt_drown: drown damage effect
+	drown_particles: drowning damage effect
 
 	# sheep eat superseded by sheep eat grass 1.12.2
 	sheep_eat: sheep eating grass animation
@@ -2955,12 +2965,129 @@ entity effect:
 	# non-functional
 	guardian_target: guardian target sound effect
 	thorns_hurt: thorns hurt effect
-	hurt_drown: drown damage effect
 	hurt_explosion: explosion damage effect
 	hurt_berry_bush: hurt berry bush effect
 	cat_tame_fail: cat tame fail effect
 	cat_tame_success: cat tame success effect
 
+# -- Particle Effects --
+# all patterns should include the word 'particle'
+particle:
+	angry_villager: angry villager particle
+	ash: ash particle
+	block: block particle
+	block_crumble: block crumble particle
+	block_marker: block marker particle
+	bubble: bubble particle
+	bubble_column_up: bubble column particle
+	bubble_pop: bubble pop particle
+	campfire_cosy_smoke: campfire cosy smoke particle
+	campfire_signal_smoke: campfire signal smoke particle
+	cherry_leaves: cherry leaves particle
+	cloud: cloud particle
+	composter: composter particle
+	copper_fire_flame: copper flame particle
+	crimson_spore: crimson spore particle
+	crit: crit particle
+	current_down: downward current particle
+	damage_indicator: damage indicator particle
+	dolphin: dolphin particle
+	dragon_breath: dragon breath particle
+	dripping_dripstone_lava: dripstone dripping lava particle
+	dripping_dripstone_water: dripstone dripping water particle
+	dripping_honey: dripping honey particle
+	dripping_lava: dripping lava particle
+	dripping_obsidian_tear: dripping obsidian tear particle
+	dripping_water: dripping water particle
+	dust: dust particle
+	dust_color_transition: dust color transition particle
+	dust_pillar: dust pillar particle
+	dust_plume: dust plume particle
+	effect: potion effect particle
+	egg_crack: egg crack particle
+	elder_guardian: elder guardian particle
+	electric_spark: electric spark particle
+	enchant: enchanting particle
+	enchanted_hit: enchanted hit particle
+	end_rod: end rod particle
+	entity_effect: entity effect particle
+	explosion: explosion particle
+	explosion_emitter: explosion emitter particle
+	falling_dripstone_lava: falling dripstone lava particle
+	falling_dripstone_water: falling dripstone water particle
+	falling_dust: falling dust particle
+	falling_honey: falling honey particle
+	falling_lava: falling lava particle
+	falling_nectar: falling nectar particle
+	falling_obsidian_tear: falling obsidian tear particle
+	falling_spore_blossom: falling spore blossom particle
+	falling_water: falling water particle
+	firefly: firefly particle
+	firework: firework particle
+	fishing: fishing particle
+	flame: flame particle
+	flash: flash particle
+	glow: glow particle
+	glow_squid_ink: glow squid ink particle
+	gust: gust particle
+	gust_emitter_large: large gust emitter particle
+	gust_emitter_small: small gust emitter particle
+	happy_villager: happy villager particle
+	heart: heart particle
+	infested: infested particle
+	instant_effect: instant effect particle
+	item: item particle
+	item_cobweb: cobweb item particle
+	item_slime: slime item particle
+	item_snowball: snowball item particle
+	landing_honey: landing honey particle
+	landing_lava: landing lava particle
+	landing_obsidian_tear: landing obsidian tear particle
+	large_smoke: large smoke particle
+	lava: lava particle
+	mycelium: mycelium particle
+	nautilus: nautilus particle
+	note: note particle
+	ominous_spawning: ominous spawning particle
+	pale_oak_leaves: pale oak leaves particle
+	poof: poof particle
+	portal: portal particle
+	raid_omen: raid omen particle
+	rain: rain particle
+	reverse_portal: reverse portal particle
+	scrape: scrape particle
+	sculk_charge: sculk charge particle
+	sculk_charge_pop: sculk charge pop particle
+	sculk_soul: sculk soul particle
+	shriek: shriek particle
+	small_flame: small flame particle
+	small_gust: small gust particle
+	smoke: smoke particle
+	sneeze: sneeze particle
+	snowflake: snowflake particle
+	sonic_boom: sonic boom particle
+	soul: soul particle
+	soul_fire_flame: soul fire flame particle
+	spit: spit particle
+	splash: splash particle
+	spore_blossom_air: spore blossom air particle
+	squid_ink: squid ink particle
+	sweep_attack: sweep attack particle
+	tinted_leaves: tinted leaves particle
+	totem_of_undying: totem of undying particle
+	trail: trail particle
+	trial_omen: trial omen particle
+	trial_spawner_detection: trial spawner detection particle
+	trial_spawner_detection_ominous: ominous trial spawner detection particle
+	underwater: underwater particle
+	vault_connection: vault connection particle
+	vibration: vibration particle
+	warped_spore: warped spore particle
+	wax_off: wax off particle
+	wax_on: wax on particle
+	white_ash: white ash particle
+	white_smoke: white smoke particle
+	witch: witch particle
 
 
 # -- Teleport Flags --
@@ -3342,6 +3469,7 @@ types:
 	equippablecomponent: equippable component¦s @an
 	gameeffect: game effect¦s @a
 	entityeffect: entity effect¦s @a
+	particle: particle effect¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
