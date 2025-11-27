@@ -248,32 +248,16 @@ public abstract class Utils {
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
-		assert word != null;
-		if (word.isEmpty())
-			return new NonNullPair<>("", false);
-		if (!couldBeSingular(word)) {
-			for (final WordEnding ending : plurals) {
-				if (ending.isCompleteWord()) {
-					// Complete words shouldn't be used as partial pieces
-					if (word.length() != ending.plural().length())
-						continue;
-				}
-				if (word.endsWith(ending.plural()))
-					return new NonNullPair<>(
-						word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
-						true
-					);
-				if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
-					return new NonNullPair<>(
-						word.substring(0, word.length() - ending.plural().length())
-							+ ending.singular().toUpperCase(Locale.ENGLISH),
-						true
-					);
-			}
-		}
-		return new NonNullPair<>(word, false);
+		PluralResult result = isPlural(word);
+		return new NonNullPair<>(result.updated, result.plural);
 	}
 
+	/**
+	 * Stores the result of {@link #isPlural(String)}.
+	 *
+	 * @param updated The single exist of the passed word, if a single variant exists.
+	 * @param plural Whether the word is plural.
+	 */
 	public record PluralResult(String updated, boolean plural) {
 
 	}

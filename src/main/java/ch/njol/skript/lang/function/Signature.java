@@ -2,6 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.doc.Documentable;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Utils;
@@ -19,7 +20,7 @@ import java.util.*;
 /**
  * Function signature: name, parameter types and a return type.
  */
-public class Signature<T> implements org.skriptlang.skript.common.function.Signature<T> {
+public class Signature<T> implements org.skriptlang.skript.common.function.Signature<T>, Documentable {
 
 	/**
 	 * Name of the script that the function is inside.

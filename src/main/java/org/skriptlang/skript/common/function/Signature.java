@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.SequencedMap;
 
@@ -19,7 +20,7 @@ import java.util.SequencedMap;
 @NonExtendable
 @Internal
 @Experimental
-public interface Signature<T> extends Documentable {
+public interface Signature<T> {
 
 	/**
 	 * @return The type of this parameter.
@@ -29,7 +30,7 @@ public interface Signature<T> extends Documentable {
 	/**
 	 * @return An unmodifiable view of all the parameters that this signature has.
 	 */
-	@Unmodifiable @NotNull SequencedMap<String, Parameter<?>> parameters();
+	@UnmodifiableView @NotNull SequencedMap<String, Parameter<?>> parameters();
 
 	@Experimental
 	Contract contract();

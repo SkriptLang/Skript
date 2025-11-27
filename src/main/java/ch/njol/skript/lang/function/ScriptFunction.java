@@ -12,11 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionArguments;
 import org.skriptlang.skript.common.function.Parameter;
 
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.SequencedMap;
-
-import java.util.Arrays;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
