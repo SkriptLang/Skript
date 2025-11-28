@@ -79,10 +79,12 @@ public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 	 */
 	@Override
 	public abstract Fields serialize(T o) throws NotSerializableException;
-	
+
 	@Override
-	public abstract void deserialize(T o, Fields f) throws StreamCorruptedException, NotSerializableException;
-	
+	public void deserialize(T o, Fields f) throws StreamCorruptedException, NotSerializableException {
+		throw new SkriptAPIException("deserialize(Object, Fields) has not been overridden in " + getClass() + " (serializer of " + info + ")");
+	}
+
 	/**
 	 * Not currently used (everything happens on Bukkit's main thread).
 	 * 
