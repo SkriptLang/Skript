@@ -231,6 +231,13 @@ public final class Fields implements Iterable<FieldContext> {
 		return fields;
 	}
 
+	/**
+	 * Creates a Fields object with a single primitive field.
+	 *
+	 * @param fieldID The id of the field
+	 * @param value   The value of the field
+	 * @return A Fields object with the given field defined
+	 */
 	public static Fields singletonPrimitive(String fieldID, Object value) {
 		Fields fields = new Fields();
 		fields.putPrimitive(fieldID, value);
@@ -252,6 +259,17 @@ public final class Fields implements Iterable<FieldContext> {
 		return function.apply(getObject(fieldID, type));
 	}
 
+	/**
+	 * Maps the primitive stored in the given field through the provided function.
+	 *
+	 * @param fieldID  The id of the field
+	 * @param type     The expected type of the field
+	 * @param function The mapping function
+	 * @param <T>      The type of the field
+	 * @param <R>      The return type of the mapping function
+	 * @return The result of applying the mapping function to the field's value
+	 * @throws StreamCorruptedException If the field does not exist or is of an unexpected type
+	 */
 	public <T, R> R mapPrimitive(String fieldID, Class<T> type, Function<T, R> function) throws StreamCorruptedException {
 		return function.apply(getPrimitive(fieldID, type));
 	}
