@@ -16,9 +16,6 @@ import ch.njol.skript.util.Task;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializer;
 
-/**
- * @author Peter Güttinger
- */
 public abstract class Serializer<T> extends YggdrasilSerializer<T> {
 	
 	@Nullable

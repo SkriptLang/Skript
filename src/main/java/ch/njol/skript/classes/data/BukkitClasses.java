@@ -979,7 +979,7 @@ public class BukkitClasses {
 				.name("World Border")
 				.description("Represents the border of a world or player.")
 				.since("2.11")
-				.parser(new Parser<WorldBorder>() {
+				.parser(new Parser<>() {
 					@Override
 					public boolean canParse(ParseContext context) {
 						return false;
