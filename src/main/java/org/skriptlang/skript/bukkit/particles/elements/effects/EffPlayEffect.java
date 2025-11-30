@@ -6,6 +6,7 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
@@ -17,15 +18,15 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.GameEffect;
-import org.skriptlang.skript.bukkit.particles.ParticleEffect;
+import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 // TODO: better terminology than "effects", as it's getting confusing.
 public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer {
 	static {
 		Skript.registerEffect(EffPlayEffect.class,
-		"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations%",
-			"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations% (for|to) %-players%",
+		"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations% [as %-player%]",
+			"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations% (for|to) %-players% [as %-player%]",
 			"(play|show|draw) %gameeffects% %directions% %locations% (in|with) [a] [view] (radius|range) of %-number%)",
 			"(play|show|draw) %entityeffects% on %entities%");
 	}
@@ -33,6 +34,7 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 	private Expression<?> toDraw;
 	private @Nullable Expression<Location> locations;
 	private @Nullable Expression<Player> toPlayers;
+	private @Nullable Expression<Player> asPlayer;
 	private @Nullable Expression<Number> radius;
 	private boolean force;
 
@@ -47,10 +49,14 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 		this.force = parseResult.hasTag("force");
 		this.toDraw = expressions[0];
 		switch (matchedPattern) {
-			case 0 -> this.locations = Direction.combine((Expression<? extends Direction>) expressions[1], (Expression<Location>) expressions[2]);
+			case 0 -> {
+				this.locations = Direction.combine((Expression<? extends Direction>) expressions[1], (Expression<Location>) expressions[2]);
+				this.asPlayer = (Expression<Player>) expressions[3];
+			}
 			case 1 -> {
 				this.locations = Direction.combine((Expression<? extends Direction>) expressions[1], (Expression<Location>) expressions[2]);
 				this.toPlayers = (Expression<Player>) expressions[3];
+				this.asPlayer = (Expression<Player>) expressions[4];
 			}
 			case 2 -> {
 				this.locations = Direction.combine((Expression<? extends Direction>) expressions[1], (Expression<Location>) expressions[2]);
@@ -95,17 +101,8 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 				}
 			// Particles
 			} else if (draw instanceof ParticleEffect particleEffect) {
-				// to everyone
-				if (players == null) {
-					for (Location location : locations)
-						particleEffect.draw(location, force);
-				// for players
-				} else {
-					for (Player player : players) {
-						for (Location location : locations)
-							particleEffect.drawForPlayer(location, player, force);
-					}
-				}
+				for (Location location : locations)
+					particleEffect.spawn(location, force, players);
 			}
 		}
 	}
@@ -139,7 +136,12 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "";
+		//noinspection DataFlowIssue
+		return new SyntaxStringBuilder(event, debug)
+			.append("play", toDraw)
+			.appendIf(locations != null, locations)
+			.appendIf(toPlayers != null, "for", toPlayers)
+			.toString();
 	}
 
 	@Override

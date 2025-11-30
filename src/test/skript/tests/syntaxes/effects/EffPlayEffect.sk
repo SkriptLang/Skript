@@ -1,0 +1,52 @@
+test "all particle effects":
+	set {_effects::*} to all particle effects
+	set particle offset of {_effects::*} to vector(1, 1, 1)
+	assert particle offset of {_effects::*} is vector(1, 1, 1) with "particle offset was not set correctly for all effects"
+
+	set speed of {_effects::*} to 2
+	assert speed of {_effects::*} is 2 with "speed was not set correctly for all effects"
+
+	set particle count of {_effects::*} to 5
+	assert particle count of {_effects::*} is 5 with "count was not set correctly for all effects"
+	assert particle offset of {_effects::*} is vector(1, 1, 1) with "setting count from 1 to 5 changed particle offset"
+	assert speed of {_effects::*} is 2 with "setting count from 1 to 5 changed speed"
+
+	set particle count of {_effects::*} to 0
+	assert particle count of {_effects::*} is 0 with "count was not set correctly to 0"
+	assert particle offset of {_effects::*} is vector(1, 1, 1) with "setting count to 0 changed particle offset"
+	assert speed of {_effects::*} is 2 with "setting count to 0 changed speed"
+
+	set the particle distribution of {_effects::*} to vector(0.5, 0.5, 0.5)
+	assert particle distribution of {_effects::*} is vector(0.5, 0.5, 0.5) with "particle distribution was not set correctly"
+	assert particle offset of {_effects::*} is vector(0.5, 0.5, 0.5) with "setting particle distribution did not set particle offset"
+	assert particle count of {_effects::*} is 1 with "setting particle distribution did not set count to 1"
+
+	set particle count of {_effects::*} to 10
+	assert particle count of {_effects::*} is 10 with "particle count was not set correctly"
+	set the particle distribution of {_effects::*} to vector(1, 1, 1)
+	assert particle count of {_effects::*} is 10 with "setting particle distribution did not keep particle count"
+
+	draw {_effects::*} at location(0, 0, 0)
+
+test "directional particle effects":
+	set {_directional_effects::*} to all directional particle effects
+	assert particle count of {_directional_effects::*} is 1 with "directional effects particle count did not default to 1"
+	assert velocity of {_directional_effects::*} is not set with "directional effects had velocity at count of 1"
+
+	set velocity of {_directional_effects::*} to vector(0, 1, 0)
+	assert velocity of {_directional_effects::*} is vector(0, 1, 0) with "velocity was not set correctly for directional effects"
+	assert particle count of {_directional_effects::*} is 0 with "setting velocity did not set particle count to 0"
+	assert particle distribution of {_directional_effects::*} is not set with "distribution was set when velocity was set"
+
+	set particle count of {_directional_effects::*} to 5
+	assert velocity of {_directional_effects::*} is not set with "setting particle count exited velocity mode"
+	assert particle offset of {_directional_effects::*} is vector(0, 1, 0) with "particle offset did not remain after exiting velocity mode"
+
+	set particle count of {_directional_effects::*} to 0
+	set particle offset of {_directional_effects::*} to vector(1, 1, 1)
+	assert particle offset of {_directional_effects::*} is vector(1, 1, 1) with "particle offset was not set correctly in velocity mode"
+	assert velocity of {_directional_effects::*} is vector(1, 1, 1) with "setting particle offset did not change velocity"
+
+	draw {_directional_effects::*} at location(0, 0, 0)
+
+
