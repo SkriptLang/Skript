@@ -16,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.particles.ParticleUtils;
+import org.skriptlang.skript.bukkit.particles.registration.DataParticles;
 
 import java.util.Collection;
 import java.util.List;
@@ -181,8 +181,8 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 	public String toString(@Nullable Event event, boolean debug) {
 		if (dataType() == Void.class)
 			return ENUM_PARSER.toString(particle(), 0);
-		for (var particleInfo : ParticleModule.DATA_PARTICLE_INFOS) {
-			if (particleInfo.particle() == particle()) {
+		for (var particleInfo : DataParticles.getParticleInfos()) {
+			if (particleInfo.effect() == particle()) {
 				return particleInfo.toStringFunction().toString(data());
 			}
 		}
