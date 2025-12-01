@@ -5,11 +5,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.ExecutionIntent;
-import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
@@ -22,7 +18,6 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
@@ -528,6 +523,7 @@ public class ScriptLoader {
 
 					// build sorted list
 					// this nest of pairs is terrible, but we need to keep the reference to the modifiable structures list
+					record LoadingStructure (LoadingScriptInfo loadingScriptInfo, Structure structure) {}
 					List<LoadingStructure> loadingStructures = scripts.stream()
 							.flatMap(info -> { // Flatten each entry down to a stream of Script-Structure pairs
 								return info.structures.stream()
@@ -656,8 +652,6 @@ public class ScriptLoader {
 		}
 
 	}
-
-	public record LoadingStructure (LoadingScriptInfo loadingScriptInfo, Structure structure) {}
 
 	/**
 	 * Creates a script and loads the provided config into it.
@@ -856,8 +850,6 @@ public class ScriptLoader {
 	 * Script Unloading Methods
 	 */
 
-	public record UnloadingStructure (Script script, Structure structure) {}
-
 	/**
 	 * Unloads all scripts present in the provided collection.
 	 * @param scripts The scripts to unload.
@@ -874,10 +866,9 @@ public class ScriptLoader {
 		}
 
 		ParserInstance parser = getParser();
+		record UnloadingStructure (Script script, Structure structure) {}
 		Comparator<UnloadingStructure> unloadComparator = Comparator.comparing(unloadingStructure -> unloadingStructure.structure().getPriority());
 		unloadComparator = unloadComparator.reversed();
-
-
 
 		List<UnloadingStructure> unloadingStructures = scripts.stream()
 			.flatMap(script -> { // Flatten each entry down to a stream of Script-Structure pairs
@@ -916,8 +907,8 @@ public class ScriptLoader {
 
 			parser.setActive(script);
 			structure.postUnload();
-			parser.setInactive();
 		}
+		parser.setInactive();
 
 		// finish unloading of scripts + data collection
 		for (Script script : scripts) {
