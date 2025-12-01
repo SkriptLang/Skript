@@ -7,6 +7,7 @@ import ch.njol.skript.util.Timespan;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -15,9 +16,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Registry and utility class for particles that require data.
+ */
 public class DataParticles {
+
 	private static final List<EffectInfo<Particle, ?>> PARTICLE_INFOS = new ArrayList<>();
 
+	/**
+	 * Registers a new particle with a single data parameter, and a default value for when none is provided.
+	 * @param particle the particle
+	 * @param pattern the pattern to use (must contain exactly one expression, which may be nullable)
+	 * @param defaultData the default data to use if the expression is null or evaluates to null
+	 * @param dataFunction the function to convert the expression value to the data type (use input->input if they are the same)
+	 * @param toStringFunction the toString function for this pattern
+	 * @param <F> the expression type
+	 * @param <D> the data type
+	 */
 	private static <F, D> void registerParticle(Particle particle, String pattern, D defaultData, Function<F, D> dataFunction, ToString toStringFunction) {
 		registerParticle(particle, pattern, (event, expressions, parseResult) -> {
 			if (expressions[0] == null)
@@ -30,17 +45,31 @@ public class DataParticles {
 		}, toStringFunction);
 	}
 
+	/**
+	 * Registers a new particle with a custom data supplier.
+	 * @param particle the particle
+	 * @param pattern the pattern to use
+	 * @param dataSupplier the data supplier for this particle
+	 * @param toStringFunction the toString function for this pattern
+	 * @param <D> the data type
+	 */
 	private static <D> void registerParticle(Particle particle, String pattern, DataSupplier<D> dataSupplier, ToString toStringFunction) {
 		PARTICLE_INFOS.add(new EffectInfo<>(particle, pattern, dataSupplier, toStringFunction));
 	}
 
-	public static @Unmodifiable List<EffectInfo<Particle, ?>> getParticleInfos() {
+	/**
+	 * @return An unmodifiable list of all registered particle infos.
+	 */
+	public static @Unmodifiable @NotNull List<EffectInfo<Particle, ?>> getParticleInfos() {
 		if (PARTICLE_INFOS.isEmpty()) {
 			registerAll();
 		}
 		return Collections.unmodifiableList(PARTICLE_INFOS);
 	}
 
+	/**
+	 * Registers all particles with data.
+	 */
 	private static void registerAll() {
 
 		// colors

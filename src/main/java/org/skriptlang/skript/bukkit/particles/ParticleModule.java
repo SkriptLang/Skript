@@ -11,7 +11,10 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.SimpleClassSerializer;
+import ch.njol.yggdrasil.SimpleClassSerializer.NonInstantiableClassSerializer;
 import org.bukkit.*;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ConvergingEffect;
 import org.skriptlang.skript.bukkit.particles.particleeffects.DirectionalEffect;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
@@ -25,19 +28,29 @@ import java.io.StreamCorruptedException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
-public class ParticleModule {
+/**
+ * Module for particle and game effect related classes and elements.
+ */
+public class ParticleModule implements AddonModule {
 
-
-	public static void load () throws IOException {
+	@Override
+	public void load(SkriptAddon addon) {
 		registerClasses();
 		registerDataSerializers();
 		DataGameEffects.getGameEffectInfos();
 		DataParticles.getParticleInfos();
 
 		// load elements!
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.particles", "elements");
+		try {
+			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.particles", "elements");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
+	/**
+	 * Registers particle and game effect related classes.
+	 */
 	private static void registerClasses() {
 		// gane effects
 		Classes.registerClass(new ClassInfo<>(GameEffect.class, "gameeffect")
@@ -205,10 +218,15 @@ public class ParticleModule {
 			.defaultExpression(new EventValueExpression<>(ScalableEffect.class)));
 	}
 
+	/**
+	 * Registers data serializers for particle data classes.
+	 * Particles need their data classes to be serializable, but we don't really want classinfos for them since
+	 * they are not meant to be used directly in Skript. {@link SimpleClassSerializer} is perfect for this.
+	 */
 	private static void registerDataSerializers() {
 		// allow serializing particle data classes
 		Variables.yggdrasil.registerSingleClass(Color.class, "particle.color");
-		Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.DustOptions.class, "particle.dustoptions") {
+		Variables.yggdrasil.registerClassResolver(new NonInstantiableClassSerializer<>(Particle.DustOptions.class, "particle.dustoptions") {
 			@Override
 			public Fields serialize(Particle.DustOptions object) {
 				Fields fields = new Fields();
@@ -227,7 +245,7 @@ public class ParticleModule {
 			}
 		});
 
-		Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.DustTransition.class, "particle.dusttransition") {
+		Variables.yggdrasil.registerClassResolver(new NonInstantiableClassSerializer<>(Particle.DustTransition.class, "particle.dusttransition") {
 			@Override
 			public Fields serialize(Particle.DustTransition object) {
 				Fields fields = new Fields();
@@ -248,7 +266,7 @@ public class ParticleModule {
 			}
 		});
 
-		Variables.yggdrasil.registerClassResolver( new SimpleClassSerializer.NonInstantiableClassSerializer<>(Vibration.class, "particle.vibration") {
+		Variables.yggdrasil.registerClassResolver( new NonInstantiableClassSerializer<>(Vibration.class, "particle.vibration") {
 			@Override
 			public Fields serialize(Vibration object) {
 				Fields fields = new Fields();
@@ -268,7 +286,7 @@ public class ParticleModule {
 		});
 
 		if (Skript.isRunningMinecraft(1, 21, 9)) {
-			Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.Spell.class, "particle.spell") {
+			Variables.yggdrasil.registerClassResolver(new NonInstantiableClassSerializer<>(Particle.Spell.class, "particle.spell") {
 				@Override
 				public Fields serialize(Particle.Spell object) {
 					Fields fields = new Fields();
@@ -289,7 +307,7 @@ public class ParticleModule {
 		}
 
 		if (Skript.isRunningMinecraft(1, 21, 4)) {
-			Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.Trail.class, "particle.trail") {
+			Variables.yggdrasil.registerClassResolver(new NonInstantiableClassSerializer<>(Particle.Trail.class, "particle.trail") {
 				@Override
 				public Fields serialize(Particle.Trail object) {
 					Fields fields = new Fields();
@@ -321,7 +339,7 @@ public class ParticleModule {
 				var getTargetMethod = targetColorClass.getDeclaredMethod("getTarget");
 				var getColorMethod = targetColorClass.getDeclaredMethod("getColor");
 				//noinspection unchecked
-				Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>((Class<Object>) targetColorClass, "particle.targetcolor") {
+				Variables.yggdrasil.registerClassResolver(new NonInstantiableClassSerializer<>((Class<Object>) targetColorClass, "particle.targetcolor") {
 					@Override
 					public Fields serialize(Object object) {
 						Fields fields = new Fields();
@@ -357,8 +375,10 @@ public class ParticleModule {
 		}
 	}
 
-
-
+	/**
+	 * Serializer for ParticleEffect.
+	 * Does not store receivers/locations, only the particle effect data.
+	 */
 	static class ParticleSerializer extends Serializer<ParticleEffect> {
 		@Override
 		public Fields serialize(ParticleEffect effect) {

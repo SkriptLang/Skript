@@ -14,7 +14,9 @@ public class ExprParticleScale extends SimplePropertyExpression<ScalableEffect, 
 
 	@Override
 	public @Nullable Number convert(ScalableEffect from) {
-		return from.scale();
+		if (from.hasScale())
+			return from.scale();
+		return null;
 	}
 
 	@Override
@@ -40,12 +42,22 @@ public class ExprParticleScale extends SimplePropertyExpression<ScalableEffect, 
 				scaleDelta = -scaleDelta;
 				// fallthrough
 			case ADD:
-				for (ScalableEffect effect : scalableEffect)
+				for (ScalableEffect effect : scalableEffect) {
+					if (!effect.hasScale()) // don't set scale if it doesn't have one
+						continue;
 					effect.scale(effect.scale() + scaleDelta);
+				}
 				break;
-			case SET, RESET:
+			case SET:
 				for (ScalableEffect effect : scalableEffect)
 					effect.scale(scaleDelta);
+				break;
+			case RESET:
+				for (ScalableEffect effect : scalableEffect) {
+					if (!effect.hasScale()) // don't reset scale if it doesn't have one
+						continue;
+					effect.scale(1.0);
+				}
 				break;
 		}
 	}

@@ -37,6 +37,11 @@ import java.util.Map;
  */
 public class ParticleEffect extends ParticleBuilder implements Debuggable {
 
+	/**
+	 * Creates the appropriate ParticleEffect subclass based on the particle type.
+	 * @param particle The particle type
+	 * @return The appropriate ParticleEffect instance
+	 */
 	@Contract("_ -> new")
 	public static @NotNull ParticleEffect of(Particle particle) {
 		if (ParticleUtils.isConverging(particle)) {
@@ -49,11 +54,42 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		return new ParticleEffect(particle);
 	}
 
+	/**
+	 * Creates the appropriate ParticleEffect with the properties of the provided {@link ParticleBuilder}
+	 * @param builder The builder to copy values from
+	 * @return The appropriate ParticleEffect instance with the properties copied from the builder
+	 */
+	@Contract("_ -> new")
+	public static @NotNull ParticleEffect of(@NotNull ParticleBuilder builder) {
+		Particle particle = builder.particle();
+		ParticleEffect effect = ParticleEffect.of(particle);
+		effect.count(builder.count());
+		effect.data(builder.data());
+		Location loc;
+		if ((loc = builder.location()) != null)
+			effect.location(loc);
+		effect.offset(builder.offsetX(), builder.offsetY(), builder.offsetZ());
+		effect.extra(builder.extra());
+		effect.force(builder.force());
+		effect.receivers(builder.receivers());
+		effect.source(builder.source());
+		return effect;
+	}
+
 	// Skript parsing dependencies
 
+	/**
+	 * Parser for particles without data
+	 */
 	private static final ParticleParser ENUM_PARSER = new ParticleParser();
 
-	public static ParticleEffect parse(String input, ParseContext context) {
+	/**
+	 * Parses a particle effect from a string input. Prints errors if the particle requires data.
+	 * @param input the input string
+	 * @param context the parse context
+	 * @return the parsed ParticleEffect, or null if parsing failed
+	 */
+	public static @Nullable ParticleEffect parse(String input, ParseContext context) {
 		Particle particle = ENUM_PARSER.parse(input.toLowerCase(Locale.ENGLISH), context);
 		if (particle == null)
 			return null;
@@ -64,30 +100,31 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		return ParticleEffect.of(particle);
 	}
 
+	/**
+	 * Converts a Particle to its string representation.
+	 * @param particle the particle
+	 * @param flags parsing flags
+	 * @return the string representation
+	 */
 	public static String toString(Particle particle, int flags) {
 		return ENUM_PARSER.toString(particle, flags);
 	}
 
-	public static String[] getAllNamesWithoutData() {
+	/**
+	 * Gets all particle names that do not require data.
+	 * @return array of particle names
+	 */
+	public static String @NotNull [] getAllNamesWithoutData() {
 		return ENUM_PARSER.getPatternsWithoutData();
 	}
 
 	// Instance code
 
-	public ParticleEffect(ParticleBuilder builder) {
-		super(builder.particle());
-		this.count(builder.count());
-		this.data(builder.data());
-		Location loc;
-		if ((loc = builder.location()) != null)
-			this.location(loc);
-		this.offset(builder.offsetX(), builder.offsetY(), builder.offsetZ());
-		this.extra(builder.extra());
-		this.force(builder.force());
-		this.receivers(builder.receivers());
-		this.source(builder.source());
-	}
-
+	/**
+	 * Internal constructor.
+	 * Use {@link ParticleEffect#of(Particle)} instead.
+	 * @param particle The particle type
+	 */
 	protected ParticleEffect(Particle particle) {
 		super(particle);
 	}
@@ -99,36 +136,75 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		return (ParticleEffect) super.spawn();
 	}
 
+	/**
+	 * Ease of use method to spawn at a location. Modifies the location value of this effect.
+	 * @param location the location to spawn at.
+	 * @return This effect, with the location value modified.
+	 */
 	public ParticleEffect spawn(Location location) {
 		this.location(location)
 			.spawn();
 		return this;
 	}
 
+	/**
+	 * @return The offset of this particle as a JOML vector
+	 */
 	public Vector3d offset() {
 		return new Vector3d(offsetX(), offsetY(), offsetZ());
 	}
 
-	public ParticleEffect offset(Vector3d offset) {
+	/**
+	 * Set the offset from a JOML vector
+	 * @param offset the new offset
+	 * @return This effect, with the offset modified.
+	 */
+	public ParticleEffect offset(@NotNull Vector3d offset) {
 		return (ParticleEffect) super.offset(offset.x(), offset.y(), offset.z());
 	}
 
-	public ParticleEffect receivers(Vector3i radii) {
+	/**
+	 * Set the receiver radii from a JOML vector
+	 * @param radii the new radii to check for receivers in
+	 * @return This effect, with the receivers modified.
+	 */
+	public ParticleEffect receivers(@NotNull Vector3i radii) {
 		return (ParticleEffect) super.receivers(radii.x(), radii.y(), radii.z());
 	}
 
-	public ParticleEffect receivers(Vector3d radii) {
+	/**
+	 * Set the receiver radii from a JOML vector. Values are truncated to ints.
+	 * @param radii the new radii to check for receivers in
+	 * @return This effect, with the receivers modified.
+	 */
+	public ParticleEffect receivers(@NotNull Vector3d radii) {
 		return (ParticleEffect) super.receivers((int) radii.x(), (int) radii.y(), (int) radii.z());
 	}
 
+	/**
+	 * @return Whether this effect will use its offset value as a normal distribution (count > 0)
+	 */
 	public boolean isUsingNormalDistribution() {
 		return count() != 0;
 	}
 
+	/**
+	 * An alias for the offset. Prefer using this when working with particles that have counts greater than 0.
+	 * When {@link #isUsingNormalDistribution()} is false, the returned value will not be the distribution and
+	 * will instead depend on the particle's specific behavior when count = 0.
+	 * @return the distribution of this particle. The distribution is defined as 3 normal distributions in the x/y/z axes,
+	 * 	       with the returned vector containing the standard deviations. The mean will always be 0.
+	 */
 	public Vector3d getDistribution() {
-		return isUsingNormalDistribution() ? offset() : null;
+		return offset();
 	}
 
+	/**
+	 * Sets the distribution for this particle. The distribution is defined as 3 normal distributions in the x/y/z axes,
+	 * with the provided vector containing the standard deviations. The mean will always be 0.
+	 * Sets the count to 1 if it was 0.
+	 * @param distribution The new standard deviations to use.
+	 */
 	public void setDistribution(Vector3d distribution) {
 		if (!isUsingNormalDistribution()) {
 			count(1);
@@ -144,15 +220,27 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		return (ParticleEffect) super.data(data);
 	}
 
+	/**
+	 * Helper method to check if this effect accepts the provided data. Depends on the current particle.
+	 * @param data The data to check.
+	 * @return Whether the data is of the right class.
+	 */
 	public boolean acceptsData(@Nullable Object data) {
 		if (data == null) return true;
 		return dataType().isInstance(data);
 	}
 
+	/**
+	 * Alias for {@code this.particle().getDataType()}
+	 * @return The data type of the current particle.
+	 */
 	public Class<?> dataType() {
 		return particle().getDataType();
 	}
 
+	/**
+	 * @return a copy of this effect.
+	 */
 	public ParticleEffect copy() {
 		return (ParticleEffect) this.clone();
 	}
@@ -167,6 +255,9 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		return ENUM_PARSER.toString(particle(), 0);
 	}
 
+	/**
+	 * A custom {@link EnumParser} that excludes particles with data from being parsed directly.
+	 */
 	private static class ParticleParser extends EnumParser<Particle> {
 
 		public ParticleParser() {

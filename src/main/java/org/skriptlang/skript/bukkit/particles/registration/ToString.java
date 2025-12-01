@@ -3,8 +3,13 @@ package org.skriptlang.skript.bukkit.particles.registration;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * A functional interface for converting a particle and its data to a string representation.
+ * Effectively a custom {@link ch.njol.skript.lang.Debuggable#toString(Event, boolean)} method.
+ */
 @FunctionalInterface
 public interface ToString {
 	/**

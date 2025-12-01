@@ -11,6 +11,10 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Utility class for working with Bukkit Particles and their behaviors.
+ * Currently used for categorizing particles based on shared characteristics.
+ */
 @SuppressWarnings("UnstableApiUsage")
 public class ParticleUtils {
 
@@ -100,53 +104,106 @@ public class ParticleUtils {
 	private static Collection<Particle> risingParticlesCache = null;
 	private static Collection<Particle> scalableParticlesCache = null;
 
-
+	/**
+	 * Checks if the given particle is directional, i.e. offset will be treated as a direction/velocity vector if count is 0.
+	 *
+	 * @param particle the particle to check
+	 * @return true if the particle is directional, false otherwise
+	 */
 	public static boolean isDirectional(@NotNull Particle particle) {
 		if (directionalParticlesCache == null)
 			directionalParticlesCache = DIRECTIONAL_PARTICLES.resolve(Registry.PARTICLE_TYPE);
 		return directionalParticlesCache.contains(particle);
 	}
 
+	/**
+	 * Checks if the given particle is converging. These particles spawn away from a point based on offset, then move towards it.
+	 *
+	 * @param particle the particle to check
+	 * @return true if the particle is converging, false otherwise
+	 */
 	public static boolean isConverging(@NotNull Particle particle) {
 		if (convergingParticlesCache == null)
 			convergingParticlesCache = CONVERGING_PARTICLES.resolve(Registry.PARTICLE_TYPE);
 		return convergingParticlesCache.contains(particle);
 	}
 
+	/**
+	 * Checks if the given particle is rising. These particles are directional, but have an overriding upward motion.
+	 *
+	 * @param particle the particle to check
+	 * @return true if the particle is rising, false otherwise
+	 */
 	public static boolean isRising(@NotNull Particle particle) {
 		if (risingParticlesCache == null)
 			risingParticlesCache = RISING_PARTICLES.resolve(Registry.PARTICLE_TYPE);
 		return risingParticlesCache.contains(particle);
 	}
 
+	/**
+	 * Checks if the given particle is scalable, i.e. offset is used to scale the particle size.
+	 *
+	 * @param particle the particle to check
+	 * @return true if the particle is scalable, false otherwise
+	 */
 	public static boolean isScalable(@NotNull Particle particle) {
 		if (scalableParticlesCache == null)
 			scalableParticlesCache = SCALABLE_PARTICLES.resolve(Registry.PARTICLE_TYPE);
 		return scalableParticlesCache.contains(particle);
 	}
 
+	/**
+	 * Checks if the given particle uses velocity, i.e. is either directional or rising.
+	 *
+	 * @param particle the particle to check
+	 * @return true if the particle uses velocity, false otherwise
+	 */
 	public static boolean usesVelocity(@NotNull Particle particle) {
 		return isDirectional(particle) || isRising(particle);
 	}
 
+	/**
+	 * Gets an unmodifiable collection of all directional particles.
+	 *
+	 * @return the collection of directional particles
+	 * @see #isDirectional(Particle)
+	 */
 	public static @Unmodifiable @NotNull Collection<Particle> getDirectionalParticles() {
 		if (directionalParticlesCache == null)
 			directionalParticlesCache = DIRECTIONAL_PARTICLES.resolve(Registry.PARTICLE_TYPE);
 		return directionalParticlesCache;
 	}
 
+	/**
+	 * Gets an unmodifiable collection of all converging particles.
+	 *
+	 * @return the collection of converging particles
+	 * @see #isConverging(Particle)
+	 */
 	public static @Unmodifiable @NotNull Collection<Particle> getConvergingParticles() {
 		if (convergingParticlesCache == null)
 			convergingParticlesCache = CONVERGING_PARTICLES.resolve(Registry.PARTICLE_TYPE);
 		return convergingParticlesCache;
 	}
 
+	/**
+	 * Gets an unmodifiable collection of all rising particles.
+	 *
+	 * @return the collection of rising particles
+	 * @see #isRising(Particle)
+	 */
 	public static @Unmodifiable @NotNull Collection<Particle> getRisingParticles() {
 		if (risingParticlesCache == null)
 			risingParticlesCache = RISING_PARTICLES.resolve(Registry.PARTICLE_TYPE);
 		return risingParticlesCache;
 	}
 
+	/**
+	 * Gets an unmodifiable collection of all scalable particles.
+	 *
+	 * @return the collection of scalable particles
+	 * @see #isScalable(Particle)
+	 */
 	public static @Unmodifiable @NotNull Collection<Particle> getScalableParticles() {
 		if (scalableParticlesCache == null)
 			scalableParticlesCache = SCALABLE_PARTICLES.resolve(Registry.PARTICLE_TYPE);

@@ -16,18 +16,39 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Registry and utility class for game effects that require data.
+ */
 public class DataGameEffects {
 	private static final List<EffectInfo<Effect, ?>> GAME_EFFECT_INFOS = new ArrayList<>();
 
+	/**
+	 * Registers a new effect with a single data parameter.
+	 * @param effect the effect
+	 * @param pattern the pattern to use (must contain exactly one non-null expression)
+	 * @param toString the toString function for this pattern
+	 * @param <D> the data type
+	 */
 	@SuppressWarnings("unchecked")
 	private static <D> void registerEffect(Effect effect, String pattern, ToString toString) {
 		DataGameEffects.registerEffect(effect, pattern, (event, expressions, parseResult) -> (D) expressions[0].getSingle(event), toString);
 	}
 
+	/**
+	 * Registers a new effect with a custom data supplier.
+	 * @param effect the effect
+	 * @param pattern the pattern to use
+	 * @param dataSupplier the data supplier for this effect
+	 * @param toString the toString function for this pattern
+	 * @param <D> the data type
+	 */
 	private static <D> void registerEffect(Effect effect, String pattern, DataSupplier<D> dataSupplier, ToString toString) {
 		GAME_EFFECT_INFOS.add(new EffectInfo<>(effect, pattern, dataSupplier, toString));
 	}
 
+	/**
+	 * @return An unmodifiable list of all registered game effect infos.
+	 */
 	public static @Unmodifiable List<EffectInfo<Effect, ?>> getGameEffectInfos() {
 		if (GAME_EFFECT_INFOS.isEmpty()) {
 			registerAll();
@@ -35,6 +56,15 @@ public class DataGameEffects {
 		return Collections.unmodifiableList(GAME_EFFECT_INFOS);
 	}
 
+	/**
+	 * Looks up and calls the toString function for the given effect, using the provided context.
+	 * @param effect the effect
+	 * @param exprs the expressions to use in the toString function
+	 * @param parseResult the parse result
+	 * @param event the event
+	 * @param debug whether to include debug information
+	 * @return the string representation, or null if no matching effect was found
+	 */
 	public static @Nullable String toString(Effect effect, Expression<?> @NotNull [] exprs, ParseResult parseResult, Event event, boolean debug) {
 		for (EffectInfo<Effect, ?> info : getGameEffectInfos()) {
 			if (info.effect() == effect) {
@@ -44,6 +74,10 @@ public class DataGameEffects {
 		return null;
 	}
 
+	/**
+	 * Registers all game effects that require data.
+	 * Game effects without data are automatically handled by the enum parser.
+	 */
 	private static void registerAll() {
 		registerEffect(Effect.RECORD_PLAY, "[record] song (of|using) %itemtype%",
 			//<editor-fold desc="Material data supplier that only accepts music discs" defaultstate="collapsed">
@@ -61,7 +95,7 @@ public class DataGameEffects {
 			(exprs, parseResult, builder) -> builder.append("black smoke effect in direction", exprs[0]));
 
 		registerEffect(Effect.SHOOT_WHITE_SMOKE, "[dispenser] white smoke effect [(in|with|using) [the] direction] %direction%",
-			DataSupplier::getBlockFaceData,
+			DataSupplier::getCartesianBlockFaceData,
 			(exprs, parseResult, builder) -> builder.append("white smoke effect in direction", exprs[0]));
 
 		registerEffect(Effect.STEP_SOUND, "%itemtype/blockdata% [foot]step[s] sound [effect]",
@@ -82,12 +116,12 @@ public class DataGameEffects {
 
 		//noinspection removal
 		registerEffect(Effect.VILLAGER_PLANT_GROW, "villager plant grow[th] effect [(with|using) %-number% particles]",
-			DataSupplier::defaultTo10Particles,
+			DataSupplier::getNumberDefault10,
 			(exprs, parseResult, builder) -> builder.append("villager plant growth effect")
 													.appendIf(exprs[0] != null, "with", exprs[0], "particles"));
 
 		registerEffect(Effect.BONE_MEAL_USE, "[fake] bone meal effect [(with|using) %-number% particles]",
-			DataSupplier::defaultTo10Particles,
+			DataSupplier::getNumberDefault10,
 			(exprs, parseResult, builder) -> builder.append("bone meal effect with", exprs[0], "particles"));
 
 		registerEffect(Effect.ELECTRIC_SPARK, "(electric|lightning[ rod]|copper) spark effect [(in|using|along) the (1:x|2:y|3:z) axis]",
@@ -103,13 +137,13 @@ public class DataGameEffects {
 			(exprs, parseResult, builder) -> builder.append("brushing", exprs[0], "effect"));
 
 		registerEffect(Effect.TRIAL_SPAWNER_DETECT_PLAYER, "trial spawner detect[ing|s] [%-number%] player[s] effect",
-			DataSupplier::defaultTo1Player,
+			DataSupplier::getNumberDefault1,
 			(exprs, parseResult, builder) -> builder.append("trial spawner detecting")
 													.appendIf(exprs[0] != null, exprs[0])
 													.append("players effect"));
 
 		registerEffect(Effect.TRIAL_SPAWNER_DETECT_PLAYER_OMINOUS, "ominous trial spawner detect[ing|s] [%-number%] player[s] effect",
-			DataSupplier::defaultTo1Player,
+			DataSupplier::getNumberDefault1,
 			(exprs, parseResult, builder) -> builder.append("ominous trial spawner detecting")
 				.appendIf(exprs[0] != null, exprs[0])
 				.append("players effect"));
@@ -124,7 +158,7 @@ public class DataGameEffects {
 			(exprs, parseResult, builder) -> builder.append((parseResult.hasTag("ominous") ? "ominous trial spawner spawning mob effect with sound" : "trial spawner spawning mob effect with sound")));
 
 		registerEffect(Effect.BEE_GROWTH, "bee growth effect [(with|using) %-number% particles]",
-			DataSupplier::defaultTo10Particles,
+			DataSupplier::getNumberDefault10,
 			(exprs, parseResult, builder) -> builder.append("bee [plant] grow[th] effect with", exprs[0], "particles"));
 
 		registerEffect(Effect.VAULT_ACTIVATE, "[:ominous] [trial] vault activate effect",
@@ -149,11 +183,11 @@ public class DataGameEffects {
 													.append("trial spawner spawning item effect"));
 
 		registerEffect(Effect.TURTLE_EGG_PLACEMENT, "place turtle egg effect [(with|using) %-number% particles]",
-			DataSupplier::defaultTo10Particles,
+			DataSupplier::getNumberDefault10,
 			(exprs, parseResult, builder) -> builder.append("place turtle egg effect with", exprs[0], "particles"));
 
 		registerEffect(Effect.SMASH_ATTACK, "[mace] smash attack effect [(with|using) %-number% particles]",
-			DataSupplier::defaultTo10Particles,
+			DataSupplier::getNumberDefault10,
 			(exprs, parseResult, builder) -> builder.append("smash attack effect with", exprs[0], "particles"));
 	}
 

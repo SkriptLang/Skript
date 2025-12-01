@@ -29,13 +29,21 @@ public class GameEffect {
 	/**
 	 * The optional extra data that some {@link Effect}s require.
 	 */
-	@Nullable
-	private Object data;
+	private @Nullable Object data;
 
+	/**
+	 * Creates a new GameEffect with the given effect.
+	 * @param effect the effect
+	 */
 	public GameEffect(Effect effect) {
 		this.effect = effect;
 	}
 
+	/**
+	 * Parses a GameEffect from the given input string. Prints errors if the parsed effect requires data.
+	 * @param input the input string
+	 * @return the parsed GameEffect, or null if the input is invalid
+	 */
 	public static GameEffect parse(String input) {
 		Effect effect = ENUM_UTILS.parse(input.toLowerCase(Locale.ENGLISH), ParseContext.DEFAULT);
 		if (effect == null)
@@ -47,15 +55,27 @@ public class GameEffect {
 		return new GameEffect(effect);
 	}
 
+	/**
+	 * The backing {@link Effect}.
+	 * @return the effect
+	 */
 	public Effect getEffect() {
 		return effect;
 	}
 
-	@Nullable
-	public Object getData() {
+	/**
+	 * The optional data for this effect.
+	 * @return the data, or null if none is set (or not required)
+	 */
+	public @Nullable Object getData() {
 		return data;
 	}
 
+	/**
+	 * Sets the data for this effect. The data must be of the correct type for the effect.
+	 * @param data the data to set. May only be null for the ELECTRIC_SPARK effect.
+	 * @return true if the data was set correctly, false otherwise
+	 */
 	public boolean setData(Object data) {
 		if (effect.getData() != null && effect.getData().isInstance(data)) {
 			this.data = data;
@@ -104,11 +124,17 @@ public class GameEffect {
 		return toString(0);
 	}
 
+	/**
+	 * A cached array of all effect names that do not require data.
+	 */
 	static final String[] namesWithoutData = Arrays.stream(Effect.values())
 			.filter(effect -> effect.getData() == null)
 			.map(Enum::name)
 			.toArray(String[]::new);
 
+	/**
+	 * @return an array of all effect names that do not require data.
+	 */
 	public static String[] getAllNamesWithoutData(){
 		return namesWithoutData.clone();
 	}
