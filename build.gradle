@@ -68,7 +68,11 @@ tasks.register('checkAliases') {
 tasks.register('testJar', ShadowJar) {
 	dependsOn(compileTestJava)
 	archiveFileName = 'Skript-JUnit.jar'
-	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
+	from sourceSets.test.output, sourceSets.main.output
+	from {
+		project.configurations.testShadow.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 task jar(overwrite: true, type: ShadowJar) {
