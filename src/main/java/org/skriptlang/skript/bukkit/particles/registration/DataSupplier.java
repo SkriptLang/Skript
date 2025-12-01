@@ -42,6 +42,13 @@ public interface DataSupplier<D> {
 		return Direction.toNearestBlockFace(direction.getDirection());
 	}
 
+	static @Nullable BlockFace getCartesianBlockFaceData(Event event, Expression<?> @NotNull [] expressions, ParseResult parseResult) {
+		Object input = expressions[0].getSingle(event);
+		if (!(input instanceof Direction direction))
+			return null;
+		return Direction.toNearestCartesianBlockFace(direction.getDirection());
+	}
+
 	static @Nullable BlockData getBlockData(Event event, Expression<?> @NotNull [] expressions, ParseResult parseResult) {
 		Object input = expressions[0].getSingle(event);
 		if (input instanceof ItemType itemType)
@@ -63,6 +70,8 @@ public interface DataSupplier<D> {
 	}
 
 	static int defaultTo10Particles(Event event, Expression<?> @NotNull [] expressions, ParseResult parseResult) {
+		if (expressions[0] == null)
+			return 10;
 		Object input = expressions[0].getSingle(event);
 		if (!(input instanceof Number number))
 			return 10;
@@ -70,6 +79,8 @@ public interface DataSupplier<D> {
 	}
 
 	static int defaultTo1Player(Event event, Expression<?> @NotNull [] expressions, ParseResult parseResult) {
+		if (expressions[0] == null)
+			return 1;
 		Object input = expressions[0].getSingle(event);
 		if (!(input instanceof Number number))
 			return 1;

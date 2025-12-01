@@ -1,8 +1,9 @@
 package org.skriptlang.skript.bukkit.particles;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.EnumParser;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.EnumUtils;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -18,7 +19,7 @@ import java.util.Locale;
  */
 public class GameEffect {
 
-	public static final EnumUtils<Effect> ENUM_UTILS = new EnumUtils<>(Effect.class, "game effect"); // exclude effects that require data
+	public static final EnumParser<Effect> ENUM_UTILS = new EnumParser<>(Effect.class, "game effect"); // exclude effects that require data
 
 	/**
 	 * The {@link Effect} that this object represents
@@ -36,7 +37,7 @@ public class GameEffect {
 	}
 
 	public static GameEffect parse(String input) {
-		Effect effect = ENUM_UTILS.parse(input.toLowerCase(Locale.ENGLISH));
+		Effect effect = ENUM_UTILS.parse(input.toLowerCase(Locale.ENGLISH), ParseContext.DEFAULT);
 		if (effect == null)
 			return null;
 		if (effect.getData() != null) {
@@ -58,6 +59,10 @@ public class GameEffect {
 	public boolean setData(Object data) {
 		if (effect.getData() != null && effect.getData().isInstance(data)) {
 			this.data = data;
+			return true;
+		} else if (effect == Effect.ELECTRIC_SPARK && data == null) {
+			// ELECTRIC_SPARK effect can have null data
+			this.data = null;
 			return true;
 		}
 		return false;
@@ -91,20 +96,21 @@ public class GameEffect {
 	}
 
 	public String toString(int flags) {
-		if (effect.getData() != null)
-			return ENUM_UTILS.toString(getEffect(), flags);
-		return toString();
+		return ENUM_UTILS.toString(getEffect(), flags);
+	}
+
+	@Override
+	public String toString() {
+		return toString(0);
 	}
 
 	static final String[] namesWithoutData = Arrays.stream(Effect.values())
 			.filter(effect -> effect.getData() == null)
 			.map(Enum::name)
 			.toArray(String[]::new);
+
 	public static String[] getAllNamesWithoutData(){
 		return namesWithoutData.clone();
 	}
 
-
-
-// TODO: add getters, setters, maybe builder class? Add spawn method.
 }

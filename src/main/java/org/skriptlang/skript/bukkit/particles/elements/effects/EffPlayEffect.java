@@ -19,15 +19,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.GameEffect;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
-// TODO: better terminology than "effects", as it's getting confusing.
-public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer {
+public class EffPlayEffect extends Effect {
 	static {
 		Skript.registerEffect(EffPlayEffect.class,
-		"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations% [as %-player%]",
-			"[:force] (play|show|draw) %gameeffects/particles% %directions% %locations% (for|to) %-players% [as %-player%]",
-			"(play|show|draw) %gameeffects% %directions% %locations% (in|with) [a] [view] (radius|range) of %-number%)",
+		"[:force] (play|show|draw) %gameeffects/particles% [%-directions% %locations%] [as %-player%]",
+			"[:force] (play|show|draw) %gameeffects/particles% [%-directions% %locations%] (for|to) %-players% [as %-player%]",
+			"(play|show|draw) %gameeffects% [%-directions% %locations%] (in|with) [a] [view] (radius|range) of %-number%)",
 			"(play|show|draw) %entityeffects% on %entities%");
 	}
 
@@ -84,6 +82,7 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 		Location[] locations = this.locations.getArray(event);
 		Object[] toDraw = this.toDraw.getArray(event);
 		Player[] players = toPlayers != null ? toPlayers.getArray(event) : null;
+		Player asPlayer = this.asPlayer != null ? this.asPlayer.getSingle(event) : null;
 
 		for (Object draw : toDraw) {
 			// Game effects
@@ -101,8 +100,13 @@ public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer 
 				}
 			// Particles
 			} else if (draw instanceof ParticleEffect particleEffect) {
+				particleEffect = particleEffect.copy(); // avoid modifying the original effect
+				if (asPlayer != null)
+					particleEffect.source(asPlayer);
+				particleEffect.force(force);
+				particleEffect.receivers(players);
 				for (Location location : locations)
-					particleEffect.spawn(location, force, players);
+					particleEffect.spawn(location);
 			}
 		}
 	}

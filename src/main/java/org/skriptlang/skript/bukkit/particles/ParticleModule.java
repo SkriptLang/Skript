@@ -22,6 +22,7 @@ import org.skriptlang.skript.bukkit.particles.registration.DataParticles;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class ParticleModule {
@@ -266,47 +267,94 @@ public class ParticleModule {
 			}
 		});
 
-		Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.Spell.class, "particle.spell") {
-			@Override
-			public Fields serialize(Particle.Spell object) {
-				Fields fields = new Fields();
-				fields.putObject("color", object.getColor());
-				fields.putPrimitive("power", object.getPower());
-				return fields;
-			}
+		if (Skript.isRunningMinecraft(1, 21, 9)) {
+			Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.Spell.class, "particle.spell") {
+				@Override
+				public Fields serialize(Particle.Spell object) {
+					Fields fields = new Fields();
+					fields.putObject("color", object.getColor());
+					fields.putPrimitive("power", object.getPower());
+					return fields;
+				}
 
-			@Override
-			protected Particle.Spell deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-				Color color = fields.getAndRemoveObject("color", Color.class);
-				float power = fields.getAndRemovePrimitive("power", Float.class);
-				if (color == null)
-					throw new NotSerializableException("Color cannot be null for Spell");
-				return new Particle.Spell(color, power);
-			}
-		});
+				@Override
+				protected Particle.Spell deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+					Color color = fields.getAndRemoveObject("color", Color.class);
+					float power = fields.getAndRemovePrimitive("power", Float.class);
+					if (color == null)
+						throw new NotSerializableException("Color cannot be null for Spell");
+					return new Particle.Spell(color, power);
+				}
+			});
+		}
 
-		Variables.yggdrasil.registerClassResolver( new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.Trail.class, "particle.trail") {
-			@Override
-			public Fields serialize(Particle.Trail object) {
-				Fields fields = new Fields();
-				fields.putObject("target", object.getTarget());
-				fields.putObject("color", object.getColor());
-				fields.putPrimitive("duration", object.getDuration());
-				return fields;
-			}
+		if (Skript.isRunningMinecraft(1, 21, 4)) {
+			Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>(Particle.Trail.class, "particle.trail") {
+				@Override
+				public Fields serialize(Particle.Trail object) {
+					Fields fields = new Fields();
+					fields.putObject("target", object.getTarget());
+					fields.putObject("color", object.getColor());
+					fields.putPrimitive("duration", object.getDuration());
+					return fields;
+				}
 
-			@Override
-			protected Particle.Trail deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-				Location target = fields.getAndRemoveObject("target", Location.class);
-				Color color = fields.getAndRemoveObject("color", Color.class);
-				int duration = fields.getAndRemovePrimitive("duration", Integer.class);
-				if (target == null)
-					throw new NotSerializableException("Target cannot be null for Trail");
-				if (color == null)
-					throw new NotSerializableException("Color cannot be null for Trail");
-				return new Particle.Trail(target, color, duration);
+				@Override
+				protected Particle.Trail deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+					Location target = fields.getAndRemoveObject("target", Location.class);
+					Color color = fields.getAndRemoveObject("color", Color.class);
+					int duration = fields.getAndRemovePrimitive("duration", Integer.class);
+					if (target == null)
+						throw new NotSerializableException("Target cannot be null for Trail");
+					if (color == null)
+						throw new NotSerializableException("Color cannot be null for Trail");
+					return new Particle.Trail(target, color, duration);
+				}
+			});
+		} else if (Skript.isRunningMinecraft(1, 21, 2)) {
+			//<editor-fold desc="Particle.TargetColor serializer for 1.21.2 and 1.21.3" defaultstate="collapsed">
+			var targetColorClass = Arrays.stream(Particle.class.getClasses()).filter(c -> c.getSimpleName().equals("TargetColor")).findFirst().orElse(null);
+			if (targetColorClass == null)
+				throw new RuntimeException("Could not find Particle.TargetColor class for serializer");
+			try {
+				var constructor = targetColorClass.getDeclaredConstructor(Location.class, Color.class);
+				var getTargetMethod = targetColorClass.getDeclaredMethod("getTarget");
+				var getColorMethod = targetColorClass.getDeclaredMethod("getColor");
+				//noinspection unchecked
+				Variables.yggdrasil.registerClassResolver(new SimpleClassSerializer.NonInstantiableClassSerializer<>((Class<Object>) targetColorClass, "particle.targetcolor") {
+					@Override
+					public Fields serialize(Object object) {
+						Fields fields = new Fields();
+						try {
+							fields.putObject("target", getTargetMethod.invoke(object));
+							fields.putObject("color", getColorMethod.invoke(object));
+						} catch (IllegalAccessException | InvocationTargetException e) {
+							throw new RuntimeException(e);
+						}
+						return fields;
+					}
+
+					@Override
+					protected Object deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+						Location target = fields.getAndRemoveObject("target", Location.class);
+						Color color = fields.getAndRemoveObject("color", Color.class);
+						if (target == null)
+							throw new NotSerializableException("Target cannot be null for Trail");
+						if (color == null)
+							throw new NotSerializableException("Color cannot be null for Trail");
+						try {
+							return constructor.newInstance(target, color);
+						} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				});
+
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException(e);
 			}
-		});
+			//</editor-fold>
+		}
 	}
 
 

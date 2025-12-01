@@ -14,5 +14,5 @@ public record EffectInfo<E, D>(
 	E effect,
 	String pattern,
 	DataSupplier<D> dataSupplier,
-	ToString<D> toStringFunction
+	ToString toStringFunction
 ) { }

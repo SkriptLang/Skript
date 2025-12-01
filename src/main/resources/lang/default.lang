@@ -2880,11 +2880,10 @@ entity effect:
 	arrow_particles: tipped arrow particles effect
 	rabbit_jump: rabbit jump animation
 	reset_spawner_minecart_delay: reset spawner minecart delay effect
-	hurt: hurt animation
 
 	# death was superseded by entity_death 1.12.2
-	entity_death: death animation
 	death: death animation
+	entity_death: death animation
 
 	egg_break: egg break effect
 	snowball_break: snowball break effect
@@ -2893,7 +2892,7 @@ entity effect:
 	hoglin_attack: hoglin attack animation
 	iron_golen_attack: iron golem attack animation
 	ravager_attack: ravager attack animation
-	ravager_roared: ravager roared animation
+	ravager_roared: ravager roared effect
 	warden_attack: warden attack animation
 	zoglin_attack: zoglin attack animation
 	entity_attack: entity attack animation
@@ -2963,12 +2962,13 @@ entity effect:
 	protected_from_death: protected from death effect
 
 	# non-functional
-	guardian_target: guardian target sound effect
-	thorns_hurt: thorns hurt effect
-	hurt_explosion: explosion damage effect
-	hurt_berry_bush: hurt berry bush effect
-	cat_tame_fail: cat tame fail effect
-	cat_tame_success: cat tame success effect
+	guardian_target: guardian target sound effect (non-functional)
+	thorns_hurt: thorns hurt effect (non-functional)
+	hurt: damage animation (non-functional)
+	hurt_explosion: explosion damage effect (non-functional)
+	hurt_berry_bush: hurt berry bush effect (non-functional)
+	cat_tame_fail: cat tame fail effect (non-functional)
+	cat_tame_success: cat tame success effect (non-functional)
 
 # -- Particle Effects --
 # all patterns should include the word 'particle'
@@ -3467,9 +3467,13 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	nameable: nameable thing¦s @a
 	gameeffect: game effect¦s @a
 	entityeffect: entity effect¦s @a
 	particle: particle effect¦s @a
+	convergingparticle: converging particle¦s @a
+	directionalparticle: directional particle¦s @a
+	scalableparticle: scalable particle¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

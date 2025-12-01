@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
@@ -14,7 +15,7 @@ import org.skriptlang.skript.bukkit.particles.GameEffect;
 import org.skriptlang.skript.bukkit.particles.registration.DataGameEffects;
 import org.skriptlang.skript.bukkit.particles.registration.EffectInfo;
 
-public class ExprGameEffect extends SimpleExpression<GameEffect> {
+public class ExprGameEffectWithData extends SimpleExpression<GameEffect> {
 
 	private static final Patterns<EffectInfo<Effect, Object>> PATTERNS;
 
@@ -29,7 +30,7 @@ public class ExprGameEffect extends SimpleExpression<GameEffect> {
 		}
 		PATTERNS = new Patterns<>(patterns);
 
-		Skript.registerExpression(ExprGameEffect.class, GameEffect.class, ExpressionType.COMBINED, PATTERNS.getPatterns());
+		Skript.registerExpression(ExprGameEffectWithData.class, GameEffect.class, ExpressionType.COMBINED, PATTERNS.getPatterns());
 	}
 
 	private EffectInfo<Effect, Object> gameEffectInfo;
@@ -50,11 +51,15 @@ public class ExprGameEffect extends SimpleExpression<GameEffect> {
 		GameEffect gameEffect = new GameEffect(gameEffectInfo.effect());
 		Object data = gameEffectInfo.dataSupplier().getData(event, expressions, parseResult);
 
-		if (data == null)
-			return new GameEffect[0]; // invalid data, must return nothing.
+		if (data == null && gameEffect.getEffect() != Effect.ELECTRIC_SPARK) { // electric spark doesn't require an axis
+			error("Could not obtain required data for " + gameEffect);
+			return new GameEffect[0];
+		}
 		boolean success = gameEffect.setData(data);
-		if (!success)
-			return new GameEffect[0]; // invalid data
+		if (!success) {
+			error("Could not obtain required data for " + gameEffect);
+			return new GameEffect[0];
+		}
 		return new GameEffect[]{gameEffect};
 	}
 
@@ -70,8 +75,8 @@ public class ExprGameEffect extends SimpleExpression<GameEffect> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		Object data = gameEffectInfo.dataSupplier().getData(event, expressions, parseResult);
-		return gameEffectInfo.toStringFunction().toString(data);
+		return gameEffectInfo.toStringFunction()
+				.toString(expressions, parseResult, new SyntaxStringBuilder(event, debug)).toString();
 	}
 	
 }

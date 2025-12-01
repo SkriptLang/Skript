@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
@@ -48,7 +49,7 @@ public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 	protected ParticleEffect @Nullable [] get(Event event) {
 		Object data = effectInfo.dataSupplier().getData(event, expressions, parseResult);
 		if (data == null) {
-			error("Could not obtain required data for particle " + effectInfo.effect().name());
+			error("Could not obtain required data for " + ParticleEffect.toString(effectInfo.effect(), 0));
 			return null;
 		}
 		ParticleEffect effect = ParticleEffect.of(effectInfo.effect());
@@ -68,8 +69,7 @@ public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		Object data = effectInfo.dataSupplier().getData(event, expressions, parseResult);
-		return effectInfo.toStringFunction().toString(data);
+		return effectInfo.toStringFunction().toString(expressions, parseResult, new SyntaxStringBuilder(event, debug)).toString();
 	}
 
 }

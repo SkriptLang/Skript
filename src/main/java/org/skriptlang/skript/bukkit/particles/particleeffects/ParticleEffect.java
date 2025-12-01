@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 import org.skriptlang.skript.bukkit.particles.ParticleUtils;
-import org.skriptlang.skript.bukkit.particles.registration.DataParticles;
 
 import java.util.Collection;
 import java.util.List;
@@ -75,6 +74,20 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 
 	// Instance code
 
+	public ParticleEffect(ParticleBuilder builder) {
+		super(builder.particle());
+		this.count(builder.count());
+		this.data(builder.data());
+		Location loc;
+		if ((loc = builder.location()) != null)
+			this.location(loc);
+		this.offset(builder.offsetX(), builder.offsetY(), builder.offsetZ());
+		this.extra(builder.extra());
+		this.force(builder.force());
+		this.receivers(builder.receivers());
+		this.source(builder.source());
+	}
+
 	protected ParticleEffect(Particle particle) {
 		super(particle);
 	}
@@ -86,36 +99,8 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 		return (ParticleEffect) super.spawn();
 	}
 
-	public ParticleEffect spawn(Location location, Player @Nullable... receivers) {
-		this.clone()
-			.location(location)
-			.receivers(receivers)
-			.spawn();
-		return this;
-	}
-
-	public ParticleEffect spawn(Location location, @Nullable List<Player> receivers) {
-		this.clone()
-			.location(location)
-			.receivers(receivers)
-			.spawn();
-		return this;
-	}
-
-	public ParticleEffect spawn(Location location, boolean force, Player @Nullable... receivers) {
-		this.clone()
-			.location(location)
-			.force(force)
-			.receivers(receivers)
-			.spawn();
-		return this;
-	}
-
-	public ParticleEffect spawn(Location location, boolean force, @Nullable List<Player> receivers) {
-		this.clone()
-			.location(location)
-			.force(force)
-			.receivers(receivers)
+	public ParticleEffect spawn(Location location) {
+		this.location(location)
 			.spawn();
 		return this;
 	}
@@ -179,15 +164,7 @@ public class ParticleEffect extends ParticleBuilder implements Debuggable {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (dataType() == Void.class)
-			return ENUM_PARSER.toString(particle(), 0);
-		for (var particleInfo : DataParticles.getParticleInfos()) {
-			if (particleInfo.effect() == particle()) {
-				return particleInfo.toStringFunction().toString(data());
-			}
-		}
-		// Fallback
-		return ENUM_PARSER.toString(particle(), 0) + " with data " + Classes.toString(data());
+		return ENUM_PARSER.toString(particle(), 0);
 	}
 
 	private static class ParticleParser extends EnumParser<Particle> {
