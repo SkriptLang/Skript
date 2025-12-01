@@ -191,8 +191,12 @@ public class StructAutoReload extends Structure {
 
 		// private constructor to prevent instantiation.
 		private AutoReload(long lastReload, @Nullable String permission, @Nullable String... recipients) {
-			if (recipients != null)
-				this.recipients.addAll(Lists.newArrayList(recipients));
+			if (recipients != null) {
+				for (String recipient : recipients) {
+					if (recipient != null)
+						this.recipients.add(recipient.toLowerCase(Locale.ENGLISH));
+				}
+			}
 
 			this.permission = permission;
 			this.lastReload = lastReload;
@@ -208,7 +212,7 @@ public class StructAutoReload extends Structure {
 			List<CommandSender> senders = Lists.newArrayList(Bukkit.getConsoleSender());
 			if (!recipients.isEmpty()) {
 				Bukkit.getOnlinePlayers().stream()
-					.filter(p -> recipients.contains(p.getName()) || recipients.contains(p.getUniqueId().toString()))
+					.filter(p -> recipients.contains(p.getName().toLowerCase(Locale.ENGLISH)) || recipients.contains(p.getUniqueId().toString()))
 					.forEach(senders::add);
 				return Collections.unmodifiableList(senders);
 			}
