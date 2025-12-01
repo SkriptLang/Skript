@@ -23,7 +23,6 @@ public class IndeterminateDelay extends Delay {
 		TriggerItem next = getNext();
 
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			Delay.addDelayedEvent(event);
 			Timespan duration = this.duration.getSingle(event);
 			if (duration == null)
 				return null;
@@ -32,6 +31,7 @@ public class IndeterminateDelay extends Delay {
 			Object localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+				Delay.addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
 				// Re-set local variables

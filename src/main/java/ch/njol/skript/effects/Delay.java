@@ -68,7 +68,6 @@ public class Delay extends Effect {
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			addDelayedEvent(event);
 
 			Timespan duration = this.duration.getSingle(event);
 			if (duration == null)
@@ -78,6 +77,7 @@ public class Delay extends Effect {
 			Object localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+				addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
 				// Re-set local variables

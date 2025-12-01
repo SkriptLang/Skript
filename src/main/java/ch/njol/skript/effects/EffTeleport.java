@@ -132,11 +132,11 @@ public class EffTeleport extends Effect {
 		}
 
 		final Location fixed = location;
-		Delay.addDelayedEvent(event);
 		Object localVars = Variables.removeLocals(event);
 
 		// This will either fetch the chunk instantly if on Spigot or already loaded or fetch it async if on Paper.
 		PaperLib.getChunkAtAsync(location).thenAccept(chunk -> {
+			Delay.addDelayedEvent(event);
 			// The following is now on the main thread
 			SkriptTeleportFlag[] teleportFlags = this.teleportFlags == null ? null : this.teleportFlags.getArray(event);
 			for (Entity entity : entityArray) {
