@@ -3,6 +3,7 @@ package ch.njol.skript.patterns;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.conditions.CondCompare;
+import ch.njol.skript.conditions.CondContains;
 import ch.njol.skript.conditions.CondDate;
 import ch.njol.skript.conditions.CondIsLoaded;
 import ch.njol.skript.conditions.CondScriptLoaded;
@@ -17,6 +18,7 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skriptlang.skript.bukkit.potion.elements.conditions.CondHasPotion;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
@@ -435,13 +437,14 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 
 		// 4 conflicts
 		EXCLUSIONS.add(new Exclusion(ExprEntitySound.class, ExprBlockSound.class));
-		EXCLUSIONS.add(new Exclusion(ExprEnchantmentLevel.class, ExprPotionEffectTier.class));
 
 		// 5 conflicts
 		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprSets.class));
 
 		// 6 conflicts
 		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprItemsIn.class));
+		// CondContains takes precedence over CondHasPotion in the case of "{_x} has {_y}"
+		EXCLUSIONS.add(new Exclusion(CondContains.class, CondHasPotion.class));
 
 		// 8 conflicts
 		EXCLUSIONS.add(new Exclusion(CondScriptLoaded.class, CondIsLoaded.class));

@@ -57,7 +57,6 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.bukkit.event.world.*;
 import org.bukkit.inventory.*;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
@@ -192,12 +191,6 @@ public final class BukkitEventValues {
 			EntityDamageEvent damageEvent = event.getEntity().getLastDamageCause();
 			return damageEvent == null ? null : damageEvent.getCause();
 		});
-
-		// Entity Potion Effect
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getOldEffect, TIME_PAST);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getNewEffect);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, EntityPotionEffectEvent::getModifiedType);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, EntityPotionEffectEvent::getCause);
 
 		// ProjectileHitEvent
 		// ProjectileHitEvent#getHitBlock was added in 1.11
