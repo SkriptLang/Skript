@@ -227,6 +227,7 @@ public class Environment {
 			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000");
 		args.add("-Duser.language=en");
 		args.add("-Duser.country=US");
+		args.add("-Duser.timezone=UTC");
 		args.addAll(jvmArgs);
 		args.addAll(Arrays.asList(commandLine));
 
