@@ -1,12 +1,10 @@
 package org.skriptlang.skript.common.function;
 
-import ch.njol.skript.doc.Documentable;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.SequencedMap;

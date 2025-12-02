@@ -86,7 +86,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		}
 
 		trigger.execute(event);
-		return type() != null ? returnValues : null;
+		return type() != null ? returnValues.get() : null;
 	}
 
 	@Override
@@ -121,22 +121,22 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 		trigger.execute(newEvent);
 
-		if (type() == null || returnValues == null || returnValues.length == 0) {
+		T[] vs = returnValues.get();
+		if (type() == null || vs == null || vs.length == 0) {
 			return null;
 		}
 
-		if (returnValues.length == 1) {
-			return returnValues[0];
+		if (vs.length == 1) {
+			return vs[0];
 		} else {
 			//noinspection unchecked
-			return (T) returnValues;
+			return (T) vs;
 		}
 	}
 
 	@Override
 	public @NotNull String @Nullable [] returnedKeys() {
-		ClassInfo<T> returnType = getReturnType();
-		return returnType != null ? returnValues.get() : null;
+		return type() != null ? returnKeys.get() : null;
 	}
 
 	@Override
