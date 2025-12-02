@@ -24,7 +24,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> implements KeyProvi
 	private final FunctionReference<?> reference;
 	private final Class<? extends T>[] returnTypes;
 	private final Class<T> returnType;
-	private final Map<Event, String[]> cache = new WeakHashMap<>();
+	private final Map<Event, String[]> cache = Collections.synchronizedMap(new WeakHashMap<>());
 
 	@SuppressWarnings("unchecked")
 	public ExprFunctionCall(FunctionReference<?> reference, Class<? extends T>[] expectedReturnTypes) {

@@ -25,7 +25,7 @@ public class EvtBrewingComplete extends SkriptEvent {
 			BukkitRegistryKeys.EVENT,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingComplete.class, "Brewing Complete")
 				.addEvent(BrewEvent.class)
-				.addPatterns("brew[ing] [complet[ed|ion]|finish[ed]] [(of|for) %-itemtypes/potioneffecttypes%]")
+				.addPatterns("brew[ing] [complet(e[d]|ion)|finish[ed]] [(of|for) %-itemtypes/potioneffecttypes%]")
 				.addDescription("Called when a brewing stand finishes brewing an ingredient and changes the potions.")
 				.addExample("""
 					on brew:
