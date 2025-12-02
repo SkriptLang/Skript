@@ -63,6 +63,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			Object[] val = params[i];
 			if (parameter.single() && val.length > 0) {
 				Variables.setVariable(parameter.name(), val[0], event, true);
+				i++;
 				continue;
 			}
 

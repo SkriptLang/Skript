@@ -142,7 +142,7 @@ test "named function arguments":
 
 	parse:
 		nfa(a: 1, a: 2, c: 2)
-	assert first element of last parse logs contains "A value has already been assigned to parameter a"
+	assert first element of last parse logs contains "A value has already been assigned to parameter 'a'"
 
 local function nfa_incorrect_list(ns: numbers):
 	stop
@@ -170,4 +170,4 @@ test "named function arguments with single list params":
 
 	parse:
 		nfa_incorrect_list(ns: 1, ns: 2, ns: 3)
-	assert first element of last parse logs contains "A value has already been assigned to parameter ns."
+	assert first element of last parse logs contains "A value has already been assigned to parameter 'ns'"
