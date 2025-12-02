@@ -1,0 +1,9 @@
+test "return effect":
+	assert returnTest() is 42 with "The return value should be 42."
+	assert returnTest2() is 1,2,3 and 4 with "The return values should be 1,2,3 and 4."
+
+function returnTest() returns number:
+	return 42
+
+function returnTest2() returns numbers:
+	return 1,2,3 and 4

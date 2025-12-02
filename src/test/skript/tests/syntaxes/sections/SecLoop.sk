@@ -1,0 +1,10 @@
+test "section loop":
+	set {_loop} to 0
+	loop 5 times:
+		add 1 to {_loop}
+	assert {_loop} is 5 with "Loop section did not execute the correct number of times"
+
+	set {_loop} to 0
+	loop "t1", "t2" and "t3":
+		add 1 to {_loop}
+	assert {_loop} is 3 with "Loop section did not execute the correct number of times"
