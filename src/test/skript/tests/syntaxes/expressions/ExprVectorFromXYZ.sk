@@ -9,3 +9,16 @@ test "vector from xyz":
 	set {_random} to a random vector
 	set {_vector} to a new vector from x component of {_random}, y component of {_random}, z component of {_random}
 	assert {_vector} is {_random} with "random vector to created component equality failed (expected %{_random}%, got %{_vector}%)"
+
+test "vector single argument":
+	assert vector(5) is vector(5, 5, 5) with "single-argument vector(5) failed"
+	assert vector(0) is vector(0, 0, 0) with "single-argument vector(0) failed"
+	assert vector(-10) is vector(-10, -10, -10) with "single-argument vector(-10) failed"
+	assert vector(3.14) is vector(3.14, 3.14, 3.14) with "single-argument vector(3.14) failed"
+	loop 60 times:
+		set {_n} to a random number between -100 and 100
+		set {_vector} to vector({_n})
+		assert {_vector} is vector({_n}, {_n}, {_n}) with "randomly-created single-argument vector equality failed (expected %vector({_n}, {_n}, {_n})%, got %{_vector}%)"
+		assert the x component of {_vector} is {_n} with "single-argument vector x component failed"
+		assert the y component of {_vector} is {_n} with "single-argument vector y component failed"
+		assert the z component of {_vector} is {_n} with "single-argument vector z component failed"
