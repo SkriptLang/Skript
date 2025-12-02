@@ -4,14 +4,18 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.util.PaperUtils;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import org.bukkit.Keyed;
-import org.bukkit.Registry;
+import io.papermc.paper.ban.BanListType;
+import org.bukkit.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Utility class with methods pertaining to Bukkit API
@@ -113,6 +117,34 @@ public class BukkitUtils {
 		}
 		Skript.debug("There were no registries found for '" + registryName + "'.");
 		return null;
+	}
+
+	/**
+	 * Returns the BanEntry of a player.
+	 *
+	 * @param target The string IP or OfflinePlayer
+	 * @return The BanEntry, or null
+	 */
+	public static BanEntry<?> getBanEntry(Object target) {
+		if (target instanceof String ipTarget) {
+			return getBanEntry(ipTarget);
+		} else if (target instanceof OfflinePlayer playerTarget) {
+			return getBanEntry(playerTarget);
+		}
+
+		return null;
+	}
+
+	private static BanEntry<InetAddress> getBanEntry(String ipTarget) {
+		try {
+			InetAddress address = InetAddress.getByName(ipTarget);
+			return Bukkit.getBanList(BanListType.IP).getBanEntry(address);
+		} catch (UnknownHostException ignored) {} // this only happens when you pass a url and it performs a lookup
+		return null;
+	}
+
+	private static BanEntry<PlayerProfile> getBanEntry(OfflinePlayer playerTarget) {
+		return Bukkit.getBanList(BanListType.PROFILE).getBanEntry(playerTarget.getPlayerProfile());
 	}
 
 }
