@@ -1,0 +1,129 @@
+options:
+	animation: drink animation
+	time: 1 hour
+	sound: "minecraft:ui.toast.challenge_complete"
+	effect: a consume effect to clear all potion effects
+
+using consumable components
+using consume effects
+
+test "consumable components - new" when running minecraft "1.21.3":
+	set {_component} to a blank consumable component
+	set the consumption animation of {_component} to {@animation}
+	assert the consumption animation of {_component} is {@animation} with "Consume animation of component was not set"
+	set the consumption time of {_component} to {@time}
+	assert the consumption time of {_component} is {@time} with "Consume time of component was not set"
+	set the consumption sound of {_component} to {@sound}
+	assert the consumption sound of {_component} is {@sound} with "Consume sound of component was not set"
+
+	add {@effect} to the consume effects of {_component}
+	assert the consume effects of {_component} contains {@effect} with "Consume effect was not added to component"
+	clear the consume effects of {_component}
+	assert the consume effects of {_component} is not set with "Consume effects of component was not cleared"
+
+	enable the consumption particles of {_component}
+	assert {_component} has consumption particles enabled with "Consume particles of component were not enabled"
+	disable the consumption particles of {_component}
+	assert {_component} does not have consumption particles enabled with "Consume particles of component were not disabled"
+
+test "consumable components - itemtype" when running minecraft "1.21.3":
+	set {_item} to a leather helmet (item type)
+	set the consumption animation of {_item} to {@animation}
+	assert the consumption animation of {_item} is {@animation} with "Consume animation of itemtype was not set"
+	set the consumption time of {_item} to {@time}
+	assert the consumption time of {_item} is {@time} with "Consume time of itemtype was not set"
+	set the consumption sound of {_item} to {@sound}
+	assert the consumption sound of {_item} is {@sound} with "Consume sound of itemtype was not set"
+
+	add {@effect} to the consume effects of {_item}
+	assert the consume effects of {_item} contains {@effect} with "Consume effect was not added to itemtype"
+	clear the consume effects of {_item}
+	assert the consume effects of {_item} is not set with "Consume effects of itemtype was not cleared"
+
+	enable the consumption particles of {_item}
+	assert {_item} has consumption particles enabled with "Consume particles of itemtype were not enabled"
+	disable the consumption particles of {_item}
+	assert {_item} does not have consumption particles enabled with "Consume particles of itemtype were not disabled"
+
+test "consumable components - itemstack" when running minecraft "1.21.3":
+	set {_item} to an iron helmet (item stack)
+	set the consumption animation of {_item} to {@animation}
+	assert the consumption animation of {_item} is {@animation} with "Consume animation of itemstack was not set"
+	set the consumption time of {_item} to {@time}
+	assert the consumption time of {_item} is {@time} with "Consume time of itemstack was not set"
+	set the consumption sound of {_item} to {@sound}
+	assert the consumption sound of {_item} is {@sound} with "Consume sound of itemstack was not set"
+
+	add {@effect} to the consume effects of {_item}
+	assert the consume effects of {_item} contains {@effect} with "Consume effect was not added to itemstack"
+	clear the consume effects of {_item}
+	assert the consume effects of {_item} is not set with "Consume effects of itemstack was not cleared"
+
+	enable the consumption particles of {_item}
+	assert {_item} has consumption particles enabled with "Consume particles of itemstack were not enabled"
+	disable the consumption particles of {_item}
+	assert {_item} does not have consumption particles enabled with "Consume particles of itemstack were not disabled"
+
+test "consumable components - copy" when running minecraft "1.21.3":
+	set {_component} to a blank consumable component
+	set the consumption animation of {_component} to {@animation}
+	assert the consumption animation of {_component} is {@animation} with "Consume animation of component was not set"
+	set the consumption time of {_component} to {@time}
+	assert the consumption time of {_component} is {@time} with "Consume time of component was not set"
+	set the consumption sound of {_component} to {@sound}
+	assert the consumption sound of {_component} is {@sound} with "Consume sound of component was not set"
+
+	add {@effect} to the consume effects of {_component}
+	assert the consume effects of {_component} contains {@effect} with "Consume effect was not added to component"
+	clear the consume effects of {_component}
+	assert the consume effects of {_component} is not set with "Consume effects of component was not cleared"
+
+	enable the consumption particles of {_component}
+	assert {_component} has consumption particles enabled with "Consume particles of component were not enabled"
+	disable the consumption particles of {_component}
+	assert {_component} does not have consumption particles enabled with "Consume particles of component were not disabled"
+
+	set {_original} to {_component}
+	set {_copy} to a item component copy of {_original}
+	set the consumption animation of {_copy} to eat animation
+	assert the consumption animation of {_copy} is eat animation with "Consume animation of copy was not set"
+	assert the consumption animation of {_original} is {@animation} with "Consume animation of original should not have changed"
+	set the consumption time of {_copy} to 30 minutes
+	assert the consumption time of {_copy} is 30 minutes with "Consume time of copy was not set"
+	assert the consumption time of {_original} is {@time} with "Consume time of original should not have changed"
+	set the consumption sound of {_copy} to "minecraft:ui.toast.in"
+	assert the consumption sound of {_copy} is "minecraft:ui.toast.in" with "Consume sound of copy was not set"
+	assert the consumption sound of {_original} is {@sound} with "Consume sound of original should not have changed"
+
+	add {@effect} to the consume effects of {_copy}
+	assert the consume effects of {_copy} contains {@effect} with "Consume effect was not added to copy"
+	assert the consume effects of {_original} is not set with "Consume effects of original should not have changed"
+	clear the consume effects of {_copy}
+	assert the consume effects of {_copy} is not set with "Consume effects of copy was not cleared"
+
+	enable the consumption particles of {_copy}
+	assert {_copy} has consumption particles enabled with "Consume particles of copy were not enabled"
+	assert {_original} does not have consumption particles enabled with "Consume particles of original should not have changed"
+	disable the consumption particles of {_copy}
+	assert {_copy} does not have consumption particles enabled with "Consume particles of copy were not disabled"
+
+test "consumable components - slot" when running minecraft "1.21.3":
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to a diamond helmet
+
+	set the consumption animation of (slot 1 of {_gui}) to {@animation}
+	assert the consumption animation of (slot 1 of {_gui}) is {@animation} with "Consume animation of slot was not set"
+	set the consumption time of (slot 1 of {_gui}) to {@time}
+	assert the consumption time of (slot 1 of {_gui}) is {@time} with "Consume time of slot was not set"
+	set the consumption sound of (slot 1 of {_gui}) to {@sound}
+	assert the consumption sound of (slot 1 of {_gui}) is {@sound} with "Consume sound of slot was not set"
+
+	add {@effect} to the consume effects of (slot 1 of {_gui})
+	assert the consume effects of (slot 1 of {_gui}) contains {@effect} with "Consume effect was not added to slot"
+	clear the consume effects of (slot 1 of {_gui})
+	assert the consume effects of (slot 1 of {_gui}) is not set with "Consume effects of slot was not cleared"
+
+	enable the consumption particles of (slot 1 of {_gui})
+	assert (slot 1 of {_gui}) has consumption particles enabled with "Consume particles of slot were not enabled"
+	disable the consumption particles of (slot 1 of {_gui})
+	assert (slot 1 of {_gui}) does not have consumption particles enabled with "Consume particles of slot were not disabled"

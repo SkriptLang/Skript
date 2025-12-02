@@ -3013,6 +3013,28 @@ damage types:
 	wither: wither
 	wither_skull: wither skull
 
+# Consume Effect Types
+consume effect types:
+	apply_status_effects: status apply
+	clear_all_status_effects: status clear
+	play_sound: play sound, sound
+	remove_status_effects: status remove
+	teleport_randomly: teleport randomly, teleport
+
+# Item Use Animations
+item use animations:
+	block: block animation
+	bow: bow animation
+	brush: brush animation
+	bundle: bundle animation
+	crossbow: crossbow animation
+	drink: drink animation
+	eat: eat animation
+	none: none, no animation
+	spear: spear animation
+	spyglass: spyglass animation
+	toot_horn: toot horn animation
+
 # -- Boolean --
 boolean:
 	true:
@@ -3133,6 +3155,10 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	consumablecomponent: consumable component¦s @a
+	consumeeffect: consume effect¦s @a
+	consumeeffecttype: consume effect type¦s @a
+	itemuseanimation: item use animation¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
