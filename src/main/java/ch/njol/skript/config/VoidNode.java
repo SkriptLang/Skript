@@ -11,16 +11,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class VoidNode extends Node {
 
-//	private final int initialLevel;
-//	private final String initialIndentation;
-
-	VoidNode(final String line, final String comment, final SectionNode parent, final int lineNum) {
-		super("" + line.trim(), comment, parent, lineNum);
-//		initialLevel = getLevel();
-//		initialIndentation = "" + line.replaceFirst("\\S.*$", "");
+	VoidNode(String line, String comment, SectionNode parent, int lineNum) {
+		super(line.trim(), comment, parent, lineNum);
 	}
 
-	@SuppressWarnings("null")
+	VoidNode(String line, String comment, String[] comments, SectionNode parent, int lineNum) {
+		super(line.trim(), comment, comments, parent, lineNum);
+	}
+
 	@Override
 	public String getKey() {
 		return key;
@@ -30,26 +28,9 @@ public class VoidNode extends Node {
 		key = s;
 	}
 
-	// doesn't work reliably
-//	@Override
-//	protected String getIndentation() {
-//		int levelDiff = getLevel() - initialLevel;
-//		if (levelDiff >= 0) {
-//			return StringUtils.multiply(config.getIndentation(), levelDiff) + initialIndentation;
-//		} else {
-//			final String ci = config.getIndentation();
-//			String ind = initialIndentation;
-//			while (levelDiff < 0 && ind.startsWith(ci)) {
-//				levelDiff++;
-//				ind = "" + ind.substring(ci.length());
-//			}
-//			return ind;
-//		}
-//	}
-
 	@Override
 	String save_i() {
-		return "" + key;
+		return key;
 	}
 
 	@Override

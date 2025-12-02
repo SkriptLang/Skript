@@ -210,11 +210,6 @@ script loader thread size: 0
 # Do note that some addons may stop Skript from hooking into a plugin, even if the plugin's hook is not disabled here.
 disable hooks:
 	vault: false
-	regions:
-		grief prevention: false
-		precious stones: false
-		residence: false
-		worldguard: false
 
 # A regex pattern that is used to match player names.
 # This can be used if you are using Geyser, where some usernames are prefixed by a certain character.

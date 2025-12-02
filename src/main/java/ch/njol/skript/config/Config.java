@@ -176,8 +176,11 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	 */
 	public void save(File file) throws IOException {
 		this.separator = defaultSeparator;
-		try (final PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
-			this.main.save(writer);
+		try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
+			for (String string : main.getAsStrings()) {
+				writer.println(string);
+			}
+
 			writer.flush();
 		}
 	}
@@ -216,12 +219,12 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	 */
 	public boolean updateNodes(@NotNull Config newer) {
 		Skript.debug("Updating config %s", newer.getFileName());
-		Set<Node> newNodes = discoverNodes(newer.getMainNode());
-		Set<Node> oldNodes = discoverNodes(getMainNode());
+		List<Node> newNodes = discoverNodes(newer.getMainNode());
+		List<Node> oldNodes = discoverNodes(getMainNode());
 
 		// find the nodes that are in the new config but not in the old one
 		newNodes.removeAll(oldNodes);
-		Set<Node> nodesToUpdate = new LinkedHashSet<>(newNodes);
+		List<Node> nodesToUpdate = new ArrayList<>(newNodes);
 
 		if (nodesToUpdate.isEmpty())
 			return false;
@@ -256,13 +259,13 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 
 			Skript.debug("Updating node %s", node);
 			SectionNode newParent = node.getParent();
-			Preconditions.checkNotNull(newParent);
+			assert newParent != null;
 
 			SectionNode parent = getNode(newParent.getPathSteps());
-			Preconditions.checkNotNull(parent);
+			assert parent != null;
 
 			int index = node.getIndex();
-			if (index >= parent.size()) {
+			if (index >= parent.relativeSize()) {
 				// in case we have some user-added comments or something goes wrong, to ensure index is within bounds
 
 				Skript.debug("Adding node %s to %s (size mismatch)", node, parent);
@@ -275,7 +278,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 				// there's already something at the node we want to add the new node
 
 				Skript.debug("Adding node %s to %s at index %s", node, parent, index);
-				parent.add(index, node);
+				parent.addRelative(index, node);
 			} else {
 				// there's nothing at the index we want to add the new node
 
@@ -294,15 +297,14 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	 * @return A set of the discovered nodes, guaranteed to be in the order of discovery.
 	 */
 	@Contract(pure = true)
-	static @NotNull Set<Node> discoverNodes(@NotNull SectionNode node) {
-		Set<Node> nodes = new LinkedHashSet<>();
+	static @NotNull List<Node> discoverNodes(@NotNull SectionNode node) {
+		List<Node> nodes = new LinkedList<>();
 
-		for (Iterator<Node> iterator = node.fullIterator(); iterator.hasNext(); ) {
-			Node child = iterator.next();
+		for (Node child : node) {
 			if (child instanceof SectionNode sectionChild) {
 				nodes.add(child);
 				nodes.addAll(discoverNodes(sectionChild));
-			} else if (child instanceof EntryNode || child instanceof VoidNode) {
+			} else if (child instanceof EntryNode) {
 				nodes.add(child);
 			}
 		}

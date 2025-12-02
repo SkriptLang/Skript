@@ -3,7 +3,16 @@ package ch.njol.skript.config;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * Represents any node that isn't invalid or a section in a simple config.
+ *
+ * <p>
+ * A general overview of node structure is as follows.
+ * <pre><code>
+ * section node:
+ * 	entry node: true
+ * 	simple node
+ * </code></pre>
+ * </p>
  */
 public class SimpleNode extends Node {
 
@@ -11,17 +20,20 @@ public class SimpleNode extends Node {
 		super(value, comment, parent, lineNum);
 	}
 
-	public SimpleNode(final Config c) {
+	SimpleNode(String value, String comment, String[] comments, SectionNode parent, int lineNum) {
+		super(value, comment, comments, parent, lineNum);
+	}
+
+	public SimpleNode(Config c) {
 		super(c);
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	String save_i() {
 		return key;
 	}
 
-	public void set(final String s) {
+	public void set(String s) {
 		key = s;
 	}
 

@@ -54,7 +54,7 @@ update check interval: 12 hours
 # Initial value of this depends on the Skript version you first installed; it was '@release-channel@'.
 release channel: @release-channel@
 
-enable effect commands: false
+
 
 # If 'enable effect commands' is set to true, chat messages starting with the 'effect command token' will be interpreted as effects and executed.
 # The token can be longer than a single character, but it should not start with '/' as that starts a command.
@@ -171,12 +171,6 @@ disable unreachable code warnings: false
 # However, if Skript or addons of it are not working correctly, this might help.
 # You may also get told to enable this by Skript or addon developers - then do so.
 soft api exceptions: false
-
-# When enabled, triggers in scripts will be present in timings reports.
-# Note that this requires Paper (https://papermc.io/downloads/paper) to work; on Bukkit/Spigot this option has no effect.
-# Warning: Paper no longer supports Timings as of 1.19.4. This option has no effect on versions 1.19.4 and above.
-# When false, timings are not enabled for scripts even if you're running Paper.
-enable timings: false
 
 # Controls how Skript will try to parse links in chat messages.
 # If 'disabled' or 'false', no links will be automatically parsed.
