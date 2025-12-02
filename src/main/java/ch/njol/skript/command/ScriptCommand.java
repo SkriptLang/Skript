@@ -533,7 +533,7 @@ public class ScriptCommand implements TabExecutor {
 			String name = getStorageVariableName(event);
 			assert name != null;
 			Object variable = Variables.getVariable(name, null, false);
-			if (!(variable instanceof Date)) {
+			if (variable != null && !(variable instanceof Date)) {
 				Skript.warning("Variable {" + name + "} was not a date! You may be using this variable elsewhere. " +
 						"This warning is letting you know that this variable is now overridden for the command storage.");
 				return null;

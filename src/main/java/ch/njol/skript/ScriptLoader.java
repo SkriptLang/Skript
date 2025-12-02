@@ -5,11 +5,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.ExecutionIntent;
-import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
@@ -22,7 +18,6 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
@@ -528,18 +523,19 @@ public class ScriptLoader {
 
 					// build sorted list
 					// this nest of pairs is terrible, but we need to keep the reference to the modifiable structures list
-					List<NonNullPair<LoadingScriptInfo, Structure>> pairs = scripts.stream()
+					record LoadingStructure (LoadingScriptInfo loadingScriptInfo, Structure structure) {}
+					List<LoadingStructure> loadingStructures = scripts.stream()
 							.flatMap(info -> { // Flatten each entry down to a stream of Script-Structure pairs
 								return info.structures.stream()
-										.map(structure -> new NonNullPair<>(info, structure));
+										.map(structure -> new LoadingStructure(info, structure));
 							})
-							.sorted(Comparator.comparing(pair -> pair.getSecond().getPriority()))
+							.sorted(Comparator.comparing(pair -> pair.structure().getPriority()))
 							.collect(Collectors.toCollection(ArrayList::new));
 
 					// pre-loading
-					pairs.removeIf(pair -> {
-						LoadingScriptInfo loadingInfo = pair.getFirst();
-						Structure structure = pair.getSecond();
+					loadingStructures.removeIf(loadingStructure -> {
+						LoadingScriptInfo loadingInfo = loadingStructure.loadingScriptInfo();
+						Structure structure = loadingStructure.structure();
 
 						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
@@ -566,9 +562,9 @@ public class ScriptLoader {
 					// Until these reworks happen, limiting main loading to asynchronous (not parallel) is the only choice we have.
 
 					// loading
-					pairs.removeIf(pair -> {
-						LoadingScriptInfo loadingInfo = pair.getFirst();
-						Structure structure = pair.getSecond();
+					loadingStructures.removeIf(loadingStructure -> {
+						LoadingScriptInfo loadingInfo = loadingStructure.loadingScriptInfo();
+						Structure structure = loadingStructure.structure();
 
 						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
@@ -590,9 +586,9 @@ public class ScriptLoader {
 					parser.setInactive();
 
 					// post-loading
-					pairs.removeIf(pair -> {
-						LoadingScriptInfo loadingInfo = pair.getFirst();
-						Structure structure = pair.getSecond();
+					loadingStructures.removeIf(loadingStructure -> {
+						LoadingScriptInfo loadingInfo = loadingStructure.loadingScriptInfo();
+						Structure structure = loadingStructure.structure();
 
 						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
@@ -870,35 +866,53 @@ public class ScriptLoader {
 		}
 
 		ParserInstance parser = getParser();
+		record UnloadingStructure (Script script, Structure structure) {}
+		Comparator<UnloadingStructure> unloadComparator = Comparator.comparing(unloadingStructure -> unloadingStructure.structure().getPriority());
+		unloadComparator = unloadComparator.reversed();
+
+		List<UnloadingStructure> unloadingStructures = scripts.stream()
+			.flatMap(script -> { // Flatten each entry down to a stream of Script-Structure pairs
+				return script.getStructures().stream()
+					.map(structure -> new UnloadingStructure(script, structure));
+			})
+			.sorted(unloadComparator)
+			.collect(Collectors.toCollection(ArrayList::new));
+
+		// trigger unload event before unloading scripts
+		for (Script script : scripts) {
+			eventRegistry().events(ScriptUnloadEvent.class)
+				.forEach(event -> event.onUnload(parser, script));
+			script.eventRegistry().events(ScriptUnloadEvent.class)
+				.forEach(event -> event.onUnload(parser, script));
+		}
 
 		// initial unload stage
-		for (Script script : scripts) {
+		for (UnloadingStructure unloadingStructure : unloadingStructures) {
+			Script script = unloadingStructure.script();
+			Structure structure = unloadingStructure.structure();
+
 			parser.setActive(script);
-
-			// trigger unload event before beginning
-			eventRegistry().events(ScriptUnloadEvent.class)
-					.forEach(event -> event.onUnload(parser, script));
-			script.eventRegistry().events(ScriptUnloadEvent.class)
-					.forEach(event -> event.onUnload(parser, script));
-
-			for (Structure structure : script.getStructures())
-				structure.unload();
+			structure.unload();
 		}
 
 		parser.setInactive();
 
-		// finish unloading + data collection
+		// finish unloading of structures + data collection
 		ScriptInfo info = new ScriptInfo();
-		for (Script script : scripts) {
-			List<Structure> structures = script.getStructures();
+		for (UnloadingStructure unloadingStructure : unloadingStructures) {
+			Script script = unloadingStructure.script();
+			Structure structure = unloadingStructure.structure();
 
-			info.files++;
-			info.structures += structures.size();
+			info.structures++;
 
 			parser.setActive(script);
-			for (Structure structure : structures)
-				structure.postUnload();
-			parser.setInactive();
+			structure.postUnload();
+		}
+		parser.setInactive();
+
+		// finish unloading of scripts + data collection
+		for (Script script : scripts) {
+			info.files++;
 
 			script.clearData();
 			script.invalidate();
