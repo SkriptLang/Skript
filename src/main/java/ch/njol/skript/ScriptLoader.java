@@ -1297,7 +1297,7 @@ public class ScriptLoader {
 			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
 			int dot = script.lastIndexOf('.');
-			if (dot > 0 && !script.substring(dot + 1).equals(""))
+			if (dot > 0 && !script.substring(dot + 1).isEmpty())
 				return null;
 			script = script + ".sk";
 		}
@@ -1312,6 +1312,11 @@ public class ScriptLoader {
 				return null;
 			}
 		}
+
+		if (Files.isSymbolicLink(scriptFile.toPath())) {
+			return scriptFile.getAbsoluteFile();
+		}
+
 		try {
 			// Unless it's a test, check if the user is asking for a script in the scripts folder
 			// and not something outside Skript's domain.

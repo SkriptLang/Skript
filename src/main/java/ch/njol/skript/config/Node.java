@@ -5,6 +5,7 @@ import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.Validated;
@@ -246,7 +247,8 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 	}
 
 	@Nullable
-	protected String getComment() {
+	@ApiStatus.Internal
+	public String getComment() {
 		return comment;
 	}
 
@@ -259,7 +261,8 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		return Math.max(0, l - 1);
 	}
 
-	protected String getIndentation() {
+	@ApiStatus.Internal
+	public String getIndentation() {
 		return StringUtils.multiply(config.getIndentation(), getLevel());
 	}
 

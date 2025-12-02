@@ -25,6 +25,7 @@ import ch.njol.skript.variables.FlatFileStorage;
 import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.event.EventRegistry;
 
@@ -389,8 +390,8 @@ public class SkriptConfig {
 		return mainConfig;
 	}
 
-	// also used for reloading
-	static void load() {
+	@ApiStatus.Internal
+	public static void load() {
 		if (mainConfig != null)
 			mainConfig.invalidate(); // todo
 		try {
