@@ -16,10 +16,12 @@ import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
+import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
+import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 import java.util.Locale;
 
@@ -237,12 +239,22 @@ public record Property<Handler extends PropertyHandler<?>>(
 	/**
 	 * A property for getting a specific value of something.
 	 */
-	public static final Property<TypedValuePropertyHandler<?, ?>> TYPED_VALUE = Property.of(
+	public static final Property<TypedValueHandler<?, ?>> TYPED_VALUE = Property.of(
 			"typed value",
 			"A value of a specific type, e.g. 'string value of x'.",
 			"2.13",
 			Skript.instance(),
-			TypedValuePropertyHandler.class);
+			TypedValueHandler.class);
+
+	/**
+	 * A property for getting the x, y, or z coordinates/components of something.
+	 */
+	public static final Property<WXYZHandler<?, ?>> WXYZ = Property.of(
+			"wxyz component",
+			"The W, X, Y, or Z components of something, e.g. the x coordinate of a location or vector.",
+			"INSERT VERSION",
+			Skript.instance(),
+			WXYZHandler.class);
 
 	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.

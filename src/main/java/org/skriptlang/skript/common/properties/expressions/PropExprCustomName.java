@@ -3,7 +3,7 @@ package org.skriptlang.skript.common.properties.expressions;
 import ch.njol.skript.doc.*;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 @Name("Display Name")
 @Description({

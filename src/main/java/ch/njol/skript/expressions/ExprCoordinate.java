@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -27,7 +28,8 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 public class ExprCoordinate extends SimplePropertyExpression<Location, Number> {
 	
 	static {
-		register(ExprCoordinate.class, Number.class, "(0¦x|1¦y|2¦z)(-| )(coord[inate]|pos[ition]|loc[ation])[s]", "locations");
+		if (!SkriptConfig.useTypeProperties.value())
+			register(ExprCoordinate.class, Number.class, "(0¦x|1¦y|2¦z)(-| )(coord[inate]|pos[ition]|loc[ation])[s]", "locations");
 	}
 	
 	private final static char[] axes = {'x', 'y', 'z'};

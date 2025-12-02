@@ -28,10 +28,10 @@ import org.skriptlang.skript.bukkit.base.types.SlotClassInfo;
 import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
+import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
@@ -583,7 +583,7 @@ public class SkriptClasses {
 			.property(Property.TYPED_VALUE,
 				"The value of the node, if it is an entry node, as text.",
 				Skript.instance(),
-				new TypedValuePropertyHandler<Node, String>() {
+				new TypedValueHandler<Node, String>() {
 
 					@Override
 					public @Nullable String convert(Node propertyHolder) {
@@ -751,7 +751,7 @@ public class SkriptClasses {
 			.property(Property.TYPED_VALUE,
 				"The value of something. Can be set.",
 				Skript.instance(),
-				new TypedValuePropertyHandler<AnyValued, Object>() {
+				new TypedValueHandler<AnyValued, Object>() {
 					@Override
 					public Object convert(AnyValued propertyHolder) {
 						return propertyHolder.value();
