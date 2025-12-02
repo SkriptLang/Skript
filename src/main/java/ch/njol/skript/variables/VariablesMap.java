@@ -124,6 +124,7 @@ final class VariablesMap {
 	 * The map that stores all non-list variables.
 	 */
 	final HashMap<String, Object> hashMap = new HashMap<>();
+
 	/**
 	 * The tree of variables, branched by the list structure of the variables.
 	 */
@@ -139,8 +140,8 @@ final class VariablesMap {
 	 * {@code Map<String, Object>} for a list variable,
 	 * or {@code null} if the variable is not set.
 	 */
-	@SuppressWarnings("unchecked")
 	@Nullable
+	@SuppressWarnings("unchecked")
 	Object getVariable(String name) {
 		if (!name.endsWith("*")) {
 			// Not a list variable, quick access from the hash map

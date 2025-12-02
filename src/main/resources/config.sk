@@ -360,27 +360,34 @@ databases:
 		database: skript
 		table: variables21
 
-		monitor changes: true
 		monitor interval: 20 seconds
 
-	SQLite example:
-		# An SQLite database example.
+		#commit changes: 0.5 seconds
+		# If you want to change how frequently SQL changes are commited.
+		# If this is disabled, auto commit will be enabled.
+		# Pros to this would be on external databases such as MySQL where it gives other servers time to react to changes.
+
+	H2 example:
+		# An H2 database example.
 
 		type: disabled # change to line below to enable this database
-		# type: SQLite
+		# type: H2
 
-		pattern: db_.* # this pattern will save all variables that start with 'db_' in this SQLite database.
+		pattern: db_.* # this pattern will save all variables that start with 'db_' in this H2 database.
 
-		file: ./plugins/Skript/variables.db
-		# SQLite databases must end in '.db'
+		file: ./plugins/Skript/variables
+		# H2 suffixes the database file with '.mv.db'
 		#table: variables21
 		# Usually not required, if omitted defaults to variables21 (see above for more details)
 
-		backup interval: 0 # 0 = don't create backups
-		monitor changes: false
-		monitor interval: 20 seconds
+		# optional H2 settings if you want.
+		#user: skript
+		#password: password
+		#description: skript
 
-		backups to keep: -1
+		# If H2 should run in ram memory only mode.
+		#memory: true
+		backup interval: 0 # 0 = don't create backups
 
 	default:
 		# The default "database" is a simple text file, with each variable on a separate line and the variable's name, type, and value separated by commas.
