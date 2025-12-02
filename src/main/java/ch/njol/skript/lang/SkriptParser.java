@@ -1,7 +1,6 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
@@ -10,17 +9,12 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.DefaultExpressionUtils.DefaultExpressionError;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.DefaultValueData;
-import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.parser.ParsingStack;
-import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -32,7 +26,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.patterns.MalformedPatternException;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
-import ch.njol.skript.patterns.TypePatternElement;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
@@ -42,30 +35,17 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Booleans;
-import org.bukkit.event.Event;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
-import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.parser.ParsingConstraints;
+import org.skriptlang.skript.lang.parser.SyntaxParser;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -93,6 +73,8 @@ public final class SkriptParser {
 
 	public final ParseContext context;
 
+	private final SyntaxParser<?> newParser;
+
 	public SkriptParser(String expr) {
 		this(expr, ALL_FLAGS);
 	}
@@ -116,6 +98,12 @@ public final class SkriptParser {
 		this.expr = "" + expr.trim();
 		this.flags = flags;
 		this.context = context;
+
+		ParsingConstraints constraints = ParsingConstraints.all().applyParseFlags(flags);
+		this.newParser = SyntaxParser.from(Skript.instance())
+				.input(this.expr)
+				.parseContext(this.context)
+				.constraints(constraints);
 	}
 
 	public SkriptParser(SkriptParser other, String expr) {
@@ -138,7 +126,7 @@ public final class SkriptParser {
 
 		public ParseResult(SkriptParser parser, String pattern) {
 			expr = parser.expr;
-			exprs = new Expression<?>[countUnescaped(pattern, '%') / 2];
+			exprs = new Expression<?>[StringUtils.countUnescaped(pattern, '%') / 2];
 		}
 
 		public ParseResult(String expr, Expression<?>[] expressions) {
@@ -210,207 +198,7 @@ public final class SkriptParser {
 	}
 
 	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxInfo<? extends T>> source) {
-		ParsingStack parsingStack = getParser().getParsingStack();
-		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-			while (source.hasNext()) {
-				SyntaxInfo<? extends T> info = source.next();
-				int matchedPattern = -1; // will increment at the start of each iteration
-				patternsLoop: for (String pattern : info.patterns()) {
-					matchedPattern++;
-					log.clear();
-					ParseResult parseResult;
-
-					try {
-						parsingStack.push(new ParsingStack.Element(info, matchedPattern));
-						parseResult = parse_i(pattern);
-					} catch (MalformedPatternException e) {
-						String message = "pattern compiling exception, element class: " + info.type().getName();
-						try {
-							JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.type());
-							message += " (provided by " + providingPlugin.getName() + ")";
-						} catch (IllegalArgumentException | IllegalStateException ignored) { }
-						throw new RuntimeException(message, e);
-					} catch (StackOverflowError e) {
-						// Parsing caused a stack overflow, possibly due to too long lines
-						throw new ParseStackOverflowException(e, new ParsingStack(parsingStack));
-					} finally {
-						// Recursive parsing call done, pop the element from the parsing stack
-						ParsingStack.Element stackElement = parsingStack.pop();
-						assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == matchedPattern;
-					}
-
-					if (parseResult == null)
-						continue;
-
-					assert parseResult.source != null; // parse results from parse_i have a source
-					List<TypePatternElement> types = null;
-					for (int i = 0; i < parseResult.exprs.length; i++) {
-						if (parseResult.exprs[i] == null) {
-							if (types == null)
-								types = parseResult.source.getElements(TypePatternElement.class);;
-							ExprInfo exprInfo = types.get(i).getExprInfo();
-							if (!exprInfo.isOptional) {
-								List<DefaultExpression<?>> exprs = getDefaultExpressions(exprInfo, pattern);
-								DefaultExpression<?> matchedExpr = null;
-								for (DefaultExpression<?> expr : exprs) {
-									if (expr.init()) {
-										matchedExpr = expr;
-										break;
-									}
-								}
-								if (matchedExpr == null)
-									continue patternsLoop;
-								parseResult.exprs[i] = matchedExpr;
-							}
-						}
-					}
-					T element = info.instance();
-
-					if (!checkRestrictedEvents(element, parseResult))
-						continue;
-
-					if (!checkExperimentalSyntax(element))
-						continue;
-
-					boolean success = element.preInit() && element.init(parseResult.exprs, matchedPattern, getParser().getHasDelayBefore(), parseResult);
-					if (success) {
-						// Check if any expressions are 'UnparsedLiterals' and if applicable for multiple info warning.
-						for (Expression<?> expr : parseResult.exprs) {
-							if (expr instanceof UnparsedLiteral unparsedLiteral && unparsedLiteral.multipleWarning())
-								break;
-						}
-						log.printLog();
-						if (doSimplification && element instanceof Simplifiable<?> simplifiable)
-							//noinspection unchecked
-							return (T) simplifiable.simplify();
-						return element;
-					}
-				}
-			}
-
-			// No successful syntax elements parsed, print errors and return
-			log.printError();
-			return null;
-		}
-	}
-
-	/**
-	 * Checks whether the given element is restricted to specific events, and if so, whether the current event is allowed.
-	 * Prints errors.
-	 * @param element The syntax element to check.
-	 * @param parseResult The parse result for error information.
-	 * @return True if the element is allowed in the current event, false otherwise.
-	 */
-	private static boolean checkRestrictedEvents(SyntaxElement element, ParseResult parseResult) {
-		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
-			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-			if (!getParser().isCurrentEvent(supportedEvents)) {
-				Skript.error("'" + parseResult.expr + "' can only be used in " + supportedEventsNames(supportedEvents));
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Returns a string with the names of the supported skript events for the given class array.
-	 * If no events are found, returns an empty string.
-	 * @param supportedEvents The array of supported event classes.
-	 * @return A string with the names of the supported skript events, or an empty string if none are found.
-	 */
-	private static @NotNull String supportedEventsNames(Class<? extends Event>[] supportedEvents) {
-		List<String> names = new ArrayList<>();
-
-		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
-			for (Class<? extends Event> eventClass : supportedEvents) {
-				for (Class<? extends Event> event : eventInfo.events) {
-					if (event.isAssignableFrom(eventClass)) {
-						names.add("the %s event".formatted(eventInfo.getName().toLowerCase()));
-					}
-				}
-			}
-		}
-
-		return StringUtils.join(names, ", ", " or ");
-	}
-
-	/**
-	 * Checks that {@code element} is an {@link ExperimentalSyntax} and, if so, ensures that its requirements are satisfied by the current {@link ExperimentSet}.
-	 * @param element The {@link SyntaxElement} to check.
-	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
-	 */
-	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
-		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
-			return true;
-		ExperimentSet experiments = getParser().getExperimentSet();
-		return experimentalSyntax.isSatisfiedBy(experiments);
-	}
-
-	/**
-	 * Returns the {@link DefaultExpression} from the first {@link ClassInfo} stored in {@code exprInfo}.
-	 *
-	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}.
-	 * @param pattern The pattern used to create {@link ExprInfo}.
-	 * @return {@link DefaultExpression}.
-	 * @throws SkriptAPIException If the {@link DefaultExpression} is not valid, produces an error message for the reasoning of failure.
-	 */
-	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
-		DefaultValueData data = getParser().getData(DefaultValueData.class);
-		ClassInfo<?> classInfo = exprInfo.classes[0];
-		DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
-		if (expr == null)
-			expr = classInfo.getDefaultExpression();
-
-		DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, 0);
-		if (errorType == null) {
-			assert expr != null;
-			return expr;
-		}
-
-		throw new SkriptAPIException(errorType.getError(List.of(classInfo.getCodeName()), pattern));
-	}
-
-	/**
-	 * Returns all {@link DefaultExpression}s from all the {@link ClassInfo}s embedded in {@code exprInfo} that are valid.
-	 *
-	 * @param exprInfo The {@link ExprInfo} to check for {@link DefaultExpression}s.
-	 * @param pattern The pattern used to create {@link ExprInfo}.
-	 * @return All available {@link DefaultExpression}s.
-	 * @throws SkriptAPIException If no {@link DefaultExpression}s are valid, produces an error message for the reasoning of failure.
-	 */
-	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(ExprInfo exprInfo, String pattern) {
-		if (exprInfo.classes.length == 1)
-			return new ArrayList<>(List.of(getDefaultExpression(exprInfo, pattern)));
-
-		DefaultValueData data = getParser().getData(DefaultValueData.class);
-
-		EnumMap<DefaultExpressionError, List<String>> failed = new EnumMap<>(DefaultExpressionError.class);
-		List<DefaultExpression<?>> passed = new ArrayList<>();
-		for (int i = 0; i < exprInfo.classes.length; i++) {
-			ClassInfo<?> classInfo = exprInfo.classes[i];
-			DefaultExpression<?> expr = data.getDefaultValue(classInfo.getC());
-			if (expr == null)
-				expr = classInfo.getDefaultExpression();
-
-			String codeName = classInfo.getCodeName();
-			DefaultExpressionError errorType = DefaultExpressionUtils.isValid(expr, exprInfo, i);
-
-			if (errorType != null) {
-				failed.computeIfAbsent(errorType, list -> new ArrayList<>()).add(codeName);
-			} else {
-				passed.add(expr);
-			}
-		}
-
-		if (!passed.isEmpty())
-			return passed;
-
-		List<String> errors = new ArrayList<>();
-		for (Entry<DefaultExpressionError, List<String>> entry : failed.entrySet()) {
-			String error = entry.getKey().getError(entry.getValue(), pattern);
-			errors.add(error);
-		}
-		throw new SkriptAPIException(StringUtils.join(errors, "\n"));
+		return newParser.parse(source);
 	}
 
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+\\}", Pattern.CASE_INSENSITIVE);
@@ -446,7 +234,7 @@ public final class SkriptParser {
 			Skript.error("Pretty quotes are not allowed, change to regular quotes (\")");
 			return null;
 		}
-		if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
+		if (expr.startsWith("\"") && expr.length() != 1 && StringUtils.nextQuote(expr, 1) == expr.length() - 1) {
 			return VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 		} else {
 			var iterator = new CheckedIterator<>(Skript.instance().syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION).iterator(), info -> {
@@ -1410,83 +1198,6 @@ public final class SkriptParser {
 	}
 
 	/**
-	 * Gets the next occurrence of a character in a string that is not escaped with a preceding backslash.
-	 *
-	 * @param pattern The string to search in
-	 * @param character The character to search for
-	 * @param from The index to start searching from
-	 * @return The next index where the character occurs unescaped or -1 if it doesn't occur.
-	 */
-	private static int nextUnescaped(String pattern, char character, int from) {
-		for (int i = from; i < pattern.length(); i++) {
-			if (pattern.charAt(i) == '\\') {
-				i++;
-			} else if (pattern.charAt(i) == character) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * Counts how often the given character occurs in the given string, ignoring any escaped occurrences of the character.
-	 *
-	 * @param haystack The string to search in
-	 * @param needle The character to search for
-	 * @return The number of unescaped occurrences of the given character
-	 */
-	static int countUnescaped(String haystack, char needle) {
-		return countUnescaped(haystack, needle, 0, haystack.length());
-	}
-
-	/**
-	 * Counts how often the given character occurs between the given indices in the given string,
-	 * ignoring any escaped occurrences of the character.
-	 *
-	 * @param haystack The string to search in
-	 * @param needle The character to search for
-	 * @param start The index to start searching from (inclusive)
-	 * @param end The index to stop searching at (exclusive)
-	 * @return The number of unescaped occurrences of the given character
-	 */
-	static int countUnescaped(String haystack, char needle, int start, int end) {
-		assert start >= 0 && start <= end && end <= haystack.length() : start + ", " + end + "; " + haystack.length();
-		int count = 0;
-		for (int i = start; i < end; i++) {
-			char character = haystack.charAt(i);
-			if (character == '\\') {
-				i++;
-			} else if (character == needle) {
-				count++;
-			}
-		}
-		return count;
-	}
-
-	/**
-	 * Find the next unescaped (i.e. single) double quote in the string.
-	 *
-	 * @param string The string to search in
-	 * @param start Index after the starting quote
-	 * @return Index of the end quote
-	 */
-	private static int nextQuote(String string, int start) {
-		boolean inExpression = false;
-		int length = string.length();
-		for (int i = start; i < length; i++) {
-			char character = string.charAt(i);
-			if (character == '"' && !inExpression) {
-				if (i == length - 1 || string.charAt(i + 1) != '"')
-					return i;
-				i++;
-			} else if (character == '%') {
-				inExpression = !inExpression;
-			}
-		}
-		return -1;
-	}
-
-	/**
 	 * @param types The types to include in the message
 	 * @return "not an x" or "neither an x, a y nor a z"
 	 */
@@ -1566,7 +1277,7 @@ public final class SkriptParser {
 		int index;
 		switch (expr.charAt(startIndex)) {
 			case '"':
-				index = nextQuote(expr, startIndex + 1);
+				index = StringUtils.nextQuote(expr, startIndex + 1);
 				return index < 0 ? -1 : index + 1;
 			case '{':
 				index = VariableString.nextVariableBracket(expr, startIndex + 1);
@@ -1624,7 +1335,7 @@ public final class SkriptParser {
 
 			switch (character) {
 				case '"':
-					startIndex = nextQuote(haystack, startIndex + 1);
+					startIndex = StringUtils.nextQuote(haystack, startIndex + 1);
 					if (startIndex < 0)
 						return -1;
 					break;

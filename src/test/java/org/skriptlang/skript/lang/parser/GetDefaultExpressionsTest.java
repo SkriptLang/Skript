@@ -1,4 +1,4 @@
-package ch.njol.skript.lang;
+package org.skriptlang.skript.lang.parser;
 
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static ch.njol.skript.lang.SkriptParser.getDefaultExpressions;
+import static org.skriptlang.skript.lang.parser.SyntaxParserImpl.getDefaultExpressions;
 
 public class GetDefaultExpressionsTest extends SkriptJUnitTest {
 
