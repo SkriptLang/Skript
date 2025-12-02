@@ -10,11 +10,12 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ClassInfoReference;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
 
 @Name("Value Within")
 @Description(
@@ -82,13 +83,28 @@ public class ExprValueWithin extends WrapperExpression<Object> implements KeyPro
 	}
 
 	@Override
+	public @NotNull String @NotNull [] getAllKeys(Event event) {
+		if (!returnsKeys)
+			throw new IllegalStateException();
+		return ((KeyProviderExpression<?>) getExpr()).getAllKeys(event);
+	}
+
+	@Override
+	public Iterator<KeyedValue<Object>> keyedIterator(Event event) {
+		if (!returnsKeys)
+			throw new IllegalStateException();
+		//noinspection unchecked
+		return ((KeyProviderExpression<Object>) getExpr()).keyedIterator(event);
+	}
+
+	@Override
 	public boolean canReturnKeys() {
 		return returnsKeys;
 	}
 
 	@Override
 	public boolean areKeysRecommended() {
-		return false;
+		return KeyProviderExpression.areKeysRecommended(getExpr());
 	}
 
 	@Override
@@ -105,6 +121,13 @@ public class ExprValueWithin extends WrapperExpression<Object> implements KeyPro
 		if (changer == null)
 			throw new UnsupportedOperationException();
 		changer.change(getArray(event), delta, mode);
+	}
+
+	@Override
+	public boolean isIndexLoop(String input) {
+		if (!returnsKeys)
+			throw new IllegalStateException();
+		return ((KeyProviderExpression<?>) getExpr()).isIndexLoop(input);
 	}
 
 	@Override

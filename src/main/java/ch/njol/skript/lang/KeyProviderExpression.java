@@ -27,6 +27,7 @@ import java.util.Iterator;
  *     {@link #getAllKeys(Event)}.</li>
  *     <li>{@link #getArrayKeys(Event)} might be called after the corresponding {@link #getArray(Event)}</li>
  *     <li>{@link #getAllKeys(Event)} might be called after the corresponding {@link #getAll(Event)}</li>
+ *     <li>{@link #isLoopOf(String)} should be overridden to return {@code KeyProviderExpression.super.isLoopOf(input) || ...}</li>
  * </ul>
  * <br/>
  * <h2>Advice on Caching</h2>
@@ -162,7 +163,6 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	default boolean isLoopOf(String input) {
 		return canReturnKeys() && isIndexLoop(input);
 	}
-
 
 	/**
 	 * Checks whether the 'loop-...' expression should match this loop's index,

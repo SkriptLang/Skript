@@ -2,7 +2,6 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
@@ -98,26 +97,9 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 			Parameter<?> parameter = parameters[i];
 			Object[] parameterValue = parameter.hasModifier(Modifier.KEYED) ? convertToKeyed(parameterValues[i]) : parameterValues[i];
 
-			// see https://github.com/SkriptLang/Skript/pull/8135
-			if ((parameterValues[i] == null || parameterValues[i].length == 0)
-				&& parameter.keyed
-				&& parameter.def != null
-			) {
-				Object[] defaultValue = parameter.def.getArray(event);
-				if (defaultValue.length == 1) {
-					parameterValue = KeyedValue.zip(defaultValue, null);
-				} else {
-					parameterValue = defaultValue;
-				}
-			} else if (!(this instanceof DefaultFunction<?>) && parameterValue == null) { // Go for default value
+			if (parameterValue == null && !(this instanceof DefaultFunction<?>)) { // Go for default value
 				assert parameter.def != null; // Should've been parse error
-				Object[] defaultValue = parameter.def.getArray(event);
-				if (parameter.hasModifier(Modifier.KEYED) && KeyProviderExpression.areKeysRecommended(parameter.def)) {
-					String[] keys = ((KeyProviderExpression<?>) parameter.def).getArrayKeys(event);
-					parameterValue = KeyedValue.zip(defaultValue, keys);
-				} else {
-					parameterValue = defaultValue;
-				}
+				parameterValue = parameter.evaluateDefault(event);
 			}
 
 			/*
@@ -145,7 +127,10 @@ public abstract class Function<T> implements org.skriptlang.skript.common.functi
 	}
 
 	private KeyedValue<Object> @Nullable [] convertToKeyed(Object[] values) {
-		if (values == null || values.length == 0)
+		if (values == null)
+			return null;
+
+		if (values.length == 0)
 			//noinspection unchecked
 			return new KeyedValue[0];
 
