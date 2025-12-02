@@ -1616,6 +1616,9 @@ entities:
 	animal:
 		name: animal¦s
 		pattern: animal[plural:s]
+	tameable:
+		name: tameable creature¦s
+		pattern: tameable creature[1¦s]
 	fish:
 		name: fish¦es
 		pattern: fish[plural:es]
@@ -2756,6 +2759,337 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Game Effects --
+# all patterns should include the word 'effect'
+game effect:
+	click1: dispenser click sound effect
+	click2: menu click sound effect, gui click sound effect
+	bow_fire: fire bow sound effect, shoot bow sound effect
+	extinguish: extinguish fire sound effect, extinguish sound effect
+	ghast_shriek: ghast shriek sound effect
+	ghast_shoot: ghast shoot sound effect
+	blaze_shoot: blaze shoot sound effect
+	zombie_chew_wooden_door: zombie chewing on wooden door sound effect, zombie attacking wooden door sound effect
+	zombie_chew_iron_door: zombie chewing on iron door sound effect, zombie attacking iron door sound effect
+	zombie_destroy_door: zombie destroy door sound effect, zombie destroying door sound effect
+	ender_signal: ender eye break effect, eye of ender break effect
+	mobspawner_flames: mob spawner flames effect, spawner flames effect
+	brewing_stand_brew: brewing sound effect
+	chorus_flower_grow: chorus flower growing sound effect
+	chorus_flower_death: chorus flower death sound effect
+	portal_travel: nether portal travel sound effect
+	endereye_launch: ender eye launch sound effect, eye of ender launch sound effect
+	firework_shoot: dispenser shoot sound effect
+	dragon_breath: dragon breath effect, dragon's breath effect
+	anvil_break: break anvil sound effect
+	anvil_use: use anvil sound effect
+	anvil_land: anvil land sound effect
+	enderdragon_shoot: ender dragon shoot sound effect, dragon shoot sound effect
+	enderdragon_growl: ender dragon growl sound effect, dragon growl sound effect
+	wither_break_block: wither breaking block sound effect
+	wither_shoot: wither shoot sound effect
+	zombie_infect: zombie infection sound effect
+	zombie_converted_villager: zombie converting villager sound effect
+	zombie_converted_to_drowned: zombie converting to drowned sound effect
+	zombie_converts_to_drowned: zombie converting to drowned sound effect
+	husk_converted_to_zombie: husk converting to zombie sound effect
+	husk_converts_to_zombie: husk converting to zombie sound effect
+	skeleton_converted_to_stray: skeleton converting to stray sound effect
+	bat_takeoff: bat take off sound effect
+	end_gateway_spawn: end gateway spawn effect
+	phantom_bite: phantom bite sound effect
+	phantom_bites: phantom bites sound effect
+	grindstone_use: use grindstone sound effect
+	grindstone_used: used grindstone sound effect
+	book_page_turn: turn page sound effect
+	book_page_turned: turned page sound effect
+	smithing_table_use: use smithing table sound effect
+	pointed_dripstone_drip_lava_into_cauldron: lava dripping into cauldron sound effect
+	pointed_dripstone_drip_water_into_cauldron: water dripping into cauldron sound effect
+	dripping_dripstone: water dripping sound effect, lava dripping sound effect
+	lava_interact: lava interaction effect
+	lava_converts_block: lava converts block effect
+	redstone_torch_burnout: redstone torch burnout effect
+	redstone_torch_burns_out: redstone torch burns out effect
+	end_portal_frame_fill: fill end portal frame effect
+	ender_eye_placed: ender eye placed effect, eye of ender placed effect
+	ender_dragon_destroy_block: ender dragon breaking block effect, dragon breaking block effect
+	ender_dragon_destroys_block: ender dragon destroys block effect, dragon destroys block effect
+	sponge_dry: sponge dry out effect
+	copper_wax_on: apply wax effect
+	copper_wax_off: remove wax effect
+	oxidised_copper_scrape: scrape oxidised copper effect
+	wither_spawned: spawn wither sound effect
+	ender_dragon_death: ender dragon death sound effect, dragon death sound effect
+	end_portal_created_in_overworld: complete end portal sound effect, create end portal sound effect
+	composter_composts: composter compost effect
+	pointed_dripstone_land: pointed dripstone land effect
+	sound_stop_jukebox_song: stop jukebox song sound effect
+	crafter_craft: crafter craft sound effect
+	crafter_fail: crafter fail sound effect
+	particles_egg_crack: egg crack effect
+	gust_dust: gust dust effect
+	trial_spawner_eject_item: trial spawner eject item effect
+	vault_eject_item: vault eject item effect
+	spawn_cobweb: spawn cobweb effect
+	sound_with_charge_shot: charge shot sound effect
+
+	 # these effects are deprecated in 1.19, they do nothing.
+	 # their respective Sounds should be used instead.
+	door_toggle: toggle door sound effect
+	iron_door_toggle: toggle iron door sound effect
+	trapdoor_toggle: toggle trapdoor sound effect
+	iron_trapdoor_toggle: toggle iron trapdoor sound effect
+	fence_gate_toggle: toggle fence gate sound effect
+	door_close: close door sound effect
+	iron_door_close: close iron door sound effect
+	trapdoor_close: close trapdoor sound effect
+	iron_trapdoor_close: close iron trapdoor sound effect
+	fence_gate_close: close fence gate sound effect
+
+	# these effects require data and can't be parsed directly, but exist here in case skript needs a proper name.
+	record_play: play record effect
+	smoke: dispenser black smoke effect
+	step_sound: footstep sound effect
+	potion_break: splash potion break effect
+	instant_potion_break: instant splash potion break effect
+	villager_plant_grow: villager grow plant effect
+	composter_fill_attempt: composting fill effect
+	bone_meal_use: bone meal use effect
+	electric_spark: electric spark effect
+	shoot_white_smoke: dispenser white smoke effect
+	bee_growth: bee grow plant effect
+	turtle_egg_placement: place turtle egg effect
+	smash_attack: mace smash attack effect
+	particles_sculk_charge: sculk charge effect
+	particles_sculk_shriek: sculk shriek effect
+	particles_and_sound_brush_block_complete: brush block effect
+	trial_spawner_spawn: trial spawner spawn effect
+	trial_spawner_spawn_mob_at: trial spawner spawn mob effect
+	trial_spawner_detect_player: trial spawner detect player effect
+	vault_activate: vault activate effect
+	vault_deactivate: vault deactivate effect
+	trial_spawner_detect_player_ominous: ominous trial spawner detect player effect
+	trial_spawner_become_ominous: trial spawner become ominous effect
+	trial_spawner_spawn_item: trial spawner spawn item effect
+
+# -- Entity Effects --
+# all patterns should include the word 'effect' or 'animation'
+# 'effect' should be used for particles, 'sound effect' for sounds, 'animation' for model animations
+entity effect:
+	arrow_particles: tipped arrow particles effect
+	rabbit_jump: rabbit jump animation
+	reset_spawner_minecart_delay: reset spawner minecart delay effect
+
+	# death was superseded by entity_death 1.12.2
+	death: death animation
+	entity_death: death animation
+
+	egg_break: egg break effect
+	snowball_break: snowball break effect
+	projectile_crack: projectile crack effect
+	fang_attack: evoker fang attack animation
+	hoglin_attack: hoglin attack animation
+	iron_golen_attack: iron golem attack animation
+	ravager_attack: ravager attack animation
+	ravager_roared: ravager roared effect
+	warden_attack: warden attack animation
+	zoglin_attack: zoglin attack animation
+	entity_attack: entity attack animation
+
+	# wolf effects superseded by taming effects 1.21
+	wolf_smoke: taming failed effect
+	wolf_hearts: taming succeeded effect
+	taming_failed: taming failed effect
+	taming_succeeded: taming succeeded effect
+
+	trusting_failed: ocelot distrust effect
+	trusting_succeeded: ocelot trust effect
+	wolf_shake: wolf shake animation
+	wolf_shake_stop: stop wolf shake animation
+	tnt_minecart_ignite: ignite tnt minecart animation
+	iron_golem_rose: iron golem rose animation
+	iron_golem_sheath: iron golem sheath animation
+	villager_heart: villager heart effect
+	villager_angry: villager angry effect
+	villager_happy: villager happy effect
+	witch_magic: witch magic effect
+	zombie_transform: zombie transform sound effect
+	firework_explode: firework explode animation
+	love_hearts: love hearts effect
+	squid_rotate: squid rotation reset
+	entity_poof: entity poof effect
+	shield_block: shield block sound effect
+	shield_break: shield break sound effect
+	armor_stand_hit: armor stand hit effect
+	dolphin_fed: fed dolphin effect
+	ravager_stunned: stunned ravager effect
+	villager_splash: villager sweat effect
+	player_bad_omen_raid: player bad omen raid effect # pre 1.20.5
+	fox_chew: fox chew effect
+	teleport_ender: ender teleport effect
+	break_equipment_main_hand: break main hand effect
+	break_equipment_off_hand: break off hand effect
+	break_equipment_helmet: break helmet effect
+	break_equipment_chestplate: break chestplate effect
+	break_equipment_leggings: break leggings effect
+	break_equipment_boots: break boots effect
+	break_equipment_saddle: break saddle effect
+	body_break: break body armor effect, break body armour effect
+	break_equipment_body: break body armor effect, break body armour effect
+	honey_block_slide_particles: honey block slide effect
+	honey_block_fall_particles: honey block fall effect
+	swap_hand_items: swap hands effect # this actually makes players swap hands
+	goat_lower_head: goat lowering head animation
+	goat_raise_head: goat raising head animation
+	spawn_death_smoke: spawn in smoke effect
+	warden_tendril_shake: warden tendril shake animation
+	warden_sonic_attack: warden sonic attack animation
+	sniffer_dig: sniffer dig sound effect # only if the sniffer is already in search/dig state
+	armadillo_peek: armadillo peek animation
+	shake: creaking shake animation
+	
+	
+	hurt_drown: drown damage effect
+	drown_particles: drowning damage effect
+
+	# sheep eat superseded by sheep eat grass 1.12.2
+	sheep_eat: sheep eating grass animation
+	sheep_eat_grass: sheep eating grass animation
+
+	# identical
+	totem_resurrect: protected from death effect
+	protected_from_death: protected from death effect
+
+	# non-functional
+	guardian_target: guardian target sound effect (non-functional)
+	thorns_hurt: thorns hurt effect (non-functional)
+	hurt: damage animation (non-functional)
+	hurt_explosion: explosion damage effect (non-functional)
+	hurt_berry_bush: hurt berry bush effect (non-functional)
+	cat_tame_fail: cat tame fail effect (non-functional)
+	cat_tame_success: cat tame success effect (non-functional)
+
+# -- Particle Effects --
+# all patterns should include the word 'particle'
+particle:
+	angry_villager: angry villager particle
+	ash: ash particle
+	block: block particle
+	block_crumble: block crumble particle
+	block_marker: block marker particle
+	bubble: bubble particle
+	bubble_column_up: bubble column particle
+	bubble_pop: bubble pop particle
+	campfire_cosy_smoke: campfire cosy smoke particle
+	campfire_signal_smoke: campfire signal smoke particle
+	cherry_leaves: cherry leaves particle
+	cloud: cloud particle
+	composter: composter particle
+	copper_fire_flame: copper flame particle
+	crimson_spore: crimson spore particle
+	crit: crit particle
+	current_down: downward current particle
+	damage_indicator: damage indicator particle
+	dolphin: dolphin particle
+	dragon_breath: dragon breath particle
+	dripping_dripstone_lava: dripstone dripping lava particle
+	dripping_dripstone_water: dripstone dripping water particle
+	dripping_honey: dripping honey particle
+	dripping_lava: dripping lava particle
+	dripping_obsidian_tear: dripping obsidian tear particle
+	dripping_water: dripping water particle
+	dust: dust particle
+	dust_color_transition: dust color transition particle
+	dust_pillar: dust pillar particle
+	dust_plume: dust plume particle
+	effect: potion effect particle
+	egg_crack: egg crack particle
+	elder_guardian: elder guardian particle
+	electric_spark: electric spark particle
+	enchant: enchanting particle
+	enchanted_hit: enchanted hit particle
+	end_rod: end rod particle
+	entity_effect: entity effect particle
+	explosion: explosion particle
+	explosion_emitter: explosion emitter particle
+	falling_dripstone_lava: falling dripstone lava particle
+	falling_dripstone_water: falling dripstone water particle
+	falling_dust: falling dust particle
+	falling_honey: falling honey particle
+	falling_lava: falling lava particle
+	falling_nectar: falling nectar particle
+	falling_obsidian_tear: falling obsidian tear particle
+	falling_spore_blossom: falling spore blossom particle
+	falling_water: falling water particle
+	firefly: firefly particle
+	firework: firework particle
+	fishing: fishing particle
+	flame: flame particle
+	flash: flash particle
+	glow: glow particle
+	glow_squid_ink: glow squid ink particle
+	gust: gust particle
+	gust_emitter_large: large gust emitter particle
+	gust_emitter_small: small gust emitter particle
+	happy_villager: happy villager particle
+	heart: heart particle
+	infested: infested particle
+	instant_effect: instant effect particle
+	item: item particle
+	item_cobweb: cobweb item particle
+	item_slime: slime item particle
+	item_snowball: snowball item particle
+	landing_honey: landing honey particle
+	landing_lava: landing lava particle
+	landing_obsidian_tear: landing obsidian tear particle
+	large_smoke: large smoke particle
+	lava: lava particle
+	mycelium: mycelium particle
+	nautilus: nautilus particle
+	note: note particle
+	ominous_spawning: ominous spawning particle
+	pale_oak_leaves: pale oak leaves particle
+	poof: poof particle
+	portal: portal particle
+	raid_omen: raid omen particle
+	rain: rain particle
+	reverse_portal: reverse portal particle
+	scrape: scrape particle
+	sculk_charge: sculk charge particle
+	sculk_charge_pop: sculk charge pop particle
+	sculk_soul: sculk soul particle
+	shriek: shriek particle
+	small_flame: small flame particle
+	small_gust: small gust particle
+	smoke: smoke particle
+	sneeze: sneeze particle
+	snowflake: snowflake particle
+	sonic_boom: sonic boom particle
+	soul: soul particle
+	soul_fire_flame: soul fire flame particle
+	spit: spit particle
+	splash: splash particle
+	spore_blossom_air: spore blossom air particle
+	squid_ink: squid ink particle
+	sweep_attack: sweep attack particle
+	tinted_leaves: tinted leaves particle
+	totem_of_undying: totem of undying particle
+	trail: trail particle
+	trial_omen: trial omen particle
+	trial_spawner_detection: trial spawner detection particle
+	trial_spawner_detection_ominous: ominous trial spawner detection particle
+	underwater: underwater particle
+	vault_connection: vault connection particle
+	vibration: vibration particle
+	warped_spore: warped spore particle
+	wax_off: wax off particle
+	wax_on: wax on particle
+	white_ash: white ash particle
+	white_smoke: white smoke particle
+	witch: witch particle
+
+
 # -- Teleport Flags --
 teleport flags:
 	retain_open_inventory: opened inventory, open inventory, inventory
@@ -3133,6 +3467,13 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	nameable: nameable thing¦s @a
+	gameeffect: game effect¦s @a
+	entityeffect: entity effect¦s @a
+	particle: particle effect¦s @a
+	convergingparticle: converging particle¦s @a
+	directionalparticle: directional particle¦s @a
+	scalableparticle: scalable particle¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

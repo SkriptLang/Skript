@@ -20,7 +20,7 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 	private final Class<E> enumClass;
 	private final String languageNode;
 	private String[] names;
-	private final Map<String, E> parseMap = new HashMap<>();
+	protected final Map<String, E> parseMap = new HashMap<>();
 	private String[] patterns;
 
 	/**

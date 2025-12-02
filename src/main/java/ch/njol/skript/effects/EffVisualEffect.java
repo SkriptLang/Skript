@@ -28,9 +28,9 @@ import ch.njol.util.Kleenean;
 public class EffVisualEffect extends Effect {
 
 	static {
-		Skript.registerEffect(EffVisualEffect.class,
-			"(play|show) %visualeffects% (on|%directions%) %entities/locations% [(to %-players%|in (radius|range) of %-number%)]",
-			"(play|show) %number% %visualeffects% (on|%directions%) %entities/locations% [(to %-players%|in (radius|range) of %-number%)]");
+//		Skript.registerEffect(EffVisualEffect.class,
+//			"(play|show) %visualeffects% (on|%directions%) %entities/locations% [(to %-players%|in (radius|range) of %-number%)]",
+//			"(play|show) %number% %visualeffects% (on|%directions%) %entities/locations% [(to %-players%|in (radius|range) of %-number%)]");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
