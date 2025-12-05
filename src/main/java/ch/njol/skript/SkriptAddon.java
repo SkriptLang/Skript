@@ -1,22 +1,23 @@
 package ch.njol.skript;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
-
+import ch.njol.skript.examples.ExampleScript;
+import ch.njol.skript.examples.ExampleScriptManager;
+import ch.njol.skript.examples.ExampleScriptProvider;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility class for Skript addons. Use {@link Skript#registerAddon(JavaPlugin)} to create a SkriptAddon instance for your plugin.
@@ -92,6 +93,43 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	public String getLanguageFileDirectory() {
 		return localizer().languageFileDirectory();
 	}
+
+	/**
+	 * Registers example scripts with Skript for this addon.
+	 *
+	 * @param scripts Example scripts to install
+	 * @throws IOException If an I/O error occurs while installing the scripts
+	 */
+	public void registerExampleScripts(ExampleScript... scripts) throws IOException {
+		ExampleScriptManager manager = Skript.getExampleManager();
+		if (manager == null)
+			throw new IllegalStateException("Example script manager is not initialized");
+
+		manager.installExamples(
+			plugin.getName(),
+			Arrays.asList(scripts),
+			Skript.getInstance().getScriptsFolder()
+		);
+	}
+
+	/**
+	 * Registers example scripts with Skript for this addon using a provider.
+	 *
+	 * @param provider Provider that supplies example scripts to install
+	 * @throws IOException If an I/O error occurs while installing the scripts
+	 */
+	public void registerExampleScripts(ExampleScriptProvider provider) throws IOException {
+		ExampleScriptManager manager = Skript.getExampleManager();
+		if (manager == null)
+			throw new IllegalStateException("Example script manager is not initialized");
+
+		manager.installExamples(
+			plugin.getName(),
+			provider,
+			Skript.getInstance().getScriptsFolder()
+		);
+	}
+
 
 	@Nullable
 	private File file;
