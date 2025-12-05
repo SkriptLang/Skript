@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -30,6 +31,8 @@ import org.skriptlang.skript.lang.properties.PropertyRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxOrigin.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.File;
@@ -179,6 +182,9 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("returns", getExpressionReturnTypes(expression));
 		}
 
+		syntaxJsonObject.add("categories", getCategoriesArray(syntaxInfo.origin(), name.value(),
+				description == null ? null : List.of(description.value()), syntaxInfo.patterns()));
+
 		return syntaxJsonObject;
 	}
 
@@ -240,7 +246,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.requiredPlugins().toArray(new String[0])));
 		syntaxJsonObject.add("examples", convertToJsonArray(info.examples().toArray(new String[0])));
 		syntaxJsonObject.add("eventValues", getEventValues(info));
-		syntaxJsonObject.add("keywords", convertToJsonArray(info.keywords().toArray(new String[0])));
+		syntaxJsonObject.add("categories", getCategoriesArray(info.origin(), info.name(), info.description(), info.patterns()));
 
 		return syntaxJsonObject;
 	}
@@ -386,6 +392,9 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
+		syntaxJsonObject.add("categories", getCategoriesArray(null,
+				Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()),
+				List.of(classInfo.getDescription()), null));
 
 		syntaxJsonObject.add("properties", getClassInfoProperties(classInfo));
 
@@ -528,6 +537,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
+		functionJsonObject.add("categories", getCategoriesArray(null, function.getName(), List.of(function.getDescription()), null));
 		return functionJsonObject;
 	}
 
@@ -577,6 +587,91 @@ public class JSONGenerator extends DocumentationGenerator {
 			strings[i] = Documentation.cleanPatterns(strings[i], false, false);
 		}
 		return convertToJsonArray(strings);
+	}
+
+	/**
+	 * Returns the category name of an element given its origin, name, description and patterns.
+	 *
+	 * <p>Attempts to find a category by using pattern first.
+	 * If this has no results, then it will use the name and description.
+	 * </p>
+	 *
+	 * @param origin The origin of this element.
+	 * @param name The name of this element.
+	 * @param description The description of this element.
+	 * @param patterns The patterns of this element.
+	 * @return The category name, or null if none is found.
+	 */
+	private static @Nullable JsonArray getCategoriesArray(
+			@Nullable SyntaxOrigin origin, @NotNull String name,
+			@Nullable Collection<String> description, @Nullable Collection<String> patterns
+	) {
+		JsonArray categories = new JsonArray();
+		if (origin instanceof ModuleOrigin elementOrigin) {
+			Class<?> moduleClass = elementOrigin.module().getClass();
+			for (Category category : Category.values()) {
+				if (category.modules().contains(moduleClass)) {
+					categories.add(getCategoryJson(category));
+				}
+			}
+			return categories;
+		}
+
+		if (patterns == null) patterns = List.of();
+		JsonArray first = getCategories(String.join("", patterns));
+		if (!first.isEmpty()) {
+			return first;
+		}
+		if (description == null) description = List.of();
+
+		JsonArray second = getCategories(name + String.join("", description) + String.join("", patterns));
+		if (!second.isEmpty()) {
+			return second;
+		}
+		return null;
+	}
+
+	/**
+	 * Attempts to find the categories based on the input.
+	 *
+	 * @param input The input.
+	 * @return The categories, or null if none are found.
+	 */
+	private static @NotNull JsonArray getCategories(@NotNull String input) {
+		String lower = input.toLowerCase();
+		JsonArray options = new JsonArray();
+		for (Category category : Category.values()) {
+			if (!(category instanceof CategoryImpl impl)) {
+				break;
+			}
+
+			for (String keyword : impl.keywords()) {
+				if (lower.contains(keyword)) {
+					options.add(getCategoryJson(category));
+					break;
+				}
+			}
+		}
+
+		return options;
+	}
+
+	/**
+	 * Transforms a category into a json object.
+	 * @param category The category.
+	 * @return The transformed category.
+	 */
+	private static JsonObject getCategoryJson(@NotNull Category category) {
+		JsonObject object = new JsonObject();
+
+		object.addProperty("name", category.name());
+		if (category.parent() != null) {
+			object.addProperty("parent", category.parent().name());
+		} else {
+			object.add("parent", null);
+		}
+
+		return object;
 	}
 
 	/**

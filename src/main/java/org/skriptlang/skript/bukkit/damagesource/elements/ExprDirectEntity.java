@@ -9,11 +9,14 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 @Name("Damage Source - Direct Entity")
 @Description({
@@ -35,11 +38,12 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprDirectEntity.class, Entity.class, "direct entity", "damagesources");
+	public static SyntaxInfo.Expression<ExprDirectEntity, Entity> info() {
+		return infoBuilder(ExprDirectEntity.class, Entity.class, "direct entity", "damagesources", true)
+				.supplier(ExprDirectEntity::new)
+				.build();
 	}
 
 	private boolean isEvent;
