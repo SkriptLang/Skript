@@ -1,0 +1,28 @@
+test "armour stand behaviour":
+	parse if method "org.bukkit.entity.ArmorStand#canTick()" exists:
+		spawn an armor stand at (spawn of world "world")
+		set {_e} to last spawned armor stand
+
+		assert {_e} is able to tick with "a normally spawned armour stand should be able to tick"
+		assert {_e} is able to move with "a normally spawned armour stand should be able to move"
+
+		prevent {_e} from being able to tick
+		prevent {_e} from being able to move
+		assert {_e} isn't able to tick with "preventing an armour stand from being able to tick should do exactly that"
+		assert {_e} isn't able to move with "preventing an armour stand from being able to move should do exactly that"
+
+		allow {_e} to tick
+		allow {_e} to move
+		assert {_e} is able to tick with "allowing an armour stand to tick should do exactly that"
+		assert {_e} is able to move with "allowing an armour stand to move should do exactly that"
+
+		allow {_} to tick
+		assert {_} is not able to tick with "invalid entity should not do anything"
+
+		spawn a zombie at (spawn of world "world")
+		set {_z} to last spawned zombie
+		allow {_z} to tick
+		assert {_z} is not able to tick with "modifying the behaviour of a non-armour stand should do nothing"
+
+		kill value within {_e}
+		kill value within {_z}
