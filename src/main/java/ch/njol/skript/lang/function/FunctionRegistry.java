@@ -4,16 +4,18 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.common.function.Parameter;
+import org.skriptlang.skript.common.function.Parameter.Modifier;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Registry;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +42,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * The pattern for a valid function name.
 	 * Functions must start with a letter or underscore and can only contain letters, numbers, and underscores.
 	 */
-	final static String FUNCTION_NAME_PATTERN = "[\\p{IsAlphabetic}_][\\p{IsAlphabetic}\\d_]*";
+	final static Pattern FUNCTION_NAME_PATTERN = Pattern.compile("[A-z_][A-z_0-9]*");
 
 	/**
 	 * The namespace for registered global functions.
@@ -148,7 +150,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		Skript.debug("Registering function '%s'", function.getName());
 
 		String name = function.getName();
-		if (!name.matches(FUNCTION_NAME_PATTERN)) {
+		if (!FUNCTION_NAME_PATTERN.matcher(name).matches()) {
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
 		}
 
@@ -212,7 +214,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * The result of attempting to retrieve a function.
 	 * Depending on the type, a {@link Retrieval} will feature different data.
 	 */
-	enum RetrievalResult {
+	public enum RetrievalResult {
 
 		/**
 		 * The specified function or signature has not been registered.
@@ -258,7 +260,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	 * @param retrieved       The function or signature that was found if {@code result} is {@code EXACT}.
 	 * @param conflictingArgs The conflicting arguments if {@code result} is {@code AMBIGUOUS}.
 	 */
-	record Retrieval<T>(
+	public record Retrieval<T>(
 		@NotNull RetrievalResult result,
 		T retrieved,
 		Class<?>[][] conflictingArgs
@@ -407,31 +409,24 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 	public @Unmodifiable @NotNull Set<Signature<?>> getSignatures(@Nullable String namespace, @NotNull String name) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 
-		ImmutableSet.Builder<Signature<?>> setBuilder = ImmutableSet.builder();
-
-		// obtain all global functions of "name"
-		Namespace globalNamespace = namespaces.get(GLOBAL_NAMESPACE);
-		Set<FunctionIdentifier> globalIdentifiers = globalNamespace.identifiers.get(name);
-		if (globalIdentifiers != null) {
-			for (FunctionIdentifier identifier : globalIdentifiers) {
-				setBuilder.add(globalNamespace.signatures.get(identifier));
-			}
-		}
+		Map<FunctionIdentifier, Signature<?>> total = new HashMap<>();
 
 		// obtain all local functions of "name"
 		if (namespace != null) {
-			Namespace localNamespace = namespaces.get(new NamespaceIdentifier(namespace));
-			if (localNamespace != null) {
-				Set<FunctionIdentifier> localIdentifiers = localNamespace.identifiers.get(name);
-				if (localIdentifiers != null) {
-					for (FunctionIdentifier identifier : localIdentifiers) {
-						setBuilder.add(localNamespace.signatures.get(identifier));
-					}
-				}
+			Namespace local = namespaces.getOrDefault(new NamespaceIdentifier(namespace), new Namespace());
+
+			for (FunctionIdentifier identifier : local.identifiers.getOrDefault(name, Collections.emptySet())) {
+				total.putIfAbsent(identifier, local.signatures.get(identifier));
 			}
 		}
 
-		return setBuilder.build();
+		// obtain all global functions of "name"
+		Namespace global = namespaces.getOrDefault(GLOBAL_NAMESPACE, new Namespace());
+		for (FunctionIdentifier identifier : global.identifiers.getOrDefault(name, Collections.emptySet())) {
+			total.putIfAbsent(identifier, global.signatures.get(identifier));
+		}
+
+		return Set.copyOf(total.values());
 	}
 
 	/**
@@ -505,12 +500,13 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 				&& candidate.args.length == 1
 				&& candidate.args[0].isArray()) {
 				// if a function has single list value param, check all types
-
 				// make sure all types in the passed array are valid for the array parameter
 				Class<?> arrayType = candidate.args[0].componentType();
 				for (Class<?> arrayArg : provided.args) {
-					if (arrayArg.isArray())
-						arrayArg = arrayArg.getComponentType();
+					if (arrayArg.isArray()) {
+						arrayArg = arrayArg.componentType();
+					}
+          
 					if (!Converters.converterExists(arrayArg, arrayType)) {
 						continue candidates;
 					}
@@ -529,6 +525,13 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			// if the types of the provided arguments do not match the candidate arguments, skip
 			for (int i = 0; i < provided.args.length; i++) {
 				// allows single passed values to still match array type in candidate (e.g. clamp)
+				Class<?> providedType;
+				if (provided.args[i].isArray()) {
+					providedType = provided.args[i].componentType();
+				} else {
+					providedType = provided.args[i];
+				}
+
 				Class<?> candidateType;
 				if (candidate.args[i].isArray()) {
 					candidateType = candidate.args[i].componentType();
@@ -542,7 +545,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 						continue candidates;
 					}
 				} else {
-					if (!Converters.converterExists(providedArg, candidateType)) {
+					if (!Converters.converterExists(providedType, candidateType)) {
 						continue candidates;
 					}
 				}
@@ -597,7 +600,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 
 		Namespace namespace;
 		if (signature.isLocal()) {
-			namespace = namespaces.get(new NamespaceIdentifier(signature.script));
+			namespace = namespaces.get(new NamespaceIdentifier(signature.namespace()));
 		} else {
 			namespace = namespaces.get(GLOBAL_NAMESPACE);
 		}
@@ -709,22 +712,17 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 		static FunctionIdentifier of(@NotNull Signature<?> signature) {
 			Preconditions.checkNotNull(signature, "signature cannot be null");
 
-			Parameter<?>[] signatureParams = signature.parameters;
+			Parameter<?>[] signatureParams = signature.parameters().values().toArray(new Parameter<?>[0]);
 			Class<?>[] parameters = new Class[signatureParams.length];
 
 			int optionalArgs = 0;
 			for (int i = 0; i < signatureParams.length; i++) {
 				Parameter<?> param = signatureParams[i];
-				if (param.isOptional()) {
+				if (param.modifiers().contains(Modifier.OPTIONAL)) {
 					optionalArgs++;
 				}
 
-				Class<?> type = param.type();
-				if (param.isSingleValue()) {
-					parameters[i] = type;
-				} else {
-					parameters[i] = type.arrayType();
-				}
+				parameters[i] = param.type();
 			}
 
 			return new FunctionIdentifier(signature.getName(), signature.isLocal(),
@@ -733,7 +731,7 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(name, local, Arrays.hashCode(args));
+			return Objects.hash(name, Arrays.hashCode(args));
 		}
 
 		@Override
@@ -747,10 +745,6 @@ public final class FunctionRegistry implements Registry<Function<?>> {
 			}
 
 			if (args.length != other.args.length) {
-				return false;
-			}
-
-			if (local != other.local) {
 				return false;
 			}
 

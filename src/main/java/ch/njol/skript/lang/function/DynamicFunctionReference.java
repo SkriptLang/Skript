@@ -10,6 +10,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
 import org.skriptlang.skript.util.Validated;
@@ -44,7 +45,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
+		@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
 		this.source = file != null ? ScriptLoader.getScript(file) : null;
 	}
 
@@ -69,7 +70,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
+			@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
 			this.source = file != null ? ScriptLoader.getScript(file) : null;
 		} else {
 			this.signature = null;
@@ -90,8 +91,8 @@ public class DynamicFunctionReference<Result>
 	public boolean isSingle(Expression<?>... arguments) {
 		if (!resolved)
 			return true;
-		return signature.contract != null
-				? signature.contract.isSingle(arguments)
+		return signature.getContract() != null
+				? signature.getContract().isSingle(arguments)
 				: signature.isSingle();
 	}
 
@@ -99,8 +100,8 @@ public class DynamicFunctionReference<Result>
 	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
 		if (!resolved)
 			return Object.class;
-		if (signature.contract != null)
-			return signature.contract.getReturnType(arguments);
+		if (signature.getContract() != null)
+			return signature.getContract().getReturnType(arguments);
 		Function<? extends Result> function = this.function.get();
 		if (function != null && function.getReturnType() != null)
 			return function.getReturnType().getC();
@@ -162,7 +163,7 @@ public class DynamicFunctionReference<Result>
 		this.checkedInputs.put(input, null); // failure case
 		if (signature == null)
 			return null;
-		boolean varArgs = signature.getMaxParameters() == 1 && !signature.getParameter(0).single;
+		boolean varArgs = signature.getMaxParameters() == 1 && !signature.parameters().firstEntry().getValue().single();
 		Expression<?>[] parameters = input.parameters();
 		// Too many parameters
 		if (parameters.length > signature.getMaxParameters() && !varArgs)
@@ -174,12 +175,19 @@ public class DynamicFunctionReference<Result>
 
 		// Check parameter types
 		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = signature.parameters[varArgs ? 0 : i];
-			//noinspection unchecked
-			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type());
+			Parameter<?> parameter = signature.parameters().values().toArray(new Parameter<?>[0])[varArgs ? 0 : i];
+
+			Class<?> target;
+			if (parameter.type().isArray()) {
+				target = parameter.type().componentType();
+			} else {
+				target = parameter.type();
+			}
+
+			Expression<?> expression = parameters[i].getConvertedExpression(target);
 			if (expression == null) {
 				return null;
-			} else if (parameter.single && !expression.isSingle()) {
+			} else if (parameter.single() && !expression.isSingle()) {
 				return null;
 			}
 			checked[i] = expression;

@@ -18,11 +18,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.ScriptParameter;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @deprecated Use {@link ScriptParameter}
+ * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
+ */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public final class Parameter<T> implements org.skriptlang.skript.common.function.Parameter<T> {
 
 	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
@@ -51,15 +57,14 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	 */
 	final boolean single;
 
+	private final Set<Modifier> modifiers;
+
 	/**
-	 * Whether this parameter takes in key-value pairs.
-	 * <br>
-	 * If this is true, a {@link ch.njol.skript.lang.KeyedValue} array containing key-value pairs will be passed to
-	 * {@link Function#execute(FunctionEvent, Object[][])} rather than a value-only object array.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
 	final boolean keyed;
-
-	private final Set<Modifier> modifiers;
 
 	/**
 	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
@@ -70,7 +75,9 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	}
 
 	/**
-	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
 	@Deprecated(since = "2.13", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed) {
@@ -90,7 +97,9 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	}
 
 	/**
-	 * @deprecated Use {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)} instead.
+	 * @deprecated Use {@link org.skriptlang.skript.common.function.Parameter}
+	 * or {@link DefaultFunction.Builder#parameter(String, Class, Modifier...)}
+	 * instead.
 	 */
 	@Deprecated(since = "2.13", forRemoval = true)
 	public Parameter(String name, ClassInfo<T> type, boolean single, @Nullable Expression<? extends T> def, boolean keyed, boolean optional) {
@@ -135,12 +144,17 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	}
 
 	/**
-	 * @return The type of this parameter as a {@link ClassInfo}.
+	 * @deprecated Use {@link #type()} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> getType() {
 		return type;
 	}
 
+	/**
+	 * @deprecated Use {@link ScriptParameter#parse(String, Class, String)}} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static <T> @Nullable Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
 		if (!Variable.isValidVariableName(name, true, false)) {
 			Skript.error("A parameter's name must be a valid variable name.");
@@ -177,11 +191,9 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	}
 
 	/**
-	 * Parses function parameters from a string. The string should look something like this:
-	 * <pre>"something: string, something else: number = 12"</pre>
-	 * @param args The string to parse.
-	 * @return The parsed parameters
+	 * @deprecated Use {@link ch.njol.skript.structures.StructFunction.FunctionParser#parse(String, String, String, String, boolean)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static @Nullable List<Parameter<?>> parse(String args) {
 		List<Parameter<?>> params = new ArrayList<>();
 		boolean caseInsensitive = SkriptConfig.caseInsensitiveVariables.value();
@@ -238,10 +250,6 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		return params;
 	}
 
-	/**
-	 * @deprecated Use {@link #name()} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "2.13")
 	public String getName() {
 		return name;
 	}
@@ -291,7 +299,12 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 
 	@Override
 	public @NotNull Class<T> type() {
-		return type.getC();
+		if (single) {
+			return type.getC();
+		} else {
+			//noinspection unchecked
+			return (Class<T>) type.getC().arrayType();
+		}
 	}
 
 	@Override
@@ -299,4 +312,8 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		return Collections.unmodifiableSet(modifiers);
 	}
 
+	@Override
+	public boolean single() {
+		return single;
+	}
 }
