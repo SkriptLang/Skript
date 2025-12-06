@@ -1,0 +1,8 @@
+test "mannequin immovable" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	assert {_entity} is movable with "Mannequin should be movable on spawn"
+	make {_entity} immovable
+	assert {_entity} is immovable with "Mannequin should be immovable"
+	clear entity within {_entity}

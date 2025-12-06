@@ -1,0 +1,12 @@
+test "mannequin description" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	set the mannequin description of {_entity} to "SkriptLang"
+	assert the mannequin description of {_entity} is "SkriptLang" with "Mannequin description was not set"
+	clear the mannequin description of {_entity}
+	assert the mannequin description of {_entity} is not set with "Mannequin description was not cleared"
+	reset the mannequin description of {_entity}
+	assert the mannequin description of {_entity} is "NPC" with "Mannequin description was not reset"
+
+	clear entity within {_entity}
