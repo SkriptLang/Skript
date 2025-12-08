@@ -1,0 +1,18 @@
+
+using consume effects
+
+test "consume effect type comparison" when running minecraft "1.21.3":
+	set {_apply} to a consume effect to apply (a new potion effect of strength of tier 3 for 1 hour) with a probability of 100
+	assert {_apply} is (status apply) with "Consume effect apply did not match"
+
+	set {_remove} to a consume effect to remove blindness, bad luck and slowness
+	assert {_remove} is (status remove) with "Consume effect remove did not match"
+
+	set {_clear} to a consume effect to clear all potion effects
+	assert {_clear} is (status clear) with "Consume effect clear did not match"
+
+	set {_sound} to a consume effect to play the sound "minecraft:ui.toast.challenge_complete"
+	assert {_sound} is (sound) with "Consume effect sound did not match"
+
+	set {_teleport} to a consume effect to teleport randomly in a radius of 5
+	assert (a consume effect to teleport randomly in a radius of 5) is (teleport (consume effect type)) with "Consume effect teleport did not match"
