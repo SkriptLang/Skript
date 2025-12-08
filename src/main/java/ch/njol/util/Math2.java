@@ -1,10 +1,7 @@
 package ch.njol.util;
 
 import ch.njol.skript.Skript;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Arrays;
 
 /**
  * This class is not to be used by addons. In the future methods may
@@ -54,6 +51,56 @@ public final class Math2 {
 	 */
 	public static double fit(double min, double value, double max) {
 		assert min <= max : min + "," + value + "," + max;
+		return Math.min(Math.max(value, min), max);
+	}
+
+	/**
+	 * Fits the sum of {@code base} and {@code add} into the interval of {@code min} and {@link Integer#MAX_VALUE}.
+	 * If the sum of {@code base} and {@code add} results in an overflow, returns {@link Integer#MAX_VALUE}.
+	 *
+	 * @return An int in between {@code min} and {@link Integer#MAX_VALUE} or {@link Integer#MAX_VALUE} if the sum overflowed.
+	 */
+	public static int fitOverflowMax(int min, int base, int add) {
+		return fitOverflow(min, base, add, Integer.MAX_VALUE, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Fits the sum of {@code base} and {@code add} into the interval of {@code min} and {@code max}.
+	 * If the sum of {@code base} and {@code add} results in an overflow, returns {@code overflow}.
+	 *
+	 * @return An int in between {@code min} and {@code max} or {@code overflow} if the sum overflowed.
+	 */
+	public static int fitOverflow(int min, int base, int add, int max, int overflow) {
+		assert min <= max;
+		int value = base + add;
+		boolean overflowed = value - base != add;
+		if (overflowed)
+			return overflow;
+		return Math.min(Math.max(value, min), max);
+	}
+
+	/**
+	 * Fits the sum of {@code base} and {@code add} into the interval of {@code min} and {@link Float#MAX_VALUE}.
+	 * If the sum of {@code base} and {@code add} results in an overflow, returns {@link Float#MAX_VALUE}.
+	 *
+	 * @return A float in between {@code min} and {@link Float#MAX_VALUE} or {@link Float#MAX_VALUE} if the sum overflowed.
+	 */
+	public static float fitOverflowMax(float min, float base, float add) {
+		return fitOverflow(min, base, add, Float.MAX_VALUE, Float.MAX_VALUE);
+	}
+
+	/**
+	 * Fits the sum of {@code base} and {@code add} into the interval of {@code min} and {@code max}.
+	 * If the sum of {@code base} and {@code add} results in an overflow, returns {@code overflow}.
+	 *
+	 * @return A float in between {@code min} and {@code max} or {@code overflow} if the sum overflowed.
+	 */
+	public static float fitOverflow(float min, float base, float add, float max, float overflow) {
+		assert min <= max;
+		float value = base + add;
+		boolean overflowed = value - base != add;
+		if (overflowed)
+			return overflow;
 		return Math.min(Math.max(value, min), max);
 	}
 
