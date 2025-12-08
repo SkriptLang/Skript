@@ -32,15 +32,15 @@ public class EffLook extends Effect {
 	static {
 		Skript.registerEffect(EffLook.class,
 			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
-			"%entity%['s (feet:feet|eyes)] [(at|with) [head] [rotation] speed %-number%] " +
+			"%entity%'s (feet:feet|eyes) [(at|with) [head] [rotation] speed %-number%] " +
 			"[[and] max[imum] [head] pitch %-number%]",
 
 			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
-				"([the] (feet:feet|eyes)) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
+				"[the] (feet:feet|eyes) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
 				"[[and] max[imum] [head] pitch %-number%]",
 
-			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location% " +
-			"[at [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]");
+			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
+			"[(at|with) [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]");
 	}
 
 	private LookAnchor anchor = LookAnchor.EYES;
