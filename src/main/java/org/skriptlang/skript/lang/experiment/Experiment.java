@@ -5,8 +5,6 @@ import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
