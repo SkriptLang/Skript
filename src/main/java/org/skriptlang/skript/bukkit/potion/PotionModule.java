@@ -146,9 +146,9 @@ public class PotionModule implements AddonModule {
 				"remove invisibility from the victim")
 			.since("2.0 beta 3"));
 
-		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
+		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "potioncause", "potion causes")
 			.user("(entity ?)?potion ?effect ?causes?")
-			.name("Entity Potion Effect Event Cause")
+			.name("Potion Effect Event Cause")
 			.description("Represents the cause of an 'entity potion effect' event. For example, an arrow hitting an entity or a command being executed.")
 			.examples("""
 				on entity potion effect:
@@ -156,9 +156,9 @@ public class PotionModule implements AddonModule {
 						message "You were hit by a tipped arrow!"
 				""")
 			.since("2.10"));
-		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Action.class, "entitypotionaction", "entity potion actions")
+		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Action.class, "potionaction", "potion actions")
 			.user("(entity ?)?potion ?effect ?actions?")
-			.name("Entity Potion Effect Event Action")
+			.name("Potion Effect Event Action")
 			.description("Represents the action being performed in an 'entity potion effect' event.",
 				"'added' indicates the entity does not already have a potion effect of the event potion effect type.",
 				"'changed' indicates the entity already has a potion effect of the event potion effect type, but some property about the potion effect is changing.",

@@ -623,8 +623,7 @@ test "potion effect type properties":
 	assert color of speed is set with "color of speed is not set"
 	assert color of night vision is set with "color of night vision is not set"
 
-# TODO merge into test above when only 1.21+ is supported
-test "ExprPotionEffectTypeCategory" when running minecraft "1.21":
+	# ExprPotionEffectTypeCategory
 	assert potion category of instant health is beneficial with "instant health is not beneficial"
 	assert weakness is harmful with "weakness is not harmful"
 	assert potion effect type category of glowing is neutral with "glowing is not neutral"

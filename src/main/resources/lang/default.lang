@@ -2702,8 +2702,8 @@ environments:
 	the_end: end, the end
 	custom: custom
 
-# -- Entity Potion Causes --
-entity potion causes:
+# -- Potion Causes --
+potion causes:
 	area_effect_cloud: enter area effect cloud
 	arrow: arrow infliction
 	attack: attack
@@ -2730,8 +2730,8 @@ entity potion causes:
 	patrol_captain: pillager captain, patrol captain
 	wither_rose: wither rose infliction
 
-# -- Entity Potion Actions --
-entity potion actions:
+# -- Potion Actions --
+potion actions:
 	added: added, add
 	changed: changed, change
 	cleared: cleared, clear
@@ -3089,8 +3089,8 @@ types:
 	potioneffecttypecategory: potion effect type categor¦y¦ies @a
 	potioneffect: potion effect¦s @a
 	skriptpotioneffect: potion effect¦s @a
-	entitypotioncause: entity potion cause¦s @an
-	entitypotionaction: entity potion action¦s @an
+	potioncause: potion cause¦s @an
+	potionaction: potion action¦s @an
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
 	teleportcause: teleport cause¦s @a

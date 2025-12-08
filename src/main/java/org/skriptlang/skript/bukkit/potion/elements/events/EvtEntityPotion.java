@@ -23,7 +23,7 @@ public class EvtEntityPotion extends SkriptEvent {
 		registry.register(BukkitRegistryKeys.EVENT, BukkitSyntaxInfos.Event.builder(EvtEntityPotion.class, "Entity Potion Effect")
 				.supplier(EvtEntityPotion::new)
 				.addEvent(EntityPotionEffectEvent.class)
-				.addPattern("entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [%-entitypotionactions%] [due to %-entitypotioncauses%]")
+				.addPattern("entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [%-potionactions%] [due to %-potioncauses%]")
 				.addDescription("Called when an entity's potion effect is modified.")
 				.addExamples(
 					"on entity potion effect modification:",
