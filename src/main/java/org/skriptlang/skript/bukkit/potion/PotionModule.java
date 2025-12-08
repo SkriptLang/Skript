@@ -144,12 +144,17 @@ public class PotionModule implements AddonModule {
 			.examples("apply swiftness 5 to the player",
 				"apply potion of speed 2 to the player for 60 seconds",
 				"remove invisibility from the victim")
-			.since(""));
+			.since("2.0 beta 3"));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 			.user("(entity ?)?potion ?effect ?causes?")
 			.name("Entity Potion Effect Event Cause")
 			.description("Represents the cause of an 'entity potion effect' event. For example, an arrow hitting an entity or a command being executed.")
+			.examples("""
+				on entity potion effect:
+					if the event-potion effect cause is arrow affliction:
+						message "You were hit by a tipped arrow!"
+				""")
 			.since("2.10"));
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Action.class, "entitypotionaction", "entity potion actions")
 			.user("(entity ?)?potion ?effect ?actions?")
@@ -159,6 +164,11 @@ public class PotionModule implements AddonModule {
 				"'changed' indicates the entity already has a potion effect of the event potion effect type, but some property about the potion effect is changing.",
 				"'cleared' indicates that the effect is being removed because all of the entity's effects are being removed.",
 				"'removed' indicates that the event potion effect type has been specifically removed from the entity.")
+			.examples("""
+				on entity potion effect:
+					if the event-potion effect action is removal:
+						message "One of your existing potion effects was removed!"
+				""")
 			.since("INSERT VERSION"));
 
 		// Added in 1.21

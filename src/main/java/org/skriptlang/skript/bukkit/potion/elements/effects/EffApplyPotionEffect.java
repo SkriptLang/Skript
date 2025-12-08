@@ -36,8 +36,8 @@ public class EffApplyPotionEffect extends Effect {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffApplyPotionEffect.class)
 				.supplier(EffApplyPotionEffect::new)
 				.addPatterns(
-						"apply %skriptpotioneffects% to %livingentities% [for %-timespan%]",
-						"(affect|effect) %livingentities% with %skriptpotioneffects% [for %-timespan%]"
+						"(apply|grant) %skriptpotioneffects% to %livingentities% [for %-timespan%]",
+						"(affect|afflict) %livingentities% with %skriptpotioneffects% [for %-timespan%]"
 				)
 				.build());
 	}

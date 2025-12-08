@@ -21,16 +21,13 @@ public final class PotionUtils {
 
 	/**
 	 * 30 seconds is the default length for the /effect command
-	 * See <a href="https://minecraft.fandom.com/wiki/Commands/effect">https://minecraft.fandom.com/wiki/Commands/effect</a>
+	 * See <a href="https://minecraft.wiki/w/Commands/effect">https://minecraft.wiki/w/Commands/effect</a>
 	 */
 	public static final int DEFAULT_DURATION_TICKS = 600;
 	/**
 	 * A string representation of a {@link Timespan} of {@link #DEFAULT_DURATION_TICKS}.
 	 */
 	public static final String DEFAULT_DURATION_STRING = new Timespan(TimePeriod.TICK, DEFAULT_DURATION_TICKS).toString();
-
-	// TODO remove when supporting 1.20.6+
-	private static final boolean HAS_HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
 	/**
 	 * Attempts to retrieve a list of potion effects from an ItemType.
@@ -41,16 +38,12 @@ public final class PotionUtils {
 		List<PotionEffect> effects = new ArrayList<>();
 		ItemMeta meta = itemType.getItemMeta();
 		if (meta instanceof PotionMeta potionMeta) {
-			if (potionMeta.hasCustomEffects())
+			if (potionMeta.hasCustomEffects()) {
 				effects.addAll(potionMeta.getCustomEffects());
-			if (HAS_HAS_POTION_TYPE_METHOD) { // Not available on all versions where getBasePotionType exists
-				if (potionMeta.hasBasePotionType())
-					//noinspection ConstantConditions - checked via hasBasePotionType
-					effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
-			} else {
-				PotionType potionType = potionMeta.getBasePotionType();
-				if (potionType != null)
-					effects.addAll(potionType.getPotionEffects());
+			}
+			if (potionMeta.hasBasePotionType()) {
+				//noinspection ConstantConditions - checked via hasBasePotionType
+				effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
 			}
 		} else if (meta instanceof SuspiciousStewMeta stewMeta) {
 			effects.addAll(stewMeta.getCustomEffects());

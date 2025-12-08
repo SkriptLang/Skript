@@ -71,7 +71,7 @@ test "potion effects of entities/items":
 	loop {_holders::*}:
 		loop-value is an entity
 		apply {_weaker} to loop-value
-		apply {_stronger} to loop-value
+		grant {_stronger} to loop-value
 		assert the potion effects of loop-value are {_stronger} with "holder doesn't have potion effect"
 		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
 		assert the hidden potion effects of loop-value are {_weaker} with "holder doesn't have hidden potion effect"
@@ -79,7 +79,7 @@ test "potion effects of entities/items":
 		clear the potion effects of loop-value
 		assert the potion effects of loop-value are not set with "holder still has potion effects"
 		apply {_weaker} to loop-value
-		apply {_stronger} to loop-value
+		afflict loop-value with {_stronger}
 		clear the hidden potion effects of loop-value
 		assert the potion effects of loop-value are {_stronger} with "holder doesn't have potion effect"
 		assert the active potion effects of loop-value are {_stronger} with "holder doesn't have active potion effect"
@@ -167,7 +167,7 @@ test "specific potion effect of entities/items":
 
 	# test getting
 	apply {_weaker} to {_entity}
-	apply {_stronger} to {_entity}
+	grant {_stronger} to {_entity}
 	assert the speed effect of {_entity} is {_stronger} with "holder doesn't have speed effect"
 	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"
 	assert the hidden speed effects of {_entity} are {_weaker} with "holder doesn't have hidden speed effect"
@@ -177,7 +177,7 @@ test "specific potion effect of entities/items":
 	clear the speed effects of {_entity}
 	assert the speed effects of {_entity} are not set with "holder still has speed effects"
 	apply {_weaker} to {_entity}
-	apply {_stronger} to {_entity}
+	afflict {_entity} with {_stronger}
 	clear the hidden speed effects of {_entity}
 	assert the speed effect of {_entity} is {_stronger} with "holder doesn't have speed effect"
 	assert the active speed effect of {_entity} is {_stronger} with "holder doesn't have active speed effect"

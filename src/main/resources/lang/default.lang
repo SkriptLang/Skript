@@ -2732,10 +2732,10 @@ entity potion causes:
 
 # -- Entity Potion Actions --
 entity potion actions:
-	added: added
-	changed: changed
-	cleared: cleared
-	removed: removed
+	added: added, add
+	changed: changed, change
+	cleared: cleared, clear
+	removed: removed, remove, removal
 
 # -- Moon Phases --
 moon phases:
