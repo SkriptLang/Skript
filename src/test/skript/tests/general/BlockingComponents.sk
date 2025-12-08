@@ -1,0 +1,145 @@
+
+options:
+	blockSound: "minecraft:ui.toast.in"
+	disableSound: "minecraft:ui.toast.out"
+	damageFunction: a custom item damage function
+	delay: 5 seconds
+	disableScale: 10
+	reduction: a custom damage reduction
+
+
+using blocking components
+
+test "blocking component - new" when running minecraft "1.21.5":
+	set {_component} to a blank blocking component
+	set the blocked sound of {_component} to {@blockSound}
+	assert the blocked sound of {_component} is {@blockSound} with "Block sound of component was not set"
+	set the disabled sound of {_component} to {@disableSound}
+	assert the disabled sound of {_component} is {@disableSound} with "Disable sound of component was not set"
+	set the damage function of {_component} to {@damageFunction}
+	assert the damage function of {_component} is {@damageFunction} with "Damage function of component was not set"
+	set the blocking delay time of {_component} to {@delay}
+	assert the blocking delay time of {_component} is {@delay} with "Delay time of component was not set"
+	set the disable cooldown scale of {_component} to {@disableScale}
+	assert the disable cooldown scale of {_component} is {@disableScale} with "Disable cooldown scale of component was not set"
+	add {@reduction} to the damage reductions of {_component}
+	assert the damage reductions of {_component} contains {@reduction} with "Damage reduction was not added to component"
+
+test "blocking component - itemtype" when running minecraft "1.21.5":
+	set {_item} to a leather helmet (item type)
+	set the blocked sound of {_item} to {@blockSound}
+	assert the blocked sound of {_item} is {@blockSound} with "Block sound of itemtype was not set"
+	set the disabled sound of {_item} to {@disableSound}
+	assert the disabled sound of {_item} is {@disableSound} with "Disable sound of itemtype was not set"
+	set the damage function of {_item} to {@damageFunction}
+	assert the damage function of {_item} is {@damageFunction} with "Damage function of itemtype was not set"
+	set the blocking delay time of {_item} to {@delay}
+	assert the blocking delay time of {_item} is {@delay} with "Delay time of itemtype was not set"
+	set the disable cooldown scale of {_item} to {@disableScale}
+	assert the disable cooldown scale of {_item} is {@disableScale} with "Disable cooldown scale of itemtype was not set"
+	add {@reduction} to the damage reductions of {_item}
+	assert the damage reductions of {_item} contains {@reduction} with "Damage reduction was not added to itemtype"
+
+test "blocking component - itemstack" when running minecraft "1.21.5":
+	set {_item} to an iron helmet (item stack)
+	set the blocked sound of {_item} to {@blockSound}
+	assert the blocked sound of {_item} is {@blockSound} with "Block sound of itemstack was not set"
+	set the disabled sound of {_item} to {@disableSound}
+	assert the disabled sound of {_item} is {@disableSound} with "Disable sound of itemstack was not set"
+	set the damage function of {_item} to {@damageFunction}
+	assert the damage function of {_item} is {@damageFunction} with "Damage function of itemstack was not set"
+	set the blocking delay time of {_item} to {@delay}
+	assert the blocking delay time of {_item} is {@delay} with "Delay time of itemstack was not set"
+	set the disable cooldown scale of {_item} to {@disableScale}
+	assert the disable cooldown scale of {_item} is {@disableScale} with "Disable cooldown scale of itemstack was not set"
+	add {@reduction} to the damage reductions of {_item}
+	assert the damage reductions of {_item} contains {@reduction} with "Damage reduction was not added to itemstack"
+
+test "blocking component - slot" when running minecraft "1.21.5":
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to a diamond helmet
+
+	set the blocked sound of (slot 1 of {_gui}) to {@blockSound}
+	assert the blocked sound of (slot 1 of {_gui}) is {@blockSound} with "Block sound of slot was not set"
+	set the disabled sound of (slot 1 of {_gui}) to {@disableSound}
+	assert the disabled sound of (slot 1 of {_gui}) is {@disableSound} with "Disable sound of slot was not set"
+	set the damage function of (slot 1 of {_gui}) to {@damageFunction}
+	assert the damage function of (slot 1 of {_gui}) is {@damageFunction} with "Damage function of slot was not set"
+	set the blocking delay time of (slot 1 of {_gui}) to {@delay}
+	assert the blocking delay time of (slot 1 of {_gui}) is {@delay} with "Delay time of slot was not set"
+	set the disable cooldown scale of (slot 1 of {_gui}) to {@disableScale}
+	assert the disable cooldown scale of (slot 1 of {_gui}) is {@disableScale} with "Disable cooldown scale of slot was not set"
+	add {@reduction} to the damage reductions of (slot 1 of {_gui})
+	assert the damage reductions of (slot 1 of {_gui}) contains {@reduction} with "Damage reduction was not added to slot"
+
+test "blocking component - copy" when running minecraft "1.21.5":
+	set {_component} to a blank blocking component
+	set the blocked sound of {_component} to {@blockSound}
+	assert the blocked sound of {_component} is {@blockSound} with "Block sound of component was not set"
+	set the disabled sound of {_component} to {@disableSound}
+	assert the disabled sound of {_component} is {@disableSound} with "Disable sound of component was not set"
+	set the damage function of {_component} to {@damageFunction}
+	assert the damage function of {_component} is {@damageFunction} with "Damage function of component was not set"
+	set the blocking delay time of {_component} to {@delay}
+	assert the blocking delay time of {_component} is {@delay} with "Delay time of component was not set"
+	set the disable cooldown scale of {_component} to {@disableScale}
+	assert the disable cooldown scale of {_component} is {@disableScale} with "Disable cooldown scale of component was not set"
+	add {@reduction} to the damage reductions of {_component}
+	assert the damage reductions of {_component} contains {@reduction} with "Damage reduction was not added to component"
+
+	set {_original} to {_component}
+	set {_copy} to item component copy of {_original}
+	set {_damage} to a custom item damage function:
+		set the damage function base of event-item damage function to 10
+
+	set the blocked sound of {_copy} to "minecraft:ui.toast.challenge_complete"
+	assert the blocked sound of {_copy} is "minecraft:ui.toast.challenge_complete" with "Block sound of copy was not set"
+	assert the blocked sound of {_original} is {@blockSound} with "Block sound of original should not have changed"
+	set the disabled sound of {_copy} to "minecraft:ui.toast.challenge_complete"
+	assert the disabled sound of {_copy} is "minecraft:ui.toast.challenge_complete" with "Disable sound of copy was not set"
+	assert the disabled sound of {_original} is {@disableSound} with "Disable sound of original should not have changed"
+	set the damage function of {_copy} to {_damage}
+	assert the damage function of {_copy} is {_damage} with "Damage function of copy was not set"
+	assert the damage function of {_original} is {@damageFunction} with "Damage function of original should not have changed"
+	set the blocking delay time of {_copy} to 10 seconds
+	assert the blocking delay time of {_copy} is 10 seconds with "Delay time of copy was not set"
+	assert the blocking delay time of {_original} is {@delay} with "Delay time of original should not have changed"
+	set the disable cooldown scale of {_copy} to 20
+	assert the disable cooldown scale of {_copy} is 20 with "Disable cooldown scale of copy was not set"
+	assert the disable cooldown scale of {_original} is {@disableScale} with "Disable cooldown scale of original should not have changed"
+	assert the damage reductions of {_copy} contains {@reduction} with "Damage reduction was not in copy"
+	clear the damage reductions of {_copy}
+	assert the damage reductions of {_copy} is not set with "Damage reductions of copy was not cleared"
+	assert the damage reductions of {_original} contains {@reduction} with "Damage reductions of original should not have changed"
+
+test "blocking component - item damage function" when running minecraft "1.21.5":
+	set {_component} to a blank blocking component
+	set {_damageFunction} to the item damage function of {_component}
+	set the damage function base of {_damageFunction} to 10
+	assert the damage function base of {_damageFunction} is 10 with "Base amount of damage function was not set"
+	assert the damage function base of {_component} is 10 with "Base amount of damage function did not modify component"
+	set the damage function factor of {_damageFunction} to 20
+	assert the damage function factor of {_damageFunction} is 20 with "Factor amount of damage function was not set"
+	assert the damage function factor of {_component} is 20 with "Factor amount of damage function did not modify component"
+	set the damage function threshold of {_damageFunction} to 30
+	assert the damage function threshold of {_damageFunction} is 30 with "Threshold amount of damage function was not set"
+	assert the damage function threshold of {_component} is 30 with "Threshold amount of damage function did not modify component"
+
+	assert the item damage function of {_component} is {_damageFunction} with "Component item damage function did not match"
+
+test "blocking component - damage reduction" when running minecraft "1.21.5":
+	set {_component} to a blank blocking component
+	add (a custom damage reduction) to the damage reductions of {_component}
+	set {_reduction} to the first element out of (damage reductions of {_component})
+	assert {_reduction} is set with "Component should have a reduction"
+
+	set the reduction base of {_reduction} to 10
+	assert the reduction base of {_reduction} is 10 with "Base amount of damage reduction was not set"
+	set the reduction factor of {_reduction} to 20
+	assert the reduction factor of {_reduction} is 20 with "Factor amount of damage reduction was not set"
+	set the reduction angle of {_reduction} to 90
+	assert the reduction angle of {_reduction} is 90 with "Angle of damage reduction was not set"
+	set the reduction damage types of {_reduction} to magic and explosion
+	# assert the reduction damage types of {_reduction} is magic and explosion with "Damage types of damage reduction was not set"
+
+	assert the damage reductions of {_component} contains {_reduction} with "Component did not retain changes made from damage reduction"
