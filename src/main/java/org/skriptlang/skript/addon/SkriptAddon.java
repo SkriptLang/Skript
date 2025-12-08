@@ -1,5 +1,7 @@
 package org.skriptlang.skript.addon;
 
+import ch.njol.skript.doc.Categorizable;
+import ch.njol.skript.doc.Category;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.skriptlang.skript.Skript;
@@ -10,6 +12,7 @@ import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -100,6 +103,13 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 		}
 		for (AddonModule module : filtered) {
 			module.load(this);
+
+			if (module instanceof Categorizable categorizable) {
+				Set<Category> categories = categorizable.categories();
+				for (Category category : categories) {
+					category.addModule(module.getClass());
+				}
+			}
 		}
 	}
 

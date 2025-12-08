@@ -3,6 +3,8 @@ package org.skriptlang.skript.bukkit.damagesource;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.doc.Categorizable;
+import ch.njol.skript.doc.Category;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
@@ -11,12 +13,16 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.damagesource.elements.*;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+import java.util.Set;
 
-public class DamageSourceModule implements AddonModule {
+public class DamageSourceModule implements AddonModule, Categorizable {
 
 	@Override
 	public boolean canLoad(SkriptAddon addon) {
@@ -54,11 +60,19 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		register(addon, SyntaxRegistry.CONDITION,
+				CondScalesWithDifficulty.info(), CondWasIndirect.info());
+
+		register(addon, SyntaxRegistry.EXPRESSION,
+				ExprCausingEntity.info(), ExprCreatedDamageSource.info(),
+				ExprDamageLocation.info(), ExprDamageType.info(),
+				ExprDirectEntity.info(), ExprFoodExhaustion.info(),
+				ExprSecDamageSource.info(), ExprSourceLocation.info());
+	}
+
+	@Override
+	public @Unmodifiable @NotNull Set<Category> categories() {
+		return Set.of(Category.DAMAGE_SOURCES);
 	}
 
 }
