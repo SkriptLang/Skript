@@ -275,7 +275,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerBucketFillEvent.class, Block.class, event -> {
 			BlockState state = event.getBlockClicked().getState();
 			state.setType(Material.AIR);
-			state.setRawData((byte) 0);
 			return new BlockStateBlock(state, true);
 		}, TIME_FUTURE);
 		EventValues.registerEventValue(PlayerBucketEmptyEvent.class, Block.class,
@@ -283,7 +282,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerBucketEmptyEvent.class, Block.class, event -> {
 			BlockState state = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
 			state.setType(event.getBucket() == Material.WATER_BUCKET ? Material.WATER : Material.LAVA);
-			state.setRawData((byte) 0);
 			return new BlockStateBlock(state, true);
 		});
 		// PlayerDropItemEvent

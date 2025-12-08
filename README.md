@@ -84,21 +84,6 @@ That is, it runs skriptTestJava17, and skriptTestJava21.
 
 By running the tests, you agree to Mojang's End User License Agreement.
 
-### Importing to Eclipse
-With new Eclipse versions, there is integrated Gradle support, and it actually works now.
-So, first get latest Eclipse, then import Skript as any Gradle project. Just
-make sure to **keep** the configuration when the importer asks for that!
-
-If you encounter strange issues, make sure you follow the instructions above and have
-actually downloaded latest Eclipse or update your installation correctly. Skript's
-new Gradle version (starting from dev26) does not work very well with older Eclipse
-versions. Also, do *not* use Gradle STS; it is outdated.
-
-### Importing to IDEA
-You'll need to make sure that nullness annotations are working correctly. Also,
-when sending pull requests, make sure not to change IDEA configuration files
-that may have been stored in the repository.
-
 ### Releasing
 ```
 ./gradlew clean build

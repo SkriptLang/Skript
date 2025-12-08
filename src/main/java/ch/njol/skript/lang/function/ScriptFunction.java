@@ -13,13 +13,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.util.Arrays;
+
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	private final Trigger trigger;
 
-	private boolean returnValueSet;
-	private T @Nullable [] returnValues;
-	private String @Nullable [] returnKeys;
+	private final ThreadLocal<Boolean> returnValueSet = ThreadLocal.withInitial(() -> false);
+	private final ThreadLocal<T @Nullable []> returnValues = new ThreadLocal<>();
+	private final ThreadLocal<String @Nullable []> returnKeys = new ThreadLocal<>();
 
 	/**
 	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)} instead.
@@ -60,23 +62,35 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			Parameter<?> parameter = parameters[i];
 			Object[] val = params[i];
 			if (parameter.single && val.length > 0) {
-				Variables.setVariable(parameter.name(), val[0], event, true);
-			} else {
+				Variables.setVariable(parameter.name, val[0], event, true);
+				continue;
+			}
+
+			boolean keyed = Arrays.stream(val).allMatch(it -> it instanceof KeyedValue<?>);
+			if (keyed) {
 				for (Object value : val) {
 					KeyedValue<?> keyedValue = (KeyedValue<?>) value;
-					Variables.setVariable(parameter.name() + "::" + keyedValue.key(), keyedValue.value(), event, true);
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + keyedValue.key(), keyedValue.value(), event, true);
+				}
+			} else {
+				int count = 0;
+				for (Object value : val) {
+					// backup for if the passed argument is not a keyed value.
+					// an example of this is passing `xs: integers = (1, 2)` as a parameter.
+					Variables.setVariable(parameter.name + Variable.SEPARATOR + count, value, event, true);
+					count++;
 				}
 			}
 		}
 
 		trigger.execute(event);
 		ClassInfo<T> returnType = getReturnType();
-		return returnType != null ? returnValues : null;
+		return returnType != null ? returnValues.get() : null;
 	}
 
 	@Override
 	public @NotNull String @Nullable [] returnedKeys() {
-		return returnKeys;
+		return returnKeys.get();
 	}
 
 	/**
@@ -85,26 +99,26 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	@Deprecated(since = "2.9.0", forRemoval = true)
 	@ApiStatus.Internal
 	public final void setReturnValue(@Nullable T[] values) {
-		assert !returnValueSet;
-		returnValueSet = true;
-		this.returnValues = values;
+		assert !returnValueSet.get();
+		returnValueSet.set(true);
+		this.returnValues.set(values);
 	}
 
 	@Override
 	public boolean resetReturnValue() {
-		returnValueSet = false;
-		returnValues = null;
-		returnKeys = null;
+		returnValueSet.remove();
+		returnValues.remove();
+		returnKeys.remove();
 		return true;
 	}
 
 	@Override
 	public final void returnValues(Event event, Expression<? extends T> value) {
-		assert !returnValueSet;
-		returnValueSet = true;
-		this.returnValues = value.getArray(event);
+		assert !returnValueSet.get();
+		returnValueSet.set(true);
+		this.returnValues.set(value.getArray(event));
 		if (KeyProviderExpression.canReturnKeys(value))
-			this.returnKeys = ((KeyProviderExpression<?>) value).getArrayKeys(event);
+			this.returnKeys.set(((KeyProviderExpression<?>) value).getArrayKeys(event));
 	}
 
 	@Override
