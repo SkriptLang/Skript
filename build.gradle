@@ -286,6 +286,31 @@ tasks.register('JUnit') {
 	dependsOn JUnitJava21
 }
 
+// custom test task
+// usage: gradle customTest -PtestEnvs=<environment files, comma separated list.> -PtestEnvJavaVersion=<java version> -Ptimeout=<timeout in ms> -Pjunit=[true|false]
+// defaults: testEnvJavaVersion=latestJava, timeout=0, junit=false
+// example: gradle customTest -PtestEnvs="java21/paper-1.21.4,java21/paper-1.21.8" -PtestEnvJavaVersion=21 -Ptimeout=600000 -Pjunit=true
+
+// get environments
+String propEnvs = project.hasProperty('testEnvs') ? project.property('testEnvs') as String : project.testEnv
+String[] envList = propEnvs != null ? propEnvs.split(',') : [env]
+StringBuilder customEnvironmentsBuilder = new StringBuilder()
+for (int i = 0; i < envList.length; i++) {
+	customEnvironmentsBuilder.append(environments).append(envList[i]).append('.json')
+	if (i < envList.length - 1) {
+		customEnvironmentsBuilder.append(',') // use ',' as separator for multiple environments
+	}
+}
+String customEnvironments = customEnvironmentsBuilder.toString()
+
+long customTimeout = project.hasProperty('timeout') ? Long.parseLong(project.property('timeout') as String) : 0
+List<Modifiers> customModifiers = new ArrayList<>()
+if (project.hasProperty('junit') && (project.property('junit') as String).toLowerCase() == 'true') {
+	customModifiers.add(Modifiers.JUNIT)
+}
+createTestTask('customTest', 'Runs tests based on provided parameters.', customEnvironments, envJava, customTimeout, customModifiers.toArray(new Modifiers[0]) as Modifiers[])
+// end custom test task
+
 // Build flavor configurations
 tasks.register('githubResources', ProcessResources) {
 	from 'src/main/resources', {
