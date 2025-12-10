@@ -26,17 +26,17 @@ public class EffMakeAdultOrBaby extends Effect {
 
 	static {
 		Skript.registerEffect(EffMakeAdultOrBaby.class,
-			"make %livingentities% [a[n]] (adult|:baby)",
-			"force %livingentities% to be[come] a[n] (adult|:baby)");
+			"make %livingentities% [a[n]] (:adult|baby|child)",
+			"force %livingentities% to be[come] a[n] (:adult|baby|child)");
 	}
 
-	private boolean baby;
+	private boolean adult;
 	private Expression<LivingEntity> entities;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
-		baby = parseResult.hasTag("baby");
+		adult = parseResult.hasTag("adult");
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) expressions[0];
 		return true;
@@ -48,17 +48,17 @@ public class EffMakeAdultOrBaby extends Effect {
 			if (!(entity instanceof Ageable ageable))
 				continue;
 
-			if (baby) {
-				ageable.setBaby();
-			} else {
+			if (adult) {
 				ageable.setAdult();
+			} else {
+				ageable.setBaby();
 			}
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "make " + entities + (baby ? " a baby" : " an adult");
+		return "make " + entities + (adult ? " an adult" : " a baby");
 	}
 
 }

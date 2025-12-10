@@ -12,7 +12,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 @Name("While Loop")
 @Description("While Loop sections are loops that will just keep repeating as long as a condition is met.")
@@ -48,7 +51,7 @@ public class SecWhile extends LoopSection {
 	private TriggerItem actualNext;
 
 	private boolean doWhile;
-	private boolean ranDoWhile = false;
+	private final Set<Event> ranDoWhile = Collections.newSetFromMap(new WeakHashMap<>());
 
 	@Override
 	public boolean init(Expression<?>[] exprs,
@@ -72,8 +75,7 @@ public class SecWhile extends LoopSection {
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event event) {
-		if ((doWhile && !ranDoWhile) || condition.check(event)) {
-			ranDoWhile = true;
+		if ((doWhile && ranDoWhile.add(event)) || condition.check(event)) {
 			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
 			return walk(event, true);
 		} else {
@@ -106,7 +108,7 @@ public class SecWhile extends LoopSection {
 
 	@Override
 	public void exit(Event event) {
-		ranDoWhile = false;
+		ranDoWhile.remove(event);
 		super.exit(event);
 	}
 
