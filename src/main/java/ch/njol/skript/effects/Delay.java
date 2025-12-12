@@ -8,9 +8,13 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.ReturnHandler;
+import ch.njol.skript.lang.ReturnHandler.ReturnHandlerStack;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.HandlerYieldException;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
@@ -20,6 +24,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -37,14 +42,20 @@ public class Delay extends Effect {
 		Skript.registerEffect(Delay.class, "(wait|halt) [for] %timespan%");
 	}
 
+	private final Map<Event, HandlerYieldException> waitMap = Collections.synchronizedMap(new WeakHashMap<>());
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	protected Expression<Timespan> duration;
+	protected ReturnHandler<?> returnHandler;
+	protected boolean hasDelayedFunctionsExperiment;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		getParser().setHasDelayBefore(Kleenean.TRUE);
 
+		returnHandler = getParser().getData(ReturnHandlerStack.class).getCurrentHandler();
+		hasDelayedFunctionsExperiment = getParser().hasExperiment(Feature.DELAYED_FUNCTIONS);
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
 			Timespan timespan = ((Literal<Timespan>) duration).getSingle();
@@ -67,6 +78,7 @@ public class Delay extends Effect {
 		debug(event, true);
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
+		final HandlerYieldException yield = waitMap.computeIfAbsent(event, unused -> new HandlerYieldException());
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 
 			Timespan duration = this.duration.getSingle(event);
@@ -95,8 +107,16 @@ public class Delay extends Effect {
 				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing); // Stop timing if it was even started
+				yield.getResumeCallbacks().forEach(Runnable::run);
 			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
 		}
+		// If we are supposed to return a value after this delay, we have
+		// to yield the trigger and tell the call site to register a callback
+		if (hasDelayedFunctionsExperiment
+			&& returnHandler != null
+			&& returnHandler.returnValueType() != null
+		) throw yield;
+
 		return null;
 	}
 

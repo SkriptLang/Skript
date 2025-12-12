@@ -57,6 +57,9 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
 	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
+		// Execute may get called twice if the function's code caused a yield,
+		// in which case the return values will be set at this point
+		if (returnValueSet.get()) return getReturnType() != null ? returnValues.get() : null;
 		Parameter<?>[] parameters = getSignature().getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> parameter = parameters[i];

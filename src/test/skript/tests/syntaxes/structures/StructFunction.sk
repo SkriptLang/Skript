@@ -69,3 +69,55 @@ test "literal type parsing":
 			literal_test_projectile(projectile)
 	assert last parse logs are not set
 	clear entity within {_entity}
+
+using delayed functions
+
+local function delayed_returning_function() :: integer:
+	wait a tick
+	return 1
+
+test "delayed function return":
+	parse:
+		delayed_returning_function()
+	assert last parse logs is not set
+	assert delayed_returning_function() is 1 with "delayed function failed"
+
+local function repeated_delayed_function(input: integer) :: integer:
+	wait a tick
+	return {_input}
+
+test "repeated delayed functions":
+	parse:
+		repeated_delayed_function(0)
+	assert last parse logs is not set
+	assert repeated_delayed_function(1) is 1 with "repeated delayed function failed"
+	assert repeated_delayed_function(2) is 2 with "repeated delayed function failed"
+	assert repeated_delayed_function(3) is 3 with "repeated delayed function failed"
+
+local function delayed_return_locals() :: integer:
+	set {_inside.before} to 1
+	wait a tick
+	set {_inside.after} to 2
+	return 3
+
+test "delayed function locals":
+	parse:
+		delayed_return_locals()
+	assert last parse logs is not set
+	set {_outside.before} to 0
+	assert delayed_return_locals() is 3 with "delayed locals failed"
+	assert {_outside.before} is 0 with "delayed function forgot call site locals"
+	assert {_inside.before} isn't set with "delayed function bleeds locals"
+	assert {_inside.after} isn't set with "delayed function bleeds locals"
+
+local function delayed_no_return():
+	wait 10 ticks
+	set {-test.delayed_no_return} to true
+
+test "no return delayed runs later":
+	parse:
+		delayed_no_return()
+	assert last parse logs is not set
+	delete {-test.delayed_no_return}
+	delayed_no_return()
+	assert {-test.delayed_no_return} isn't set with "waited for delayed function with no return value"

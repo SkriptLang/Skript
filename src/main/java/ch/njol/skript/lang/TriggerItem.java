@@ -1,6 +1,7 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -8,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Represents a trigger item, i.e. a trigger section, a condition or an effect.
@@ -63,8 +66,27 @@ public abstract class TriggerItem implements Debuggable {
 	public static boolean walk(TriggerItem start, Event event) {
 		TriggerItem triggerItem = start;
 		try {
-			while (triggerItem != null)
-				triggerItem = triggerItem.walk(event);
+			while (triggerItem != null) {
+				try {
+					triggerItem = triggerItem.walk(event);
+				} catch (final HandlerYieldException yield) {
+					Skript.debug("Yielding from %s", triggerItem.toString(event, true));
+
+					// If the trigger item is a delay, we are in the section
+					// that caused the yield, so we bubble the yield up to the call site.
+					if (triggerItem instanceof Delay) throw yield;
+
+					final Instant durationStart = Instant.now();
+					final TriggerItem lastVisitedItem = triggerItem;
+
+					yield.addResumeCallback(() -> {
+						final Duration time = Duration.between(durationStart, Instant.now());
+						Skript.debug("Continuing from %s on call site after %f s yield", lastVisitedItem.toString(event, true), time.toNanos() / 1E9);
+						TriggerItem.walk(lastVisitedItem, event);
+					});
+					return true;
+				}
+			}
 
 			return true;
 		} catch (StackOverflowError err) {
@@ -82,6 +104,7 @@ public abstract class TriggerItem implements Debuggable {
 			if (Skript.debug())
 				err.printStackTrace();
 		} catch (Exception ex) {
+			if (ex instanceof HandlerYieldException yield) throw yield;
 			if (ex.getStackTrace().length != 0) // empty exceptions have already been printed
 				Skript.exception(ex, triggerItem);
 		} catch (Throwable throwable) {
