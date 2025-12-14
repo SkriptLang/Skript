@@ -93,7 +93,9 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 						instance.setBaseValue(0);
 						break;
 					case RESET:
-						instance.setBaseValue(instance.getDefaultValue());
+						AttributeInstance defaultValue = entity.getType().getDefaultAttributes().getAttribute(attribute);
+						if (defaultValue != null)
+							instance.setBaseValue(defaultValue.getBaseValue());
 						break;
 					case REMOVE:
 						instance.setBaseValue(instance.getBaseValue() - deltaValue);
