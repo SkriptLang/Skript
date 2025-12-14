@@ -4,7 +4,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import java.time.LocalTime
 
 plugins {
-	id 'com.github.johnrengelman.shadow' version '8.1.1'
+	id 'com.gradleup.shadow' version '9.2.2'
 	id 'maven-publish'
 	id 'java'
 	id 'checkstyle'
@@ -55,7 +55,7 @@ checkstyle {
 	sourceSets = [] // disables checkstyle after build task
 }
 
-task checkAliases {
+tasks.register('checkAliases') {
 	description 'Checks for the existence of the aliases.'
 	doLast {
 		def aliasFolder = project.file('skript-aliases')
@@ -65,10 +65,14 @@ task checkAliases {
 	}
 }
 
-task testJar(type: ShadowJar) {
+tasks.register('testJar', ShadowJar) {
 	dependsOn(compileTestJava)
 	archiveFileName = 'Skript-JUnit.jar'
-	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
+	from sourceSets.test.output, sourceSets.main.output
+	from {
+		project.configurations.testShadow.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 task jar(overwrite: true, type: ShadowJar) {
@@ -82,18 +86,18 @@ task build(overwrite: true, type: ShadowJar) {
 	from sourceSets.main.output
 }
 
-// Excludes the tests for the build task. Should be using JUnitQuick, JUnitJava21, JUnitJava17, skriptTest, quickTest.
+// Excludes the tests for the build task. Should be using JUnitQuick, JUnitJava21, skriptTest, quickTest.
 // We do not want tests to run for building. That's time consuming and annoying. Especially in development.
 test {
 	exclude '**/*'
 }
 
-task sourceJar(type: Jar) {
+tasks.register('sourceJar', Jar) {
 	from sourceSets.main.allJava
 	archiveClassifier = 'sources'
 }
 
-tasks.withType(ShadowJar) {
+tasks.withType(ShadowJar).configureEach {
 	configurations = [
 		project.configurations.shadow
 	]
@@ -216,7 +220,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			project.configurations.runtimeClasspath.find { it.name.startsWith('gson') },
 			sourceSets.main.runtimeClasspath
 		])
-		main = 'ch.njol.skript.test.platform.PlatformMain'
+		getMainClass().set('ch.njol.skript.test.platform.PlatformMain')
 		args = [
 			'build/test_runners',
 			junit ? 'src/test/skript/junit' : 'src/test/skript/tests',
@@ -244,21 +248,18 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 }
 
 def java21 = 21
-def java17 = 17
 
 def env = project.testEnv + ".json"
 def latestJava = java21
-def oldestJava = java17
+def oldestJava = java21
 
 def latestJUnitEnv = env
 def latestJUnitJava = latestJava
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(latestJava))
-}
-
-tasks.withType(JavaCompile).configureEach {
-	options.compilerArgs += ['-source', '' + oldestJava, '-target', '' + oldestJava]
+	sourceCompatibility = oldestJava
+	targetCompatibility = oldestJava
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -269,26 +270,24 @@ String environments = 'src/test/skript/environments/';
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + env, latestJava, 0)
 createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
-createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + env, latestJava, -1, Modifiers.PROFILE)
 createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
 createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, 0, Modifiers.GEN_RELEASE_DOCS)
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
-	dependsOn skriptTestJava17, skriptTestJava21
+	dependsOn skriptTestJava21
 }
 
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
 createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
-	dependsOn JUnitJava17, JUnitJava21
+	dependsOn JUnitJava21
 }
 
 // Build flavor configurations
-task githubResources(type: ProcessResources) {
+tasks.register('githubResources', ProcessResources) {
 	from 'src/main/resources', {
 		include '**'
 		version = project.property('version')
@@ -308,10 +307,10 @@ task githubResources(type: ProcessResources) {
 	into 'build/resources/main'
 }
 
-task githubRelease(type: ShadowJar) {
+tasks.register('githubRelease', ShadowJar) {
 	from sourceSets.main.output
 	dependsOn githubResources
-	archiveFileName = 'Skript-' + version +'.jar'
+	archiveFileName = 'Skript-' + version + '.jar'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
@@ -321,7 +320,7 @@ task githubRelease(type: ShadowJar) {
 	}
 }
 
-task spigotResources(type: ProcessResources) {
+tasks.register('spigotResources', ProcessResources) {
 	from 'src/main/resources', {
 		include '**'
 		version = project.property('version')
@@ -341,7 +340,7 @@ task spigotResources(type: ProcessResources) {
 	into 'build/resources/main'
 }
 
-task spigotRelease(type: ShadowJar) {
+tasks.register('spigotRelease', ShadowJar) {
 	from sourceSets.main.output
 	dependsOn spigotResources
 	archiveFileName = 'Skript-spigot.jar'
@@ -354,7 +353,7 @@ task spigotRelease(type: ShadowJar) {
 	}
 }
 
-task nightlyResources(type: ProcessResources) {
+tasks.register('nightlyResources', ProcessResources) {
 	from 'src/main/resources', {
 		include '**'
 		def hash = 'git rev-parse --short HEAD'.execute().text.trim()
@@ -372,7 +371,7 @@ task nightlyResources(type: ProcessResources) {
 	into 'build/resources/main'
 }
 
-task nightlyRelease(type: ShadowJar) {
+tasks.register('nightlyRelease', ShadowJar) {
 	from sourceSets.main.output
 	dependsOn nightlyResources
 	archiveFileName = 'Skript-nightly.jar'

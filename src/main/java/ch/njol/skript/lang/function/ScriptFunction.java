@@ -19,9 +19,9 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	private final Trigger trigger;
 
-	private boolean returnValueSet;
-	private T @Nullable [] returnValues;
-	private String @Nullable [] returnKeys;
+	private final ThreadLocal<Boolean> returnValueSet = ThreadLocal.withInitial(() -> false);
+	private final ThreadLocal<T @Nullable []> returnValues = new ThreadLocal<>();
+	private final ThreadLocal<String @Nullable []> returnKeys = new ThreadLocal<>();
 
 	/**
 	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)} instead.
@@ -85,12 +85,12 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 		trigger.execute(event);
 		ClassInfo<T> returnType = getReturnType();
-		return returnType != null ? returnValues : null;
+		return returnType != null ? returnValues.get() : null;
 	}
 
 	@Override
 	public @NotNull String @Nullable [] returnedKeys() {
-		return returnKeys;
+		return returnKeys.get();
 	}
 
 	/**
@@ -99,26 +99,26 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	@Deprecated(since = "2.9.0", forRemoval = true)
 	@ApiStatus.Internal
 	public final void setReturnValue(@Nullable T[] values) {
-		assert !returnValueSet;
-		returnValueSet = true;
-		this.returnValues = values;
+		assert !returnValueSet.get();
+		returnValueSet.set(true);
+		this.returnValues.set(values);
 	}
 
 	@Override
 	public boolean resetReturnValue() {
-		returnValueSet = false;
-		returnValues = null;
-		returnKeys = null;
+		returnValueSet.remove();
+		returnValues.remove();
+		returnKeys.remove();
 		return true;
 	}
 
 	@Override
 	public final void returnValues(Event event, Expression<? extends T> value) {
-		assert !returnValueSet;
-		returnValueSet = true;
-		this.returnValues = value.getArray(event);
+		assert !returnValueSet.get();
+		returnValueSet.set(true);
+		this.returnValues.set(value.getArray(event));
 		if (KeyProviderExpression.canReturnKeys(value))
-			this.returnKeys = ((KeyProviderExpression<?>) value).getArrayKeys(event);
+			this.returnKeys.set(((KeyProviderExpression<?>) value).getArrayKeys(event));
 	}
 
 	@Override

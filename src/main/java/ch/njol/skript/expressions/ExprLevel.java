@@ -1,5 +1,10 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.effects.Delay;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -8,55 +13,41 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.effects.Delay;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-
-/**
- * @author Peter Güttinger
- */
 @Name("Level")
-@Description("The level of a player.")
-@Examples({"reduce the victim's level by 1",
-		"set the player's level to 0"})
-@Since("unknown (before 2.1)")
+@Description("The experience level of a player.")
+@Example("reduce the victim's level by 1")
+@Example("set the player's level to 0")
+@Example("""
+	on level change:
+		set {_diff} to future xp level - past exp level
+		broadcast "%player%'s level changed by %{_diff}%!"
+	""")
+@Since("unknown (before 2.1), 2.13.2 (allow player default)")
 @Events("level change")
 public class ExprLevel extends SimplePropertyExpression<Player, Long> {
+
 	static {
-		register(ExprLevel.class, Long.class, "level", "players");
+		registerDefault(ExprLevel.class, Long.class, "[xp|exp[erience]] level", "players");
 	}
 	
 	@Override
-	protected Long[] get(final Event e, final Player[] source) {
-		return super.get(source, p -> {
-			if (e instanceof PlayerLevelChangeEvent && ((PlayerLevelChangeEvent) e).getPlayer() == p && !Delay.isDelayed(e)) {
-				return (long) (getTime() < 0 ? ((PlayerLevelChangeEvent) e).getOldLevel() : ((PlayerLevelChangeEvent) e).getNewLevel());
+	protected Long[] get(Event event, Player[] source) {
+		return super.get(source, player -> {
+			if (event instanceof PlayerLevelChangeEvent playerLevelChangeEvent && playerLevelChangeEvent.getPlayer() == player && !Delay.isDelayed(event)) {
+				return (long) (getTime() < 0 ? playerLevelChangeEvent.getOldLevel() : playerLevelChangeEvent.getNewLevel());
 			}
-			return (long) p.getLevel();
+			return (long) player.getLevel();
 		});
 	}
 	
 	@Override
-	@Nullable
-	public Long convert(final Player p) {
+	public @Nullable Long convert(Player player) {
 		assert false;
 		return null;
 	}
-	
+
 	@Override
-	public Class<Long> getReturnType() {
-		return Long.class;
-	}
-	
-	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE_ALL)
 			return null;
 		if (getParser().isCurrentEvent(PlayerRespawnEvent.class) && !getParser().getHasDelayBefore().isTrue()) {
@@ -64,58 +55,62 @@ public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 			return null;
 		}
 		if (getParser().isCurrentEvent(EntityDeathEvent.class) && getTime() == 0 && getExpr().isDefault() && !getParser().getHasDelayBefore().isTrue()) {
-			Skript.warning("Changing the player's level in a death event will change the player's level before he dies. " +
-					"Use either 'past level of player' or 'new level of player' to clearly state whether to change the level before or after he dies.");
+			Skript.warning("Changing the player's level in a death event will change the player's level before they die. " +
+				"Use either 'past level of player' or 'new level of player' to clearly state whether to change the level before or after they die.");
 		}
 		if (getTime() == -1 && !getParser().isCurrentEvent(EntityDeathEvent.class))
 			return null;
+		if (getTime() != 0 && getParser().isCurrentEvent(PlayerLevelChangeEvent.class)) {
+			Skript.error("Changing the past or future level in a level change event has no effect.");
+			return null;
+		}
 		return new Class[] {Number.class};
 	}
-	
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert mode != ChangeMode.REMOVE_ALL;
-		
-		final int l = delta == null ? 0 : ((Number) delta[0]).intValue();
-		
-		for (final Player p : getExpr().getArray(e)) {
+		int deltaAmount = delta == null ? 0 : ((Number) delta[0]).intValue();
+
+		for (Player player : getExpr().getArray(event)) {
 			int level;
-			if (getTime() > 0 && e instanceof PlayerDeathEvent && ((PlayerDeathEvent) e).getEntity() == p && !Delay.isDelayed(e)) {
-				level = ((PlayerDeathEvent) e).getNewLevel();
+			if (getTime() > 0 && event instanceof PlayerDeathEvent playerDeathEvent && playerDeathEvent.getEntity() == player && !Delay.isDelayed(event)) {
+				level = playerDeathEvent.getNewLevel();
 			} else {
-				level = p.getLevel();
+				level = player.getLevel();
 			}
 			switch (mode) {
 				case SET:
-					level = l;
+					level = deltaAmount;
 					break;
 				case ADD:
-					level += l;
+					level += deltaAmount;
 					break;
 				case REMOVE:
-					level -= l;
+					level -= deltaAmount;
 					break;
 				case DELETE:
 				case RESET:
 					level = 0;
 					break;
-				case REMOVE_ALL:
-					assert false;
-					continue;
 			}
 			if (level < 0)
-				continue;
-			if (getTime() > 0 && e instanceof PlayerDeathEvent && ((PlayerDeathEvent) e).getEntity() == p && !Delay.isDelayed(e)) {
-				((PlayerDeathEvent) e).setNewLevel(level);
+				level = 0;
+			if (getTime() > 0 && event instanceof PlayerDeathEvent playerDeathEvent && playerDeathEvent.getEntity() == player && !Delay.isDelayed(event)) {
+				playerDeathEvent.setNewLevel(level);
 			} else {
-				p.setLevel(level);
+				player.setLevel(level);
 			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean setTime(final int time) {
+	public Class<Long> getReturnType() {
+		return Long.class;
+	}
+
+	@Override
+	public boolean setTime(int time) {
 		return super.setTime(time, getExpr(), PlayerLevelChangeEvent.class, PlayerDeathEvent.class);
 	}
 	
