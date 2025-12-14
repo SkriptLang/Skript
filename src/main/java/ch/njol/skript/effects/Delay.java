@@ -102,12 +102,6 @@ public class Delay extends Effect {
 					if (trigger != null)
 						timing = SkriptTimings.start(trigger.getDebugLabel());
 				}
-				if (!hasDelayedFunctionsExperiment) {
-					TriggerItem.walk(next, event);
-					Variables.removeLocals(event);
-					SkriptTimings.stop(timing);
-					return;
-				}
 
 				try {
 					TriggerItem.walk(next, event, hasDelayedFunctionsExperiment);
