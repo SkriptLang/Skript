@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.interactions.elements.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -14,6 +13,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Make Interaction Responsive")
 @Description("""
@@ -25,10 +26,17 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class EffMakeResponsive extends Effect {
 
-	static {
-		Skript.registerEffect(EffMakeResponsive.class,
-				"make %entities% responsive",
-				"make %entities% (not |un)responsive");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffMakeResponsive.class)
+				.addPatterns(
+					"make %entities% responsive",
+					"make %entities% (not |un)responsive"
+				)
+				.supplier(EffMakeResponsive::new)
+				.build()
+		);
 	}
 
 	private Expression<Entity> interactions;

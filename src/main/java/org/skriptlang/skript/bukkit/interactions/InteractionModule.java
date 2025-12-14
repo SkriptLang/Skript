@@ -1,23 +1,27 @@
 package org.skriptlang.skript.bukkit.interactions;
 
-import ch.njol.skript.Skript;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Interaction.PreviousInteraction;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-
-import java.io.IOException;
+import org.skriptlang.skript.bukkit.interactions.elements.conditions.CondIsResponsive;
+import org.skriptlang.skript.bukkit.interactions.elements.effects.EffMakeResponsive;
+import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprInteractionDimensions;
+import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprLastInteractionDate;
+import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprLastInteractionPlayer;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class InteractionModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.interactions", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		SyntaxRegistry registry = addon.syntaxRegistry();
+		CondIsResponsive.register(registry);
+		EffMakeResponsive.register(registry);
+		ExprInteractionDimensions.register(registry);
+		ExprLastInteractionDate.register(registry);
+		ExprLastInteractionPlayer.register(registry);
 	}
 
 	public enum InteractionType {

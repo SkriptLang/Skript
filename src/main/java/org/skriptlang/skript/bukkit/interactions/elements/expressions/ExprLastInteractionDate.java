@@ -1,18 +1,15 @@
 package org.skriptlang.skript.bukkit.interactions.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Interaction.PreviousInteraction;
@@ -20,6 +17,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.interactions.InteractionModule.InteractionType;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Last Interaction Date")
 @Description("""
@@ -30,9 +29,15 @@ import org.skriptlang.skript.bukkit.interactions.InteractionModule.InteractionTy
 @Since("INSERT VERSION")
 public class ExprLastInteractionDate extends SimplePropertyExpression<Entity, Date> {
 
-	static {
-		Skript.registerExpression(ExprLastInteractionPlayer.class, OfflinePlayer.class, ExpressionType.PROPERTY,
-			"[the] last (date|time)[s] [that|when] %entities% (were|was) (attacked|1:interacted with|2:clicked [on])");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprLastInteractionDate.class, Date.class)
+				.addPatterns(
+					"[the] last (date|time)[s] [that|when] %entities% (were|was) (attacked|1:interacted with|2:clicked [on])"
+				)
+				.supplier(ExprLastInteractionDate::new)
+				.build());
 	}
 
 	private InteractionType interactionType;

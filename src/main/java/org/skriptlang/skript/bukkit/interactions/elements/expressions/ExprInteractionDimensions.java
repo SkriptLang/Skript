@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Interaction Height/Width")
 @Description("""
@@ -24,8 +25,14 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprInteractionDimensions extends SimplePropertyExpression<Entity, Number> {
 
-	static {
-		register(ExprInteractionDimensions.class, Number.class, "interaction (height|:width)[s]", "entities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprInteractionDimensions.class, Number.class,
+						"interaction (height|:width)[s]", "entities",
+						true)
+				.supplier(ExprInteractionDimensions::new)
+				.build());
 	}
 
 	private boolean width;

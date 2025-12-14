@@ -46,4 +46,18 @@ test "interaction entities":
 		assert last time when entity was attacked is not set with "last attack date set"
 		assert last date that entity was clicked on is not set with "last click date set"
 
+		# responsiveness
+
+		assert entity is not responsive with "wrong default responsiveness"
+		make entity responsive
+		assert entity is responsive with "wrong responsiveness"
+		assert entity is not unresponsive with "wrong responsiveness"
+		make entity unresponsive
+		assert entity is not responsive with "wrong responsiveness"
+		assert entity is unresponsive with "wrong responsiveness"
+		make entity responsive
+		assert entity is responsive with "wrong responsiveness"
+		make entity not responsive
+		assert entity is not responsive with "wrong responsiveness"
+
 		delete entity
