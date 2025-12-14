@@ -3,14 +3,13 @@ package ch.njol.skript.lang;
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
-import java.time.Duration;
-import java.time.Instant;
 
 /**
  * Represents a trigger item, i.e. a trigger section, a condition or an effect.
@@ -64,26 +63,36 @@ public abstract class TriggerItem implements Debuggable {
 	 * @return false if an exception occurred
 	 */
 	public static boolean walk(TriggerItem start, Event event) {
+		return walk(start, event, false);
+	}
+
+	/**
+	 * @param start The item to start at
+	 * @param event The event to run the items with
+	 * @param mayYield Whether it is permitted to throw {@link HandlerYieldException}s in case of delay effects
+	 * @return false if an exception occurred
+	 * */
+	public static boolean walk(TriggerItem start, Event event, final boolean mayYield) {
 		TriggerItem triggerItem = start;
 		try {
 			while (triggerItem != null) {
 				try {
 					triggerItem = triggerItem.walk(event);
 				} catch (final HandlerYieldException yield) {
-					Skript.debug("Yielding from %s", triggerItem.toString(event, true));
-
 					// If the trigger item is a delay, we are in the section
 					// that caused the yield, so we bubble the yield up to the call site.
 					if (triggerItem instanceof Delay) throw yield;
 
-					final Instant durationStart = Instant.now();
 					final TriggerItem lastVisitedItem = triggerItem;
 
+					// was copyLocalVariables
+					final Object locals = Variables.copyLocalVariables(event);
 					yield.addResumeCallback(() -> {
-						final Duration time = Duration.between(durationStart, Instant.now());
-						Skript.debug("Continuing from %s on call site after %f s yield", lastVisitedItem.toString(event, true), time.toNanos() / 1E9);
+						Variables.setLocalVariables(event, locals);
 						TriggerItem.walk(lastVisitedItem, event);
 					});
+
+					if (mayYield) throw yield;
 					return true;
 				}
 			}

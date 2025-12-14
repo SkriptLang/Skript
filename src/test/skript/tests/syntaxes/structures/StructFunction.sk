@@ -121,3 +121,37 @@ test "no return delayed runs later":
 	delete {-test.delayed_no_return}
 	delayed_no_return()
 	assert {-test.delayed_no_return} isn't set with "waited for delayed function with no return value"
+
+local function nested_delayed_one() :: integer:
+	wait a tick
+	return nested_delayed_two()
+
+local function nested_delayed_two() :: integer:
+	wait a tick
+	return 2
+
+test "nested delayed functions":
+	parse:
+		nested_delayed_one()
+		nested_delayed_two()
+	assert last parse logs is not set
+	assert nested_delayed_one() is 2 with "nested delayed functions don't work"
+
+local function nested_delayed_dirty_one() :: integer:
+	wait a tick
+	add 1 to {-test.nested_delayed_dirty}
+	return nested_delayed_dirty_two()
+
+local function nested_delayed_dirty_two() :: integer:
+	wait a tick
+	add 1 to {-test.nested_delayed_dirty}
+	return {-test.nested_delayed_dirty}
+
+test "delayed return value re-evaluation":
+	parse:
+		nested_delayed_dirty_one()
+		nested_delayed_dirty_two()
+	assert last parse logs is not set
+	delete {-test.nested_delayed_dirty}
+	nested_delayed_dirty_one()
+	assert {-test.nested_delayed_dirty} is 2 with "Incorrect call count"

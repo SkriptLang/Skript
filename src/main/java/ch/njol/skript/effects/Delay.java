@@ -102,11 +102,29 @@ public class Delay extends Effect {
 					if (trigger != null)
 						timing = SkriptTimings.start(trigger.getDebugLabel());
 				}
+				if (!hasDelayedFunctionsExperiment) {
+					TriggerItem.walk(next, event);
+					Variables.removeLocals(event);
+					SkriptTimings.stop(timing);
+					return;
+				}
 
-				TriggerItem.walk(next, event);
-				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
-
-				SkriptTimings.stop(timing); // Stop timing if it was even started
+				try {
+					TriggerItem.walk(next, event, hasDelayedFunctionsExperiment);
+				} catch (final HandlerYieldException innerYield) {
+					assert hasDelayedFunctionsExperiment: "Handler yield caught when disabled";
+					// The code after the wait has caused yet another yield.
+					// We should wait until that yield is finished.
+					final Object frozenTiming = timing;
+					innerYield.addResumeCallback(() -> {
+						Variables.removeLocals(event);
+						SkriptTimings.stop(frozenTiming);
+						yield.getResumeCallbacks().forEach(Runnable::run);
+					});
+					return;
+				}
+				Variables.removeLocals(event);
+				SkriptTimings.stop(timing);
 				yield.getResumeCallbacks().forEach(Runnable::run);
 			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
 		}

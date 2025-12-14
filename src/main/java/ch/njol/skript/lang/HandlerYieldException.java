@@ -5,6 +5,7 @@ import ch.njol.skript.lang.function.ScriptFunction;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -30,13 +31,15 @@ import java.util.Set;
  * interpreter knows how to resume execution.
  */
 public class HandlerYieldException extends RuntimeException {
-	private final Set<Runnable> resumeCallbacks = Collections.synchronizedSet(new HashSet<>());
+	private final Set<Runnable> resumeCallbacks = Collections.synchronizedSet(new LinkedHashSet<>());
 
 	/**
 	 * Registers a listener that will be executed when the delayed execution
 	 * resumes. Listeners are run by the delaying code (for example, on the main
 	 * server thread by {@link Delay} after the scheduled
 	 * wait finishes).
+	 * <p>
+	 * Callbacks are completed by the delaying code in the order they were added.
 	 *
 	 * @param task the callback to run upon resume; must be non-null
 	 */

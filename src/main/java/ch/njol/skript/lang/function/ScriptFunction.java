@@ -117,9 +117,15 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	@Override
 	public final void returnValues(Event event, Expression<? extends T> value) {
-		assert !returnValueSet.get();
-		returnValueSet.set(true);
+		// Returning a delayed function call will cause the return statement
+		// to be re-evaluated when the delayed function call has finished executing,
+		// at which point the return value will be set one more time.
+		if (returnValueSet.get()) return;
 		this.returnValues.set(value.getArray(event));
+		// It is _VERY IMPORTANT_ that this happens AFTER the getArray call
+		// because if the getArray call yields, it will leave the function
+		// in an invalid state where returnValueSet is true but returnValues isn't set
+		returnValueSet.set(true);
 		if (KeyProviderExpression.canReturnKeys(value))
 			this.returnKeys.set(((KeyProviderExpression<?>) value).getArrayKeys(event));
 	}
