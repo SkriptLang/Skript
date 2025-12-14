@@ -85,8 +85,7 @@ public abstract class TriggerItem implements Debuggable {
 
 					final TriggerItem lastVisitedItem = triggerItem;
 
-					// was copyLocalVariables
-					final Object locals = Variables.copyLocalVariables(event);
+					final Object locals = Variables.removeLocals(event);
 					yield.addResumeCallback(() -> {
 						Variables.setLocalVariables(event, locals);
 						TriggerItem.walk(lastVisitedItem, event);
