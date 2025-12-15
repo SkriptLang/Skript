@@ -1,12 +1,10 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.ban.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -14,6 +12,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 @Name("All Banned Players/IPs")
 @Description("Obtains the list of all banned players or IP addresses.")
@@ -25,14 +26,21 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.7")
 public class ExprAllBannedEntries extends SimpleExpression<Object> {
 
-	static {
-		Skript.registerExpression(ExprAllBannedEntries.class, Object.class, ExpressionType.SIMPLE, "[all [[of] the]|the] banned (players|ips:(ips|ip addresses))");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprAllBannedEntries.class, Object.class)
+				.addPatterns("[all [[of] the]|the] banned (players|ips:(ips|ip addresses))")
+				.priority(Priority.base())
+				.supplier(ExprAllBannedEntries::new)
+				.build()
+		);
 	}
 
 	private boolean ip;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		ip = parseResult.hasTag("ips");
 		return true;
 	}
