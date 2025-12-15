@@ -58,7 +58,8 @@ public class CondChance extends Condition {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String baseString = "chance of " + chance.toString(event, debug) + (percent ? "%" : "");
-		if (isNegated()) baseString += " failed";
+		if (isNegated())
+			baseString += " failed";
 		return baseString;
 	}
 	
