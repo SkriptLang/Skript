@@ -7,6 +7,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -54,7 +56,19 @@ public class CondChance extends Condition {
 		boolean result = Math.random() < (percent ? chance.doubleValue() / 100 : chance.doubleValue());
 		return result == !isNegated();
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		if (chance instanceof Literal<Number> litChance) {
+			Number chance = litChance.getSingle();
+			// Only maximum value matters, minimum for failure is always 0
+			double maxValue = percent ? 100 : 1;
+			if (chance.doubleValue() >= maxValue || chance.doubleValue() <= 0)
+				return SimplifiedCondition.fromCondition(this);
+		}
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String baseString = "chance of " + chance.toString(event, debug) + (percent ? "%" : "");
@@ -62,5 +76,5 @@ public class CondChance extends Condition {
 			baseString += " failed";
 		return baseString;
 	}
-	
+
 }
