@@ -61,7 +61,8 @@ public class CondChance extends Condition {
 	public Condition simplify() {
 		if (chance instanceof Literal<Number> litChance) {
 			Number chance = litChance.getSingle();
-			// Only maximum value matters, minimum for failure is always 0
+			// We can only simplify if the provided value <= 0% or >= 100% (or 1)
+			// as this eliminates the random element and will always evaluate the same.
 			double maxValue = percent ? 100 : 1;
 			if (chance.doubleValue() >= maxValue || chance.doubleValue() <= 0)
 				return SimplifiedCondition.fromCondition(this);
