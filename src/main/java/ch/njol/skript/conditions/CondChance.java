@@ -15,11 +15,11 @@ import org.jetbrains.annotations.Nullable;
 @Name("Chance")
 @Description("""
 	A condition that randomly succeeds or fails.
-	Valid values are between 0% and 100%, or if the percent sign is omitted between 0 and 1.
+	Valid values are between 0% and 100%, or if the percent sign is omitted, between 0 and 1.
 	""")
 @Example("""
 	chance of 50%:
-		drop a diamond at location(100,100,100, "world')
+		drop a diamond at location(100, 100, 100, "world')
 	""")
 @Example("chance of {chance}% # {chance} between 0 and 100")
 @Example("chance of {chance} # {chance} between 0 and 1")
@@ -27,11 +27,11 @@ import org.jetbrains.annotations.Nullable;
 	if chance of 99% fails:
 		broadcast "Haha loser! *points and laughs*"
 	""")
-@Since("1.0, INSERT VERSION (fail support)")
+@Since("1.0, INSERT VERSION (chance fails)")
 public class CondChance extends Condition {
 	
 	static {
-		Skript.registerCondition(CondChance.class, "chance of %number%(1¦\\%|) [fail:(fails|failed)]");
+		Skript.registerCondition(CondChance.class, "chance of %number%(1:\\%|) [fail:(fails|failed)]");
 	}
 
 	private Expression<Number> chance;
