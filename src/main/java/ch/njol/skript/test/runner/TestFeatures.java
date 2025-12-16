@@ -63,7 +63,9 @@ public enum TestFeatures implements Experiment {
 	}
 
 	static {
-		registerAll(Skript.getAddonInstance(), Skript.experiments());
+		if (!TestMode.GEN_DOCS) {
+			registerAll(Skript.getAddonInstance(), Skript.experiments());
+		}
 	}
 
 }
