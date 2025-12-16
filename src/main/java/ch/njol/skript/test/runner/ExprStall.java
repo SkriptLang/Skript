@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SimpleAsyncExpression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
@@ -22,6 +22,16 @@ public class ExprStall extends SimpleAsyncExpression<Object> {
 
 	private Expression<Object> objects;
 	private Expression<Timespan> delay;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		this.objects = (Expression<Object>) expressions[0];
+		this.delay = (Expression<Timespan>) expressions[1];
+
+		getParser().setHasDelayBefore(Kleenean.TRUE);
+		return LiteralUtils.canInitSafely(objects, delay);
+	}
 
 	@Override
 	protected CompletableFuture<Object[]> compute(Event event) {
@@ -45,14 +55,5 @@ public class ExprStall extends SimpleAsyncExpression<Object> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return objects.toString(event, debug) + " stalled for " + delay.toString(event, debug);
-	}
-
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		this.objects = (Expression<Object>) expressions[0];
-		this.delay = (Expression<Timespan>) expressions[1];
-
-		getParser().setHasDelayBefore(Kleenean.TRUE);
-		return LiteralUtils.canInitSafely(objects, delay);
 	}
 }
