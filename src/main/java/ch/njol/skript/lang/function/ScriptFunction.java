@@ -86,7 +86,15 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			}
 		}
 
-		trigger.execute(event);
+		try {
+			trigger.execute(event);
+		} catch (final HandlerYieldException yield) {
+			// If the function code yields, we want to ensure that it has some return value
+			// when it has completed so that it is not re-evaluated infinitely
+			yield.addResumeCallback(() -> returnValueSet.set(true));
+			throw yield;
+		}
+
 		ClassInfo<T> returnType = getReturnType();
 		return returnType != null ? returnValues.get() : null;
 	}

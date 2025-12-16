@@ -21,6 +21,7 @@ import java.io.File;
  */
 public abstract class TriggerItem implements Debuggable {
 
+	private static final ThreadLocal<TriggerItem> currentTriggerItem = new ThreadLocal<>();
 	protected @Nullable TriggerSection parent = null;
 	private @Nullable TriggerItem next = null;
 
@@ -56,14 +57,20 @@ public abstract class TriggerItem implements Debuggable {
 	 * @return True if the next item should be run, or false for the item following this item's parent.
 	 */
 	protected abstract boolean run(Event event);
-
 	/**
+	 * Equivalent to {@link TriggerItem#walk(TriggerItem, Event, boolean)}, but whether yielding is allowed is decided
+	 * implicitly. Top-level yields will be disabled and return silently if there is no current trigger item
+	 * (i.e. {@link TriggerItem#getCurrentTriggerItem()} is <code>null</code>).
 	 * @param start The item to start at
 	 * @param event The event to run the items with
 	 * @return false if an exception occurred
 	 */
 	public static boolean walk(TriggerItem start, Event event) {
-		return walk(start, event, false);
+		return walk(start, event, getCurrentTriggerItem() != null);
+	}
+
+	public static TriggerItem getCurrentTriggerItem() {
+		return currentTriggerItem.get();
 	}
 
 	/**
@@ -73,22 +80,23 @@ public abstract class TriggerItem implements Debuggable {
 	 * @return false if an exception occurred
 	 * */
 	public static boolean walk(TriggerItem start, Event event, final boolean mayYield) {
+		final TriggerItem previousItem = getCurrentTriggerItem();
 		TriggerItem triggerItem = start;
 		try {
 			while (triggerItem != null) {
 				try {
+					currentTriggerItem.set(triggerItem);
 					triggerItem = triggerItem.walk(event);
 				} catch (final HandlerYieldException yield) {
-					// If the trigger item is a delay, we are in the section
-					// that caused the yield, so we bubble the yield up to the call site.
-					if (triggerItem instanceof Delay) throw yield;
 
 					final TriggerItem lastVisitedItem = triggerItem;
 
 					final Object locals = Variables.removeLocals(event);
 					yield.addResumeCallback(() -> {
+						Delay.addDelayedEvent(event);
 						Variables.setLocalVariables(event, locals);
-						TriggerItem.walk(lastVisitedItem, event);
+						// HandlerYieldException.resolve handles nested yields, so we enable them explicitly.
+						TriggerItem.walk(lastVisitedItem, event, true);
 					});
 
 					if (mayYield) throw yield;
@@ -119,6 +127,8 @@ public abstract class TriggerItem implements Debuggable {
 			// not all Throwables are Exceptions, but we usually don't want to catch them (without rethrowing)
 			Skript.markErrored();
 			throw throwable;
+		} finally {
+			currentTriggerItem.set(previousItem);
 		}
 		return false;
 	}

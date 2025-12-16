@@ -24,7 +24,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -42,7 +41,7 @@ public class Delay extends Effect {
 		Skript.registerEffect(Delay.class, "(wait|halt) [for] %timespan%");
 	}
 
-	private final Map<Event, HandlerYieldException> waitMap = Collections.synchronizedMap(new WeakHashMap<>());
+	private final ThreadLocal<HandlerYieldException> yield = ThreadLocal.withInitial(() -> new HandlerYieldException(this));
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	protected Expression<Timespan> duration;
@@ -78,9 +77,14 @@ public class Delay extends Effect {
 		debug(event, true);
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
-		final HandlerYieldException yield = waitMap.computeIfAbsent(event, unused -> new HandlerYieldException());
-		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 
+		final HandlerYieldException yield = this.yield.get();
+		// Delay is special in that its completion runs as part of the yield's resolution,
+		// as opposed to being run on the second call to 'walk'. This is why we return null
+		// instead of 'next' here.
+		if (yield.isResolved()) return null;
+
+		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 			Timespan duration = this.duration.getSingle(event);
 			if (duration == null)
 				return null;
@@ -104,26 +108,24 @@ public class Delay extends Effect {
 				}
 
 				try {
-					TriggerItem.walk(next, event, hasDelayedFunctionsExperiment);
+					TriggerItem.walk(next, event);
 				} catch (final HandlerYieldException innerYield) {
-					assert hasDelayedFunctionsExperiment: "Handler yield caught when disabled";
 					// The code after the wait has caused yet another yield.
 					// We should wait until that yield is finished.
 					final Object frozenTiming = timing;
 					innerYield.addResumeCallback(() -> {
 						Variables.removeLocals(event);
 						SkriptTimings.stop(frozenTiming);
-						yield.getResumeCallbacks().forEach(Runnable::run);
+						yield.resolve();
 					});
 					return;
 				}
 				Variables.removeLocals(event);
 				SkriptTimings.stop(timing);
-				yield.getResumeCallbacks().forEach(Runnable::run);
+				yield.resolve();
 			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
 		}
-		// If we are supposed to return a value after this delay, we have
-		// to yield the trigger and tell the call site to register a callback
+		// If we are supposed to return a value after this delay, we have to yield the trigger
 		if (hasDelayedFunctionsExperiment
 			&& returnHandler != null
 			&& returnHandler.returnValueType() != null

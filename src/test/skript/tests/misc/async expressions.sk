@@ -1,0 +1,9 @@
+test "can set async expression to async expression":
+	spawn a pig at the test location:
+		set (name of the pig) stalled for 2 seconds to ("John" stalled for 2 seconds)
+	assert name of last spawned pig is "John" with "pig name wrong"
+
+test "async expression takes time":
+	set {_start} to now
+	set {_end} to now stalled for 2 seconds
+	assert unsafely difference between {_start} and {_end} > 1 second with "async expression too fast"
