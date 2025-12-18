@@ -50,6 +50,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
+import org.bukkit.event.player.PlayerRespawnEvent.RespawnReason;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.vehicle.*;
@@ -547,6 +548,8 @@ public final class BukkitEventValues {
 		}
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
+		//PlayerRespawnEvent
+		EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, PlayerRespawnEvent::getRespawnReason);
 		//FireworkExplodeEvent
 		EventValues.registerEventValue(FireworkExplodeEvent.class, Firework.class, FireworkExplodeEvent::getEntity);
 		EventValues.registerEventValue(FireworkExplodeEvent.class, FireworkEffect.class, event -> {

@@ -2535,6 +2535,12 @@ spawn reasons:
 	rehydration: rehydration, rehydrated
 	build_coppergolem: build copper golem, built copper golem
 
+# -- Respawn Reasons --
+respawn reasons:
+	death: death
+	end_portal: end portal
+	plugin: plugin
+
 # -- Difficulties --
 difficulties:
 	easy: easy
@@ -3085,6 +3091,7 @@ types:
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
 	spawnreason: spawn reason¦s @a
+	respawnreason: respawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a
 	fireworkeffect: firework effect¦s @a

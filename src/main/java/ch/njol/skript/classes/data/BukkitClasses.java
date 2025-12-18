@@ -41,6 +41,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.event.player.PlayerRespawnEvent.RespawnReason;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.EquipmentSlot;
@@ -780,6 +781,12 @@ public class BukkitClasses {
 				.name("Spawn Reason")
 				.description("The spawn reason in a <a href='#spawn'>spawn</a> event.")
 				.since("2.3"));
+
+		Classes.registerClass(new EnumClassInfo<>(RespawnReason.class, "respawnreason", "respawn reasons")
+				.user("respawn(ing)? ?reasons?")
+				.name("Respawn Reason")
+				.description("The respawn reason in a <a href='#respawn'>respawn</a> event.")
+				.since("INSERT VERSION"));
 
 		if (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")) {
 			Classes.registerClass(new ClassInfo<>(CachedServerIcon.class, "cachedservericon")
