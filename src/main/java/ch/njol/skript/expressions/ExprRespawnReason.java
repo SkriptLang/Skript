@@ -10,7 +10,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 
 @Name("Respawn Reason")
 @Description("The <a href='#respawnreason'>respawn reason</a> in a <a href='#respawn'>respawn</a> event.")
-@Example("""
+@Examples("""
 	on respawn:
 		if respawn reason is end portal:
 			broadcast "%player% took the end portal to the overworld!"
