@@ -1,4 +1,4 @@
-name: JUnit (MC 1.20.6+)
+name: JUnit (MC 1.21+)
 
 on:
     push:
