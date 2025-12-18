@@ -64,6 +64,7 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -553,7 +554,7 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, PlayerRespawnEvent::getRespawnReason);
 		} else {
 			try {
-				var method = PlayerRespawnEvent.class.getMethod("getRespawnReason");
+				Method method = PlayerRespawnEvent.class.getMethod("getRespawnReason");
 				EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, event -> {
 					try {
 						return (RespawnReason) method.invoke(event);
