@@ -548,8 +548,21 @@ public final class BukkitEventValues {
 		}
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
-		//PlayerRespawnEvent
-		EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, PlayerRespawnEvent::getRespawnReason);
+		//PlayerRespawnEvent - 1.21.5+ added AbstractRespawnEvent as a base class, where prior to that, getRespawnReason was in PlayerRespawnEvent
+		if (Skript.classExists("org.bukkit.event.player.AbstractRespawnEvent")) {
+			EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, PlayerRespawnEvent::getRespawnReason);
+		} else {
+			try {
+				var method = PlayerRespawnEvent.class.getMethod("getRespawnReason");
+				EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, event -> {
+					try {
+						return (RespawnReason) method.invoke(event);
+					} catch (Exception e) {
+						return null;
+					}
+				});
+			} catch (NoSuchMethodException ignored) {}
+		}
 		//FireworkExplodeEvent
 		EventValues.registerEventValue(FireworkExplodeEvent.class, Firework.class, FireworkExplodeEvent::getEntity);
 		EventValues.registerEventValue(FireworkExplodeEvent.class, FireworkEffect.class, event -> {
