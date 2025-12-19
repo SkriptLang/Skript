@@ -39,9 +39,3 @@ jobs:
               run: chmod +x gradlew
             - name: Build Skript and run test scripts
               run: ./gradlew clean customTest -PtestEnvs="${{ matrix.envs }}" -PtestEnvJavaVersion=21 -Pjunit=true
-            - name: Upload Nightly Build
-              uses: actions/upload-artifact@v4
-              if: success() && matrix.id == 1
-              with:
-                  name: skript-nightly
-                  path: build/libs/*
