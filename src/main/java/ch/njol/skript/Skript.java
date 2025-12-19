@@ -1307,15 +1307,12 @@ public final class Skript extends JavaPlugin implements Listener {
 			return;
 		disabled = true;
 
-		info("beforeDisable");
 		if (!partDisabled) {
 			beforeDisable();
 		}
 
-		info("cancelTasks");
 		Bukkit.getScheduler().cancelTasks(this);
 
-		info("closing closables");
 		for (Closeable c : closeOnDisable) {
 			try {
 				c.close();
@@ -1324,7 +1321,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
-		info("done with disable");
 		this.experimentRegistry = null;
 	}
 
