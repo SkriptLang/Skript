@@ -2,3 +2,17 @@ test "async expression takes time":
 	set {_start} to now
 	set {_end} to now stalled for 2 seconds
 	assert unsafely difference between {_start} and {_end} > 1 second with "async expression too fast"
+
+# # Currently, async expressions DO cause side-effects, because they re-evaluate the entire trigger item.
+# # To fix this, we have to explicitly add a flag to all syntax elements that describes whether they support
+# # asynchronous expressions, and give some sort of error for using an asynchronous expression in a
+# # non-asynchronous context.
+#
+#local function side_effect() returns integer:
+#	add 1 to {-%script%.side effect test}
+#	return 1
+#
+#test "async expression does not cause side effects":
+#	set {-%script%.side effect test} to 0
+#	add side_effect() and ({_} stalled for 0 ticks) to {_unused::*}
+#	assert unsafely {-%script%.side effect test} is 1 with "async expression caused side effects"

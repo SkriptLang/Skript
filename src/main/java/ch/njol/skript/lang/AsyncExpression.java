@@ -3,6 +3,7 @@ package ch.njol.skript.lang;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -21,8 +22,13 @@ import java.util.function.Consumer;
  * <p>
  * See {@link SimpleAsyncExpression} for an example of how to track whether to return the computed result or create
  * a new computation.
+ * <p>This is experimental because of issues related to the handling of asynchronous expressions. For example, an effect
+ * that contains multiple expressions of which one yields may invoke some non-async expressions more than once, or async
+ * expressions an arbitrary number of times. To give an example, <code>broadcast foo() and %some async expression%</code> may run
+ * <code>foo()</code> twice.
  * @see SimpleAsyncExpression
  * */
+@ApiStatus.Experimental
 public interface AsyncExpression<T> extends Expression<T> {
 	/**
 	 * The execution context of an asynchronous expression. May be used by implementations to record whether the current

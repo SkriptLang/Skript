@@ -206,6 +206,10 @@ public enum Feature implements Experiment, Documentable {
 		Delayed functions also delay execution even when their return value is ignored. \
 		However, functions without a return value will still execute independently of the \
 		calling code regardless of whether this experiment is enabled.
+		
+		**Note that there is a known issue involving delayed functions, where a call to a delayed \
+		function will cause parts of the line that calls it to be executed multiple times. To avoid this, \
+		do not call delayed functions from lines that already have other expressions.**
 		""",
 		LifeCycle.EXPERIMENTAL, "delayed functions");
 

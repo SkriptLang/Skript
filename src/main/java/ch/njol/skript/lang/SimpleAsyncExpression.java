@@ -6,6 +6,7 @@ import ch.njol.skript.lang.SimpleAsyncExpression.SimpleContext.Running;
 import ch.njol.skript.lang.util.SimpleExpression;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +20,12 @@ import java.util.function.Function;
  * You should usually extend this class to make an asynchronous expression.
  * <p>When running code asynchronously, you may find {@link SimpleAsyncExpression#getMainThreadExecutor()} to be useful.
  * Don't accidentally run Skript code outside the server thread!
+ * <p>This is experimental because of issues related to the handling of asynchronous expressions. For example, an effect
+ * that contains multiple expressions of which one yields may invoke some non-async expressions more than once, or async
+ * expressions an arbitrary number of times. To give an example, <code>broadcast foo() and %some async expression%</code> may run
+ * <code>foo()</code> twice.
  * */
+@ApiStatus.Experimental
 public abstract class SimpleAsyncExpression<T> extends SimpleExpression<T> implements AsyncExpression<T> {
 	protected abstract CompletableFuture<T[]> compute(final Event event);
 
