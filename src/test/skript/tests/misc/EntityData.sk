@@ -461,6 +461,11 @@ test "llama data":
 	testData(baby gray trader llama)
 	testData(gray trader llama cria)
 
+test "mannequin data" when running minecraft "1.21.9":
+	setSuperTypes(mannequin)
+	testData(immovable mannequin)
+	testData(movable mannequin)
+
 test "minecart data":
 	setSuperTypes(minecart)
 	testData(minecart)

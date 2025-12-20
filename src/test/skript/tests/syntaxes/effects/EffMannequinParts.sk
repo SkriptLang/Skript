@@ -1,0 +1,77 @@
+test "mannequin parts" when running minecraft "1.21.9":
+	spawn a mannequin at test-location:
+		set {_entity} to entity
+
+	disable the mannequin cape for {_entity}
+	assert the mannequin cape of {_entity} is disabled with "Mannequin cape should be disabled"
+	enable the mannequin cape for {_entity}
+	assert the mannequin cape of {_entity} is enabled with "Mannequin cape should be enabled"
+
+	disable the mannequin hat for {_entity}
+	assert the mannequin hat of {_entity} is disabled with "Mannequin hat should be disabled"
+	enable the mannequin hat for {_entity}
+	assert the mannequin hat of {_entity} is enabled with "Mannequin hat should be enabled"
+
+	disable the mannequin jacket for {_entity}
+	assert the mannequin jacket of {_entity} is disabled with "Mannequin jacket should be disabled"
+	enable the mannequin jacket for {_entity}
+	assert the mannequin jacket of {_entity} is enabled with "Mannequin jacket should be enabled"
+
+	disable the mannequin left pants for {_entity}
+	assert the mannequin left pants of {_entity} is disabled with "Mannequin left pants should be disabled"
+	enable the mannequin left pants for {_entity}
+	assert the mannequin left pants of {_entity} is enabled with "Mannequin left pants should be enabled"
+
+	disable the mannequin left sleeve for {_entity}
+	assert the mannequin left sleeve of {_entity} is disabled with "Mannequin left sleeve should be disabled"
+	enable the mannequin left sleeve for {_entity}
+	assert the mannequin left sleeve of {_entity} is enabled with "Mannequin left sleeve should be enabled"
+
+	disable the mannequin right pants for {_entity}
+	assert the mannequin right pants of {_entity} is disabled with "Mannequin right pants should be disabled"
+	enable the mannequin right pants for {_entity}
+	assert the mannequin right pants of {_entity} is enabled with "Mannequin right pants should be enabled"
+
+	disable the mannequin right sleeve for {_entity}
+	assert the mannequin right sleeve of {_entity} is disabled with "Mannequin right sleeve should be disabled"
+	enable the mannequin right sleeve for {_entity}
+	assert the mannequin right sleeve of {_entity} is enabled with "Mannequin right sleeve should be enabled"
+
+	disable the mannequin pants for {_entity}
+	assert the mannequin pants of {_entity} is disabled with "Mannequin pants should be disabled"
+	assert the mannequin left pants of {_entity} is disabled with "Mannequin left pants should be disabled after 'pants'"
+	assert the mannequin right pants of {_entity} is disabled with "Mannequin right pants should be disabled after 'pants'"
+	enable the mannequin pants for {_entity}
+	assert the mannequin pants of {_entity} is enabled with "Mannequin pants should be enabled"
+	assert the mannequin left pants of {_entity} is enabled with "Mannequin left pants should be enabled after 'pants'"
+	assert the mannequin right pants of {_entity} is enabled with "Mannequin right pants should be enabled after 'pants'"
+
+	disable the mannequin sleeves for {_entity}
+	assert the mannequin sleeves of {_entity} is disabled with "Mannequin sleeves should be disabled"
+	assert the mannequin left sleeve of {_entity} is disabled with "Mannequin left sleeve should be disabled after 'sleeves'"
+	assert the mannequin right sleeve of {_entity} is disabled with "Mannequin right sleeve should be disabled after 'sleeves'"
+	enable the mannequin sleeves for {_entity}
+	assert the mannequin sleeves of {_entity} is enabled with "Mannequin sleeves should be enabled"
+	assert the mannequin left sleeve of {_entity} is enabled with "Mannequin left sleeve should be enabled after 'sleeves'"
+	assert the mannequin right sleeve of {_entity} is enabled with "Mannequin right sleeve should be enabled after 'sleeves'"
+
+	disable all of the mannequin skin parts for {_entity}
+	assert all of the mannequin skin parts of {_entity} are disabled with "All mannequin skin parts should be disabled"
+	assert the mannequin cape of {_entity} is disabled with "Mannequin cape should be disabled after 'all'"
+	assert the mannequin hat of {_entity} is disabled with "Mannequin hat should be disabled after 'all'"
+	assert the mannequin jacket of {_entity} is disabled with "Mannequin jacket should be disabled after 'all'"
+	assert the mannequin left pants of {_entity} is disabled with "Mannequin left pants should be disabled after 'all'"
+	assert the mannequin left sleeve of {_entity} is disabled with "Mannequin left sleeve should be disabled after 'all'"
+	assert the mannequin right pants of {_entity} is disabled with "Mannequin right pants should be disabled after 'all'"
+	assert the mannequin right sleeve of {_entity} is disabled with "Mannequin right sleeve should be disabled after 'all'"
+	enable all of the mannequin skin parts for {_entity}
+	assert all of the mannequin skin parts of {_entity} are enabled with "All mannequin skin parts should be enabled"
+	assert the mannequin cape of {_entity} is enabled with "Mannequin cape should be enabled after 'all'"
+	assert the mannequin hat of {_entity} is enabled with "Mannequin hat should be enabled after 'all'"
+	assert the mannequin jacket of {_entity} is enabled with "Mannequin jacket should be enabled after 'all'"
+	assert the mannequin left pants of {_entity} is enabled with "Mannequin left pants should be enabled after 'all'"
+	assert the mannequin left sleeve of {_entity} is enabled with "Mannequin left sleeve should be enabled after 'all'"
+	assert the mannequin right pants of {_entity} is enabled with "Mannequin right pants should be enabled after 'all'"
+	assert the mannequin right sleeve of {_entity} is enabled with "Mannequin right sleeve should be enabled after 'all'"
+
+	clear entity within {_entity}
