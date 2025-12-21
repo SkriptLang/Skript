@@ -35,35 +35,29 @@ import java.util.logging.Level;
 	"Some expressions can only be set and/or deleted, while others can also have things added to or removed from them."
 })
 @Example("""
-	# Set
-	Set the player's display name to "&lt;red&gt;%name of player%"
+	set the player's display name to "<red>%name of player%"
 	set the block above the victim to lava
 	""")
 @Example("""
-	# Add
 	add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this
 	add argument to {blacklist::*}
 	give a diamond pickaxe of efficiency 5 to the player
 	increase the data value of the clicked block by 1
 	""")
 @Example("""
-	# Remove
 	remove 2 pickaxes from the victim
 	subtract 2.5 from {points::%uuid of player%}
 	""")
 @Example("""
-	# Remove All
 	remove every iron tool from the player
 	remove all minecarts from {entitylist::*}
 	""")
 @Example("""
-	# Delete
 	delete the block below the player
 	clear drops
 	delete {variable}
 	""")
 @Example("""
-	# Reset
 	reset walk speed of player
 	reset chunk at the targeted block
 	""")

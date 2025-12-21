@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 	"This condition requires a supported <a href='#region'>regions</a> plugin to be installed."
 })
 @Example("""
-	command /setblock &lt;material&gt;:
+	command /setblock <material>:
 		description: set the block at your crosshair to a different type
 		trigger:
 			player cannot build at the targeted block:

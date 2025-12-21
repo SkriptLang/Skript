@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Player Protocol Version")
 @Description("Player's protocol version. For more information and list of protocol versions <a href='https://wiki.vg/Protocol_version_numbers'>visit wiki.vg</a>.")
 @Example("""
-	command /protocolversion &ltplayer&gt:
+	command /protocolversion <player>:
 		trigger:
 			send "Protocol version of %arg-1%: %protocol version of arg-1%"
 	""")

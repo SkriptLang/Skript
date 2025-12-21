@@ -35,7 +35,7 @@ import java.util.ArrayList;
 		if {_regions::*} is empty:
 			message "No regions exist at this sign."
 		else:
-			message "Regions containing this sign: &lt;gold&gt;%{_regions::*}%<r>."
+			message "Regions containing this sign: <gold>%{_regions::*}%<r>."
 	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")

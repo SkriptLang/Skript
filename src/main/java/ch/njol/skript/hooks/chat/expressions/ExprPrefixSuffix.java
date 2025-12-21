@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 		cancel event
 		broadcast "%player's prefix%%player's display name%%player's suffix%: %message%" to the player's world
 	""")
-@Example("set the player's prefix to \"[&lt;red&gt;Admin<reset>] \"")
+@Example("set the player's prefix to \"[<red>Admin<reset>] \"")
 @Example("clear player's prefix")
 @Since("2.0, 2.10 (delete)")
 @RequiredPlugins({"Vault", "a chat plugin that supports Vault"})

@@ -22,8 +22,8 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 @Example("""
 	loop 360 times:
 		set {_v} to cylindrical vector radius 1, yaw loop-value, height 2
-	set {_v} to cylindrical vector radius 1, yaw 90, height 2
 	""")
+@Example("set {_v} to cylindrical vector radius 1, yaw 90, height 2")
 @Since("2.2-dev28")
 public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 

@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 		"(increase and decrease effects cannot be used because that wouldn't make sense).",})
 @Example("""
 	on server list ping:
-		set the version string to "&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%"
+		set the version string to "<light green>Version: <orange>%minecraft version%"
 		set the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always
 	""")
 @Since("2.3")

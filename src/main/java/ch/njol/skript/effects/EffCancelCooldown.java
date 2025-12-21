@@ -18,7 +18,7 @@ import ch.njol.util.Kleenean;
 @Name("Cancel Command Cooldown")
 @Description({"Only usable in commands. Makes it so the current command usage isn't counted towards the cooldown."})
 @Example("""
-	command /nick &lt;text&gt;:
+	command /nick <text>:
 		executable by: players
 		cooldown: 10 seconds
 		trigger:

@@ -14,8 +14,8 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Fall Distance")
 @Description({"The distance an entity has fallen for."})
+@Example("set all entities' fall distance to 10")
 @Example("""
-	set all entities' fall distance to 10
 	on damage:
 		send "%victim's fall distance%" to victim
 	""")

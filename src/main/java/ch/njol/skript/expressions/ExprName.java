@@ -82,8 +82,8 @@ import java.util.List;
 @Example("""
 	on join:
 		player has permission "name.red"
-		set the player's display name to "&lt;red&gt;[admin] &lt;gold&gt;%name of player%"
-		set the player's tab list name to "&lt;green&gt;%player's name%"
+		set the player's display name to "<red>[admin] <gold>%name of player%"
+		set the player's tab list name to "<green>%player's name%"
 	""")
 @Example("set the name of the player's tool to \"Legendary Sword of Awesomeness\"")
 @Since({
