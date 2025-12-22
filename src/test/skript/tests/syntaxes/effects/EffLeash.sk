@@ -1,0 +1,11 @@
+test "leash basic":
+	spawn a cow at test-location:
+		set {_cow} to entity
+	spawn a villager at test-location:
+		set {_holder} to entity
+
+	leash {_cow} to {_holder}
+	unleash {_cow}
+
+	delete entity within {_cow}
+	delete entity within {_holder}
