@@ -1,6 +1,7 @@
-package ch.njol.skript.entity;
+package org.skriptlang.skript.bukkit.entity.nautilus;
 
 import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -21,7 +22,7 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 
 	private static Variant[] VARIANTS;
 
-	static void register() {
+	public static void register() {
 		EntityData.register(ZombieNautilusData.class, "zombie nautilus", ZombieNautilus.class, 0, "zombie nautilus");
 		Variables.yggdrasil.registerSingleClass(Variant.class,  "ZombieNautilus.Variant");
 

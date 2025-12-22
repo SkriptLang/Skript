@@ -95,6 +95,7 @@ import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
@@ -597,6 +598,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			LootTableModule.load();
 			skript.loadModules(
 					new DamageSourceModule(),
+					new EntityModule(),
 					new ItemComponentModule(),
 					new BrewingModule(),
 					new CommonModule()

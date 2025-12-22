@@ -1,5 +1,6 @@
-package ch.njol.skript.entity;
+package org.skriptlang.skript.bukkit.entity.nautilus;
 
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -11,7 +12,7 @@ import java.util.Objects;
 
 public class NautilusData extends EntityData<Nautilus> {
 
-	static void register() {
+	public static void register() {
 		EntityData.register(NautilusData.class, "nautilus", Nautilus.class, 0, "nautilus");
 	}
 

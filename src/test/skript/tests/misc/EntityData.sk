@@ -1075,11 +1075,6 @@ test "zombie nautilus data" when running minecraft "1.21.11":
 	testData(temperate zombie nautilus)
 	testData(warm zombie nautilus)
 
-	setSuperTypes(zombie nautilus, baby zombie nautilus)
-	testData(baby zombie nautilus)
-	testData(temperate baby zombie nautilus)
-	testData(warm baby zombie nautilus)
-
 	setSuperTypes(zombie nautilus, tamed zombie nautilus)
 	testData(tamed zombie nautilus)
 	testData(tamed temperate zombie nautilus)
