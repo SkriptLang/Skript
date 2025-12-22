@@ -29,7 +29,7 @@ dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.1.0'
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.4.1'
 
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.10-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.11-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
 	// bundled with Minecraft 1.19.4+ for display entity transforms

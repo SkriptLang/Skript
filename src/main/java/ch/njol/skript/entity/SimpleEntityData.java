@@ -245,6 +245,14 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("mannequin", Mannequin.class);
 		}
 
+		if (Skript.isRunningMinecraft(1, 21, 11)) {
+			NautilusData.register();
+			ZombieNautilusData.register();
+			addSuperEntity("any nautilus", AbstractNautilus.class);
+			addSimpleEntity("camel husk", CamelHusk.class);
+			addSimpleEntity("parched", Parched.class);
+		}
+
 		// SuperTypes
 		addSuperEntity("human", HumanEntity.class);
 		addSuperEntity("damageable", Damageable.class);

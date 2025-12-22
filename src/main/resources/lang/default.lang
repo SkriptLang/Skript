@@ -1597,6 +1597,25 @@ entities:
 		name: mannequin¦s
 		pattern: mannequin[plural:s]
 
+	# 1.21.11
+	# NautilusData
+	nautilus:
+		name: nautilus¦es
+		pattern: [:tamed] <age> nautilus[plural:es]
+	# ZombieNautilusData
+	zombie nautilus:
+		name: zombie nautilus¦es
+		pattern: [:tamed] [%-zombienautilusvariant%] <age> zombie nautilus[plural:es]
+	any nautilus:
+		name: any nautilus¦es
+		pattern: any <age> nautilus[plural:es]
+	camel husk:
+		name: camel husk¦s
+		pattern: camel husk[plural:s]
+	parched:
+		name: parched¦s
+		pattern: parched[plural:s]
+
 	# SuperTypes
 	human:
 		name: human¦s
@@ -2956,6 +2975,11 @@ frog variants:
 	temperate: temperate
 	warm: warm
 
+# -- Zombie Nautilus Variants --
+zombie nautilus variants:
+	temperate: temperate
+	warm: warm
+
 # -- Villager Career Change Reasons
 villager career change reasons:
 	employed: employment
@@ -3133,6 +3157,7 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	zombienautilusvariant: zombie nautilus variant¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

@@ -13,7 +13,7 @@ jobs:
         if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
         uses: ./.github/workflows/parallelize-tests.yml
         with:
-            environments: 1.21,1.21.1,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10
+            environments: 1.21,1.21.1,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10,1.21.11
             java_version: 21
             parallel_jobs: 3
 
