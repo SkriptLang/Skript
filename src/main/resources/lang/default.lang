@@ -1605,7 +1605,7 @@ entities:
 	# ZombieNautilusData
 	zombie nautilus:
 		name: zombie nautilus¦es
-		pattern: [:tamed] [%-zombienautilusvariant%] <age> zombie nautilus[plural:es]
+		pattern: [:tamed] [%-zombienautilusvariant%] (zombie|zombified) nautilus[plural:es]
 	any nautilus:
 		name: any nautilus¦es
 		pattern: any <age> nautilus[plural:es]
