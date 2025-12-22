@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyRegistry;
@@ -659,7 +658,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		jsonDocs.add("conditions", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.CONDITION)));
 		jsonDocs.add("effects", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.EFFECT)));
 		jsonDocs.add("expressions", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION)));
-		jsonDocs.add("events", generateStructureElementArray(source.syntaxRegistry().syntaxes(BukkitRegistryKeys.EVENT)));
+		jsonDocs.add("events", generateStructureElementArray(source.syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY)));
 		jsonDocs.add("structures", generateStructureElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.STRUCTURE)));
 		jsonDocs.add("sections", generateSyntaxElementArray(source.syntaxRegistry().syntaxes(SyntaxRegistry.SECTION)));
 		jsonDocs.add("types", generateClassInfoArray(Classes.getClassInfos().iterator()));

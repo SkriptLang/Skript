@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 class SkriptAddonImpl {
 
-	static class UnmodifiableAddon implements SkriptAddon {
+	static final class UnmodifiableAddon implements SkriptAddon {
 
 		private final SkriptAddon addon;
 		private final Localizer unmodifiableLocalizer;
@@ -72,6 +72,11 @@ class SkriptAddonImpl {
 		@Override
 		public void loadModules(AddonModule... modules) {
 			throw new UnsupportedOperationException("Cannot load modules using an unmodifiable addon");
+		}
+
+		@Override
+		public SkriptAddon unmodifiableView() {
+			return this;
 		}
 
 	}
