@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -16,9 +17,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("INSERT VERSION")
 public class EffPotionIcon extends PotionPropertyEffect {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionIcon.class)
 				.supplier(EffPotionIcon::new)
+				.origin(origin)
 				.addPatterns(getPatterns(Type.SHOW, "icon[s]"))
 				.build());
 	}

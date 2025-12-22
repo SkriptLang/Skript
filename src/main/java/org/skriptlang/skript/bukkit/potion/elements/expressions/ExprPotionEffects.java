@@ -21,6 +21,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
@@ -45,12 +46,13 @@ import java.util.List;
 @Since("2.5.2, INSERT VERSION (active/hidden support, more change modes)")
 public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEffect> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffects.class, SkriptPotionEffect.class,
 			"[:active|:hidden|both:(active and hidden|hidden and active)] potion effects",
 			"livingentities/itemtypes",
 			false)
 				.supplier(ExprPotionEffects::new)
+				.origin(origin)
 				.build());
 	}
 
@@ -91,7 +93,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr(exprs[0]);
-		state = State.fromParseTag(parseResult.tags.isEmpty() ? "" : parseResult.tags.get(0));
+		state = State.fromParseTag(parseResult.tags.isEmpty() ? "" : parseResult.tags.getFirst());
 		if (state.includesHidden() && ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
 			Skript.error("Items (such as potions or stews) do not have hidden effects");
 			return false;

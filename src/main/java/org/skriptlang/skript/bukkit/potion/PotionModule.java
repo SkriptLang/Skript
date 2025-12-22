@@ -25,6 +25,7 @@ import org.skriptlang.skript.bukkit.potion.elements.effects.*;
 import org.skriptlang.skript.bukkit.potion.elements.events.*;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.*;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -196,30 +197,31 @@ public class PotionModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		// Load Syntax
 		SyntaxRegistry registry = addon.syntaxRegistry();
+		Origin origin = AddonModule.origin(addon, "potions");
 		// conditions
-		CondHasPotion.register(registry);
-		CondIsPoisoned.register(registry);
-		CondIsPotionAmbient.register(registry);
-		CondIsPotionInstant.register(registry);
-		CondPotionHasIcon.register(registry);
-		CondPotionHasParticles.register(registry);
+		CondHasPotion.register(registry, origin);
+		CondIsPoisoned.register(registry, origin);
+		CondIsPotionAmbient.register(registry, origin);
+		CondIsPotionInstant.register(registry, origin);
+		CondPotionHasIcon.register(registry, origin);
+		CondPotionHasParticles.register(registry, origin);
 		// effects
-		EffApplyPotionEffect.register(registry);
-		EffPoison.register(registry);
-		EffPotionAmbient.register(registry);
-		EffPotionIcon.register(registry);
-		EffPotionInfinite.register(registry);
-		EffPotionParticles.register(registry);
+		EffApplyPotionEffect.register(registry, origin);
+		EffPoison.register(registry, origin);
+		EffPotionAmbient.register(registry, origin);
+		EffPotionIcon.register(registry, origin);
+		EffPotionInfinite.register(registry, origin);
+		EffPotionParticles.register(registry, origin);
 		// events
-		EvtEntityPotion.register(registry);
+		EvtEntityPotion.register(registry, origin);
 		// expressions
-		ExprPotionAmplifier.register(registry);
-		ExprPotionDuration.register(registry);
-		ExprPotionEffect.register(registry);
-		ExprPotionEffects.register(registry);
-		ExprPotionEffectTypeCategory.register(registry);
-		ExprSecPotionEffect.register(registry);
-		ExprSkriptPotionEffect.register(registry);
+		ExprPotionAmplifier.register(registry, origin);
+		ExprPotionDuration.register(registry, origin);
+		ExprPotionEffect.register(registry, origin);
+		ExprPotionEffects.register(registry, origin);
+		ExprPotionEffectTypeCategory.register(registry, origin);
+		ExprSecPotionEffect.register(registry, origin);
+		ExprSkriptPotionEffect.register(registry, origin);
 	}
 
 }

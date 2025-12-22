@@ -10,6 +10,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect Type Category")
@@ -26,11 +27,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("INSERT VERSION")
 public class ExprPotionEffectTypeCategory extends SimplePropertyExpression<PotionEffectType, PotionEffectTypeCategory> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		if (Skript.classExists("org.bukkit.potion.PotionEffectTypeCategory")) {
 			registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffectTypeCategory.class, PotionEffectTypeCategory.class,
 				"potion [effect [type]] category", "potioneffecttypes", false)
 					.supplier(ExprPotionEffectTypeCategory::new)
+					.origin(origin)
 					.build());
 		}
 	}

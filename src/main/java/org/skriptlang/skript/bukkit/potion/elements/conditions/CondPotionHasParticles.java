@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Has Particles")
@@ -18,10 +19,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("INSERT VERSION")
 public class CondPotionHasParticles extends PropertyCondition<SkriptPotionEffect> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondPotionHasParticles.class, PropertyType.HAVE,
 			"particles", "skriptpotioneffects")
 				.supplier(CondPotionHasParticles::new)
+				.origin(origin)
 				.build());
 	}
 

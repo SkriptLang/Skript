@@ -10,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect - Amplifier")
@@ -19,10 +20,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since({"2.7", "INSERT VERSION (support for potion effect objects, changing)"})
 public class ExprPotionAmplifier extends SimplePropertyExpression<SkriptPotionEffect, Integer> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionAmplifier.class, Integer.class,
 			"([potion] amplifier|potion tier|potion level)[s]", "skriptpotioneffects", true)
 				.supplier(ExprPotionAmplifier::new)
+				.origin(origin)
 				.build());
 	}
 

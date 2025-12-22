@@ -15,6 +15,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,12 +38,13 @@ import org.jetbrains.annotations.Nullable;
 @Since({"2.6.1", "INSERT VERSION (support for potion effects)"})
 public class CondHasPotion extends Condition {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondHasPotion.class, PropertyType.HAVE,
 			"([any|a[n]] [active] potion effect[s]|[any|a] potion effect[s] active)", "livingentities")
 				.addPatterns(PropertyCondition.getPatterns(PropertyType.HAVE,
 						"%skriptpotioneffects% [active]", "livingentities"))
 				.supplier(CondHasPotion::new)
+				.origin(origin)
 				.build());
 	}
 

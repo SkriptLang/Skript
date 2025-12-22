@@ -10,6 +10,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.ExprSecPotionEffect.PotionEffectSectionEvent;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Created Potion Effect")
@@ -22,10 +23,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("INSERT VERSION")
 public class ExprSkriptPotionEffect extends EventValueExpression<SkriptPotionEffect> implements EventRestrictedSyntax {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprSkriptPotionEffect.class, SkriptPotionEffect.class,
 			"[created] [potion] effect")
 				.supplier(ExprSkriptPotionEffect::new)
+				.origin(origin)
 				.build());
 	}
 

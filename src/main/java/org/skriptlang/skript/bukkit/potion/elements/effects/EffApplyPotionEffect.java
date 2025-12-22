@@ -15,6 +15,7 @@ import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -30,11 +31,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since({"2.0", "INSERT VERSION (syntax rework)"})
 public class EffApplyPotionEffect extends Effect {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		// While allowing the user to specify the timespan here is repetitive as you can do it in ExprSecPotionEffect,
 		// it allows syntax like "apply haste 3 to the player for 5 seconds" to work
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffApplyPotionEffect.class)
 				.supplier(EffApplyPotionEffect::new)
+				.origin(origin)
 				.addPatterns(
 						"(apply|grant) %skriptpotioneffects% to %livingentities% [for %-timespan%]",
 						"(affect|afflict) %livingentities% with %skriptpotioneffects% [for %-timespan%]"

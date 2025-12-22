@@ -18,6 +18,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -29,9 +30,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("1.3.2")
 public class EffPoison extends Effect {
 
-	public static void register(SyntaxRegistry syntaxRegistry) {
+	public static void register(SyntaxRegistry syntaxRegistry, Origin origin) {
 		syntaxRegistry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPoison.class)
 				.supplier(EffPoison::new)
+				.origin(origin)
 				.addPatterns(
 						"poison %livingentities% [for %-timespan%]",
 						"(cure|unpoison) %livingentities% [(from|of) poison]"

@@ -11,17 +11,18 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
 
 public class EvtEntityPotion extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry) {
-		registry.register(BukkitRegistryKeys.EVENT, BukkitSyntaxInfos.Event.builder(EvtEntityPotion.class, "Entity Potion Effect")
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtEntityPotion.class, "Entity Potion Effect")
 				.supplier(EvtEntityPotion::new)
+				.origin(origin)
 				.addEvent(EntityPotionEffectEvent.class)
 				.addPattern("entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [%-potionactions%] [due to %-potioncauses%]")
 				.addDescription("Called when an entity's potion effect is modified.")

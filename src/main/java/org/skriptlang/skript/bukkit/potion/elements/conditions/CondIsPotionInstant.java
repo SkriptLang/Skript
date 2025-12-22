@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.potion.PotionEffectType;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Potion Effect Type - Is Instant")
@@ -20,10 +21,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("INSERT VERSION")
 public class CondIsPotionInstant extends PropertyCondition<PotionEffectType> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.CONDITION, infoBuilder(CondIsPotionInstant.class, PropertyType.BE,
 			"instant", "potioneffecttypes")
 				.supplier(CondIsPotionInstant::new)
+				.origin(origin)
 				.build());
 	}
 
