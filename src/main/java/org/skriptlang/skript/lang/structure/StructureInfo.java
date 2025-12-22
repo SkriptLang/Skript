@@ -8,7 +8,9 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 
 /**
  * Special {@link SyntaxElementInfo} for {@link Structure}s that may contain information such as the {@link EntryValidator}.
+ * @deprecated Use {@link SyntaxInfo.Structure} ({@link SyntaxInfo.Structure#builder(Class)}) instead.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 
 	@Nullable
@@ -19,7 +21,6 @@ public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 	 */
 	public final boolean simple;
 
-	@ApiStatus.Experimental
 	public final SyntaxInfo.Structure.NodeType nodeType;
 
 	public StructureInfo(String[] patterns, Class<E> c, String originClassPath) throws IllegalArgumentException {
@@ -34,7 +35,6 @@ public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 		this(patterns, elementClass, originClassPath, entryValidator, SyntaxInfo.Structure.NodeType.SECTION);
 	}
 
-	@ApiStatus.Experimental
 	public StructureInfo(String[] patterns, Class<E> elementClass, String originClassPath,
 						 @Nullable EntryValidator entryValidator, SyntaxInfo.Structure.NodeType nodeType) throws IllegalArgumentException {
 		super(patterns, elementClass, originClassPath);

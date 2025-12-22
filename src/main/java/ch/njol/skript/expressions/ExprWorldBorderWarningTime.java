@@ -9,6 +9,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
@@ -39,27 +40,24 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		long input = mode == ChangeMode.RESET ? 15 : (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
+		long input = delta == null ? 15 : (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
-			switch (mode) {
-				case SET, RESET:
-					worldBorder.setWarningTime((int) Math.min(input, Integer.MAX_VALUE));
-					break;
-				case ADD:
-					if (worldBorder.getWarningTime() + input > Integer.MAX_VALUE) {
-						worldBorder.setWarningTime(Integer.MAX_VALUE);
-					} else {
-						worldBorder.setWarningTime((int) (worldBorder.getWarningTime() + input));
-					}
-					break;
-				case REMOVE:
-					if (worldBorder.getWarningTime() - input > Integer.MAX_VALUE) {
-						worldBorder.setWarningTime(Integer.MAX_VALUE);
-					} else {
-						worldBorder.setWarningTime((int) Math.max(worldBorder.getWarningTime() - input, 0));
-					}
-			}
+			long warningTime = switch (mode) {
+				case SET, RESET -> input;
+				case ADD -> Math2.addClamped(worldBorder.getWarningTime(), input);
+				case REMOVE -> Math2.addClamped(worldBorder.getWarningTime(), -input);
+				default -> throw new IllegalStateException();
+			};
+			setWarningTime(worldBorder, warningTime);
 		}
+	}
+
+	private static void setWarningTime(WorldBorder worldBorder, long inputTime) {
+		// make sure this won't cause an overflow, as internal value is in ticks
+		long time = Math2.multiplyClamped(inputTime, 20);
+		// fit and convert back to seconds
+		int warningTime = ((int) Math2.fit(0, time, Integer.MAX_VALUE)) / 20;
+		worldBorder.setWarningTime(warningTime);
 	}
 
 	@Override
