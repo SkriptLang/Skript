@@ -27,7 +27,7 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 
 		Registry<@NotNull Variant> variantRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ZOMBIE_NAUTILUS_VARIANT);
 		VARIANTS = variantRegistry.stream().toArray(Variant[]::new);
-		Classes.registerClass(new RegistryClassInfo<>(Variant.class, variantRegistry, "zombienautilusvariant", "zombienautilusvariant")
+		Classes.registerClass(new RegistryClassInfo<>(Variant.class, variantRegistry, "zombienautilusvariant", "zombie nautilus variants")
 			.user("zombie ?nautilus ?variants?")
 			.name("Zombie Nautilus Variant")
 			.description("Represents the variant of a zombie nautilus.")
