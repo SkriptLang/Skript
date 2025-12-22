@@ -6,7 +6,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.localization.Localizer;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
 
@@ -25,7 +27,7 @@ final class SkriptImpl implements Skript {
 
 	SkriptImpl(Class<?> source, String name) {
 		addon = new SkriptAddonImpl(this, source, name, Localizer.of(this));
-		storeRegistry(SyntaxRegistry.class, SyntaxRegistry.empty());
+		storeRegistry(SyntaxRegistry.class, new AddonAwareSyntaxRegistry(SyntaxRegistry.empty(), this));
 	}
 
 	/*
@@ -72,6 +74,11 @@ final class SkriptImpl implements Skript {
 
 	@Override
 	public SkriptAddon registerAddon(Class<?> source, String name) {
+		if (addon.name().equals(name)) {
+			throw new SkriptAPIException(
+				"Registering an addon with the same name as the Skript instance is not possible"
+			);
+		}
 		// make sure an addon is not already registered with this name
 		SkriptAddon existing = addons.get(name);
 		if (existing != null) {
@@ -125,6 +132,7 @@ final class SkriptImpl implements Skript {
 		private final Class<?> source;
 		private final String name;
 		private final Localizer localizer;
+		private AddonAwareSyntaxRegistry syntaxRegistry;
 
 		SkriptAddonImpl(Skript skript, Class<?> source, String name, @Nullable Localizer localizer) {
 			this.skript = skript;
@@ -160,7 +168,15 @@ final class SkriptImpl implements Skript {
 
 		@Override
 		public <R extends Registry<?>> R registry(Class<R> registryClass) {
-			return skript.registry(registryClass);
+			R registry = skript.registry(registryClass);
+			if (registryClass == SyntaxRegistry.class) {
+				if (syntaxRegistry == null || syntaxRegistry.syntaxRegistry != registry) { // stored syntax registry has changed...
+					this.syntaxRegistry = new AddonAwareSyntaxRegistry((SyntaxRegistry) registry, this);
+				}
+				//noinspection unchecked
+				return (R) syntaxRegistry;
+			}
+			return registry;
 		}
 
 		@Override
@@ -170,7 +186,7 @@ final class SkriptImpl implements Skript {
 
 		@Override
 		public SyntaxRegistry syntaxRegistry() {
-			return skript.syntaxRegistry();
+			return registry(SyntaxRegistry.class);
 		}
 
 		@Override
@@ -256,6 +272,56 @@ final class SkriptImpl implements Skript {
 		@Override
 		public void loadModules(AddonModule... modules) {
 			unmodifiableAddon.loadModules(modules);
+		}
+
+		@Override
+		public Skript unmodifiableView() {
+			return this;
+		}
+
+	}
+
+	/*
+	 * SyntaxRegistry Implementations
+	 */
+
+	private static final class AddonAwareSyntaxRegistry implements SyntaxRegistry {
+
+		final SyntaxRegistry syntaxRegistry;
+		private final SkriptAddon addon;
+
+		public AddonAwareSyntaxRegistry(SyntaxRegistry syntaxRegistry, SkriptAddon addon) {
+			this.syntaxRegistry = syntaxRegistry;
+			this.addon = addon;
+		}
+
+		@Override
+		public @Unmodifiable <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
+			return syntaxRegistry.syntaxes(key);
+		}
+
+		@Override
+		public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
+			if (info.origin() == Origin.UNKNOWN) { // when origin is unspecified, add one
+				//noinspection unchecked
+				info = (I) info.toBuilder().origin(Origin.of(addon)).build();
+			}
+			syntaxRegistry.register(key, info);
+		}
+
+		@Override
+		public void unregister(SyntaxInfo<?> info) {
+			syntaxRegistry.unregister(info);
+		}
+
+		@Override
+		public <I extends SyntaxInfo<?>> void unregister(Key<I> key, I info) {
+			syntaxRegistry.unregister(key, info);
+		}
+
+		@Override
+		public @Unmodifiable Collection<SyntaxInfo<?>> elements() {
+			return syntaxRegistry.elements();
 		}
 
 	}

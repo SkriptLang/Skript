@@ -7,7 +7,6 @@ import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.condition.Conditional;
@@ -20,33 +19,38 @@ import java.util.function.Predicate;
 
 /**
  * A condition which must be fulfilled for the trigger to continue. If the condition is in a section the behaviour depends on the section.
- *
- * @see Skript#registerCondition(Class, String...)
  */
 public abstract class Condition extends Statement implements Conditional<Event>, SyntaxRuntimeErrorProducer, Simplifiable<Condition> {
 
+	/**
+	 * @deprecated This has been replaced by {@link Priority}.
+	 * See the documentation of each element to determine their replacements.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public enum ConditionType {
+
 		/**
 		 * Conditions that contain other expressions, e.g. "%properties% is/are within %expressions%"
 		 * 
 		 * @see #PROPERTY
+		 * @deprecated Use {@link SyntaxInfo#COMBINED}.
 		 */
 		COMBINED(SyntaxInfo.COMBINED),
 
 		/**
 		 * Property conditions, e.g. "%properties% is/are data value[s]"
+		 * @deprecated Use {@link PropertyCondition#DEFAULT_PRIORITY}.
 		 */
 		PROPERTY(PropertyCondition.DEFAULT_PRIORITY),
 
 		/**
 		 * Conditions whose pattern matches (almost) everything or should be last checked.
+		 * @deprecated Use {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING}.
 		 */
 		PATTERN_MATCHES_EVERYTHING(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
-		@ApiStatus.Experimental
 		private final Priority priority;
 
-		@ApiStatus.Experimental
 		ConditionType(Priority priority) {
 			this.priority = priority;
 		}
@@ -54,7 +58,6 @@ public abstract class Condition extends Statement implements Conditional<Event>,
 		/**
 		 * @return The Priority equivalent of this ConditionType.
 		 */
-		@ApiStatus.Experimental
 		public Priority priority() {
 			return this.priority;
 		}

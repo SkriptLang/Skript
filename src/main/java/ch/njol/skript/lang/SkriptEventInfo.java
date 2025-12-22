@@ -10,13 +10,17 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.structure.StructureInfo;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * @deprecated Use {@link BukkitSyntaxInfos.Event} ({@link BukkitSyntaxInfos.Event#builder(Class, String)} instead.
+ */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> permits ModernSkriptEventInfo {
 
 	public Class<? extends Event>[] events;
@@ -232,14 +236,15 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 	/**
 	 * Internal wrapper class for providing compatibility with the new Registration API.
+	 * @deprecated This class exists solely for compatibility reasons.
 	 */
 	@ApiStatus.Internal
-	@ApiStatus.Experimental
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static final class ModernSkriptEventInfo<E extends SkriptEvent>
 			extends SkriptEventInfo<E>
 			implements BukkitSyntaxInfos.Event<E> {
 
-		private final SyntaxOrigin origin;
+		private final Origin origin;
 
 		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
 			super(name, patterns, eventClass, originClassPath, events);
@@ -248,7 +253,8 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 		@Override
 		public BukkitSyntaxInfos.Event.Builder<? extends BukkitSyntaxInfos.Event.Builder<?, E>, E> toBuilder() {
-			return BukkitSyntaxInfos.Event.builder(type(), name())
+			// add asterisk to prevent prepending "on" again
+			return BukkitSyntaxInfos.Event.builder(type(), "*" + name())
 				.origin(origin)
 				.addPatterns(patterns())
 				.priority(priority())
@@ -260,6 +266,11 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 				.addKeywords(keywords())
 				.addRequiredPlugins(requiredPlugins())
 				.addEvents(events());
+		}
+
+		@Override
+		public Origin origin() {
+			return origin;
 		}
 
 		@Override

@@ -6,7 +6,9 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 
 /**
  * Represents an expression's information, for use when creating new instances of expressions.
+ * @deprecated Use {@link SyntaxInfo.Expression} ({@link SyntaxInfo.Expression#builder(Class, Class)}) instead.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInfo<E> {
 
 	public @Nullable ExpressionType expressionType;

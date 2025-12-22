@@ -1,7 +1,7 @@
 package org.skriptlang.skript.addon;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.docs.Origin.AddonOrigin;
 
 /**
  * A module is a component of a {@link SkriptAddon} used for registering syntax and other {@link Skript} components.
@@ -15,8 +15,29 @@ import org.skriptlang.skript.Skript;
  * @see SkriptAddon#loadModules(AddonModule...)
  */
 @FunctionalInterface
-@ApiStatus.Experimental
 public interface AddonModule {
+
+	/**
+	 * Constructs an origin from an addon and module name.
+	 * @param addon The addon providing the module.
+	 * @param moduleName The name of the providing module.
+	 * @return An origin from the provided information.
+	 */
+	static ModuleOrigin origin(SkriptAddon addon, String moduleName) {
+		return new AddonModuleImpl.ModuleOriginImpl(addon, moduleName);
+	}
+
+	/**
+	 * An origin to be used for something provided by a module of an addon.
+	 */
+	sealed interface ModuleOrigin extends AddonOrigin permits AddonModuleImpl.ModuleOriginImpl {
+
+		/**
+		 * @return The name of the module represented by this origin.
+		 */
+		String moduleName();
+
+	}
 
 	/**
 	 * Used for loading the components of this module that are needed first or by other modules (e.g. class infos).

@@ -1,6 +1,6 @@
 package org.skriptlang.skript.util;
 
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -10,7 +10,6 @@ import java.util.Iterator;
  * It is up to individual implementations as to how they may be modified.
  * @param <T> The type of elements stored in a registry.
  */
-@ApiStatus.Experimental
 public interface Registry<T> extends Iterable<T> {
 
 	/**
@@ -24,7 +23,7 @@ public interface Registry<T> extends Iterable<T> {
 	 * @see Collection#iterator()
 	 */
 	@Override
-	default Iterator<T> iterator() {
+	default @NotNull Iterator<T> iterator() {
 		return elements().iterator();
 	}
 
