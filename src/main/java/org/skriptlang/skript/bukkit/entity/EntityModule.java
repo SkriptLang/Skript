@@ -10,6 +10,11 @@ import org.skriptlang.skript.bukkit.entity.nautilus.*;
 public class EntityModule implements AddonModule {
 
 	@Override
+	public String name() {
+		return "entities";
+	}
+
+	@Override
 	public void load(SkriptAddon addon) {
 		if (Skript.classExists("org.bukkit.entity.Nautilus")) {
 			NautilusData.register();

@@ -4,6 +4,6 @@ import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 
 class AddonModuleImpl {
 
-	public record ModuleOriginImpl(SkriptAddon addon, String moduleName) implements ModuleOrigin { }
+	public record ModuleOriginImpl(SkriptAddon addon, String... moduleNames) implements ModuleOrigin { }
 
 }

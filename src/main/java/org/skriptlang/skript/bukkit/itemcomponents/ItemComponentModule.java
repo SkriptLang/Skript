@@ -13,6 +13,11 @@ import org.skriptlang.skript.bukkit.itemcomponents.generic.ExprItemCompCopy;
 public class ItemComponentModule implements AddonModule {
 
 	@Override
+	public String name() {
+		return "item component";
+	}
+
+	@Override
 	public boolean canLoad(SkriptAddon addon) {
 		return Skript.classExists("io.papermc.paper.datacomponent.BuildableDataComponent");
 	}

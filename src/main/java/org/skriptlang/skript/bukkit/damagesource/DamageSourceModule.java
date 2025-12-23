@@ -19,6 +19,11 @@ import java.io.IOException;
 public class DamageSourceModule implements AddonModule {
 
 	@Override
+	public String name() {
+		return "damage source";
+	}
+
+	@Override
 	public boolean canLoad(SkriptAddon addon) {
 		return Skript.classExists("org.bukkit.damage.DamageSource");
 	}

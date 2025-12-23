@@ -14,28 +14,27 @@ import org.skriptlang.skript.docs.Origin.AddonOrigin;
  * The <code>load</code> phase should be used for loading components more specific to the module, such as syntax.
  * @see SkriptAddon#loadModules(AddonModule...)
  */
-@FunctionalInterface
 public interface AddonModule {
 
 	/**
 	 * Constructs an origin from an addon and module name.
 	 * @param addon The addon providing the module.
-	 * @param moduleName The name of the providing module.
+	 * @param moduleNames The names of the providing modules. The most specific module name should be first.
 	 * @return An origin from the provided information.
 	 */
-	static ModuleOrigin origin(SkriptAddon addon, String moduleName) {
-		return new AddonModuleImpl.ModuleOriginImpl(addon, moduleName);
+	static ModuleOrigin origin(SkriptAddon addon, String... moduleNames) {
+		return new AddonModuleImpl.ModuleOriginImpl(addon, moduleNames);
 	}
 
 	/**
-	 * An origin to be used for something provided by a module of an addon.
+	 * An origin to be used for something provided by one or more modules of an addon.
 	 */
-	sealed interface ModuleOrigin extends AddonOrigin permits AddonModuleImpl.ModuleOriginImpl {
+	sealed interface ModuleOrigin extends AddonOrigin permits AddonModuleImpl.ModuleOriginImpl, ChildAddonModule.ChildModuleOriginImpl {
 
 		/**
-		 * @return The name of the module represented by this origin.
+		 * @return The names of the modules represented by this origin.
 		 */
-		String moduleName();
+		String[] moduleNames();
 
 	}
 
@@ -63,6 +62,18 @@ public interface AddonModule {
 	 */
 	default boolean canLoad(SkriptAddon addon) {
 		return true;
+	}
+
+	/**
+	 * @return A name representing this module to be using in the {@link ModuleOrigin}. e.g. "discord", "nbt", "particles"...
+	 */
+	String name();
+
+	/**
+	 * @return An origin representing this module.
+	 */
+	default ModuleOrigin origin(SkriptAddon addon) {
+		return AddonModule.origin(addon, name());
 	}
 
 }

@@ -37,6 +37,11 @@ import java.io.StreamCorruptedException;
 public class PotionModule implements AddonModule {
 
 	@Override
+	public String name() {
+		return "potion";
+	}
+
+	@Override
 	public void init(SkriptAddon addon) {
 		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "skriptpotioneffect")

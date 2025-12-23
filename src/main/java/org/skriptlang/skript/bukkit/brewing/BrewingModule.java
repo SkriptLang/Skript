@@ -19,6 +19,11 @@ import java.util.function.Consumer;
 public class BrewingModule implements AddonModule {
 
 	@Override
+	public String name() {
+		return "brewing";
+	}
+
+	@Override
 	public void load(SkriptAddon addon) {
 		register(addon.syntaxRegistry(),
 

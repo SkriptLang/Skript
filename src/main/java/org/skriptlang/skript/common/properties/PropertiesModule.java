@@ -10,6 +10,11 @@ import java.io.IOException;
 public class PropertiesModule implements AddonModule {
 
 	@Override
+	public String name() {
+		return "type properties";
+	}
+
+	@Override
 	public boolean canLoad(SkriptAddon addon) {
 		return SkriptConfig.useTypeProperties.value();
 	}

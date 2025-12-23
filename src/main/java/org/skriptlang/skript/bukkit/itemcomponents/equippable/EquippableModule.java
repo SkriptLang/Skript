@@ -24,6 +24,11 @@ import java.util.function.Consumer;
 public class EquippableModule implements AddonModule {
 
 	@Override
+	public String name() {
+		return "equippable component";
+	}
+
+	@Override
 	public boolean canLoad(SkriptAddon addon) {
 		return Skript.classExists("io.papermc.paper.datacomponent.item.Equippable");
 	}
