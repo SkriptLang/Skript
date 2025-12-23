@@ -7,11 +7,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.function.Predicate;
@@ -46,7 +44,6 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * They will be registered before {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING} expressions
 	 *  but after {@link SyntaxInfo#COMBINED} expressions.
 	 */
-	@ApiStatus.Experimental
 	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
 	/**
@@ -79,43 +76,6 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	}
 
 	/**
-	 * @param registry The SyntaxRegistry to register with.
-	 * @param condition The class to register
-	 * @param property The property name, for example <i>fly</i> in <i>players can fly</i>
-	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
-	 * @param <E> The Condition type.
-	 * @return The registered {@link SyntaxInfo}.
-	 * @deprecated Use {@link #infoBuilder(Class, PropertyType, String, String)} to build a {@link SyntaxInfo}
-	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
-	 */
-	@ApiStatus.Experimental
-	@Deprecated(since = "2.12", forRemoval = true)
-	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, String property, String type) {
-		return register(registry, condition, PropertyType.BE, property, type);
-	}
-
-	/**
-	 * @param registry The SyntaxRegistry to register with.
-	 * @param condition The class to register
-	 * @param propertyType The property type, see {@link PropertyType}
-	 * @param property The property name, for example <i>fly</i> in <i>players can fly</i>
-	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
-	 * @param <E> The Condition type.
-	 * @return The registered {@link SyntaxInfo}.
-	 * @deprecated Use {@link #infoBuilder(Class, PropertyType, String, String)} to build a {@link SyntaxInfo}
-	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
-	 */
-	@ApiStatus.Experimental
-	@Deprecated(since = "2.12", forRemoval = true)
-	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, PropertyType propertyType, String property, String type) {
-		if (type.contains("%"))
-			throw new SkriptAPIException("The type argument must not contain any '%'s");
-		SyntaxInfo<E> info = infoBuilder(condition, propertyType, property, type).build();
-		registry.register(SyntaxRegistry.CONDITION, info);
-		return info;
-	}
-
-	/**
 	 * Creates a builder for a {@link SyntaxInfo} representing a {@link PropertyCondition}.
 	 * Patterns will be appended based on the {@code propertyType} (see {@link #getPatterns(PropertyType, String, String)}).
 	 * The info will use {@link #DEFAULT_PRIORITY} as its {@link SyntaxInfo#priority()}.
@@ -127,7 +87,6 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @param <E> The Condition type.
 	 * @return A {@link SyntaxInfo} representing the property conditon.
 	 */
-	@ApiStatus.Experimental
 	public static <E extends Condition> SyntaxInfo.Builder<? extends SyntaxInfo.Builder<?, E>, E> infoBuilder(
 			Class<E> condition, PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))
@@ -143,7 +102,10 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @param condition the class to register
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @deprecated Register the standard way using {@link #infoBuilder(Class, PropertyType, String, String)}
+	 *  to create a {@link SyntaxInfo}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static void register(Class<? extends Condition> condition, String property, String type) {
 		register(condition, PropertyType.BE, property, type);
 	}
@@ -155,7 +117,10 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @param propertyType the property type, see {@link PropertyType}
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @deprecated Register the standard way using {@link #infoBuilder(Class, PropertyType, String, String)}
+	 *  to create a {@link SyntaxInfo}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
 		Skript.registerCondition(condition, ConditionType.PROPERTY,
 				getPatterns(propertyType, property, type));
@@ -167,7 +132,7 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @param propertyType the property type, see {@link PropertyType}
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
-	 * @return patterns formmated for {@link Skript#registerCondition(Class, String...)}
+	 * @return Patterns formatted for syntax registration.
 	 */
 	public static String[] getPatterns(PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))

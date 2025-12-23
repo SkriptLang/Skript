@@ -6,7 +6,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BrewingStartEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -14,7 +13,7 @@ public class EvtBrewingStart extends SkriptEvent {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
-			BukkitRegistryKeys.EVENT,
+			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingStart.class, "Brewing Start")
 				.addEvent(BrewingStartEvent.class)
 				.addPatterns("brew[ing] start[ed|ing]")

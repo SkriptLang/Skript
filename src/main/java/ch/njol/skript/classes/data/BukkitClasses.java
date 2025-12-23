@@ -12,7 +12,6 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -29,7 +28,6 @@ import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.EntityUnleashEvent;
@@ -41,14 +39,13 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.event.player.PlayerRespawnEvent.RespawnReason;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.Metadatable;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -542,86 +539,6 @@ public class BukkitClasses {
 				.since("1.4.4")
 				.after("damagecause"));
 
-		Classes.registerClass(new ClassInfo<>(PotionEffect.class, "potioneffect")
-			.user("potion ?effects?")
-			.name("Potion Effect")
-			.description("A potion effect, including the potion effect type, tier and duration.")
-			.usage("speed of tier 1 for 10 seconds")
-			.since("2.5.2")
-			.parser(new Parser<PotionEffect>() {
-
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(PotionEffect potionEffect, int flags) {
-					return PotionEffectUtils.toString(potionEffect);
-				}
-
-				@Override
-				public String toVariableNameString(PotionEffect o) {
-					return "potion_effect:" + o.getType().getName();
-				}
-
-			})
-			.serializer(new Serializer<PotionEffect>() {
-				@Override
-				public Fields serialize(PotionEffect o) {
-					Fields fields = new Fields();
-					fields.putObject("type", o.getType().getName());
-					fields.putPrimitive("amplifier", o.getAmplifier());
-					fields.putPrimitive("duration", o.getDuration());
-					fields.putPrimitive("particles", o.hasParticles());
-					fields.putPrimitive("ambient", o.isAmbient());
-					return fields;
-				}
-
-				@Override
-				public void deserialize(PotionEffect o, Fields f) {
-					assert false;
-				}
-
-				@Override
-				protected PotionEffect deserialize(Fields fields) throws StreamCorruptedException {
-					String typeName = fields.getObject("type", String.class);
-					assert typeName != null;
-					PotionEffectType type = PotionEffectType.getByName(typeName);
-					if (type == null)
-						throw new StreamCorruptedException("Invalid PotionEffectType " + typeName);
-					int amplifier = fields.getPrimitive("amplifier", int.class);
-					int duration = fields.getPrimitive("duration", int.class);
-					boolean particles = fields.getPrimitive("particles", boolean.class);
-					boolean ambient = fields.getPrimitive("ambient", boolean.class);
-					return new PotionEffect(type, duration, amplifier, ambient, particles);
-				}
-
-				@Override
-				public boolean mustSyncDeserialization() {
-					return false;
-				}
-
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}));
-
-		Registry<PotionEffectType> petRegistry = BukkitUtils.getPotionEffectTypeRegistry();
-		if (petRegistry != null) {
-			Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
-				.user("potion ?effect ?types?")
-				.name("Potion Effect Type")
-				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
-				.examples("apply swiftness 5 to the player",
-					"apply potion of speed 2 to the player for 60 seconds",
-					"remove invisibility from the victim")
-				.since(""));
-		} else {
-			Classes.registerClass(PotionEffectUtils.getLegacyClassInfo());
-		}
-
 		// REMIND make my own damage cause class (that e.g. stores the attacker entity, the projectile, or the attacking block)
 		Classes.registerClass(new EnumClassInfo<>(DamageCause.class, "damagecause", "damage causes", new ExprDamageCause())
 				.user("damage ?causes?")
@@ -780,6 +697,12 @@ public class BukkitClasses {
 				.name("Spawn Reason")
 				.description("The spawn reason in a <a href='#spawn'>spawn</a> event.")
 				.since("2.3"));
+
+		Classes.registerClass(new EnumClassInfo<>(RespawnReason.class, "respawnreason", "respawn reasons")
+				.user("respawn(ing)? ?reasons?")
+				.name("Respawn Reason")
+				.description("The respawn reason in a <a href='#respawn'>respawn</a> event.")
+				.since("INSERT VERSION"));
 
 		if (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")) {
 			Classes.registerClass(new ClassInfo<>(CachedServerIcon.class, "cachedservericon")
@@ -998,12 +921,6 @@ public class BukkitClasses {
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description("Represents flags that may be applied to hide certain attributes of an item.")
-				.since("2.10"));
-
-		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
-				.user("(entity )?potion ?effect ?cause")
-				.name("Entity Potion Cause")
-				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("2.10"));
 
 		Classes.registerClass(new EnumClassInfo<>(ChangeReason.class,  "experiencecooldownchangereason", "experience cooldown change reasons")
