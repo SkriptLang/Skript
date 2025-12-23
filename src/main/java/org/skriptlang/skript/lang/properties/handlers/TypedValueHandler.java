@@ -10,6 +10,11 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
+/**
+ * A handler for the `%classinfo% value of %property%` syntax
+ * @param <Type> The type of the property holder
+ * @param <ValueType> The type of the value returned
+ */
 @ApiStatus.Experimental
 public interface TypedValueHandler<Type, ValueType> extends ExpressionPropertyHandler<Type, ValueType> {
 
