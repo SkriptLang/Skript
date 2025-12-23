@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Will Be Attacked")
 @Description("""
 	Checks if the entity in <a href='#Evt'>Player Pre Attack Entity Event</a> will be attacked.
-	Returns false for non-living entities, and the event won't be called for them unless explicitly listened to.
+	Returns false for non-living entities. However, the event won't be called for them unless explicitly listened to.
 	""")
 @Example("""
 	on player pre attack entity:
@@ -29,7 +29,7 @@ public class CondWillBeAttacked extends Condition {
 
 	static {
 		Skript.registerCondition(CondWillBeAttacked.class,
-				"[the] [event-](entity|victim) (:will|will not|won't) be attack(ed|ing)"
+				"[the] [event-](entity|victim) (:will|will not|won't) be attacked"
 		);
 	}
 	
