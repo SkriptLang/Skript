@@ -16,9 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Will Be Attacked")
 @Description("""
-	Checks whether or not the entity in <a href='#Evt'>Player Pre Attack Entity Event</a> will be attacked.
-	Note: The event will not fire for non-living entities if 'listen to cancelled events by default' is not enabled in Skript's config, or 
-	This condition will always return false for non-living entities. Or since the event is canceled, it wouldn't ever be called unless enabled in config.
+	Checks if the entity in <a href='#Evt'>Player Pre Attack Entity Event</a> will be attacked.
+	Returns false for non-living entities, and the event won't be called for them unless explicitly listened to.
 	""")
 @Example("""
 	on player pre attack entity:
