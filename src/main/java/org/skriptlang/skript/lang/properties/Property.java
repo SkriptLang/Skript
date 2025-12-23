@@ -18,6 +18,7 @@ import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.EffectHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
 
@@ -245,6 +246,61 @@ public record Property<Handler extends PropertyHandler<?>>(
 			TypedValuePropertyHandler.class);
 
 	/**
+	 * A property for something that can be loaded.
+	 */
+	public static final Property<EffectHandler<?>> LOAD = Property.of(
+		"load",
+		"Something that can be loaded.",
+		"INSERT VERSION",
+		Skript.instance(),
+		EffectHandler.class
+	);
+
+	/**
+	 * A property for something that can be unloaded.
+	 */
+	public static final Property<EffectHandler<?>> UNLOAD = Property.of(
+		"unload",
+		"Something that can be unloaded.",
+		"INSERT VERSION",
+		Skript.instance(),
+		EffectHandler.class
+	);
+
+	/**
+	 * A property for something that can be reloaded.
+	 */
+	public static final Property<EffectHandler<?>> RELOAD = Property.of(
+		"reload",
+		"Something that can be reloaded.",
+		"INSERT VERSION",
+		Skript.instance(),
+		EffectHandler.class
+	);
+
+	/**
+	 * A property for something that can be enabled.
+	 */
+	public static final Property<EffectHandler<?>> ENABLE = Property.of(
+		"enable",
+		"Something that can be enabled.",
+		"INSERT VERSION",
+		Skript.instance(),
+		EffectHandler.class
+	);
+
+	/**
+	 * A property for something that can be disabled.
+	 */
+	public static final Property<EffectHandler<?>> DISABLE = Property.of(
+		"disable",
+		"Something that can be disabled.",
+		"INSERT VERSION",
+		Skript.instance(),
+		EffectHandler.class
+	);
+
+	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
 	 */
 	public static void registerDefaultProperties() {
@@ -256,6 +312,11 @@ public record Property<Handler extends PropertyHandler<?>>(
 		NUMBER.register();
 		IS_EMPTY.register();
 		TYPED_VALUE.register();
+		LOAD.register();
+		UNLOAD.register();
+		RELOAD.register();
+		ENABLE.register();
+		DISABLE.register();
 	}
 
 }

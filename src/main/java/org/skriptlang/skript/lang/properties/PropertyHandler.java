@@ -9,6 +9,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +17,7 @@ import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -277,6 +279,35 @@ public interface PropertyHandler<Type> {
 			}
 			return false;
 		}
+	}
+
+	/**
+	 * A handler for executing an effect on an object.
+	 * @param <Type> The type of object.
+	 *
+	 * @see PropertyBaseEffect
+	 */
+	@Experimental
+	interface EffectHandler<Type> extends PropertyHandler<Type> {
+
+		/**
+		 * To execute an effect on the value.
+		 * @param type The value.
+		 */
+		void execute(Type type);
+
+		/**
+		 * Creates a simple property handler from the given consumer.
+		 *
+		 * @param consumer The consumer to trigger execution.
+		 * @param <Type> The type of object this property can be applied to.
+		 * @return A new property handler that uses the given consumer.
+		 */
+		@Contract(value = "_ -> new", pure = true)
+		static <Type> @NotNull EffectHandler<Type> of(Consumer<Type> consumer) {
+			return consumer::accept;
+		}
+
 	}
 
 }

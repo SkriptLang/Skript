@@ -1,20 +1,22 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.common.expressions;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.parser.ParserInstance;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -23,28 +25,41 @@ import java.util.List;
 import java.util.Objects;
 
 @Name("Script")
-@Description({"The current script, or a script from its (file) name.",
-	"If the script is enabled or disabled (or reloaded) this reference will become invalid.",
-	"Therefore, it is recommended to obtain a script reference <em>when needed</em>."})
-@Examples({
-	"on script load:",
-	"\tbroadcast \"Loaded %the current script%\"",
-	"on script load:",
-	"\tset {running::%script%} to true",
-	"on script unload:",
-	"\tset {running::%script%} to false",
-	"set {script} to the script named \"weather.sk\"",
-	"loop the scripts in directory \"quests/\":",
-	"\tenable loop-value"
-})
+@Description("""
+	The current script, or a script from its (file) name.
+	If the script is enabled or disabled (or reloaded) this reference will become invalid.
+	Therefore, it is recommended to obtain a script reference <em>when needed</em>.
+	""")
+@Example("""
+	on script load:
+		broadcast "Loaded %the current script%"
+	""")
+@Example("""
+	on script load:
+		set {running::%script%} to true
+	on script unload:
+		set {running::%script%} to false
+	""")
+@Example("set {script} to the script named \"weather.sk\"")
+@Example("""
+	loop the scripts in directory "quests/":
+		enable loop-value
+	""")
 @Since("2.0")
 public class ExprScript extends SimpleExpression<Script> {
 
-	static {
-		Skript.registerExpression(ExprScript.class, Script.class, ExpressionType.SIMPLE,
-			"[the] [current] script",
-			"[the] script[s] [named] %strings%",
-			"[the] scripts in [directory|folder] %string%"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprScript.class, Script.class)
+				.addPatterns(
+					"[the] [current] script [file]",
+					"[the] script[s] [file[s]] [named] %strings%",
+					"[the] skript file[s] %strings%",
+					"[the] scripts in [directory|folder] %string%"
+				)
+				.supplier(ExprScript::new)
+				.build()
 		);
 	}
 
@@ -54,7 +69,7 @@ public class ExprScript extends SimpleExpression<Script> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.isDirectory = matchedPattern == 2;
+		this.isDirectory = matchedPattern == 3;
 		if (matchedPattern == 0) {
 			ParserInstance parser = this.getParser();
 			if (!parser.isActive()) {
@@ -65,6 +80,9 @@ public class ExprScript extends SimpleExpression<Script> {
 		} else {
 			//noinspection unchecked
 			this.name = (Expression<String>) exprs[0];
+		}
+		if (matchedPattern == 2) {
+			ScriptWarning.printDeprecationWarning("This pattern 'skript file' is deprecated and will be removed in the future.");
 		}
 		return true;
 	}
@@ -132,7 +150,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		return "the scripts named " + name.toString(event, debug);
 	}
 
-	static @Nullable Script getHandle(@Nullable File file) {
+	public static @Nullable Script getHandle(@Nullable File file) {
 		if (file == null || file.isDirectory())
 			return null;
 		Script script = ScriptLoader.getScript(file);

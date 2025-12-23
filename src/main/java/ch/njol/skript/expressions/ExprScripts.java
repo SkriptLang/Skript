@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.registrations.experiments.ReflectionExperimentSyntax;
+import org.skriptlang.skript.common.expressions.ExprScript;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;

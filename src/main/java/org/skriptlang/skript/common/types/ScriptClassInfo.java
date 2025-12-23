@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler;
+import org.skriptlang.skript.lang.properties.PropertyHandler.EffectHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -37,7 +38,31 @@ public class ScriptClassInfo extends ClassInfo<Script> {
 					+ "this will return the resolved name of the script, otherwise it returns the file "
 					+ "name with path relative to the scripts folder. Cannot be changed.",
 				Skript.instance(),
-				new ScriptNameHandler());
+				new ScriptNameHandler())
+			.property(Property.LOAD,
+				"Loads a script if not already loaded.",
+				Skript.instance(),
+				EffectHandler.of(Script::load))
+			.property(Property.ENABLE,
+				"Enables a script if not already enabled.",
+				Skript.instance(),
+				EffectHandler.of(Script::load))
+			.property(Property.RELOAD,
+				"Reloads a script.",
+				Skript.instance(),
+				EffectHandler.of(Script::reload))
+			.property(Property.UNLOAD,
+				"Unloads a script and removes it from memory.",
+				Skript.instance(),
+				EffectHandler.of(Script::unload))
+			.property(Property.DISABLE,
+				"""
+				Disables a script if not already disabled.
+				Disabling a script unloads it and prepends "-" to the file name so it will not be loaded the next time \
+				the server restarts.
+				""",
+				Skript.instance(),
+				EffectHandler.of(Script::disable));
 	}
 
 	private static class ScriptParser extends Parser<Script> {
