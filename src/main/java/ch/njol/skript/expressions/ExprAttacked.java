@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -68,7 +70,7 @@ public class ExprAttacked extends SimpleExpression<Entity> implements EventRestr
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
 		return CollectionUtils.array(EntityDamageEvent.class, EntityDeathEvent.class,
-			VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class);
+			VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class, PrePlayerAttackEntityEvent.class);
 	}
 
 	@Override
@@ -83,6 +85,8 @@ public class ExprAttacked extends SimpleExpression<Entity> implements EventRestr
 				entity = ((EntityEvent) e).getEntity();
 		else if (e instanceof VehicleEvent)
 			entity = ((VehicleEvent) e).getVehicle();
+		else if (e instanceof PrePlayerAttackEntityEvent)
+			entity = ((PrePlayerAttackEntityEvent) e).getAttacked();
 		else
 			return null;
 		if (type.isInstance(entity)) {

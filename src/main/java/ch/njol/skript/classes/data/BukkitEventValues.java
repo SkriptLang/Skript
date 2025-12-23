@@ -346,6 +346,9 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerItemMendEvent.class, Player.class, PlayerEvent::getPlayer);
 		EventValues.registerEventValue(PlayerItemMendEvent.class, ItemStack.class, PlayerItemMendEvent::getItem);
 		EventValues.registerEventValue(PlayerItemMendEvent.class, Entity.class, PlayerItemMendEvent::getExperienceOrb);
+		// PrePlayerAttackEvent
+		EventValues.registerEventValue(PrePlayerAttackEntityEvent.class, Entity.class, PrePlayerAttackEntityEvent::getAttacked);
+		EventValues.registerEventValue(PrePlayerAttackEntityEvent.class, CommandSender.class, PrePlayerAttackEntityEvent::getPlayer);
 
 		// --- HangingEvents ---
 
