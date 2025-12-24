@@ -1,20 +1,14 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Player Info Visibility")
 @Description({"Sets whether all player related information is hidden in the server list.",
@@ -27,7 +21,6 @@ import ch.njol.util.Kleenean;
 		"hide player related information in the server list",
 		"reveal all player related info"})
 @Since("2.3")
-@RequiredPlugins("Paper 1.12.2 or newer")
 @Events("server list ping")
 public class EffPlayerInfoVisibility extends Effect {
 

@@ -32,8 +32,8 @@ import java.util.OptionalLong;
 	"If the sound is custom, a location emitter will follow the entity. Do note that pitch and volume ",
 	"are reflected based on the entity, and Minecraft may not use the values from this syntax.",
 	"",
-	"If using Paper 1.19.4+ or Adventure API 4.12.0+ you can utilize sound seeds. Minecraft sometimes have a set of sounds under one sound ID ",
-	"that will randomly play, to counter this, you can directly state which seed to use.",
+	"Minecraft sometimes has a set of sounds under one sound ID that will randomly play. " +
+	"To counter this, you can directly state which seed to use.",
 	"",
 	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself.",
 })
@@ -41,9 +41,8 @@ import java.util.OptionalLong;
 	"play sound \"block.note_block.pling\"",
 	"play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player",
 	"play sound \"custom.music.1\" in jukebox category at {speakerBlock}",
-	"play sound \"BLOCK_AMETHYST_BLOCK_RESONATE\" with seed 1 on target entity for the player #1.20.1+"
+	"play sound \"BLOCK_AMETHYST_BLOCK_RESONATE\" with seed 1 on target entity for the player"
 })
-@RequiredPlugins("Minecraft 1.18.1+ (entity emitters), Paper 1.19.4+ or Adventure API 4.12.0+ (sound seed)")
 @Since("2.2-dev28, 2.4 (sound categories), 2.9 (sound seed & entity emitter)")
 public class EffPlaySound extends Effect {
 

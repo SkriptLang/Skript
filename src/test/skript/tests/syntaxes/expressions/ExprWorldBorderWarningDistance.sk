@@ -1,5 +1,5 @@
 test "worldborder warning distance":
-	set {_max} to 2147483647
+	set {_max} to max integer value
 	set {_border} to worldborder of world("world")
 	reset worldborder of world("world")
 	assert worldborder warning distance of {_border} is 5 with "Default worldborder warning distance is not 5"

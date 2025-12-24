@@ -340,6 +340,21 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	public boolean breakNaturally(@NotNull ItemStack tool, boolean triggerEffect, boolean dropExperience, boolean forceEffect) {
+		if (newState != null) {
+			return false;
+		} else {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					block.breakNaturally(tool, triggerEffect, dropExperience, forceEffect);
+				}
+			});
+			return true;
+		}
+	}
+
+	@Override
 	public void tick() {
 		block.tick();
 	}

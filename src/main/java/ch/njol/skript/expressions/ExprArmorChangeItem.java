@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 	on armor change
 		broadcast the old armor item
 	""")
-@RequiredPlugins("Paper")
 @Events("Armor Change")
 @Since("2.11")
 public class ExprArmorChangeItem extends EventValueExpression<ItemStack> implements EventRestrictedSyntax {

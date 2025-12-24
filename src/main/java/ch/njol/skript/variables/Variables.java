@@ -457,23 +457,23 @@ public class Variables {
 
 			return map.getVariable(n);
 		} else {
-			// Prevent race conditions from returning variables with incorrect values
-			if (!changeQueue.isEmpty()) {
-				// Gets the last VariableChange made
-				VariableChange variableChange = changeQueue.stream()
-						.filter(change -> change.name.equals(n))
-						.reduce((first, second) -> second)
-								// Gets last value, as iteration is from head to tail,
-								//  and adding occurs at the tail (and we want the most recently added)
-						.orElse(null);
-
-				if (variableChange != null) {
-					return variableChange.value;
-				}
-			}
-
 			try {
 				variablesLock.readLock().lock();
+				// Prevent race conditions from returning variables with incorrect values
+				if (!changeQueue.isEmpty()) {
+					// Gets the last VariableChange made
+					VariableChange variableChange = changeQueue.stream()
+							.filter(change -> change.name.equals(n))
+							.reduce((first, second) -> second)
+									// Gets last value, as iteration is from head to tail,
+									//  and adding occurs at the tail (and we want the most recently added)
+							.orElse(null);
+
+					if (variableChange != null) {
+						return variableChange.value;
+					}
+				}
+
 				return variables.getVariable(n);
 			} finally {
 				variablesLock.readLock().unlock();
@@ -602,15 +602,14 @@ public class Variables {
 	 * @param value the value, or {@code null} to delete the variable.
 	 */
 	static void setVariable(String name, @Nullable Object value) {
-		boolean gotLock = variablesLock.writeLock().tryLock();
-		if (gotLock) {
+		if (variablesLock.writeLock().tryLock()) {
 			try {
-				// Set the variable
+				if (!changeQueue.isEmpty()) { // Process older, queued changes if available
+					processChangeQueue();
+				}
+				// Process and save requested change
 				variables.setVariable(name, value);
-				// ..., save the variable change
 				saveVariableChange(name, value);
-				// ..., and process all previously queued changes
-				processChangeQueue();
 			} finally {
 				variablesLock.writeLock().unlock();
 			}

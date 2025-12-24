@@ -9,6 +9,8 @@
 	<!--Warning severity so the builds do not fail because of checkstyle, this is mainly for the GitHub workflow-->
 	<property name="severity" value="warning"/>
 	<property name="fileExtensions" value="java"/>
+	<property name="tabWidth" value="4"/>
+
 	<module name="BeforeExecutionExclusionFileFilter">
 		<property name="fileNamePattern" value="module\-info\.java$"/>
 	</module>
@@ -25,7 +27,7 @@
 
 		<!--Tabs, no spaces-->
 		<module name="RegexpSinglelineJava">
-			<property name="format" value="^\t* "/>
+			<property name="format" value="^\t*    "/>
 			<property name="message" value="Indent must use tab characters"/>
 			<property name="ignoreComments" value="true"/>
 		</module>
@@ -35,11 +37,11 @@
 
 		<!--When statements consume multiple lines, all lines but the first have two tabs of additional indentation-->
 		<module name="Indentation">
-			<property name="arrayInitIndent" value="8" />
-			<property name="basicOffset" value="8" />
-			<property name="caseIndent" value="8" />
-			<property name="lineWrappingIndentation" value="8" />
-			<property name="throwsIndent" value="8" />
+			<property name="arrayInitIndent" value="4" />
+			<property name="basicOffset" value="4" />
+			<property name="caseIndent" value="4" />
+			<property name="lineWrappingIndentation" value="4" />
+			<property name="throwsIndent" value="4" />
 		</module>
 
 		<!--Each class begins with an empty line-->

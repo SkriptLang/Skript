@@ -34,7 +34,6 @@ import org.jetbrains.annotations.Nullable;
 	"make last spawned piglin start dancing",
 	"make all piglins dance for 5 hours"
 })
-@RequiredPlugins("Paper 1.20.1+ (piglins)")
 @Since("2.11")
 public class EffDancing extends Effect {
 

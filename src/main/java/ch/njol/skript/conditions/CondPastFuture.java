@@ -9,6 +9,8 @@ import ch.njol.skript.expressions.ExprNow;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
@@ -76,6 +78,13 @@ public class CondPastFuture extends Condition {
 		if (isFuture)
 			return dates.check(event, date -> date.compareTo(new Date()) > 0, isNegated());
 		return dates.check(event, date -> date.compareTo(new Date()) < 0, isNegated());
+	}
+
+	@Override
+	public Condition simplify() {
+		if (dates instanceof Literal<Date>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
 	}
 
 	@Override

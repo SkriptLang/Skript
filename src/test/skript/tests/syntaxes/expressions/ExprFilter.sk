@@ -15,3 +15,8 @@ test "where filter":
 	assert ({_list::*} where [input is (("foo" and "bar") where [input is "bar"])]) is "bar" with "Failed filter with filter within condition"
 	assert (({_list::*} where [input is "foo"]) where [input is "foo"]) is "foo" with "Failed chained filters"
 	assert {_list::*} where [input index is "2" or "3"] is "bar" and "foobar" with "Failed input index filter"
+
+test "input conversion":
+	set {_strings::*} to "test1", "test2", "test3" and "4test"
+	assert size of ({_strings::*} where [the first 4 characters of string input is "test"]) is 3 with "input was not correctly casted"
+	assert size of ({_strings::*} where [the last string color of string input is not set]) is 0 with "input was not correctly casted"

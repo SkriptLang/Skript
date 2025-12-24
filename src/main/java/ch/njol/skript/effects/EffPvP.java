@@ -1,9 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.World;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -13,17 +9,20 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.GameRule;
+import org.bukkit.World;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("PvP")
 @Description("Set the PvP state for a given world.")
 @Examples({"enable PvP #(current world only)",
 		"disable PvP in all worlds"})
 @Since("1.3.4")
 public class EffPvP extends Effect {
-	
+
+	private static final boolean PVP_GAME_RULE_EXISTS = Skript.fieldExists(GameRule.class, "PVP");
+
 	static {
 		Skript.registerEffect(EffPvP.class, "enable PvP [in %worlds%]", "disable PVP [in %worlds%]");
 	}
@@ -41,15 +40,19 @@ public class EffPvP extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		for (final World w : worlds.getArray(e)) {
-			w.setPVP(enable);
+	protected void execute(Event event) {
+		if (PVP_GAME_RULE_EXISTS) {
+			for (World world : worlds.getArray(event))
+				world.setGameRule(GameRule.PVP, enable);
+		} else {
+			for (World world : worlds.getArray(event))
+				world.setPVP(enable);
 		}
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (enable ? "enable" : "disable") + " PvP in " + worlds.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (enable ? "enable" : "disable") + " PvP in " + worlds.toString(event, debug);
 	}
 	
 }

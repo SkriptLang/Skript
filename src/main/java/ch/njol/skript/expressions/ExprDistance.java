@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
@@ -43,8 +44,12 @@ public class ExprDistance extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		Location l1 = loc1.getSingle(event);
 		Location l2 = loc2.getSingle(event);
-		if (l1 == null || l2 == null || l1.getWorld() != l2.getWorld())
+		if (l1 == null || l2 == null)
 			return new Number[0];
+		if (l1.getWorld() != l2.getWorld()) {
+			error("Cannot calculate the distance between locations from two different worlds! (" + Classes.toString(l1.getWorld()) + " and " + Classes.toString(l2.getWorld()) + ")");
+			return new Number[0];
+		}
 		return new Number[] {l1.distance(l2)};
 	}
 	

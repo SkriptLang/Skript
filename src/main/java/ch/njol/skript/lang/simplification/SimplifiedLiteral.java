@@ -27,11 +27,10 @@ public class SimplifiedLiteral<T> extends SimpleLiteral<T> {
 	 * @return a new simplified literal
 	 */
 	public static <T> SimplifiedLiteral<T> fromExpression(Expression<T> original) {
-		Event event = ContextlessEvent.get();
-
 		if (original instanceof SimplifiedLiteral<T> literal)
 			return literal;
 
+		Event event = ContextlessEvent.get();
 		T[] values = original.getAll(event);
 
 		//noinspection unchecked
@@ -42,8 +41,6 @@ public class SimplifiedLiteral<T> extends SimpleLiteral<T> {
 			original);
 	}
 
-	Expression<T> sourceExpr;
-
 	/**
 	 * Creates a new simplified literal.
 	 * @param data the data of the literal
@@ -52,50 +49,50 @@ public class SimplifiedLiteral<T> extends SimpleLiteral<T> {
 	 * @param source the source expression this literal was created from. Used for toString values.
 	 */
 	public SimplifiedLiteral(T[] data, Class<T> type, boolean and, Expression<T> source) {
-		super(data, type, and);
-		sourceExpr = source;
+		super(data, type, and, source);
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-		return sourceExpr.acceptChange(mode);
+		return source.acceptChange(mode);
 	}
 
 	@Override
 	public Object @Nullable [] beforeChange(Expression<?> changed, Object @Nullable [] delta) {
-		return sourceExpr.beforeChange(changed, delta);
+		return source.beforeChange(changed, delta);
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) throws UnsupportedOperationException {
-		sourceExpr.change(event, delta, mode);
+		source.change(event, delta, mode);
 	}
 
 	@Override
 	public boolean isLoopOf(String input) {
-		return sourceExpr.isLoopOf(input);
+		return source.isLoopOf(input);
 	}
 
 	@Override
 	public <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
-		sourceExpr.changeInPlace(event, changeFunction);
+		getSource().changeInPlace(event, changeFunction);
 	}
 
 	@Override
 	public <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
-		sourceExpr.changeInPlace(event, changeFunction, getAll);
+		getSource().changeInPlace(event, changeFunction, getAll);
 	}
 
 	@Override
-	public Expression<?> getSource() {
-		return sourceExpr;
+	public Expression<T> getSource() {
+		//noinspection unchecked
+		return (Expression<T>) source;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (debug)
-			return "[" + sourceExpr.toString(event, true) + " (SIMPLIFIED)]";
-		return sourceExpr.toString(event, false);
+			return "[" + source.toString(event, true) + " (SIMPLIFIED)]";
+		return source.toString(event, false);
 	}
 
 }

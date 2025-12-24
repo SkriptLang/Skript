@@ -145,14 +145,14 @@ public class EffChange extends Effect {
 					}
 					yield what + " can't have anything removed from it";
 				}
-				case DELETE -> {
+				case RESET -> {
 					String error = what + " can't be reset";
 					if (changed.acceptChange(ChangeMode.DELETE) != null) {
 						error += ". However, it can be deleted which might result in the desired effect";
 					}
 					yield error;
 				}
-				case RESET -> {
+				case DELETE -> {
 					String error = what + " can't be deleted";
 					if (changed.acceptChange(ChangeMode.RESET) != null) {
 						error += ". However, it can be reset which might result in the desired effect";

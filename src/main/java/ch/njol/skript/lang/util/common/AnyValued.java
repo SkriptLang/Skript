@@ -1,20 +1,22 @@
 package ch.njol.skript.lang.util.common;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.expressions.ExprSubnodeValue;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
-import com.sun.jdi.request.StepRequest;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converters;
 
 /**
  * A provider for anything with a value.
- * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprValue}
+ * Anything implementing this (or convertible to this) can be used by the {@link ExprSubnodeValue}
  * property expression.
  *
  * @see AnyProvider
+ * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property#TYPED_VALUE} instead.
  */
+@Deprecated(since="2.13", forRemoval = true)
 public interface AnyValued<Type> extends AnyProvider {
 
 	/**
@@ -27,22 +29,7 @@ public interface AnyValued<Type> extends AnyProvider {
 		Type value = value();
 		if (value == null)
 			return null;
-		if (expected.getC().isInstance(value))
-			return expected.getC().cast(value);
-
-		// For strings, it is probably better to use toString/Parser in either
-		// direction, instead of a converter
-
-		if (expected.getC() == String.class)
-			//noinspection unchecked
-			return (Converted) Classes.toString(value, StringMode.MESSAGE);
-		if (value instanceof String string
-			&& expected.getParser() != null
-			&& expected.getParser().canParse(ParseContext.CONFIG)) {
-			return expected.getParser().parse(string, ParseContext.CONFIG);
-		}
-
-		return Converters.convert(value, expected.getC());
+		return ExprSubnodeValue.convertedValue(value, expected);
 	}
 
 	/**

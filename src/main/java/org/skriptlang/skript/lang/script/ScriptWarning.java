@@ -1,7 +1,9 @@
 package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
@@ -41,7 +43,13 @@ public enum ScriptWarning {
 	/**
 	 * The code cannot be reached due to a previous statement stopping further execution
 	 */
-	UNREACHABLE_CODE("unreachable code");
+	UNREACHABLE_CODE("unreachable code"),
+
+	/**
+	 * A {@link Condition} can be simplified to {@link SimplifiedCondition}, which results in the assertion always passing or failing.
+	 */
+	CONSTANT_CONDITION("constant condition", "constant condition[s]")
+	;
 
 	private final String warningName;
 	private final String pattern;

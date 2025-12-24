@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 		make last spawned panda stop eating
 	""")
 @Since("2.11")
-@RequiredPlugins("Paper (horse type)")
 public class EffEating extends Effect {
 
 	private static final boolean SUPPORTS_HORSES = Skript.methodExists(AbstractHorse.class, "isEating");

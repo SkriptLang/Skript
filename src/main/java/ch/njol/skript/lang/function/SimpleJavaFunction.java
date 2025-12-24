@@ -3,14 +3,13 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.function.DefaultFunction;
 
 /**
- * A {@link JavaFunction} which doesn't make use of
- * the {@link FunctionEvent} instance and that cannot
- * accept empty / {@code null} parameters.
+ * @deprecated Use {@link DefaultFunction} instead.
  */
+@Deprecated(since = "2.13", forRemoval = true)
 public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 	
 	public SimpleJavaFunction(Signature<T> sign) {

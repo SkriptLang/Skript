@@ -95,8 +95,12 @@ public class EffSort extends Effect implements InputSource {
 				currentIndex = keyedValue.key();
 				currentValue = keyedValue.value();
 				Object mappedValue = mappingExpr.getSingle(event);
-				if (mappedValue == null)
+				if (mappedValue == null) {
+					error("Sorting failed because Skript cannot sort null values. "
+						+ "The mapping expression '" + mappingExpr.toString(event, false)
+						+ "' returned a null value when given the input '"+currentValue+"'.");
 					return;
+				}
 				mappedValues.add(new MappedValue(currentValue, mappedValue));
 			}
 			try {

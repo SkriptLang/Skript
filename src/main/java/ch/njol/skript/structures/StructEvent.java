@@ -1,7 +1,7 @@
 package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
@@ -15,7 +15,45 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Locale;
 
-@NoDoc
+@Name("Event")
+@Description("""
+	The structure used for listening to events.
+	
+	Optionally allows specifying whether to listen to events that have been cancelled, \
+	and allows specifying with which priority to listen to events. \
+	Events are called in the following order of priorities.
+	
+	```
+	lowest -> low -> normal -> high -> highest -> monitor
+	```
+	
+	Modifying event-values or cancelling events is not supported when using the 'monitor' priority. \
+	It should only be used for monitoring the outcome of an event.
+	""")
+@Example("""
+	on load:
+		broadcast "loading!"
+	""")
+@Example("""
+	on join:
+		if {first-join::%player's uuid%} is not set:
+			set {first-join::%player's uuid%} to now
+	""")
+@Example("""
+	cancelled block break:
+		send "<red>You can't break that here" to player
+	""")
+@Example("""
+	on join with priority lowest:
+		# called first
+	
+	on join:
+		# called second
+
+	on join with priority highest:
+		# called last
+	""")
+@Since({"1.0", "2.6 (per-event priority)", "2.9 (listening to cancellable events)"})
 public class StructEvent extends Structure {
 
 	static {

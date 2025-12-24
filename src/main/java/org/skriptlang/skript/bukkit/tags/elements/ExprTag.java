@@ -41,7 +41,6 @@ import java.util.List;
 		"custom item tag \"blood_magic_sk/can_sacrifice_with\" # skript:blood_magic_sk/can_sacrifice_with"
 })
 @Since("2.10")
-@RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTag extends SimpleExpression<Tag> {
 

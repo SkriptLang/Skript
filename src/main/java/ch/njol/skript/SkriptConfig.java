@@ -294,6 +294,9 @@ public class SkriptConfig {
 			})
 			.optional(true);
 
+	public static final Option<Boolean> useTypeProperties = new Option<>("use type properties", false)
+			.optional(true);
+
 	public static final Option<Boolean> allowUnsafePlatforms = new Option<>("allow unsafe platforms", false)
 			.optional(true);
 

@@ -8,8 +8,6 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.SectionEntryData;
 import ch.njol.skript.lang.util.SimpleEvent;
-import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -21,6 +19,10 @@ public class TriggerEntryData extends EntryData<Trigger> {
 
 	public TriggerEntryData(String key, @Nullable Trigger defaultValue, boolean optional) {
 		super(key, defaultValue, optional);
+	}
+
+	public TriggerEntryData(String key, @Nullable Trigger defaultValue, boolean optional, boolean multiple) {
+		super(key, defaultValue, optional, multiple);
 	}
 
 	@Nullable

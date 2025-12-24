@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 		"\tbroadcast max usage duration of player's tool"
 })
 @Since("2.8.0")
-@RequiredPlugins("Paper")
 public class ExprMaxItemUseTime extends SimplePropertyExpression<ItemStack, Timespan> {
 
 	static {

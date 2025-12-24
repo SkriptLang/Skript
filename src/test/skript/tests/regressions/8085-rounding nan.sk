@@ -1,0 +1,11 @@
+test "rounding nan":
+	assert isNaN(round(NaN, 1)) is true with "rounding NaN should return NaN"
+	assert isNaN(round(NaN)) is true with "rounding NaN should return NaN"
+	assert isNaN(round(NaN, NaN)) is true with "rounding NaN with NaN should return NaN"
+	assert isNaN(round(1.1, NaN)) is true with "rounding 1.1 with NaN should return NaN"
+
+	assert round(positive infinity) is positive infinity with "rounding positive infinity should return positive infinity"
+	assert round(negative infinity) is negative infinity with "rounding negative infinity should return negative infinity"
+	assert isNaN(round(1.1, positive infinity)) is true with "rounding 1.1 to positive infinity should return positive infinity"
+	assert isNaN(round(1.1, negative infinity)) is true with "rounding 1.1 to negative infinity should return negative infinity"
+	assert isNaN(round(1.1, 2147483648)) is true with "rounding 1.1 to too large a place should return NaN"

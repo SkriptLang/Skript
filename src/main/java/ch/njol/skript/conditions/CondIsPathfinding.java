@@ -35,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 	"subtract 10 from {defence::tower::health}",
 	"clear entity within {_entity}"
 })
-@RequiredPlugins("Paper")
 @Since("2.9.0")
 public class CondIsPathfinding extends Condition {
 

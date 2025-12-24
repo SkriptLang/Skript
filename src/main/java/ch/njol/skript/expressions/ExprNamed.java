@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Name("Named Item/Inventory")
 @Description("Directly names an item/inventory, useful for defining a named item/inventory in a script. " +
-		"If you want to (re)name existing items/inventories you can either use this expression or use <code>set <a href='#ExprName'>name of &lt;item/inventory&gt;</a> to &lt;text&gt;</code>.")
+		"If you want to (re)name existing items/inventories you can either use this expression or use <code>set <a href='#PropExprName'>name of &lt;item/inventory&gt;</a> to &lt;text&gt;</code>.")
 @Examples({"give a diamond sword of sharpness 100 named \"&lt;gold&gt;Excalibur\" to the player",
 		"set tool of player to the player's tool named \"&lt;gold&gt;Wand\"",
 		"set the name of the player's tool to \"&lt;gold&gt;Wand\"",

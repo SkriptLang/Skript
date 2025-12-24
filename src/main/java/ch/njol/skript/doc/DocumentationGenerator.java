@@ -1,10 +1,12 @@
 package ch.njol.skript.doc;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
- * Represents a class which generates a documentation format (like HTML or JSON)
+ * @deprecated Use {@link JSONGenerator} instead.
  */
+@Deprecated(forRemoval = true, since = "2.13")
 public abstract class DocumentationGenerator {
 
 	protected File templateDir;
@@ -16,8 +18,9 @@ public abstract class DocumentationGenerator {
 	}
 
 	/**
-	 * Generates the documentation file
+	 * Use {@link JSONGenerator#generate(Path)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "2.13")
 	public abstract void generate();
 
 }

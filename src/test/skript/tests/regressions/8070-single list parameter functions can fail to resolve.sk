@@ -1,0 +1,7 @@
+local function test(p: potion effect types):
+	stop
+
+test "single list parameter functions":
+	parse:
+		test(night vision and glowing)
+	assert last parse logs is not set with "function call failed to parse"

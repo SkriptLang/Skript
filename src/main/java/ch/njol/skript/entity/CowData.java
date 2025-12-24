@@ -1,13 +1,17 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUtils;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Cow;
+import org.bukkit.entity.Cow.Variant;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,12 +21,32 @@ import java.util.Objects;
 public class CowData extends EntityData<Cow> {
 
 	private static final boolean VARIANTS_ENABLED;
-	private static final Object[] variants;
+	private static final Object[] VARIANTS;
 	private static final Class<Cow> COW_CLASS;
 	private static final @Nullable Method getVariantMethod;
 	private static final @Nullable Method setVariantMethod;
 
 	static {
+		ClassInfo<?> cowVariantClassInfo = BukkitUtils.getRegistryClassInfo(
+			"org.bukkit.entity.Cow$Variant",
+			"COW_VARIANT",
+			"cowvariant",
+			"cow variants"
+		);
+		if (cowVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Cow.Variant' (1.21.4-)
+			cowVariantClassInfo = new ClassInfo<>(CowVariantDummy.class, "cowvariant");
+		}
+		Classes.registerClass(cowVariantClassInfo
+			.user("cow ?variants?")
+			.name("Cow Variant")
+			.description("Represents the variant of a cow entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:warm'.")
+			.since("2.12")
+			.requiredPlugins("Minecraft 1.21.5+")
+			.documentationId("CowVariant")
+		);
+
 		Class<Cow> cowClass = null;
 
 		try {
@@ -34,7 +58,7 @@ public class CowData extends EntityData<Cow> {
 		register(CowData.class, "cow", COW_CLASS, 0, "cow");
 		if (Skript.classExists("org.bukkit.entity.Cow$Variant")) {
 			VARIANTS_ENABLED = true;
-			variants = Iterators.toArray(Classes.getExactClassInfo(Cow.Variant.class).getSupplier().get(), Cow.Variant.class);
+			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Cow.Variant.class).getSupplier().get(), Cow.Variant.class);
 			try {
 				getVariantMethod = COW_CLASS.getDeclaredMethod("getVariant");
 				setVariantMethod = COW_CLASS.getDeclaredMethod("setVariant", Cow.Variant.class);
@@ -43,7 +67,7 @@ public class CowData extends EntityData<Cow> {
 			}
 		} else {
 			VARIANTS_ENABLED = false;
-			variants = null;
+			VARIANTS = null;
 			getVariantMethod = null;
 			setVariantMethod = null;
 		}
@@ -59,17 +83,10 @@ public class CowData extends EntityData<Cow> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (VARIANTS_ENABLED) {
-			Literal<?> expr = null;
-			if (exprs[0] != null) { // cow
-				expr = exprs[0];
-			} else if (exprs[1] != null) { // calf
-				expr = exprs[1];
-			}
-			if (expr != null)
-				//noinspection unchecked
-				variant = ((Literal<Cow.Variant>) expr).getSingle();
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (VARIANTS_ENABLED && exprs[0] != null) {
+			//noinspection unchecked
+			variant = ((Literal<Cow.Variant>) exprs[0]).getSingle();
 		}
 		return true;
 	}
@@ -83,17 +100,19 @@ public class CowData extends EntityData<Cow> {
 	}
 
 	@Override
-	public void set(Cow entity) {
-		if (!VARIANTS_ENABLED)
-			return;
-		Object finalVariant = variant != null ? variant : CollectionUtils.getRandom(variants);
-		assert finalVariant != null;
-		setVariant(entity, finalVariant);
+	public void set(Cow cow) {
+		if (VARIANTS_ENABLED) {
+			Variant variant = (Variant) this.variant;
+			if (variant == null)
+				variant = (Variant) CollectionUtils.getRandom(VARIANTS);
+			assert variant != null;
+			setVariant(cow, variant);
+		}
 	}
 
 	@Override
-	protected boolean match(Cow entity) {
-		return variant == null || getVariant(entity) == variant;
+	protected boolean match(Cow cow) {
+		return variant == null || getVariant(cow) == variant;
 	}
 
 	@Override
@@ -102,7 +121,7 @@ public class CowData extends EntityData<Cow> {
 	}
 
 	@Override
-	public EntityData<Cow> getSuperType() {
+	public @NotNull EntityData<?> getSuperType() {
 		return new CowData();
 	}
 
@@ -112,8 +131,8 @@ public class CowData extends EntityData<Cow> {
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof CowData other))
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof CowData other))
 			return false;
 		return variant == other.variant;
 	}
@@ -122,7 +141,7 @@ public class CowData extends EntityData<Cow> {
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (!(entityData instanceof CowData other))
 			return false;
-		return variant == null || variant == other.variant;
+		return dataMatch(variant, other.variant);
 	}
 
 	/**

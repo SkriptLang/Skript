@@ -47,7 +47,12 @@ public class Delay extends Effect {
 
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
-			long millis = ((Literal<Timespan>) duration).getSingle().getAs(Timespan.TimePeriod.MILLISECOND);
+			Timespan timespan = ((Literal<Timespan>) duration).getSingle();
+			if (timespan.isInfinite()) {
+				Skript.error("Delaying for an eternity is not allowed. Use the 'stop' effect instead.");
+				return false;
+			}
+			long millis = timespan.getAs(Timespan.TimePeriod.MILLISECOND);
 			if (millis < 50) {
 				Skript.warning("Delays less than one tick are not possible, defaulting to one tick.");
 			}
@@ -63,7 +68,6 @@ public class Delay extends Effect {
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
-			addDelayedEvent(event);
 
 			Timespan duration = this.duration.getSingle(event);
 			if (duration == null)
@@ -73,6 +77,7 @@ public class Delay extends Effect {
 			Object localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+				addDelayedEvent(event);
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
 				// Re-set local variables

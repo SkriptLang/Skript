@@ -5,7 +5,6 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 		"'real max players' returns the real count of max players of the server and can be modified on Paper 1.16 or later."})
 @Examples({"on server list ping:",
 		"	set the max players count to (online players count + 1)"})
-@RequiredPlugins("Paper 1.16+ (modify max real players)")
 @Since("2.3, 2.7 (modify max real players)")
 public class ExprMaxPlayers extends SimpleExpression<Integer> {
 

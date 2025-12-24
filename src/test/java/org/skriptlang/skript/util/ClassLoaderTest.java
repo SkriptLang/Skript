@@ -63,6 +63,7 @@ public class ClassLoaderTest {
 		Set<Class<?>> classes = new HashSet<>();
 		ClassLoader.Builder builder = ClassLoader.builder()
 				.basePackage("org.skriptlang.skript")
+				.excludeSubPackages("bukkit")
 				.forEachClass(classes::add);
 
 		// test without deep

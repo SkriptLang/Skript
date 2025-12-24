@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tbroadcast \"Is Secondary\""
 })
 @Events("Beacon Effect")
-@RequiredPlugins("Paper")
 @Since("2.10")
 public class ExprAppliedEffect extends SimpleExpression<PotionEffectType> {
 

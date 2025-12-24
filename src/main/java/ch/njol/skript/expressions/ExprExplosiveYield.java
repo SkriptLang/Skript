@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 	"on spawn of a creeper:",
 		"\tset the explosive yield of the event-entity to 10"
 })
-@RequiredPlugins("Paper (ghasts)")
 @Since("2.5, 2.11 (ghasts)")
 public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number> {
 

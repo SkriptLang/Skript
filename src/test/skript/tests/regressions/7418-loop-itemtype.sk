@@ -1,0 +1,6 @@
+test "loop all itemtypes":
+	loop all itemtypes:
+		set {_i::%loop-iteration%} to loop-value
+	assert size of {_i::*} > 1000 with "There should be at LEAST 1000 ItemTypes"
+	assert {_i::*} contains diamond sword with "The list should contain a diamond sword"
+	assert {_i::*} contains stone with "The list should contain stone"

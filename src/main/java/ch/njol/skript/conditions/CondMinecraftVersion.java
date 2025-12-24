@@ -1,5 +1,7 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +42,14 @@ public class CondMinecraftVersion extends Condition {
 		String ver = version.getSingle(e);
 		return ver != null ? Skript.isRunningMinecraft(new Version(ver)) ^ isNegated() : false;
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		if (version instanceof Literal<String>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "is running minecraft " + version.toString(e, debug);

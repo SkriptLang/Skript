@@ -23,8 +23,8 @@ import java.util.UUID;
 public class TestOfflinePlayer implements OfflinePlayer {
 
 	private static final String PLAYER_NAME = "SkriptLang";
-	private static final UUID PLAYER_UUID = UUID.randomUUID();
-	private static final OfflinePlayer PLAYER = Bukkit.getOfflinePlayer(PLAYER_UUID);
+	private static final OfflinePlayer PLAYER = Bukkit.getOfflinePlayer(PLAYER_NAME);
+	private static final UUID PLAYER_UUID = PLAYER.getUniqueId();
 	private static final PlayerProfile PLAYER_PROFILE = PLAYER.getPlayerProfile();
 	private static final @Nullable TestOfflinePlayer instance;
 

@@ -1,9 +1,15 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.common.AnyAmount;
@@ -12,43 +18,30 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.common.properties.expressions.PropExprAmount;
 
-import java.util.Map;
-
+/**
+ * @deprecated This is being removed in favor of {@link PropExprAmount}
+ */
 @Name("Amount")
 @Description({"The amount or size of something.",
-		"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression.",
-		"",
-		"Also, you can get the recursive size of a list, which will return the recursive size of the list with sublists included, e.g.",
-		"",
-		"<pre>",
-		"{list::*} Structure<br>",
-		"  ├──── {list::1}: 1<br>",
-		"  ├──── {list::2}: 2<br>",
-		"  │     ├──── {list::2::1}: 3<br>",
-		"  │     │    └──── {list::2::1::1}: 4<br>",
-		"  │     └──── {list::2::2}: 5<br>",
-		"  └──── {list::3}: 6",
-		"</pre>",
-		"",
-		"Where using %size of {list::*}% will only return 3 (the first layer of indices only), while %recursive size of {list::*}% will return 6 (the entire list)",
-		"Please note that getting a list's recursive size can cause lag if the list is large, so only use this expression if you need to!"})
+		"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression."
+})
 @Example("message \"There are %number of all players% players online!\"")
 @Since("1.0")
+@Deprecated(since="2.13", forRemoval = true)
 public class ExprAmount extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprAmount.class, Number.class, ExpressionType.PROPERTY,
-				"[the] (amount|number|size) of %numbered%",
-				"[the] (amount|number|size) of %objects%",
-				"[the] recursive (amount|number|size) of %objects%");
+		if (!SkriptConfig.useTypeProperties.value())
+			Skript.registerExpression(ExprAmount.class, Number.class, ExpressionType.PROPERTY,
+					"[the] (amount|number|size) of %numbered%",
+					"[the] (amount|number|size) of %objects%");
 	}
 
 	@SuppressWarnings("null")
 	private ExpressionList<?> exprs;
 	private @Nullable Expression<AnyAmount> any;
-
-	private boolean recursive;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -72,13 +65,6 @@ public class ExprAmount extends SimpleExpression<Number> {
 			return false;
 		}
 
-		this.recursive = matchedPattern == 2;
-		for (Expression<?> expr : this.exprs.getExpressions()) {
-			if (recursive && !(expr instanceof Variable<?>)) {
-				Skript.error("Getting the recursive size of a list only applies to variables, thus the '" + expr.toString(null, Skript.debug()) + "' expression is useless.");
-				return false;
-			}
-		}
 		return true;
 	}
 
@@ -86,17 +72,6 @@ public class ExprAmount extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		if (any != null)
 			return new Number[] {any.getOptionalSingle(event).orElse(() -> 0).amount()};
-		if (recursive) {
-			int currentSize = 0;
-			for (Expression<?> expr : exprs.getExpressions()) {
-				Object var = ((Variable<?>) expr).getRaw(event);
-				if (var != null) { // Should already be a map
-					// noinspection unchecked
-					currentSize += getRecursiveSize((Map<String, ?>) var);
-				}
-			}
-			return new Long[]{(long) currentSize};
-		}
 		return new Long[]{(long) exprs.getArray(event).length};
 	}
 
@@ -139,25 +114,6 @@ public class ExprAmount extends SimpleExpression<Number> {
 		}
 	}
 
-	private static int getRecursiveSize(Map<?, ?> map) {
-		return getRecursiveSize(map, true);
-	}
-
-	private static int getRecursiveSize(Map<?, ?> map, boolean skipNull) {
-		int count = 0;
-		for (Map.Entry<?, ?> entry : map.entrySet()) {
-			if (skipNull && entry.getKey() == null)
-				continue; // when getting the recursive size of {a::*}, ignore {a}
-
-			Object value = entry.getValue();
-			if (value instanceof Map<?, ?> nestedMap)
-				count += getRecursiveSize(nestedMap, false);
-			else
-				count++;
-		}
-		return count;
-	}
-
 	@Override
 	public boolean isSingle() {
 		return true;
@@ -172,7 +128,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 	public String toString(@Nullable Event event, boolean debug) {
 		if (any != null)
 			return "amount of " + any.toString(event, debug);
-		return (recursive ? "recursive size of " : "amount of ") + exprs.toString(event, debug);
+		return "amount of " + exprs.toString(event, debug);
 	}
 
 }

@@ -1,16 +1,14 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.Skript;
 import ch.njol.util.Kleenean;
-
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 
@@ -23,7 +21,6 @@ import org.bukkit.entity.LivingEntity;
 		"\tpush event-entity upwards"
 })
 @Since("2.8.0")
-@RequiredPlugins("Paper 1.15+")
 public class CondIsJumping extends PropertyCondition<LivingEntity> {
 	
 	static {

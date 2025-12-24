@@ -11,3 +11,8 @@ test "X of":
 	assert 2 of {_z} is 2 stone with "item failed"
 
 	assert ExprXOf(2) is 2 diamonds with "function return failed - got '%ExprXOf(2)%'"
+
+	# test simplified literal handling
+	parse:
+		set {_none} to (8 * 8) of stone
+	assert last parse logs is not set with "failed to parse with simplified literals"

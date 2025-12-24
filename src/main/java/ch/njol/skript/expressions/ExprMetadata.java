@@ -127,12 +127,12 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
                             info = Arithmetics.getOperationInfo(operator, delta[0].getClass(), delta[0].getClass());
                             if (info == null)
                                 continue;
-                            value = Arithmetics.getDefaultValue(info.getLeft());
+                            value = Arithmetics.getDefaultValue(info.left());
                             if (value == null)
                                 continue;
                         }
                         //noinspection unchecked,rawtypes
-						Object newValue = ((Operation) info.getOperation()).calculate(value, delta[0]);
+						Object newValue = ((Operation) info.operation()).calculate(value, delta[0]);
 						holder.setMetadata(key, new FixedMetadataValue(Skript.getInstance(), newValue));
 					}
                     case DELETE -> holder.removeMetadata(key, Skript.getInstance());

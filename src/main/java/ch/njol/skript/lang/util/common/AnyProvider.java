@@ -1,5 +1,7 @@
 package ch.njol.skript.lang.util.common;
 
+import org.skriptlang.skript.lang.properties.Property;
+
 /**
  * 'AnyProvider' types are holders for common properties (e.g. name, size) where
  * it is highly likely that things other than Skript may wish to register
@@ -22,7 +24,10 @@ package ch.njol.skript.lang.util.common;
  * The root provider supertype cannot include its own common methods, since these
  * may conflict between things that provide two values (e.g. something declaring
  * both a name and a size)
+ *
+ * @deprecated Use {@link Property} instead.
  */
+@Deprecated(since="2.13", forRemoval = true)
 public interface AnyProvider {
 
 }

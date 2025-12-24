@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 	"A bell typically rings for 50 game ticks."
 })
 @Examples("broadcast \"The bell has been ringing for %ringing time of target block%\"")
-@RequiredPlugins("Spigot 1.19.4+")
 @Since("2.9.0")
 public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 
