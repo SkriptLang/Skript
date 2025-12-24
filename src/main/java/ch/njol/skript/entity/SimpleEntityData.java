@@ -8,6 +8,7 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.entity.boat.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,22 +55,26 @@ public class SimpleEntityData extends EntityData<Entity> {
 	
 	private final static List<SimpleEntityDataInfo> types = new ArrayList<>();
 
-	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass) {
+	@ApiStatus.Internal
+	public static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass) {
 		addSimpleEntity(codeName, entityClass, Kleenean.UNKNOWN);
 	}
 
 	/**
 	 * @param allowSpawning Whether to override the default {@link #canSpawn(World)} behavior and allow this entity to be spawned.
 	 */
-	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
+	@ApiStatus.Internal
+	public static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
 		types.add(new SimpleEntityDataInfo(codeName, entityClass, false, allowSpawning));
 	}
 
-	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass) {
+	@ApiStatus.Internal
+	public static void addSuperEntity(String codeName, Class<? extends Entity> entityClass) {
 		addSuperEntity(codeName, entityClass, Kleenean.UNKNOWN);
 	}
 
-	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
+	@ApiStatus.Internal
+	public static void addSuperEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
 		types.add(new SimpleEntityDataInfo(codeName, entityClass, true, allowSpawning));
 	}
 
@@ -243,6 +248,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 		if (Skript.isRunningMinecraft(1, 21, 9)) {
 			addSimpleEntity("copper golem", CopperGolem.class);
 			addSimpleEntity("mannequin", Mannequin.class);
+		}
+
+		if (Skript.isRunningMinecraft(1, 21, 11)) {
+			addSimpleEntity("camel husk", CamelHusk.class);
+			addSimpleEntity("parched", Parched.class);
 		}
 
 		// SuperTypes

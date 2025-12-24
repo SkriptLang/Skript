@@ -1,7 +1,7 @@
 package org.skriptlang.skript;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 
@@ -10,7 +10,6 @@ import java.util.Collection;
 /**
  * The main class for everything related to Skript.
  */
-@ApiStatus.Experimental
 public interface Skript extends SkriptAddon {
 
 	/**
@@ -39,6 +38,19 @@ public interface Skript extends SkriptAddon {
 	 * @return An unmodifiable snapshot of addons currently registered with this Skript.
 	 */
 	@Unmodifiable Collection<SkriptAddon> addons();
+
+	/**
+	 * A helper method to obtain the addon with the provided name.
+	 * @param name The name of the addon to search for.
+	 * @return An unmodifiable view of the addon with the provided name.
+	 * Null if an addon with the provided name is not registered.
+	 */
+	default @Nullable SkriptAddon addon(String name) {
+		return addons().stream()
+			.filter(addon -> addon.name().equals(name))
+			.findFirst()
+			.orElse(null);
+	}
 
 	/**
 	 * Constructs an unmodifiable view of this Skript.

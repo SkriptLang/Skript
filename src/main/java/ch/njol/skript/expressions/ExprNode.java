@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Name("Node (Experimental)")
+@Name("Node")
 @Description({
 	"Returns a node inside a config (or another section-node).",
 	"Nodes in Skript configs are written in the format `key: value`.",
