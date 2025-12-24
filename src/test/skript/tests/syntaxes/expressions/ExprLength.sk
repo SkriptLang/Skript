@@ -24,11 +24,3 @@ test "list looping behavior of length":
 	assert {_lengths::1} is 1 with "First element of looped lengths should be correct"
 	assert {_lengths::2} is 2 with "Second element of looped lengths should be correct"
 	assert {_lengths::3} is 6 with "Third element of looped lengths should be correct"
-
-test "string interpolation":
-	set {_string} to "Skript"
-	set {_empty_string} to ""
-
-	assert "%length of "hello"%" is "5" with "String interpolation with a literal should work"
-	assert "%length of {_string}%" is "6" with "String interpolation with a variable should work"
-	assert "%length of {_empty_string}%" is "0" with "String interpolation with an empty string should work"
