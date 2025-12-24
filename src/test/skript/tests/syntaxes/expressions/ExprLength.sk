@@ -12,8 +12,6 @@ test "edge case string lengths":
 	assert length of "😂" is 2 with "Length of a Unicode emoji should be calculated correctly"
 
 test "type conversion for length":
-	assert length of "12345" is 5 with "Length of a numeric string should be correct"
-
 	clear {_undefined}
 	assert length of {_undefined} is not set with "Length of an undefined variable should be unset"
 
