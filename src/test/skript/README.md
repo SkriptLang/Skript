@@ -99,9 +99,9 @@ used file again, just use <code>/sk test</code>.
 
 | Type        | Coverage | Percent |
 |-------------|----------|---------|
-| Expressions | 159/463  | 34%     |
-| Conditions  | 34/157   | 22%     |
-| Effects     | 61/140   | 44%     |
+| Expressions | 164/468  | 35%     |
+| Conditions  | 39/162   | 24%     |
+| Effects     | 67/145   | 46%     |
 | Sections    | 8/8      | 100%    |
 
 ### Expressions
@@ -292,11 +292,10 @@ used file again, just use <code>/sk test</code>.
 - [x] ExprDefaultValue
 - [x] ExprCharacters
 - [x] ExprParse
-- [ ] ExprPotionEffectTier
 - [ ] ExprWithItemFlags
 - [ ] ExprVectorProjection
 - [ ] ExprFireworkEffect
-- [ ] ExprPotionEffect
+- [x] ExprPotionEffect
 - [ ] ExprRandomCharacter
 - [ ] ExprSubstring
 - [x] ExprVectorFromXYZ
@@ -355,7 +354,7 @@ used file again, just use <code>/sk test</code>.
 - [x] ExprLastDamageCause
 - [x] ExprPotionEffects
 - [ ] ExprDifficulty
-- [ ] ExprAI
+- [x] ExprAI
 - [ ] ExprMiddleOfLocation
 - [ ] ExprEquippableComponent
 - [ ] ExprLevelProgress
@@ -571,7 +570,12 @@ used file again, just use <code>/sk test</code>.
 - [x] ExprXOf
 - [x] ExprArithmetic
 - [x] ExprEntities
-
+- [x] ExprRespawnReason
+- [x] ExprPotionAmplifier
+- [x] ExprPotionDuration
+- [ ] ExprPotionEffectTypeCategory
+- [x] ExprSecPotionEffect
+- [ ] ExprSkriptPotionEffect
 
 ### Conditions
 
@@ -661,7 +665,7 @@ used file again, just use <code>/sk test</code>.
 - [x] CondIsTamed
 - [ ] CondIsGliding
 - [ ] CondAI
-- [ ] CondIsPoisoned
+- [x] CondIsPoisoned
 - [ ] CondChatFiltering
 - [ ] CondIsStackable
 - [ ] CondIsEating
@@ -734,6 +738,11 @@ used file again, just use <code>/sk test</code>.
 - [ ] CondIsWearing
 - [ ] CondWithinRadius
 - [x] CondCompare
+- [x] CondIsPotionAmbient
+- [ ] CondIsPotionInstant
+- [x] CondPotionHasIcon
+- [x] CondPotionHasParticles
+- [x] CondIsPotionInfinite
 
 ### Effects
 
@@ -831,7 +840,7 @@ used file again, just use <code>/sk test</code>.
 - [x] EffBlockUpdate
 - [x] EffZombify
 - [ ] EffInsertEntityStorage
-- [ ] EffPoison
+- [x] EffPoison
 - [ ] EffMakeSay
 - [ ] EffReleaseEntityStorage
 - [ ] EffEndermanTeleport
@@ -879,6 +888,11 @@ used file again, just use <code>/sk test</code>.
 - [ ] EffTree
 - [ ] EffColorItems
 - [x] EffVisualEffect
+- [x] EffApplyPotionEffect
+- [x] EffPotionAmbient
+- [x] EffPotionIcon
+- [x] EffPotionInfinite
+- [x] EffPotionParticles
 
 ### Sections
 

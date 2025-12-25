@@ -1,3 +1,6 @@
+on load:
+	suppress constant condition warnings
+
 test "exit":
 	if true is true:
 		stop

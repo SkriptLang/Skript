@@ -7,3 +7,4 @@ function returnTest() returns number:
 
 function returnTest2() returns numbers:
 	return 1,2,3 and 4
+
