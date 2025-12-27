@@ -149,6 +149,11 @@ potion effect types:
 	trial_omen: trial omen
 	oozing: oozing
 
+potion effect type categories:
+	beneficial: beneficial
+	harmful: harmful
+	neutral: neutral
+
 # -- Weather --
 weather:
 	clear:
@@ -1597,6 +1602,25 @@ entities:
 		name: mannequin¦s
 		pattern: mannequin[plural:s]
 
+	# 1.21.11
+	# NautilusData
+	nautilus:
+		name: nautilus¦es
+		pattern: [:tamed] <age> nautilus[plural:es]
+	# ZombieNautilusData
+	zombie nautilus:
+		name: zombie nautilus¦es
+		pattern: [:tamed] [%-zombienautilusvariant%] (zombie|zombified) nautilus[plural:es]
+	any nautilus:
+		name: any nautilus¦es
+		pattern: any <age> nautilus[plural:es]
+	camel husk:
+		name: camel husk¦s
+		pattern: camel husk[plural:s]
+	parched:
+		name: parched¦s
+		pattern: parched[plural:s]
+
 	# SuperTypes
 	human:
 		name: human¦s
@@ -2535,6 +2559,12 @@ spawn reasons:
 	rehydration: rehydration, rehydrated
 	build_coppergolem: build copper golem, built copper golem
 
+# -- Respawn Reasons --
+respawn reasons:
+	death: death
+	end_portal: end portal
+	plugin: plugin
+
 # -- Difficulties --
 difficulties:
 	easy: easy
@@ -2697,8 +2727,8 @@ environments:
 	the_end: end, the end
 	custom: custom
 
-# -- Entity Potion Causes --
-entity potion causes:
+# -- Potion Causes --
+potion causes:
 	area_effect_cloud: enter area effect cloud
 	arrow: arrow infliction
 	attack: attack
@@ -2724,6 +2754,13 @@ entity potion causes:
 	villager_trade: villager trade
 	patrol_captain: pillager captain, patrol captain
 	wither_rose: wither rose infliction
+
+# -- Potion Actions --
+potion actions:
+	added: added, add
+	changed: changed, change
+	cleared: cleared, clear
+	removed: removed, remove, removal
 
 # -- Moon Phases --
 moon phases:
@@ -2956,6 +2993,11 @@ frog variants:
 	temperate: temperate
 	warm: warm
 
+# -- Zombie Nautilus Variants --
+zombie nautilus variants:
+	temperate: temperate
+	warm: warm
+
 # -- Villager Career Change Reasons
 villager career change reasons:
 	employed: employment
@@ -3074,8 +3116,11 @@ types:
 	itemflag: item flag¦s @an
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
+	potioneffecttypecategory: potion effect type categor¦y¦ies @a
 	potioneffect: potion effect¦s @a
-	entitypotioncause: entity potion cause¦s @an
+	skriptpotioneffect: potion effect¦s @a
+	potioncause: potion cause¦s @an
+	potionaction: potion action¦s @an
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
 	teleportcause: teleport cause¦s @a
@@ -3085,6 +3130,7 @@ types:
 	inventorytype: inventory type¦s @an
 	metadataholder: metadata holder¦s @a
 	spawnreason: spawn reason¦s @a
+	respawnreason: respawn reason¦s @a
 	cachedservericon: server icon¦s @a
 	difficulty: difficult¦y¦ies @a
 	fireworkeffect: firework effect¦s @a
@@ -3133,6 +3179,7 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	zombienautilusvariant: zombie nautilus variant¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

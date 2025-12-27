@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
@@ -48,7 +49,8 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 		String types = "vectors";
 		if (IS_RUNNING_1194)
 			types += "/quaternions";
-		register(ExprXYZComponent.class, Number.class, "[vector|quaternion] (:w|:x|:y|:z) [component[s]]", types);
+		if (!SkriptConfig.useTypeProperties.value())
+			register(ExprXYZComponent.class, Number.class, "[vector|quaternion] (:w|:x|:y|:z) [component[s]]", types);
 	}
 
 	private enum Axis {

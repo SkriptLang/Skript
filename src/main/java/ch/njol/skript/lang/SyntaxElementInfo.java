@@ -5,11 +5,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import ch.njol.skript.SkriptAPIException;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.util.Priority;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +20,10 @@ import java.util.List;
 
 /**
  * @param <E> the syntax element this info is for
+ * @deprecated Use {@link SyntaxInfo} ({@link SyntaxInfo#builder(Class)}) instead.
+ * Note that some syntax types have specific {@link SyntaxInfo} implementations that they require.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E> {
 
 	private final @Nullable SyntaxInfo<E> source;
@@ -80,9 +83,8 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 		return originClassPath;
 	}
 
-	@Contract("_ -> new")
 	@ApiStatus.Internal
-	@ApiStatus.Experimental
+	@Contract("_ -> new")
 	@SuppressWarnings("unchecked")
 	public static <I extends SyntaxElementInfo<E>, E extends SyntaxElement> I fromModern(SyntaxInfo<? extends E> info) {
 		if (info instanceof SyntaxElementInfo<? extends E> oldInfo) {
@@ -109,10 +111,10 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 
 	@Override
 	@ApiStatus.Internal
-	public SyntaxOrigin origin() {
+	public Origin origin() {
 		if (source != null)
 			return source.origin();
-		return () -> originClassPath;
+		return Origin.UNKNOWN;
 	}
 
 	@Override
