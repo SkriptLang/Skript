@@ -32,15 +32,13 @@ import java.util.regex.Matcher;
 @Example("""
 	options:
 		no_permission: You're missing the required permission to execute this command!
-	""")
-@Example("""
+
 	command /ping:
 		permission: command.ping
 		permission message: {@no_permission}
 		trigger:
 			message "Pong!"
-	""")
-@Example("""
+
 	command /pong:
 		permission: command.pong
 		permission message: {@no_permission}
