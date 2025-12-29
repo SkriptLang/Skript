@@ -26,6 +26,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
@@ -42,6 +43,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
@@ -50,6 +52,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public final static String LOCAL_VARIABLE_TOKEN = "_";
 	public static final String EPHEMERAL_VARIABLE_TOKEN = "-";
 	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*'};
+	private static final Pattern VARIABLE_PATTERN = Pattern.compile("((the )?var(iable)? )?\\{.+}", Pattern.CASE_INSENSITIVE);
 
 	/**
 	 * Script this variable was created in.
@@ -157,6 +160,37 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 					+ SEPARATOR + "'. Having a single '" + SINGLE_SEPARATOR_CHAR + "' does nothing!");
 		}
 		return true;
+	}
+
+	/**
+	 * Parses a variable from a string. This is used to parse variables from strings in the form of "{%variable%}".
+	 *
+	 * @param expr The string to parse
+	 * @param returnTypes The types to return
+	 * @return The parsed variable, or null if the string is not a valid variable
+	 */
+	@ApiStatus.Internal
+	public static <T> @Nullable Variable<T> parse(String expr, Class<? extends T>[] returnTypes) {
+		if (VARIABLE_PATTERN.matcher(expr).matches()) {
+			String variableName = expr.substring(expr.indexOf('{') + 1, expr.lastIndexOf('}'));
+			boolean inExpression = false;
+			int variableDepth = 0;
+			for (char character : variableName.toCharArray()) {
+				if (character == '%' && variableDepth == 0)
+					inExpression = !inExpression;
+				if (inExpression) {
+					if (character == '{') {
+						variableDepth++;
+					} else if (character == '}')
+						variableDepth--;
+				}
+
+				if (!inExpression && (character == '{' || character == '}'))
+					return null;
+			}
+			return Variable.newInstance(variableName, returnTypes);
+		}
+		return null;
 	}
 
 	/**
