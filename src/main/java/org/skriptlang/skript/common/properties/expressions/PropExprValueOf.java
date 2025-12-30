@@ -3,6 +3,7 @@ package org.skriptlang.skript.common.properties.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,10 +13,12 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
 import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -40,8 +43,12 @@ import java.util.stream.Stream;
 @RelatedProperty("typed value")
 public class PropExprValueOf extends PropertyBaseExpression<TypedValueHandler<?, ?>> {
 
-	static {
-		register(PropExprValueOf.class, "[%-*classinfo%] value", "objects");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			PropertyExpression.infoBuilder(PropExprValueOf.class, Object.class, "[%-*classinfo%] value", "objects", false)
+				.origin(origin)
+				.supplier(PropExprValueOf::new)
+				.build());
 	}
 
 	private ClassInfo<?> type;
