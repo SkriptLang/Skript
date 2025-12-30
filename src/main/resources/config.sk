@@ -216,7 +216,7 @@ script loader thread size: 0
 
 use type properties: true
 # Enables type properties, which allows addons to hook into common syntaxes like `if x is empty` or `name of x`.
-# You should only disable this if you are encountering issues with skript being unable to figure out the properties,
+# You should only disable this if you are encountering issues with Skript being unable to figure out the properties,
 # and you should make an issue on SkriptLang's GitHub.
 
 disable hooks:
