@@ -71,8 +71,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, ADD, REMOVE -> CollectionUtils.array(Number.class);
-			case RESET -> new Class[0];
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
 			default -> null;
 		};
 	}
