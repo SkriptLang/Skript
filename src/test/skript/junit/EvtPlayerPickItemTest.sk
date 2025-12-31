@@ -1,0 +1,79 @@
+test "EvtPlayerPickItemJUnit" when running JUnit:
+	running minecraft "1.21.5"
+	set {_tests::1} to "pick item - called"
+	set {_tests::2} to "pick item - picked item is dirt"
+	set {_tests::3} to "pick item - picked block is test-block"
+	set {_tests::4} to "pick item - picked entity is set"
+	set {_tests::5} to "pick dirt - called"
+	set {_tests::6} to "pick dirt - picked item is dirt"
+	set {_tests::7} to "pick dirt - picked block is test-block"
+	set {_tests::8} to "pick dirt - picked entity is not set"
+	set {_tests::9} to "pick pig - called"
+	set {_tests::10} to "pick pig - picked item is pig spawn egg"
+	set {_tests::11} to "pick pig - picked entity is set"
+	set {_tests::12} to "pick pig - picked block is not set"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest" completes {_tests::*}
+
+parse:
+	results: {EvtPlayerPickItem::parse::item::*}
+	code:
+		on player pick any item:
+			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			junit test is {_test}
+			complete objective "pick item - called" for {_test}
+			if picked item is dirt:
+				complete objective "pick item - picked item is dirt" for {_test}
+			if picked block is test-block:
+				complete objective "pick item - picked block is test-block" for {_test}
+			if picked entity is last spawned entity: # 'last spawned entity' is manually set before calling the event
+				complete objective "pick item - picked entity is set" for {_test}
+
+parse:
+	results: {EvtPlayerPickItem::parse::dirt::*}
+	code:
+		on player pick dirt:
+			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			junit test is {_test}
+			complete objective "pick dirt - called" for {_test}
+			if picked item is dirt:
+				complete objective "pick dirt - picked item is dirt" for {_test}
+			if picked block is test-block:
+				complete objective "pick dirt - picked block is test-block" for {_test}
+			if picked entity is not set:
+				complete objective "pick dirt - picked entity is not set" for {_test}
+
+parse:
+	results: {EvtPlayerPickItem::parse::stone::*}
+	code:
+		on player pick stone:
+			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			junit test is {_test}
+			assert true is false with "Event called for stone rather than dirt"
+
+parse:
+	results: {EvtPlayerPickItem::parse::pig::*}
+	code:
+		on player pick pig:
+			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			junit test is {_test}
+			complete objective "pick pig - called" for {_test}
+			if picked item is pig spawn egg:
+				complete objective "pick pig - picked item is pig spawn egg" for {_test}
+			if picked entity is last spawned entity: # 'last spawned entity' is manually set before calling the event
+				complete objective "pick pig - picked entity is set" for {_test}
+			if picked block is not set:
+				complete objective "pick pig - picked block is not set" for {_test}
+
+parse:
+	results: {EvtPlayerPickItem::parse::cow::*}
+	code:
+		on player pick cow:
+			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerPickItemTest"
+			junit test is {_test}
+			assert true is false with "Event called for cow rather than pig"
+
+test "EvtPlayerPickItem":
+	if running minecraft "1.21.5":
+		assert recursive size of {EvtPlayerPickItem::parse::*} is 0 with "Player pick item event failed to parse in 1.21.5 and above"
+	else:
+		assert recursive size of {EvtPlayerPickItem::parse::*} isn't 0 with "Player pick item event successfully parsed in 1.21.4 and below"
