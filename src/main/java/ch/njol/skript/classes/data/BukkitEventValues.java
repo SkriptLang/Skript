@@ -50,6 +50,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
+import org.bukkit.event.player.PlayerRespawnEvent.RespawnReason;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.vehicle.*;
@@ -57,12 +58,12 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.bukkit.event.world.*;
 import org.bukkit.inventory.*;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -192,12 +193,6 @@ public final class BukkitEventValues {
 			EntityDamageEvent damageEvent = event.getEntity().getLastDamageCause();
 			return damageEvent == null ? null : damageEvent.getCause();
 		});
-
-		// Entity Potion Effect
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getOldEffect, TIME_PAST);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, EntityPotionEffectEvent::getNewEffect);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, EntityPotionEffectEvent::getModifiedType);
-		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, EntityPotionEffectEvent::getCause);
 
 		// ProjectileHitEvent
 		// ProjectileHitEvent#getHitBlock was added in 1.11
@@ -547,6 +542,21 @@ public final class BukkitEventValues {
 		}
 		//CreatureSpawnEvent
 		EventValues.registerEventValue(CreatureSpawnEvent.class, SpawnReason.class, CreatureSpawnEvent::getSpawnReason);
+		//PlayerRespawnEvent - 1.21.5+ added AbstractRespawnEvent as a base class, where prior to that, getRespawnReason was in PlayerRespawnEvent
+		if (Skript.classExists("org.bukkit.event.player.AbstractRespawnEvent")) {
+			EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, PlayerRespawnEvent::getRespawnReason);
+		} else {
+			try {
+				Method method = PlayerRespawnEvent.class.getMethod("getRespawnReason");
+				EventValues.registerEventValue(PlayerRespawnEvent.class, RespawnReason.class, event -> {
+					try {
+						return (RespawnReason) method.invoke(event);
+					} catch (Exception e) {
+						return null;
+					}
+				});
+			} catch (NoSuchMethodException ignored) {}
+		}
 		//FireworkExplodeEvent
 		EventValues.registerEventValue(FireworkExplodeEvent.class, Firework.class, FireworkExplodeEvent::getEntity);
 		EventValues.registerEventValue(FireworkExplodeEvent.class, FireworkEffect.class, event -> {
