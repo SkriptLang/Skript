@@ -630,7 +630,8 @@ public class BukkitClasses {
 						if (world == null)
 							throw new StreamCorruptedException("Missing world");
 
-						int x = fields.getPrimitive("x", int.class), z = fields.getPrimitive("z", int.class);
+						int x = fields.getPrimitive("x", int.class);
+						int z = fields.getPrimitive("z", int.class);
 						return world.getChunkAt(x, z);
 					}
 
