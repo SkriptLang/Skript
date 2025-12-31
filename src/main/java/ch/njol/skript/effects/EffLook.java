@@ -11,9 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import io.papermc.paper.entity.LookAnchor;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,22 +29,18 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.7")
 public class EffLook extends Effect {
 
-	private static final boolean LOOK_ANCHORS = Skript.classExists("io.papermc.paper.entity.LookAnchor");
-
 	static {
-		if (Skript.methodExists(Mob.class, "lookAt", Entity.class)) {
-			if (LOOK_ANCHORS) {
-				Skript.registerEffect(EffLook.class, "(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
-					"(%entity%['s (feet:feet|eyes)]|of:(feet:feet|eyes) of %entity%) " +
-					"[at [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]",
+		Skript.registerEffect(EffLook.class,
+			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+			"%entity%'s (feet:feet|eyes) [(at|with) [head] [rotation] speed %-number%] " +
+			"[[and] max[imum] [head] pitch %-number%]",
 
-					"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location% " +
-					"[at [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]");
-			} else {
-				Skript.registerEffect(EffLook.class, "(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
-					"[at [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]");
-			}
-		}
+			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) " +
+				"[the] (feet:feet|eyes) of %entity% [(at|with) [head] [rotation] speed %-number%] " +
+				"[[and] max[imum] [head] pitch %-number%]",
+
+			"(force|make) %livingentities% [to] (face [towards]|look [(at|towards)]) %vector/location/entity% " +
+			"[(at|with) [head] [rotation] speed %-number%] [[and] max[imum] [head] pitch %-number%]");
 	}
 
 	private LookAnchor anchor = LookAnchor.EYES;
@@ -64,17 +58,11 @@ public class EffLook extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
-		if (LOOK_ANCHORS && matchedPattern == 0) {
-			target = exprs[parseResult.hasTag("of") ? 2 : 1];
-			speed = (Expression<Number>) exprs[3];
-			maxPitch = (Expression<Number>) exprs[4];
-			if (parseResult.hasTag("feet"))
-				anchor = LookAnchor.FEET;
-		} else {
-			target = exprs[1];
-			speed = (Expression<Number>) exprs[2];
-			maxPitch = (Expression<Number>) exprs[3];
-		}
+		target = exprs[1];
+		speed = (Expression<Number>) exprs[2];
+		maxPitch = (Expression<Number>) exprs[3];
+		if (parseResult.hasTag("feet"))
+			anchor = LookAnchor.FEET;
 		return true;
 	}
 
@@ -87,11 +75,7 @@ public class EffLook extends Effect {
 		Float speed = this.speed == null ? null : this.speed.getOptionalSingle(event).map(Number::floatValue).orElse(null);
 		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getOptionalSingle(event).map(Number::floatValue).orElse(null);
 
-		if (LOOK_ANCHORS) {
-			PaperEntityUtils.lookAt(anchor, object, speed, maxPitch, entities.getArray(event));
-		} else {
-			PaperEntityUtils.lookAt(object, speed, maxPitch, entities.getArray(event));
-		}
+		PaperEntityUtils.lookAt(anchor, object, speed, maxPitch, entities.getArray(event));
 	}
 
 	@Override

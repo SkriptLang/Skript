@@ -1,0 +1,11 @@
+test "reversed":
+	set {_list::*} to 1, 2, 3, 4 and 5
+	set {_size} to size of {_list::*}
+	set {_reversed::*} to reversed {_list::*}
+	assert size of {_reversed::*} is {_size}
+
+	loop {_size} times:
+		assert {_list::%loop-counter%} is {_reversed::%{_size} - loop-counter + 1%}
+
+	loop reversed {_list::*}:
+		assert loop-value is {_reversed::%loop-counter%}
