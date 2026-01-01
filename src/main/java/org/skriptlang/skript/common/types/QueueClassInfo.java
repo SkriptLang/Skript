@@ -15,6 +15,8 @@ import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
 import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.io.StreamCorruptedException;

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
-import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 	""")
 @Since("2.10")
 @RelatedProperty("typed value")
-public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHandler<?, ?>> {
+public class PropExprValueOf extends PropertyBaseExpression<TypedValueHandler<?, ?>> {
 
 	static {
 		register(PropExprValueOf.class, "[%-*classinfo%] value", "objects");
@@ -92,7 +92,7 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 			return expr.stream(event)
 				.flatMap(source -> {
 					//noinspection unchecked
-					var handler = (TypedValuePropertyHandler<Object, Object>) properties.getHandler(source.getClass());
+					var handler = (TypedValueHandler<Object, Object>) properties.getHandler(source.getClass());
 					if (handler == null) {
 						return null; // no property info found, skip
 					}
@@ -109,7 +109,7 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 	}
 
 	@Override
-	public @NotNull Property<TypedValuePropertyHandler<?, ?>> getProperty() {
+	public @NotNull Property<TypedValueHandler<?, ?>> getProperty() {
 		return Property.TYPED_VALUE;
 	}
 

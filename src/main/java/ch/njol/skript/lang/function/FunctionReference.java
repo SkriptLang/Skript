@@ -7,7 +7,6 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -16,8 +15,9 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
@@ -229,17 +229,17 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		// Check parameter types
 		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
+			Parameter<?> signatureParam = sign.parameters[singleListParam ? 0 : i];
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
 				//noinspection unchecked
-				Expression<?> e = parameters[i].getConvertedExpression(p.type());
-				if (e == null) {
+				Expression<?> exprParam = parameters[i].getConvertedExpression(signatureParam.type());
+				if (exprParam == null) {
 					if (first) {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
 							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
-							String type = Classes.toString(getClassInfo(p.type()));
+							String type = Classes.toString(getClassInfo(signatureParam.type()));
 
 							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
@@ -251,7 +251,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						function = previousFunction;
 					}
 					return false;
-				} else if (p.single && !e.isSingle()) {
+				} else if (signatureParam.single && !exprParam.isSingle()) {
 					if (first) {
 						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
 							+ "but a single argument was expected");
@@ -262,7 +262,19 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 					}
 					return false;
 				}
-				parameters[i] = e;
+
+				// check ranged parameters
+				if (signatureParam.hasModifier(Modifier.RANGED) && exprParam instanceof Literal<?> literalParam) {
+					RangedModifier<?> range = signatureParam.getModifier(RangedModifier.class);
+					if (!range.inRange(literalParam.getArray())) {
+						Skript.error("The argument '" + signatureParam.name() +"' only accepts values between "
+							+ Classes.toString(range.getMin()) + " and " + Classes.toString(range.getMax()) + ". "
+							+ "Provided: " + literalParam.toString(null, Skript.debug()));
+						return false;
+					}
+				}
+
+				parameters[i] = exprParam;
 			} finally {
 				log.printLog();
 			}

@@ -205,7 +205,7 @@ public class SimpleEvents {
 						"on disconnect:")
 				.since("1.0 (simple disconnection)");
 		Skript.registerEvent("Respawn", SimpleEvent.class, PlayerRespawnEvent.class, "[player] respawn[ing]")
-				.description("Called when a player respawns. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
+				.description("Called when a player respawns via death or entering the end portal in the end. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
 				.examples("on respawn:")
 				.since("1.0");
 		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")

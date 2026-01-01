@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -280,8 +281,19 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		return toString(Skript.debug());
 	}
 
+	// toString output format:
+	// name: type between min and max = default
+	//
+	// Example:
+	// ns: numbers between 0 and 100 = 3
 	public String toString(boolean debug) {
-		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, debug) : "");
+		String result = name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single);
+		if (this.hasModifier(Modifier.RANGED)) {
+			RangedModifier<?> range = this.getModifier(RangedModifier.class);
+			result += " between " + Classes.toString(range.getMin()) + " and " + Classes.toString(range.getMax());
+		}
+		result += (def != null ? " = " + def.toString(null, debug) : "");
+		return result;
 	}
 
 	@Override
