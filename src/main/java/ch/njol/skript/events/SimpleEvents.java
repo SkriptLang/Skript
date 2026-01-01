@@ -764,8 +764,7 @@ public class SimpleEvents {
 			.description(
 				"Called when a player tries to attack an entity.",
 				"Canceling this event will prevent the attack and any sounds being played when attacking.",
-				"For non-living entities the event is fired as cancelled.",
-				"Use <a href='#CondWillBeAttacked'>will be attacked</a> to see if the entity will be attacked normally."
+				"For non-living entities the event is fired as cancelled."
 			)
 			.examples("""
 				on player pre attack entity:
