@@ -12,9 +12,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.ElementHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 import org.skriptlang.skript.lang.util.SkriptQueue;
@@ -52,7 +50,7 @@ public class QueueClassInfo extends ClassInfo<SkriptQueue> {
 				"Whether a queue is empty, i.e. whether there are no elements in the queue.",
 				Skript.instance(),
 				ConditionPropertyHandler.of(SkriptQueue::isEmpty))
-			.property(Property.ELEMENT,
+			.property(Property.ORDERED_ELEMENTS,
 				"""
 					Elements of a queue.
 					Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.

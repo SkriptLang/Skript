@@ -21,7 +21,7 @@ import java.util.function.Function;
  * @see PropertyBaseExpression
  */
 @ApiStatus.Experimental
-public interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHandler<Type> {
+public interface ExpressionPropertyHandler<Type, ReturnType> extends ReturnablePropertyHandler<Type, ReturnType> {
 
 	/**
 	 * Converts the given object to the property value. This method may return arrays if the property is multi-valued.
@@ -68,26 +68,6 @@ public interface ExpressionPropertyHandler<Type, ReturnType> extends PropertyHan
 	 */
 	default boolean requiresSourceExprChange() {
 		return false;
-	}
-
-	/**
-	 * The return type of this property. This is used for type checking and auto-completion.
-	 * If the property can return multiple types, it should return the most general type that encompasses all
-	 * possible return types.
-	 *
-	 * @return The return type of this property.
-	 */
-	@NotNull Class<ReturnType> returnType();
-
-	/**
-	 * The possible return types of this property. This is used for type checking and auto-completion.
-	 * The default implementation returns an array containing the type returned by {@link #returnType()}.
-	 * If the property can return multiple types, it should return all possible return types.
-	 *
-	 * @return The possible return types of this property.
-	 */
-	default Class<?> @NotNull [] possibleReturnTypes() {
-		return new Class[]{ returnType() };
 	}
 
 	/**

@@ -22,8 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ElementHandler;
 import org.skriptlang.skript.lang.properties.PropertyMap;
+import org.skriptlang.skript.lang.properties.handlers.ElementHandler;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -110,13 +110,13 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 			return LiteralUtils.canInitSafely(objects);
 		}
 
-		objects = PropertyBaseSyntax.asProperty(Property.ELEMENT, objects);
+		objects = PropertyBaseSyntax.asProperty(Property.ORDERED_ELEMENTS, objects);
 		if (objects == null) {
 			objects = defendedObjects;
 			return LiteralUtils.canInitSafely(objects);
 		}
 
-		properties = PropertyBaseSyntax.getPossiblePropertyInfos(Property.ELEMENT, objects);
+		properties = PropertyBaseSyntax.getPossiblePropertyInfos(Property.ORDERED_ELEMENTS, objects);
 		if (properties.isEmpty()) {
 			return LiteralUtils.canInitSafely(objects);
 		}
@@ -286,7 +286,7 @@ public class PropExprElements extends SimpleExpression<Object> implements Proper
 
 	@Override
 	public @NotNull Property<ElementHandler<?, ?>> getProperty() {
-		return Property.ELEMENT;
+		return Property.ORDERED_ELEMENTS;
 	}
 
 	@Override
