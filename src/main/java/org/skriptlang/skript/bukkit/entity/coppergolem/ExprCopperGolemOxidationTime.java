@@ -54,8 +54,11 @@ public class ExprCopperGolemOxidationTime extends SimplePropertyExpression<Entit
 			return null;
 		long worldTime = golem.getWorld().getGameTime();
 		long oxidationTime = atTime.time();
-		if (worldTime > oxidationTime)
-			return null;
+		if (worldTime > oxidationTime) {
+			if (worldTime - oxidationTime <= 6000) // 5 minutes, arbitrary number
+				return null;
+			return new Timespan(TimePeriod.TICK, (Long.MAX_VALUE - worldTime) + (oxidationTime - Long.MIN_VALUE));
+		}
 		return new Timespan(TimePeriod.TICK, oxidationTime - worldTime);
 	}
 
