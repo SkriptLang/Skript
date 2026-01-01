@@ -144,7 +144,7 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 
 	@Override
 	public boolean areKeysRecommended() {
-		return false;
+		return KeyProviderExpression.areKeysRecommended(mappingExpr);
 	}
 
 	@Override

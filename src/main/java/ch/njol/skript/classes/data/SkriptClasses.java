@@ -18,8 +18,6 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.*;
-import ch.njol.skript.util.visual.VisualEffect;
-import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -470,35 +468,6 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Experience xp) {
 						return "" + xp.getXP();
-					}
-
-				})
-				.serializer(new YggdrasilSerializer<>()));
-
-		Classes.registerClass(new ClassInfo<>(VisualEffect.class, "visualeffect")
-				.name("Visual Effect")
-				.description("A visible effect, e.g. particles.")
-				.examples("show wolf hearts on the clicked wolf",
-						"play mob spawner flames at the targeted block to the player")
-				.usage(VisualEffects.getAllNames())
-				.since("2.1")
-				.user("(visual|particle) effects?")
-				.after("itemtype")
-				.parser(new Parser<VisualEffect>() {
-					@Override
-					@Nullable
-					public VisualEffect parse(String s, ParseContext context) {
-						return VisualEffects.parse(s);
-					}
-
-					@Override
-					public String toString(VisualEffect e, int flags) {
-						return e.toString(flags);
-					}
-
-					@Override
-					public String toVariableNameString(VisualEffect e) {
-						return e.toString();
 					}
 
 				})

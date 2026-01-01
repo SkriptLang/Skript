@@ -215,6 +215,16 @@ public record Property<Handler extends PropertyHandler<?>>(
 			ExpressionPropertyHandler.class);
 
 	/**
+	 * A property for getting the scale of something.
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> SCALE = Property.of(
+			"scale",
+			"The scale of something, say the x/y/z scales of a display entity.",
+			"INSERT VERSION",
+			Skript.instance(),
+			ExpressionPropertyHandler.class);
+
+	/**
 	 * A property for getting the number of something.
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> NUMBER = Property.of(
@@ -257,6 +267,16 @@ public record Property<Handler extends PropertyHandler<?>>(
 			WXYZHandler.class);
 
 	/**
+	 * A property for getting the speed of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> SPEED = Property.of(
+			"speed",
+			"The speed at which something is moving.",
+			"INSERT VERSION",
+			Skript.instance(),
+			ExpressionPropertyHandler.class);
+
+	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
 	 */
 	public static void registerDefaultProperties() {
@@ -268,6 +288,8 @@ public record Property<Handler extends PropertyHandler<?>>(
 		NUMBER.register();
 		IS_EMPTY.register();
 		TYPED_VALUE.register();
+		SCALE.register();
+		SPEED.register();
 	}
 
 }

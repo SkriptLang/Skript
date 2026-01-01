@@ -1,9 +1,10 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.ServerPlatform;
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -11,7 +12,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.ApiStatus;
@@ -41,9 +41,6 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		register(ExprYawPitch.class, Float.class, "(:yaw|pitch)", "entities/locations/vectors");
 	}
 
-	// For non-Paper versions lower than 1.19, changing the rotation of an entity is not supported for players.
-	private static final boolean SUPPORTS_PLAYERS = Skript.isRunningMinecraft(1, 19) && Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER;
-
 	private boolean usesYaw;
 
 	@Override
@@ -54,8 +51,8 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 
 	@Override
 	public Float convert(Object object) {
-		if (object instanceof Entity) {
-			Location location = ((Entity) object).getLocation();
+		if (object instanceof Entity entity) {
+			Location location = entity.getLocation();
 			return usesYaw
 				? normalizeYaw(location.getYaw())
 				: location.getPitch();
@@ -73,70 +70,32 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (Player.class.isAssignableFrom(getExpr().getReturnType()) && !SUPPORTS_PLAYERS)
-			return null;
-
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-				return CollectionUtils.array(Number.class);
-			case RESET:
-				return new Class[0];
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (delta == null && mode != ChangeMode.RESET)
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		float value = delta == null ? 0 : ((Number) delta[0]).floatValue();
+		if (!Float.isFinite(value))
 			return;
-		float value = ((Number) delta[0]).floatValue();
 		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof Player && !SUPPORTS_PLAYERS)
-				continue;
-
-			if (object instanceof Entity) {
-				changeForEntity((Entity) object, value, mode);
-			} else if (object instanceof Location) {
-				changeForLocation(((Location) object), value, mode);
-			} else if (object instanceof Vector) {
-				changeForVector(((Vector) object), value, mode);
+			if (object instanceof Entity entity) {
+				changeForEntity(entity, value, mode);
+			} else if (object instanceof Location location) {
+				changeForLocation(location, value, mode);
+			} else if (object instanceof Vector vector) {
+				changeForVector(vector, value, mode);
 			}
 		}
 	}
 
 	private void changeForEntity(Entity entity, float value, ChangeMode mode) {
 		Location location = entity.getLocation();
-		switch (mode) {
-			case SET:
-				if (usesYaw) {
-					entity.setRotation(value, location.getPitch());
-				} else {
-					entity.setRotation(location.getYaw(), value);
-				}
-				break;
-			case REMOVE:
-				value = -value;
-			case ADD:
-				if (usesYaw) {
-					entity.setRotation(location.getYaw() + value, location.getPitch());
-				} else {
-					// Subtracting because of Minecraft's upside-down pitch.
-					entity.setRotation(location.getYaw(), location.getPitch() - value);
-				}
-				break;
-			case RESET:
-				if (usesYaw) {
-					entity.setRotation(0, location.getPitch());
-				} else {
-					entity.setRotation(location.getYaw(), 0);
-				}
-				break;
-			default:
-				break;
-		}
+		changeForLocation(location, value, mode);
+		entity.setRotation(location.getYaw(), location.getPitch());
 	}
 
 	private void changeForLocation(Location location, float value, ChangeMode mode) {
@@ -209,7 +168,6 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		return usesYaw ? "yaw" : "pitch";
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
 	@ApiStatus.Internal
 	public static Vector fromYawAndPitch(float yaw, float pitch) {
 		double y = Math.sin(pitch * DEG_TO_RAD);
@@ -221,43 +179,38 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		return new Vector(x,y,z);
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float getYaw(Vector vector) {
+	private static float getYaw(Vector vector) {
 		if (((Double) vector.getX()).equals((double) 0) && ((Double) vector.getZ()).equals((double) 0)){
 			return 0;
 		}
 		return (float) (Math.atan2(vector.getZ(), vector.getX()) * RAD_TO_DEG);
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float getPitch(Vector vector) {
+	private static float getPitch(Vector vector) {
 		double xy = Math.sqrt(vector.getX() * vector.getX() + vector.getZ() * vector.getZ());
 		return (float) (Math.atan(vector.getY() / xy) * RAD_TO_DEG);
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float skriptYaw(float yaw) {
+	private static float skriptYaw(float yaw) {
 		return yaw < 90
 			? yaw + 270
 			: yaw - 90;
 	}
 
-	// TODO Mark as private next version after VectorMath deletion
-	@ApiStatus.Internal
-	public static float skriptPitch(float pitch) {
+	private static float skriptPitch(float pitch) {
 		return -pitch;
 	}
 
+	@ApiStatus.Internal
 	public static float fromSkriptYaw(float yaw) {
 		return yaw > 270
 			? yaw - 270
 			: yaw + 90;
 	}
 
+	@ApiStatus.Internal
 	public static float fromSkriptPitch(float pitch) {
 		return -pitch;
 	}
+
 }

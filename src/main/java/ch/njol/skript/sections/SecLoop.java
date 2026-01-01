@@ -119,7 +119,7 @@ public class SecLoop extends LoopSection {
 		loopPeeking = exprs[0].supportsLoopPeeking();
 
 		guaranteedToLoop = guaranteedToLoop(expression);
-		keyed = KeyProviderExpression.canReturnKeys(expression);
+		keyed = KeyedIterableExpression.canIterateWithKeys(expression);
 		loadOptionalCode(sectionNode);
 		this.setInternalNext(this);
 
@@ -142,7 +142,7 @@ public class SecLoop extends LoopSection {
 				}
 			} else {
 				iter = keyed
-					? ((KeyProviderExpression<?>) expression).keyedIterator(event)
+					? ((KeyedIterableExpression<?>) expression).keyedIterator(event)
 					: expression.iterator(event);
 				if (iter != null && iter.hasNext()) {
 					iteratorMap.put(event, iter);
