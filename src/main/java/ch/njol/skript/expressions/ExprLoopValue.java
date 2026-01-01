@@ -7,7 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedIterableExpression;
 import ch.njol.skript.lang.KeyedValue;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -135,7 +135,7 @@ public class ExprLoopValue extends SimpleExpression<Object> {
 		}
 		if (loop.isKeyedLoop()) {
 			isKeyedLoop = true;
-			if (((KeyProviderExpression<?>) loop.getLoopedExpression()).isIndexLoop(loopOf))
+			if (((KeyedIterableExpression<?>) loop.getLoopedExpression()).isIndexLoop(loopOf))
 				isIndex = true;
 		}
 		this.loop = loop;

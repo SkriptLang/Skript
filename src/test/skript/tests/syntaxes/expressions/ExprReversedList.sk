@@ -1,0 +1,14 @@
+test "reversed":
+	loop 5 times:
+		set {_list::%random uuid%} to loop-counter
+	set {_size} to size of {_list::*}
+	set {_reversed::*} to reversed {_list::*}
+	assert size of {_reversed::*} is {_size}
+
+	loop {_size} times:
+		assert the (loop-counter)th element of {_list::*} is {_reversed::%{_size} - loop-counter + 1%}
+
+	set {_indices::*} to reversed indices of {_list::*} 
+	loop reversed {_list::*}:
+		assert loop-value is {_reversed::%loop-counter%}
+		assert loop-index is {_indices::%loop-counter%}

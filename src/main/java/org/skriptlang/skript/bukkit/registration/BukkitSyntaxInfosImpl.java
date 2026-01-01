@@ -7,8 +7,8 @@ import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos.Event;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.ArrayList;
@@ -57,7 +57,8 @@ final class BukkitSyntaxInfosImpl {
 
 		@Override
 		public Builder<? extends Builder<?, E>, E> toBuilder() {
-			var builder = new BuilderImpl<>(type(), name);
+			// add asterisk to prevent prepending "on" again
+			var builder = new BuilderImpl<>(type(), "*" + name);
 			defaultInfo.toBuilder().applyTo(builder);
 			builder.listeningBehavior(listeningBehavior);
 			builder.documentationId(id);
@@ -129,10 +130,19 @@ final class BukkitSyntaxInfosImpl {
 			if (this == other) {
 				return true;
 			}
-			return (other instanceof Event<?> event) &&
-					Objects.equals(defaultInfo, other) &&
-					Objects.equals(name(), event.name()) &&
-					Objects.equals(events(), event.events());
+			if (!(other instanceof Event<?> info)) {
+				return false;
+			}
+			// if 'other' is a custom implementation, have it compare against this to ensure symmetry
+			if (other.getClass() != EventImpl.class && !other.equals(this)) {
+				return false;
+			}
+			// compare known data
+			return type() == info.type() &&
+					Objects.equals(patterns(), info.patterns()) &&
+					Objects.equals(priority(), info.priority()) &&
+					Objects.equals(name(), info.name()) &&
+					Objects.equals(events(), info.events());
 		}
 
 		@Override
@@ -157,7 +167,7 @@ final class BukkitSyntaxInfosImpl {
 		//
 
 		@Override
-		public SyntaxOrigin origin() {
+		public Origin origin() {
 			return defaultInfo.origin();
 		}
 
@@ -358,7 +368,7 @@ final class BukkitSyntaxInfosImpl {
 			}
 
 			@Override
-			public B origin(SyntaxOrigin origin) {
+			public B origin(Origin origin) {
 				defaultBuilder.origin(origin);
 				return (B) this;
 			}

@@ -61,57 +61,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * They will be registered before {@link SyntaxInfo#COMBINED} expressions
 	 *  but after {@link SyntaxInfo#SIMPLE} expressions.
 	 */
-	@ApiStatus.Experimental
 	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.COMBINED);
-
-	/**
-	 * Registers an event value expression with the provided pattern.
-	 * The syntax info will be forced to use the {@link #DEFAULT_PRIORITY} priority.
-	 * This also adds '[the]' to the start of the pattern.
-	 *
-	 * @param registry The SyntaxRegistry to register with.
-	 * @param expressionClass The EventValueExpression class being registered.
-	 * @param returnType The class representing the expression's return type.
-	 * @param pattern The pattern to match for creating this expression.
-	 * @param <T> The return type.
-	 * @param <E> The Expression type.
-	 * @return The registered {@link SyntaxInfo}.
-	 * @deprecated Use {@link #infoBuilder(Class, Class, String...)} to build a {@link SyntaxInfo}
-	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
-	 */
-	@ApiStatus.Experimental
-	@Deprecated(since = "2.12", forRemoval = true)
-	public static <E extends EventValueExpression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String pattern) {
-		return register(registry, expressionClass, returnType, new String[]{pattern});
-	}
-
-	/**
-	 * Registers an event value expression with the provided patterns.
-	 * The syntax info will be forced to use the {@link #DEFAULT_PRIORITY} priority.
-	 * This also adds '[the]' to the start of the patterns.
-	 *
-	 * @param registry The SyntaxRegistry to register with.
-	 * @param expressionClass The EventValueExpression class being registered.
-	 * @param returnType The class representing the expression's return type.
-	 * @param patterns The patterns to match for creating this expression.
-	 * @param <T> The return type.
-	 * @param <E> The Expression type.
-	 * @return The registered {@link SyntaxInfo}.
-	 * @deprecated Use {@link #infoBuilder(Class, Class, String...)} to build a {@link SyntaxInfo}
-	 *  and then register it using {@code registry} ({@link SyntaxRegistry#register(SyntaxRegistry.Key, SyntaxInfo)}).
-	 */
-	@ApiStatus.Experimental
-	@Deprecated(since = "2.12", forRemoval = true)
-	public static <E extends EventValueExpression<T>, T> DefaultSyntaxInfos.Expression<E, T> register(
-		SyntaxRegistry registry,
-		Class<E> expressionClass,
-		Class<T> returnType,
-		String ... patterns
-	) {
-		SyntaxInfo.Expression<E, T> info = infoBuilder(expressionClass, returnType, patterns).build();
-		registry.register(SyntaxRegistry.EXPRESSION, info);
-		return info;
-	}
 
 	/**
 	 * Creates a builder for a {@link SyntaxInfo} representing a {@link EventValueExpression} with the provided patterns.
@@ -124,7 +74,6 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * @param <E> The Expression type.
 	 * @return The registered {@link SyntaxInfo}.
 	 */
-	@ApiStatus.Experimental
 	public static <E extends EventValueExpression<T>, T> SyntaxInfo.Expression.Builder<? extends SyntaxInfo.Expression.Builder<?, E, T>, E, T> infoBuilder(
 			Class<E> expressionClass, Class<T> returnType, String... patterns) {
 		for (int i = 0; i < patterns.length; i++) {
@@ -142,7 +91,10 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * @param expression The class that represents this EventValueExpression.
 	 * @param type The return type of the expression.
 	 * @param pattern The pattern for this syntax.
+	 * @deprecated Register the standard way using {@link #infoBuilder(Class, Class, String...)}
+	 *  to create a {@link SyntaxInfo}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static <T> void register(Class<? extends EventValueExpression<T>> expression, Class<T> type, String pattern) {
 		Skript.registerExpression(expression, type, ExpressionType.EVENT, "[the] " + pattern);
 	}
@@ -154,7 +106,10 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * @param expression The class that represents this EventValueExpression.
 	 * @param type The return type of the expression.
 	 * @param patterns The patterns for this syntax.
+	 * @deprecated Register the standard way using {@link #infoBuilder(Class, Class, String...)}
+	 *  to create a {@link SyntaxInfo}.
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static <T> void register(Class<? extends EventValueExpression<T>> expression, Class<T> type, String ... patterns) {
 		for (int i = 0; i < patterns.length; i++) {
 			if (!StringUtils.startsWithIgnoreCase(patterns[i], "[the] "))

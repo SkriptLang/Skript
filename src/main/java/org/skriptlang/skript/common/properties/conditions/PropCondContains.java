@@ -22,8 +22,8 @@ import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyMap;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
 
 import java.util.Arrays;
 import java.util.Map;

@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
 	AnyNamed, AnyAmount {
 
-	private static final boolean IS_RUNNING_1_21 = Skript.isRunningMinecraft(1, 21);
+	private static final boolean IS_RUNNING_1_21_2 = Skript.isRunningMinecraft(1, 21, 2);
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -997,7 +997,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		// Thus, we switch to use the API methods. However, these API methods do not work properly on older versions
 		//  such as 1.20.6. For those versions, we continue to use this legacy method.
 		// See https://github.com/SkriptLang/Skript/pull/7986
-		if (!IS_RUNNING_1_21) {
+		if (!IS_RUNNING_1_21_2) {
 			// important: don't use inventory.add() - it ignores max stack sizes
 			ItemStack[] buf = inventory.getContents();
 
