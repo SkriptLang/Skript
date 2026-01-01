@@ -197,10 +197,7 @@ Your comments should look something like these:
 ## Language Features
 
 ### Compatibility
-* Contributions should maintain Java 17 source/binary compatibility, even though compiling Skript requires Java 21
-  - Users must not need JRE newer than version 17
-* Versions up to and including Java 21 should work too
-  - Please avoid using unsafe reflection
+* Please avoid using unsafe reflection
 * It is recommended to make fields final, if they are effectively final
 * Local variables and method parameters should not be declared final unless used in anonymous classes, lambdas
 or try-with-resources sections where their immutability is necessary

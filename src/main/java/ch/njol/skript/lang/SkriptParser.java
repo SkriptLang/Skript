@@ -15,7 +15,6 @@ import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -49,24 +48,18 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
-import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.log.runtime.RuntimeErrorCatcher;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -280,9 +273,12 @@ public final class SkriptParser {
 								break;
 						}
 						log.printLog();
-						if (doSimplification && element instanceof Simplifiable<?> simplifiable)
+						if (doSimplification && element instanceof Simplifiable<?> simplifiable) {
 							//noinspection unchecked
-							return (T) simplifiable.simplify();
+							element = (T) simplify(simplifiable);
+							if (element == null)
+								continue;
+						}
 						return element;
 					}
 				}
@@ -291,6 +287,38 @@ public final class SkriptParser {
 			// No successful syntax elements parsed, print errors and return
 			log.printError();
 			return null;
+		}
+	}
+
+	/**
+	 * Returns a simplified version of element, unless a runtime error is thrown, in which case a parse error is printed
+	 * and null is returned.
+	 * @param element The element to simplify
+	 * @return The simplified element, or null if simplification failed. Elements unable to simplify will return themselves.
+	 * @param <T> The element type.
+	 */
+	private <T extends SyntaxElement> @Nullable T simplify(@NotNull Simplifiable<T> element) {
+		// add runtime consumer to catch runtime errors and turn them into parse time errors
+		T simplified;
+		try (RuntimeErrorCatcher catcher = new RuntimeErrorCatcher().start()) {
+			simplified = element.simplify();
+			// we can assume that if a single simplification throws many errors, the first will be at least somewhat representative
+			AtomicBoolean error = new AtomicBoolean(false);
+			catcher.getCachedErrors().stream()
+				.filter(err -> err.level() == Level.SEVERE)
+				.findFirst()
+				.ifPresent(err -> {
+					Skript.error(err.error());
+					error.set(true);
+				});
+			// same for warnings.
+			catcher.getCachedErrors().stream()
+				.filter(err -> err.level() == Level.WARNING)
+				.findFirst()
+				.ifPresent(warning -> Skript.warning(warning.error()));
+			if (error.get())
+				return null;
+			return simplified;
 		}
 	}
 
