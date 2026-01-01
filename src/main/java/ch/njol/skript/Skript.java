@@ -606,7 +606,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				new BrewingModule(),
 				new EntityModule(),
 				new DamageSourceModule(),
-      	new InteractionModule(),
+				new InteractionModule(),
 				new ItemComponentModule(),
 				new PotionModule());
 		} catch (final Exception e) {
