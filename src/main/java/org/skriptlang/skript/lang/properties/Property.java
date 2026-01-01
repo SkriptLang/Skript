@@ -17,6 +17,7 @@ import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
 import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
+import org.skriptlang.skript.lang.properties.handlers.ElementHandler;
 import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
 import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
@@ -277,6 +278,17 @@ public record Property<Handler extends PropertyHandler<?>>(
 			ExpressionPropertyHandler.class);
 
 	/**
+	 * A property for something that can contain things.
+	 */
+	public static final Property<ElementHandler<?, ?>> ORDERED_ELEMENTS = Property.of(
+		"element",
+		"Something that contains elements.",
+		"INSERT VERSION",
+		Skript.instance(),
+		ElementHandler.class
+	);
+
+	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
 	 */
 	public static void registerDefaultProperties() {
@@ -290,6 +302,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 		TYPED_VALUE.register();
 		SCALE.register();
 		SPEED.register();
+		ORDERED_ELEMENTS.register();
 	}
 
 }

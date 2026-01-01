@@ -81,7 +81,7 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValueHandler<?,
 
 		// determine possible return types
 		if (type == null) {
-			returnTypes = getPropertyReturnTypes(properties, TypedValueHandler::possibleReturnTypes);
+			returnTypes = getPropertyReturnTypes(properties);
 			returnType = Utils.getSuperType(returnTypes);
 		} else {
 			returnTypes = new Class[]{ type.getC() };
