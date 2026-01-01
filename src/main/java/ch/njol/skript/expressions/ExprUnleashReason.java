@@ -19,7 +19,7 @@ import ch.njol.util.Kleenean;
 	"if the unleash reason is distance:",
 		"\tbroadcast \"The leash was snapped in half.\""
 })
-@Events("Unleash")
+@Events("Leash / Unleash")
 @Since("2.10")
 public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 

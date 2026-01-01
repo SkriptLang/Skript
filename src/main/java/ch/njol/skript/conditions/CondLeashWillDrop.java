@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 			"\t\tallow the leash to drop"
 })
 @Keywords("lead")
-@Events("Unleash")
+@Events("Leash / Unleash")
 @Since("2.10")
 public class CondLeashWillDrop extends Condition {
 

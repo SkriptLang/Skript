@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 		"	health of attacker is less than or equal to 2",
 		"	damage victim by 1 heart"})
 @Since("1.3")
-@Events({"damage", "death", "destroy"})
+@Events({"damage", "death", "vehicle destroy"})
 public class ExprAttacker extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	static {
