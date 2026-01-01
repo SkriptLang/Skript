@@ -12,10 +12,13 @@ public class CopperGolemModule implements AddonModule {
 	}
 
 	@Override
+	public void init(SkriptAddon addon) {
+		CopperGolemData.register();
+	}
+
+	@Override
 	public void load(SkriptAddon addon) {
 		ExprCopperGolemOxidationTime.register(addon.syntaxRegistry());
-
-		CopperGolemData.register();
 	}
 
 }

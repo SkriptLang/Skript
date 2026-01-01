@@ -61,27 +61,27 @@ public class ExprCopperGolemOxidationTime extends SimplePropertyExpression<Entit
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-			return CollectionUtils.array(Timespan.class);
-		return null;
+		return switch (mode) {
+			case SET, RESET, ADD, REMOVE -> CollectionUtils.array(Timespan.class);
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (mode == ChangeMode.SET) {
-			assert delta != null;
-			long ticks = ((Timespan) delta[0]).getAs(TimePeriod.TICK);
-			for (Entity entity : getExpr().getArray(event)) {
-				if (!(entity instanceof CopperGolem golem))
-					continue;
-				long worldTime = golem.getWorld().getGameTime();
-				golem.setOxidizing(Oxidizing.atTime(worldTime + ticks));
-			}
-		} else if (mode == ChangeMode.RESET) {
-			for (Entity entity : getExpr().getArray(event)) {
-				if (!(entity instanceof CopperGolem golem))
-					continue;
-				golem.setOxidizing(Oxidizing.unset());
+		long ticks = delta == null ? 0 : ((Timespan) delta[0]).getAs(TimePeriod.TICK);
+		if (mode == ChangeMode.REMOVE)
+			ticks = -ticks;
+
+		for (Entity entity : getExpr().getArray(event)) {
+			if (!(entity instanceof CopperGolem golem))
+				continue;
+			long worldTime = golem.getWorld().getGameTime();
+			long current = golem.getOxidizing() instanceof AtTime atTime ? atTime.time() : worldTime;
+			switch (mode) {
+				case SET -> golem.setOxidizing(Oxidizing.atTime(worldTime + ticks));
+				case ADD, REMOVE -> golem.setOxidizing(Oxidizing.atTime(current + ticks));
+				case RESET -> golem.setOxidizing(Oxidizing.unset());
 			}
 		}
 	}
