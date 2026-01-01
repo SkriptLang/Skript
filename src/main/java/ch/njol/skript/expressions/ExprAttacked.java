@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -33,13 +33,17 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 
 @Name("Attacked")
-@Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie. " +
-			 "When using Minecraft 1.11+, this also covers the hit entity in a projectile hit event.")
-@Examples({"on damage:",
-	"\tvictim is a creeper",
-	"\tdamage the attacked by 1 heart"})
+@Description("""
+	The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie.
+	When using Minecraft 1.11+, this also covers the hit entity in a projectile hit event.
+	""")
+@Example("""
+	on damage:
+		victim is a creeper
+		damage the attacked by 1 heart
+	""")
 @Since("1.3, 2.6.1 (projectile hit event)")
-@Events({"damage", "death", "projectile hit"})
+@Events({"damage", "death", "projectile hit", "pre player attack"})
 public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	private static final boolean SUPPORT_PROJECTILE_HIT = Skript.methodExists(ProjectileHitEvent.class, "getHitEntity");
@@ -75,24 +79,29 @@ public class ExprAttacked extends SimpleExpression<Entity> implements EventRestr
 
 	@Override
 	@Nullable
-	protected Entity[] get(Event e) {
+	protected Entity[] get(Event event) {
 		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
 		Entity entity;
-		if (e instanceof EntityEvent)
-			if (SUPPORT_PROJECTILE_HIT && e instanceof ProjectileHitEvent)
-				entity = ((ProjectileHitEvent) e).getHitEntity();
-			else
-				entity = ((EntityEvent) e).getEntity();
-		else if (e instanceof VehicleEvent)
-			entity = ((VehicleEvent) e).getVehicle();
-		else if (e instanceof PrePlayerAttackEntityEvent)
-			entity = ((PrePlayerAttackEntityEvent) e).getAttacked();
-		else
+
+		if (event instanceof EntityEvent entityEvent) {
+			if (SUPPORT_PROJECTILE_HIT && event instanceof ProjectileHitEvent projectileHitEvent) {
+				entity = projectileHitEvent.getHitEntity();
+			} else {
+				entity = entityEvent.getEntity();
+			}
+		} else if (event instanceof VehicleEvent vehicleEvent) {
+			entity = vehicleEvent.getVehicle();
+		} else if (event instanceof PrePlayerAttackEntityEvent preAttackEvent) {
+			entity = preAttackEvent.getAttacked();
+		} else {
 			return null;
+		}
+
 		if (type.isInstance(entity)) {
 			one[0] = entity;
 			return one;
 		}
+
 		return null;
 	}
 
@@ -108,8 +117,10 @@ public class ExprAttacked extends SimpleExpression<Entity> implements EventRestr
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null)
+		if (e == null) {
 			return "the attacked " + type;
+		}
+
 		return Classes.getDebugMessage(getSingle(e));
 	}
 
