@@ -1,12 +1,12 @@
 package org.skriptlang.skript.common.properties.expressions;
 
-
 import ch.njol.skript.doc.*;
-import org.skriptlang.skript.addon.SkriptAddon;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Scale")
 @Description({
@@ -20,8 +20,12 @@ import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHan
 @RelatedProperty("scale")
 public class PropExprScale extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 
-	public static void register(SkriptAddon addon, Origin origin) {
-		register(PropExprScale.class , "scale[s]", "objects");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			PropertyExpression.infoBuilder(PropExprScale.class, Object.class, "scale[s]", "objects", false)
+				.origin(origin)
+				.supplier(PropExprScale::new)
+				.build());
 	}
 
 	@Override

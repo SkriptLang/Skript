@@ -15,7 +15,7 @@ public class PropertiesModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		Origin origin = AddonModule.origin(addon, "type properties");
-		PropExprScale.register(addon, origin);
+		PropExprScale.register(registry, origin);
 		if (SkriptConfig.useTypeProperties.value()) { // not using canLoad since this should only gate old properties, not new ones
 			PropCondContains.register(registry, origin);
 			PropCondIsEmpty.register(registry, origin);
