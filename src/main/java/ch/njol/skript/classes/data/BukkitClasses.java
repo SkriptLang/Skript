@@ -12,7 +12,6 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -29,7 +28,6 @@ import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.EntityUnleashEvent;
@@ -41,21 +39,19 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.event.player.PlayerRespawnEvent.RespawnReason;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.Metadatable;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.base.types.*;
 import org.skriptlang.skript.bukkit.base.types.EntityClassInfo.EntityChanger;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
@@ -164,172 +160,8 @@ public class BukkitClasses {
 					}
 				}).cloner(BlockData::clone));
 
-		Classes.registerClass(new ClassInfo<>(Location.class, "location")
-				.user("locations?")
-				.name("Location")
-				.description("A location in a <a href='#world'>world</a>. Locations are world-specific and even store a <a href='#direction'>direction</a>, " +
-						"e.g. if you save a location and later teleport to it you will face the exact same direction you did when you saved the location.")
-				.usage("")
-				.examples("teleport player to location at 0, 69, 0",
-						  "set {home::%uuid of player%} to location of the player")
-				.since("1.0")
-				.defaultExpression(new EventValueExpression<>(Location.class))
-				.parser(new Parser<Location>() {
-					@Override
-					@Nullable
-					public Location parse(final String s, final ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(final Location l, final int flags) {
-						String worldPart = l.getWorld() == null ? "" : " in '" + l.getWorld().getName() + "'"; // Safety: getWorld is marked as Nullable by spigot
-						return "x: " + Skript.toString(l.getX()) + ", y: " + Skript.toString(l.getY()) + ", z: " + Skript.toString(l.getZ()) + ", yaw: " + Skript.toString(l.getYaw()) + ", pitch: " + Skript.toString(l.getPitch()) + worldPart;
-					}
-
-					@Override
-					public String toVariableNameString(final Location l) {
-						return l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ();
-					}
-
-					@Override
-					public String getDebugMessage(final Location l) {
-						return "(" + l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ() + "|yaw=" + l.getYaw() + "/pitch=" + l.getPitch() + ")";
-					}
-				}).serializer(new Serializer<Location>() {
-					@Override
-					public Fields serialize(Location location) {
-						Fields fields = new Fields();
-						World world = null;
-						try {
-							world = location.getWorld();
-						} catch (IllegalArgumentException exception) {
-							Skript.warning("A location failed to serialize with its defined world, as the world was unloaded.");
-						}
-						fields.putObject("world", world);
-						fields.putPrimitive("x", location.getX());
-						fields.putPrimitive("y", location.getY());
-						fields.putPrimitive("z", location.getZ());
-						fields.putPrimitive("yaw", location.getYaw());
-						fields.putPrimitive("pitch", location.getPitch());
-						return fields;
-					}
-
-					@Override
-					public void deserialize(final Location o, final Fields f) {
-						assert false;
-					}
-
-					@Override
-					public Location deserialize(final Fields f) throws StreamCorruptedException {
-						return new Location(f.getObject("world", World.class),
-								f.getPrimitive("x", double.class), f.getPrimitive("y", double.class), f.getPrimitive("z", double.class),
-								f.getPrimitive("yaw", float.class), f.getPrimitive("pitch", float.class));
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false; // no nullary constructor - also, saving the location manually prevents errors should Location ever be changed
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return true;
-					}
-
-					// return l.getWorld().getName() + ":" + l.getX() + "," + l.getY() + "," + l.getZ() + "|" + l.getYaw() + "/" + l.getPitch();
-					@Override
-					@Nullable
-					public Location deserialize(final String s) {
-						final String[] split = s.split("[:,|/]");
-						if (split.length != 6)
-							return null;
-						final World w = Bukkit.getWorld(split[0]);
-						if (w == null)
-							return null;
-						try {
-							final double[] l = new double[5];
-							for (int i = 0; i < 5; i++)
-								l[i] = Double.parseDouble(split[i + 1]);
-							return new Location(w, l[0], l[1], l[2], (float) l[3], (float) l[4]);
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-				})
-				.cloner(Location::clone));
-
-		Classes.registerClass(new ClassInfo<>(Vector.class, "vector")
-				.user("vectors?")
-				.name("Vector")
-				.description("Vector is a collection of numbers. In Minecraft, 3D vectors are used to express velocities of entities.")
-				.usage("vector(x, y, z)")
-				.examples("")
-				.since("2.2-dev23")
-				.defaultExpression(new EventValueExpression<>(Vector.class))
-				.parser(new Parser<Vector>() {
-					@Override
-					@Nullable
-					public Vector parse(final String s, final ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(final Vector vec, final int flags) {
-						return "x: " + Skript.toString(vec.getX()) + ", y: " + Skript.toString(vec.getY()) + ", z: " + Skript.toString(vec.getZ());
-					}
-
-					@Override
-					public String toVariableNameString(final Vector vec) {
-						return "vector:" + vec.getX() + "," + vec.getY() + "," + vec.getZ();
-					}
-
-					@Override
-					public String getDebugMessage(final Vector vec) {
-						return "(" + vec.getX() + "," + vec.getY() + "," + vec.getZ() + ")";
-					}
-				})
-				.serializer(new Serializer<Vector>() {
-					@Override
-					public Fields serialize(Vector o) {
-						Fields f = new Fields();
-						f.putPrimitive("x", o.getX());
-						f.putPrimitive("y", o.getY());
-						f.putPrimitive("z", o.getZ());
-						return f;
-					}
-
-					@Override
-					public void deserialize(Vector o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					public Vector deserialize(final Fields f) throws StreamCorruptedException {
-						return new Vector(f.getPrimitive("x", double.class), f.getPrimitive("y", double.class), f.getPrimitive("z", double.class));
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-
-					@Override
-					protected boolean canBeInstantiated() {
-						return false;
-					}
-				})
-				.cloner(Vector::clone));
+		Classes.registerClass(new LocationClassInfo());
+		Classes.registerClass(new VectorClassInfo());
 
 		Classes.registerClass(new ClassInfo<>(World.class, "world")
 				.user("worlds?")
@@ -542,86 +374,6 @@ public class BukkitClasses {
 				.since("1.4.4")
 				.after("damagecause"));
 
-		Classes.registerClass(new ClassInfo<>(PotionEffect.class, "potioneffect")
-			.user("potion ?effects?")
-			.name("Potion Effect")
-			.description("A potion effect, including the potion effect type, tier and duration.")
-			.usage("speed of tier 1 for 10 seconds")
-			.since("2.5.2")
-			.parser(new Parser<PotionEffect>() {
-
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(PotionEffect potionEffect, int flags) {
-					return PotionEffectUtils.toString(potionEffect);
-				}
-
-				@Override
-				public String toVariableNameString(PotionEffect o) {
-					return "potion_effect:" + o.getType().getName();
-				}
-
-			})
-			.serializer(new Serializer<PotionEffect>() {
-				@Override
-				public Fields serialize(PotionEffect o) {
-					Fields fields = new Fields();
-					fields.putObject("type", o.getType().getName());
-					fields.putPrimitive("amplifier", o.getAmplifier());
-					fields.putPrimitive("duration", o.getDuration());
-					fields.putPrimitive("particles", o.hasParticles());
-					fields.putPrimitive("ambient", o.isAmbient());
-					return fields;
-				}
-
-				@Override
-				public void deserialize(PotionEffect o, Fields f) {
-					assert false;
-				}
-
-				@Override
-				protected PotionEffect deserialize(Fields fields) throws StreamCorruptedException {
-					String typeName = fields.getObject("type", String.class);
-					assert typeName != null;
-					PotionEffectType type = PotionEffectType.getByName(typeName);
-					if (type == null)
-						throw new StreamCorruptedException("Invalid PotionEffectType " + typeName);
-					int amplifier = fields.getPrimitive("amplifier", int.class);
-					int duration = fields.getPrimitive("duration", int.class);
-					boolean particles = fields.getPrimitive("particles", boolean.class);
-					boolean ambient = fields.getPrimitive("ambient", boolean.class);
-					return new PotionEffect(type, duration, amplifier, ambient, particles);
-				}
-
-				@Override
-				public boolean mustSyncDeserialization() {
-					return false;
-				}
-
-				@Override
-				protected boolean canBeInstantiated() {
-					return false;
-				}
-			}));
-
-		Registry<PotionEffectType> petRegistry = BukkitUtils.getPotionEffectTypeRegistry();
-		if (petRegistry != null) {
-			Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
-				.user("potion ?effect ?types?")
-				.name("Potion Effect Type")
-				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
-				.examples("apply swiftness 5 to the player",
-					"apply potion of speed 2 to the player for 60 seconds",
-					"remove invisibility from the victim")
-				.since(""));
-		} else {
-			Classes.registerClass(PotionEffectUtils.getLegacyClassInfo());
-		}
-
 		// REMIND make my own damage cause class (that e.g. stores the attacker entity, the projectile, or the attacking block)
 		Classes.registerClass(new EnumClassInfo<>(DamageCause.class, "damagecause", "damage causes", new ExprDamageCause())
 				.user("damage ?causes?")
@@ -780,6 +532,12 @@ public class BukkitClasses {
 				.name("Spawn Reason")
 				.description("The spawn reason in a <a href='#spawn'>spawn</a> event.")
 				.since("2.3"));
+
+		Classes.registerClass(new EnumClassInfo<>(RespawnReason.class, "respawnreason", "respawn reasons")
+				.user("respawn(ing)? ?reasons?")
+				.name("Respawn Reason")
+				.description("The respawn reason in a <a href='#respawn'>respawn</a> event.")
+				.since("INSERT VERSION"));
 
 		if (Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent")) {
 			Classes.registerClass(new ClassInfo<>(CachedServerIcon.class, "cachedservericon")
@@ -998,12 +756,6 @@ public class BukkitClasses {
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description("Represents flags that may be applied to hide certain attributes of an item.")
-				.since("2.10"));
-
-		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
-				.user("(entity )?potion ?effect ?cause")
-				.name("Entity Potion Cause")
-				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("2.10"));
 
 		Classes.registerClass(new EnumClassInfo<>(ChangeReason.class,  "experiencecooldownchangereason", "experience cooldown change reasons")
