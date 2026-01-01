@@ -43,7 +43,7 @@ import ch.njol.util.Kleenean;
 		damage the attacked by 1 heart
 	""")
 @Since("1.3, 2.6.1 (projectile hit event)")
-@Events({"damage", "death", "projectile hit", "pre player attack"})
+@Events({"damage", "death", "projectile hit", "pre attack"})
 public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	private static final boolean SUPPORT_PROJECTILE_HIT = Skript.methodExists(ProjectileHitEvent.class, "getHitEntity");

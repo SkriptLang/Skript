@@ -769,7 +769,7 @@ public class SimpleEvents {
 			.examples("""
 				on player pre attack entity:
 					cancel event
-					send "Your attack was canceled!"
+					send "Your attack was canceled!" to attacker
 					send "It's your lucky day." to victim
 				""")
 			.since("INSERT VERSION");
