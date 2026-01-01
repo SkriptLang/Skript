@@ -2,7 +2,6 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
-import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
@@ -12,6 +11,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
