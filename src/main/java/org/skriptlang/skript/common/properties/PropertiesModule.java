@@ -1,6 +1,7 @@
 package org.skriptlang.skript.common.properties;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.common.properties.expressions.PropExprScale;
