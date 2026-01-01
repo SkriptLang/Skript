@@ -21,7 +21,7 @@ import org.skriptlang.skript.lang.script.Script;
 
 import java.util.Objects;
 
-@Name("Function (Experimental)")
+@Name("Function")
 @Description("Obtain a function by name, which can be executed.")
 @Examples({
 		"set {_function} to the function named \"myFunction\"",
