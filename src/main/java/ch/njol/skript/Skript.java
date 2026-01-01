@@ -103,6 +103,7 @@ import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
+import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.tags.TagModule;
@@ -450,7 +451,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (!aliasesFolder.mkdirs())
 						throw new IOException("Could not create the directory " + aliasesFolder);
 				}
-				
+
 				f = new ZipFile(getFile());
 				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
@@ -608,7 +609,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				new DamageSourceModule(),
 				new InteractionModule(),
 				new ItemComponentModule(),
-				new PotionModule());
+				new PotionModule(),
+				new ParticleModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

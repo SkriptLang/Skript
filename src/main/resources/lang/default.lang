@@ -1640,6 +1640,9 @@ entities:
 	animal:
 		name: animal¦s
 		pattern: animal[plural:s]
+	tameable:
+		name: tameable creature¦s
+		pattern: tameable creature[plural:s]
 	fish:
 		name: fish¦es
 		pattern: fish[plural:es]
@@ -1793,638 +1796,6 @@ game modes:
 	creative: creative
 	adventure: adventure
 	spectator: spectator
-
-# -- Visual Effects --
-visual effects:
-	area_expression: [[with] [(1¦offset (of|by) %-number%, %-number%(,| and) %-number%)][(2¦[(and|at) ]speed %-number%)]]
-	effect:
-		ender_signal:
-			name: ender signal @an
-			pattern: ender [eye] signal[s]
-		mobspawner_flames:
-			name: mobspawner flames  @x
-			pattern: [mo(b|nster)][ ]spawner flames
-		potion_break:
-			name: potion break @a
-			pattern: [%potioneffecttype%] potion break[ing]
-		smoke:
-			name: smoke @-
-			pattern: smoke [%direction%]
-	entityeffect:
-		hurt:
-			name: hurt @-
-			pattern: (hurt|damage)
-		sheep_eat:
-			name: sheep eating @a
-			pattern: sheep eat[ing] [a] [grass] [block]
-		wolf_hearts:
-			name: wolf hearts @x
-			pattern: wolf (hearts|tame|being tamed)
-		wolf_shake:
-			name: wolf shaking @a
-			pattern: wolf shak(e|ing)
-		wolf_smoke:
-			name: wolf smoke @-
-			pattern: wolf smok(e|ing)
-		iron_golem_rose:
-			name: iron golem offering rose @an
-			pattern: (iron golem [offering] rose|rose in hand)
-		witch_magic:
-			name: witch magic @-
-			pattern: witch magic
-		zombie_transform:
-			name: zombie turning to a villager
-			pattern: ([zombie] turning to a villager|zombie transform)
-		firework_explode:
-			name: firework explosion @a
-			pattern: firework explosion
-		arrow_particles:
-			name: arrow particles @x
-			pattern: [tipped] arrow particles
-		rabbit_jump:
-			name: jumping rabbit @a
-			pattern: (jumping rabbit|rabbit jump)
-		love_hearts:
-			name: love hearts @x
-			pattern: (love|breeding) hearts
-		squid_rotate:
-			name: squid rotation reset @a
-			pattern: [squid] rotation reset
-		entity_poof:
-			name: entity poof @-
-			pattern: entity poof
-		guardian_target:
-			name: guardian target @a
-			pattern: guardian target [with laser]
-		shield_block:
-			name: block with shield @-
-			pattern: (block [with a shield]|shield block)
-		shield_break:
-			name: shield break @a
-			pattern: shield break
-		armor_stand_hit:
-			name: armor stand hit @a
-			pattern: armo[u]r stand hit
-		thorns_hurt:
-			name: hurt by thorns @-
-			pattern: (hurt|damage) by thorns
-		iron_golem_sheath:
-			name: iron golem sheathing rose
-			pattern: iron golem (sheathing|putting away) rose
-		totem_resurrect:
-			name: resurrection by totem
-			pattern: resurrection [by totem]
-		hurt_drown:
-			name: hurt by drowning @-
-			pattern: (hurt|damage) by drowning
-		hurt_explosion:
-			name: hurt by explosion @-
-			pattern: (hurt|damage) by explosion
-	particle:
-
-		angry_villager: # added in 1.20.5
-			name: angry villager @a
-			pattern: (angry villager|[villager] thundercloud)
-		villager_angry: # for versions below 1.20.5
-			name: angry villager @a
-			pattern: (angry villager|[villager] thundercloud)
-
-		ash: # added in 1.16
-			name: ash @-
-			pattern: ash
-
-		block: # added in 1.20.5
-			name: block @-
-			pattern: (%-blockdata/itemtype% break[ing]|[sprinting] dust of %-blockdata/itemtype%)
-		block_crack: # for versions below 1.20.5
-			name: block break @-
-			pattern: %blockdata/itemtype% break[ing]
-		block_dust: # for versions below 1.20.5
-			name: block dust @-
-			pattern: [sprinting] dust of %blockdata/itemtype%
-
-		block_marker: # added in 1.18
-			name: block marker @a
-			pattern: (barrierbm:barrier [particle]|lightbm:light [particle]|%-blockdata/itemtype% block marker)
-		barrier:
-			name: barrier @a
-			pattern: barrier [particle]
-		light: # added in 1.17
-			name: light @-
-			pattern: light [particle]
-
-		bubble: # added in 1.20.5
-			name: bubble @-
-			pattern: [water] bubble
-		water_bubble: # for versions below 1.20.5
-			name: water bubble @-
-			pattern: [water] bubble
-
-		bubble_column_up: # added in 1.13
-			name: bubble column up @-
-			pattern: (current|bubble column) up
-
-		bubble_pop: # added in 1.13
-			name: bubble pop @-
-			pattern: bubble pop
-
-		campfire_cosy_smoke: # added in 1.14
-			name: campfire cosy smoke @-
-			pattern: campfire co(s|z)y smoke
-
-		campfire_signal_smoke: # added in 1.14
-			name: campfire signal smoke @-
-			pattern: campfire signal smoke
-
-		cherry_leaves: # added in 1.20
-			name: cherry leaves @-
-			pattern: cherry leaves
-
-		cloud:
-			name: cloud @a
-			pattern: cloud
-
-		composter: # added in 1.14
-			name: composter @-
-			pattern: composter [particle]
-
-		crimson_spore: # added in 1.16
-			name: crimson spore @-
-			pattern: crimson spore
-
-		crit:
-			name: critical hit @a
-			pattern: (critical hit|crit) [spark]
-
-		current_down: # added in 1.13
-			name: current down @-
-			pattern: (current|bubble column) down
-
-		damage_indicator: # added in 1.14
-			name: damage indicator @-
-			pattern: damage indicator
-
-		dolphin: # added in 1.13
-			name: dolphin @-
-			pattern: dolphin [particle]
-
-		dragon_breath: # added in 1.14
-			name: dragon breath @-
-			pattern: dragon[[']s] breath
-
-		dripping_dripstone_lava: # added in 1.17
-			name: dripping dripstone lava @-
-			pattern: dripping dripstone lava
-
-		dripping_dripstone_water: # added in 1.17
-			name: dripping dripstone water @-
-			pattern: dripping dripstone water
-
-		dripping_honey: # added in 1.15
-			name: dripping honey @-
-			pattern: dripping honey
-
-		dripping_lava: # added in 1.20.5
-			name: dripping lava @a
-			pattern: (dripping lava|lava drip)
-		drip_lava: # for versions below 1.20.5
-			name: lava drip @a
-			pattern: (dripping lava|lava drip)
-
-		dripping_obsidian_tear: # added in 1.16
-			name: dripping obsidian tear @-
-			pattern: dripping obsidian tear
-
-		dripping_water: # added in 1.20.5
-			name: dripping water
-			pattern: (dripping water|water drip)
-		drip_water: # for versions below 1.20.5
-			name: water drip @a
-			pattern: (dripping water|water drip)
-
-		dust: # added in 1.20.5
-			name: dust @-
-			pattern: [%-color%] [colo[u]red] dust [with size %-float%]
-		redstone: # for versions below 1.20.5
-			name: coloured dust @-
-			pattern: [%-color%] [colo[u]red] dust [with size %-float%]
-
-		dust_color_transition: # added in 1.17
-			name: dust color transition @a
-			pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-float%]
-
-		dust_pillar: # added in 1.20.5 (for 1.21)
-			name: dust pillar @a
-			pattern: %blockdata/itemtype% dust pillar
-
-		dust_plume: # added in 1.20.3
-			name: dust plume @a
-			pattern: dust plume
-
-		effect: # added in 1.20.5
-			name: effect @an
-			pattern: (effect|spell|thrown potion) # lingering is part of entity_effect
-		spell: # for versions below 1.20.5
-			name: spell @a
-			pattern: (effect|spell|thrown potion|lingering potion)
-
-		egg_crack: # added in 1.20
-			name: egg crack @an
-			pattern: [sniffer] egg crack
-
-		elder_guardian: # added in 1.20.5
-			name: elder guardian @-
-			pattern: (elder guardian particle|mob appearance|guardian ghost)
-		mob_appearance: # for versions below 1.20.5
-			name: mob appearance @-
-			pattern: (elder guardian particle|mob appearance|guardian ghost)
-
-		electric_spark:
-			name: electric spark @-
-			pattern: electric spark
-
-		enchant: # added in 1.20.5
-			name: enchant
-			pattern: (enchant|flying (glyph|letter)|enchantment table)
-		enchantment_table: # for versions below 1.20.5
-			name: flying glyph @a
-			pattern: (enchant|flying (glyph|letter)|enchantment table)
-
-		enchanted_hit: # added in 1.20.5
-			name: enchanted hit @an
-			pattern: (enchanted hit|(magic[al]|blue) (critical hit|crit) [spark])
-		crit_magic: # for versions below 1.20.5
-			name: magical critical hit @a
-			pattern: (enchanted hit|(magic[al]|blue) (critical hit|crit) [spark])
-
-		end_rod:
-			name: end rod @-
-			pattern: end rod [particle]
-
-		entity_effect: # added in 1.20.5
-			name: entity effect @an
-			pattern: (lingering potion|[%-color%] [transparent] potion swirl)
-		# TODO ambient_entity_effect seems to exist, but is not supported by spigot particle enum?
-		spell_mob: # for versions below 1.20.5
-			name: potion swirl @a
-			pattern: [%-color%] potion swirl
-		spell_mob_ambient: # for versions below 1.20.5
-			name: transparent potion swirl @a
-			pattern: [%-color%] transparent potion swirl
-
-		# TODO explosions are a mess (see explosion_normal, explosion_large, explosion_huge)
-		explosion: # added in 1.20.5
-			name: large explosion @a
-			pattern: large explosion
-		explosion_large: # for versions below 1.20.5
-			name: large explosion @a
-			pattern: large explosion
-
-		explosion_emitter: # added in 1.20.5
-			name: explosion emitter @an
-			pattern: (explosion emitter|huge explosion)
-		explosion_huge: # for versions below 1.20.5
-			name: huge explosion @a
-			pattern: (explosion emitter|huge explosion)
-
-		falling_dripstone_lava: # added in 1.17
-			name: falling dripstone lava @-
-			pattern: falling dripstone lava
-
-		falling_dripstone_water: # added in 1.17
-			name: falling dripstone water @-
-			pattern: falling dripstone water
-
-		falling_dust:
-			name: falling dust @-
-			pattern: falling dust of %blockdata/itemtype%
-
-		falling_honey: # added in 1.15
-			name: falling honey @-
-			pattern: falling honey
-
-		falling_lava: # added in 1.14
-			name: falling lava @-
-			pattern: falling lava
-
-		falling_nectar: # added in 1.15
-			name: falling nectar @-
-			pattern: falling nectar
-
-		falling_obsidian_tear: # added in 1.16
-			name: falling obsidian tear @-
-			pattern: falling obsidian tear
-
-		falling_spore_blossom: # added in 1.17
-			name: falling spore blossom @-
-			pattern: falling spore blossom
-
-		falling_water: # added in 1.14
-			name: falling water @-
-			pattern: falling water
-
-		firework: # added in 1.20.5
-			name: firework @-
-			pattern: (firework particle|firework['s] spark)
-		fireworks_spark: # for versions below 1.20.5
-			name: firework's spark @-
-			pattern: (firework particle|firework['s] spark)
-
-		fishing: # added in 1.20.5
-			name: water wake @-
-			pattern: (fishing|water wake)
-		water_wake: # for versions below 1.20.5
-			name: water wake @-
-			pattern: (fishing|water wake)
-
-		flame:
-			name: flame @-
-			pattern: (flame|fire)
-
-		flash: # added in 1.14
-			name: flash @-
-			pattern: flash
-
-		glow: # added in 1.17
-			name: glow @-
-			pattern: glow
-
-		glow_squid_ink: # added in 1.17
-			name: glow squid ink @-
-			pattern: glow squid ink
-
-		gust: # added in 1.20.5 (for 1.21)
-			name: gust @a
-			pattern: gust
-
-		gust_emitter_large: # added in 1.20.5 (for 1.21)
-			name: large gust emitter @a
-			pattern: large gust emitter
-
-		gust_emitter_small: # added in 1.20.5 (for 1.21)
-			name: small gust emitter @a
-			pattern: small gust emitter
-
-		happy_villager: # added in 1.20.5
-			name: happy villager @-
-			pattern: (happy villager|green spark)
-		villager_happy:
-			name: happy villager @-
-			pattern: (happy villager|green spark)
-
-		heart:
-			name: heart @a
-			pattern: heart
-
-		infested: # added in 1.20.5 (for 1.21)
-			name: infested @-
-			pattern: infested
-
-		instant_effect: # added in 1.20.5
-			name: instant effect @an
-			pattern: instant (effect|spell|thrown potion)
-		spell_instant: # for versions below 1.20.5
-			name: spell @a
-			pattern: instant (effect|spell|thrown potion)
-
-		item: # added in 1.20.5
-			name: item @-
-			pattern: %itemtype% item (break|crack)[ing]
-		item_crack: # for versions below 1.20.5
-			name: item crack @-
-			pattern: %itemtype% item (break|crack)[ing]
-
-		item_cobweb: # added in 1.20.5 (for 1.21)
-			name: cobweb @-
-			pattern: cobweb [item|particle]
-
-		item_slime: # added in 1.20.5
-			name: slime @-
-			pattern: slime [item|particle]
-		slime: # for versions below 1.20.5
-			name: slime @-
-			pattern: slime [item|particle]
-
-		item_snowball: # added in 1.20.5
-			name: snowball @-
-			pattern: (snowball [item|break|particle]|snow shovel|snow(man| golem) spawn)
-		snowball: # for versions below 1.20.5
-			name: snowball break @-
-			pattern: snowball break
-		snow_shovel: # for versions below 1.20.5
-			name: snow shovel @-
-			pattern: (snowball [item|particle]|snow shovel|snow(man| golem) spawn)
-
-		landing_honey: # added in 1.15
-			name: landing honey @-
-			pattern: landing honey
-
-		landing_lava: # added in 1.14
-			name: landing lava @-
-			pattern: landing lava
-
-		landing_obsidian_tear: # added in 1.16
-			name: landing obsidian tear @-
-			pattern: landing obsidian tear
-
-		large_smoke: # added in 1.20.5
-			name: large smoke @-
-			pattern: large smoke
-		smoke_large: # for versions below 1.20.5
-			name: large smoke @-
-			pattern: large smoke
-
-		lava:
-			name: lava pop @a
-			pattern: lava pop
-
-		mycelium: # previously town_aura, changed in 1.20.5
-			name: mycelium @-
-			pattern: (mycelium [particle]|small smoke|town aura)
-		town_aura:
-			name: small smoke @-
-			pattern: (mycelium|small smoke|town aura)
-
-		nautilus: # added in 1.13
-			name: nautilus @-
-			pattern: nautilus
-
-		note:
-			name: note @a
-			pattern: note [(of|with) [colo[u]r] %number%]
-
-		ominous_spawning: # added in 1.20.5 (for 1.21)
-			name: ominous spawning @-
-			pattern: ominous spawning
-
-		poof: # added in 1.20.5
-			name: poof @a
-			pattern: (poof|explosion)
-		explosion_normal: # for versions below 1.20.5
-			name: explosion @an
-			pattern: (poof|explosion)
-
-		portal:
-			name: portal @a
-			pattern: [nether] portal
-
-		raid_omen: # added in 1.20.5 (1.21)
-			name: raid omen @a
-			pattern: raid omen
-
-		rain: # added in 1.20.5
-			name: rain @-
-			pattern: (rain|water drop)
-		water_drop: # for versions below 1.20.5
-			name: water drop @a
-			pattern: (rain|water drop)
-
-		reverse_portal: # added in 1.16
-			name: reverse portal @-
-			pattern: reverse portal
-
-		scrape: # added in 1.17
-			name: scrape @-
-			pattern: scrape
-
-		sculk_charge: # added in 1.19
-			name: sculk charge @-
-			pattern: sculk charge [with ([a] roll|[an] angle) [of] %-float%]
-
-		sculk_charge_pop: # added in 1.19
-			name: sculk charge pop @-
-			pattern: sculk charge pop
-
-		sculk_soul: # added in 1.19
-			name: sculk soul @-
-			pattern: sculk soul
-
-		shriek: # added in 1.19
-			name: shriek @-
-			pattern: shriek [with [a] delay [of] %-timespan%]
-
-		small_flame: # added in 1.17
-			name: small flame @a
-			pattern: small flame
-
-		small_gust: # added in 1.20.5 (for 1.21)
-			name: small gust @a
-			pattern: small gust
-
-		smoke: # added in 1.20.5
-			name: smoke @-
-			pattern: smoke [particle]
-		smoke_normal: # for versions below 1.20.5
-			name: smoke @-
-			pattern: smoke [particle]
-
-		sneeze: # added in 1.14
-			name: sneeze @a
-			pattern: sneeze
-
-		snowflake: # added in 1.17
-			name: snowflake @a
-			pattern: snowflake
-
-		sonic_boom: # added in 1.19
-			name: sonic boom @a
-			pattern: sonic boom
-
-		soul: # added in 1.16
-			name: soul @-
-			pattern: soul
-
-		soul_fire_flame: # added in 1.16
-			name: soul fire flame @a
-			pattern: soul fire flame
-
-		spit: # added in 1.11
-			name: spit @-
-			pattern: spit
-
-		splash: # added in 1.20.5
-			name: splash @a
-			pattern: [water] splash
-		water_splash: # for versions below 1.20.5
-			name: water splash @a
-			pattern: [water] splash
-
-		spore_blossom_air: # added in 1.17
-			name: spore blossom air @-
-			pattern: spore blossom air
-
-		squid_ink: # added in 1.13
-			name: squid ink @-
-			pattern: squid ink
-
-		sweep_attack: # added in 1.14
-			name: sweep attack @a
-			pattern: sweep attack
-
-		totem_of_undying: # added in 1.20.5
-			name: totem of undying @a
-			pattern: totem [of undying] [particle]
-		totem: # for versions below 1.20.5
-			name: totem @a
-			pattern: totem [of undying] [particle]
-
-		trial omen: # added in 1.20.5 (for 1.21)
-			name: trial omen @a
-			pattern: trial omen
-
-		trial_spawner_detection: # added in 1.20.5 (for 1.21)
-			name: trial spawner detection @-
-			pattern: trial spawner detection
-
-		trial_spawner_detection_ominous: # added in 1.20.5 (for 1.21)
-			name: ominous trial spawner detection @-
-			pattern: ominous trial spawner detection
-
-		underwater: # added in 1.20.5
-			name: underwater @-
-			pattern: (underwater|suspended|void fog)
-		suspended: # for versions below 1.20.5
-			name: suspended @-
-			pattern: (underwater|suspended)
-		suspended_depth: # for versions below 1.20.5
-			name: void fog @-
-			pattern: void fog
-
-		vault_connection: # added in 1.20.5 (for 1.21)
-			name: vault connection @-
-			pattern: vault connection
-
-		vibration: # added in 1.17
-			name: vibration @a
-			# must be a literal, so you can't actually use this properly yet
-			pattern: vibration [to %-entity/location%] [over %-timespan%]
-
-		warped_spore: # added in 1.16
-			name: warped spore @a
-			pattern: warped spore
-
-		wax_off: # added in 1.17
-			name: wax off @-
-			pattern: wax off
-
-		wax_on: # added in 1.17
-			name: wax on @-
-			pattern: wax on
-
-		white_ash: # added in 1.16
-			name: white ash @-
-			pattern: white ash
-
-		white_smoke: # added in 1.20.3
-			name: white smoke @-
-			pattern: white smoke
-
-		witch: # added in 1.20.5
-			name: witch @a
-			pattern: (witch (magic|spell|particle)|purple spark)
-		spell_witch: # for versions below 1.20.5
-			name: witch spell @a
-			pattern: (witch (magic|spell|particle)|purple spark)
 
 # -- Inventory Actions --
 inventory actions:
@@ -2792,6 +2163,337 @@ transform reasons:
 	split: slime split, slime splitting, split, magma slime split, magma slime splitting
 	unknown: unknown
 	infection: infection, villager infection
+
+# -- Game Effects --
+# all patterns should include the word 'effect'
+game effect:
+	click1: dispenser click sound effect
+	click2: menu click sound effect, gui click sound effect
+	bow_fire: fire bow sound effect, shoot bow sound effect
+	extinguish: extinguish fire sound effect, extinguish sound effect
+	ghast_shriek: ghast shriek sound effect
+	ghast_shoot: ghast shoot sound effect
+	blaze_shoot: blaze shoot sound effect
+	zombie_chew_wooden_door: zombie chewing on wooden door sound effect, zombie attacking wooden door sound effect
+	zombie_chew_iron_door: zombie chewing on iron door sound effect, zombie attacking iron door sound effect
+	zombie_destroy_door: zombie destroy door sound effect, zombie destroying door sound effect
+	ender_signal: ender eye break effect, eye of ender break effect
+	mobspawner_flames: mob spawner flames effect, spawner flames effect
+	brewing_stand_brew: brewing sound effect
+	chorus_flower_grow: chorus flower growing sound effect
+	chorus_flower_death: chorus flower death sound effect
+	portal_travel: nether portal travel sound effect
+	endereye_launch: ender eye launch sound effect, eye of ender launch sound effect
+	firework_shoot: dispenser shoot sound effect
+	dragon_breath: dragon breath effect, dragon's breath effect
+	anvil_break: break anvil sound effect
+	anvil_use: use anvil sound effect
+	anvil_land: anvil land sound effect
+	enderdragon_shoot: ender dragon shoot sound effect, dragon shoot sound effect
+	enderdragon_growl: ender dragon growl sound effect, dragon growl sound effect
+	wither_break_block: wither breaking block sound effect
+	wither_shoot: wither shoot sound effect
+	zombie_infect: zombie infection sound effect
+	zombie_converted_villager: zombie converting villager sound effect
+	zombie_converted_to_drowned: zombie converting to drowned sound effect
+	zombie_converts_to_drowned: zombie converting to drowned sound effect
+	husk_converted_to_zombie: husk converting to zombie sound effect
+	husk_converts_to_zombie: husk converting to zombie sound effect
+	skeleton_converted_to_stray: skeleton converting to stray sound effect
+	bat_takeoff: bat take off sound effect
+	end_gateway_spawn: end gateway spawn effect
+	phantom_bite: phantom bite sound effect
+	phantom_bites: phantom bites sound effect
+	grindstone_use: use grindstone sound effect
+	grindstone_used: used grindstone sound effect
+	book_page_turn: turn page sound effect
+	book_page_turned: turned page sound effect
+	smithing_table_use: use smithing table sound effect
+	pointed_dripstone_drip_lava_into_cauldron: lava dripping into cauldron sound effect
+	pointed_dripstone_drip_water_into_cauldron: water dripping into cauldron sound effect
+	dripping_dripstone: water dripping sound effect, lava dripping sound effect
+	lava_interact: lava interaction effect
+	lava_converts_block: lava converts block effect
+	redstone_torch_burnout: redstone torch burnout effect
+	redstone_torch_burns_out: redstone torch burns out effect
+	end_portal_frame_fill: fill end portal frame effect
+	ender_eye_placed: ender eye placed effect, eye of ender placed effect
+	ender_dragon_destroy_block: ender dragon breaking block effect, dragon breaking block effect
+	ender_dragon_destroys_block: ender dragon destroys block effect, dragon destroys block effect
+	sponge_dry: sponge dry out effect
+	copper_wax_on: apply wax effect
+	copper_wax_off: remove wax effect
+	oxidised_copper_scrape: scrape oxidised copper effect
+	wither_spawned: spawn wither sound effect
+	ender_dragon_death: ender dragon death sound effect, dragon death sound effect
+	end_portal_created_in_overworld: complete end portal sound effect, create end portal sound effect
+	composter_composts: composter compost effect
+	pointed_dripstone_land: pointed dripstone land effect
+	sound_stop_jukebox_song: stop jukebox song sound effect
+	crafter_craft: crafter craft sound effect
+	crafter_fail: crafter fail sound effect
+	particles_egg_crack: egg crack effect
+	gust_dust: gust dust effect
+	trial_spawner_eject_item: trial spawner eject item effect
+	vault_eject_item: vault eject item effect
+	spawn_cobweb: spawn cobweb effect
+	sound_with_charge_shot: charge shot sound effect
+
+	 # these effects are deprecated in 1.19, they do nothing.
+	 # their respective Sounds should be used instead.
+	door_toggle: toggle door sound effect
+	iron_door_toggle: toggle iron door sound effect
+	trapdoor_toggle: toggle trapdoor sound effect
+	iron_trapdoor_toggle: toggle iron trapdoor sound effect
+	fence_gate_toggle: toggle fence gate sound effect
+	door_close: close door sound effect
+	iron_door_close: close iron door sound effect
+	trapdoor_close: close trapdoor sound effect
+	iron_trapdoor_close: close iron trapdoor sound effect
+	fence_gate_close: close fence gate sound effect
+
+	# these effects require data and can't be parsed directly, but exist here in case skript needs a proper name.
+	record_play: play record effect
+	smoke: dispenser black smoke effect
+	step_sound: footstep sound effect
+	potion_break: splash potion break effect
+	instant_potion_break: instant splash potion break effect
+	villager_plant_grow: villager grow plant effect
+	composter_fill_attempt: composting fill effect
+	bone_meal_use: bone meal use effect
+	electric_spark: electric spark effect
+	shoot_white_smoke: dispenser white smoke effect
+	bee_growth: bee grow plant effect
+	turtle_egg_placement: place turtle egg effect
+	smash_attack: mace smash attack effect
+	particles_sculk_charge: sculk charge effect
+	particles_sculk_shriek: sculk shriek effect
+	particles_and_sound_brush_block_complete: brush block effect
+	trial_spawner_spawn: trial spawner spawn effect
+	trial_spawner_spawn_mob_at: trial spawner spawn mob effect
+	trial_spawner_detect_player: trial spawner detect player effect
+	vault_activate: vault activate effect
+	vault_deactivate: vault deactivate effect
+	trial_spawner_detect_player_ominous: ominous trial spawner detect player effect
+	trial_spawner_become_ominous: trial spawner become ominous effect
+	trial_spawner_spawn_item: trial spawner spawn item effect
+
+# -- Entity Effects --
+# all patterns should include the word 'effect' or 'animation'
+# 'effect' should be used for particles, 'sound effect' for sounds, 'animation' for model animations
+entity effect:
+	arrow_particles: tipped arrow particles effect
+	rabbit_jump: rabbit jump animation
+	reset_spawner_minecart_delay: reset spawner minecart delay effect
+
+	# death was superseded by entity_death 1.12.2
+	death: death animation
+	entity_death: death animation
+
+	egg_break: egg break effect
+	snowball_break: snowball break effect
+	projectile_crack: projectile crack effect
+	fang_attack: evoker fang attack animation
+	hoglin_attack: hoglin attack animation
+	iron_golen_attack: iron golem attack animation
+	ravager_attack: ravager attack animation
+	ravager_roared: ravager roared effect
+	warden_attack: warden attack animation
+	zoglin_attack: zoglin attack animation
+	entity_attack: entity attack animation
+
+	# wolf effects superseded by taming effects 1.21
+	wolf_smoke: taming failed effect
+	wolf_hearts: taming succeeded effect
+	taming_failed: taming failed effect
+	taming_succeeded: taming succeeded effect
+
+	trusting_failed: ocelot distrust effect
+	trusting_succeeded: ocelot trust effect
+	wolf_shake: wolf shake animation
+	wolf_shake_stop: stop wolf shake animation
+	tnt_minecart_ignite: ignite tnt minecart animation
+	iron_golem_rose: iron golem rose animation
+	iron_golem_sheath: iron golem sheath animation
+	villager_heart: villager heart effect
+	villager_angry: villager angry effect
+	villager_happy: villager happy effect
+	witch_magic: witch magic effect
+	zombie_transform: zombie transform sound effect
+	firework_explode: firework explode animation
+	love_hearts: love hearts effect
+	squid_rotate: squid rotation reset
+	entity_poof: entity poof effect
+	shield_block: shield block sound effect
+	shield_break: shield break sound effect
+	armor_stand_hit: armor stand hit effect
+	dolphin_fed: fed dolphin effect
+	ravager_stunned: stunned ravager effect
+	villager_splash: villager sweat effect
+	player_bad_omen_raid: player bad omen raid effect # pre 1.20.5
+	fox_chew: fox chew effect
+	teleport_ender: ender teleport effect
+	break_equipment_main_hand: break main hand effect
+	break_equipment_off_hand: break off hand effect
+	break_equipment_helmet: break helmet effect
+	break_equipment_chestplate: break chestplate effect
+	break_equipment_leggings: break leggings effect
+	break_equipment_boots: break boots effect
+	break_equipment_saddle: break saddle effect
+	body_break: break body armor effect, break body armour effect
+	break_equipment_body: break body armor effect, break body armour effect
+	honey_block_slide_particles: honey block slide effect
+	honey_block_fall_particles: honey block fall effect
+	swap_hand_items: swap hands effect # this actually makes players swap hands
+	goat_lower_head: goat lowering head animation
+	goat_raise_head: goat raising head animation
+	spawn_death_smoke: spawn in smoke effect
+	warden_tendril_shake: warden tendril shake animation
+	warden_sonic_attack: warden sonic attack animation
+	sniffer_dig: sniffer dig sound effect # only if the sniffer is already in search/dig state
+	armadillo_peek: armadillo peek animation
+	shake: creaking shake animation
+	
+	
+	hurt_drown: drown damage effect
+	drown_particles: drowning damage effect
+
+	# sheep eat superseded by sheep eat grass 1.12.2
+	sheep_eat: sheep eating grass animation
+	sheep_eat_grass: sheep eating grass animation
+
+	# identical
+	totem_resurrect: protected from death effect
+	protected_from_death: protected from death effect
+
+	# non-functional
+	guardian_target: guardian target sound effect (non-functional)
+	thorns_hurt: thorns hurt effect (non-functional)
+	hurt: damage animation (non-functional)
+	hurt_explosion: explosion damage effect (non-functional)
+	hurt_berry_bush: hurt berry bush effect (non-functional)
+	cat_tame_fail: cat tame fail effect (non-functional)
+	cat_tame_success: cat tame success effect (non-functional)
+
+# -- Particle Effects --
+# all patterns should include the word 'particle'
+particle:
+	angry_villager: angry villager particle¦s @an
+	ash: ash particle¦s @an
+	block: block particle¦s @a
+	block_crumble: block crumble particle¦s @a
+	block_marker: block marker particle¦s @a
+	bubble: bubble particle¦s @a
+	bubble_column_up: bubble column particle¦s @a
+	bubble_pop: bubble pop particle¦s @a
+	campfire_cosy_smoke: campfire cosy smoke particle¦s @a
+	campfire_signal_smoke: campfire signal smoke particle¦s @a
+	cherry_leaves: cherry leaves particle¦s @a
+	cloud: cloud particle¦s @a
+	composter: composter particle¦s @a
+	copper_fire_flame: copper flame particle¦s @a
+	crimson_spore: crimson spore particle¦s @a
+	crit: crit particle¦s @a
+	current_down: downward current particle¦s @a
+	damage_indicator: damage indicator particle¦s @a
+	dolphin: dolphin particle¦s @a
+	dragon_breath: dragon breath particle¦s @a
+	dripping_dripstone_lava: dripstone dripping lava particle¦s @a
+	dripping_dripstone_water: dripstone dripping water particle¦s @a
+	dripping_honey: dripping honey particle¦s @a
+	dripping_lava: dripping lava particle¦s @a
+	dripping_obsidian_tear: dripping obsidian tear particle¦s @a
+	dripping_water: dripping water particle¦s @a
+	dust: dust particle¦s @a
+	dust_color_transition: dust color transition particle¦s @a
+	dust_pillar: dust pillar particle¦s @a
+	dust_plume: dust plume particle¦s @a
+	effect: potion effect particle¦s @an
+	egg_crack: egg crack particle¦s @an
+	elder_guardian: elder guardian particle¦s @an
+	electric_spark: electric spark particle¦s @an
+	enchant: enchanting particle¦s @an
+	enchanted_hit: enchanted hit particle¦s @an
+	end_rod: end rod particle¦s @an
+	entity_effect: entity effect particle¦s @an
+	explosion: explosion particle¦s @an
+	explosion_emitter: explosion emitter particle¦s @an
+	falling_dripstone_lava: falling dripstone lava particle¦s @a
+	falling_dripstone_water: falling dripstone water particle¦s @a
+	falling_dust: falling dust particle¦s @a
+	falling_honey: falling honey particle¦s @a
+	falling_lava: falling lava particle¦s @a
+	falling_nectar: falling nectar particle¦s @a
+	falling_obsidian_tear: falling obsidian tear particle¦s @a
+	falling_spore_blossom: falling spore blossom particle¦s @a
+	falling_water: falling water particle¦s @a
+	firefly: firefly particle¦s @a
+	firework: firework particle¦s @a
+	fishing: fishing particle¦s @a
+	flame: flame particle¦s @a
+	flash: flash particle¦s @a
+	glow: glow particle¦s @a
+	glow_squid_ink: glow squid ink particle¦s @a
+	gust: gust particle¦s @a
+	gust_emitter_large: large gust emitter particle¦s @a
+	gust_emitter_small: small gust emitter particle¦s @a
+	happy_villager: happy villager particle¦s @a
+	heart: heart particle¦s @a
+	infested: infested particle¦s @an
+	instant_effect: instant effect particle¦s @an
+	item: item particle¦s @an
+	item_cobweb: cobweb item particle¦s @an
+	item_slime: slime item particle¦s @an
+	item_snowball: snowball item particle¦s @an
+	landing_honey: landing honey particle¦s @a
+	landing_lava: landing lava particle¦s @a
+	landing_obsidian_tear: landing obsidian tear particle¦s @a
+	large_smoke: large smoke particle¦s @a
+	lava: lava particle¦s @a
+	mycelium: mycelium particle¦s @a
+	nautilus: nautilus particle¦s @a
+	note: note particle¦s @a
+	ominous_spawning: ominous spawning particle¦s @an
+	pale_oak_leaves: pale oak leaves particle¦s @a
+	poof: poof particle¦s @a
+	portal: portal particle¦s @a
+	raid_omen: raid omen particle¦s @a
+	rain: rain particle¦s @a
+	reverse_portal: reverse portal particle¦s @a
+	scrape: scrape particle¦s @a
+	sculk_charge: sculk charge particle¦s @a
+	sculk_charge_pop: sculk charge pop particle¦s @a
+	sculk_soul: sculk soul particle¦s @a
+	shriek: shriek particle¦s @a
+	small_flame: small flame particle¦s @a
+	small_gust: small gust particle¦s @a
+	smoke: smoke particle¦s @a
+	sneeze: sneeze particle¦s @a
+	snowflake: snowflake particle¦s @a
+	sonic_boom: sonic boom particle¦s @a
+	soul: soul particle¦s @a
+	soul_fire_flame: soul fire flame particle¦s @a
+	spit: spit particle¦s @a
+	splash: splash particle¦s @a
+	spore_blossom_air: spore blossom air particle¦s @a
+	squid_ink: squid ink particle¦s @a
+	sweep_attack: sweep attack particle¦s @a
+	tinted_leaves: tinted leaves particle¦s @a
+	totem_of_undying: totem of undying particle¦s @a
+	trail: trail particle¦s @a
+	trial_omen: trial omen particle¦s @a
+	trial_spawner_detection: trial spawner detection particle¦s @a
+	trial_spawner_detection_ominous: ominous trial spawner detection particle¦s @a
+	underwater: underwater particle¦s @a
+	vault_connection: vault connection particle¦s @a
+	vibration: vibration particle¦s @a
+	warped_spore: warped spore particle¦s @a
+	wax_off: wax off particle¦s @a
+	wax_on: wax on particle¦s @a
+	white_ash: white ash particle¦s @a
+	white_smoke: white smoke particle¦s @a
+	witch: witch particle¦s @a
+
 
 # -- Teleport Flags --
 teleport flags:
@@ -3179,6 +2881,13 @@ types:
 	frogvariant: frog variant¦s @a
 	itemcomponent: item component¦s @an
 	equippablecomponent: equippable component¦s @an
+	nameable: nameable thing¦s @a
+	gameeffect: game effect¦s @a
+	entityeffect: entity effect¦s @an
+	particle: particle effect¦s @a
+	convergingparticle: converging particle¦s @a
+	directionalparticle: directional particle¦s @a
+	scalableparticle: scalable particle¦s @a
 	zombienautilusvariant: zombie nautilus variant¦s @a
 
 	# Skript
@@ -3198,7 +2907,6 @@ types:
 	experience: experience point¦s @an
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
-	visualeffect: visual effect¦s @a
 	queue: queue¦s @a
 	script: script¦s @a
 	config: config¦s @a

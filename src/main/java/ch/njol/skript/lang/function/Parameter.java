@@ -3,10 +3,7 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -14,10 +11,12 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction;
+import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -239,6 +238,55 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	}
 
 	/**
+	 * Evaluates this parameter's default expression.
+	 *
+	 * @param event the event in which to evaluate the expression 
+	 * @return an object array containing either value-only elements or {@code KeyedValue[]} when keyed
+	 * @throws IllegalStateException if this parameter does not have a default value
+	 * @see #evaluate(Expression, Event)
+	 */
+	public Object[] evaluateDefault(Event event) {
+		if (def == null)
+			throw new IllegalStateException("This parameter does not have a default value");
+		return evaluate(def, event);
+	}
+
+	/**
+	 * Evaluates the provided argument expression and returns the resulting values, taking into account this parameter's modifiers.
+	 *
+	 * <p>If this parameter has the {@link org.skriptlang.skript.common.function.Parameter.Modifier#KEYED} modifier,
+	 * the returned array will contain {@link ch.njol.skript.lang.KeyedValue} objects, pairing each value with its corresponding key.
+	 * If the argument expression does not provide keys, numerical indices (1, 2, 3, ...) will be used as keys;
+	 * otherwise, the returned array will contain only the values.</p>
+	 *
+	 * @param argument the argument passed to this parameter; or {@code null} to use the default value if present
+	 * @param event the event in which to evaluate the expression 
+	 * @return an object array containing either value-only elements or {@code KeyedValue[]} when keyed
+	 * @throws IllegalStateException if the argument is {@code null} and this parameter does not have a default value
+	 */
+	public Object[] evaluate(@Nullable Expression<? extends T> argument, Event event) {
+		if (argument == null) {
+			if (!modifiers.contains(Modifier.OPTIONAL))
+				throw new IllegalStateException("This parameter is required, but no argument was provided");
+			return evaluateDefault(event);
+		}
+
+		Object[] values = argument.getArray(event);
+
+		// Don't allow mutating across function boundary; same hack is applied to variables
+		for (int i = 0; i < values.length; i++)
+			values[i] = Classes.clone(values[i]);
+
+		if (!hasModifier(Modifier.KEYED))
+			return values;
+
+		String[] keys = KeyProviderExpression.areKeysRecommended(argument)
+			? ((KeyProviderExpression<?>) argument).getArrayKeys(event)
+			: null;
+		return KeyedValue.zip(values, keys);
+	}
+
+	/**
 	 * @deprecated Use {@link #name()} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "2.13")
@@ -280,8 +328,19 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 		return toString(Skript.debug());
 	}
 
+	// toString output format:
+	// name: type between min and max = default
+	//
+	// Example:
+	// ns: numbers between 0 and 100 = 3
 	public String toString(boolean debug) {
-		return name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single) + (def != null ? " = " + def.toString(null, debug) : "");
+		String result = name + ": " + Utils.toEnglishPlural(type.getCodeName(), !single);
+		if (this.hasModifier(Modifier.RANGED)) {
+			RangedModifier<?> range = this.getModifier(RangedModifier.class);
+			result += " between " + Classes.toString(range.getMin()) + " and " + Classes.toString(range.getMax());
+		}
+		result += (def != null ? " = " + def.toString(null, debug) : "");
+		return result;
 	}
 
 	@Override
