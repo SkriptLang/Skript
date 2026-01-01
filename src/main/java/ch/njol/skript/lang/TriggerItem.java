@@ -1,7 +1,9 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +21,7 @@ import java.io.File;
  */
 public abstract class TriggerItem implements Debuggable {
 
+	private static final ThreadLocal<TriggerItem> currentTriggerItem = new ThreadLocal<>();
 	protected @Nullable TriggerSection parent = null;
 	private @Nullable TriggerItem next = null;
 
@@ -54,17 +57,52 @@ public abstract class TriggerItem implements Debuggable {
 	 * @return True if the next item should be run, or false for the item following this item's parent.
 	 */
 	protected abstract boolean run(Event event);
-
 	/**
+	 * Equivalent to {@link TriggerItem#walk(TriggerItem, Event, boolean)}, but whether yielding is allowed is decided
+	 * implicitly. Top-level yields will be disabled and return silently if there is no current trigger item
+	 * (i.e. {@link TriggerItem#getCurrentTriggerItem()} is <code>null</code>).
 	 * @param start The item to start at
 	 * @param event The event to run the items with
 	 * @return false if an exception occurred
 	 */
 	public static boolean walk(TriggerItem start, Event event) {
+		return walk(start, event, getCurrentTriggerItem() != null);
+	}
+
+	public static TriggerItem getCurrentTriggerItem() {
+		return currentTriggerItem.get();
+	}
+
+	/**
+	 * @param start The item to start at
+	 * @param event The event to run the items with
+	 * @param mayYield Whether it is permitted to throw {@link HandlerYieldException}s in case of delay effects
+	 * @return false if an exception occurred
+	 * */
+	public static boolean walk(TriggerItem start, Event event, final boolean mayYield) {
+		final TriggerItem previousItem = getCurrentTriggerItem();
 		TriggerItem triggerItem = start;
 		try {
-			while (triggerItem != null)
-				triggerItem = triggerItem.walk(event);
+			while (triggerItem != null) {
+				try {
+					currentTriggerItem.set(triggerItem);
+					triggerItem = triggerItem.walk(event);
+				} catch (final HandlerYieldException yield) {
+
+					final TriggerItem lastVisitedItem = triggerItem;
+
+					final Object locals = Variables.removeLocals(event);
+					yield.addResumeCallback(() -> {
+						Delay.addDelayedEvent(event);
+						Variables.setLocalVariables(event, locals);
+						// HandlerYieldException.resolve handles nested yields, so we enable them explicitly.
+						TriggerItem.walk(lastVisitedItem, event, true);
+					});
+
+					if (mayYield) throw yield;
+					return true;
+				}
+			}
 
 			return true;
 		} catch (StackOverflowError err) {
@@ -82,12 +120,15 @@ public abstract class TriggerItem implements Debuggable {
 			if (Skript.debug())
 				err.printStackTrace();
 		} catch (Exception ex) {
+			if (ex instanceof HandlerYieldException yield) throw yield;
 			if (ex.getStackTrace().length != 0) // empty exceptions have already been printed
 				Skript.exception(ex, triggerItem);
 		} catch (Throwable throwable) {
 			// not all Throwables are Exceptions, but we usually don't want to catch them (without rethrowing)
 			Skript.markErrored();
 			throw throwable;
+		} finally {
+			currentTriggerItem.set(previousItem);
 		}
 		return false;
 	}

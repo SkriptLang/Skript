@@ -8,9 +8,13 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.ReturnHandler;
+import ch.njol.skript.lang.ReturnHandler.ReturnHandlerStack;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.HandlerYieldException;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
@@ -37,14 +41,20 @@ public class Delay extends Effect {
 		Skript.registerEffect(Delay.class, "(wait|halt) [for] %timespan%");
 	}
 
+	private final ThreadLocal<HandlerYieldException> yield = ThreadLocal.withInitial(() -> new HandlerYieldException(this));
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	protected Expression<Timespan> duration;
+	protected ReturnHandler<?> returnHandler;
+	protected boolean hasDelayedFunctionsExperiment;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		getParser().setHasDelayBefore(Kleenean.TRUE);
 
+		returnHandler = getParser().getData(ReturnHandlerStack.class).getCurrentHandler();
+		hasDelayedFunctionsExperiment = getParser().hasExperiment(Feature.DELAYED_FUNCTIONS);
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
 			Timespan timespan = ((Literal<Timespan>) duration).getSingle();
@@ -67,8 +77,14 @@ public class Delay extends Effect {
 		debug(event, true);
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
-		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 
+		final HandlerYieldException yield = this.yield.get();
+		// Delay is special in that its completion runs as part of the yield's resolution,
+		// as opposed to being run on the second call to 'walk'. This is why we return null
+		// instead of 'next' here.
+		if (yield.isResolved()) return null;
+
+		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 			Timespan duration = this.duration.getSingle(event);
 			if (duration == null)
 				return null;
@@ -91,12 +107,30 @@ public class Delay extends Effect {
 						timing = SkriptTimings.start(trigger.getDebugLabel());
 				}
 
-				TriggerItem.walk(next, event);
-				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
-
-				SkriptTimings.stop(timing); // Stop timing if it was even started
+				try {
+					TriggerItem.walk(next, event);
+				} catch (final HandlerYieldException innerYield) {
+					// The code after the wait has caused yet another yield.
+					// We should wait until that yield is finished.
+					final Object frozenTiming = timing;
+					innerYield.addResumeCallback(() -> {
+						Variables.removeLocals(event);
+						SkriptTimings.stop(frozenTiming);
+						yield.resolve();
+					});
+					return;
+				}
+				Variables.removeLocals(event);
+				SkriptTimings.stop(timing);
+				yield.resolve();
 			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
 		}
+		// If we are supposed to return a value after this delay, we have to yield the trigger
+		if (hasDelayedFunctionsExperiment
+			&& returnHandler != null
+			&& returnHandler.returnValueType() != null
+		) throw yield;
+
 		return null;
 	}
 

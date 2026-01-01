@@ -12,6 +12,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +52,7 @@ public class EffReturn extends Effect {
 			return false;
 		}
 
-		if (!isDelayed.isFalse()) {
+		if (!isDelayed.isFalse() && !parser.hasExperiment(Feature.DELAYED_FUNCTIONS)) {
 			Skript.error("A return statement after a delay is useless, as the calling trigger will resume when the delay starts (and won't get any returned value)");
 			return false;
 		}

@@ -183,7 +183,35 @@ public enum Feature implements Experiment, Documentable {
 		set the equippable component of {_item} to {_component}
 		```
 		""",
-		LifeCycle.EXPERIMENTAL, "equippable components");
+		LifeCycle.EXPERIMENTAL, "equippable components"),
+	DELAYED_FUNCTIONS("delayed functions", "Delayed Functions",
+		"""
+		Delayed functions are functions which return values but also include \
+		delay effects (like the 'wait' effect). When a script calls a delayed \
+		function, the calling code is stopped until the delayed function finishes, \
+		after which it continues as normal.
+		
+		Below is an example of using a delayed function to broadcast a message.
+		
+		```
+		function get_message() returns text:
+			wait a second
+			return "Hello, world!"
+		
+		on load:
+			broadcast get_message() # This line will take 1 second to run...
+			broadcast "Everything is awesome!" # ...after which this line will run.
+		```
+		
+		Delayed functions also delay execution even when their return value is ignored. \
+		However, functions without a return value will still execute independently of the \
+		calling code regardless of whether this experiment is enabled.
+		
+		**Note that there is a known issue involving delayed functions, where a call to a delayed \
+		function will cause parts of the line that calls it to be executed multiple times. To avoid this, \
+		do not call delayed functions from lines that already have other expressions.**
+		""",
+		LifeCycle.EXPERIMENTAL, "delayed functions");
 
 	private final String displayName;
 	private final String codeName;

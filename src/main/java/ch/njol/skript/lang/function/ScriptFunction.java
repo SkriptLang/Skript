@@ -57,6 +57,9 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
 	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
+		// Execute may get called twice if the function's code caused a yield,
+		// in which case the return values will be set at this point
+		if (returnValueSet.get()) return getReturnType() != null ? returnValues.get() : null;
 		Parameter<?>[] parameters = getSignature().getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> parameter = parameters[i];
@@ -83,7 +86,15 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 			}
 		}
 
-		trigger.execute(event);
+		try {
+			trigger.execute(event);
+		} catch (final HandlerYieldException yield) {
+			// If the function code yields, we want to ensure that it has some return value
+			// when it has completed so that it is not re-evaluated infinitely
+			yield.addResumeCallback(() -> returnValueSet.set(true));
+			throw yield;
+		}
+
 		ClassInfo<T> returnType = getReturnType();
 		return returnType != null ? returnValues.get() : null;
 	}
@@ -114,9 +125,15 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
 	@Override
 	public final void returnValues(Event event, Expression<? extends T> value) {
-		assert !returnValueSet.get();
-		returnValueSet.set(true);
+		// Returning a delayed function call will cause the return statement
+		// to be re-evaluated when the delayed function call has finished executing,
+		// at which point the return value will be set one more time.
+		if (returnValueSet.get()) return;
 		this.returnValues.set(value.getArray(event));
+		// It is _VERY IMPORTANT_ that this happens AFTER the getArray call
+		// because if the getArray call yields, it will leave the function
+		// in an invalid state where returnValueSet is true but returnValues isn't set
+		returnValueSet.set(true);
 		if (KeyProviderExpression.canReturnKeys(value))
 			this.returnKeys.set(((KeyProviderExpression<?>) value).getArrayKeys(event));
 	}
