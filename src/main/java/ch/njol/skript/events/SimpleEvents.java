@@ -763,7 +763,7 @@ public class SimpleEvents {
 				"[player] pre attack[ing] [an] [entity]")
 			.description(
 				"Called when a player tries to attack an entity.",
-				"Canceling this event will prevent the attack and any sounds being played when attacking.",
+				"Canceling this event will prevent the attack and any sounds from being played when attacking.",
 				"For non-living entities the event is fired as cancelled."
 			)
 			.examples("""
