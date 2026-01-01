@@ -2,6 +2,8 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
@@ -61,31 +63,38 @@ public class ExprAttacker extends SimpleExpression<Entity> implements EventRestr
 	}
 	
 	@Nullable
-	static Entity getAttacker(@Nullable Event e) {
-		if (e == null)
+	static Entity getAttacker(@Nullable Event event) {
+		if (event == null) {
 			return null;
-		if (e instanceof EntityDamageByEntityEvent) {
-			EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) e;
-			if (edbee.getDamager() instanceof Projectile) {
-				Projectile p = (Projectile) edbee.getDamager();
-				Object o = p.getShooter();
-				if (o instanceof Entity)
-					return (Entity) o;
+		}
+
+		if (event instanceof EntityDamageByEntityEvent damageEvent) {
+			Entity damager = damageEvent.getDamager();
+
+			if (damager instanceof Projectile projectile) {
+				Object shooter = projectile.getShooter();
+				if (shooter instanceof Entity shooterEntity) {
+					return shooterEntity;
+				}
 				return null;
 			}
-			return edbee.getDamager();
-//		} else if (e instanceof EntityDamageByBlockEvent) {
-//			return ((EntityDamageByBlockEvent) e).getDamager();
-		} else if (e instanceof EntityDeathEvent) {
-			return getAttacker(((EntityDeathEvent) e).getEntity().getLastDamageCause());
-		} else if (e instanceof VehicleDamageEvent) {
-			return ((VehicleDamageEvent) e).getAttacker();
-		} else if (e instanceof VehicleDestroyEvent) {
-			return ((VehicleDestroyEvent) e).getAttacker();
+
+			return damager;
+		// } else if (event instanceof EntityDamageByBlockEvent blockDamageEvent) {
+		//     return blockDamageEvent.getDamager();
+		} else if (event instanceof EntityDeathEvent deathEvent) {
+			return getAttacker(deathEvent.getEntity().getLastDamageCause());
+		} else if (event instanceof VehicleDamageEvent vehicleDamageEvent) {
+			return vehicleDamageEvent.getAttacker();
+		} else if (event instanceof VehicleDestroyEvent vehicleDestroyEvent) {
+			return vehicleDestroyEvent.getAttacker();
+		} else if (event instanceof PrePlayerAttackEntityEvent preAttackEvent) {
+			return preAttackEvent.getPlayer();
 		}
+
 		return null;
 	}
-	
+
 	@Override
 	public Class<? extends Entity> getReturnType() {
 		return Entity.class;
