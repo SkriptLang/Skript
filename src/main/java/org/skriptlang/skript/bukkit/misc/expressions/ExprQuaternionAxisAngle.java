@@ -1,16 +1,16 @@
 package org.skriptlang.skript.bukkit.misc.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -19,27 +19,36 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Math;
 import org.joml.Quaternionf;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Rotation Axis/Angle")
-@Description({
-	"Returns the axis or angle that a quaternion will rotate by/around.",
-	"All quaternions can be represented by a rotation of some amount around some axis, so this expression provides " +
-	"the ability to get that angle/axis."
-})
-@Examples({
-	"set {_quaternion} to axisAngle(45, vector(1, 2, 3))",
-	"send rotation axis of {_quaternion} # 1, 2, 3",
-	"send rotation angle of {_quaternion} # 45",
-	"set rotation angle of {_quaternion} to 135",
-	"set rotation axis of {_quaternion} to vector(0, 1, 0)"
-})
+@Description("""
+	Returns the axis or angle that a quaternion will rotate by/around.
+	All quaternions can be represented by a rotation of some amount around some axis, so this expression provides\
+	the ability to get that angle/axis.
+	""")
+@Example("""
+	set {_quaternion} to axisAngle(45, vector(1, 2, 3))
+	send rotation axis of {_quaternion} # 1, 2, 3
+	send rotation angle of {_quaternion} # 45
+	""")
+@Example("set rotation angle of {_quaternion} to 135")
+@Example("set rotation axis of {_quaternion} to vector(0, 1, 0)")
 @Since("2.10")
 public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternionf, Object> {
 
-	static {
-		if (Skript.classExists("org.joml.Quaternionf"))
-			register(ExprQuaternionAxisAngle.class, Object.class, "rotation (angle|:axis)", "quaternions");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprQuaternionAxisAngle.class,
+				Object.class,
+				"rotation (angle|:axis)",
+				"quaternions",
+				false
+			).supplier(ExprQuaternionAxisAngle::new)
+				.build()
+		);
 	}
 
 	private boolean isAxis;

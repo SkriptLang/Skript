@@ -1,8 +1,7 @@
 package org.skriptlang.skript.bukkit.misc.effects;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,38 +21,44 @@ import org.skriptlang.skript.bukkit.misc.rotation.QuaternionRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator.Axis;
 import org.skriptlang.skript.bukkit.misc.rotation.VectorRotator;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Locale;
 
 @Name("Rotate")
-@Description({
-	"Rotates displays, quaternions, or vectors around an axis a set amount of degrees, or around all 3 axes at once.",
-	"Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.",
-	"Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axes at once.",
-	"Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.",
-	"",
-	"Rotating a display is a shortcut for rotating its left rotation. If the right rotation needs to be modified, it should be acquired, rotated, and re-set.",
-	"",
-	"Note that rotating a quaternion/display around a vector results in a rotation around the local vector, so results may not be what you expect. " +
-	"For example, rotating quaternions/displays around vector(1, 0, 0) is the same as rotating around the local X axis.",
-	"The same applies to rotations by all three axes at once. " +
-	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
-})
-@Examples({
-	"rotate {_quaternion} around x axis by 10 degrees",
-	"rotate last spawned block display around y axis by 10 degrees",
-	"rotate {_vector} around vector(1, 1, 1) by 45",
-	"rotate {_quaternion} by x 45, y 90, z 135"
-})
+@Description("""
+	Rotates displays, quaternions, or vectors around an axis a set amount of degrees, or around all 3 axes at once.
+	Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.
+	Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axes at once.
+	Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.
+	
+	Rotating a display is a shortcut for rotating its left rotation. If the right rotation needs to be modified, it should be acquired, rotated, and re-set.
+	
+	Note that rotating a quaternion/display around a vector results in a rotation around the local vector, so results may not be what you expect.
+	For example, rotating quaternions/displays around vector(1, 0, 0) is the same as rotating around the local X axis.
+	The same applies to rotations by all three axes at once.
+	In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last.
+	""")
+@Example("rotate {_quaternion} around x axis by 10 degrees")
+@Example("rotate last spawned block display around y axis by 10 degrees")
+@Example("rotate {_vector} around vector(1, 1, 1) by 45")
+@Example("rotate {_quaternion} by x 45, y 90, z 135")
 @Since("2.2-dev28, 2.10 (quaternions, displays)")
 public class EffRotate extends Effect {
 
-	static {
-		Skript.registerEffect(EffRotate.class,
-			"rotate %vectors/quaternions/displays% around [the] [global] (:x|:y|:z)(-| )axis by %number%",
-			"rotate %quaternions/displays% around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
-			"rotate %vectors/quaternions/displays% around [the] %vector% by %number%",
-			"rotate %quaternions/displays% by x %number%, y %number%(, [and]| and) z %number%"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffRotate.class)
+				.addPatterns(
+					"rotate %vectors/quaternions/displays% around [the] [global] (:x|:y|:z)(-| )axis by %number%",
+					"rotate %quaternions/displays% around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
+					"rotate %vectors/quaternions/displays% around [the] %vector% by %number%",
+					"rotate %quaternions/displays% by x %number%, y %number%(, [and]| and) z %number%"
+				)
+				.supplier(EffRotate::new)
+				.build()
 		);
 	}
 

@@ -6,6 +6,7 @@ import org.bukkit.entity.AbstractNautilus;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.entity.nautilus.*;
+import org.skriptlang.skript.bukkit.entity.coppergolem.CopperGolemModule;
 
 public class EntityModule implements AddonModule {
 
@@ -16,6 +17,7 @@ public class EntityModule implements AddonModule {
 			ZombieNautilusData.register();
 			SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
 		}
+		addon.loadModules(new CopperGolemModule());
 	}
 
 }
