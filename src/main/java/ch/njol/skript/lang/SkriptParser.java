@@ -1315,6 +1315,10 @@ public final class SkriptParser {
 				}
 			}
 
+			for (Expression<?> param : params) {
+				if (KeyProviderExpression.areKeysRecommended(param))
+					param.returnNestedStructures(true);
+			}
 			FunctionReference<T> functionReference = new FunctionReference<>(functionName, SkriptLogger.getNode(), namespace, types, params);
 			if (!functionReference.validateFunction(true)) {
 				log.printError();

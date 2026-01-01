@@ -19,7 +19,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.ArrayUtils;
@@ -70,6 +69,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private final @Nullable Variable<?> source;
 	private final Map<Event, String[]> cache = Collections.synchronizedMap(new WeakHashMap<>());
+
+	private ListProvider listProvider = new ShallowListProvider();
 
 	@SuppressWarnings("unchecked")
 	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean ephemeral, boolean list, @Nullable Variable<?> source) {
@@ -365,24 +366,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		Object rawValue = getRaw(event);
 		if (!list)
 			return rawValue;
-		if (rawValue == null)
-			return Array.newInstance(types[0], 0);
-		List<Object> convertedValues = new ArrayList<>();
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		//noinspection unchecked
-		for (Entry<String, ?> variable : ((Map<String, ?>) rawValue).entrySet()) {
-			if (variable.getKey() != null && variable.getValue() != null) {
-				Object value;
-				if (variable.getValue() instanceof Map)
-					//noinspection unchecked
-					value = ((Map<String, ?>) variable.getValue()).get(null);
-				else
-					value = variable.getValue();
-				if (value != null)
-					convertedValues.add(convertIfOldPlayer(name + variable.getKey(), local, event, value));
-			}
-		}
-		return convertedValues.toArray();
+		KeyedValue<?>[] values = listProvider.getValues(event);
+		//noinspection unchecked,rawtypes
+		return KeyedValue.unzip((KeyedValue[]) values).values().toArray();
 	}
 
 	/*
@@ -406,14 +392,13 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public Iterator<KeyedValue<T>> keyedIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Invalid call to keyedIterator");
-		Iterator<KeyedValue<T>> transformed = Iterators.transform(variablesIterator(event), pair -> {
-			Object value = pair.getValue();
-			if (value instanceof Map<?, ?> map)
-				value = map.get(null);
-			T converted = Converters.convert(value, types);
+		Iterator<KeyedValue<?>> iterator = Iterators.forArray(listProvider.getValues(event));
+		Iterator<KeyedValue<T>> transformed = Iterators.transform(iterator, value -> {
+			assert value != null;
+			T converted = Converters.convert(value.value(), types);
 			if (converted == null)
 				return null;
-			return new KeyedValue<>(pair.getKey(), converted);
+			return new KeyedValue<>(value.key(), converted);
 		});
 		return Iterators.filter(transformed, Objects::nonNull);
 	}
@@ -430,51 +415,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			T value = getSingle(event);
 			return value != null ? new SingleItemIterator<>(value) : null;
 		}
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object value = Variables.getVariable(name + "*", event, local);
-		if (value == null)
-			return new EmptyIterator<>();
-		assert value instanceof TreeMap;
-		// temporary list to prevent CMEs
-		//noinspection unchecked
-		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) value).keySet()).iterator();
-		return new Iterator<>() {
-			private @Nullable T next = null;
-
-			@Override
-			public boolean hasNext() {
-				if (next != null)
-					return true;
-				while (keys.hasNext()) {
-					@Nullable String key = keys.next();
-					if (key != null) {
-						next = Converters.convert(Variables.getVariable(name + key, event, local), types);
-
-						//noinspection unchecked
-						next = (T) convertIfOldPlayer(name + key, local, event, next);
-						if (next != null && !(next instanceof TreeMap))
-							return true;
-					}
-				}
-				next = null;
-				return false;
-			}
-
-			@Override
-			public T next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				T n = next;
-				assert n != null;
-				next = null;
-				return n;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+		//noinspection DataFlowIssue
+		return Iterators.transform(keyedIterator(event), KeyedValue::value);
 	}
 
 	private @Nullable T getConverted(Event event) {
@@ -484,29 +426,16 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 
 	private T[] getConvertedArray(Event event) {
 		assert list;
-		Object[] values = (Object[]) get(event);
-		String[] keys = getKeys(event);
-		assert values != null;
 		//noinspection unchecked
-		T[] converted = (T[]) Array.newInstance(superType, values.length);
-		Converters.convert(values, converted, types);
-		for (int i = 0; i < converted.length; i++) {
-			if (converted[i] == null)
-				keys[i] = null;
-		}
-		cache.put(event, ArrayUtils.removeAllOccurrences(keys, null));
-		return ArrayUtils.removeAllOccurrences(converted, null);
-	}
+		KeyedValue<Object>[] values = (KeyedValue<Object>[]) listProvider.getValues(event);
+		KeyedValue<T>[] mappedValues = KeyedValue.map(values, value -> Converters.convert(value, types));
+		mappedValues = ArrayUtils.removeAllOccurrences(mappedValues, null);
 
-	private String[] getKeys(Event event) {
-		assert list;
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object value = Variables.getVariable(name + "*", event, local);
-		if (value == null)
-			return new String[0];
-		assert value instanceof Map<?,?>;
+		KeyedValue.UnzippedKeyValues<T> unzipped = KeyedValue.unzip(mappedValues);
+
+		cache.put(event, unzipped.keys().toArray(new String[0]));
 		//noinspection unchecked
-		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
+		return unzipped.values().toArray((T[]) Array.newInstance(superType, 0));
 	}
 
 	private void set(Event event, @Nullable Object value) {
@@ -769,6 +698,19 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
+	public boolean returnNestedStructures(boolean nested) {
+		if (!canReturnKeys())
+			return false;
+		listProvider = nested ? new RecursiveListProvider() : new ShallowListProvider();
+		return true;
+	}
+
+	@Override
+	public boolean returnsNestedStructures() {
+		return listProvider.getClass() == RecursiveListProvider.class;
+	}
+
+	@Override
 	public T[] getArray(Event event) {
 		return getAll(event);
 	}
@@ -843,6 +785,89 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	@Override
 	public boolean supportsLoopPeeking() {
 		return true;
+	}
+
+	private interface ListProvider {
+
+		KeyedValue<?>[] getValues(Event event);
+
+	}
+
+	class ShallowListProvider implements ListProvider {
+
+		@Override
+		public KeyedValue<?>[] getValues(Event event) {
+			if (!list)
+				throw new SkriptAPIException("Invalid call to getValues on non-list variable");
+
+			Object rawValue = getRaw(event);
+			if (rawValue == null)
+				return new KeyedValue[0];
+
+			List<KeyedValue<?>> keyedValues = new ArrayList<>();
+			String name = StringUtils.substring(Variable.this.name.toString(event), 0, -1);
+			//noinspection unchecked
+			for (Entry<String, ?> variable : ((Map<String, ?>) rawValue).entrySet()) {
+				if (variable.getKey() == null || variable.getValue() == null)
+					continue;
+
+				Object value;
+				if (variable.getValue() instanceof Map<?, ?> sublist) {
+					value = sublist.get(null);
+				} else {
+					value = variable.getValue();
+				}
+
+				value = convertIfOldPlayer(name + variable.getKey(), local, event, value);
+				if (value != null)
+					keyedValues.add(new KeyedValue<>(variable.getKey(), value));
+			}
+
+			return keyedValues.toArray(new KeyedValue[0]);
+		}
+
+	}
+
+	class RecursiveListProvider implements ListProvider {
+
+		@Override
+		public KeyedValue<?>[] getValues(Event event) {
+			if (!list)
+				throw new SkriptAPIException("Invalid call to getValues on non-list variable");
+
+			Object rawValue = getRaw(event);
+			if (rawValue == null)
+				return new KeyedValue[0];
+
+			List<KeyedValue<?>> keyedValues = new ArrayList<>();
+			String name = StringUtils.substring(Variable.this.name.toString(event), 0, -1);
+			getValuesRecursive(event, (Map<?, ?>) rawValue, name, "", keyedValues);
+
+			return keyedValues.toArray(new KeyedValue[0]);
+		}
+
+		private void getValuesRecursive(Event event, Map<?, ?> variable, String root, String prefix, List<KeyedValue<?>> values) {
+			//noinspection unchecked
+			for (Entry<String, ?> entry : ((Map<String, ?>) variable).entrySet()) {
+				if (entry.getKey() == null || entry.getValue() == null)
+					continue;
+
+				String relativeKey = prefix + entry.getKey();
+				String absoluteKey = root + relativeKey;
+				Object value;
+				if (entry.getValue() instanceof Map<?, ?> sublist) {
+					getValuesRecursive(event, (Map<?, ?>) entry.getValue(), root, relativeKey + SEPARATOR, values);
+					value = sublist.get(null);
+				} else {
+					value = entry.getValue();
+				}
+
+				value = convertIfOldPlayer(absoluteKey, local, event, value);
+				if (value != null)
+					values.add(new KeyedValue<>(relativeKey, value));
+			}
+		}
+
 	}
 
 }

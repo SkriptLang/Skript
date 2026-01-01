@@ -1562,7 +1562,7 @@ entities:
 		pattern: sniffer[plural:s]
 	interaction:
 		name: interaction¦s
-		pattern: interaction[plural:s]
+		pattern: interaction([plural:s]| entit(plural:ies|y))
 
 	# 1.20.3 Entities
 	breeze:

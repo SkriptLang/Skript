@@ -398,66 +398,56 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		// Prepare parameter values for calling
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
-		if (singleListParam && parameters.length > 1) { // All parameters to one list
-			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).hasModifier(Modifier.KEYED));
+		if (singleListParam) { // All parameters to one list
+			params[0] = evaluateSingleListParameter(function.getParameter(0), parameters, event);
 		} else { // Use parameters in normal way
 			for (int i = 0; i < parameters.length; i++)
-				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).hasModifier(Modifier.KEYED));
+				//noinspection unchecked,rawtypes
+				params[i] = function.getParameter(i).evaluate((Expression) parameters[i], event);
 		}
 
 		// Execute the function
 		return function.execute(params);
 	}
 
-	private Object[] evaluateSingleListParameter(Expression<?>[] parameters, Event event, boolean keyed) {
-		if (!keyed) {
+	private Object[] evaluateSingleListParameter(Parameter<?> parameter, Expression<?>[] arguments, Event event) {
+		if (arguments.length == 0)
+			return null;
+
+		if (arguments.length == 1)
+			//noinspection unchecked,rawtypes
+			return parameter.evaluate((Expression) arguments[0], event);
+
+		if (!parameter.hasModifier(Modifier.KEYED)) {
 			List<Object> list = new ArrayList<>();
-			for (Expression<?> parameter : parameters)
-				list.addAll(Arrays.asList(evaluateParameter(parameter, event, false)));
+			for (Expression<?> argument : arguments)
+				//noinspection unchecked,rawtypes
+				list.addAll(Arrays.asList(parameter.evaluate((Expression) argument, event)));
 			return list.toArray();
 		}
 
 		List<Object> values = new ArrayList<>();
 		Set<String> keys = new LinkedHashSet<>();
 		int keyIndex = 1;
-		for (Expression<?> parameter : parameters) {
-			Object[] valuesArray = parameter.getArray(event);
-			String[] keysArray = KeyProviderExpression.areKeysRecommended(parameter)
-				? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
+		for (Expression<?> argument : arguments) {
+			Object[] valuesArray = argument.getArray(event);
+			String[] keysArray = KeyProviderExpression.areKeysRecommended(argument)
+				? ((KeyProviderExpression<?>) argument).getArrayKeys(event)
 				: null;
 
-			// Don't allow mutating across function boundary; same hack is applied to variables
-			for (Object value : valuesArray)
-				values.add(Classes.clone(value));
-
-			if (keysArray != null) {
-				keys.addAll(Arrays.asList(keysArray));
-				continue;
-			}
-
 			for (int i = 0; i < valuesArray.length; i++) {
-				while (keys.contains(String.valueOf(keyIndex)))
-					keyIndex++;
-				keys.add(String.valueOf(keyIndex++));
+				if (keysArray == null) {
+					while (keys.contains(String.valueOf(keyIndex)))
+						keyIndex++;
+					keys.add(String.valueOf(keyIndex++));
+				} else if (!keys.add(keysArray[i])) {
+					continue;
+				}
+				// Don't allow mutating across function boundary; same hack is applied to variables
+				values.add(Classes.clone(valuesArray[i]));
 			}
 		}
 		return KeyedValue.zip(values.toArray(), keys.toArray(new String[0]));
-	}
-
-	private Object[] evaluateParameter(Expression<?> parameter, Event event, boolean keyed) {
-		Object[] values = parameter.getArray(event);
-
-		// Don't allow mutating across function boundary; same hack is applied to variables
-		for (int i = 0; i < values.length; i++)
-			values[i] = Classes.clone(values[i]);
-
-		if (!keyed)
-			return values;
-
-		String[] keys = KeyProviderExpression.areKeysRecommended(parameter)
-			? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
-			: null;
-		return KeyedValue.zip(values, keys);
 	}
 
 	public boolean isSingle() {
