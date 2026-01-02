@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -20,9 +20,18 @@ import ch.njol.util.Kleenean;
 @Description({"Breaks the block and spawns items as if a player had mined it",
 		"\nYou can add a tool, which will spawn items based on how that tool would break the block ",
 		"(ie: When using a hand to break stone, it drops nothing, whereas with a pickaxe it drops cobblestone)"})
-@Examples({"on right click:", "\tbreak clicked block naturally",
-		"loop blocks in radius 10 around player:", "\tbreak loop-block using player's tool",
-		"loop blocks in radius 10 around player:", "\tbreak loop-block naturally using diamond pickaxe"})
+@Example("""
+	on right click:
+		break clicked block naturally
+	""")
+@Example("""
+	loop blocks in radius 10 around player:
+		break loop-block using player's tool
+	""")
+@Example("""
+	loop blocks in radius 10 around player:
+		break loop-block naturally using diamond pickaxe
+	""")
 @Since("2.4")
 public class EffBreakNaturally extends Effect {
 	

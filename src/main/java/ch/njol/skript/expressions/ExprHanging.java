@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,11 +20,13 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Hanging Entity/Remover")
 @Description("Returns the hanging entity or remover in hanging <a href='#break_mine'>break</a> and <a href='#place'>place</a> events.")
-@Examples({"on break of item frame:",
-		"\tif item of hanging entity is diamond pickaxe:",
-		"\t\tcancel event",
-		"\t\tif hanging remover is a player:",
-		"\t\t\tsend \"You can't break that item frame!\" to hanging remover"})
+@Example("""
+	on break of item frame:
+		if item of hanging entity is diamond pickaxe:
+			cancel event
+			if hanging remover is a player:
+				send "You can't break that item frame!" to hanging remover
+	""")
 @Since("2.6.2")
 public class ExprHanging extends SimpleExpression<Entity> {
 	

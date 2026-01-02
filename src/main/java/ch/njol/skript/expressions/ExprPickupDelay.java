@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,10 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Pickup Delay")
 @Description("The amount of time before a dropped item can be picked up by an entity.")
-@Examples({
-	"drop diamond sword at {_location} without velocity",
-	"set pickup delay of last dropped item to 5 seconds"
-})
+@Example("drop diamond sword at {_location} without velocity")
+@Example("set pickup delay of last dropped item to 5 seconds")
 @Since("2.7")
 public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> {
 

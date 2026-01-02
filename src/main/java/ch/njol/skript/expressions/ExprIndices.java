@@ -1,11 +1,11 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.KeyProviderExpression;
-import ch.njol.skript.lang.KeyedValue;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
@@ -49,6 +49,7 @@ public class ExprIndices extends SimpleExpression<String> {
 
 	private boolean sort;
 	private boolean descending;
+	private boolean recursive;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -63,13 +64,15 @@ public class ExprIndices extends SimpleExpression<String> {
 		}
 
 		keyedExpression = (KeyProviderExpression<?>) exprs[0];
+		recursive = exprs[0].returnsNestedStructures();
+		if (!sort)
+			exprs[0].returnNestedStructures(true); // force nested structures to be returned
 		return true;
 
 	}
 
-	@Nullable
 	@Override
-	protected String[] get(Event event) {
+	protected String @Nullable [] get(Event event) {
 		Object[] values = keyedExpression.getArray(event);
 		String[] keys = keyedExpression.getArrayKeys(event);
 		if (sort) {
@@ -80,6 +83,14 @@ public class ExprIndices extends SimpleExpression<String> {
 				.toArray(String[]::new);
 		}
 
+		if (recursive)
+			return keys;
+
+		for (int i = 0; i < keys.length; i++) {
+			int separator = keys[i].indexOf(Variable.SEPARATOR);
+			if (separator != -1)
+				keys[i] = keys[i].substring(0, keys[i].indexOf(Variable.SEPARATOR));
+		}
 		return keys;
 	}
 
@@ -94,8 +105,18 @@ public class ExprIndices extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		String text = "indices of " + keyedExpression.toString(e, debug);
+	public boolean returnNestedStructures(boolean nested) {
+		return keyedExpression.returnNestedStructures(nested);
+	}
+
+	@Override
+	public boolean returnsNestedStructures() {
+		return keyedExpression.returnsNestedStructures();
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		String text = "indices of " + keyedExpression.toString(event, debug);
 
 		if (sort)
 			text = "sorted " + text + " in " + (descending ? "descending" : "ascending") + " order";

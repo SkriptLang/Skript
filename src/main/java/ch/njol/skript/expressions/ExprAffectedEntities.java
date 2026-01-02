@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,10 +23,12 @@ import ch.njol.util.Kleenean;
 
 @Name("Affected Entities")
 @Description("The affected entities in the <a href='#aoe_cloud_effect'>area cloud effect</a> event.")
-@Examples({"on area cloud effect:",
-		"\tloop affected entities:",
-		"\t\tif loop-value is a player:",
-		"\t\t\tsend \"WARNING: you've step on an area effect cloud!\" to loop-value"})
+@Example("""
+	on area cloud effect:
+		loop affected entities:
+			if loop-value is a player:
+				send "WARNING: you've step on an area effect cloud!" to loop-value
+	""")
 @Since("2.4")
 public class ExprAffectedEntities extends SimpleExpression<LivingEntity> {
 

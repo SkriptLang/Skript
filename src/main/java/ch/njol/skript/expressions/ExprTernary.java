@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -22,7 +22,7 @@ import java.util.Set;
 
 @Name("Ternary")
 @Description("A shorthand expression for returning something based on a condition.")
-@Examples({"set {points} to 500 if {admin::%player's uuid%} is set else 100"})
+@Example("set {points} to 500 if {admin::%player's uuid%} is set else 100")
 @Since("2.2-dev36")
 public class ExprTernary extends SimpleExpression<Object> {
 

@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -13,7 +13,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Unix Timestamp")
 @Description("Converts given date to Unix timestamp. This is roughly how many seconds have elapsed since 1 January 1970.")
-@Examples("unix timestamp of now")
+@Example("unix timestamp of now")
 @Since("2.2-dev31")
 public class ExprUnixTicks extends SimplePropertyExpression<Date, Number> {
 	

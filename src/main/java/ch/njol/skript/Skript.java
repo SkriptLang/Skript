@@ -99,6 +99,7 @@ import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
@@ -606,6 +607,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				new BrewingModule(),
 				new EntityModule(),
 				new DamageSourceModule(),
+				new InteractionModule(),
 				new ItemComponentModule(),
 				new PotionModule(),
 				new ParticleModule());

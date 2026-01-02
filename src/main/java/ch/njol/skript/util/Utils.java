@@ -8,6 +8,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -243,40 +244,74 @@ public abstract class Utils {
 	}
 
 	/**
-	 * @param word trimmed string
-	 * @return Pair of singular string + boolean whether it was plural
+	 * @deprecated Use {@link #isPlural(String)} instead.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
-		assert word != null;
-		if (word.isEmpty())
-			return new NonNullPair<>("", false);
-		if (!couldBeSingular(word)) {
-			for (final WordEnding ending : plurals) {
-				if (ending.isCompleteWord()) {
-					// Complete words shouldn't be used as partial pieces
-					if (word.length() != ending.plural().length())
-						continue;
+		PluralResult result = isPlural(word);
+		return new NonNullPair<>(result.updated, result.plural);
+	}
+
+	/**
+	 * Stores the result of {@link #isPlural(String)}.
+	 *
+	 * @param updated The singular version of the passed word, if a single variant exists.
+	 * @param plural Whether the word is plural.
+	 */
+	public record PluralResult(String updated, boolean plural) {
+
+	}
+
+	/**
+	 * Returns whether a word is plural. If it is, {@code updated} contains the single variant of the word.
+	 * Otherwise, {@code updated == word}.
+	 *
+	 * @param word The word to check.
+	 * @return A pair with the updated word and a boolean indicating whether it was plural.
+	 */
+	public static PluralResult isPlural(String word) {
+		Preconditions.checkNotNull(word, "word cannot be null");
+
+		if (word.isEmpty()) {
+			return new PluralResult("", false);
+		}
+
+		if (couldBeSingular(word)) {
+			return new PluralResult(word, false);
+		}
+
+		for (WordEnding ending : plurals) {
+			if (ending.isCompleteWord()) {
+				// Complete words shouldn't be used as partial pieces
+				if (word.length() != ending.plural().length()) {
+					continue;
 				}
-				if (word.endsWith(ending.plural()))
-					return new NonNullPair<>(
-						word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
-						true
-					);
-				if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
-					return new NonNullPair<>(
-						word.substring(0, word.length() - ending.plural().length())
-							+ ending.singular().toUpperCase(Locale.ENGLISH),
-						true
-					);
+			}
+
+			if (word.endsWith(ending.plural())) {
+				return new PluralResult(
+					word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
+					true
+				);
+			}
+
+			if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH))) {
+				return new PluralResult(
+					word.substring(0, word.length() - ending.plural().length())
+						+ ending.singular().toUpperCase(Locale.ENGLISH),
+					true
+				);
 			}
 		}
-		return new NonNullPair<>(word, false);
+
+		return new PluralResult(word, false);
 	}
 
 	private static boolean couldBeSingular(String word) {
-		for (final WordEnding ending : plurals) {
+		for (WordEnding ending : plurals) {
 			if (ending.singular().isBlank())
 				continue;
+
 			if (ending.isCompleteWord() && ending.singular().length() != word.length())
 				continue; // Skip complete words
 
@@ -724,8 +759,8 @@ public abstract class Utils {
 		assert classes.length > 0;
 		Class<?> chosen = classes[0];
 		outer:
-		for (final Class<?> checking : classes) {
-			assert checking != null && !checking.isArray() && !checking.isPrimitive() : checking;
+		for (Class<?> checking : classes) {
+			assert !checking.isArray() && !checking.isPrimitive() : "%s has no super".formatted(checking.getSimpleName());
 			if (chosen.isAssignableFrom(checking))
 				continue;
 			Class<?> superType = checking;
@@ -928,5 +963,14 @@ public abstract class Utils {
 
 		return true;
 	}
-
+	/**
+	 * @param cls The class.
+	 * @return The component of cls if cls is an array, otherwise cls.
+	 */
+	public static Class<?> getComponentType(Class<?> cls) {
+		if (cls != null && cls.isArray()) {
+			return cls.componentType();
+		}
+		return cls;
+	}
 }

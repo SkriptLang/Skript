@@ -19,10 +19,10 @@ import org.jetbrains.annotations.Nullable;
 	"Returns the time it takes a fish to bite the fishing hook, after it started approaching the hook.",
 	"May return a timespan of 0 seconds. If modifying the value, it should be at least 1 tick.",
 })
-@Examples({
-	"on fish approach:",
-		"\tset fishing bite time to 5 seconds",
-})
+@Example("""
+	on fish approach:
+		set fishing bite time to 5 seconds
+	""")
 @RequiredPlugins("Minecraft 1.20.6")
 @Events("Fishing")
 @Since("2.10")

@@ -18,10 +18,8 @@ import org.jetbrains.annotations.Nullable;
 	"Represents the item that is uncovered when dusting.",
 	"The only blocks that can currently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
 })
-@Examples({
-	"send target block's brushable item",
-	"set {_gravel}'s brushable item to emerald"
-})
+@Example("send target block's brushable item")
+@Example("set {_gravel}'s brushable item to emerald")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20+")
 public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack> {

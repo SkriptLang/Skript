@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -22,17 +22,18 @@ import org.jetbrains.annotations.Nullable;
 	"Returns the experience cost (in levels) to complete the current repair or the maximum experience cost (in levels) to be allowed by the current repair.",
 	"The default value of max cost set by vanilla Minecraft is 40."
 })
-@Examples({
-	"on inventory click:",
-		"\tif {AnvilRepairSaleActive} = true:",
-		"\t\twait a tick # recommended, to avoid client bugs",
-		"\t\tset anvil repair cost to anvil repair cost * 50%",
-		"\t\tsend \"Anvil repair sale is ON!\" to player",
-	"",
-	"on inventory click:",
-		"\tplayer have permission \"anvil.repair.max.bypass\"",
-		"\tset max repair cost of event-inventory to 99999"
-})
+@Example("""
+    on inventory click:
+    	if {AnvilRepairSaleActive} = true:
+    		wait a tick # recommended, to avoid client bugs
+    		set anvil repair cost to anvil repair cost * 50%
+    		send "Anvil repair sale is ON!" to player
+    """)
+@Example("""
+    on inventory click:
+    	player have permission "anvil.repair.max.bypass"
+    	set max repair cost of event-inventory to 99999
+    """)
 @Since("2.8.0")
 public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Integer> {
 
