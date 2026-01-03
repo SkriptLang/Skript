@@ -310,15 +310,30 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		@Override
 		public @NotNull String toString() {
-			Noun exact = Classes.getSuperClassInfo(type).getName();
-			String typeName;
-			if (type.isArray()) {
-				typeName = exact.getPlural();
-			} else {
-				typeName = exact.getSingular();
+			StringJoiner joiner = new StringJoiner(" ");
+
+			joiner.add("%s:".formatted(name));
+
+			if (hasModifier(Modifier.OPTIONAL)) {
+				joiner.add("optional");
 			}
 
-			return "%s: %s".formatted(name, typeName);
+			Noun exact = Classes.getSuperClassInfo(type).getName();
+			if (type.isArray()) {
+				joiner.add(exact.getPlural());
+			} else {
+				joiner.add(exact.getSingular());
+			}
+
+			if (hasModifier(Modifier.RANGED)) {
+				RangedModifier<?> range = getModifier(RangedModifier.class);
+				joiner.add("between")
+						.add(range.getMin().toString())
+						.add("and")
+						.add(range.getMax().toString());
+			}
+
+			return joiner.toString();
 		}
 	}
 
