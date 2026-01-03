@@ -758,7 +758,6 @@ public class SimpleEvents {
 						cancel event
 				""")
 			.since("2.12");
-			
 	}
 
 }
