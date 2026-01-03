@@ -27,9 +27,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Attacker")
 @Description("""
 	The attacker of a damage event, e.g. when a player attacks a zombie this expression represents the player.",
