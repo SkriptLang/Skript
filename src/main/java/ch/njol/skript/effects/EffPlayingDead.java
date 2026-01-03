@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Play Dead")
 @Description("Make an axolotl start or stop playing dead.")
-@Examples("make last spawned axolotl play dead")
+@Example("make last spawned axolotl play dead")
 @Since("2.11")
 public class EffPlayingDead extends Effect {
 

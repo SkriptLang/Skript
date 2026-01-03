@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,7 +23,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Chat Recipients")
 @Description("Recipients of chat events where this is called.")
-@Examples("chat recipients")
+@Example("chat recipients")
 @Since("2.2-Fixes-v7, 2.2-dev35 (clearing recipients)")
 public class ExprChatRecipients extends SimpleExpression<Player> {
 

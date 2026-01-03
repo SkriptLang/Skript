@@ -2,45 +2,58 @@ test "index of":
 	set {_list::*} to 1, 2, 3, 1, 2 and 3
 	set {_indices::*} to indices of the value 1 in {_list::*}
 	assert {_indices::*} is "1" and "4" with "indices of 1 failed"
+	assert indices of (1 and 3) in {_list::*} is "1", "4", "3" and "6" with "indices of 1 and 3 failed"
 
 	set {_indices::*} to the first index of the value 3 in {_list::*}
 	assert {_indices::*} is "3" with "first index of 3 failed"
+	assert the first index of (2 and 3) in {_list::*} is "2" and "3" with "first index of 2 and 3 failed"
 
 	set {_indices::*} to the last index of the value 3 in {_list::*}
 	assert {_indices::*} is "6" with "last index of 3 failed"
+	assert last index of (1 and 2) in {_list::*} is "4" and "5" with "last index of 1 and 2 failed"
 
 	set {_indices::*} to the position of the value 3 in {_list::*}
 	assert {_indices::*} is 3 with "first position of 3 failed"
+	assert position of (2 and 3) in {_list::*} is 2 and 3 with "first position of 2 and 3 ailed"
 
 	set {_indices::*} to the last position of the value 3 in {_list::*}
 	assert {_indices::*} is 6 with "last position of 3 failed"
+	assert last position of (1 and 3) in {_list::*} is 4 and 6 with "last position of 1 and 3 failed"
 
-	set {_otherlist::burb} to test-location
-	set {_otherlist::_DJ8U3f;} to test-location
 	set {_otherlist::;'w20} to test-location
+	set {_otherlist::_DJ8U3f;} to test-location
 	set {_otherList::breh} to 2
+	set {_otherlist::burb} to test-location
 	set {_otherList::quatro} to 4
 
 	set {_indices::*} to all indices of the value test-location in {_otherlist::*}
 	assert {_indices::*} is ";'w20", "_dj8u3f;" and "burb" with "indices of test-location with symbols failed"
+	assert all indices of (test-location and 2) in {_otherlist::*} is ";'w20", "_dj8u3f;", "burb" and "breh" with "indices of test-location and 2 failed"
 
 	set {_indices::*} to all positions of the value test-location in {_otherList::*}
 	assert {_indices::*} is 1, 2 and 4 with "positions of test-location failed"
+	assert all positions of (test-location and 4) in {_otherList::*} is 1, 2, 4 and 5 with "positions of test-location and 4 failed"
 
 	set {_indices::*} to all positions of "b" in "abcabcabcabc"
 	assert {_indices::*} is 2, 5, 8 and 11 with "positions of char failed"
+	assert all positions of ("a" and "c") in "abcabcabcabc" is 1, 4, 7, 10, 3, 6, 9 and 12 with "positions of char failed"
 
 	set {_indices::*} to all positions of "abc" in "abcabcabcabc"
 	assert {_indices::*} is 1, 4, 7 and 10 with "positions of string failed"
+	assert all positions of ("abc" and "bc") in "abcabcabcabc" is 1, 4, 7, 10, 2, 5, 8 and 11 with "positions of multiple strings failed"
 
 	set {_index} to first position of "c" in "abraham lincoln"
 	assert {_index} is 12 with "first position of char failed"
+	assert first position of ("a" and "n") in "abraham lincoln" is 1 and 11 with "first position of multiple chars failed"
 
 	set {_index} to the position of "ham" in "abraham lincoln"
 	assert {_index} is 5 with "first position of string failed"
+	assert position of ("ab" and "lin") in "abraham lincoln" is 1 and 9 with "first position of multiple strings failed"
 
 	set {_position} to position of "abc" in "nothing"
 	assert {_position} is not set with "position of string is set"
+	assert position of ("a" and "b") in "nothing" is not set with "position of multiple strings is set"
 
 	set {_position::*} to all positions of "nothing" in "abc"
 	assert {_position::*} is not set with "all positions of string is set"
+	assert all positions of ("nothing1" and "nothing2") in "abc" is not set with "all positions of multiple strings is set"

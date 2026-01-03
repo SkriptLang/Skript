@@ -80,7 +80,7 @@ We welcome contributions from everyone. To get started, please fork the reposito
 and clone it to your local machine. If you are unfamiliar with Git, please refer to the
 [Git documentation](https://git-scm.com/learn).
 ```
-git clone https://github.com/SkriptLang/Skript
+git clone https://github.com/SkriptLang/Skript --recurse-submodules
 ```
 
 Create a new branch for your changes. Use a descriptive name for the branch,

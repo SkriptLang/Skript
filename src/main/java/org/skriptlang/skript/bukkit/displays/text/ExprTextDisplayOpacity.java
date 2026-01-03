@@ -2,11 +2,10 @@ package org.skriptlang.skript.bukkit.displays.text;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
@@ -14,22 +13,39 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display Opacity")
-@Description({
-	"Returns or changes the opacity of <a href='#display'>text displays</a>.",
-	"Values are between -127 and 127. The value of 127 represents it being completely opaque."
-})
-@Examples("set the opacity of the last spawned text display to -1 # Reset")
-@Since("2.10")
-public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, Byte> {
+@Description("""
+	Returns or changes the text opacity of <a href='#display'>text displays</a>. The default is 255, fully opaque.
+	Values are between 0 and 255. 0 to 3 are treated the same as 255, meaning fully opaque.
+	Values from 4 to 26 are fully transparent, and opacity increases linearly from there up to 255.
+	For backwards compatability, setting negative values between -1 and -128 wrap around, so -1 is the same as 255 and -128 is the same as 128.
+	Adding or subtracting values will adjust the opacity within the bounds of 0-255, so subtracting 300 wil always \
+	result in an opacity of 0.
+	""")
+@Example("set the text opacity of the last spawned text display to 0 # fully opaque")
+@Example("set text opacity of all text displays to 255 # fully opaque")
+@Example("set text opacity of all text displays to 128 # semi-transparent")
+@Example("set text opacity of all text displays to 4 # fully transparent")
+@Since("2.10, INSERT VERSION (0-255)")
+public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, Integer> {
 
 	static {
-		registerDefault(ExprTextDisplayOpacity.class, Byte.class, "[display] opacity", "displays");
+		registerDefault(ExprTextDisplayOpacity.class, Integer.class, "[display] [text] opacity", "displays");
+	}
+
+	private static int convertToUnsigned(byte value) {
+		return value < 0 ? 256 + value : value;
+	}
+
+	private static byte convertToSigned(int value) {
+		if (value > 127)
+			value -= 256;
+		return (byte) value;
 	}
 
 	@Override
-	public @Nullable Byte convert(Display display) {
+	public @Nullable Integer convert(Display display) {
 		if (display instanceof TextDisplay textDisplay)
-			return textDisplay.getTextOpacity();
+			return convertToUnsigned(textDisplay.getTextOpacity());
 		return null;
 	}
 
@@ -43,7 +59,7 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
-		int change = delta == null ? -1 : ((Number) delta[0]).intValue();
+		int change = delta == null ? 255 : ((Number) delta[0]).intValue();
 		switch (mode) {
 			case REMOVE_ALL:
 			case REMOVE:
@@ -52,7 +68,7 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 			case ADD:
 				for (Display display : displays) {
 					if (display instanceof TextDisplay textDisplay) {
-						byte value = (byte) Math2.fit(-127, textDisplay.getTextOpacity() + change, 127);
+						byte value = convertToSigned(Math.clamp(convertToUnsigned(textDisplay.getTextOpacity()) + change, 0, 255));
 						textDisplay.setTextOpacity(value);
 					}
 				}
@@ -60,7 +76,7 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 			case DELETE:
 			case RESET:
 			case SET:
-				change = Math2.fit(-127, change, 127);
+				change = convertToSigned(Math.clamp(change, -128, 255));
 				for (Display display : displays) {
 					if (display instanceof TextDisplay textDisplay)
 						textDisplay.setTextOpacity((byte) change);
@@ -70,8 +86,8 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 	}
 
 	@Override
-	public Class<? extends Byte> getReturnType() {
-		return Byte.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override

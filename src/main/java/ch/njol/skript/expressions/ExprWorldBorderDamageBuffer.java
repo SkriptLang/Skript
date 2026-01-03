@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 	"The amount of blocks a player may safely be outside the border before taking damage.",
 	"Players only take damage when outside of the world's world border, and the damage buffer distance cannot be less than 0."
 })
-@Examples("set world border damage buffer of {_worldborder} to 10")
+@Example("set world border damage buffer of {_worldborder} to 10")
 @Since("2.11")
 public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldBorder, Double> {
 

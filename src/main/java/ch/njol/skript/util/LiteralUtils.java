@@ -68,8 +68,8 @@ public class LiteralUtils {
 	 * @return Whether or not the passed expressions contain {@link UnparsedLiteral} objects
 	 */
 	public static boolean canInitSafely(Expression<?>... expressions) {
-		for (int i = 0; i < expressions.length; i++) {
-			if (expressions[i] == null || hasUnparsedLiteral(expressions[i])) {
+		for (Expression<?> expression : expressions) {
+			if (expression == null || hasUnparsedLiteral(expression)) {
 				return false;
 			}
 		}
