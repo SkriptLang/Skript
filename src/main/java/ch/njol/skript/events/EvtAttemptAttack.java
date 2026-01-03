@@ -9,6 +9,7 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 
@@ -57,7 +58,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 	public boolean check(Event event) {
 		if (types == null)
 			return true;
-        
+
 		if (!(event instanceof PrePlayerAttackEntityEvent preEvent))
 			return false;	
 		Entity entity = preEvent.getAttacked();
@@ -69,9 +70,14 @@ public class EvtAttemptAttack extends SkriptEvent {
 		return false;
 	}
 	
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "attempt attack" + (types != null ? " of " + Classes.toString(types, false) : "");
-	}
+    @Override
+    public String toString(@Nullable Event event, boolean debug) {
+        SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+        builder.append("attempt attack");
+        if (types != null) {
+            builder.append("of", Classes.getDebugMessage(types));
+        }
+        return builder.toString();
+    }
 	
 }
