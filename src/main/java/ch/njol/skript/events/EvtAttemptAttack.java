@@ -51,7 +51,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 	}
 	
 	@Override
-	public boolean check(final Event e) {
+	public boolean check(Event event) {
 		if (types == null)
 			return true;
 		final Entity en = ((PrePlayerAttackEntityEvent) e).getAttacked();
