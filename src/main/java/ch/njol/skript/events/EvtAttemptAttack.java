@@ -42,8 +42,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 				.since("INSERT VERSION");
 	}
 	
-	@Nullable
-	private EntityData<?>[] types;
+	private @Nullable EntityData<?>[] types;
 	
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
