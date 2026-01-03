@@ -1,7 +1,10 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Signature;
+import ch.njol.skript.localization.Noun;
+import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -305,6 +308,18 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 			this(name, type, Set.of(modifiers));
 		}
 
+		@Override
+		public @NotNull String toString() {
+			Noun exact = Classes.getSuperClassInfo(type).getName();
+			String typeName;
+			if (type.isArray()) {
+				typeName = exact.getPlural();
+			} else {
+				typeName = exact.getSingular();
+			}
+
+			return "%s: %s".formatted(name, typeName);
+		}
 	}
 
 }
