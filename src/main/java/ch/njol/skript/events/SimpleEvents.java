@@ -758,21 +758,6 @@ public class SimpleEvents {
 						cancel event
 				""")
 			.since("2.12");
-
-		Skript.registerEvent("Pre Player Attack Entity Event", SimpleEvent.class, PrePlayerAttackEntityEvent.class,
-				"[player] pre attack[ing] [an] [entity]")
-			.description(
-				"Called when a player tries to attack an entity.",
-				"Canceling this event will prevent the attack and any sounds from being played when attacking.",
-				"For non-living entities the event is fired as cancelled."
-			)
-			.examples("""
-				on player pre attack entity:
-					cancel event
-					send "Your attack was canceled!" to attacker
-					send "It's your lucky day." to victim
-				""")
-			.since("INSERT VERSION");
 	}
 
 }
