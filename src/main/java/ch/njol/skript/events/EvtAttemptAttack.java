@@ -54,9 +54,9 @@ public class EvtAttemptAttack extends SkriptEvent {
 	public boolean check(Event event) {
 		if (types == null)
 			return true;
-		final Entity en = ((PrePlayerAttackEntityEvent) event).getAttacked();
-		for (final EntityData<?> d : types) {
-			if (d.isInstance(en))
+		final Entity entity = ((PrePlayerAttackEntityEvent) event).getAttacked();
+		for (final EntityData<?> data : types) {
+			if (data.isInstance(entity))
 				return true;
 		}
 		return false;
