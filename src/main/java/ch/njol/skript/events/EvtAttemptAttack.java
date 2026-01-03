@@ -63,7 +63,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "attempt attack" + (types != null ? " of " + Classes.toString(types, false) : "");
 	}
 	
