@@ -17,7 +17,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 		Skript.registerEvent("Attempt Attack", EvtAttemptAttack.class, PrePlayerAttackEntityEvent.class, "attack attempt", "attempt[ing] to attack %entitydatas%")
 				.description("""
                     Called when a player attempts to attack an entity.
-                    The event will be fired as cancelled for non-living entities.
+                    The event will be cancelled as soon as it is fired for non-living entities.
                     Cancelling this event will prevent the attack and any sounds from being played when attacking.
                     Naturally, any damage events will not be called if this is cancelled.
                     """) 
