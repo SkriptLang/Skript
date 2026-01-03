@@ -27,14 +27,17 @@ public class EvtAttemptAttack extends SkriptEvent {
                             broadcast "%attacker% failed to attack %victim%!"
                         else:
                             broadcast "%attacker% damaged %victim%!"
-
+                    """,
+                    """
                     on attempt to attack an animal:
-                        cancel event        
-
+                        cancel event   
+                    """,
+                    """ 
                     on attempting to attack an entity:
                         if victim is a creeper:
                             cancel event     
-
+                    """,
+                    """
                     on attempt to attack a zombie or creeper:
                         attacker isn't holding a diamond sword
                         cancel event
