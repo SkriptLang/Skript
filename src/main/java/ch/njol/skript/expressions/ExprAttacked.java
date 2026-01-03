@@ -117,9 +117,8 @@ public class ExprAttacked extends SimpleExpression<Entity> implements EventRestr
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		if (e == null) {
+		if (e == null)
 			return "the attacked " + type;
-		}
 
 		return Classes.getDebugMessage(getSingle(e));
 	}
