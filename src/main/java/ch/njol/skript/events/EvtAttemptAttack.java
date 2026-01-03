@@ -46,7 +46,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 	private EntityData<?>[] types;
 	
 	@Override
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		types = args.length == 0 ? null : ((Literal<EntityData<?>>) args[0]).getAll();
 		return true;
 	}
