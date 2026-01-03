@@ -19,7 +19,7 @@ public class EvtAttemptAttack extends SkriptEvent {
                     Called when a player attempts to attack an entity.
                     The event will be cancelled as soon as it is fired for non-living entities.
                     Cancelling this event will prevent the attack and any sounds from being played when attacking.
-                    Naturally, any damage events will not be called if this is cancelled.
+                    Any damage events will not be called if this is cancelled.
                     """) 
 				.examples("""
                     on attack attempt:
