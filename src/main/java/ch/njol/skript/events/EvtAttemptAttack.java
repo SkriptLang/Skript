@@ -17,9 +17,9 @@ public class EvtAttemptAttack extends SkriptEvent {
 		Skript.registerEvent("Attempt Attack", EvtAttemptAttack.class, PrePlayerAttackEntityEvent.class, "attack attempt", "attempt[ing] to attack %entitydatas%")
 				.description("""
                     Called when a player attempts to attack an entity.
-                    The event will be fired as cancelled for non-living entities.
+                    The event will be cancelled as soon as it is fired for non-living entities.
                     Cancelling this event will prevent the attack and any sounds from being played when attacking.
-                    Naturally, any damage events will not be called if this is cancelled.
+                    Any damage events will not be called if this is cancelled.
                     """) 
 				.examples("""
                     on attack attempt:
@@ -42,17 +42,16 @@ public class EvtAttemptAttack extends SkriptEvent {
 				.since("INSERT VERSION");
 	}
 	
-	@Nullable
-	private EntityData<?>[] types;
+	private @Nullable EntityData<?>[] types;
 	
 	@Override
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
 		types = args.length == 0 ? null : ((Literal<EntityData<?>>) args[0]).getAll();
 		return true;
 	}
 	
 	@Override
-	public boolean check(final Event e) {
+	public boolean check(Event event) {
 		if (types == null)
 			return true;
 		final Entity en = ((PrePlayerAttackEntityEvent) e).getAttacked();
@@ -64,7 +63,7 @@ public class EvtAttemptAttack extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "attempt attack" + (types != null ? " of " + Classes.toString(types, false) : "");
 	}
 	
