@@ -4,24 +4,33 @@ import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Interaction.PreviousInteraction;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.interactions.elements.conditions.CondIsResponsive;
 import org.skriptlang.skript.bukkit.interactions.elements.effects.EffMakeResponsive;
 import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprInteractionDimensions;
 import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprLastInteractionDate;
 import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprLastInteractionPlayer;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class InteractionModule implements AddonModule {
+public class InteractionModule extends ChildAddonModule {
+
+	/**
+	 * Constructs a child addon module with the given parent module.
+	 *
+	 * @param parentModule The parent module that created this child module.
+	 */
+	public InteractionModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
 	public void load(SkriptAddon addon) {
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		CondIsResponsive.register(registry);
-		EffMakeResponsive.register(registry);
-		ExprInteractionDimensions.register(registry);
-		ExprLastInteractionDate.register(registry);
-		ExprLastInteractionPlayer.register(registry);
+		AddonModule.register(addon.syntaxRegistry(), origin(addon),
+			CondIsResponsive::register,
+			EffMakeResponsive::register,
+			ExprInteractionDimensions::register,
+			ExprLastInteractionDate::register,
+			ExprLastInteractionPlayer::register);
 	}
 
 	public enum InteractionType {
@@ -46,6 +55,11 @@ public class InteractionModule implements AddonModule {
 		if (attack.getTimestamp() > interact.getTimestamp())
 			return attack;
 		return interact;
+	}
+
+	@Override
+	public String name() {
+		return "interactions";
 	}
 
 }

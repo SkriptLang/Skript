@@ -10,6 +10,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Responsive")
@@ -22,11 +23,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class CondIsResponsive extends PropertyCondition<Entity> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			infoBuilder(CondIsResponsive.class, PropertyType.BE, "(responsive|:unresponsive)", "entities")
 				.supplier(CondIsResponsive::new)
+				.origin(origin)
 				.build());
 	}
 

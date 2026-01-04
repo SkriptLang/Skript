@@ -7,7 +7,9 @@ import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
+import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
+import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.potion.PotionModule;
 
 import java.util.List;
@@ -20,8 +22,9 @@ public class BukkitModule implements AddonModule {
 			new DamageSourceModule(this),
 			new ItemComponentModule(this),
 			new PotionModule(this),
-			new FishingModule(this)
-
+			new FishingModule(this),
+			new InteractionModule(this),
+			new ParticleModule(this)
 	);
 
 	private List<AddonModule> filteredSubmodules;

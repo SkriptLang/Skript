@@ -17,6 +17,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.interactions.InteractionModule.InteractionType;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -29,7 +30,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class ExprLastInteractionDate extends SimplePropertyExpression<Entity, Date> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprLastInteractionDate.class, Date.class)
@@ -37,6 +38,7 @@ public class ExprLastInteractionDate extends SimplePropertyExpression<Entity, Da
 					"[the] last (date|time)[s] [that|when] %entities% (were|was) (attacked|1:interacted with|2:clicked [on])"
 				)
 				.supplier(ExprLastInteractionDate::new)
+				.origin(origin)
 				.build());
 	}
 

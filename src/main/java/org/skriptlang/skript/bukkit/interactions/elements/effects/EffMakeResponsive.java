@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -26,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class EffMakeResponsive extends Effect {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffMakeResponsive.class)
@@ -35,6 +36,7 @@ public class EffMakeResponsive extends Effect {
 					"make %entities% (not |un)responsive"
 				)
 				.supplier(EffMakeResponsive::new)
+				.origin(origin)
 				.build()
 		);
 	}
