@@ -105,7 +105,7 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @deprecated Register the standard way using {@link #infoBuilder(Class, PropertyType, String, String)}
 	 *  to create a {@link SyntaxInfo}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static void register(Class<? extends Condition> condition, String property, String type) {
 		register(condition, PropertyType.BE, property, type);
 	}
@@ -120,7 +120,7 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 * @deprecated Register the standard way using {@link #infoBuilder(Class, PropertyType, String, String)}
 	 *  to create a {@link SyntaxInfo}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
 		Skript.registerCondition(condition, ConditionType.PROPERTY,
 				getPatterns(propertyType, property, type));

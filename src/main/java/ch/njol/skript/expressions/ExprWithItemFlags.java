@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,12 +18,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Item with Item Flags")
 @Description("Creates a new item with the specified item flags.")
-@Examples({
-	"give player diamond sword with item flags hide enchants and hide attributes",
-	"set {_item} to player's tool with item flag hide additional tooltip",
-	"give player torch with hide placed on item flag",
-	"set {_item} to diamond sword with all item flags"
-})
+@Example("give player diamond sword with item flags hide enchants and hide attributes")
+@Example("set {_item} to player's tool with item flag hide additional tooltip")
+@Example("give player torch with hide placed on item flag")
+@Example("set {_item} to diamond sword with all item flags")
 @Since("2.10, 2.11 (all itemflags)")
 public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 

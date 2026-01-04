@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.fishing.elements.events;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -26,10 +26,10 @@ import java.util.List;
 
 @Name("Bucket Catch Entity")
 @Description("Called when a player catches an entity in a bucket.")
-@Examples({
-	"on bucket catch of a puffer fish:",
-		"\tsend \"You caught a fish with a %future event-item%!\" to player"
-})
+@Example("""
+	on bucket catch of a puffer fish:
+		send "You caught a fish with a %future event-item%!" to player
+	""")
 @Since("2.10")
 public class EvtBucketEntity extends SkriptEvent {
 

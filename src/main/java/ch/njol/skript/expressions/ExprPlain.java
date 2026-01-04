@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,8 +19,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Plain Item")
 @Description("A plain item is an item with no modifications. It can be used to convert items to their default state or to match with other default items.")
-@Examples({"if the player's tool is a plain diamond: # check if player's tool has no modifications",
-		"\tsend \"You are holding a plain diamond!\""})
+@Example("""
+	if the player's tool is a plain diamond: # check if player's tool has no modifications
+		send "You are holding a plain diamond!"
+	""")
 @Since("2.6")
 public class ExprPlain extends SimpleExpression<ItemType> {
 	

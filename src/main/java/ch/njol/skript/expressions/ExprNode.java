@@ -6,7 +6,7 @@ import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -29,17 +29,16 @@ import java.util.Set;
 	"Nodes in Skript configs are written in the format `key: value`.",
 	"Section nodes can contain other nodes."
 })
-@Examples({
-	"""
-		set {_node} to node "language" in the skript config
-		if text value of {_node} is "french":
-			broadcast "Bonjour!"
-		""",
-	"""
-		set {_script} to the current script
-		loop nodes of the current script:
-			broadcast name of loop-value"""
-})
+@Example("""
+	set {_node} to node "language" in the skript config
+	if text value of {_node} is "french":
+		broadcast "Bonjour!"
+	""")
+@Example("""
+	set {_script} to the current script
+	loop nodes of the current script:
+		broadcast name of loop-value
+	""")
 @Since("2.10")
 public class ExprNode extends PropertyExpression<Node, Node> implements ReflectionExperimentSyntax {
 

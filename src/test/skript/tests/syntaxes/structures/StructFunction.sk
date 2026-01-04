@@ -22,50 +22,160 @@ test "functions":
 	assert bar() is true with "local function didn't execute correctly"
 	assert _blob() is "blub" with "function that starts with underscore didn't execute correctly"
 
-using local variable type hints
-
-parse:
-	results: {StructFunction::hints::1::*}
-	code:
-		function hint_test_1(x: number):
-			set {_a} to {_x} in lowercase
-
-parse:
-	results: {StructFunction::hints::2::*}
-	code:
-		function hint_test_2(x: numbers):
-			set {_a::*} to {_x::*} in lowercase
-
-local function type_hint_argument_test(number: number):
-	stop
-
-test "function structure type hints":
-	assert {StructFunction::hints::1::*} is "Expected variable '{_x}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::1::*}%)"
-	assert {StructFunction::hints::2::*} is "Expected variable '{_x::*}' to be a text, but it is a number" with "Hint failed (%{StructFunction::hints::2::*}%)"
-	set {_number} to true
-	parse:
-		type_hint_argument_test({_number})
-	assert the first element of the last parse logs is set # contains "The function 'type_hint_argument_test(boolean)' does not exist." (NEEDS FIXING)
-
-local function list_argument_single_default(x: texts="hey") :: texts:
+local function list_argument_single_default(x: texts=("hey")) -> texts:
     return {_x::*}
 
-test "function list argument with a single default":
+test "function list argument with a single default value":
 	assert list_argument_single_default() = "hey"
+
+local function argument_single_default(x: text="hey") -> text:
+    return {_x}
+
+test "function argument with a default value":
+	assert argument_single_default() = "hey"
 
 local function literal_test(x: entity type):
 	stop
+
 local function literal_test_projectile(x: entity):
 	stop
 
 test "literal type parsing":
 	parse:
 		literal_test(firework)
-	assert last parse logs is not set
+	assert last parse logs are not set
 
 	spawn an arrow at test-location:
 		set {_entity} to entity
 		parse:
 			literal_test_projectile(projectile)
+
 	assert last parse logs are not set
 	clear entity within {_entity}
+
+local function argument_test(x: int, y: int):
+	stop
+
+local function argument_test_list(xs: ints):
+	stop
+
+test "function structure arguments":
+	parse:
+		argument_test(1)
+	assert last parse logs contain "The function argument_test(integer) does not exist"
+
+	parse:
+		argument_test(1, 2)
+	assert last parse logs are not set
+
+	parse:
+		argument_test(1, 2, 3)
+	assert last parse logs contain "The function argument_test(integer, integer, integer) does not exist"
+
+	parse:
+		argument_test_list((1, 2, 3))
+	assert last parse logs are not set
+
+	parse:
+		argument_test_list(1, (2, 3))
+	assert last parse logs contain "The function argument_test_list(integer, integers) does not exist"
+
+local function argument_default(x: int, y: int = 2) -> int:
+    return {_x} + {_y}
+
+test "function default arguments":
+    assert argument_default(2, 3) = 5
+    assert argument_default(2) = 4
+
+local function nfa(a: int, b: int, c: int) :: int:
+	return {_a} + {_b} - {_c}
+
+local function nfa(a: string, b: string) :: int:
+	return 3
+
+test "named function arguments":
+	assert nfa(8, 2, 3) = 7
+
+	assert nfa(a: 8, 2, 3) = 7
+	assert nfa(a: 8, b: 2, 3) = 7
+	assert nfa(a: 8, b: 2, c: 3) = 7
+
+	assert nfa(c: 3, a: 8, b: 2) = 7
+	assert nfa(c: 3, b: 2, a: 8) = 7
+	assert nfa(a: 8, c: 3, b: 2) = 7
+
+	assert nfa(a: 8, b: 2, 3) = 7
+	assert nfa(8, b: 2, c: 3) = 7
+
+	set {_x} to 8
+	assert nfa(a: {_x}, b: 2, 3) = 7
+
+	parse:
+		assert nfa(a: 8, c: adghadhaherta, b: 2) = 7
+	assert first element of last parse logs contains "The function nfa(a: integer, c: ?, b: integer) does not exist"
+
+	parse:
+		assert nfa(8, c: 3, b: 2) = 7
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
+
+	parse:
+		assert nfa(c: 3, 2, a: 8) = 7
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
+
+	parse:
+		assert nfa(c: 3, a: 8, 2) = 7
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
+
+	parse:
+		assert nfa(b: 2, 3, a: 8) = 7
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
+
+	assert nfa("gonna be, gonna be, ""'golden'""", "fire %{_, }%") = 3
+
+	parse:
+		nfa(a: 1, b: 2, d: 2)
+	assert first element of last parse logs contains "The function nfa(a: integer, b: integer, d: integer) does not exist"
+
+	parse:
+		nfa(a: 1, d: 2, b: 2)
+	assert first element of last parse logs contains "The function nfa(a: integer, d: integer, b: integer) does not exist"
+
+	parse:
+		nfa(a: 1, a: 2, c: 2)
+	assert first element of last parse logs contains "A value has already been assigned to parameter 'a'"
+
+local function nfa_incorrect_list(ns: numbers):
+	stop
+
+test "named function arguments with single list params":
+	parse:
+		nfa_incorrect_list(ns: (1, 2, 3))
+	assert last parse logs are not set
+
+	parse:
+		nfa_incorrect_list(ns: 1, n: 2, 3)
+	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integer, n: integer, integer) does not exist"
+
+	parse:
+		nfa_incorrect_list(wrong: (1, 2, 3))
+	assert first element of last parse logs contains "The function nfa_incorrect_list(wrong: integers) does not exist"
+
+	parse:
+		nfa_incorrect_list(ns: (1, (2, 3)))
+	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integers) does not exist"
+
+	parse:
+		nfa_incorrect_list(ns: 1, 2, 3)
+	assert first element of last parse logs contains "The function nfa_incorrect_list(ns: integer, integer, integer) does not exist"
+
+	parse:
+		nfa_incorrect_list(ns: 1, ns: 2, ns: 3)
+	assert first element of last parse logs contains "A value has already been assigned to parameter 'ns'"
+
+local function duplicate_keys_test(x: strings) :: strings:
+	return {_x::*}
+
+test "duplicate keys in function arguments":
+	set {_a::foo} to "first"
+	set {_b::foo} to "second"
+	assert duplicate_keys_test(keyed {_a::*}, keyed {_b::*}) is "first"

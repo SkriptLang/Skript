@@ -94,7 +94,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * @deprecated Register the standard way using {@link #infoBuilder(Class, Class, String...)}
 	 *  to create a {@link SyntaxInfo}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <T> void register(Class<? extends EventValueExpression<T>> expression, Class<T> type, String pattern) {
 		Skript.registerExpression(expression, type, ExpressionType.EVENT, "[the] " + pattern);
 	}
@@ -109,7 +109,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 * @deprecated Register the standard way using {@link #infoBuilder(Class, Class, String...)}
 	 *  to create a {@link SyntaxInfo}.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static <T> void register(Class<? extends EventValueExpression<T>> expression, Class<T> type, String ... patterns) {
 		for (int i = 0; i < patterns.length; i++) {
 			if (!StringUtils.startsWithIgnoreCase(patterns[i], "[the] "))

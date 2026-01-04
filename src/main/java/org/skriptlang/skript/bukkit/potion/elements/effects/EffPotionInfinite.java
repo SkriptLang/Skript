@@ -15,7 +15,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"That is, whether the potion effect will ever expire."
 })
 @Example("make the player's potion effects infinite")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class EffPotionInfinite extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

@@ -2,11 +2,7 @@ package ch.njol.skript.patterns;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.conditions.CondCompare;
-import ch.njol.skript.conditions.CondContains;
-import ch.njol.skript.conditions.CondDate;
-import ch.njol.skript.conditions.CondIsLoaded;
-import ch.njol.skript.conditions.CondScriptLoaded;
+import ch.njol.skript.conditions.*;
 import ch.njol.skript.effects.EffScriptFile;
 import ch.njol.skript.effects.EffWorldLoad;
 import ch.njol.skript.expressions.*;
@@ -19,18 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.CondHasPotion;
+import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -445,6 +435,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		EXCLUSIONS.add(new Exclusion(ExprEntities.class, ExprItemsIn.class));
 		// CondContains takes precedence over CondHasPotion in the case of "{_x} has {_y}"
 		EXCLUSIONS.add(new Exclusion(CondContains.class, CondHasPotion.class));
+		EXCLUSIONS.add(new Exclusion(PropCondContains.class, CondHasPotion.class));
 
 		// 8 conflicts
 		EXCLUSIONS.add(new Exclusion(CondScriptLoaded.class, CondIsLoaded.class));

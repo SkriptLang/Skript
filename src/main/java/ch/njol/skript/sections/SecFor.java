@@ -5,7 +5,7 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -30,22 +30,26 @@ import java.util.List;
 	
 	When looping a simple (non-indexed) set of values, e.g. all players, the index will be the loop counter number."""
 )
-@Examples({
-	"for each {_player} in players:",
-	"\tsend \"Hello %{_player}%!\" to {_player}",
-	"",
-	"loop {_item} in {list of items::*}:",
-	"\tbroadcast {_item}'s name",
-	"",
-	"for each key {_index} in {list of items::*}:",
-	"\tbroadcast {_index}",
-	"",
-	"loop key {_index} and value {_value} in {list of items::*}:",
-	"\tbroadcast \"%{_index}% = %{_value}%\"",
-	"",
-	"for each {_index}, {_value} in {my list::*}:",
-	"\tbroadcast \"%{_index}% = %{_value}%\"",
-})
+@Example("""
+	for each {_player} in players:
+		send "Hello %{_player}%!" to {_player}
+	""")
+@Example("""
+	loop {_item} in {list of items::*}:
+		broadcast {_item}'s name
+	""")
+@Example("""
+	for each key {_index} in {list of items::*}:
+		broadcast {_index}
+	""")
+@Example("""
+	loop key {_index} and value {_value} in {list of items::*}:
+		broadcast "%{_index}% = %{_value}%"
+	""")
+@Example("""
+	for each {_index}, {_value} in {my list::*}:
+		broadcast "%{_index}% = %{_value}%"
+	""")
 @Since("2.10, INSERT VERSION (stable release)")
 public class SecFor extends SecLoop {
 

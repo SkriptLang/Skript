@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -29,12 +29,11 @@ import java.util.List;
 	"Retrieve the first, the last, or all of the color objects or color codes of a string.",
 	"The retrieved color codes of the string will be formatted with the color symbol."
 })
-@Examples({
-	"set {_colors::*} to the string colors of \"<red>hey<blue>yo\"",
-	"",
-	"set {_color} to the first string color code of \"&aGoodbye!\"",
-	"send \"%{_color}%Howdy!\" to all players"
-})
+@Example("set {_colors::*} to the string colors of \"<red>hey<blue>yo\"")
+@Example("""
+		set {_color} to the first string color code of "&aGoodbye!"
+		send "%{_color}%Howdy!" to all players
+		""")
 @Since("2.11")
 public class ExprStringColor extends PropertyExpression<String, Object> {
 

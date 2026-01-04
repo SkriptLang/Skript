@@ -21,10 +21,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"Returns the time it takes a fish to bite the fishing hook, after it started approaching the hook.",
 	"May return a timespan of 0 seconds. If modifying the value, it should be at least 1 tick.",
 })
-@Examples({
-	"on fish approach:",
-		"\tset fishing bite time to 5 seconds",
-})
+@Example("""
+	on fish approach:
+		set fishing bite time to 5 seconds
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
@@ -71,6 +71,7 @@ public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
 		FishHook hook = fishEvent.getHook();
 
+		assert delta != null;
 		int ticks = (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 
 		switch (mode) {

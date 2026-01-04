@@ -28,11 +28,9 @@ import java.util.concurrent.ThreadLocalRandom;
 	"and `custom tag` will look in the \"skript\" namespace for custom tags you've registered.",
 	"You can also filter by tag types using \"item\", \"block\", or \"entity\"."
 })
-@Examples({
-	"broadcast minecraft tags of dirt",
-	"send true if paper item tags of target block contains paper tag \"doors\"",
-	"broadcast the block tags of player's tool"
-})
+@Example("broadcast minecraft tags of dirt")
+@Example("send true if paper item tags of target block contains paper tag \"doors\"")
+@Example("broadcast the block tags of player's tool")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagsOf extends PropertyExpression<Object, Tag> {

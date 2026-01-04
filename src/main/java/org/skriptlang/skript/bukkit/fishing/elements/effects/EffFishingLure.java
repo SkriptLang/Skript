@@ -15,10 +15,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Apply Fishing Lure")
 @Description("Sets whether the lure enchantment should be applied, which reduces the wait time.")
-@Examples({
-	"on fishing line cast:",
-		"\tapply lure enchantment bonus"
-})
+@Example("""
+	on fishing line cast:
+		apply lure enchantment bonus
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class EffFishingLure extends Effect {

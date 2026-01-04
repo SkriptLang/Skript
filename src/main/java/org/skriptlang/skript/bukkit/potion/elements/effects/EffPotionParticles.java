@@ -12,7 +12,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Potion Effect - Particles")
 @Description("Modify whether a potion effect shows particles.")
 @Example("hide the particles for the player's potion effects")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class EffPotionParticles extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

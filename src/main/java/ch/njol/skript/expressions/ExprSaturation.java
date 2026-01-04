@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Saturation")
 @Description("The saturation of a player. If used in a player event, it can be omitted and will default to event-player.")
-@Examples("set saturation of player to 20")
+@Example("set saturation of player to 20")
 @Since("2.2-Fixes-v10, 2.2-dev35 (fully modifiable), 2.6.2 (syntax pattern changed)")
 public class ExprSaturation extends SimplePropertyExpression<Player, Number> {
 

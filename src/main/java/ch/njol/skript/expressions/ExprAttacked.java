@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -33,9 +33,11 @@ import ch.njol.util.Kleenean;
 @Name("Attacked")
 @Description("The victim of a damage event, e.g. when a player attacks a zombie this expression represents the zombie. " +
 			 "When using Minecraft 1.11+, this also covers the hit entity in a projectile hit event.")
-@Examples({"on damage:",
-	"\tvictim is a creeper",
-	"\tdamage the attacked by 1 heart"})
+@Example("""
+	on damage:
+		victim is a creeper
+		damage the attacked by 1 heart
+	""")
 @Since("1.3, 2.6.1 (projectile hit event)")
 @Events({"damage", "death", "projectile hit"})
 public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {

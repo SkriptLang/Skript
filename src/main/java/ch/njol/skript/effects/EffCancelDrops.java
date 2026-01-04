@@ -39,7 +39,7 @@ import ch.njol.util.Kleenean;
 	""")
 @Since("2.4, 2.12 (harvest event)")
 @RequiredPlugins("1.12.2 or newer (cancelling item drops of blocks)")
-@Events({"death", "break / mine", "block drop", "harvest"})
+@Events({"death", "break / mine", "block drop", "harvest block"})
 public class EffCancelDrops extends Effect implements EventRestrictedSyntax {
 
 	static {

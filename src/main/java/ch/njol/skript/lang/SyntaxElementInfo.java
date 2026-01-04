@@ -23,7 +23,7 @@ import java.util.List;
  * @deprecated Use {@link SyntaxInfo} ({@link SyntaxInfo#builder(Class)}) instead.
  * Note that some syntax types have specific {@link SyntaxInfo} implementations that they require.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.14", forRemoval = true)
 public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E> {
 
 	private final @Nullable SyntaxInfo<E> source;
