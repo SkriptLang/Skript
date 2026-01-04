@@ -2,6 +2,10 @@ package org.skriptlang.skript.addon;
 
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.docs.Origin.AddonOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import java.util.Arrays;
+import java.util.function.BiConsumer;
 
 /**
  * A module is a component of a {@link SkriptAddon} used for registering syntax and other {@link Skript} components.
@@ -74,6 +78,17 @@ public interface AddonModule {
 	 */
 	default ModuleOrigin origin(SkriptAddon addon) {
 		return AddonModule.origin(addon, name());
+	}
+
+	/**
+	 * Helper method to register syntaxes to a registry with a shared origin.
+	 * @param registry The syntax registry to register to.
+	 * @param origin The origin to use for the registrations.
+	 * @param consumers The consumers that will register syntax to the registry.
+	 */
+	@SafeVarargs
+	static void register(SyntaxRegistry registry, ModuleOrigin origin, BiConsumer<SyntaxRegistry, ModuleOrigin>... consumers) {
+		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry, origin));
 	}
 
 }

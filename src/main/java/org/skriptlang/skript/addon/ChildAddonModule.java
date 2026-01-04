@@ -57,52 +57,12 @@ public abstract class ChildAddonModule implements AddonModule {
 
 	}
 
+	/**
+	 * Constructs a child addon module with the given parent module.
+	 * @param parentModule The parent module that created this child module.
+	 */
 	protected ChildAddonModule(AddonModule parentModule) {
 		this.parentModule = parentModule;
-	}
-
-	@Override
-	public void init(SkriptAddon addon) {
-		init(addon, parentModule);
-	}
-
-	/**
-	 * Used for loading the components of this module that are needed first or by other modules (e.g. class infos).
-	 * <b>This method will always be called before {@link #load(SkriptAddon, AddonModule)}</b>.
-	 * @param addon The addon this module belongs to.
-	 * @param parentModule The parent module that created this child module.
-	 * @see #load(SkriptAddon)
-	 */
-	protected abstract void init(SkriptAddon addon, AddonModule parentModule);
-
-	@Override
-	public void load(SkriptAddon addon) {
-		load(addon, parentModule);
-	}
-
-	/**
-	 * Used for loading the components (e.g. syntax) of this module.
-	 * @param addon The addon this module belongs to.
-	 * @param parentModule The parent module that created this child module.
-	 * @see #init(SkriptAddon, AddonModule)
-	 */
-	protected abstract void load(SkriptAddon addon, AddonModule parentModule);
-
-	@Override
-	public boolean canLoad(SkriptAddon addon) {
-		return canLoad(addon, parentModule);
-	}
-
-	/**
-	 * Allow addons to specify whether they can load or not.
-	 * Called prior to {@link #init(SkriptAddon)}
-	 *
-	 * @param addon The addon this module belongs to.
-	 * @param parentModule The parent module that created this child module.
-	 * @return Whether this module can load.
-	 */
-	protected boolean canLoad(SkriptAddon addon, AddonModule parentModule) {
-		return AddonModule.super.canLoad(addon);
 	}
 
 	@Override

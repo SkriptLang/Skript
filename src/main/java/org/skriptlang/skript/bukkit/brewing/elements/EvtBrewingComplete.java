@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class EvtBrewingComplete extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
 		registry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingComplete.class, "Brewing Complete")
@@ -34,6 +35,7 @@ public class EvtBrewingComplete extends SkriptEvent {
 					""")
 				.addSince("2.13")
 				.supplier(EvtBrewingComplete::new)
+				.origin(origin)
 				.build()
 		);
 	}

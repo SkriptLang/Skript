@@ -1,9 +1,11 @@
-package org.skriptlang.skript.bukkit.fishing.elements;
+package org.skriptlang.skript.bukkit.fishing.elements.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Fish Hook in Open Water")
 @Description({
@@ -19,9 +21,13 @@ import org.bukkit.entity.FishHook;
 @Events("Fishing")
 @Since("2.10")
 public class CondIsInOpenWater extends PropertyCondition<Entity> {
-	
-	static {
-		register(CondIsInOpenWater.class, "in open water[s]", "entities");
+
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.CONDITION,
+			infoBuilder(CondIsInOpenWater.class, PropertyType.BE, "in open water[s]", "entities")
+				.supplier(CondIsInOpenWater::new)
+				.origin(origin)
+				.build());
 	}
 
 	@Override

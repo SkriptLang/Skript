@@ -1,10 +1,9 @@
-package org.skriptlang.skript.bukkit.fishing.elements;
+package org.skriptlang.skript.bukkit.fishing.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -15,6 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Hooked Entity")
 @Description("Returns the hooked entity in the hooked event.")
@@ -27,10 +29,15 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 
-	static {
-		Skript.registerExpression(ExprFishingHookEntity.class, Entity.class, ExpressionType.EVENT,
-			"hook[ed] entity");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			DefaultSyntaxInfos.Expression.builder(ExprFishingHookEntity.class, Entity.class)
+				.addPatterns("hook[ed] entity")
+				.supplier(ExprFishingHookEntity::new)
+				.origin(origin)
+				.build());
 	}
+
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,

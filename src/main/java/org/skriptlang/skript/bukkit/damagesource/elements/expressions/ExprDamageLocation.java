@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -8,37 +8,43 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
-import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Damage Type")
+@Name("Damage Source - Damage Location")
 @Description({
-	"The type of damage of a damage source.",
+	"The location where the damage was originated from.",
+	"The 'damage location' on vanilla damage sources will be set if an entity did not cause the damage.",
 	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
-	set {_source} to a custom damage source:
+	damage all players by 5 using a custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
 		set the damage location to location(0, 0, 10)
-	damage all players by 5 using {_source}
 	""")
 @Example("""
 	on death:
-		set {_type} to the damage type of event-damage source
+		set {_location} to the damage location of event-damage source
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
-public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperimentSyntax {
+public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprDamageType.class, DamageType.class, "damage type", "damagesources");
+	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprDamageLocation.class, Location.class,"damage location", "damagesources", true)
+				.supplier(ExprDamageLocation::new)
+				.origin(origin)
+				.build()
+		);
 	}
 
 	private boolean isEvent;
@@ -50,8 +56,8 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 	}
 
 	@Override
-	public @Nullable DamageType convert(DamageSource damageSource) {
-		return damageSource.getDamageType();
+	public @Nullable Location convert(DamageSource damageSource) {
+		return damageSource.getDamageLocation();
 	}
 
 	@Override
@@ -60,29 +66,28 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
 		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
 			Skript.error("You can only change the attributes of the damage source being created in this section.");
-		} else if (mode == ChangeMode.SET) {
-			return CollectionUtils.array(DamageType.class);
+		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
+			return CollectionUtils.array(Location.class);
 		}
 		return null;
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		assert delta != null;
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-		sectionEvent.damageType = (DamageType) delta[0];
+		sectionEvent.damageLocation = delta == null ? null : (Location) delta[0];
 	}
 
 	@Override
-	public Class<DamageType> getReturnType() {
-		return DamageType.class;
+	public Class<Location> getReturnType() {
+		return Location.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "damage type";
+		return "damage location";
 	}
 
 }

@@ -2,11 +2,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.key.Key;
@@ -16,6 +12,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component - Shear Sound")
@@ -32,12 +29,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprEquipCompShearSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		if (!EquippableWrapper.HAS_SHEAR_SOUND)
 			return;
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEquipCompShearSound.class, String.class, "shear[ed [off]] sound", "equippablecomponents", true)
 				.supplier(ExprEquipCompShearSound::new)
+				.origin(origin)
 				.build()
 		);
 	}

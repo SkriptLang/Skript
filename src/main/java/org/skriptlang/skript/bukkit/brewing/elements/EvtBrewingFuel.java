@@ -10,12 +10,13 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtBrewingFuel extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
 		registry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingFuel.class, "Brewing Fuel")
@@ -32,6 +33,7 @@ public class EvtBrewingFuel extends SkriptEvent {
 					""")
 				.addSince("2.13")
 				.supplier(EvtBrewingFuel::new)
+				.origin(origin)
 				.build()
 		);
 

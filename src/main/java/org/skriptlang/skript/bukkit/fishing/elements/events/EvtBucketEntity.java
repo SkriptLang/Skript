@@ -1,6 +1,5 @@
-package org.skriptlang.skript.bukkit.fishing.elements;
+package org.skriptlang.skript.bukkit.fishing.elements.events;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -18,6 +17,9 @@ import org.bukkit.event.player.PlayerBucketEntityEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,9 +33,13 @@ import java.util.List;
 @Since("2.10")
 public class EvtBucketEntity extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Bucket Catch Entity", EvtBucketEntity.class, PlayerBucketEntityEvent.class,
-			"bucket (catch[ing]|captur(e|ing)) [[of] %-entitydatas%]");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtBucketEntity.class, "Bucket Catch Entity")
+			.addPatterns("bucket (catch[ing]|captur(e|ing)) [[of] %-entitydatas%]")
+			.supplier(EvtBucketEntity::new)
+			.addEvent(PlayerBucketEntityEvent.class)
+			.origin(origin)
+			.build());
 
 		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, PlayerBucketEntityEvent::getOriginalBucket);
 		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, PlayerBucketEntityEvent::getEntityBucket, EventValues.TIME_FUTURE);

@@ -1,8 +1,11 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,14 +15,15 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
-import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Causing Entity")
+@Name("Damage Source - Direct Entity")
 @Description({
-	"The causing entity of a damage source.",
-	"The causing entity is the entity that ultimately caused the damage. (e.g. the entity that shot an arrow)",
-	"When setting a 'causing entity' you must also set a 'direct entity'.",
+	"The direct entity of a damage source.",
+	"The direct entity is the entity that directly caused the damage. (e.g. the arrow that was shot)",
 	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
@@ -28,19 +32,24 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
 		set the damage location to location(0, 0, 10)
+	damage all players by 5 using {_source}
 	""")
 @Example("""
-	on damage:
-		set {_causing} to the causing entity of event-damage source
+	on death:
+		set {_direct} to the direct entity of event-damage source
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
+public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprCausingEntity.class, Entity.class, "(causing|responsible) entity", "damagesources");
+	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprDirectEntity.class, Entity.class,"direct entity", "damagesources", true)
+				.supplier(ExprDirectEntity::new)
+				.origin(origin)
+				.build()
+		);
 	}
-
 	private boolean isEvent;
 
 	@Override
@@ -51,7 +60,7 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 
 	@Override
 	public @Nullable Entity convert(DamageSource damageSource) {
-		return damageSource.getCausingEntity();
+		return damageSource.getDirectEntity();
 	}
 
 	@Override
@@ -71,7 +80,7 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-		sectionEvent.causingEntity = delta == null ? null : (Entity) delta[0];
+		sectionEvent.directEntity = delta == null ? null : (Entity) delta[0];
 	}
 
 	@Override
@@ -81,7 +90,7 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 
 	@Override
 	protected String getPropertyName() {
-		return "causing entity";
+		return "direct entity";
 	}
 
 }

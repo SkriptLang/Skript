@@ -1,6 +1,5 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
@@ -10,7 +9,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Source - Was Indirectly Caused")
 @Description({
@@ -23,14 +25,18 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 		if event-damage source was indirectly caused:
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
 
-	static {
-		Skript.registerCondition(CondWasIndirect.class, ConditionType.PROPERTY,
-			"%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
-			"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)"
+	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondWasIndirect.class)
+				.addPatterns(
+					"%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
+					"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)")
+				.supplier(CondWasIndirect::new)
+				.origin(origin)
+				.build()
 		);
 	}
 

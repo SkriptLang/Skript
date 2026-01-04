@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.fishing.elements;
+package org.skriptlang.skript.bukkit.fishing.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
@@ -9,6 +9,9 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Apply Fishing Lure")
 @Description("Sets whether the lure enchantment should be applied, which reduces the wait time.")
@@ -20,10 +23,15 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class EffFishingLure extends Effect {
 
-	static {
-		Skript.registerEffect(EffFishingLure.class,
-			"apply [the] lure enchantment bonus",
-			"remove [the] lure enchantment bonus");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffFishingLure.class)
+			.addPatterns(
+				"apply [the] lure enchantment bonus",
+				"remove [the] lure enchantment bonus"
+			)
+			.supplier(EffFishingLure::new)
+			.origin(origin)
+			.build());
 	}
 
 	private boolean remove;

@@ -21,6 +21,7 @@ import org.bukkit.block.BrewingStand;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BrewingStartEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 
 	private static final boolean BREWING_START_EVENT_1_21 = Skript.methodExists(BrewingStartEvent.class, "setBrewingTime", int.class);
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
@@ -48,6 +49,7 @@ public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 				true
 			)
 				.supplier(ExprBrewingTime::new)
+				.origin(origin)
 				.build()
 		);
 	}

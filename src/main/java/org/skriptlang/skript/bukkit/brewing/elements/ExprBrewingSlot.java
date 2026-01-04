@@ -21,6 +21,7 @@ import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -52,7 +53,7 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
 	private static final BrewingSlot[] BREWING_SLOTS = BrewingSlot.values();
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
 		String[] patterns = new String[BREWING_SLOTS.length * 2];
 		for (BrewingSlot slot : BREWING_SLOTS) {
 			patterns[2 * slot.ordinal()] = "[the] " + slot.pattern + " slot[s] [of %blocks%]";
@@ -64,6 +65,7 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 			SyntaxInfo.Expression.builder(ExprBrewingSlot.class, Slot.class)
 				.addPatterns(patterns)
 				.supplier(ExprBrewingSlot::new)
+				.origin(origin)
 				.build()
 		);
 	}

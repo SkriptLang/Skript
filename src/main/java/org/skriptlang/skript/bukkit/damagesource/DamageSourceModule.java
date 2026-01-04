@@ -6,21 +6,23 @@ import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
-import org.bukkit.Registry;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.damagesource.elements.conditions.CondScalesWithDifficulty;
+import org.skriptlang.skript.bukkit.damagesource.elements.conditions.CondWasIndirect;
+import org.skriptlang.skript.bukkit.damagesource.elements.expressions.*;
 
-import java.io.IOException;
+public class DamageSourceModule extends ChildAddonModule {
 
-public class DamageSourceModule implements AddonModule {
-
-	@Override
-	public String name() {
-		return "damage source";
+	public DamageSourceModule(AddonModule parentModule) {
+		super(parentModule);
 	}
 
 	@Override
@@ -37,16 +39,16 @@ public class DamageSourceModule implements AddonModule {
 				"Represents the source from which an entity was damaged.",
 				"Cannot change any attributes of the damage source from an 'on damage' or 'on death' event.")
 			.since("2.12")
-			.requiredPlugins("Minecraft 1.20.4+")
 			.defaultExpression(new EventValueExpression<>(DamageSource.class))
 		);
 
-		Classes.registerClass(new RegistryClassInfo<>(DamageType.class, Registry.DAMAGE_TYPE, "damagetype", "damage types")
+		Classes.registerClass(
+			new RegistryClassInfo<>(DamageType.class, RegistryAccess.registryAccess().getRegistry(RegistryKey.DAMAGE_TYPE),
+									"damagetype", "damage types")
 			.user("damage ?types?")
 			.name("Damage Type")
 			.description("References a damage type of a damage source.")
 			.since("2.12")
-			.requiredPlugins("Minecraft 1.20.4+")
 		);
 
 		if (Skript.methodExists(EntityDamageEvent.class, "getDamageSource")) {
@@ -59,11 +61,25 @@ public class DamageSourceModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.damagesource", "elements");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		AddonModule.register(addon.syntaxRegistry(), origin(addon),
+			CondScalesWithDifficulty::register,
+			CondWasIndirect::register,
+
+			ExprCausingEntity::register,
+			ExprCreatedDamageSource::register,
+			ExprDamageLocation::register,
+			ExprDamageType::register,
+			ExprDirectEntity::register,
+			ExprFoodExhaustion::register,
+			ExprSourceLocation::register,
+
+			ExprSecDamageSource::register
+		);
+	}
+
+	@Override
+	public String name() {
+		return "damage source";
 	}
 
 }

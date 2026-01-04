@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.fishing.elements;
+package org.skriptlang.skript.bukkit.fishing.elements.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
@@ -9,6 +9,9 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Lure Applied")
 @Description("Checks if the lure enchantment is applied to the current fishing event.")
@@ -21,10 +24,15 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class CondFishingLure extends Condition {
 
-	static  {
-		Skript.registerCondition(CondFishingLure.class,
-			"lure enchantment bonus is (applied|active)",
-			"lure enchantment bonus is(n't| not) (applied|active)");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondFishingLure.class)
+			.addPatterns(
+				"lure enchantment bonus is (applied|active)",
+				"lure enchantment bonus is(n't| not) (applied|active)"
+			)
+			.supplier(CondFishingLure::new)
+			.origin(origin)
+			.build());
 	}
 
 	@Override

@@ -4,14 +4,15 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.entity.SimpleEntityData;
 import org.bukkit.entity.AbstractNautilus;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.entity.nautilus.*;
+import org.skriptlang.skript.bukkit.entity.nautilus.NautilusData;
+import org.skriptlang.skript.bukkit.entity.nautilus.ZombieNautilusData;
 
-public class EntityModule implements AddonModule {
+public class EntityModule extends ChildAddonModule {
 
-	@Override
-	public String name() {
-		return "entities";
+	public EntityModule(AddonModule parentModule) {
+		super(parentModule);
 	}
 
 	@Override
@@ -21,6 +22,11 @@ public class EntityModule implements AddonModule {
 			ZombieNautilusData.register();
 			SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
 		}
+	}
+
+	@Override
+	public String name() {
+		return "entities";
 	}
 
 }

@@ -3,11 +3,7 @@ package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.ItemSource;
 import ch.njol.skript.util.slot.Slot;
@@ -19,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Equippable Component")
@@ -36,10 +33,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprEquippableComponent extends SimplePropertyExpression<Object, EquippableWrapper> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEquippableComponent.class, EquippableWrapper.class, "equippable component[s]", "slots/itemtypes", false)
 				.supplier(ExprEquippableComponent::new)
+				.origin(origin)
 				.build()
 		);
 	}

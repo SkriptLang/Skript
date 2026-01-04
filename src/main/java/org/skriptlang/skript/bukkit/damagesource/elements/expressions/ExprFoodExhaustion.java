@@ -1,10 +1,15 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Source - Food Exhaustion")
 @Description("The amount of hunger exhaustion caused by a damage source.")
@@ -13,12 +18,16 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 		if the food exhaustion of event-damage source is 10:
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprFoodExhaustion.class, Float.class, "food exhaustion", "damagesources");
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprFoodExhaustion.class, Float.class,"food exhaustion", "damagesources", true)
+				.supplier(ExprFoodExhaustion::new)
+				.origin(origin)
+				.build()
+		);
 	}
 
 	@Override

@@ -6,15 +6,20 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
 import org.skriptlang.skript.bukkit.itemcomponents.generic.ExprItemCompCopy;
 
-public class ItemComponentModule implements AddonModule {
+public class ItemComponentModule extends ChildAddonModule {
 
-	@Override
-	public String name() {
-		return "item component";
+	/**
+	 * Constructs a child addon module with the given parent module.
+	 *
+	 * @param parentModule The parent module that created this child module.
+	 */
+	public ItemComponentModule(AddonModule parentModule) {
+		super(parentModule);
 	}
 
 	@Override
@@ -52,9 +57,14 @@ public class ItemComponentModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		addon.loadModules(new EquippableModule());
+		addon.loadModules(new EquippableModule(this));
 
-		ExprItemCompCopy.register(addon.syntaxRegistry());
+		ExprItemCompCopy.register(addon.syntaxRegistry(), origin(addon));
+	}
+
+	@Override
+	public String name() {
+		return "item component";
 	}
 
 }

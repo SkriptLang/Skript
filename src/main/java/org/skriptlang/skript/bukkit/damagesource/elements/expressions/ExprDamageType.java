@@ -1,24 +1,28 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.damage.DamageSource;
-import org.bukkit.entity.Entity;
+import org.bukkit.damage.DamageType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
-import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Direct Entity")
+@Name("Damage Source - Damage Type")
 @Description({
-	"The direct entity of a damage source.",
-	"The direct entity is the entity that directly caused the damage. (e.g. the arrow that was shot)",
+	"The type of damage of a damage source.",
 	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
@@ -31,15 +35,19 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Example("""
 	on death:
-		set {_direct} to the direct entity of event-damage source
+		set {_type} to the damage type of event-damage source
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
-public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
+public class ExprDamageType extends SimplePropertyExpression<DamageSource, DamageType> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprDirectEntity.class, Entity.class, "direct entity", "damagesources");
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprDamageType.class, DamageType.class,"damage type", "damagesources", true)
+				.supplier(ExprDamageType::new)
+				.origin(origin)
+				.build()
+		);
 	}
 
 	private boolean isEvent;
@@ -51,8 +59,8 @@ public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Ent
 	}
 
 	@Override
-	public @Nullable Entity convert(DamageSource damageSource) {
-		return damageSource.getDirectEntity();
+	public @Nullable DamageType convert(DamageSource damageSource) {
+		return damageSource.getDamageType();
 	}
 
 	@Override
@@ -61,28 +69,29 @@ public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Ent
 			Skript.error("You cannot change the attributes of a damage source outside a 'custom damage source' section.");
 		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
 			Skript.error("You can only change the attributes of the damage source being created in this section.");
-		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
-			return CollectionUtils.array(Entity.class);
+		} else if (mode == ChangeMode.SET) {
+			return CollectionUtils.array(DamageType.class);
 		}
 		return null;
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		assert delta != null;
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-		sectionEvent.directEntity = delta == null ? null : (Entity) delta[0];
+		sectionEvent.damageType = (DamageType) delta[0];
 	}
 
 	@Override
-	public Class<Entity> getReturnType() {
-		return Entity.class;
+	public Class<DamageType> getReturnType() {
+		return DamageType.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "direct entity";
+		return "damage type";
 	}
 
 }

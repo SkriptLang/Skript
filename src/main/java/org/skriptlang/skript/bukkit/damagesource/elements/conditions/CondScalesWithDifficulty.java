@@ -1,8 +1,10 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -10,7 +12,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Source - Does Scale With Difficulty")
 @Description("Whether the damage from a damage source scales with the difficulty of the server.")
@@ -19,16 +24,21 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 		if event-damage source scales damage with difficulty:
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
 
-	static {
-		Skript.registerCondition(CondScalesWithDifficulty.class,
-			"%damagesources% ((does|do) scale|scales) damage with difficulty",
-			"%damagesources% (do not|don't|does not|doesn't) scale damage with difficulty",
-			"%damagesources%'[s] damage ((does|do) scale|scales) with difficulty",
-			"%damagesources%'[s] damage (do not|don't|does not|doesn't) scale with difficulty");
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondScalesWithDifficulty.class)
+				.addPatterns(
+					"%damagesources% ((does|do) scale|scales) damage with difficulty",
+					"%damagesources% (do not|don't|does not|doesn't) scale damage with difficulty",
+					"%damagesources%'[s] damage ((does|do) scale|scales) with difficulty",
+					"%damagesources%'[s] damage (do not|don't|does not|doesn't) scale with difficulty")
+				.supplier(CondScalesWithDifficulty::new)
+				.origin(origin)
+				.build()
+		);
 	}
 
 	@Override

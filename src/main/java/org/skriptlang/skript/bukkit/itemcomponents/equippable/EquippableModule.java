@@ -12,20 +12,21 @@ import ch.njol.skript.util.slot.Slot;
 import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
+public class EquippableModule extends ChildAddonModule {
 
-public class EquippableModule implements AddonModule {
-
-	@Override
-	public String name() {
-		return "equippable component";
+	/**
+	 * Constructs a child addon module with the given parent module.
+	 *
+	 * @param parentModule The parent module that created this child module.
+	 */
+	public EquippableModule(AddonModule parentModule) {
+		super(parentModule);
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class EquippableModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		register(addon.syntaxRegistry(),
+		AddonModule.register(addon.syntaxRegistry(), origin(addon),
 			CondEquipCompDamage::register,
 			CondEquipCompDispensable::register,
 			CondEquipCompInteract::register,
@@ -102,8 +103,9 @@ public class EquippableModule implements AddonModule {
 		);
 	}
 
-	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
-		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
+	@Override
+	public String name() {
+		return "equippable component";
 	}
 
 }

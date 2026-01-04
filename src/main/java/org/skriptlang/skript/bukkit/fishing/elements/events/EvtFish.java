@@ -1,16 +1,18 @@
-package org.skriptlang.skript.bukkit.fishing.elements;
+package org.skriptlang.skript.bukkit.fishing.elements.events;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
 import org.bukkit.entity.FishHook;
+import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +49,7 @@ public class EvtFish extends SkriptEvent {
 		}
 	}
 
-	static {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		List<String> patterns = new ArrayList<>();
 		for (State state : State.values()) {
 			if (state.state == null && state != State.STATE_CHANGE)
@@ -56,25 +58,34 @@ public class EvtFish extends SkriptEvent {
 			patterns.add(state.pattern);
 		}
 
-		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]))
-			.description(
-				"Called when a player triggers a fishing event.",
-				"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
-				"A fish escape event is called when the player fails to click on time, and the fish escapes.",
-				"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching.",
-				"A fishing state change event is triggered whenever the fishing state changes."
-			)
-			.examples(
-				"on fishing line cast:",
-					"\tsend \"You caught a fish!\" to player",
-				"on entity caught:",
-					"\tpush event-entity vector from entity to player",
-				"on fishing state change:",
-					"\tif event-fishing state is fish caught:",
-						"\t\tbroadcast \"A fish has been caught!\""
-					
-			)
-			.since("2.10, 2.11 (state change)");
+		registry.register(BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtFish.class, "Fishing")
+				.addPatterns(patterns)
+				.addEvent(PlayerFishEvent.class)
+				.addDescription(
+					"Called when a player triggers a fishing event.",
+					"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
+					"A fish escape event is called when the player fails to click on time, and the fish escapes.",
+					"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching.",
+					"A fishing state change event is triggered whenever the fishing state changes.")
+				.addExample("""
+					on fishing line cast:
+						send "You caught a fish!" to player
+					""")
+				.addExample("""
+					on entity caught:
+						push event-entity vector from entity to player
+					""")
+				.addExample("""
+					on fishing state change:
+						if event-fishing state is fish caught:
+							broadcast "A fish has been caught!"
+					""")
+				.addSince("2.10", "2.11 (state change)")
+				.supplier(EvtFish::new)
+				.origin(origin)
+				.build()
+		);
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 
@@ -83,7 +94,6 @@ public class EvtFish extends SkriptEvent {
 
 		// Register event value for fishing hook
 		EventValues.registerEventValue(PlayerFishEvent.class, FishHook.class, PlayerFishEvent::getHook);
-
 	}
 
 	private State state;

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -8,37 +8,45 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
-import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-@Name("Damage Source - Damage Location")
+@Name("Damage Source - Causing Entity")
 @Description({
-	"The location where the damage was originated from.",
-	"The 'damage location' on vanilla damage sources will be set if an entity did not cause the damage.",
+	"The causing entity of a damage source.",
+	"The causing entity is the entity that ultimately caused the damage. (e.g. the entity that shot an arrow)",
+	"When setting a 'causing entity' you must also set a 'direct entity'.",
 	"Attributes of a damage source cannot be changed once created, only while within the 'custom damage source' section."
 })
 @Example("""
-	damage all players by 5 using a custom damage source:
+	set {_source} to a custom damage source:
 		set the damage type to magic
 		set the causing entity to {_player}
 		set the direct entity to {_arrow}
 		set the damage location to location(0, 0, 10)
 	""")
 @Example("""
-	on death:
-		set {_location} to the damage location of event-damage source
+	on damage:
+		set {_causing} to the causing entity of event-damage source
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
-public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
+public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprDamageLocation.class, Location.class, "damage location", "damagesources");
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprCausingEntity.class, Entity.class,"(causing|responsible) entity", "damagesources", true)
+				.supplier(ExprCausingEntity::new)
+				.origin(origin)
+				.build()
+		);
 	}
 
 	private boolean isEvent;
@@ -50,8 +58,8 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 	}
 
 	@Override
-	public @Nullable Location convert(DamageSource damageSource) {
-		return damageSource.getDamageLocation();
+	public @Nullable Entity convert(DamageSource damageSource) {
+		return damageSource.getCausingEntity();
 	}
 
 	@Override
@@ -61,7 +69,7 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 		} else if (!getExpr().isSingle() || !getExpr().isDefault()) {
 			Skript.error("You can only change the attributes of the damage source being created in this section.");
 		} else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
-			return CollectionUtils.array(Location.class);
+			return CollectionUtils.array(Entity.class);
 		}
 		return null;
 	}
@@ -71,17 +79,17 @@ public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, L
 		if (!(event instanceof DamageSourceSectionEvent sectionEvent))
 			return;
 
-		sectionEvent.damageLocation = delta == null ? null : (Location) delta[0];
+		sectionEvent.causingEntity = delta == null ? null : (Entity) delta[0];
 	}
 
 	@Override
-	public Class<Location> getReturnType() {
-		return Location.class;
+	public Class<Entity> getReturnType() {
+		return Entity.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "damage location";
+		return "causing entity";
 	}
 
 }

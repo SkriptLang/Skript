@@ -1,15 +1,12 @@
 package org.skriptlang.skript.bukkit.itemcomponents.generic;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.ComponentWrapper;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -21,13 +18,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @SuppressWarnings("rawtypes")
 public class ExprItemCompCopy extends SimplePropertyExpression<ComponentWrapper, ComponentWrapper> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprItemCompCopy.class, ComponentWrapper.class)
 			.addPatterns(
 				"[the|a[n]] [item] component copy of %itemcomponents%",
 				"[the] [item] component copies of %itemcomponents%"
 			)
 			.supplier(ExprItemCompCopy::new)
+			.origin(origin)
 			.build()
 		);
 	}

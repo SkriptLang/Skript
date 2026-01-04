@@ -12,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Brewing Stand Fuel Level")
@@ -23,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Integer> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
@@ -34,6 +35,7 @@ public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Intege
 				true
 			)
 				.supplier(ExprBrewingFuelLevel::new)
+				.origin(origin)
 				.build()
 		);
 	}

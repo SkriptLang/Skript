@@ -1,15 +1,13 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -25,7 +23,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,8 +51,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 			set the damage to damage * 2
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperimentSyntax {
 
 	static class DamageSourceSectionEvent extends Event {
@@ -80,9 +79,17 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 		}
 	}
 
-	static {
-		Skript.registerExpression(ExprSecDamageSource.class, DamageSource.class, ExpressionType.COMBINED,
-			"[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]");
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			DefaultSyntaxInfos.Expression.builder(ExprSecDamageSource.class, DamageSource.class)
+				.addPatterns(
+					"[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]"
+				)
+				.supplier(ExprSecDamageSource::new)
+				.origin(origin)
+				.build()
+		);
 		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::buildDamageSource);
 	}
 

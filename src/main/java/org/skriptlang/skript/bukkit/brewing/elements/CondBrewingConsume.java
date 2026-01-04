@@ -1,10 +1,6 @@
 package org.skriptlang.skript.bukkit.brewing.elements;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
@@ -14,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -31,7 +28,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Events("Brewing Fuel")
 public class CondBrewingConsume extends Condition implements EventRestrictedSyntax {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondBrewingConsume.class)
@@ -40,6 +37,7 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 					"[the] brewing stand (will not|won't) consume [the] fuel"
 				)
 				.supplier(CondBrewingConsume::new)
+				.origin(origin)
 				.build()
 		);
 	}

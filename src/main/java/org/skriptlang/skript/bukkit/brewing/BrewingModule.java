@@ -1,32 +1,22 @@
 package org.skriptlang.skript.bukkit.brewing;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.brewing.elements.CondBrewingConsume;
-import org.skriptlang.skript.bukkit.brewing.elements.EffBrewingConsume;
-import org.skriptlang.skript.bukkit.brewing.elements.EvtBrewingComplete;
-import org.skriptlang.skript.bukkit.brewing.elements.EvtBrewingFuel;
-import org.skriptlang.skript.bukkit.brewing.elements.EvtBrewingStart;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingFuelLevel;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingResults;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingSlot;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingTime;
-import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.bukkit.brewing.elements.*;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
+/**
+ * Module containing brewing stand related elements.
+ */
+public class BrewingModule extends ChildAddonModule {
 
-public class BrewingModule implements AddonModule {
-
-	@Override
-	public String name() {
-		return "brewing";
+	public BrewingModule(AddonModule parentModule) {
+		super(parentModule);
 	}
 
 	@Override
 	public void load(SkriptAddon addon) {
-		register(addon.syntaxRegistry(),
-
+		AddonModule.register(addon.syntaxRegistry(), origin(addon),
 			CondBrewingConsume::register,
 
 			EffBrewingConsume::register,
@@ -42,8 +32,9 @@ public class BrewingModule implements AddonModule {
 		);
 	}
 
-	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
-		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
+	@Override
+	public String name() {
+		return "brewing";
 	}
 
 }

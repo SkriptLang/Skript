@@ -10,11 +10,6 @@ import java.io.IOException;
 public class CommonModule implements AddonModule {
 
 	@Override
-	public String name() {
-		return "common";
-	}
-
-	@Override
 	public void load(SkriptAddon addon) {
 		try {
 			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.common", "expressions");
@@ -23,6 +18,11 @@ public class CommonModule implements AddonModule {
 		}
 
 		addon.loadModules(new PropertiesModule());
+	}
+
+	@Override
+	public String name() {
+		return "common";
 	}
 
 }

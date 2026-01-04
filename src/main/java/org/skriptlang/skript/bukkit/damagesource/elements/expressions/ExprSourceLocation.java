@@ -1,11 +1,13 @@
-package org.skriptlang.skript.bukkit.damagesource.elements;
+package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Source - Source Location")
 @Description({
@@ -19,12 +21,16 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 		set {_location} to the source location of event-damage source
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
 
-	static {
-		registerDefault(ExprSourceLocation.class, Location.class, "source location", "damagesources");
+	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprSourceLocation.class, Location.class,"source location", "damagesources", true)
+				.supplier(ExprSourceLocation::new)
+				.origin(origin)
+				.build()
+		);
 	}
 
 	@Override

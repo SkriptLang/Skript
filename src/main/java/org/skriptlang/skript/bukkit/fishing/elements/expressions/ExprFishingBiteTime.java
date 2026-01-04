@@ -1,10 +1,9 @@
-package org.skriptlang.skript.bukkit.fishing.elements;
+package org.skriptlang.skript.bukkit.fishing.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
@@ -13,6 +12,9 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Bite Time")
 @Description({
@@ -23,15 +25,17 @@ import org.jetbrains.annotations.Nullable;
 	"on fish approach:",
 		"\tset fishing bite time to 5 seconds",
 })
-@RequiredPlugins("Minecraft 1.20.6")
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
-	static {
-		if (Skript.methodExists(FishHook.class, "getTimeUntilBite"))
-			Skript.registerExpression(ExprFishingBiteTime.class, Timespan.class, ExpressionType.EVENT,
-				"fish[ing] bit(e|ing) [wait] time");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			DefaultSyntaxInfos.Expression.builder(ExprFishingBiteTime.class, Timespan.class)
+				.addPatterns("fish[ing] bit(e|ing) [wait] time")
+				.supplier(ExprFishingBiteTime::new)
+				.origin(origin)
+				.build());
 	}
 
 	@Override
