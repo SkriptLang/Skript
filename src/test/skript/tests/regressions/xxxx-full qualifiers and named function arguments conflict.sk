@@ -1,0 +1,5 @@
+local function test(x: object) -> boolean:
+    return true
+
+test "full qualifiers and named argument functions conflict":
+    assert test(minecraft:plains) is true
