@@ -18,6 +18,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
@@ -251,20 +252,25 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 			ArgumentParseResult result = parseFunctionArguments(parseArguments, parseTargets);
 
-			if (result.type() == ArgumentParseResultType.LIST_ERROR) {
-				return null;
-			}
-
-			if (result.type() == ArgumentParseResultType.OK) {
-				//noinspection unchecked
-				FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
-
-				if (!reference.validate()) {
-					continue;
+			switch (result.type()) {
+				case LIST_ERROR -> {
+					return null;
 				}
+				case OK -> {
+					//noinspection unchecked
+					FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
-				exactReferences.add(reference);
+					if (!reference.validate()) {
+						continue;
+					}
+
+					exactReferences.add(reference);
+				}
+				default -> {
+					// continue
+				}
 			}
+
 		}
 		return exactReferences;
 	}
@@ -489,20 +495,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			FunctionReference.Argument<String> argument = arguments[i];
 			ArgumentParseTarget targetData = targets[i];
 
-			Expression<?> expression;
-			if (argument.value() != null) { // if passed, attempt to parse
-				SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
-
-				Expression<?> attempt = parser.parseExpression(targetData.type());
-				if (attempt != null) {
-					expression = attempt;
-				} else {
-					expression = targetData.fallback;
-				}
-			} else {
-				expression = targetData.fallback;
-			}
-
+			Expression<?> expression = parseExpression(argument, targetData);
 			if (expression == null) {
 				return new ArgumentParseResult(ArgumentParseResultType.PARSE_FAIL, null);
 			}
@@ -516,6 +509,31 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		}
 
 		return new ArgumentParseResult(ArgumentParseResultType.OK, parsed);
+	}
+
+	/**
+	 * Attempts to parse an argument into an expression.
+	 * If parsing fails or no value is passed, uses {@code targetData.fallback}.
+	 *
+	 * @param argument The argument.
+	 * @param targetData The target type to parse to, and the fallback value.
+	 * @return The parsed expression, the passed fallback expression, or null if both are null.
+	 */
+	private Expression<?> parseExpression(Argument<String> argument, ArgumentParseTarget targetData) {
+		Expression<?> expression;
+		if (argument.value() != null) { // if a value is passed, attempt to parse
+			SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
+
+			Expression<?> attempt = parser.parseExpression(targetData.type());
+			if (attempt != null) {
+				expression = attempt;
+			} else {
+				expression = targetData.fallback;
+			}
+		} else {
+			expression = targetData.fallback;
+		}
+		return expression;
 	}
 
 	/**
