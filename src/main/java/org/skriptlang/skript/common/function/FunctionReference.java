@@ -351,6 +351,24 @@ public final class FunctionReference<T> implements Debuggable {
 		public Argument(ArgumentType type, String name, T value) {
 			this(type, name, value, null);
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof Argument<?> argument)) {
+				return false;
+			}
+
+			return Objects.equals(value, argument.value) && Objects.equals(name, argument.name) && type == argument.type;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = Objects.hashCode(type);
+			result = 31 * result + Objects.hashCode(name);
+			result = 31 * result + Objects.hashCode(value);
+			return result;
+		}
+
 	}
 
 	/**
