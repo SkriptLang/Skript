@@ -1,0 +1,42 @@
+test "ExprLocationOf - offline player location":
+	# Test with actual online player converted to offline player
+	set {_player} to a random player out of all players
+	if {_player} is set:
+		# Convert online player to offline player
+		set {_offlinePlayer} to {_player} parsed as an offlineplayer
+
+		# Test that we can get location of offline player without errors
+		set {_loc} to location of {_offlinePlayer}
+		assert {_loc} is set with "Should be able to get location of offline player"
+
+		# Test possessive syntax
+		set {_loc2} to {_offlinePlayer}'s location
+		assert {_loc2} is set with "Should be able to get location using possessive syntax"
+
+		# Verify locations match
+		assert {_loc} is {_loc2} with "Both syntaxes should return the same location"
+
+test "ExprLocationOf - backward compatibility with blocks":
+	# Test that block locations still work (via Block -> Location converter)
+	set {_block} to block at test-location
+	set {_loc1} to location of {_block}
+	set {_loc2} to {_block}'s location
+	assert {_loc1} is set with "location of block should work"
+	assert {_loc2} is set with "block's location should work"
+
+test "ExprLocationOf - backward compatibility with entities":
+	# Test that entity locations still work (via Entity -> Location converter)
+	set {_player} to a random player out of all players
+	if {_player} is set:
+		set {_loc1} to location of {_player}
+		set {_loc2} to {_player}'s location
+		assert {_loc1} is set with "location of entity should work"
+		assert {_loc2} is set with "entity's location should work"
+
+test "ExprLocationOf - backward compatibility with location":
+	# Verify that location of location still works (passthrough)
+	set {_world} to world "world"
+	set {_originalLoc} to location at 100, 64, 200 in {_world}
+	set {_result} to location of {_originalLoc}
+	assert {_result} is {_originalLoc} with "Location of location should return the same location"
+
