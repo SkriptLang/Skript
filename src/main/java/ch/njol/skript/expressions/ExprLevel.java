@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 		set {_diff} to future xp level - past exp level
 		broadcast "%player%'s level changed by %{_diff}%!"
 	""")
-@Since("unknown (before 2.1), INSERT VERSION (allow player default)")
+@Since("unknown (before 2.1), 2.13.2 (allow player default)")
 @Events("level change")
 public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 
