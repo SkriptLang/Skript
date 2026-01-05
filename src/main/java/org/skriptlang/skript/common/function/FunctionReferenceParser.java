@@ -219,21 +219,34 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 					break;
 				}
 
+				Argument<String> argument;
+				if (i < arguments.length) {
+					argument = arguments[i];
+				} else {
+					argument = null;
+				}
+
 				Parameter<?> parameter;
-				if (i < arguments.length && arguments[i].type() == ArgumentType.NAMED) {
-					parameter = parameters.get(arguments[i].name());
+				if (argument != null && argument.type() == ArgumentType.NAMED) {
+					parameter = parameters.get(argument.name());
 				} else {
 					parameter = parameters.get(remaining.getFirst());
 				}
 
 				if (parameter == null) {
-					continue signatures;
-				}
+					if (argument == null) {
+						continue signatures;
+					}
 
-				if (i < arguments.length) {
-					parseArguments[i] = arguments[i];
+					// https://github.com/SkriptLang/Skript/pull/8350 - fix for fully qualified names
+					parameter = parameters.get(remaining.getFirst());
+					parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, null, argument.name() + ":" + argument.value());
 				} else {
-					parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, parameter.name(), null);
+					if (argument != null) {
+						parseArguments[i] = argument;
+					} else {
+						parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, parameter.name(), null);
+					}
 				}
 
 				Class<?> targetType = Utils.getComponentType(parameter.type());
@@ -526,7 +539,6 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 		// if a value is passed, attempt to parse
 		SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
-
 		Expression<?> attempt = parser.parseExpression(targetData.type());
 		if (attempt != null) {
 			return attempt;
