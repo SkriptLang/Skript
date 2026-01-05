@@ -62,6 +62,7 @@ public class FunctionArgumentParserTest {
 		Argument<String>[] arguments = new FunctionArgumentParser("minecraft: minecraft:air").getArguments();
 
 		assertEquals(new Argument<>(ArgumentType.NAMED, "minecraft", "minecraft:air"), arguments[0]);
+		assertEquals("minecraft: minecraft:air", arguments[0].raw());
 	}
 
 }
