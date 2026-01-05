@@ -215,15 +215,9 @@ final class FunctionArgumentParser {
 	 */
 	private void save(ArgumentType type) {
 		if (type == ArgumentType.UNNAMED) {
-			arguments.add(new Argument<>(ArgumentType.UNNAMED,
-					null,
-					exprPart.toString().trim(),
-					exprPart.toString()));
+			arguments.add(new Argument<>(ArgumentType.UNNAMED, null, exprPart.toString().trim()));
 		} else {
-			arguments.add(new Argument<>(ArgumentType.NAMED,
-					namePart.toString().trim(),
-					exprPart.toString().trim(),
-					namePart.toString() + exprPart));
+			arguments.add(new Argument<>(ArgumentType.NAMED, namePart.toString().trim(), exprPart.toString().trim()));
 		}
 
 		namePart.setLength(0);

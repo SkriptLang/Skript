@@ -239,7 +239,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 					// https://github.com/SkriptLang/Skript/pull/8350 - fix for fully qualified names
 					parameter = parameters.get(remaining.getFirst());
-					parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, null, argument.raw());
+					parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, null, argument.name() + ":" + argument.value());
 				} else {
 					if (argument != null) {
 						parseArguments[i] = argument;
