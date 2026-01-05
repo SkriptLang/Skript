@@ -342,14 +342,14 @@ public final class FunctionReference<T> implements Debuggable {
 	) {
 
 		/**
-		 * Secondary constructor where {@code raw = value}.
+		 * Secondary constructor where raw is null.
 		 *
 		 * @param type  The type of the argument.
 		 * @param name  The name of the argument, possibly null.
 		 * @param value The value of the argument.
 		 */
 		public Argument(ArgumentType type, String name, T value) {
-			this(type, name, value, value != null ? value.toString() : "");
+			this(type, name, value, null);
 		}
 	}
 
