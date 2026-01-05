@@ -59,10 +59,33 @@ public class FunctionArgumentParserTest {
 
 	@Test
 	public void testFullyQualifiedNames() {
-		Argument<String>[] arguments = new FunctionArgumentParser("minecraft: minecraft:air").getArguments();
+		{
+			Argument<String>[] arguments = new FunctionArgumentParser("minecraft: minecraft:air").getArguments();
 
-		assertEquals(new Argument<>(ArgumentType.NAMED, "minecraft", "minecraft:air"), arguments[0]);
-		assertEquals("minecraft: minecraft:air", arguments[0].raw());
+			assertEquals(new Argument<>(ArgumentType.NAMED, "minecraft", "minecraft:air"), arguments[0]);
+			assertEquals("minecraft: minecraft:air", arguments[0].raw());
+		}
+
+		{
+			Argument<String>[] arguments = new FunctionArgumentParser("minecraft:minecraft:air").getArguments();
+
+			assertEquals(new Argument<>(ArgumentType.NAMED, "minecraft", "minecraft:air"), arguments[0]);
+			assertEquals("minecraft:minecraft:air", arguments[0].raw());
+		}
+
+		{
+			Argument<String>[] arguments = new FunctionArgumentParser("asgasg:mgjgdfkjhlak:adhgahadh").getArguments();
+
+			assertEquals(new Argument<>(ArgumentType.NAMED, "asgasg", "mgjgdfkjhlak:adhgahadh"), arguments[0]);
+			assertEquals("asgasg:mgjgdfkjhlak:adhgahadh", arguments[0].raw());
+		}
+
+		{
+			Argument<String>[] arguments = new FunctionArgumentParser("x: y: z").getArguments();
+
+			assertEquals(new Argument<>(ArgumentType.NAMED, "x", "y: z"), arguments[0]);
+			assertEquals("x: y: z", arguments[0].raw());
+		}
 	}
 
 }
