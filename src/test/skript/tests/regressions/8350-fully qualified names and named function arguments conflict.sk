@@ -22,3 +22,6 @@ test "fully qualified names and named argument functions conflict":
     parse:
         assert test(minecraft: minecraft: stone) is minecraft:stone
     assert last parse logs are set
+
+    assert test(x: 10) is 10
+    assert test_same(minecraft:10) is 10
