@@ -223,7 +223,7 @@ final class FunctionArgumentParser {
 			arguments.add(new Argument<>(ArgumentType.NAMED,
 					namePart.toString().trim(),
 					exprPart.toString().trim(),
-					namePart + ":" + exprPart));
+					namePart.toString() + exprPart));
 		}
 
 		namePart.setLength(0);
