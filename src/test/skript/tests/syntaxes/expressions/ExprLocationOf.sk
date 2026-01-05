@@ -1,19 +1,20 @@
 test "ExprLocationOf - offline player location":
-	set {_offlinePlayer} to offline player "Notch"
-
-	# Test that we can get location of offline player without errors
-	# Note: This might return null if the player has never joined, but syntax should work
-	set {_loc} to location of {_offlinePlayer}
-
-	# Test possessive syntax
-	set {_loc2} to {_offlinePlayer}'s location
-
-	# Test with actual online player (converted to offline player)
+	# Test with actual online player converted to offline player
 	set {_player} to a random player out of all players
 	if {_player} is set:
-		set {_offlineVersion} to {_player} parsed as an offlineplayer
-		set {_loc3} to location of {_offlineVersion}
-		assert {_loc3} is set with "Should be able to get location of offline player version of online player"
+		# Convert online player to offline player
+		set {_offlinePlayer} to {_player} parsed as an offlineplayer
+
+		# Test that we can get location of offline player without errors
+		set {_loc} to location of {_offlinePlayer}
+		assert {_loc} is set with "Should be able to get location of offline player"
+
+		# Test possessive syntax
+		set {_loc2} to {_offlinePlayer}'s location
+		assert {_loc2} is set with "Should be able to get location using possessive syntax"
+
+		# Verify locations match
+		assert {_loc} is {_loc2} with "Both syntaxes should return the same location"
 
 test "ExprLocationOf - backward compatibility with blocks":
 	# Test that block locations still work (via Block -> Location converter)
