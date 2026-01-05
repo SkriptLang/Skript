@@ -22,11 +22,9 @@ import java.util.*;
 	"The reduce expression takes each element and combines it with an accumulator value.",
 	"Use 'reduced value' to access the current accumulated value and 'input' for the current element.",
 })
-@Example("""
-	"set {_sum} to {_numbers::*} reduced with [reduced value + input]",
-	"set {_product} to {_values::*} reduced with [reduced value * input]",
-	"set {_concatenated} to {_strings::*} reduced with [\\"%reduced value%%input%\\"]"
-	""")
+@Example("set {_sum} to {_numbers::*} reduced with [reduced value + input]")
+@Example("set {_product} to {_values::*} reduced with [reduced value * input]")
+@Example("set {_concatenated} to {_strings::*} reduced with [\\"%reduced value%%input%\\"]")
 @Since("INSERT VERSION")
 @Keywords({"input", "reduced value", "accumulator"})
 public class ExprReduce extends SimpleExpression<Object> implements InputSource {

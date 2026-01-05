@@ -21,11 +21,9 @@ import org.jetbrains.annotations.Nullable;
 	"This represents the result of all previous reduction operations.",
 	"Can only be used inside the reduce expression's operation block."
 })
-@Examples({
-	"set {_sum} to {_numbers::*} reduced with [reduced value + input]",
-	"set {_max} to {_values::*} reduced with [reduced value if reduced value > input else input]",
-	"set {_combined} to {_items::*} reduced with [\"%reduced value%, %input%\"]"
-})
+@Example("set {_sum} to {_numbers::*} reduced with [reduced value + input]")
+@Example("set {_max} to {_values::*} reduced with [reduced value if reduced value > input else input]")
+@Example("set {_combined} to {_items::*} reduced with (\"%reduced value%, %input%\")")
 @Since("INSERT VERSION")
 public class ExprReducedValue extends SimpleExpression<Object> {
 
@@ -33,7 +31,7 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprReducedValue.class, Object.class, ExpressionType.SIMPLE,
 			"reduced value",
 			"(accumulator|accumulated) [value]",
-			"fold[ed] value"
+			"folded value"
 		);
 	}
 
