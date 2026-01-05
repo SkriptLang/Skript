@@ -91,7 +91,7 @@ public class ExprIndices extends SimpleExpression<String> {
 			if (separator != -1)
 				keys[i] = keys[i].substring(0, keys[i].indexOf(Variable.SEPARATOR));
 		}
-		return keys;
+		return Arrays.stream(keys).distinct().toArray(String[]::new);
 	}
 
 	@Override
