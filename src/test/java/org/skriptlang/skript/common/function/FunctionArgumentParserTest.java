@@ -57,4 +57,11 @@ public class FunctionArgumentParserTest {
 		assertEquals(new Argument<>(ArgumentType.NAMED, "1", "\"hello \"\" %{x,y::%player's car, or not!%::*} there\"\"\""), arguments[0]);
 	}
 
+	@Test
+	public void testFullyQualifiedNames() {
+		Argument<String>[] arguments = new FunctionArgumentParser("minecraft: minecraft:air").getArguments();
+
+		assertEquals(new Argument<>(ArgumentType.NAMED, "minecraft", "minecraft:air"), arguments[0]);
+	}
+
 }
