@@ -520,20 +520,19 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 * @return The parsed expression, the passed fallback expression, or null if both are null.
 	 */
 	private Expression<?> parseExpression(Argument<String> argument, ArgumentParseTarget targetData) {
-		Expression<?> expression;
-		if (argument.value() != null) { // if a value is passed, attempt to parse
-			SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
-
-			Expression<?> attempt = parser.parseExpression(targetData.type());
-			if (attempt != null) {
-				expression = attempt;
-			} else {
-				expression = targetData.fallback;
-			}
-		} else {
-			expression = targetData.fallback;
+		if (argument.value() == null) {
+			return targetData.fallback;
 		}
-		return expression;
+
+		// if a value is passed, attempt to parse
+		SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
+
+		Expression<?> attempt = parser.parseExpression(targetData.type());
+		if (attempt != null) {
+			return attempt;
+		}
+
+		return targetData.fallback;
 	}
 
 	/**
