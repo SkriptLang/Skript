@@ -24,7 +24,7 @@ import java.util.*;
 })
 @Example("set {_sum} to {_numbers::*} reduced with [reduced value + input]")
 @Example("set {_product} to {_values::*} reduced with [reduced value * input]")
-@Example("set {_concatenated} to {_strings::*} reduced with [\\"%reduced value%%input%\\"]")
+@Example("set {_concatenated} to {_strings::*} reduced with [\"%reduced value%%input%\"]")
 @Since("INSERT VERSION")
 @Keywords({"input", "reduced value", "accumulator"})
 public class ExprReduce extends SimpleExpression<Object> implements InputSource {
@@ -52,8 +52,16 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		unreducedObjects = LiteralUtils.defendExpression(expressions[0]);
-		if (unreducedObjects.isSingle() || !LiteralUtils.canInitSafely(unreducedObjects))
+		unreducedObjects = LiteralUtils.defendExpression(expressions[0]);
+		if (unreducedObjects.isSingle()) {
+			Skript.error("Cannot reduce a single value. Only lists can be reduced.");
 			return false;
+		}
+		if (!LiteralUtils.canInitSafely(unreducedObjects)) {
+			return false;
+		}
+
+
 		keyed = KeyProviderExpression.canReturnKeys(unreducedObjects);
 
 		if (!parseResult.regexes.isEmpty()) {
@@ -76,6 +84,8 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 		inputData.setSource(this);
 
 		try {
+			boolean hadNullResult = false;
+
 			if (keyed) {
 				Iterator<? extends KeyedValue<?>> keyedIterator = ((KeyProviderExpression<?>) unreducedObjects).keyedIterator(event);
 				if (keyedIterator == null || !keyedIterator.hasNext())
@@ -93,6 +103,8 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 					Object result = reduceExpr.getSingle(event);
 					if (result != null) {
 						reducedValue = result;
+					} else {
+						hadNullResult = true;
 					}
 				}
 			} else {
@@ -112,10 +124,16 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 					Object result = reduceExpr.getSingle(event);
 					if (result != null) {
 						reducedValue = result;
+					} else {
+						hadNullResult = true;
 					}
 
 					index++;
 				}
+			}
+
+			if (hadNullResult) {
+				error("The reduce expression returned null for one or more elements, which were skipped.");
 			}
 
 			Object finalResult = reducedValue;
@@ -147,18 +165,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 	@Override
 	public boolean canReturn(Class<?> returnType) {
 		return reduceExpr != null && reduceExpr.canReturn(returnType);
-	}
-
-	@Override
-	public boolean isLoopOf(String candidateString) {
-		return (reduceExpr != null && reduceExpr.isLoopOf(candidateString))
-			|| matchesReturnType(candidateString);
-	}
-
-	private boolean matchesReturnType(String candidateString) {
-		if (returnClassInfo == null)
-			return false;
-		return returnClassInfo.matchesUserInput(candidateString);
 	}
 
 	@Override

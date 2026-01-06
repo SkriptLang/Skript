@@ -1,10 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.InputSource;
@@ -40,11 +37,7 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		inputSource = getParser().getData(InputData.class).getSource();
-		if (inputSource == null) {
-			Skript.error("The 'reduced value' expression can only be used within a reduce operation");
-			return false;
-		}
-		if (!(inputSource instanceof ExprReduce)) {
+		if ((inputSource == null) || !(inputSource instanceof ExprReduce)) {
 			Skript.error("The 'reduced value' expression can only be used within a reduce operation");
 			return false;
 		}
@@ -68,8 +61,7 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 	@Override
 	public Class<?> getReturnType() {
 		if (inputSource instanceof ExprReduce reduce) {
-			Class<?> returnType = reduce.getReturnType();
-			return returnType != null ? returnType : Object.class;
+			return reduce.getReturnType();
 		}
 		return Object.class;
 	}
