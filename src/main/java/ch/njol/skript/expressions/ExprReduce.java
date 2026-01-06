@@ -40,7 +40,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 
 	private boolean keyed;
 	private @UnknownNullability Expression<?> reduceExpr;
-	private @Nullable ClassInfo<?> returnClassInfo;
 	private @UnknownNullability Expression<?> unreducedObjects;
 
 	private final Set<ExprInput<?>> dependentInputs = new HashSet<>();
@@ -52,7 +51,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		unreducedObjects = LiteralUtils.defendExpression(expressions[0]);
-		unreducedObjects = LiteralUtils.defendExpression(expressions[0]);
 		if (unreducedObjects.isSingle()) {
 			Skript.error("Cannot reduce a single value. Only lists can be reduced.");
 			return false;
@@ -60,7 +58,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 		if (!LiteralUtils.canInitSafely(unreducedObjects)) {
 			return false;
 		}
-
 
 		keyed = KeyProviderExpression.canReturnKeys(unreducedObjects);
 
@@ -73,7 +70,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 		} else {
 			return false;
 		}
-		returnClassInfo = Classes.getExactClassInfo(reduceExpr.getReturnType());
 		return true;
 	}
 
