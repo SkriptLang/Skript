@@ -69,6 +69,16 @@ final class FunctionArgumentParser {
 	private final StringBuilder exprPart = new StringBuilder();
 
 	/**
+	 * Whether we are currently in an expression or not.
+	 * <p>
+	 * To avoid parsing a comma in an expression as the start of a new argument, we keep track of whether we're
+	 * in an expression or not to ignore commas found in expressions.
+	 * A new argument can only start when {@code nesting == 0 && !inExpr}.
+	 * </p>
+	 */
+	private boolean inStringExpr = false;
+
+	/**
 	 * Whether we are currently in a string or not.
 	 * <p>
 	 * To avoid parsing a comma in a string as the start of a new argument, we keep track of whether we're
@@ -157,12 +167,34 @@ final class FunctionArgumentParser {
 	}
 
 	/**
-	 * Manages special character handling by updating the {@link #nesting} and {@link #inString} variables.
+	 * Manages special character handling by updating the {@link #nesting},
+	 * {@link #inString} and {@link #inStringExpr} variables.
 	 *
 	 * @param type The type of argument that is currently being parsed.
 	 * @return True when {@link #c} is a special character, false if not.
 	 */
 	private boolean isSpecialCharacter(ArgumentType type) {
+		// expressions in strings
+		if (inString && c == '%') {
+			// allow %% in strings
+			if (index < args.length() - 1 && args.charAt(index + 1) == '%') {
+				exprPart.append(c);
+				exprPart.append(args.charAt(index + 1));
+				index += 2;
+				return true;
+			}
+
+			if (!inStringExpr) {
+				inStringExpr = true;
+				nesting++;
+			} else {
+				inStringExpr = false;
+				nesting--;
+			}
+			nextExpr();
+			return true;
+		}
+
 		// for strings
 		if (!inString && c == '"') {
 			nesting++;
@@ -171,12 +203,20 @@ final class FunctionArgumentParser {
 			return true;
 		}
 
-		if (inString && c == '"'
-			&& index < args.length() - 1 && args.charAt(index + 1) != '"') { // allow double string char in strings
-			nesting--;
-			inString = false;
-			nextExpr();
-			return true;
+		if (inString && index < args.length() - 1) {
+			if (c == '"' && args.charAt(index + 1) == '"') { // allow double string char in strings
+				exprPart.append(c);
+				exprPart.append(args.charAt(index + 1));
+				index += 2;
+				return true;
+			}
+
+			if (c == '"') {
+				nesting--;
+				inString = false;
+				nextExpr();
+				return true;
+			}
 		}
 
 		if (c == '(' || c == '{') {

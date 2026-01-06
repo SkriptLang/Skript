@@ -58,6 +58,20 @@ public class FunctionArgumentParserTest {
 	}
 
 	@Test
+	public void testStringTimeFormat() {
+		{
+			Argument<String>[] arguments = new FunctionArgumentParser("\"%now formatted as \"HH:mm:ss\"%\"").getArguments();
+
+			assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "\"%now formatted as \"HH:mm:ss\"%\""), arguments[0]);
+		}
+		{
+			Argument<String>[] arguments = new FunctionArgumentParser("\"%now formatted as \"\"HH:mm:ss\"\"%\"").getArguments();
+
+			assertEquals(new Argument<>(ArgumentType.UNNAMED, null, "\"%now formatted as \"\"HH:mm:ss\"\"%\""), arguments[0]);
+		}
+	}
+
+	@Test
 	public void testFullyQualifiedNames() {
 		{
 			Argument<String>[] arguments = new FunctionArgumentParser("minecraft: minecraft:air").getArguments();

@@ -25,3 +25,9 @@ test "fully qualified names and named argument functions conflict":
 
     assert test(x: 10) is 10
     assert test_same(minecraft:10) is 10
+
+local function teststr(x: text) -> text:
+    return {_x}
+
+test "expression in string and named function arguments conflict":
+    assert test("%now formatted as "HH:mm:ss"%") is now formatted as "HH:mm:ss"
