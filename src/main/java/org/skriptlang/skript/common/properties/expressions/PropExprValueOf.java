@@ -3,6 +3,7 @@ package org.skriptlang.skript.common.properties.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,10 +13,12 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
-import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -38,10 +41,14 @@ import java.util.stream.Stream;
 	""")
 @Since("2.10")
 @RelatedProperty("typed value")
-public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHandler<?, ?>> {
+public class PropExprValueOf extends PropertyBaseExpression<TypedValueHandler<?, ?>> {
 
-	static {
-		register(PropExprValueOf.class, "[%-*classinfo%] value", "objects");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			PropertyExpression.infoBuilder(PropExprValueOf.class, Object.class, "[%-*classinfo%] value", "objects", false)
+				.origin(origin)
+				.supplier(PropExprValueOf::new)
+				.build());
 	}
 
 	private ClassInfo<?> type;
@@ -74,7 +81,7 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 
 		// determine possible return types
 		if (type == null) {
-			returnTypes = getPropertyReturnTypes(properties, TypedValuePropertyHandler::possibleReturnTypes);
+			returnTypes = getPropertyReturnTypes(properties, TypedValueHandler::possibleReturnTypes);
 			returnType = Utils.getSuperType(returnTypes);
 		} else {
 			returnTypes = new Class[]{ type.getC() };
@@ -92,7 +99,7 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 			return expr.stream(event)
 				.flatMap(source -> {
 					//noinspection unchecked
-					var handler = (TypedValuePropertyHandler<Object, Object>) properties.getHandler(source.getClass());
+					var handler = (TypedValueHandler<Object, Object>) properties.getHandler(source.getClass());
 					if (handler == null) {
 						return null; // no property info found, skip
 					}
@@ -109,7 +116,7 @@ public class PropExprValueOf extends PropertyBaseExpression<TypedValuePropertyHa
 	}
 
 	@Override
-	public @NotNull Property<TypedValuePropertyHandler<?, ?>> getProperty() {
+	public @NotNull Property<TypedValueHandler<?, ?>> getProperty() {
 		return Property.TYPED_VALUE;
 	}
 

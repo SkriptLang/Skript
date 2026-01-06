@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,11 +23,11 @@ import java.util.stream.LongStream;
 
 @Name("X Times")
 @Description({"Integers between 1 and X, used in loops to loop X times."})
-@Examples({
-	"loop 20 times:",
-	"\tbroadcast \"%21 - loop-number% seconds left..\"",
-	"\twait 1 second"
-})
+@Example("""
+	loop 20 times:
+		broadcast "%21 - loop-number% seconds left.."
+		wait 1 second
+	""")
 @Since("1.4.6")
 public class ExprTimes extends SimpleExpression<Long> {
 

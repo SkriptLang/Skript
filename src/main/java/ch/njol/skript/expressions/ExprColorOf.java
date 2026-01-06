@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -28,6 +28,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.displays.DisplayData;
 
@@ -42,17 +43,17 @@ import java.util.function.Consumer;
 	"Do note that firework effects support setting, adding, removing, resetting, and deleting; text displays support " +
 	"setting and resetting; and items, entities, and blocks only support setting, and only for very few items/blocks."
 })
-@Examples({
-	"on click on wool:",
-		"if event-block is tagged with minecraft tag \"wool\":",
-			"\tmessage \"This wool block is <%color of block%>%color of block%<reset>!\"",
-			"\tset the color of the block to black"
-})
+@Example("""
+	on click on wool:
+		if event-block is tagged with minecraft tag "wool":
+			message "This wool block is <%color of block%>%color of block%<reset>!"
+			set the color of the block to black
+	""")
 @Since("1.2, 2.10 (displays)")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	static {
-		String types = "blocks/itemtypes/entities/fireworkeffects";
+		String types = "blocks/itemtypes/entities/fireworkeffects/potioneffecttypes";
 		if (Skript.isRunningMinecraft(1, 19, 4))
 			types += "/displays";
 		register(ExprColorOf.class, Color.class, "colo[u]r[s]", types);
@@ -235,6 +236,9 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		if (object instanceof Block block) {
 			if (block.getState() instanceof Banner banner)
 				return SkriptColor.fromDyeColor(banner.getBaseColor());
+		}
+		if (object instanceof PotionEffectType potionEffectType) {
+			return ColorRGB.fromBukkitColor(potionEffectType.getColor());
 		}
 		return null;
 	}

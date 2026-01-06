@@ -1,8 +1,6 @@
 options:
 	error: "'unknown' has multiple types \(.*\)\. Consider specifying which type to use: 'unknown \(.*\)'"
 
-using for each loops
-
 parse:
 	results: {LiteralMultipleWarn::FunctionObject}
 	code:

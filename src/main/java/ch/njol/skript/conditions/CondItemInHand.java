@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -19,10 +19,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Is Holding")
 @Description("Checks whether a player is holding a specific item. Cannot be used with endermen, use 'entity is [not] an enderman holding &lt;item type&gt;' instead.")
-@Examples({
-		"player is holding a stick",
-		"victim isn't holding a diamond sword of sharpness"
-})
+@Example("player is holding a stick")
+@Example("victim isn't holding a diamond sword of sharpness")
 @Since("1.0")
 public class CondItemInHand extends Condition {
 	

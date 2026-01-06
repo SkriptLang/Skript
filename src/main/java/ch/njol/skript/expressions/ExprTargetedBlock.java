@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -22,16 +22,14 @@ import org.jetbrains.annotations.Nullable;
 	"The block at the crosshair. This regards all blocks that are not air as fully solid, e.g. torches will be like a solid stone block for this expression.",
 	"The actual target block will regard the actual hit box of the block."
 })
-@Examples({
-	"set target block of player to stone",
-	"set target block of player to oak_stairs[waterlogged=true]",
-	"break target block of player using player's tool",
-	"give player 1 of type of target block",
-	"teleport player to location above target block",
-	"kill all entities in radius 3 around target block of player",
-	"set {_block} to actual target block of player",
-	"break actual target block of player"
-})
+@Example("set target block of player to stone")
+@Example("set target block of player to oak_stairs[waterlogged=true]")
+@Example("break target block of player using player's tool")
+@Example("give player 1 of type of target block")
+@Example("teleport player to location above target block")
+@Example("kill all entities in radius 3 around target block of player")
+@Example("set {_block} to actual target block of player")
+@Example("break actual target block of player")
 @Since("1.0, 2.9.0 (actual/exact)")
 public class ExprTargetedBlock extends PropertyExpression<LivingEntity, Block> {
 

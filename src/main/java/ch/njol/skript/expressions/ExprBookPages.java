@@ -16,7 +16,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -36,13 +36,12 @@ import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 	"Note: In order to modify the pages of a new written book, you must have the title and author",
 	"of the book set. Skript will do this for you, but if you want your own, please set those values."
 })
-@Examples({
-	"on book sign:",
-		"\tmessage \"Book Pages: %pages of event-item%\"",
-		"\tmessage \"Book Page 1: %page 1 of event-item%\"",
-	"",
-	"set page 1 of player's held item to \"Book writing\""
-})
+@Example("""
+    on book sign:
+    	message "Book Pages: %pages of event-item%"
+    	message "Book Page 1: %page 1 of event-item%"
+    """)
+@Example("set page 1 of player's held item to \"Book writing\"")
 @Since("2.2-dev31, 2.7 (changers)")
 public class ExprBookPages extends SimpleExpression<String> {
 

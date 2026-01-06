@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,11 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Barter Input")
 @Description("The item picked up by the piglin in a piglin bartering event.")
-@Examples({
-	"on piglin barter:",
-		"\tif the bartering input is a gold ingot:",
-			"\t\tbroadcast \"my precious...\""
-})
+@Example("""
+	on piglin barter:
+		if the bartering input is a gold ingot:
+			broadcast "my precious..."
+	""")
 @Since("2.10")
 public class ExprBarterInput extends SimpleExpression<ItemType> {
 

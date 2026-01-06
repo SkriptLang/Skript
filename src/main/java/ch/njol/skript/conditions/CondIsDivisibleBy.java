@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -21,11 +21,9 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	Any input smaller than the tolerance is considered to be 0.
 	This means divisors that are too small will always return false, and dividends that are too small will always return true.
 	""")
-@Examples({
-	"if 5 is evenly divisible by 5:",
-	"if 11 cannot be evenly divided by 10:",
-	"if 0.3 can be evenly divided by 0.1 with a tolerance of 0.0000001:"
-})
+@Example("if 5 is evenly divisible by 5:")
+@Example("if 11 cannot be evenly divided by 10:")
+@Example("if 0.3 can be evenly divided by 0.1 with a tolerance of 0.0000001:")
 @Since("2.10, 2.12 (tolerance)")
 public class CondIsDivisibleBy extends Condition implements SyntaxRuntimeErrorProducer {
 

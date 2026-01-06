@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Allay Target Jukebox")
 @Description("The location of the jukebox an allay is set to.")
-@Examples("set {_loc} to the target jukebox of last spawned allay")
+@Example("set {_loc} to the target jukebox of last spawned allay")
 @Since("2.11")
 public class ExprAllayJukebox extends SimplePropertyExpression<LivingEntity, Location> {
 

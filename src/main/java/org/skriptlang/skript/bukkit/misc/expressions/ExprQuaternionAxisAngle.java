@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -27,13 +27,11 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 	"All quaternions can be represented by a rotation of some amount around some axis, so this expression provides " +
 	"the ability to get that angle/axis."
 })
-@Examples({
-	"set {_quaternion} to axisAngle(45, vector(1, 2, 3))",
-	"send rotation axis of {_quaternion} # 1, 2, 3",
-	"send rotation angle of {_quaternion} # 45",
-	"set rotation angle of {_quaternion} to 135",
-	"set rotation axis of {_quaternion} to vector(0, 1, 0)"
-})
+@Example("set {_quaternion} to axisAngle(45, vector(1, 2, 3))")
+@Example("send rotation axis of {_quaternion} # 1, 2, 3")
+@Example("send rotation angle of {_quaternion} # 45")
+@Example("set rotation angle of {_quaternion} to 135")
+@Example("set rotation axis of {_quaternion} to vector(0, 1, 0)")
 @Since("2.10")
 public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternionf, Object> {
 

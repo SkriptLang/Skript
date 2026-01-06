@@ -1,9 +1,8 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -11,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,18 +19,14 @@ import org.jetbrains.annotations.Nullable;
 	"Get the <a href='#blockdata'>block data</a> associated with a block.",
 	"This data can also be used to set blocks."
 })
-@Examples({
-	"set {_data} to block data of target block",
-	"set block at player to {_data}",
-	"",
-	"set block data of target block to oak_stairs[facing=south;waterlogged=true]"
-})
+@Example("set {_data} to block data of target block")
+@Example("set block at player to {_data}")
+@Example("set block data of target block to oak_stairs[facing=south;waterlogged=true]")
 @Since("2.5, 2.5.2 (set), 2.10 (block displays)")
 public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 
 	static {
-		String types = Skript.isRunningMinecraft(1, 19, 4) ? "blocks/displays" : "blocks";
-		register(ExprBlockData.class, BlockData.class, "block[ ]data", types);
+		register(ExprBlockData.class, BlockData.class, "block[ ]data", "blocks/displays/entities");
 	}
 
 	@Override
@@ -39,6 +35,8 @@ public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 			return block.getBlockData();
 		if (object instanceof BlockDisplay blockDisplay)
 			return blockDisplay.getBlock();
+		if (object instanceof FallingBlock fallingBlock)
+			return fallingBlock.getBlockData();
 		return null;
 
 	}
@@ -59,6 +57,8 @@ public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 				block.setBlockData(blockData);
 			} else if (object instanceof BlockDisplay blockDisplay) {
 				blockDisplay.setBlock(blockData);
+			} else if (object instanceof FallingBlock fallingBlock) {
+				fallingBlock.setBlockData(blockData);
 			}
 		}
 	}

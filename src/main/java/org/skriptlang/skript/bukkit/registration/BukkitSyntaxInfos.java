@@ -2,18 +2,18 @@ package org.skriptlang.skript.bukkit.registration;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
 import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 import java.util.Collection;
 
 /**
  * A class containing the interfaces representing Bukkit-specific SyntaxInfo implementations.
  */
-@ApiStatus.Experimental
 public final class BukkitSyntaxInfos {
 
 	private BukkitSyntaxInfos() { }
@@ -24,6 +24,11 @@ public final class BukkitSyntaxInfos {
 	 * @param <E> The class providing the implementation of the SkriptEvent this info represents.
 	 */
 	public interface Event<E extends SkriptEvent> extends SyntaxInfo<E> {
+
+		/**
+		 * A {@link SyntaxRegistry} key representing the Bukkit-specific {@link SkriptEvent} syntax element.
+		 */
+		Key<Event<?>> KEY = Key.of("event");
 
 		/**
 		 * @param eventClass The Structure class the info will represent.
