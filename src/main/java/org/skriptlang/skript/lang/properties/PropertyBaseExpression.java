@@ -211,9 +211,13 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 			// check if delta matches any of the allowed types
 			assert delta != null;
 			Object[] verifiedDelta = delta;
+			Class<?>[] flatAllowedTypes = new Class[allowedTypes.length];
+			for (int i = 0; i < allowedTypes.length; i++) {
+				flatAllowedTypes[i] = Utils.getComponentType(allowedTypes[i]);
+			}
 			boolean tryConverting = false;
 			deltaLoop: for (Object object : verifiedDelta) {
-				for (Class<?> allowedType : allowedTypes) {
+				for (Class<?> allowedType : flatAllowedTypes) {
 					if (allowedType.isInstance(object)) {
 						continue deltaLoop;
 					}
@@ -224,7 +228,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 			if (tryConverting) {
 				// typing of delta may not be safe, create a new array
 				Object[] newDelta = new Object[verifiedDelta.length];
-				Converters.convert(verifiedDelta, newDelta, allowedTypes);
+				Converters.convert(verifiedDelta, newDelta, flatAllowedTypes);
 				for (Object object : newDelta) {
 					if (object == null) { // conversion failed
 						return null;
