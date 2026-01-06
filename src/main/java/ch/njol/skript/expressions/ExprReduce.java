@@ -52,7 +52,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		unreducedObjects = LiteralUtils.defendExpression(expressions[0]);
-		unreducedObjects = LiteralUtils.defendExpression(expressions[0]);
 		if (unreducedObjects.isSingle()) {
 			Skript.error("Cannot reduce a single value. Only lists can be reduced.");
 			return false;
