@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
 class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
@@ -39,12 +40,12 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	private final Origin origin;
 	private final Class<T> type;
 	private final @Nullable Supplier<T> supplier;
-	private final Collection<String> patterns;
+	private final SequencedCollection<String> patterns;
 	private final Priority priority;
 
 	protected SyntaxInfoImpl(
 		Origin origin, Class<T> type, @Nullable Supplier<T> supplier,
-		Collection<String> patterns, @Nullable Priority priority
+		SequencedCollection<String> patterns, @Nullable Priority priority
 	) {
 		Preconditions.checkArgument(supplier != null || ClassUtils.isNormalClass(type),
 				"Failed to register a syntax info for '" + type.getName() + "'."
@@ -94,7 +95,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	}
 
 	@Override
-	public @Unmodifiable Collection<String> patterns() {
+	public @Unmodifiable SequencedCollection<String> patterns() {
 		return patterns;
 	}
 

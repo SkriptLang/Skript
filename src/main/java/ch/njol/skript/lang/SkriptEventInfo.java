@@ -16,6 +16,7 @@ import org.skriptlang.skript.lang.structure.StructureInfo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.SequencedCollection;
 
 /**
  * @deprecated Use {@link BukkitSyntaxInfos.Event} ({@link BukkitSyntaxInfos.Event#builder(Class, String)} instead.
@@ -294,13 +295,13 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		}
 
 		@Override
-		public Collection<String> since() {
+		public SequencedCollection<String> since() {
 			String[] since = getSince();
 			return since != null ? List.of(since) : List.of();
 		}
 
 		@Override
-		public Collection<String> description() {
+		public SequencedCollection<String> description() {
 			String[] description = getDescription();
 			return description != null ? List.of(description) : List.of();
 		}
