@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,11 +22,9 @@ import org.jetbrains.annotations.Nullable;
 	"When transferring players using an IP, the transfer will not complete if the `accepts-transfers` option isn't enabled in `server.properties` for the server specified.",
 	"If the port is not provided, it will default to `25565`."
 })
-@Examples({
-	"connect all players to proxy server \"hub\"",
-	"transfer player to server \"my.server.com\"",
-	"transfer player to server \"localhost\" on port 25566"
-})
+@Example("connect all players to proxy server \"hub\"")
+@Example("transfer player to server \"my.server.com\"")
+@Example("transfer player to server \"localhost\" on port 25566")
 @Since("2.3, 2.10 (transfer)")
 public class EffConnect extends Effect {
 

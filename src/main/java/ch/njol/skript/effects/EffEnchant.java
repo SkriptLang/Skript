@@ -26,7 +26,7 @@ import java.util.function.Function;
 	"optionally be allowed. Note that enchanting a book at a specific level will turn it into an enchanted book, rather " +
 	"than a book with enchantments.")
 @Example("enchant the player's tool with sharpness 5")
-@Example("enchant the player's tool at level 30 ")
+@Example("enchant the player's tool at level 30")
 @Example("disenchant the player's tool")
 @Since("2.0, 2.13 (at level)")
 public class EffEnchant extends Effect {
@@ -54,7 +54,7 @@ public class EffEnchant extends Effect {
 	private Expression<Number> level;
 	private boolean treasure;
 	private Operation operation;
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {

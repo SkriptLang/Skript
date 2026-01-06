@@ -3,7 +3,7 @@ package ch.njol.skript.expressions.arithmetic;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprArgument;
@@ -33,10 +33,12 @@ import java.util.List;
 
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
-@Examples({"set the player's health to 10 - the player's health",
-	"loop (argument + 2) / 5 times:",
-	"\tmessage \"Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%\"",
-	"message \"You have %health of player * 2% half hearts of HP!\""})
+@Example("set the player's health to 10 - the player's health")
+@Example("""
+    loop (argument + 2) / 5 times:
+    	message "Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%"
+    """)
+@Example("message \"You have %health of player * 2% half hearts of HP!\"")
 @Since("1.4.2")
 @SuppressWarnings("null")
 public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -18,11 +18,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Keep Inventory / Experience")
 @Description("Keeps the inventory or/and experiences of the dead player in a death event.")
-@Examples({
-	"on death of a player:",
-		"\tif the victim is an op:",
-			"\t\tkeep the inventory and experiences"
-})
+@Example("""
+	on death of a player:
+		if the victim is an op:
+			keep the inventory and experiences
+	""")
 @Since("2.4")
 @Events("death")
 public class EffKeepInventory extends Effect {

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,10 +18,8 @@ import org.jetbrains.annotations.Nullable;
 	"Gets the last death location of a player, or offline player, if available.",
 	"Can also be set, reset, and deleted if the player is online."
 })
-@Examples({
-	"set {_loc} to the last death location of player",
-	"teleport player to last death location of (random element out of all players)"
-})
+@Example("set {_loc} to the last death location of player")
+@Example("teleport player to last death location of (random element out of all players)")
 @Since("2.10")
 public class ExprLastDeathLocation extends SimplePropertyExpression<OfflinePlayer, Location> {
 

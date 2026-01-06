@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -29,10 +29,8 @@ import java.util.Objects;
 	"Check out <a href=\"https://minecraft.wiki/w/Sounds.json\">this website</a> for a list of sounds in Minecraft, " +
 		"or <a href=\"https://minecraft.wiki/w/Sound\">this one</a> to go to the Sounds wiki page."
 })
-@Examples({
-	"play sound (break sound of dirt) at all players",
-	"set {_sounds::*} to place sounds of dirt, grass block, blue wool and stone"
-})
+@Example("play sound (break sound of dirt) at all players")
+@Example("set {_sounds::*} to place sounds of dirt, grass block, blue wool and stone")
 @Since("2.10")
 public class ExprBlockSound extends SimpleExpression<String> {
 

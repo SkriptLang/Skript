@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.EffLoadServerIcon;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Last Loaded Server Icon")
 @Description({"Returns the last loaded server icon with the <a href='#EffLoadServerIcon'>load server icon</a> effect."})
-@Examples("set {server-icon} to the last loaded server icon")
+@Example("set {server-icon} to the last loaded server icon")
 @Since("2.3")
 public class ExprLastLoadedServerIcon extends SimpleExpression<CachedServerIcon> {
 

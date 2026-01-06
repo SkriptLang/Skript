@@ -231,3 +231,10 @@ io exceptions:
 misc:
 	namespacedutils:
 		format: A namespaced key can be formatted as 'namespace:id' or 'id'. It can only contain one ':' to separate the namespace and the id. Only alphanumeric characters, periods, underscores, and dashes can be used.
+
+# -- Functions --
+functions:
+	or in arguments: Function arguments cannot be seperated by an 'or'. Put the 'or' into a second set of parentheses if you want to make it a single parameter, e.g. 'give(player, (sword or axe))'
+	ambiguous function call: Cannot determine which function named '%s' to call: '%s'. Try clarifying the type of the arguments using the 'value within' expression.
+	already assigned value to parameter: A value has already been assigned to parameter '%s'.
+	mixing named and unnamed arguments: Mixing named and unnamed arguments is not allowed unless the order of the arguments matches the order of the parameters.

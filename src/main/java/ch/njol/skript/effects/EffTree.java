@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,7 +22,7 @@ import ch.njol.util.Kleenean;
 @Name("Tree")
 @Description({"Creates a tree.",
 		"This may require that there is enough space above the given location and that the block below is dirt/grass, but it is possible that the tree will just grow anyways, possibly replacing every block in its path."})
-@Examples({"grow a tall redwood tree above the clicked block"})
+@Example("grow a tall redwood tree above the clicked block")
 @Since("1.0")
 public class EffTree extends Effect {
 	

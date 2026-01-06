@@ -6,7 +6,7 @@ import org.bukkit.block.Block;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.block.BlockState;
@@ -16,7 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 @Name("Has Glowing Text")
 @Description("Checks whether a sign (either a block or an item) has glowing text")
-@Examples("if target block has glowing text")
+@Example("if target block has glowing text")
 @Since("2.8.0")
 public class CondGlowingText extends PropertyCondition<Object> {
 

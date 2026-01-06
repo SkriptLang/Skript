@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Last Resource Pack Response")
 @Description("Returns the last resource pack response received from a player.")
-@Examples("if player's last resource pack response is deny or download fail:")
+@Example("if player's last resource pack response is deny or download fail:")
 @Since("2.4")
 public class ExprLastResourcePackResponse extends SimplePropertyExpression<Player, Status> {
 
