@@ -73,7 +73,7 @@ final class FunctionArgumentParser {
 	 * <p>
 	 * To avoid parsing a comma in an expression as the start of a new argument, we keep track of whether we're
 	 * in an expression or not to ignore commas found in expressions.
-	 * A new argument can only start when {@code nesting == 0 && !inExpr}.
+	 * A new argument can only start when {@code nesting == 0 && !inString && !inStringExpr}.
 	 * </p>
 	 */
 	private boolean inStringExpr = false;
@@ -83,7 +83,7 @@ final class FunctionArgumentParser {
 	 * <p>
 	 * To avoid parsing a comma in a string as the start of a new argument, we keep track of whether we're
 	 * in a string or not to ignore commas found in strings.
-	 * A new argument can only start when {@code nesting == 0 && !inString}.
+	 * A new argument can only start when {@code nesting == 0 && !inString && !inStringExpr}.
 	 * </p>
 	 */
 	private boolean inString = false;
