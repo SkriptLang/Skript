@@ -37,7 +37,7 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		inputSource = getParser().getData(InputData.class).getSource();
-		if ((inputSource == null) || !(inputSource instanceof ExprReduce)) {
+		if (!(inputSource instanceof ExprReduce)) {
 			Skript.error("The 'reduced value' expression can only be used within a reduce operation");
 			return false;
 		}

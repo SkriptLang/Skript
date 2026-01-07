@@ -52,7 +52,7 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		unreducedObjects = LiteralUtils.defendExpression(expressions[0]);
 		if (unreducedObjects.isSingle()) {
-			Skript.error("Cannot reduce a single value. Only lists can be reduced.");
+			Skript.error("A single value cannot be reduced. Only lists can be reduced.");
 			return false;
 		}
 		if (!LiteralUtils.canInitSafely(unreducedObjects)) {
@@ -61,13 +61,13 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 
 		keyed = KeyProviderExpression.canReturnKeys(unreducedObjects);
 
-		if (!parseResult.regexes.isEmpty()) {
-			@Nullable String unparsedExpression = parseResult.regexes.getFirst().group();
-			assert unparsedExpression != null;
-			reduceExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
-			if (reduceExpr == null)
-				return false;
-		} else {
+		if (parseResult.regexes.isEmpty()) {
+			return false;
+		}
+		String unparsedExpression = parseResult.regexes.getFirst().group();
+		assert unparsedExpression != null;
+		reduceExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
+		if (reduceExpr == null)
 			return false;
 		}
 		return true;
@@ -193,7 +193,7 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return unreducedObjects.toString(event, debug) + " reduced with " + reduceExpr.toString(event, debug);
+		return unreducedObjects.toString(event, debug) + " reduced with [" + reduceExpr.toString(event, debug) + "]";
 	}
 
 }
