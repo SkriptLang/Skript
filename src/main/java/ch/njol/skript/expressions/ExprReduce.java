@@ -74,7 +74,7 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 			if (keyed) {
 				Iterator<? extends KeyedValue<?>> keyedIterator = ((KeyProviderExpression<?>) unreducedObjects).keyedIterator(event);
 				if (keyedIterator == null || !keyedIterator.hasNext())
-					return null;
+					return new Object[0];
 
 				KeyedValue<?> first = keyedIterator.next();
 				reducedValue = first.value();
@@ -118,7 +118,7 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 			}
 
 			if (hadNullResult) {
-				error("The reduce expression returned null for one or more elements, which were skipped.");
+				warning("The reduce expression returned null for one or more elements, which were skipped.");
 			}
 
 			return new Object[] { reducedValue };
