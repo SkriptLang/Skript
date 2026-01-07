@@ -26,8 +26,11 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			char[] chars = pattern.toCharArray();
 			for (int i = 0; i < chars.length; i++) {
 				if (chars[i] == '%') {
-					// weigh "%thing% %thing%" or "%thing% [%thing%]" much heavier
-					if ((i - 2 >= 0 && chars[i - 2] == '%') || (i - 3 >= 0 && chars[i - 3] == '%')) {
+					if (i > 0 && chars[i - 1] == '\\') { // skip escaped percentages
+						continue;
+					}
+					// "%thing% %thing%" or "%thing% [%thing%]"
+					if ((i > 1 && chars[i - 2] == '%') || (i > 2 && chars[i - 3] == '%')) {
 						return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
 					}
 					priority = SyntaxInfo.COMBINED;
