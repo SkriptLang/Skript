@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  */
 final class FunctionArgumentParser {
 
-	private static final Pattern PART_PATTERN = Pattern.compile("(?:\\s*(?<name>[_a-zA-Z0-9]*):)?(?<value>.+)");
+	private static final Pattern PART_PATTERN = Pattern.compile("(?:\\s*(?<name>[_a-zA-Z0-9]+):)?(?<value>.+)");
 
 	/**
 	 * The input string.
@@ -54,10 +54,12 @@ final class FunctionArgumentParser {
 		}
 
 		int next = 0;
-		while (true) {
+		while (next < args.length()) {
 			next = SkriptParser.next(args, next, ParseContext.DEFAULT);
 			if (next == -1) {
-				return;
+				// if no end is found, just parse the whole passed string as an argument and pray it works
+				index = 0;
+				next = args.length();
 			}
 
 			if (next < args.length() && args.charAt(next) != ',') {
