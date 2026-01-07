@@ -2884,7 +2884,7 @@ types:
 	nameable: nameable thing¦s @a
 	gameeffect: game effect¦s @a
 	entityeffect: entity effect¦s @an
-	particle: particle effect¦s @a
+	particle: particle¦s @a
 	convergingparticle: converging particle¦s @a
 	directionalparticle: directional particle¦s @a
 	scalableparticle: scalable particle¦s @a
