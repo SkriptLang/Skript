@@ -1,6 +1,9 @@
 local function test(x: object) -> object:
     return {_x}
 
+local function test2(x: object, minecraft: object) -> object:
+    return {_minecraft}
+
 local function test_same(minecraft: object) -> object:
     return {_minecraft}
 
@@ -19,12 +22,16 @@ test "fully qualified names and named argument functions conflict":
     assert test_same(minecraft:minecraft:stone) is minecraft:stone
     assert test_same(minecraft:minecraft:plains) is minecraft:plains
 
+    assert test2(x: minecraft:stone, minecraft:minecraft:plains) is minecraft:plains
+    assert test2(minecraft:minecraft:plains, x: minecraft:stone) is minecraft:plains
+
     parse:
         assert test(minecraft: minecraft: stone) is minecraft:stone
     assert last parse logs are set
 
     assert test(x: 10) is 10
     assert test_same(minecraft:10) is 10
+
 
 local function teststr(x: text) -> text:
     return {_x}

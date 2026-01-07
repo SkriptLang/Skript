@@ -338,7 +338,7 @@ public final class FunctionReference<T> implements Debuggable {
 			ArgumentType type,
 			String name,
 			T value,
-			String raw
+			@Nullable String raw
 	) {
 
 		/**
