@@ -32,23 +32,22 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 		);
 	}
 
-	private InputSource inputSource;
+	private ExprReduce reduce;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		inputSource = getParser().getData(InputData.class).getSource();
-		if (!(inputSource instanceof ExprReduce)) {
+		InputSource inputSource = getParser().getData(InputData.class).getSource();
+		if (!(inputSource instanceof ExprReduce exprReduce)) {
 			Skript.error("The 'reduced value' expression can only be used within a reduce operation");
 			return false;
 		}
+
+		this.reduce = exprReduce;
 		return true;
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		if (!(inputSource instanceof ExprReduce reduce))
-			return null;
-
 		Object reducedValue = reduce.getReducedValue();
 		return reducedValue != null ? new Object[] { reducedValue } : null;
 	}
@@ -59,10 +58,7 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		if (inputSource instanceof ExprReduce reduce) {
-			return reduce.getReturnType();
-		}
+	public Class<Object> getReturnType() {
 		return Object.class;
 	}
 

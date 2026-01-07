@@ -1,13 +1,11 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -39,8 +37,8 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 	}
 
 	private boolean keyed;
-	private @UnknownNullability Expression<?> reduceExpr;
-	private @UnknownNullability Expression<?> unreducedObjects;
+	private Expression<?> reduceExpr;
+	private Expression<?> unreducedObjects;
 
 	private final Set<ExprInput<?>> dependentInputs = new HashSet<>();
 
@@ -55,29 +53,21 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 			Skript.error("A single value cannot be reduced. Only lists can be reduced.");
 			return false;
 		}
-		if (!LiteralUtils.canInitSafely(unreducedObjects)) {
+		if ((!LiteralUtils.canInitSafely(unreducedObjects)) || parseResult.regexes.isEmpty()) {
 			return false;
 		}
 
 		keyed = KeyProviderExpression.canReturnKeys(unreducedObjects);
 
-		if (parseResult.regexes.isEmpty()) {
-			return false;
-		}
-		String unparsedExpression = parseResult.regexes.getFirst().group();
+		@Nullable String unparsedExpression = parseResult.regexes.getFirst().group();
 		assert unparsedExpression != null;
 		reduceExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.ALL_FLAGS);
-		if (reduceExpr == null)
-			return false;
-		}
-		return true;
+
+		return reduceExpr != null;
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		InputData inputData = getParser().getData(InputData.class);
-		InputSource originalSource = inputData.getSource();
-		inputData.setSource(this);
 
 		try {
 			boolean hadNullResult = false;
@@ -132,14 +122,11 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 				error("The reduce expression returned null for one or more elements, which were skipped.");
 			}
 
-			Object finalResult = reducedValue;
-
-			return new Object[] { finalResult };
+			return new Object[] { reducedValue };
 		} finally {
 			currentValue = null;
 			reducedValue = null;
 			currentIndex = null;
-			inputData.setSource(originalSource);
 		}
 	}
 
@@ -150,17 +137,17 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 
 	@Override
 	public Class<?> getReturnType() {
-		return reduceExpr != null ? reduceExpr.getReturnType() : Object.class;
+		return reduceExpr.getReturnType();
 	}
 
 	@Override
 	public Class<?>[] possibleReturnTypes() {
-		return reduceExpr != null ? reduceExpr.possibleReturnTypes() : new Class[] { Object.class };
+		return reduceExpr.possibleReturnTypes();
 	}
 
 	@Override
 	public boolean canReturn(Class<?> returnType) {
-		return reduceExpr != null && reduceExpr.canReturn(returnType);
+		return reduceExpr.canReturn(returnType);
 	}
 
 	@Override
