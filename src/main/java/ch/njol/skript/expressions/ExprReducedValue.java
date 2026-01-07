@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Reduced Value")
 @Description({
-	"Returns the current accumulated/reduced value within a reduce expression.",
+	"Returns the current accumulated/reduced value within a <a href='#ExprReduce'>reduce expression</a>.",
 	"This represents the result of all previous reduction operations.",
 	"Can only be used inside the reduce expression's operation block."
 })
@@ -26,9 +26,9 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprReducedValue.class, Object.class, ExpressionType.SIMPLE,
-			"reduced value",
-			"(accumulator|accumulated) [value]",
-			"folded value"
+			"[the] reduced value",
+			"[the] (accumulator|accumulated) [value]",
+			"[the] folded value"
 		);
 	}
 
@@ -49,7 +49,7 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object reducedValue = reduce.getReducedValue();
-		return reducedValue != null ? new Object[] { reducedValue } : null;
+		return reducedValue == null ? new Object[0] : new Object[] { reducedValue };
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class ExprReducedValue extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public Class<Object> getReturnType() {
+	public Class<?> getReturnType() {
 		return Object.class;
 	}
 

@@ -68,7 +68,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-
 		try {
 			boolean hadNullResult = false;
 
