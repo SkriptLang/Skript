@@ -40,7 +40,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 
 	private boolean keyed;
 	private @UnknownNullability Expression<?> reduceExpr;
-	private @Nullable ClassInfo<?> returnClassInfo;
 	private @UnknownNullability Expression<?> unreducedObjects;
 
 	private final Set<ExprInput<?>> dependentInputs = new HashSet<>();
@@ -60,7 +59,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 			return false;
 		}
 
-
 		keyed = KeyProviderExpression.canReturnKeys(unreducedObjects);
 
 		if (!parseResult.regexes.isEmpty()) {
@@ -72,7 +70,6 @@ public class ExprReduce extends SimpleExpression<Object> implements InputSource 
 		} else {
 			return false;
 		}
-		returnClassInfo = Classes.getExactClassInfo(reduceExpr.getReturnType());
 		return true;
 	}
 
