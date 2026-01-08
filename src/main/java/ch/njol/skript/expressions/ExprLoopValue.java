@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -27,29 +27,32 @@ import java.util.regex.Pattern;
  */
 @Name("Loop value")
 @Description("Returns the previous, current, or next looped value.")
-@Examples({
-	"# Countdown",
-	"loop 10 times:",
-		"\tmessage \"%11 - loop-number%\"",
-		"\twait a second",
-	"",
-	"# Generate a 10x10 floor made of randomly colored wool below the player",
-	"loop blocks from the block below the player to the block 10 east of the block below the player:",
-		"\tloop blocks from the loop-block to the block 10 north of the loop-block:",
-			"\t\tset loop-block-2 to any wool",
-	"",
-	"loop {top-balances::*}:",
-		"\tloop-iteration <= 10",
-		"\tsend \"#%loop-iteration% %loop-index% has $%loop-value%\"",
-	"",
-	"loop shuffled (integers between 0 and 8):",
-		"\tif all:",
-			"\t\tprevious loop-value = 1",
-			"\t\tloop-value = 4",
-			"\t\tnext loop-value = 8",
-		"\tthen:",
-			"\t\t kill all players"
-})
+@Example("""
+	# Countdown
+	loop 10 times:
+		message "%11 - loop-number%"
+		wait a second
+	""")
+@Example("""
+	# Generate a 10x10 floor made of randomly colored wool below the player
+	loop blocks from the block below the player to the block 10 east of the block below the player:
+		loop blocks from the loop-block to the block 10 north of the loop-block:
+			set loop-block-2 to any wool
+	""")
+@Example("""
+	loop {top-balances::*}:
+		loop-iteration <= 10
+		send "#%loop-iteration% %loop-index% has $%loop-value%"
+	""")
+@Example("""
+	loop shuffled (integers between 0 and 8):
+		if all:
+			previous loop-value = 1
+			loop-value = 4
+			next loop-value = 8
+		then:
+			 kill all players
+	""")
 @Since("1.0, 2.8.0 (loop-counter), 2.10 (previous, next)")
 public class ExprLoopValue extends SimpleExpression<Object> {
 

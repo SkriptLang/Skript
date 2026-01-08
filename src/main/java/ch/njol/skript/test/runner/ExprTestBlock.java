@@ -2,7 +2,7 @@ package ch.njol.skript.test.runner;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
@@ -16,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Test Block")
 @Description("The block the testing is taking place at.")
-@Examples({
-	"test \"example\":",
-		"\tset test block to air"
-})
+@Example("""
+	test "example":
+		set test block to air
+	""")
 @NoDoc
 public class ExprTestBlock extends SimpleExpression<Block> {
 

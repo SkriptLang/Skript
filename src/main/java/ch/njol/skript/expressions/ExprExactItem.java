@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 	+ "For example, using this expression on a chest block with items stored inside will return a chest "
 	+ "item with the exact same items in its inventory as the chest block."
 )
-@Examples("set {_item} to exact item of block at location(0, 0, 0)")
+@Example("set {_item} to exact item of block at location(0, 0, 0)")
 @Since("2.12")
 public class ExprExactItem extends SimplePropertyExpression<Block, ItemStack> {
 

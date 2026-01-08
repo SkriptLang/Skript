@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -26,7 +26,7 @@ import java.util.List;
 
 @Name("X of Item/Entity Type")
 @Description("An expression for using an item or entity type with a different amount.")
-@Examples("give level of player of iron pickaxes to the player")
+@Example("give level of player of iron pickaxes to the player")
 @Since("1.2")
 @Keywords("amount")
 public class ExprXOf extends PropertyExpression<Object, Object> {

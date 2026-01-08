@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -22,9 +22,9 @@ import ch.njol.util.Kleenean;
  */
 @Name("Poison/Cure")
 @Description("Poison or cure a creature.")
-@Examples({"poison the player",
-		"poison the victim for 20 seconds",
-		"cure the player from poison"})
+@Example("poison the player")
+@Example("poison the victim for 20 seconds")
+@Example("cure the player from poison")
 @Since("1.3.2")
 public class EffPoison extends Effect {
 	static {

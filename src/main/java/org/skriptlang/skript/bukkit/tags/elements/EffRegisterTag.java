@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.tags.elements;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -45,15 +45,14 @@ import java.util.regex.Pattern;
 	"Please note that two tags can share a name if they are of different types. Registering a new tag of the same " +
 	"name and type will overwrite the existing tag. Tags will reset on server shutdown."
 })
-@Examples({
-	"register a new custom entity tag named \"fish\" using cod, salmon, tropical fish, and pufferfish",
-	"register an item tag named \"skript:wasp_weapons/swords\" containing diamond sword and netherite sword",
-	"register block tag named \"pokey\" containing sweet berry bush and bamboo sapling",
-	"",
-	"on player move:",
-		"\tblock at player is tagged as tag \"skript:pokey\"",
-		"\tdamage the player by 1 heart"
-})
+@Example("register a new custom entity tag named \"fish\" using cod, salmon, tropical fish, and pufferfish")
+@Example("register an item tag named \"skript:wasp_weapons/swords\" containing diamond sword and netherite sword")
+@Example("register block tag named \"pokey\" containing sweet berry bush and bamboo sapling")
+@Example("""
+	on player move:
+		block at player is tagged as tag "skript:pokey"
+		damage the player by 1 heart
+	""")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class EffRegisterTag extends Effect {

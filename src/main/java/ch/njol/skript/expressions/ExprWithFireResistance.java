@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -20,11 +20,9 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"Creates a copy of an item with (or without) fire resistance."
 })
-@Examples({
-	"set {_x} to diamond sword with fire resistance",
-	"equip player with netherite helmet without fire resistance",
-	"drop fire resistant stone at player"
-})
+@Example("set {_x} to diamond sword with fire resistance")
+@Example("equip player with netherite helmet without fire resistance")
+@Example("drop fire resistant stone at player")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class ExprWithFireResistance extends PropertyExpression<ItemType, ItemType> {

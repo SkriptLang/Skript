@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,10 +20,10 @@ import ch.njol.util.Kleenean;
 @Name("Potion Effect")
 @Description({"Create a new potion effect to apply to an entity or item type. Do note that when applying potion effects ",
 	"to tipped arrows/lingering potions, Minecraft reduces the timespan."})
-@Examples({"set {_p} to potion effect of speed of tier 1 without particles for 10 minutes",
-	"add {_p} to potion effects of player's tool",
-	"add {_p} to potion effects of target entity",
-	"add potion effect of speed 1 to potion effects of player"})
+@Example("set {_p} to potion effect of speed of tier 1 without particles for 10 minutes")
+@Example("add {_p} to potion effects of player's tool")
+@Example("add {_p} to potion effects of target entity")
+@Example("add potion effect of speed 1 to potion effects of player")
 @Since("2.5.2")
 public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	static {

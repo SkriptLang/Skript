@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,17 +18,18 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Loop Iteration")
 @Description("Returns the loop's current iteration count (for both normal and while loops).")
-@Examples({
-	"while player is online:",
-	"\tgive player 1 stone",
-	"\twait 5 ticks",
-	"\tif loop-counter > 30:",
-	"\t\tstop loop",
-	"",
-	"loop {top-balances::*}:",
-	"\tif loop-iteration <= 10:",
-	"\t\tbroadcast \"#%loop-iteration% %loop-index% has $%loop-value%\"",
-})
+@Example("""
+	while player is online:
+		give player 1 stone
+		wait 5 ticks
+		if loop-counter > 30:
+			stop loop
+	""")
+@Example("""
+	loop {top-balances::*}:
+		if loop-iteration <= 10:
+			broadcast "#%loop-iteration% %loop-index% has $%loop-value%"
+	""")
 @Since("2.8.0")
 public class ExprLoopIteration extends SimpleExpression<Long> {
 

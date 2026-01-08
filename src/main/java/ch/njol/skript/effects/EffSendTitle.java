@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -25,13 +25,11 @@ import ch.njol.util.Kleenean;
 	"Note: if no input is given for the times, it will keep the ones from the last title sent, " +
 	"use the <a href='#EffResetTitle'>reset title</a> effect to restore the default values."
 })
-@Examples({
-	"send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds",
-	"send title \"Hi %player%\" to player",
-	"send title \"Loot Drop\" with subtitle \"starts in 3 minutes\" to all players",
-	"send title \"Hello %player%!\" with subtitle \"Welcome to our server\" to player for 5 seconds with fadein 1 second and fade out 1 second",
-	"send subtitle \"Party!\" to all players"
-})
+@Example("send title \"Competition Started\" with subtitle \"Have fun, Stay safe!\" to player for 5 seconds")
+@Example("send title \"Hi %player%\" to player")
+@Example("send title \"Loot Drop\" with subtitle \"starts in 3 minutes\" to all players")
+@Example("send title \"Hello %player%!\" with subtitle \"Welcome to our server\" to player for 5 seconds with fadein 1 second and fade out 1 second")
+@Example("send subtitle \"Party!\" to all players")
 @Since("2.3")
 public class EffSendTitle extends Effect {
 	

@@ -12,7 +12,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
@@ -29,10 +29,10 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @Name("World")
 @Description("The world the event occurred in.")
-@Examples({"world is \"world_nether\"",
-		"teleport the player to the world's spawn",
-		"set the weather in the player's world to rain",
-		"set {_world} to world of event-chunk"})
+@Example("world is \"world_nether\"")
+@Example("teleport the player to the world's spawn")
+@Example("set the weather in the player's world to rain")
+@Example("set {_world} to world of event-chunk")
 @Since("1.0")
 public class ExprWorld extends PropertyExpression<Object, World> {
 
