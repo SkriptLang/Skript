@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -21,18 +21,16 @@ import org.jetbrains.annotations.Nullable;
 	"Using 'without physics' will not send updates to the surrounding blocks of the blocks being set.",
 	"Example: Updating a block next to a sand block in the air 'without physics' will not cause the sand block to fall."
 })
-@Examples({
-	"update {_blocks::*} as gravel",
-	"update {_blocks::*} to be sand without physics updates",
-	"update {_blocks::*} as stone without neighbouring updates"
-})
+@Example("update {_blocks::*} as gravel")
+@Example("update {_blocks::*} to be sand without physics updates")
+@Example("update {_blocks::*} as stone without neighbouring updates")
 @Since("2.10")
 // Originally sourced from SkBee by ShaneBee (https://github.com/ShaneBeee/SkBee/blob/master/src/main/java/com/shanebeestudios/skbee/elements/other/effects/EffBlockstateUpdate.java)
 public class EffBlockUpdate extends Effect {
 
 	static {
 		Skript.registerEffect(EffBlockUpdate.class,
-			"update %blocks% (as|to be) %blockdata% [physics:without [neighbo[u]r[ing]|adjacent] [physic[s]] update[s]]");
+			"update %blocks% (as|to be) %blockdata% [physics:without [neighbo[u]r[ing]|adjacent] [physics] update[s]]");
 	}
 
 	private boolean physics;

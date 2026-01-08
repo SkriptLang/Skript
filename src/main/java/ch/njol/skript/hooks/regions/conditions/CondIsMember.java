@@ -2,7 +2,7 @@ package ch.njol.skript.hooks.regions.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -23,12 +23,12 @@ import java.util.function.Predicate;
 @Name("Is Member/Owner of Region")
 @Description({"Checks whether a player is a member or owner of a particular region.",
 		"This condition requires a supported regions plugin to be installed."})
-@Examples({
-	"on region enter:",
-	"\tplayer is the owner of the region",
-	"\tmessage \"Welcome back to %region%!\"",
-	"\tsend \"%player% just entered %region%!\" to all members of the region"
-})
+@Example("""
+	on region enter:
+		player is the owner of the region
+		message "Welcome back to %region%!"
+		send "%player% just entered %region%!" to all members of the region
+	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class CondIsMember extends Condition {

@@ -41,7 +41,6 @@ public class EvtMove extends SkriptEvent {
 								"\t\tkill event-entity",
 						"on player turning around:",
 							"\tsend action bar \"You are currently turning your head around!\" to player")
-				.requiredPlugins("Paper 1.16.5+ (entity move)")
 				.since("2.6, 2.8.0 (turn around)");
 	}
 

@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -18,10 +18,8 @@ import org.jetbrains.annotations.Nullable;
 @Description(
 	"Sets whether the provided command blocks are conditional or not."
 )
-@Examples({
-	"make command block {_block} conditional",
-	"make command block {_block} unconditional if {_block} is conditional"
-})
+@Example("make command block {_block} conditional")
+@Example("make command block {_block} unconditional if {_block} is conditional")
 @Since("2.10")
 public class EffCommandBlockConditional extends Effect {
 

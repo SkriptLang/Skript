@@ -73,11 +73,6 @@ public class EvtItem extends SkriptEvent {
 				.examples("on pick up:", "on entity pickup of wheat:")
 				.since("unknown (before 2.1), 2.5 (entity)")
 				.keywords("pickup");
-		// TODO brew event
-//		Skript.registerEvent("Brew", EvtItem.class, BrewEvent.class, "brew[ing] [[of] %itemtypes%]")
-//				.description("Called when a potion finished brewing.")
-//				.examples("on brew:")
-//				.since("2.0");
 		Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
 				.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
 				.examples("on consume:")
@@ -124,8 +119,7 @@ public class EvtItem extends SkriptEvent {
 							"on stonecutting:",
 								"\tbroadcast \"%player% is using stonecutter to craft %event-item%!\""
 					)
-					.since("2.8.0")
-					.requiredPlugins("Paper 1.16+");
+					.since("2.8.0");
 		}
 	}
 	
@@ -184,8 +178,6 @@ public class EvtItem extends SkriptEvent {
 			itemStack = playerPickupItemEvent.getItem().getItemStack();
 		} else if (event instanceof PlayerItemConsumeEvent playerItemConsumeEvent) {
 			itemStack = playerItemConsumeEvent.getItem();
-//		} else if (e instanceof BrewEvent)
-//			itemStack = ((BrewEvent) e).getContents().getContents()
 		} else if (event instanceof InventoryClickEvent inventoryClickEvent) {
 			itemStack = inventoryClickEvent.getCurrentItem();
 		} else if (event instanceof ItemDespawnEvent itemDespawnEvent) {

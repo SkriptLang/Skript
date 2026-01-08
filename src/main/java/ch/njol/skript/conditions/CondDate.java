@@ -1,11 +1,13 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -20,13 +22,15 @@ import ch.njol.util.Kleenean;
  */
 @Name("Time")
 @Description("Tests whether a given <a href='#date'>real time</a> was more or less than some <a href='#timespan'>time span</a> ago.")
-@Examples({"command /command-with-cooldown:",
-		"	trigger:",
-		"		{command::%player's uuid%::last-usage} was less than a minute ago:",
-		"			message \"Please wait a minute between uses of this command.\"",
-		"			stop",
-		"		set {command::%player's uuid%::last-usage} to now",
-		"		# ... actual command trigger here ..."})
+@Example("""
+	command /command-with-cooldown:
+		trigger:
+			{command::%player's uuid%::last-usage} was less than a minute ago:
+				message "Please wait a minute between uses of this command."
+				stop
+			set {command::%player's uuid%::last-usage} to now
+			# ... actual command trigger here ...
+	""")
 @Since("2.0")
 public class CondDate extends Condition {
 	
@@ -58,7 +62,14 @@ public class CondDate extends Condition {
 						timespan -> now - date.getTime() >= timespan.getAs(Timespan.TimePeriod.MILLISECOND)
 				), isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		if (date instanceof Literal<Date> && delta instanceof Literal<Timespan>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return date.toString(e, debug) + " was " + (isNegated() ? "less" : "more") + " than " + delta.toString(e, debug) + " ago";

@@ -199,14 +199,6 @@ public class SimpleEvents {
 				.description("Called when a player is kicked from the server. You can change the <a href='#ExprMessage'>kick message</a> or <a href='#EffCancelEvent'>cancel the event</a> entirely.")
 				.examples("on kick:")
 				.since("1.0");
-		Skript.registerEvent("Entity Portal", SimpleEvent.class, EntityPortalEvent.class, "entity portal")
-				.description("Called when an entity uses a nether or end portal. <a href='#EffCancelEvent'>Cancel the event</a> to prevent the entity from teleporting.")
-				.examples("on entity portal:", "\tbroadcast \"A %type of event-entity% has entered a portal!")
-				.since("2.5.3");
-		Skript.registerEvent("Portal", SimpleEvent.class, PlayerPortalEvent.class, "[player] portal")
-				.description("Called when a player uses a nether or end portal. <a href='#EffCancelEvent'>Cancel the event</a> to prevent the player from teleporting.")
-				.examples("on player portal:")
-				.since("1.0");
 		Skript.registerEvent("Quit", SimpleEvent.class, PlayerQuitEvent.class, "(quit[ting]|disconnect[ing]|log[ ]out|logging out|leav(e|ing))")
 				.description("Called when a player leaves the server.")
 				.examples("on quit:",
@@ -244,7 +236,6 @@ public class SimpleEvents {
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.ProjectileCollideEvent"))
 			Skript.registerEvent("Projectile Collide", SimpleEvent.class, ProjectileCollideEvent.class, "projectile collide")
 			.description("Called when a projectile collides with an entity.")
-			.requiredPlugins("Paper")
 			.examples("on projectile collide:",
 				"\tteleport shooter of event-projectile to event-entity")
 			.since("2.5");
@@ -489,7 +480,6 @@ public class SimpleEvents {
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerTradeEvent")) {
 			Skript.registerEvent("Player Trade", SimpleEvent.class, PlayerTradeEvent.class, "player trad(e|ing)")
 				.description("Called when a player has traded with a villager.")
-				.requiredPlugins("Paper 1.16.5+")
 				.examples("on player trade:",
 					"\tchance of 50%:",
 					"\t\tcancel event",
@@ -499,7 +489,6 @@ public class SimpleEvents {
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EntityJumpEvent")) {
 			Skript.registerEvent("Entity Jump", SimpleEvent.class, EntityJumpEvent.class, "entity jump[ing]")
 				.description("Called when an entity jumps.")
-				.requiredPlugins("Paper 1.15.2+")
 				.examples("on entity jump:",
 					"\tif entity is a wither skeleton:",
 					"\t\tcancel event")
@@ -509,7 +498,6 @@ public class SimpleEvents {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
 							 "Note: this does not include anvil damage from falling.")
-				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
 				.since("2.7");
@@ -521,7 +509,6 @@ public class SimpleEvents {
 					.description("Called when a player stops using an item. For example, when the player releases the " +
 							"interact button when holding a bow, an edible item, or a spyglass.",
 							"Note that event-timespan will return the time the item was used for.")
-					.requiredPlugins("Paper")
 					.examples(
 						"on player stop using item:",
 							"\tbroadcast \"%player% used %event-item% for %event-timespan%.\"")
@@ -533,7 +520,6 @@ public class SimpleEvents {
 					.description("Called when a player is firing a bow and the server is choosing an arrow to use.",
 							"Cancelling this event will skip the current arrow item and fire a new event for the next arrow item.",
 							"The arrow and bow in the event can be accessed with the Readied Arrow/Bow expression.")
-					.requiredPlugins("Paper")
 					.examples(
 						"on player ready arrow:",
 							"\tselected bow's name is \"Spectral Bow\"",
@@ -546,7 +532,6 @@ public class SimpleEvents {
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
 			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
 					.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
-					.requiredPlugins("Paper 1.19.2+")
 					.examples(
 						"on inventory slot change:",
 							"\tif event-item is a diamond:",
@@ -583,8 +568,7 @@ public class SimpleEvents {
 							"on player deep sleeping:",
 							"\tsend \"Zzzz..\" to player"
 					)
-					.since("2.7")
-					.requiredPlugins("Paper 1.16+");
+					.since("2.7");
 		}
 
 		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
@@ -594,8 +578,7 @@ public class SimpleEvents {
 								"\tcancel the event",
 								"\tteleport event-projectile to block 5 above event-projectile"
 				)
-				.since("2.8.0")
-				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
+				.since("2.8.0");
 
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
 				.description("Called when a player drags an item in their cursor across the inventory.")
@@ -607,7 +590,6 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 		Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
-				.requiredPlugins("Minecraft 1.16+")
 				.description(
 					"Called when a piglin finishes bartering. A piglin may start bartering after picking up an item on its bartering list.",
 					"Cancelling will prevent piglins from dropping items, but will still make them pick up the input.")
@@ -624,8 +606,7 @@ public class SimpleEvents {
 				"on bell ring:",
 					"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
 			)
-			.since("2.9.0")
-			.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
+			.since("2.9.0");
 
 		Skript.registerEvent("Bell Resonate", SimpleEvent.class, BellResonateEvent.class, "bell resonat(e|ing)")
 			.description("Called when a bell resonates, highlighting nearby raiders.")
@@ -633,8 +614,7 @@ public class SimpleEvents {
 				"on bell resonate:",
 					"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
 			)
-			.since("2.9.0")
-			.requiredPlugins("Spigot 1.19.4+");
+			.since("2.9.0");
 
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
 			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
@@ -648,8 +628,7 @@ public class SimpleEvents {
 							"\tif player has permission \"safeFrom.enderman\":",
 								"\t\tcancel event"
 					)
-					.since("2.9.0")
-					.requiredPlugins("Paper");
+					.since("2.9.0");
 		}
 
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
@@ -665,8 +644,7 @@ public class SimpleEvents {
 					"on beacon change effect:",
 					"on player change beacon effect:"
 				)
-				.since("2.10")
-				.requiredPlugins("Paper");
+				.since("2.10");
 		}
 
 		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
@@ -710,7 +688,6 @@ public class SimpleEvents {
 						"\tif the used firework will be consumed:",
 							"\t\tprevent the used firework from being consume"
 				)
-				.requiredPlugins("Paper")
 				.since("2.10");
 		}
 
@@ -726,7 +703,6 @@ public class SimpleEvents {
 					"Called when a world border changes its bounds, either over time, or instantly.",
 					"This event does not get called for virtual borders."
 				)
-				.requiredPlugins("Paper 1.16+")
 				.examples(
 					"on worldborder bounds change:",
 						"\tbroadcast \"The diameter of %event-worldborder% is changing from %past event-number% to %event-number% over the next %event-timespan%\""
@@ -738,7 +714,6 @@ public class SimpleEvents {
 					"Called when a moving world border has finished its move.",
 					"This event does not get called for virtual borders."
 				)
-				.requiredPlugins("Paper 1.16+")
 				.examples(
 					"on worldborder bounds finish change:",
 						"\tbroadcast \"Over the past %event-timespan%, the diameter of %event-worldborder% went from %past event-number% to %event-number%\""
@@ -750,7 +725,6 @@ public class SimpleEvents {
 					"Called when a world border's center has changed.",
 					"This event does not get called for virtual borders."
 				)
-				.requiredPlugins("Paper 1.16+")
 				.examples(
 					"on worldborder center change:",
 						"\tbroadcast \"The center of %event-worldborder% has moved from %past event-location% to %event-location%\""

@@ -9,15 +9,13 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 
 @Name("Is Invulnerable")
 @Description("Checks whether an entity or a gamemode is invulnerable.\nFor gamemodes, Paper and Minecraft 1.20.6 are required")
-@Examples({
-	"target entity is invulnerable",
-	"",
-	"loop all gamemodes:",
-		"\tif loop-value is not invulnerable:",
-			"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""
-})
+@Example("target entity is invulnerable")
+@Example("""
+	loop all gamemodes:
+		if loop-value is not invulnerable:
+			broadcast "the gamemode %loop-value% is vulnerable!"
+	""")
 @Since("2.5, 2.10 (gamemode)")
-@RequiredPlugins("Paper 1.20.6+ (gamemodes)")
 public class CondIsInvulnerable extends PropertyCondition<Object> {
 
 	private static final boolean SUPPORTS_GAMEMODE = Skript.methodExists(GameMode.class, "isInvulnerable");

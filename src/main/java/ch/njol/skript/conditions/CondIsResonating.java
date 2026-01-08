@@ -3,9 +3,8 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
@@ -16,8 +15,7 @@ import org.bukkit.block.BlockState;
 	"Checks to see if a bell is currently resonating.",
 	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
 })
-@Examples("target block is resonating")
-@RequiredPlugins("Spigot 1.19.4+")
+@Example("target block is resonating")
 @Since("2.9.0")
 public class CondIsResonating extends PropertyCondition<Block> {
 

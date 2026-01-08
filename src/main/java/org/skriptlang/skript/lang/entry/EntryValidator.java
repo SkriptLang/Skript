@@ -6,12 +6,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -50,10 +45,12 @@ public class EntryValidator {
 	) {
 		this.entryData = entryData;
 		this.unexpectedNodeTester = unexpectedNodeTester;
-		this.unexpectedEntryMessage =
-			unexpectedEntryMessage != null ? unexpectedEntryMessage : DEFAULT_UNEXPECTED_ENTRY_MESSAGE;
-		this.missingRequiredEntryMessage =
-			missingRequiredEntryMessage != null ? missingRequiredEntryMessage : DEFAULT_MISSING_REQUIRED_ENTRY_MESSAGE;
+		this.unexpectedEntryMessage = unexpectedEntryMessage != null
+			? unexpectedEntryMessage
+			: DEFAULT_UNEXPECTED_ENTRY_MESSAGE;
+		this.missingRequiredEntryMessage = missingRequiredEntryMessage != null
+			? missingRequiredEntryMessage
+			: DEFAULT_MISSING_REQUIRED_ENTRY_MESSAGE;
 	}
 
 	/**
@@ -66,13 +63,15 @@ public class EntryValidator {
 	/**
 	 * Validates a node using this entry validator.
 	 * @param sectionNode The node to validate.
-	 * @return A pair containing a map of handled nodes and a list of unhandled nodes (if this validator permits unhandled nodes)
-	 *         The returned map uses the matched entry data's key as a key and uses a pair containing the entry data and matching node
+	 * @return A pair containing a map of handled nodes and a list of unhandled nodes
+	 *         (if this validator permits unhandled nodes)
+	 *         The returned map uses the matched entry data's key as a key and
+	 *         uses a pair containing the entry data and matching node
 	 *         Will return null if the provided node couldn't be validated.
 	 */
 	public @Nullable EntryContainer validate(SectionNode sectionNode) {
 		List<EntryData<?>> entries = new ArrayList<>(entryData);
-		Map<String, Node> handledNodes = new HashMap<>();
+		Map<String, Collection<Node>> handledNodes = new HashMap<>();
 		List<Node> unhandledNodes = new ArrayList<>();
 
 		boolean ok = true;
@@ -85,8 +84,13 @@ public class EntryValidator {
 			while (iterator.hasNext()) {
 				EntryData<?> data = iterator.next();
 				if (data.canCreateWith(node)) { // Determine if it's a match
-					handledNodes.put(data.getKey(), node); // This is a known node, mark it as such
-					iterator.remove();
+					Collection<Node> nodes = handledNodes.computeIfAbsent(
+						data.getKey(), k -> new LinkedList<>()
+					);
+					nodes.add(node);
+					// we do not expect this entry data anymore
+					if (!data.supportsMultiple())
+						iterator.remove();
 					continue nodeLoop;
 				}
 			}
@@ -102,6 +106,11 @@ public class EntryValidator {
 
 		// Now we're going to check for missing entries that are *required*
 		for (EntryData<?> entryData : entries) {
+			// entries that can be included multiple times are not removed,
+			// so we skip them if they occurred at least once
+			if (entryData.supportsMultiple() && handledNodes.containsKey(entryData.getKey())) {
+				continue;
+			}
 			if (!entryData.isOptional()) {
 				Skript.error(missingRequiredEntryMessage.apply(entryData.getKey()));
 				ok = false;
@@ -115,7 +124,8 @@ public class EntryValidator {
 	}
 
 	/**
-	 * A utility builder for creating an entry validator that can be used to parse and validate a {@link SectionNode}.
+	 * A utility builder for creating an entry validator that can be used to parse
+	 * and validate a {@link SectionNode}.
 	 * @see EntryValidator#builder()
 	 */
 	public static class EntryValidatorBuilder {
@@ -173,12 +183,25 @@ public class EntryValidator {
 		 * A function to be applied when a required Node is missing during validation.
 		 * A String representing the key of the missing entry goes in,
 		 *  and an error message to output comes out.
-		 * @param missingRequiredEntryMessage The function to use.
+		 * @param message The function to use.
 		 * @return The builder instance.
 		 */
-		public EntryValidatorBuilder missingRequiredEntryMessage(Function<String, String> missingRequiredEntryMessage) {
-			this.missingRequiredEntryMessage = missingRequiredEntryMessage;
+		public EntryValidatorBuilder missingRequiredEntryMessage(Function<String, String> message) {
+			this.missingRequiredEntryMessage = message;
 			return this;
+		}
+
+		/**
+		 * Adds a new {@link KeyValueEntryData} to this validator that returns the raw, unhandled String value.
+		 * The added entry is optional and will use the provided default value as a backup.
+		 * The entry data can be included only once within a single entry container.
+		 * @param key The key of the entry.
+		 * @param defaultValue The default value of this entry to use if the user does not include this entry.
+		 * @param optional Whether the entry is optional
+		 * @return The builder instance.
+		 */
+		public EntryValidatorBuilder addEntry(String key, @Nullable String defaultValue, boolean optional) {
+			return addEntry(key, defaultValue, optional, false);
 		}
 
 		/**
@@ -186,10 +209,14 @@ public class EntryValidator {
 		 * The added entry is optional and will use the provided default value as a backup.
 		 * @param key The key of the entry.
 		 * @param defaultValue The default value of this entry to use if the user does not include this entry.
+		 * @param optional Whether the entry is optional
+		 * @param multiple Whether the entry can be included multiple times within a single section node
 		 * @return The builder instance.
 		 */
-		public EntryValidatorBuilder addEntry(String key, @Nullable String defaultValue, boolean optional) {
-			entryData.add(new KeyValueEntryData<String>(key, defaultValue, optional) {
+		public EntryValidatorBuilder addEntry(
+			String key, @Nullable String defaultValue, boolean optional, boolean multiple
+		) {
+			entryData.add(new KeyValueEntryData<>(key, defaultValue, optional, multiple) {
 				@Override
 				protected String getValue(String value) {
 					return value;
@@ -205,18 +232,31 @@ public class EntryValidator {
 
 		/**
 		 * Adds a new, potentially optional {@link SectionEntryData} to this validator.
+		 * The entry data can be included only once within a single entry container.
 		 * @param key The key of the section entry.
-		 * @param optional Whether this section entry should be optional.
+		 * @param optional Whether the entry is optional
 		 * @return The builder instance.
 		 */
 		public EntryValidatorBuilder addSection(String key, boolean optional) {
-			entryData.add(new SectionEntryData(key, null, optional));
+			return addSection(key, optional, false);
+		}
+
+		/**
+		 * Adds a new, potentially optional {@link SectionEntryData} to this validator.
+		 * @param key The key of the section entry.
+		 * @param optional Whether the entry is optional
+		 * @param multiple Whether the entry can be included multiple times within a single section node
+		 * @return The builder instance.
+		 */
+		public EntryValidatorBuilder addSection(String key, boolean optional, boolean multiple) {
+			entryData.add(new SectionEntryData(key, null, optional, multiple));
 			return this;
 		}
 
 		/**
 		 * A method to add custom {@link EntryData} to a validator.
-		 * Custom entry data should be preferred when the default methods included in this builder are not expansive enough.
+		 * Custom entry data should be preferred when the default methods included in
+		 * this builder are not expansive enough.
 		 * Please note that for custom {@link KeyValueEntryData} implementations, the default entry separator
 		 *  value of this builder will not be used. Instead, {@link #DEFAULT_ENTRY_SEPARATOR} will be used.
 		 * @param entryData The custom entry data to include in this validator.

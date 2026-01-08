@@ -19,7 +19,6 @@ import org.bukkit.entity.LivingEntity;
 			force {_enderman} to stop screaming
 	"""
 )
-@RequiredPlugins("Paper (endermen)")
 @Since("2.11")
 public class CondIsScreaming extends PropertyCondition<LivingEntity> {
 

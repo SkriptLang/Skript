@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
@@ -18,8 +19,10 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Distance")
 @Description("The distance between two points.")
-@Examples({"if the distance between the player and {home::%uuid of player%} is smaller than 20:",
-		"\tmessage \"You're very close to your home!\""})
+@Example("""
+	if the distance between the player and {home::%uuid of player%} is smaller than 20:
+		message "You're very close to your home!"
+	""")
 @Since("1.0")
 public class ExprDistance extends SimpleExpression<Number> {
 	
@@ -43,8 +46,12 @@ public class ExprDistance extends SimpleExpression<Number> {
 	protected Number[] get(Event event) {
 		Location l1 = loc1.getSingle(event);
 		Location l2 = loc2.getSingle(event);
-		if (l1 == null || l2 == null || l1.getWorld() != l2.getWorld())
+		if (l1 == null || l2 == null)
 			return new Number[0];
+		if (l1.getWorld() != l2.getWorld()) {
+			error("Cannot calculate the distance between locations from two different worlds! (" + Classes.toString(l1.getWorld()) + " and " + Classes.toString(l2.getWorld()) + ")");
+			return new Number[0];
+		}
 		return new Number[] {l1.distance(l2)};
 	}
 	

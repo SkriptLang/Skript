@@ -27,8 +27,7 @@ public class EvtBeaconEffect extends SkriptEvent {
 					"on application of secondary beacon effect:",
 					"on beacon effect of speed:"
 				)
-				.since("2.10")
-				.requiredPlugins("Paper");
+				.since("2.10");
 
 	}
 

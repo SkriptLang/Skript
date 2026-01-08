@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
@@ -29,7 +28,7 @@ import java.util.Set;
 		kill event-projectile
 	""")
 @Since("2.8.0, 2.12 (multiple blocks)")
-@RequiredPlugins("Paper 1.21.4+ (multiple blocks)")
+@RequiredPlugins("Minecraft 1.21.4+ (multiple blocks)")
 public class ExprAttachedBlock extends PropertyExpression<Projectile, Block> {
 
 	static {

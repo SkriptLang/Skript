@@ -1,29 +1,32 @@
 
 package ch.njol.skript.conditions;
 
-import java.util.Arrays;
-import java.util.regex.Pattern;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 @Name("Matches")
 @Description("Checks whether the defined strings match the input regexes (Regular expressions).")
-@Examples({"on chat:",
-	"\tif message partially matches \"\\d\":",
-	"\t\tsend \"Message contains a digit!\"",
-	"\tif message doesn't match \"[A-Za-z]+\":",
-	"\t\tsend \"Message doesn't only contain letters!\""})
+@Example("""
+	on chat:
+		if message partially matches "\\d":
+			send "Message contains a digit!"
+		if message doesn't match "[A-Za-z]+":
+			send "Message doesn't only contain letters!"
+	""")
 @Since("2.5.2")
 public class CondMatches extends Condition {
 	
@@ -75,7 +78,14 @@ public class CondMatches extends Condition {
 	public boolean matches(String str, Pattern pattern) {
 		return partial ? pattern.matcher(str).find() : str.matches(pattern.pattern());
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		if (strings instanceof Literal<String> && regex instanceof Literal<String>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return strings.toString(e, debug) + " " + (isNegated() ? "doesn't match" : "matches") + " " + regex.toString(e, debug);

@@ -2,12 +2,7 @@ package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -22,12 +17,7 @@ import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.TagOrigin;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Tags of X")
@@ -38,13 +28,10 @@ import java.util.concurrent.ThreadLocalRandom;
 	"and `custom tag` will look in the \"skript\" namespace for custom tags you've registered.",
 	"You can also filter by tag types using \"item\", \"block\", or \"entity\"."
 })
-@Examples({
-	"broadcast minecraft tags of dirt",
-	"send true if paper item tags of target block contains paper tag \"doors\"",
-	"broadcast the block tags of player's tool"
-})
+@Example("broadcast minecraft tags of dirt")
+@Example("send true if paper item tags of target block contains paper tag \"doors\"")
+@Example("broadcast the block tags of player's tool")
 @Since("2.10")
-@RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagsOf extends PropertyExpression<Object, Tag> {
 

@@ -1,16 +1,6 @@
 package ch.njol.skript.entity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.function.Consumer;
-
 import ch.njol.skript.Skript;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Item;
-import org.bukkit.inventory.ItemStack;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -19,8 +9,17 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class DroppedItemData extends EntityData<Item> {
 
@@ -37,7 +36,7 @@ public class DroppedItemData extends EntityData<Item> {
 	
 	private final static Adjective m_adjective = new Adjective("entities.dropped item.adjective");
 
-	private ItemType @Nullable [] types;
+	private ItemType @Nullable [] types = null;
 	
 	public DroppedItemData() {}
 	
@@ -46,9 +45,10 @@ public class DroppedItemData extends EntityData<Item> {
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-		if (expressions.length > 0 && expressions[0] != null) {
-			types = (ItemType[]) expressions[0].getAll();
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (exprs.length > 0 && exprs[0] != null) {
+			//noinspection unchecked
+			types = ((Literal<ItemType>) exprs[0]).getAll();
 			for (ItemType type : types) {
 				if (!type.getMaterial().isItem()) {
 					Skript.error("'" + type + "' cannot represent a dropped item");
@@ -60,57 +60,68 @@ public class DroppedItemData extends EntityData<Item> {
 	}
 	
 	@Override
-	protected boolean init(@Nullable Class<? extends Item> clazz, @Nullable Item itemEntity) {
-		if (itemEntity != null) {
-			final ItemStack i = itemEntity.getItemStack();
-			types = new ItemType[] {new ItemType(i)};
+	protected boolean init(@Nullable Class<? extends Item> entityClass, @Nullable Item item) {
+		if (item != null) {
+			ItemStack itemStack = item.getItemStack();
+			types = new ItemType[] {new ItemType(itemStack)};
 		}
 		return true;
 	}
-	
+
 	@Override
-	protected boolean match(Item entity) {
+	public void set(Item item) {
+		if (types == null)
+			return;
+		ItemType itemType = CollectionUtils.getRandom(types);
+		assert itemType != null;
+		ItemStack stack = itemType.getItem().getRandom();
+		assert stack != null; // should be true by init checks
+		item.setItemStack(stack);
+	}
+
+	@Override
+	protected boolean match(Item item) {
 		if (types != null) {
-			for (ItemType t : types) {
-				if (t.isOfType(entity.getItemStack()))
+			for (ItemType itemType : types) {
+				if (itemType.isOfType(item.getItemStack()))
 					return true;
 			}
 			return false;
 		}
 		return true;
 	}
-	
-	@Override
-	public void set(final Item entity) {
-		if (types == null)
-			return;
-		final ItemType t = CollectionUtils.getRandom(types);
-		assert t != null;
-		ItemStack stack = t.getItem().getRandom();
-		assert stack != null; // should be true by init checks
-		entity.setItemStack(stack);
-	}
-	
-	@Override
-	public boolean isSupertypeOf(EntityData<?> otherData) {
-		if (!(otherData instanceof DroppedItemData))
-			return false;
-		DroppedItemData otherItemData = (DroppedItemData) otherData;
-		if (types != null)
-			return otherItemData.types != null && ItemType.isSubset(types, otherItemData.types);
-		return true;
-	}
-	
+
 	@Override
 	public Class<? extends Item> getType() {
 		return Item.class;
 	}
-	
+
 	@Override
-	public @NotNull EntityData getSuperType() {
-		return new DroppedItemData(types);
+	public @NotNull EntityData<?> getSuperType() {
+		return new DroppedItemData();
 	}
-	
+
+	@Override
+	protected int hashCode_i() {
+		return Arrays.hashCode(types);
+	}
+
+	@Override
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof DroppedItemData other))
+			return false;
+		return Arrays.equals(types, other.types);
+	}
+
+	@Override
+	public boolean isSupertypeOf(EntityData<?> otherData) {
+		if (!(otherData instanceof DroppedItemData other))
+			return false;
+		if (types != null)
+			return other.types != null && ItemType.isSubset(types, other.types);
+		return true;
+	}
+
 	@Override
 	public String toString(int flags) {
 		if (types == null)
@@ -120,19 +131,6 @@ public class DroppedItemData extends EntityData<Item> {
 				m_adjective.toString(gender, flags) +
 				" " +
 				Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false);
-	}
-
-	@Override
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	protected boolean deserialize(String s) {
-		throw new UnsupportedOperationException("old serialization is no longer supported");
-	}
-	
-	@Override
-	protected boolean equals_i(EntityData<?> otherData) {
-		if (!(otherData instanceof DroppedItemData))
-			return false;
-		return Arrays.equals(types, ((DroppedItemData) otherData).types);
 	}
 
 	@Override
@@ -147,7 +145,7 @@ public class DroppedItemData extends EntityData<Item> {
 			return null;
 		assert types != null && types.length > 0;
 
-		final ItemType itemType = CollectionUtils.getRandom(types);
+		ItemType itemType = CollectionUtils.getRandom(types);
 		assert itemType != null;
 		ItemStack stack = itemType.getItem().getRandom();
 		assert stack != null; // should be true by init checks
@@ -159,7 +157,7 @@ public class DroppedItemData extends EntityData<Item> {
 			item = world.dropItem(location, stack, consumer);
 		} else if (BUKKIT_CONSUMER_DROP != null) {
 			try {
-				// noinspection deprecation
+				//noinspection removal
 				item = (Item) BUKKIT_CONSUMER_DROP.invoke(world, location, stack, (org.bukkit.util.Consumer<Item>) consumer::accept);
 			} catch (InvocationTargetException | IllegalAccessException e) {
 				if (Skript.testing())
@@ -173,9 +171,4 @@ public class DroppedItemData extends EntityData<Item> {
 		return item;
 	}
 
-	@Override
-	protected int hashCode_i() {
-		return Arrays.hashCode(types);
-	}
-	
 }

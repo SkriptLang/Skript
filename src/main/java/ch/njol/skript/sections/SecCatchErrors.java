@@ -68,7 +68,6 @@ public class SecCatchErrors extends Section implements ExperimentalSyntax {
 		TriggerItem.walk(first, event);
         ExprCaughtErrors.lastErrors = catcher.getCachedErrors().stream().map(RuntimeError::error).toArray(String[]::new);
 		catcher.clearCachedErrors()
-			.clearCachedFrames()
 			.stop();
 		return walk(event, false);
 	}

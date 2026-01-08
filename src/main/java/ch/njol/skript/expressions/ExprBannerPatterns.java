@@ -5,7 +5,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -39,11 +39,9 @@ import java.util.function.Consumer;
 	"For Example, setting the 3rd banner pattern of a banner that has no patterns on it, will internally add 3 base patterns, "
 	+ "allowing the 3rd banner pattern to be set."
 })
-@Examples({
-	"broadcast banner patterns of {_banneritem}",
-	"broadcast 1st banner pattern of block at location(0,0,0)",
-	"clear banner patterns of {_banneritem}"
-})
+@Example("broadcast banner patterns of {_banneritem}")
+@Example("broadcast 1st banner pattern of block at location(0,0,0)")
+@Example("clear banner patterns of {_banneritem}")
 @Since("2.10")
 public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 

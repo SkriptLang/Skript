@@ -2,9 +2,8 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -26,8 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	"A bell can only ring in two directions, and the direction is determined by which way the bell is facing.",
 	"By default, the bell will ring in the direction it is facing.",
 })
-@Examples({"make player ring target-block"})
-@RequiredPlugins("Spigot 1.19.4+")
+@Example("make player ring target-block")
 @Since("2.9.0")
 public class EffRing extends Effect {
 

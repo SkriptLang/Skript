@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -15,15 +15,7 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.Strider;
-import org.bukkit.entity.TraderLlama;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.jetbrains.annotations.Nullable;
@@ -43,15 +35,17 @@ import java.util.stream.Stream;
 	"<li>Horses: Horse armour (doesn't work on zombie or skeleton horses)</li>",
 	"<li>Wolves: Wolf Armor</li>",
 	"<li>Llamas (regular or trader): Carpet</li>",
+	"<li>Happy Ghasts: Harness</li>",
 	"</ul>",
 	"Saddle is a special slot that can only be used for: pigs, striders and horse types (horse, camel, llama, mule, donkey)."
 })
-@Examples({
-	"set chestplate of the player to a diamond chestplate",
-	"helmet of player is neither tag values of tag \"paper:helmets\" nor air # player is wearing a block, e.g. from another plugin"
-})
+@Example("set chestplate of the player to a diamond chestplate")
+@Example("helmet of player is neither tag values of tag \"paper:helmets\" nor air # player is wearing a block, e.g. from another plugin")
 @Keywords("armor")
-@Since("1.0, 2.8.0 (armor), 2.10 (body armor), 2.12 (saddle)")
+@Since({
+	"1.0, 2.8.0 (armor), 2.10 (body armor), 2.12 (saddle)",
+	"2.12.1 (happy ghast)"
+})
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	private static final Set<Class<? extends Entity>> BODY_ENTITIES =
@@ -71,6 +65,8 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 	static {
 		if (Material.getMaterial("WOLF_ARMOR") != null)
 			BODY_ENTITIES.add(Wolf.class);
+		if (Skript.classExists("org.bukkit.entity.HappyGhast"))
+			BODY_ENTITIES.add(HappyGhast.class);
 
 		register(ExprArmorSlot.class, Slot.class, "(%-*equipmentslots%|[the] armo[u]r[s]) [item:item[s]]", "livingentities");
 	}

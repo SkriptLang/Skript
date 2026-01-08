@@ -1,8 +1,8 @@
 package ch.njol.skript.lang;
 
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E> {
 
+	private final @Nullable SyntaxInfo<E> source;
+
 	// todo: 2.9 make all fields private
 	public final Class<E> elementClass;
 	public final String[] patterns;
@@ -32,6 +34,7 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 		if (Modifier.isAbstract(elementClass.getModifiers()))
 			throw new SkriptAPIException("Class " + elementClass.getName() + " is abstract");
 
+		this.source = null;
 		this.patterns = patterns;
 		this.elementClass = elementClass;
 		this.originClassPath = originClassPath;
@@ -43,6 +46,14 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 		} catch (final SecurityException e) {
 			throw new IllegalStateException("Skript cannot run properly because a security manager is blocking it!");
 		}
+	}
+
+	@ApiStatus.Internal
+	protected SyntaxElementInfo(SyntaxInfo<E> source) throws IllegalArgumentException {
+		this.source = source;
+		this.patterns = source.patterns().toArray(new String[0]);
+		this.elementClass = source.type();
+		this.originClassPath = source.origin().name();
 	}
 
 	/**
@@ -77,42 +88,14 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 		if (info instanceof SyntaxElementInfo<? extends E> oldInfo) {
 			return (I) oldInfo;
 		} else if (info instanceof BukkitSyntaxInfos.Event<?> event) {
-			// We must first go back to the raw input
-			String rawName = event.name().startsWith("On ")
-					? event.name().substring(3)
-					: "*" + event.name();
-			SkriptEventInfo<?> eventInfo = new SkriptEventInfo<>(
-					rawName, event.patterns().toArray(new String[0]),
-					event.type(), event.origin().name(),
-					(Class<? extends Event>[]) event.events().toArray(new Class<?>[0]));
-			String documentationId = event.documentationId();
-			if (documentationId != null)
-				eventInfo.documentationID(documentationId);
-			eventInfo.listeningBehavior(event.listeningBehavior())
-					.since(event.since().toArray(new String[0]))
-					.description(event.description().toArray(new String[0]))
-					.examples(event.examples().toArray(new String[0]))
-					.keywords(event.keywords().toArray(new String[0]))
-					.requiredPlugins(event.requiredPlugins().toArray(new String[0]));
-
-			return (I) eventInfo;
+			return (I) new SkriptEventInfo<>(event);
 		} else if (info instanceof SyntaxInfo.Structure<?> structure) {
-			return (I) new StructureInfo<>(structure.patterns().toArray(new String[0]), structure.type(),
-					structure.origin().name(), structure.entryValidator(), structure.nodeType());
+			return (I) new StructureInfo<>(structure);
 		} else if (info instanceof SyntaxInfo.Expression<?, ?> expression) {
-			return (I) fromModernExpression(expression);
+			return (I) new ExpressionInfo<>(expression);
 		}
 
-		return (I) new SyntaxElementInfo<>(info.patterns().toArray(new String[0]), info.type(), info.origin().name());
-	}
-	
-	@Contract("_ -> new")
-	@ApiStatus.Experimental
-	private static <E extends ch.njol.skript.lang.Expression<R>, R> ExpressionInfo<E, R> fromModernExpression(SyntaxInfo.Expression<E, R> info) {
-		return new ExpressionInfo<>(
-				info.patterns().toArray(new String[0]), info.returnType(),
-				info.type(), info.origin().name(), ExpressionType.fromModern(info.priority())
-		);
+		return (I) new SyntaxElementInfo<>(info);
 	}
 
 	// Registration API Compatibility
@@ -127,6 +110,8 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 	@Override
 	@ApiStatus.Internal
 	public SyntaxOrigin origin() {
+		if (source != null)
+			return source.origin();
 		return () -> originClassPath;
 	}
 
@@ -139,6 +124,9 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 	@Override
 	@ApiStatus.Internal
 	public E instance() {
+		if (source != null)
+			return source.instance();
+
 		try {
 			return type().getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
@@ -150,12 +138,16 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 	@Override
 	@ApiStatus.Internal
 	public @Unmodifiable Collection<String> patterns() {
+		if (source != null)
+			return source.patterns();
 		return List.of(getPatterns());
 	}
 
 	@Override
 	@ApiStatus.Internal
 	public Priority priority() {
+		if (source != null)
+			source.priority();
 		return SyntaxInfo.COMBINED;
 	}
 

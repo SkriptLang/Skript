@@ -178,3 +178,83 @@ test "SecConditional - non-multiline conditional at the end":
 	else if 1 is 1:
 		set {_a} to true
 	assert {_a} is set with "non-multiline 'if' didn't run used at the end of a multiline 'if'"
+
+test "SecConditional - delay logic 1":
+	assert has delay before is false with "should not have delay at start of test"
+
+	parse:
+		if true is true:
+			stop
+		else:
+			stop
+	assert last parse logs is not set
+	assert has delay before is false with "all branches having no delay should not cause a delay"
+
+	parse:
+		if true is true:
+			stop
+		else:
+			wait 1 second
+	assert last parse logs is not set
+	assert has delay before is unknown with "only some branches having a delay should cause an unknown delay"
+
+	parse:
+		if true is true:
+			wait 1 second
+		else if:
+			true is true
+			true is true
+		then:
+			wait 1 second
+		else:
+			wait 1 second
+	assert unsafely last parse logs is not set
+	assert unsafely has delay before is true with "all branches having a delay with an else should cause a delay"
+
+	parse:
+		if:
+			true is true
+			true is true
+		then:
+			stop
+		else if:
+			true is true
+			true is true
+		then:
+			stop
+	assert unsafely last parse logs is not set
+	assert unsafely has delay before is true with "all branches having no delay should not change an already delayed trigger"
+
+test "SecConditional - delay logic 2":
+	# separated to ensure no interference from prior tests
+	parse:
+		if true is true:
+			wait 1 second
+		else if:
+			true is true
+			true is true
+		then:
+			wait 1 second
+	assert last parse logs is not set
+	assert has delay before is unknown with "all branches having a delay without an else should cause an unknown delay"
+
+test "SecConditional - delay logic 3":
+	# separated to ensure no interference from prior tests
+	parse:
+		if true is true:
+			wait 1 second
+		else if has delay before is false failing if wrong:
+			stop
+	assert last parse logs is not set with "delay state between branches is not reset"
+
+test "SecConditional - delay logic 4":
+	# separated to ensure no interference from prior tests
+	parse:
+		if true is true:
+			wait 1 second
+		else if:
+			true is true
+			has delay before is false failing if wrong
+		then:
+			stop
+	assert last parse logs is not set with "delay state between branches is not reset"

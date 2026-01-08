@@ -16,11 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Armor Change Item")
 @Description("Get the unequipped or equipped armor item from a 'armor change' event.")
-@Examples("""
+@Example("""
 	on armor change
 		broadcast the old armor item
 	""")
-@RequiredPlugins("Paper")
 @Events("Armor Change")
 @Since("2.11")
 public class ExprArmorChangeItem extends EventValueExpression<ItemStack> implements EventRestrictedSyntax {

@@ -6,6 +6,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Time;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -82,8 +83,9 @@ public class EvtRealTime extends SkriptEvent {
 	@Override
 	public void unload() {
 		unloaded = true;
-		for (TimerTask task : timerTasks)
+		for (TimerTask task : timerTasks) {
 			task.cancel();
+		}
 		TIMER.purge();
 	}
 
@@ -94,14 +96,18 @@ public class EvtRealTime extends SkriptEvent {
 
 	private void execute() {
 		// Ensure this element wasn't unloaded
-		if (unloaded)
+		if (unloaded) {
 			return;
-		RealTimeEvent event = new RealTimeEvent();
-		SkriptEventHandler.logEventStart(event);
-		SkriptEventHandler.logTriggerStart(trigger);
-		trigger.execute(event);
-		SkriptEventHandler.logTriggerEnd(trigger);
-		SkriptEventHandler.logEventEnd();
+		}
+
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+			RealTimeEvent event = new RealTimeEvent();
+			SkriptEventHandler.logEventStart(event);
+			SkriptEventHandler.logTriggerStart(trigger);
+			trigger.execute(event);
+			SkriptEventHandler.logTriggerEnd(trigger);
+			SkriptEventHandler.logEventEnd();
+		});
 	}
 
 	@Override

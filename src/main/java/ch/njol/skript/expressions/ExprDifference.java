@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -27,10 +27,10 @@ import java.lang.reflect.Array;
 	"The difference between two values",
 	"Supported types include <a href='#number'>numbers</a>, <a href='./classes/#date'>dates</a> and <a href='./classes/#time'>times</a>."
 })
-@Examples({
-	"if difference between {command::%player%::lastuse} and now is smaller than a minute:",
-		"\tmessage \"You have to wait a minute before using this command again!\""
-})
+@Example("""
+	if difference between {command::%player%::lastuse} and now is smaller than a minute:
+		message "You have to wait a minute before using this command again!"
+	""")
 @Since("1.4")
 public class ExprDifference extends SimpleExpression<Object> {
 
@@ -150,9 +150,9 @@ public class ExprDifference extends SimpleExpression<Object> {
 		}
 
 		assert differenceInfo != null; // it cannot be null here
-		Object[] one = (Object[]) Array.newInstance(differenceInfo.getReturnType(), 1);
+		Object[] one = (Object[]) Array.newInstance(differenceInfo.returnType(), 1);
 
-		one[0] = differenceInfo.getOperation().calculate(first, second);
+		one[0] = differenceInfo.operation().calculate(first, second);
 
 		return one;
 	}
@@ -164,7 +164,7 @@ public class ExprDifference extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return differenceInfo == null ? Object.class : differenceInfo.getReturnType();
+		return differenceInfo == null ? Object.class : differenceInfo.returnType();
 	}
 
 	@Override

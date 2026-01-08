@@ -2,14 +2,17 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.util.Vector;
 
 @Name("Is Normalized")
 @Description("Checks whether a vector is normalized i.e. length of 1")
-@Examples("vector of player's location is normalized")
+@Example("vector of player's location is normalized")
 @Since("2.5.1")
 public class CondIsVectorNormalized extends PropertyCondition<Vector> {
 	
@@ -21,7 +24,14 @@ public class CondIsVectorNormalized extends PropertyCondition<Vector> {
 	public boolean check(Vector vector) {
 		return vector.isNormalized();
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		if (getExpr() instanceof Literal<? extends Vector>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "normalized";

@@ -12,7 +12,9 @@ import java.util.regex.PatternSyntaxException;
  * These auto-generate their user patterns (e.g. {@code named} -> {@code any named thing}).
  *
  * @see AnyProvider
+ * @deprecated Use {@link org.skriptlang.skript.lang.properties.Property} instead.
  */
+@Deprecated(since="2.13", forRemoval = true)
 public class AnyInfo<Type extends AnyProvider> extends ClassInfo<Type> {
 
 	/**

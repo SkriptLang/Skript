@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -32,11 +32,9 @@ import java.util.List;
 
 @Name("Metadata")
 @Description("Metadata is a way to store temporary data on entities, blocks and more that disappears after a server restart.")
-@Examples({
-	"set metadata value \"healer\" of player to true",
-	"broadcast \"%metadata value \"\"healer\"\" of player%\"",
-	"clear metadata value \"healer\" of player"
-})
+@Example("set metadata value \"healer\" of player to true")
+@Example("broadcast \"%metadata value \"healer\" of player%\"")
+@Example("clear metadata value \"healer\" of player")
 @Since("2.2-dev36, 2.10 (add, remove)")
 public class ExprMetadata<T> extends SimpleExpression<T> {
 
@@ -127,12 +125,12 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
                             info = Arithmetics.getOperationInfo(operator, delta[0].getClass(), delta[0].getClass());
                             if (info == null)
                                 continue;
-                            value = Arithmetics.getDefaultValue(info.getLeft());
+                            value = Arithmetics.getDefaultValue(info.left());
                             if (value == null)
                                 continue;
                         }
                         //noinspection unchecked,rawtypes
-						Object newValue = ((Operation) info.getOperation()).calculate(value, delta[0]);
+						Object newValue = ((Operation) info.operation()).calculate(value, delta[0]);
 						holder.setMetadata(key, new FixedMetadataValue(Skript.getInstance(), newValue));
 					}
                     case DELETE -> holder.removeMetadata(key, Skript.getInstance());

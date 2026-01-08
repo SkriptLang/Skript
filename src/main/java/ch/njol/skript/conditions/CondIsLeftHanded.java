@@ -3,9 +3,8 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -17,16 +16,14 @@ import org.bukkit.inventory.MainHand;
 
 @Name("Left Handed")
 @Description({
-	"Checks if living entities or players are left or right-handed. Armor stands are neither right nor left-handed.",
-	"Paper 1.17.1+ is required for non-player entities."
+	"Checks if living entities or players are left or right-handed. Armor stands are neither right nor left-handed."
 })
-@Examples({
-	"on damage of player:",
-		"\tif victim is left handed:",
-			"\t\tcancel event"
-})
+@Example("""
+	on damage of player:
+		if victim is left handed:
+			cancel event
+	""")
 @Since("2.8.0")
-@RequiredPlugins("Paper 1.17.1+ (entities)")
 public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
 	// TODO - remove this when Spigot support is dropped

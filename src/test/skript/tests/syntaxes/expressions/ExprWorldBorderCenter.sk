@@ -36,3 +36,9 @@ test "worldborder center":
 
 	reset worldborder center of {_border}
 	assert worldborder center of {_border} is location(0, 0, 0, "world") with "failed to reset border center"
+
+	catch runtime errors:
+		loop 20 times:
+			set worldborder center of {_border} to location(2, 0, NaN value)
+		set worldborder damage amount of {_border} to infinity value
+	assert last caught runtime errors contains "World border damage amount cannot be infinite" with "Infinity damage value did not throw error"

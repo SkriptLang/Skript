@@ -1,12 +1,14 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -16,8 +18,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Alphanumeric")
 @Description({"Checks if the given string is alphanumeric."})
-@Examples({"if the argument is not alphanumeric:",
-		"	send \"Invalid name!\""})
+@Example("""
+	if the argument is not alphanumeric:
+		send "Invalid name!"
+	""")
 @Since("2.4")
 public class CondAlphanumeric extends Condition {
 	
@@ -42,7 +46,14 @@ public class CondAlphanumeric extends Condition {
 	public boolean check(Event e) {
 		return isNegated() ^ strings.check(e, StringUtils::isAlphanumeric);
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		if (strings instanceof Literal<String>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return strings.toString(e, debug) + " is" + (isNegated() ? "n't" : "") + " alphanumeric";

@@ -1,56 +1,77 @@
 package ch.njol.skript.entity;
 
-import ch.njol.skript.registrations.Classes;
-import com.google.common.collect.Iterators;
-import org.bukkit.entity.Cat;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.Iterators;
+import org.bukkit.Registry;
+import org.bukkit.entity.Cat;
+import org.bukkit.entity.Cat.Type;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 public class CatData extends EntityData<Cat> {
-	
+
+	private static final Type[] TYPES;
+
 	static {
-		if (Skript.classExists("org.bukkit.entity.Cat")) {
-			EntityData.register(CatData.class, "cat", Cat.class, "cat");
-			types = Iterators.toArray(Classes.getExactClassInfo(Cat.Type.class).getSupplier().get(), Cat.Type.class);
+		ClassInfo<Type> catTypeClassInfo;
+		if (BukkitUtils.registryExists("CAT_VARIANT")) {
+			catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
+		} else {
+			//noinspection unchecked, rawtypes - it is an enum on other versions
+			catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
 		}
+		Classes.registerClass(catTypeClassInfo
+			.user("cat ?(type|race)s?")
+			.name("Cat Type")
+			.description("Represents the race/type of a cat entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:british_shorthair'.")
+			.since("2.4")
+			.requiredPlugins("Minecraft 1.14 or newer")
+			.documentationId("CatType"));
+
+		EntityData.register(CatData.class, "cat", Cat.class, "cat");
+		TYPES = Iterators.toArray(catTypeClassInfo.getSupplier().get(), Type.class);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private static Cat.Type[] types;
-	
-	private Cat.@Nullable Type race = null;
-	
-	@SuppressWarnings("unchecked")
+	private @Nullable Type type = null;
+
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		if (exprs.length > 0 && exprs[0] != null)
-			race = ((Literal<Cat.Type>) exprs[0]).getSingle();
+	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+		if (exprs.length > 0 && exprs[0] != null) {
+			//noinspection unchecked
+			type = ((Literal<Type>) exprs[0]).getSingle();
+		}
 		return true;
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Cat> c, @Nullable Cat cat) {
-		race = (cat == null) ? Cat.Type.TABBY : cat.getCatType();
+	protected boolean init(@Nullable Class<? extends Cat> entityClass, @Nullable Cat cat) {
+		if (cat != null)
+			type = cat.getCatType();
 		return true;
 	}
 	
 	@Override
-	public void set(Cat entity) {
-		Cat.Type type = race != null ? race : CollectionUtils.getRandom(types);
+	public void set(Cat cat) {
+		Type type = this.type;
+		if (type == null)
+			type = CollectionUtils.getRandom(TYPES);
 		assert type != null;
-		entity.setCatType(type);
+		cat.setCatType(type);
 	}
 	
 	@Override
-	protected boolean match(Cat entity) {
-		return race == null || entity.getCatType() == race;
+	protected boolean match(Cat cat) {
+		return dataMatch(type, cat.getCatType());
 	}
 	
 	@Override
@@ -59,22 +80,27 @@ public class CatData extends EntityData<Cat> {
 	}
 	
 	@Override
-	public @NotNull EntityData getSuperType() {
+	public @NotNull EntityData<?> getSuperType() {
 		return new CatData();
 	}
 	
 	@Override
 	protected int hashCode_i() {
-		return Objects.hashCode(race);
+		return Objects.hashCode(type);
 	}
 	
 	@Override
-	protected boolean equals_i(EntityData<?> data) {
-		return data instanceof CatData ? race == ((CatData) data).race : false;
+	protected boolean equals_i(EntityData<?> entityData) {
+		if (!(entityData instanceof CatData other))
+			return false;
+		return type == other.type;
 	}
 	
 	@Override
-	public boolean isSupertypeOf(EntityData<?> data) {
-		return data instanceof CatData ? race == null || race == ((CatData) data).race : false;
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		if (!(entityData instanceof CatData other))
+			return false;
+		return dataMatch(type, other.type);
 	}
+
 }

@@ -44,4 +44,11 @@ public interface Color extends YggdrasilExtendedSerializable {
 	 */
 	String getName();
 
+	/**
+	 * @return the color as an ARGB integer.
+	 */
+	default int asARGB() {
+		return asBukkitColor().asARGB();
+	}
+
 }

@@ -6,7 +6,7 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprInput;
@@ -41,16 +41,14 @@ import java.util.stream.StreamSupport;
 	"maintains the indices of the filtered list.",
 	"It also supports filtering based on meeting any of the given criteria, rather than all, like multi-line if statements."
 })
-@Examples({
-	"set {_a::*} to integers between -10 and 10",
-	"",
-	"filter {_a::*} to match:",
-		"\tinput is a number",
-		"\tmod(input, 2) = 0",
-		"\tinput > 0",
-	"",
-	"send {_a::*} # sends 2, 4, 6, 8, and 10",
-})
+@Example("set {_a::*} to integers between -10 and 10")
+@Example("""
+	filter {_a::*} to match:
+		input is a number
+		mod(input, 2) = 0
+		input > 0
+	send {_a::*} # sends 2, 4, 6, 8, and 10
+	""")
 @Since("2.10")
 public class SecFilter extends Section implements InputSource {
 

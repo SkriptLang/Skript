@@ -28,6 +28,6 @@ test "line width":
 	assert line width of {_td} is 200 with "failed to reset line width"
 
 	set line width of {_td} to infinity value
-	assert line width of {_td} is 2147483647 with "failed to set line width"
+	assert line width of {_td} is max integer value with "failed to set line width"
 
 	delete entity within {_td}

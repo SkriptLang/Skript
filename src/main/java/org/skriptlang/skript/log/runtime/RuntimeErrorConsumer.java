@@ -1,5 +1,7 @@
 package org.skriptlang.skript.log.runtime;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.logging.Level;
 
 /**
@@ -14,6 +16,15 @@ public interface RuntimeErrorConsumer {
 	 * @param error The error to print.
 	 */
 	void printError(RuntimeError error);
+
+	/**
+	 * @return The filter to use when checking if this consumer should print an error. Defaults to the standard
+	 * 			config-driven filter. If no filter should be used, return {@link RuntimeErrorFilter#NO_FILTER}. This value
+	 * 			MUST be effectively final.
+	 */
+	default @Nullable RuntimeErrorFilter getFilter() {
+		return RuntimeErrorManager.standardFilter;
+	}
 
 	/**
 	 * Prints the output of a frame, including skipped errors, timeouts, and whatever other information required.

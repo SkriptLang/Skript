@@ -2,26 +2,29 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
-import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 @Name("Reversed List")
 @Description("Reverses given list.")
-@Examples({"set {_list::*} to reversed {_list::*}"})
+@Example("set {_list::*} to reversed {_list::*}")
 @Since("2.4")
 public class ExprReversedList extends SimpleExpression<Object> {
 
@@ -43,17 +46,37 @@ public class ExprReversedList extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		list = LiteralUtils.defendExpression(exprs[0]);
+		if (list.isSingle()) {
+			Skript.error("A single object cannot be reversed.");
+			return false;
+		}
 		return LiteralUtils.canInitSafely(list);
 	}
 
 	@Override
 	@Nullable
 	protected Object[] get(Event e) {
-		Object[] inputArray = list.getArray(e).clone();
-		Object[] array = (Object[]) Array.newInstance(getReturnType(), inputArray.length);
-		System.arraycopy(inputArray, 0, array, 0, inputArray.length);
+		Object[] array = list.getArray(e);
 		reverse(array);
 		return array;
+	}
+
+	@Override
+	public @Nullable Iterator<?> iterator(Event event) {
+		List<?> list = Arrays.asList(this.list.getArray(event));
+		return new Iterator<>() {
+			private final ListIterator<?> listIterator = list.listIterator(list.size());
+
+			@Override
+			public boolean hasNext() {
+				return listIterator.hasPrevious();
+			}
+
+			@Override
+			public Object next() {
+				return listIterator.previous();
+			}
+		};
 	}
 
 	@Override

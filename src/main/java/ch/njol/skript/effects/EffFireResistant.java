@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -17,17 +17,16 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Make Fire Resistant")
 @Description("Makes items fire resistant.")
-@Examples({
-	"make player's tool fire resistant:",
-	"make {_items::*} not resistant to fire"
-})
+@Example("make player's tool fire resistant")
+@Example("make {_items::*} not resistant to fire")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class EffFireResistant extends Effect {
 
 	static {
-		if (Skript.methodExists(ItemMeta.class, "setFireResistant", boolean.class))
+		if (Skript.methodExists(ItemMeta.class, "setFireResistant", boolean.class)) {
 			Skript.registerEffect(EffFireResistant.class, "make %itemtypes% [:not] (fire resistant|resistant to fire)");
+		}
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")

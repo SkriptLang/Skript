@@ -1,11 +1,13 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SimplifiedCondition;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -16,7 +18,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Running Minecraft")
 @Description("Checks if current Minecraft version is given version or newer.")
-@Examples("running minecraft \"1.14\"")
+@Example("running minecraft \"1.14\"")
 @Since("2.5")
 public class CondMinecraftVersion extends Condition {
 	
@@ -40,7 +42,14 @@ public class CondMinecraftVersion extends Condition {
 		String ver = version.getSingle(e);
 		return ver != null ? Skript.isRunningMinecraft(new Version(ver)) ^ isNegated() : false;
 	}
-	
+
+	@Override
+	public Condition simplify() {
+		if (version instanceof Literal<String>)
+			return SimplifiedCondition.fromCondition(this);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "is running minecraft " + version.toString(e, debug);

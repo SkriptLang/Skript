@@ -13,8 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Clear Entity Storage")
 @Description("Clear the stored entities of an entity block storage (i.e. beehive).")
-@Examples("clear the stored entities of {_beehive}")
-@RequiredPlugins("Paper")
+@Example("clear the stored entities of {_beehive}")
 @Since("2.11")
 public class EffClearEntityStorage extends Effect {
 

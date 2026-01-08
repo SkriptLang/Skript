@@ -1,0 +1,16 @@
+test "reversed single":
+	parse:
+		loop reversed 5:
+			broadcast "filler"
+	assert last parse logs contains "A single object cannot be reversed." with "Parse error was not thrown"
+
+	set {_num} to 5
+	parse:
+		loop reversed {_num}:
+			broadcast "filler"
+	assert last parse logs contains "A single object cannot be reversed." with "Parse error was not thrown"
+
+test "reversed literal times":
+	loop reversed 5 times:
+		add loop-value to {_reversed::*}
+	assert {_reversed::*} is (5, 4, 3, 2, and 1) with "reversed literal times did not parse correctly"
