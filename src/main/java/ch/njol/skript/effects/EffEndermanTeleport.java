@@ -20,11 +20,11 @@ import java.util.function.Consumer;
 	"Make an enderman teleport randomly or towards an entity.",
 	"Teleporting towards an entity teleports in the direction to the entity and not to them."
 })
-@Examples({
-	"make last spawned enderman teleport randomly",
-	"loop 10 times:",
-		"\tmake all endermen teleport towards player"
-})
+@Example("make last spawned enderman teleport randomly")
+@Example("""
+	loop 10 times:
+		make all endermen teleport towards player
+	""")
 @RequiredPlugins("Minecraft 1.20.1+")
 @Since("2.11")
 public class EffEndermanTeleport extends Effect {

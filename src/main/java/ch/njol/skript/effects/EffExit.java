@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -19,15 +19,12 @@ import java.util.List;
 
 @Name("Exit")
 @Description("Exits a given amount of loops and conditionals, or the entire trigger.")
-@Examples({
-	"if player has any ore:",
-		"\tstop",
-	"message \"%player% has no ores!\"",
-	"loop blocks above the player:",
-		"\tloop-block is not air:",
-			"\t\texit 2 sections",
-		"\tset loop-block to water"
-})
+@Example("""
+	loop blocks above the player:
+		loop-block is not air:
+			exit 2 sections
+		set loop-block to water
+	""")
 @Since("unknown (before 2.1)")
 public class EffExit extends Effect {
 

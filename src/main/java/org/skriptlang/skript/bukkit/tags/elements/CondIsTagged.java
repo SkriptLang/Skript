@@ -4,7 +4,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -23,12 +23,11 @@ import org.skriptlang.skript.bukkit.tags.TagModule;
 @Description({
 	"Checks whether an item, block, entity, or entitydata is tagged with the given tag."
 })
-@Examples({
-	"if player's tool is tagged with minecraft tag \"enchantable/sharp_weapon\":",
-		"\tenchant player's tool with sharpness 1",
-	"",
-	"if all logs are tagged with tag \"minecraft:logs\""
-})
+@Example("""
+	if player's tool is tagged with minecraft tag "enchantable/sharp_weapon":
+		enchant player's tool with sharpness 1
+	""")
+@Example("if all logs are tagged with tag \"minecraft:logs\"")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class CondIsTagged extends Condition {

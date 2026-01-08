@@ -29,10 +29,8 @@ import java.util.List;
 	"Drops can be prevented by removing them with \"remove ... from drops\", "
 		+ "e.g. \"remove all pickaxes from the drops\", or \"clear drops\" if you don't want any drops at all."
 })
-@Examples({
-	"clear drops",
-	"remove 4 planks from the drops"
-})
+@Example("clear drops")
+@Example("remove 4 planks from the drops")
 @Since("1.0")
 @Events("death")
 public class ExprDrops extends SimpleExpression<ItemType> implements EventRestrictedSyntax {

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -27,8 +27,8 @@ import ch.njol.util.coll.CollectionUtils;
 		"You can also use RGB codes if you feel limited with the 16 default colors. " +
 		"RGB codes are three numbers from 0 to 255 in the order <code>(red, green, blue)</code>, where <code>(0,0,0)</code> is black and <code>(255,255,255)</code> is white. " +
 		"Armor is colorable for all Minecraft versions. With Minecraft 1.11 or newer you can also color potions and maps. Note that the colors might not look exactly how you'd expect.")
-@Examples({"dye player's helmet blue",
-		"color the player's tool red"})
+@Example("dye player's helmet blue")
+@Example("color the player's tool red")
 @Since("2.0, 2.2-dev26 (maps and potions)")
 public class EffColorItems extends Effect {
 	

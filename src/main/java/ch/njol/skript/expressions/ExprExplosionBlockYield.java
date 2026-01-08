@@ -8,7 +8,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,8 +23,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Description({"The percentage of exploded blocks dropped in an explosion event.",
 				"When changing the yield, a value greater than 1 will function the same as using 1.",
 				"Attempting to change the yield to a value less than 0 will have no effect."})
-@Examples({"on explode:",
-			"set the explosion's block yield to 10%"})
+@Example("""
+	on explode:
+		set the explosion's block yield to 10%
+	""")
 @Events("explosion")
 @Since("2.5")
 public class ExprExplosionBlockYield extends SimpleExpression<Number> {

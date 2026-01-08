@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -20,11 +20,11 @@ import org.jetbrains.annotations.Nullable;
 	"More information on what and when entities despawn can be found at "
 		+ "<a href=\"https://minecraft.wiki/w/Mob_spawning#Despawning\">reference</a>."
 })
-@Examples({
-	"make all entities not despawnable on chunk unload",
-	"spawn zombie at location(0, 0, 0):",
-		"\tforce event-entity to not despawn when far away",
-})
+@Example("make all entities not despawnable on chunk unload")
+@Example("""
+	spawn zombie at location(0, 0, 0):
+		force event-entity to not despawn when far away
+	""")
 @Since("2.11")
 public class EffEntityUnload extends Effect {
 
