@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -20,8 +20,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Force Respawn")
 @Description("Forces player(s) to respawn if they are dead. If this is called without delay from death event, one tick is waited before respawn attempt.")
-@Examples({"on death of player:",
-		"\tforce event-player to respawn",})
+@Example("""
+	on death of player:
+		force event-player to respawn
+	""")
 @Since("2.2-dev21")
 public class EffRespawn extends Effect {
 

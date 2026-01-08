@@ -4,13 +4,13 @@ import org.bukkit.entity.LivingEntity;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
 @Name("Has AI")
 @Description("Checks whether an entity has AI.")
-@Examples("target entity has ai")
+@Example("target entity has ai")
 @Since("2.5")
 public class CondAI extends PropertyCondition<LivingEntity> {
 	

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 @Name("Method Exists")
 @Description("Checks if a method exists")
-@Examples("if method \"org.bukkit.Bukkit#getPluginCommand(java.lang.String)\" exists")
+@Example("if method \"org.bukkit.Bukkit#getPluginCommand(java.lang.String)\" exists")
 @Since("2.7")
 @NoDoc
 public class CondMethodExists extends PropertyCondition<String> {

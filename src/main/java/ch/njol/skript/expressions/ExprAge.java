@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -26,14 +26,15 @@ import org.jetbrains.annotations.Nullable;
 	"For entities, 'Age' represents the time left for them to become adults and it's in minus increasing to be 0 which means they're adults, " +
 	"e.g. A baby cow needs 20 minutes to become an adult which equals to 24,000 ticks so their age will be -24000 once spawned."
 })
-@Examples({
-	"# Set targeted crop to fully grown crop",
-	"set age of targeted block to maximum age of targeted block",
-	" ",
-	"# Spawn a baby cow that will only need 1 minute to become an adult",
-	"spawn a baby cow at player",
-	"set age of last spawned entity to -1200 # in ticks = 60 seconds"
-})
+@Example("""
+	# Set targeted crop to fully grown crop
+	set age of targeted block to maximum age of targeted block
+	""")
+@Example("""
+	# Spawn a baby cow that will only need 1 minute to become an adult
+	spawn a baby cow at player
+	set age of last spawned entity to -1200 # in ticks = 60 seconds
+	""")
 @Since("2.7")
 public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 

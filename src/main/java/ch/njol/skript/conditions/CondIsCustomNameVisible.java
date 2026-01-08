@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -13,7 +13,7 @@ import org.bukkit.entity.Entity;
 
 @Name("Is Custom Name Visible")
 @Description("Checks if an entity's custom name is visible.")
-@Examples("send true if target's custom name is visible")
+@Example("send true if target's custom name is visible")
 @Since("2.10")
 public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 

@@ -35,14 +35,14 @@ import java.util.function.Supplier;
 	"<li>burn time: The amount of time left for the current fuel until consumption of another fuel item.</li>",
 	"</ul>"
 })
-@Examples({
-	"set the cooking time of {_block} to 10",
-	"set the total cooking time of {_block} to 50",
-	"set the fuel burning time of {_block} to 100",
-	"on smelt:",
-		"\tif the fuel slot is charcoal:",
-			"\t\tadd 5 seconds to the fuel burn time"
-})
+@Example("set the cooking time of {_block} to 10")
+@Example("set the total cooking time of {_block} to 50")
+@Example("set the fuel burning time of {_block} to 100")
+@Example("""
+	on smelt:
+		if the fuel slot is charcoal:
+			add 5 seconds to the fuel burn time
+	""")
 @Since("2.10")
 public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 

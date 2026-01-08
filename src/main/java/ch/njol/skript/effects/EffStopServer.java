@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,7 +17,8 @@ import ch.njol.util.Kleenean;
 
 @Name("Stop Server")
 @Description("Stops or restarts the server. If restart is used when the restart-script spigot.yml option isn't defined, the server will stop instead.")
-@Examples({"stop the server", "restart server"})
+@Example("stop the server")
+@Example("restart server")
 @Since("2.5")
 public class EffStopServer extends Effect {
 	

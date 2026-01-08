@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 	"The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border.",
 	"Players only see a red tint when approaching a world's worldborder and the warning distance has to be an integer greater than or equal to 0."
 })
-@Examples("set world border warning distance of {_worldborder} to 1")
+@Example("set world border warning distance of {_worldborder} to 1")
 @Since("2.11")
 public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Integer> {
 

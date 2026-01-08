@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,7 +16,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Toggle Flight")
 @Description("Toggle the <a href='#ExprFlightMode'>flight mode</a> of a player.")
-@Examples("allow flight to event-player")
+@Example("allow flight to event-player")
 @Since("2.3")
 public class EffToggleFlight extends Effect {
 

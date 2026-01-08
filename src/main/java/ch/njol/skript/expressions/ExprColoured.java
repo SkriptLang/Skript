@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -20,14 +20,20 @@ import org.jetbrains.annotations.Nullable;
 		"any colors <i>and</i> chat styles from the message. Parsing all",
 		"chat styles requires this expression to be used in same line with",
 		"the <a href=#EffSend>send effect</a>."})
-@Examples({"on chat:",
-		"	set message to colored message # Safe; only colors get parsed",
-		"command /fade &lt;player&gt;:",
-		"	trigger:",
-		"		set display name of the player-argument to uncolored display name of the player-argument",
-		"command /format &lt;text&gt;:",
-		"	trigger:",
-		"		message formatted text-argument # Safe, because we're sending to whoever used this command"})
+@Example("""
+	on chat:
+		set message to colored message # Safe; only colors get parsed
+	""")
+@Example("""
+	command /fade <player>:
+		trigger:
+			set display name of the player-argument to uncolored display name of the player-argument
+	""")
+@Example("""
+	command /format <text>:
+		trigger:
+			message formatted text-argument # Safe, because we're sending to whoever used this command
+	""")
 @Since("2.0")
 public class ExprColoured extends PropertyExpression<String, String> {
 	static {
