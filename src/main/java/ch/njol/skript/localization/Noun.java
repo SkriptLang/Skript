@@ -211,9 +211,10 @@ public class Noun extends Message {
 		StringBuilder singular = new StringBuilder();
 		StringBuilder plural = new StringBuilder();
 		int part = 3; // 1 = singular, 2 = plural, 3 = both
-		int markerCount = StringUtils.count(input, '¦') + StringUtils.count(input, ':') ;
+		char marker = '¦';
+		int markerCount = StringUtils.count(input, marker);
 		int last = 0, c = -1;
-		while ((c = nextPluralMarker(input, c)) != -1) {
+		while ((c = input.indexOf(marker, c + 1)) != -1) {
 			String x = input.substring(last, c);
 			if ((part & 1) != 0)
 				singular.append(x);
@@ -236,14 +237,6 @@ public class Noun extends Message {
 	 * @param plural The plural version of the parsed input if it exists, or a copy of the singular version.
 	 */
 	public record PluralPair(String singular, String plural) {}
-
-	private static int nextPluralMarker(String input, int startIndex) {
-		int pipeIndex = input.indexOf('¦', startIndex + 1);
-		int colonIndex = input.indexOf(':', startIndex + 1);
-		if (pipeIndex == -1)
-			return colonIndex;
-		return pipeIndex;
-	}
 	
 	/**
 	 * Normalizes plural markers, i.e. increases the total number of markers to a multiple of 3 without changing the string's meaning.
