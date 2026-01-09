@@ -41,4 +41,9 @@ public class BrewingModule implements AddonModule {
 		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
+	@Override
+	public String name() {
+		return "brewing";
+	}
+
 }

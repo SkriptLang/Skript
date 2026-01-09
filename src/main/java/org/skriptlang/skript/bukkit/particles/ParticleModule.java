@@ -52,7 +52,7 @@ public class ParticleModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		// load elements!
 		SyntaxRegistry registry = addon.syntaxRegistry();
-		ModuleOrigin origin = AddonModule.origin(addon, "particles");
+		ModuleOrigin origin = AddonModule.origin(addon, this);
 		EffPlayEffect.register(registry, origin);
 		ExprGameEffectWithData.register(registry, origin);
 		ExprParticleCount.register(registry, origin);
@@ -491,6 +491,11 @@ public class ParticleModule implements AddonModule {
 		protected boolean canBeInstantiated() {
 			return false;
 		}
+	}
+
+	@Override
+	public String name() {
+		return "particle";
 	}
 
 }

@@ -14,17 +14,16 @@ import org.skriptlang.skript.docs.Origin.AddonOrigin;
  * The <code>load</code> phase should be used for loading components more specific to the module, such as syntax.
  * @see SkriptAddon#loadModules(AddonModule...)
  */
-@FunctionalInterface
 public interface AddonModule {
 
 	/**
 	 * Constructs an origin from an addon and module name.
 	 * @param addon The addon providing the module.
-	 * @param moduleName The name of the providing module.
+	 * @param module The module to construct this origin from.
 	 * @return An origin from the provided information.
 	 */
-	static ModuleOrigin origin(SkriptAddon addon, String moduleName) {
-		return new AddonModuleImpl.ModuleOriginImpl(addon, moduleName);
+	static ModuleOrigin origin(SkriptAddon addon, AddonModule module) {
+		return new AddonModuleImpl.ModuleOriginImpl(addon, module.name());
 	}
 
 	/**
@@ -37,6 +36,17 @@ public interface AddonModule {
 		 */
 		String moduleName();
 
+	}
+
+	/**
+	 * Allow addons to specify whether they can load or not.
+	 * Called prior to {@link #init(SkriptAddon)}
+	 *
+	 * @param addon The addon this module belongs to.
+	 * @return Whether this module can load.
+	 */
+	default boolean canLoad(SkriptAddon addon) {
+		return true;
 	}
 
 	/**
@@ -55,14 +65,8 @@ public interface AddonModule {
 	void load(SkriptAddon addon);
 
 	/**
-	 * Allow addons to specify whether they can load or not.
-	 * Called prior to {@link #init(SkriptAddon)}
-	 *
-	 * @param addon The addon this module belongs to.
-	 * @return Whether this module can load.
+	 * @return The name of this module.
 	 */
-	default boolean canLoad(SkriptAddon addon) {
-		return true;
-	}
+	String name();
 
 }

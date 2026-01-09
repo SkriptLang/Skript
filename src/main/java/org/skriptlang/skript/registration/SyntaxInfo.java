@@ -8,6 +8,7 @@ import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.Collection;
+import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
 /**
@@ -71,7 +72,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 	/**
 	 * @return The patterns of this syntax.
 	 */
-	@Unmodifiable Collection<String> patterns();
+	@Unmodifiable SequencedCollection<String> patterns();
 
 	/**
 	 * @return The priority of this syntax, which dictates its position for matching during parsing.

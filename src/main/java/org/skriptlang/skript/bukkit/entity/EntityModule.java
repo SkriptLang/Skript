@@ -18,4 +18,9 @@ public class EntityModule implements AddonModule {
 		}
 	}
 
+	@Override
+	public String name() {
+		return "entity";
+	}
+
 }
