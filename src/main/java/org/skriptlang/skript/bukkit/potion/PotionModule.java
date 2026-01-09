@@ -197,7 +197,7 @@ public class PotionModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		// Load Syntax
 		SyntaxRegistry registry = addon.syntaxRegistry();
-		Origin origin = AddonModule.origin(addon, "potions");
+		Origin origin = AddonModule.origin(addon, this);
 		// conditions
 		CondHasPotion.register(registry, origin);
 		CondIsPoisoned.register(registry, origin);
@@ -222,6 +222,11 @@ public class PotionModule implements AddonModule {
 		ExprPotionEffectTypeCategory.register(registry, origin);
 		ExprSecPotionEffect.register(registry, origin);
 		ExprSkriptPotionEffect.register(registry, origin);
+	}
+
+	@Override
+	public String name() {
+		return "potion";
 	}
 
 }

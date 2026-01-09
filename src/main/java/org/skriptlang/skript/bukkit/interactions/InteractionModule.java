@@ -48,4 +48,9 @@ public class InteractionModule implements AddonModule {
 		return interact;
 	}
 
+	@Override
+	public String name() {
+		return "interaction";
+	}
+
 }

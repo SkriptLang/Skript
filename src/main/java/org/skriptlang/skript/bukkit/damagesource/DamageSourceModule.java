@@ -61,4 +61,9 @@ public class DamageSourceModule implements AddonModule {
 		}
 	}
 
+	@Override
+	public String name() {
+		return "damage source";
+	}
+
 }
