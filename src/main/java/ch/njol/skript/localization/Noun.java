@@ -45,9 +45,9 @@ public class Noun extends Message {
 		} else {
 			gender = 0;
 		}
-		NonNullPair<String, String> p = Noun.getPlural(value);
-		singular = p.getFirst();
-		plural = p.getSecond();
+		PluralPair p = Noun.parsePlural(value);
+		singular = p.singular;
+		plural = p.plural;
 		if (gender == PLURAL && !Objects.equals(singular, plural))
 			Skript.warning("Noun '" + key + "' is of gender 'plural', but has different singular and plural values.");
 	}
@@ -192,31 +192,51 @@ public class Noun extends Message {
 	}
 	
 	/**
-	 * @param s String with ¦ plural markers but without a @gender
+	 * @param input String with ¦ or : plural markers but without a @gender
 	 * @return (singular, plural)
+	 * @deprecated Use {@link #parsePlural(String)} instead.
 	 */
-	public static NonNullPair<String, String> getPlural(String s) {
-		NonNullPair<String, String> r = new NonNullPair<>("", "");
-		int part = 3; // 1 = singular, 2 = plural, 3 = both
-		int i = StringUtils.count(s, '¦');
-		int last = 0, c = -1;
-		while ((c = s.indexOf('¦', c + 1)) != -1) {
-			String x = s.substring(last, c);
-			if ((part & 1) != 0)
-				r.setFirst(r.getFirst() + x);
-			if ((part & 2) != 0)
-				r.setSecond(r.getSecond() + x);
-			part = i >= 2 ? (part % 3) + 1 : (part == 2 ? 3 : 2);
-			last = c + 1;
-			i--;
-		}
-		String x = s.substring(last);
-		if ((part & 1) != 0)
-			r.setFirst(r.getFirst() + x);
-		if ((part & 2) != 0)
-			r.setSecond(r.getSecond() + x);
-		return r;
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	public static NonNullPair<String, String> getPlural(String input) {
+		PluralPair pair = parsePlural(input);
+		return new NonNullPair<>(pair.singular, pair.plural);
 	}
+
+	/**
+	 * Parses an input string with plural markers into both its singular and plural forms.
+	 * @param input String with ¦ or : plural markers but without an @gender.
+	 * @return (singular, plural). The two will be the same if no markers exist.
+	 */
+	public static PluralPair parsePlural(String input) {
+		StringBuilder singular = new StringBuilder();
+		StringBuilder plural = new StringBuilder();
+		int part = 3; // 1 = singular, 2 = plural, 3 = both
+		char marker = '¦';
+		int markerCount = StringUtils.count(input, marker);
+		int last = 0, c = -1;
+		while ((c = input.indexOf(marker, c + 1)) != -1) {
+			String x = input.substring(last, c);
+			if ((part & 1) != 0)
+				singular.append(x);
+			if ((part & 2) != 0)
+				plural.append(x);
+			part = markerCount >= 2 ? (part % 3) + 1 : (part == 2 ? 3 : 2);
+			last = c + 1;
+			markerCount--;
+		}
+		String x = input.substring(last);
+		if ((part & 1) != 0)
+			singular.append(x);
+		if ((part & 2) != 0)
+			plural.append(x);
+		return new PluralPair(singular.toString(), plural.toString());
+	}
+
+	/**
+	 * @param singular The singular version of the parsed input.
+	 * @param plural The plural version of the parsed input if it exists, or a copy of the singular version.
+	 */
+	public record PluralPair(String singular, String plural) {}
 	
 	/**
 	 * Normalizes plural markers, i.e. increases the total number of markers to a multiple of 3 without changing the string's meaning.

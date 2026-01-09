@@ -65,9 +65,9 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 				String first = strippedOption.getFirst();
 				Integer second = strippedOption.getSecond();
 
-				NonNullPair<String, String> singlePlural = Noun.getPlural(first);
-				String single = singlePlural.getFirst();
-				String plural = singlePlural.getSecond();
+				Noun.PluralPair singlePlural = Noun.parsePlural(first);
+				String single = singlePlural.singular();
+				String plural = singlePlural.plural();
 
 				if (names[ordinal] == null) { // Add to name array if needed
 					names[ordinal] = single;
@@ -77,7 +77,7 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 				if (!plural.isEmpty())
 					parseMap.put(plural, constant);
 				if (second != -1) { // There is a gender present
-					parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + first, constant);
+					parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + single, constant);
 				}
 			}
 		}

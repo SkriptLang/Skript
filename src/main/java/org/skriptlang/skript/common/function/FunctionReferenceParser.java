@@ -218,21 +218,34 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 					break;
 				}
 
+				Argument<String> argument;
+				if (i < arguments.length) {
+					argument = arguments[i];
+				} else {
+					argument = null;
+				}
+
 				Parameter<?> parameter;
-				if (i < arguments.length && arguments[i].type() == ArgumentType.NAMED) {
-					parameter = parameters.get(arguments[i].name());
+				if (argument != null && argument.type() == ArgumentType.NAMED) {
+					parameter = parameters.get(argument.name());
 				} else {
 					parameter = parameters.get(remaining.getFirst());
 				}
 
 				if (parameter == null) {
-					continue signatures;
-				}
+					if (argument == null) {
+						continue signatures;
+					}
 
-				if (i < arguments.length) {
-					parseArguments[i] = arguments[i];
+					// https://github.com/SkriptLang/Skript/pull/8350 - fix for fully qualified names
+					parameter = parameters.get(remaining.getFirst());
+					parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, null, argument.raw());
 				} else {
-					parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, parameter.name(), null);
+					if (argument != null) {
+						parseArguments[i] = argument;
+					} else {
+						parseArguments[i] = new Argument<>(ArgumentType.UNNAMED, parameter.name(), null);
+					}
 				}
 
 				Class<?> targetType = Utils.getComponentType(parameter.type());
@@ -251,20 +264,25 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 			ArgumentParseResult result = parseFunctionArguments(parseArguments, parseTargets);
 
-			if (result.type() == ArgumentParseResultType.LIST_ERROR) {
-				return null;
-			}
-
-			if (result.type() == ArgumentParseResultType.OK) {
-				//noinspection unchecked
-				FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
-
-				if (!reference.validate()) {
-					continue;
+			switch (result.type()) {
+				case LIST_ERROR -> {
+					return null;
 				}
+				case OK -> {
+					//noinspection unchecked
+					FunctionReference<T> reference = new FunctionReference<>(namespace, name, (Signature<T>) signature, result.parsed());
 
-				exactReferences.add(reference);
+					if (!reference.validate()) {
+						continue;
+					}
+
+					exactReferences.add(reference);
+				}
+				default -> {
+					// continue
+				}
 			}
+
 		}
 		return exactReferences;
 	}
@@ -489,20 +507,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			FunctionReference.Argument<String> argument = arguments[i];
 			ArgumentParseTarget targetData = targets[i];
 
-			Expression<?> expression;
-			if (argument.value() != null) { // if passed, attempt to parse
-				SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
-
-				Expression<?> attempt = parser.parseExpression(targetData.type());
-				if (attempt != null) {
-					expression = attempt;
-				} else {
-					expression = targetData.fallback;
-				}
-			} else {
-				expression = targetData.fallback;
-			}
-
+			Expression<?> expression = parseExpression(argument, targetData);
 			if (expression == null) {
 				return new ArgumentParseResult(ArgumentParseResultType.PARSE_FAIL, null);
 			}
@@ -516,6 +521,29 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		}
 
 		return new ArgumentParseResult(ArgumentParseResultType.OK, parsed);
+	}
+
+	/**
+	 * Attempts to parse an argument into an expression.
+	 * If parsing fails or no value is passed, uses {@code targetData.fallback}.
+	 *
+	 * @param argument The argument.
+	 * @param targetData The target type to parse to, and the fallback value.
+	 * @return The parsed expression, the passed fallback expression, or null if both are null.
+	 */
+	private Expression<?> parseExpression(Argument<String> argument, ArgumentParseTarget targetData) {
+		if (argument.value() == null) {
+			return targetData.fallback;
+		}
+
+		// if a value is passed, attempt to parse
+		SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
+		Expression<?> attempt = parser.parseExpression(targetData.type());
+		if (attempt != null) {
+			return attempt;
+		}
+
+		return targetData.fallback;
 	}
 
 	/**

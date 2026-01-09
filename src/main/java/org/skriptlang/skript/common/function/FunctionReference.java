@@ -332,12 +332,42 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @param type  The type of the argument.
 	 * @param name  The name of the argument, possibly null.
 	 * @param value The value of the argument.
+	 * @param raw   The raw full string of this argument.
 	 */
 	public record Argument<T>(
 			ArgumentType type,
 			String name,
-			T value
+			T value,
+			@Nullable String raw
 	) {
+
+		/**
+		 * Secondary constructor where raw is null.
+		 *
+		 * @param type  The type of the argument.
+		 * @param name  The name of the argument, possibly null.
+		 * @param value The value of the argument.
+		 */
+		public Argument(ArgumentType type, String name, T value) {
+			this(type, name, value, null);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof Argument<?> argument)) {
+				return false;
+			}
+
+			return Objects.equals(value, argument.value) && Objects.equals(name, argument.name) && type == argument.type;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = Objects.hashCode(type);
+			result = 31 * result + Objects.hashCode(name);
+			result = 31 * result + Objects.hashCode(value);
+			return result;
+		}
 
 	}
 

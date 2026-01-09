@@ -212,7 +212,7 @@ public class DataParticles {
 			(exprs, parseResult, builder) -> builder.append("shriek particle")
 													.appendIf(exprs[0] != null, "delayed by", exprs[0]));
 
-		registerParticle(Particle.VIBRATION, "vibration particle moving to[wards] %entity/location% [over [a duration of] %-timespan%]",
+		registerParticle(Particle.VIBRATION, "vibration particle[s] moving to[wards] %entity/location% [over [a duration of] %-timespan%]",
 			//<editor-fold desc="vibration lambda">
 			(event, expressions, parseResult) -> {
 				Object target = expressions[0].getSingle(event);
@@ -238,7 +238,7 @@ public class DataParticles {
 													.appendIf(exprs[1] != null, "over", exprs[1]));
 
 		if (Skript.isRunningMinecraft(1, 21, 4)) {
-			registerParticle(Particle.TRAIL, "%color% trail particle moving to[wards] %location% [over [a duration of] %-timespan%]",
+			registerParticle(Particle.TRAIL, "%color% trail particle[s] moving to[wards] %location% [over [a duration of] %-timespan%]",
 				//<editor-fold desc="trail lambda" defaultstate="collapsed">
 				(event, expressions, parseResult) -> {
 					org.bukkit.Color bukkitColor;
