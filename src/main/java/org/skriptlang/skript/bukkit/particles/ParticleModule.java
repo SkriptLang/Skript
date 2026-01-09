@@ -209,7 +209,26 @@ public class ParticleModule implements AddonModule {
 				.map(ConvergingEffect::new)
 				.iterator())
 			.serializer(new ParticleSerializer())
-			.defaultExpression(new EventValueExpression<>(ConvergingEffect.class)));
+			.defaultExpression(new EventValueExpression<>(ConvergingEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public ConvergingEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof ConvergingEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(ConvergingEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(ConvergingEffect effect) {
+					return effect.particle().name();
+				}
+			}));
 
 		Classes.registerClass(new ClassInfo<>(DirectionalEffect.class, "directionalparticle")
 			.user("directional ?particle( ?effect)?s?")
@@ -220,7 +239,26 @@ public class ParticleModule implements AddonModule {
 				.map(DirectionalEffect::new)
 				.iterator())
 			.serializer(new ParticleSerializer())
-			.defaultExpression(new EventValueExpression<>(DirectionalEffect.class)));
+			.defaultExpression(new EventValueExpression<>(DirectionalEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public DirectionalEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof DirectionalEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(DirectionalEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(DirectionalEffect effect) {
+					return effect.particle().name();
+				}
+			}));
 
 		Classes.registerClass(new ClassInfo<>(ScalableEffect.class, "scalableparticle")
 			.user("scalable ?particle( ?effect)?s?")
@@ -232,6 +270,25 @@ public class ParticleModule implements AddonModule {
 				.iterator())
 			.serializer(new ParticleSerializer())
 			.defaultExpression(new EventValueExpression<>(ScalableEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public ScalableEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof ScalableEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(ScalableEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(ScalableEffect effect) {
+					return effect.particle().name();
+				}
+			})
 			.property(Property.SCALE,
 				"The scale multiplier to use for a particle. Generally larger numbers will result in larger particles.",
 				Skript.instance(),
