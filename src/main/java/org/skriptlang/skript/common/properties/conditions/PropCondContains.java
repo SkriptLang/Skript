@@ -150,8 +150,9 @@ public class PropCondContains extends Condition implements PropertyBaseSyntax<Co
 			var convertedNeedles = needles.getConvertedExpression((Class[]) elementTypeSet);
 			if (convertedNeedles == null) {
 				// attempt direct contains
-				return initDirect("'" + tempHaystack + "'  cannot contain " + Classes.toString(Arrays.stream(needles.possibleReturnTypes()).map(Classes::getSuperClassInfo).toArray(), false));
+				return initDirect("'" + tempHaystack + "' cannot contain " + Classes.toString(Arrays.stream(needles.possibleReturnTypes()).map(Classes::getSuperClassInfo).toArray(), false));
 			}
+			needles = convertedNeedles;
 			return LiteralUtils.canInitSafely(haystack, needles);
 		} else {
 			return initDirect(null);
