@@ -1,0 +1,9 @@
+test "shuffled":
+	loop 10 times:
+		set {_list::%random uuid%} to loop-counter
+
+	set {_indices::*} to indices of {_list::*}
+	loop shuffled {_list::*}:
+		assert {_indices::*} contains loop-index
+		remove loop-index from {_indices::*}
+	assert {_indices::*} is not set

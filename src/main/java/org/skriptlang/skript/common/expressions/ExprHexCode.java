@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	For those looking for hex values of numbers, see the asBase and fromBase functions.
 	""")
 @Example("send formatted \"<#%hex code of rgb(100, 10, 10)%>darker red\" to all players")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprHexCode extends SimplePropertyExpression<Color, String> {
 
 	static {

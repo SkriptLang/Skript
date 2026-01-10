@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,12 +18,10 @@ import java.util.function.Function;
 
 @Name("Vectors - Length")
 @Description("Gets or sets the length of a vector.")
-@Examples({
-	"send \"%standard length of vector 1, 2, 3%\"",
-	"set {_v} to vector 1, 2, 3",
-	"set standard length of {_v} to 2",
-	"send \"%standard length of {_v}%\""
-})
+@Example("send \"%standard length of vector 1, 2, 3%\"")
+@Example("set {_v} to vector 1, 2, 3")
+@Example("set standard length of {_v} to 2")
+@Example("send \"%standard length of {_v}%\"")
 @Since("2.2-dev28")
 public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 

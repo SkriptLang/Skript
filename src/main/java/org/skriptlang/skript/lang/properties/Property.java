@@ -220,7 +220,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?,?>> SCALE = Property.of(
 			"scale",
 			"The scale of something, say the x/y/z scales of a display entity.",
-			"INSERT VERSION",
+			"2.14",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 
@@ -262,7 +262,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<WXYZHandler<?, ?>> WXYZ = Property.of(
 			"wxyz component",
 			"The W, X, Y, or Z components of something, e.g. the x coordinate of a location or vector.",
-			"INSERT VERSION",
+			"2.14",
 			Skript.instance(),
 			WXYZHandler.class);
 
@@ -272,7 +272,7 @@ public record Property<Handler extends PropertyHandler<?>>(
 	public static final Property<ExpressionPropertyHandler<?,?>> SPEED = Property.of(
 			"speed",
 			"The speed at which something is moving.",
-			"INSERT VERSION",
+			"2.14",
 			Skript.instance(),
 			ExpressionPropertyHandler.class);
 

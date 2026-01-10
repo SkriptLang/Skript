@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
 	""")
 @Example("draw 7 blue dust particles at player")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprParticleCount extends SimplePropertyExpression<ParticleEffect, Number> {
 
 	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {

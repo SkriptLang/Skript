@@ -52,7 +52,7 @@ public class ParticleModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		// load elements!
 		SyntaxRegistry registry = addon.syntaxRegistry();
-		ModuleOrigin origin = AddonModule.origin(addon, "particles");
+		ModuleOrigin origin = AddonModule.origin(addon, this);
 		EffPlayEffect.register(registry, origin);
 		ExprGameEffectWithData.register(registry, origin);
 		ExprParticleCount.register(registry, origin);
@@ -71,7 +71,7 @@ public class ParticleModule implements AddonModule {
 		// game effects
 		Classes.registerClass(new ClassInfo<>(GameEffect.class, "gameeffect")
 			.user("game ?effects?")
-			.since("INSERT VERSION")
+			.since("2.14")
 			.description("Various game effects that can be played for players, like record disc songs, splash potions breaking, or fake bone meal effects.")
 			.name("Game Effect")
 			.usage(GameEffect.getAllNamesWithoutData())
@@ -141,14 +141,14 @@ public class ParticleModule implements AddonModule {
 			.user("entity ?effects?")
 			.name("Entity Effect")
 			.description("Various entity effects that can be played for entities, like wolf howling, or villager happy.")
-			.since("INSERT VERSION"));
+			.since("2.14"));
 
 		// particles
 
 		// Bukkit Particle enum. Used for Classes.toString, but should not be used directly.
 		Classes.registerClass(new ClassInfo<>(Particle.class, "bukkitparticle")
 			.name(ClassInfo.NO_DOC)
-			.since("INSERT VERSION")
+			.since("2.14")
 			.parser(new Parser<>() {
 				@Override
 				public Particle parse(String input, ParseContext context) {
@@ -173,7 +173,7 @@ public class ParticleModule implements AddonModule {
 
 		Classes.registerClass(new ClassInfo<>(ParticleEffect.class, "particle")
 			.user("particle( ?effect)?s?")
-			.since("INSERT VERSION")
+			.since("2.14")
 			.description("Various particles.")
 			.name("Particle")
 			.usage(ParticleEffect.getAllNamesWithoutData())
@@ -202,29 +202,67 @@ public class ParticleModule implements AddonModule {
 
 		Classes.registerClass(new ClassInfo<>(ConvergingEffect.class, "convergingparticle")
 			.user("converging ?particle( ?effect)?s?")
-			.since("INSERT VERSION")
+			.since("2.14")
 			.description("A particle effect where particles converge towards a point.")
 			.name("Converging Particle Effect")
 			.supplier(() -> ParticleUtils.getConvergingParticles().stream()
 				.map(ConvergingEffect::new)
 				.iterator())
 			.serializer(new ParticleSerializer())
-			.defaultExpression(new EventValueExpression<>(ConvergingEffect.class)));
+			.defaultExpression(new EventValueExpression<>(ConvergingEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public ConvergingEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof ConvergingEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(ConvergingEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(ConvergingEffect effect) {
+					return effect.particle().name();
+				}
+			}));
 
 		Classes.registerClass(new ClassInfo<>(DirectionalEffect.class, "directionalparticle")
 			.user("directional ?particle( ?effect)?s?")
-			.since("INSERT VERSION")
+			.since("2.14")
 			.description("A particle effect which can be given a directional velocity.")
 			.name("Directional Particle Effect")
 			.supplier(() -> ParticleUtils.getDirectionalParticles().stream()
 				.map(DirectionalEffect::new)
 				.iterator())
 			.serializer(new ParticleSerializer())
-			.defaultExpression(new EventValueExpression<>(DirectionalEffect.class)));
+			.defaultExpression(new EventValueExpression<>(DirectionalEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public DirectionalEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof DirectionalEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(DirectionalEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(DirectionalEffect effect) {
+					return effect.particle().name();
+				}
+			}));
 
 		Classes.registerClass(new ClassInfo<>(ScalableEffect.class, "scalableparticle")
 			.user("scalable ?particle( ?effect)?s?")
-			.since("INSERT VERSION")
+			.since("2.14")
 			.description("A particle effect which can be scaled up or down.")
 			.name("Scalable Particle Effect")
 			.supplier(() -> ParticleUtils.getScalableParticles().stream()
@@ -232,6 +270,25 @@ public class ParticleModule implements AddonModule {
 				.iterator())
 			.serializer(new ParticleSerializer())
 			.defaultExpression(new EventValueExpression<>(ScalableEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public ScalableEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof ScalableEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(ScalableEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(ScalableEffect effect) {
+					return effect.particle().name();
+				}
+			})
 			.property(Property.SCALE,
 				"The scale multiplier to use for a particle. Generally larger numbers will result in larger particles.",
 				Skript.instance(),
@@ -491,6 +548,11 @@ public class ParticleModule implements AddonModule {
 		protected boolean canBeInstantiated() {
 			return false;
 		}
+	}
+
+	@Override
+	public String name() {
+		return "particle";
 	}
 
 }

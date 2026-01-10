@@ -20,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		hide the effect's icon
 		hide the effect's particles
 	""")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprSkriptPotionEffect extends EventValueExpression<SkriptPotionEffect> implements EventRestrictedSyntax {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

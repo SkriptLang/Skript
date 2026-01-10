@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,9 +20,9 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Firework Effect")
 @Description("Represents a 'firework effect' which can be used in the <a href='#EffFireworkLaunch'>launch firework</a> effect.")
-@Examples({"launch flickering trailing burst firework colored blue and green at player",
-	"launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity",
-	"launch ball large colored red, purple and white fading to light green and black at player's location with duration 1"})
+@Example("launch flickering trailing burst firework colored blue and green at player")
+@Example("launch trailing flickering star colored purple, yellow, blue, green and red fading to pink at target entity")
+@Example("launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
 @Since("2.4")
 public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 

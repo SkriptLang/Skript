@@ -5,7 +5,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -45,13 +45,13 @@ import java.util.stream.Collectors;
 	
 	Disabling a script unloads it and prepends - to its name so it will not be loaded the next time the server restarts.
 	If the script reflection experiment is enabled: unloading a script terminates it and removes it from memory, but does not alter the file.""")
-@Examples({
-	"reload script \"test\"",
-	"enable script file \"testing\"",
-	"unload script file \"script.sk\"",
-	"set {_script} to the script \"MyScript.sk\"",
-	"reload {_script}"
-})
+@Example("reload script \"test\"")
+@Example("enable script file \"testing\"")
+@Example("unload script file \"script.sk\"")
+@Example("""
+	set {_script} to the script "MyScript.sk"
+	reload {_script}
+	""")
 @Since("2.4, 2.10 (unloading)")
 public class EffScriptFile extends Effect {
 

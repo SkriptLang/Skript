@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("send color from hex code \"#FFBBA7\"")
 @Example("send color from hex code \"FFBBA7\"")
 @Example("send color from hex code \"#AAFFBBA7\"")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprColorFromHexCode extends SimplePropertyExpression<String, Color> {
 
 	static {

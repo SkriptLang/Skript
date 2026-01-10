@@ -36,7 +36,7 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 	""")
 @Example("set {blood-effect} to a red dust particle of size 1")
 @Example("draw 3 blue trail particles moving to player's target over 3 seconds at player")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 
 	private static Patterns<EffectInfo<Particle, Object>> PATTERNS;

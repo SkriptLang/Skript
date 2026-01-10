@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprColoured;
@@ -34,10 +34,8 @@ import java.util.regex.Pattern;
 
 @Name("Broadcast")
 @Description("Broadcasts a message to the server.")
-@Examples({
-	"broadcast \"Welcome %player% to the server!\"",
-	"broadcast \"Woah! It's a message!\""
-})
+@Example("broadcast \"Welcome %player% to the server!\"")
+@Example("broadcast \"Woah! It's a message!\"")
 @Since("1.0, 2.6 (broadcasting objects), 2.6.1 (using advanced formatting)")
 public class EffBroadcast extends Effect {
 

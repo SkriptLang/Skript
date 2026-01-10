@@ -24,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 			 message "You have been afflicted with %potion effect type%"
 	""")
 @RequiredPlugins("Minecraft 1.21+")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprPotionEffectTypeCategory extends SimplePropertyExpression<PotionEffectType, PotionEffectTypeCategory> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

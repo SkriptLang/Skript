@@ -33,7 +33,7 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 	""")
 @Example("draw an electric spark particle with a speed of 0 at player")
 @Example("draw 12 red dust particles with an extra value of 0.4 at player's head location")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprParticleWithSpeed extends PropertyExpression<ParticleEffect, ParticleEffect> {
 
 	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {

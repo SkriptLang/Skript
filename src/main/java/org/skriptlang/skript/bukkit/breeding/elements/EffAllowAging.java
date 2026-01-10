@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Allow Aging")
 @Description("Sets whether or not living entities will be able to age.")
-@Examples({
-	"on spawn of animal:",
-		"\tallow aging of entity"
-})
+@Example("""
+	on spawn of animal:
+		allow aging of entity
+	""")
 @Since("2.10")
 public class EffAllowAging extends Effect {
 

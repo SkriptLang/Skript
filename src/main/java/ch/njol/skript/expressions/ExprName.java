@@ -5,7 +5,7 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -79,13 +79,13 @@ import java.util.List;
 	"<strong>Scripts:</strong>",
 	"\t<strong>Name:</strong> The name of a script, excluding its file extension."
 })
-@Examples({
-	"on join:",
-	"\tplayer has permission \"name.red\"",
-	"\tset the player's display name to \"&lt;red&gt;[admin] &lt;gold&gt;%name of player%\"",
-	"\tset the player's tab list name to \"&lt;green&gt;%player's name%\"",
-	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
-})
+@Example("""
+	on join:
+		player has permission "name.red"
+		set the player's display name to "<red>[admin] <gold>%name of player%"
+		set the player's tab list name to "<green>%player's name%"
+	""")
+@Example("set the name of the player's tool to \"Legendary Sword of Awesomeness\"")
 @Since({
 	"before 2.1",
 	"2.2-dev20 (inventory name)",

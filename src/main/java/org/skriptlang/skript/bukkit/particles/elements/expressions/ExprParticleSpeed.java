@@ -25,7 +25,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	""")
 @Example("set the extra value of {_my-flame-particle} to 2")
 @Example("set the particle speed of {_my-flame-particle} to 0")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprParticleSpeed extends SimplePropertyExpression<ParticleEffect, Number> {
 
 	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {

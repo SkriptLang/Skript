@@ -38,7 +38,7 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 	""")
 @Example("draw an electric spark particle with a velocity of vector(1,2,3) at player")
 @Example("draw 12 red dust particles with a distribution of vector(1,2,1) at player's head location")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprParticleWithOffset extends PropertyExpression<ParticleEffect, ParticleEffect> {
 
 	enum Mode {

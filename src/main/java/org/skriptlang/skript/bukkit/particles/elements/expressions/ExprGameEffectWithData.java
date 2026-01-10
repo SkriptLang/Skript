@@ -31,7 +31,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	version at time of release.
 	""")
 @Example("play compost success sound effect to player")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprGameEffectWithData extends SimpleExpression<GameEffect> {
 
 	private static Patterns<EffectInfo<Effect, Object>> PATTERNS;

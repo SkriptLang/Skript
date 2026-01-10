@@ -362,7 +362,7 @@ public class DefaultFunctions {
 			.examples(
 				"send \"Decode this binary number for a prize! %toBase({_guess}, 2)%\""
 			)
-			.since("INSERT VERSION")
+			.since("2.14")
 			.parameter("n", Long[].class)
 			.parameter("base", Long.class, Modifier.ranged(2, 36))
 			.contract(new Contract() {
@@ -402,7 +402,7 @@ public class DefaultFunctions {
 						transform {_characters::*} with character from codepoint input # convert to characters
 						send join {_characters::*}
 				""")
-			.since("INSERT VERSION")
+			.since("2.14")
 			.parameter("string value", String[].class)
 			.parameter("base", Long.class, Modifier.ranged(2, 36))
 			.contract(new Contract() {

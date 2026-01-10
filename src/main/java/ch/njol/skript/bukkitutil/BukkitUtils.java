@@ -46,7 +46,7 @@ public class BukkitUtils {
 	 * @deprecated Use {@link Registry#MOB_EFFECT} or {@link Registry#EFFECT} depending on your version.
 	 */
 	@SuppressWarnings("NullableProblems")
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static @Nullable Registry<PotionEffectType> getPotionEffectTypeRegistry() {
 		if (registryExists("MOB_EFFECT")) { // Paper (1.21.4)
 			return Registry.MOB_EFFECT;

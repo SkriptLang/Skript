@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
@@ -29,14 +29,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Name("Create Loot Context")
 @Description("Create a loot context.")
-@Examples({
-	"set {_player} to player",
-	"set {_context} to a loot context at player:",
-		"\tset loot luck value to 10",
-		"\tset looter to {_player}",
-		"\tset looted entity to last spawned pig",
-	"give player loot items of loot table \"minecraft:entities/iron_golem\" with loot context {_context}"
-})
+@Example("""
+    set {_player} to player
+    set {_context} to a loot context at player:
+        set loot luck value to 10
+        set looter to {_player}
+        set looted entity to last spawned pig
+    give player loot items of loot table "minecraft:entities/iron_golem" with loot context {_context}
+    """)
 @Since("2.10")
 public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 

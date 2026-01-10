@@ -1,22 +1,29 @@
 package org.skriptlang.skript.common.properties.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
 import org.skriptlang.skript.lang.properties.handlers.WXYZHandler.Axis;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class PropExprWXYZ extends PropertyBaseExpression<WXYZHandler<?, ?>> {
 
-	static {
-		register(PropExprWXYZ.class, "(:x|:y|:z|:w)( |-)[component[s]|coord[inate][s]|dep:(pos[ition[s]]|loc[ation][s])]", "objects");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.EXPRESSION,
+			PropertyExpression.infoBuilder(PropExprWXYZ.class, Object.class, "(:x|:y|:z|:w)( |-)[component[s]|coord[inate][s]|dep:(pos[ition[s]]|loc[ation][s])]", "objects", false)
+				.origin(origin)
+				.supplier(PropExprWXYZ::new)
+				.build());
 	}
 
 	private Axis axis;

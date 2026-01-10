@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
 	""")
 @Example("set the particle offset of {_my-particle} to vector(1, 2, 1)")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprParticleOffset extends SimplePropertyExpression<ParticleEffect, Vector> {
 
 	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {

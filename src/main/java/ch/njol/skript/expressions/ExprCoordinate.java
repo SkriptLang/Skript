@@ -4,7 +4,7 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -22,8 +22,10 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
  */
 @Name("Coordinate")
 @Description("Represents a given coordinate of a location. ")
-@Examples({"player's y-coordinate is smaller than 40:",
-		"	message \"Watch out for lava!\""})
+@Example("""
+	player's y-coordinate is smaller than 40:
+		message "Watch out for lava!"
+	""")
 @Since("1.4.3")
 public class ExprCoordinate extends SimplePropertyExpression<Location, Number> {
 	

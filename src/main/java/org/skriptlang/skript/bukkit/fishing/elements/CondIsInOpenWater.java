@@ -11,11 +11,11 @@ import org.bukkit.entity.FishHook;
 	"Open water is defined by a 5x4x5 area of water, air and lily pads. " +
 	"If in open water, treasure items may be caught."
 })
-@Examples({
-	"on fish catch:",
-		"\tif fish hook is in open water:",
-			"\t\tsend \"You will catch a shark soon!\""
-})
+@Example("""
+	on fish catch:
+		if fish hook is in open water:
+			send "You will catch a shark soon!"
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class CondIsInOpenWater extends PropertyCondition<Entity> {
