@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 	if all players have speed and haste active:
 		broadcast "This server is ready to mine!"
 	""")
-@Since({"2.6.1", "INSERT VERSION (support for potion effects)"})
+@Since({"2.6.1", "2.14 (support for potion effects)"})
 public class CondHasPotion extends Condition {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

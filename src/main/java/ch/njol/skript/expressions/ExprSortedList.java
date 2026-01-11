@@ -31,7 +31,7 @@ import java.util.Iterator;
 			loop reversed sorted {most-kills::*}:
 				send "%loop-counter%. %loop-index% with %loop-value% kills" to sender
 	""")
-@Since("2.2-dev19, INSERT VERSION (retain indices when looping)")
+@Since("2.2-dev19, 2.14 (retain indices when looping)")
 public class ExprSortedList extends SimpleExpression<Object> implements KeyedIterableExpression<Object> {
 
 	static {

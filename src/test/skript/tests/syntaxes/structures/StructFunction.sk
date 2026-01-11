@@ -112,11 +112,11 @@ test "named function arguments":
 
 	parse:
 		assert nfa(a: 8, c: adghadhaherta, b: 2) = 7
-	assert first element of last parse logs contains "The function nfa(a: integer, c: ?, b: integer) does not exist"
+	assert first element of last parse logs contains "Can't understand the argument for integer parameter 'c': adghadhaherta"
 
 	parse:
 		assert nfa(8, c: 3, b: 2) = 7
-	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
+	assert last parse logs is not set
 
 	parse:
 		assert nfa(c: 3, 2, a: 8) = 7
@@ -134,15 +134,32 @@ test "named function arguments":
 
 	parse:
 		nfa(a: 1, b: 2, d: 2)
-	assert first element of last parse logs contains "The function nfa(a: integer, b: integer, d: integer) does not exist"
+	assert first element of last parse logs contains "Can't understand the argument for integer parameter 'c': d: 2"
 
 	parse:
 		nfa(a: 1, d: 2, b: 2)
-	assert first element of last parse logs contains "The function nfa(a: integer, d: integer, b: integer) does not exist"
+	assert first element of last parse logs contains "The argument named 'd' is unexpected"
 
 	parse:
 		nfa(a: 1, a: 2, c: 2)
 	assert first element of last parse logs contains "A value has already been assigned to parameter 'a'"
+
+	parse:
+		set {_loc} to location(x: 1, y: 2, z: 3, yaw: 4, 5)
+		assert pitch of {_loc} is 5
+	assert last parse logs is not set
+
+	parse:
+		location(x: 1, y: 2, z: 3, pitch: 5, yaw: 4)
+	assert last parse logs is not set
+
+	parse:
+		location(x: 1, y: 2, z: 3, pitch: 4, 5)
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
+
+	parse:
+		location(x: 1, y: 2, z: 3, 4, world: "world", 5)
+	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
 
 local function nfa_incorrect_list(ns: numbers):
 	stop

@@ -26,7 +26,7 @@ import org.joml.Vector3f;
 	set {_l} to player's location offset by vector(0, 1, 5) using local axes
 	spawn tnt at {_l}
 	""")
-@Since("2.2-dev28, INSERT VERSION (local axes)")
+@Since("2.2-dev28, 2.14 (local axes)")
 public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 
 	static {

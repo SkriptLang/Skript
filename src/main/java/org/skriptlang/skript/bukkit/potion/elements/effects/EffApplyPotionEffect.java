@@ -28,7 +28,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 			apply strength 10 to the player for 5 minutes
 	""")
 @Example("apply the potion effects of the player's tool to the player")
-@Since({"2.0", "INSERT VERSION (syntax rework)"})
+@Since({"2.0", "2.14 (syntax rework)"})
 public class EffApplyPotionEffect extends Effect {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

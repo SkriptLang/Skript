@@ -196,7 +196,7 @@ public class Noun extends Message {
 	 * @return (singular, plural)
 	 * @deprecated Use {@link #parsePlural(String)} instead.
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
+	@Deprecated(since = "2.14", forRemoval = true)
 	public static NonNullPair<String, String> getPlural(String input) {
 		PluralPair pair = parsePlural(input);
 		return new NonNullPair<>(pair.singular, pair.plural);

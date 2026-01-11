@@ -238,3 +238,5 @@ functions:
 	ambiguous function call: Cannot determine which function named '%s' to call: '%s'. Try clarifying the type of the arguments using the 'value within' expression.
 	already assigned value to parameter: A value has already been assigned to parameter '%s'.
 	mixing named and unnamed arguments: Mixing named and unnamed arguments is not allowed unless the order of the arguments matches the order of the parameters.
+	invalid argument: Can't understand the argument for %s parameter '%s': %s.
+	unexpected argument: The argument named '%s' is unexpected.
