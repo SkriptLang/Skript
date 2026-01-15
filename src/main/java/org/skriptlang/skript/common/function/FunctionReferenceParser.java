@@ -44,6 +44,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 	private static final ArgsMessage UNEXPECTED_ARGUMENT = new ArgsMessage("functions.unexpected argument");
 	private static final ArgsMessage INVALID_ARGUMENT = new ArgsMessage("functions.invalid argument");
+	private static final ArgsMessage UNKNOWN_FUNCTION = new ArgsMessage("functions.unknown function");
+	private static final ArgsMessage POTENTIAL_SIGNATURE = new ArgsMessage("functions.potential signature");
 
 	/**
 	 * Attempts to parse {@code expr} as a function reference.
@@ -206,6 +208,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		boolean hasNames = Arrays.stream(arguments).anyMatch(argument -> argument.type() == ArgumentType.NAMED);
 
 		// TODO! cache results
+		// 'arguments' may be reassigned when processing a signature
+		// retain a reference to the original array for resetting each time
 		Argument<String>[] originalArguments = arguments;
 		for (Signature<?> signature : signatures) {
 			// if arguments arent possible, skip
@@ -518,7 +522,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		var intended = possibleSignatures.stream()
 			.filter(signature -> { // filter for signatures that contain all known arguments
 				List<Class<?>> currentArgumentTypes = new ArrayList<>(argumentTypes);
-				signature.parameters().sequencedMap().values().stream()
+				Arrays.stream(signature.parameters().all())
 					.map(parameter -> Utils.getComponentType(parameter.type()))
 					.forEach(type -> {
 						var iterator = currentArgumentTypes.iterator();
@@ -533,10 +537,9 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			})
 			.min(Comparator.comparingInt(signature -> Math.abs(arguments.length - signature.getMaxParameters())));
 		if (intended.isPresent()) {
-			possibleMatch = " Did you mean to use the function: " + intended.get().toString(false, false);
+			possibleMatch = " " + POTENTIAL_SIGNATURE.toString(intended.get().toString(false, false));
 		}
-
-		Skript.error("The function %s(%s) does not exist.%s", name, joiner, possibleMatch);
+		Skript.error(UNKNOWN_FUNCTION.toString(name, joiner) + possibleMatch);
 	}
 
 	/**

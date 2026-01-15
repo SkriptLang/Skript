@@ -163,7 +163,7 @@ test "named function arguments":
 
 	parse:
 		nfa(1 if {_x} is 1, else 2, 3, 4)
-	assert last parse logs is "The function nfa(?, ?, integer, integer) does not exist. Did you mean to use the function: local nfa(a: integer, b: integer, c: integer)"
+	assert last parse logs is "The function nfa(?, ?, integer, integer) does not exist. Did you mean to use the function 'local nfa(a: integer, b: integer, c: integer)'?"
 
 	parse:
 		nfa((1 if {_x} is 1, else 2), 3, 4)
