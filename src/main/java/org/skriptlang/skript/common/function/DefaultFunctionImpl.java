@@ -1,10 +1,7 @@
 package org.skriptlang.skript.common.function;
 
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Signature;
-import ch.njol.skript.localization.Noun;
-import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -310,30 +307,7 @@ final class DefaultFunctionImpl<T> extends ch.njol.skript.lang.function.Function
 
 		@Override
 		public @NotNull String toString() {
-			StringJoiner joiner = new StringJoiner(" ");
-
-			joiner.add("%s:".formatted(name));
-
-			if (hasModifier(Modifier.OPTIONAL)) {
-				joiner.add("optional");
-			}
-
-			Noun exact = Classes.getSuperClassInfo(type).getName();
-			if (type.isArray()) {
-				joiner.add(exact.getPlural());
-			} else {
-				joiner.add(exact.getSingular());
-			}
-
-			if (hasModifier(Modifier.RANGED)) {
-				RangedModifier<?> range = getModifier(RangedModifier.class);
-				joiner.add("between")
-						.add(range.getMin().toString())
-						.add("and")
-						.add(range.getMax().toString());
-			}
-
-			return joiner.toString();
+			return toFormattedString();
 		}
 	}
 
