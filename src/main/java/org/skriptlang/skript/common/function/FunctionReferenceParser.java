@@ -519,8 +519,16 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			.filter(signature -> { // filter for signatures that contain all known arguments
 				List<Class<?>> currentArgumentTypes = new ArrayList<>(argumentTypes);
 				signature.parameters().sequencedMap().values().stream()
-					.map(Parameter::type)
-					.forEach(currentArgumentTypes::remove);
+					.map(parameter -> Utils.getComponentType(parameter.type()))
+					.forEach(type -> {
+						var iterator = currentArgumentTypes.iterator();
+						while (iterator.hasNext()) {
+							if (type.isAssignableFrom(iterator.next())) {
+								iterator.remove();
+								break;
+							}
+						}
+					});
 				return currentArgumentTypes.isEmpty();
 			})
 			.min(Comparator.comparingInt(signature -> Math.abs(arguments.length - signature.getMaxParameters())));
