@@ -25,8 +25,7 @@ jobs:
         - name: Setup documentation environment
           uses: ./skript/.github/workflows/docs/setup-docs
           with:
-              docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
-              docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+              docs_token: ${{ secrets.DOCS_DEPLOY_KEY }}
         - name: Generate documentation
           uses: ./skript/.github/workflows/docs/generate-docs
           with:
