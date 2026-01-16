@@ -131,13 +131,14 @@ final class SkriptImpl implements Skript {
 		private final Class<?> source;
 		private final String name;
 		private final Localizer localizer;
-		private final Origin origin = Origin.of(this);
+		private final Origin origin;
 
 		SkriptAddonImpl(Skript skript, Class<?> source, String name, @Nullable Localizer localizer) {
 			this.skript = skript;
 			this.source = source;
 			this.name = name;
 			this.localizer = localizer == null ? Localizer.of(this) : localizer;
+			this.origin = Origin.of(this);
 		}
 
 		@Override
