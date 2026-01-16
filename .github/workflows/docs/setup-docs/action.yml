@@ -1,18 +1,22 @@
 name: Setup documentation environment
 
 inputs:
+  docs_repo:
+    description: "Documentation repository to use"
+    required: true
+    type: string
   docs_token:
-    description: "Token for the skript-docs repo"
+    description: "Access token for the documentation repository"
     required: true
     type: string
 
 runs:
   using: 'composite'
   steps:
-    - name: Checkout skript-docs
+    - name: Checkout documentation repository
       uses: actions/checkout@v3
       with:
-        repository: 'SkriptLang/skript-docs'
+        repository: ${{ inputs.docs_repo }}
         path: skript-docs
         token: ${{ inputs.docs_token }}
     - uses: actions/setup-java@v3
