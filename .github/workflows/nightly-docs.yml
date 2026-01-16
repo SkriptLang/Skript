@@ -41,8 +41,7 @@ jobs:
               if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
               uses: ./skript/.github/workflows/docs/setup-docs
               with:
-                  docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
-                  docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+                  docs_token: ${{ secrets.DOCS_DEPLOY_KEY }}
             - name: Generate documentation
               id: generate
               if: steps.configuration.outputs.DOCS_DEPLOY_KEY_PRESENT == 'true'
