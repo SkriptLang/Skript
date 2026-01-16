@@ -27,7 +27,7 @@ jobs:
         uses: ./skript/.github/workflows/docs/setup-docs
         with:
           docs_repo: "SkriptLang/skript-docs"
-          docs_token: ${{ secrets.DOCS_DEPLOY_KEY }}
+          docs_token: ${{ secrets.DOCS_TOKEN }}
       - name: Generate documentation
         uses: ./skript/.github/workflows/docs/generate-docs
         with:
