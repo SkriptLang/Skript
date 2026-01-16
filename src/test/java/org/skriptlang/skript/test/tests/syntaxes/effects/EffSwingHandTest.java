@@ -1,9 +1,7 @@
 package org.skriptlang.skript.test.tests.syntaxes.effects;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffSwingHand;
+import org.skriptlang.skript.bukkit.entity.general.effects.EffSwingHand;
 import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.test.runner.SkriptJUnitTest;

@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.EntityType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
