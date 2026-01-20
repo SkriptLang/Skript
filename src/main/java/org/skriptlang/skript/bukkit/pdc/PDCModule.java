@@ -9,4 +9,10 @@ public class PDCModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		ExprPersistentData.register(addon.syntaxRegistry());
 	}
+
+	@Override
+	public String name() {
+		return "persistent data containers";
+	}
+
 }
