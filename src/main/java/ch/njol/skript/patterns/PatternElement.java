@@ -1,5 +1,6 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -42,11 +43,21 @@ public abstract class PatternElement {
 	@Override
 	public abstract String toString();
 
+	public abstract String toString(StringificationProperties properties);
+
+	/**
+	 * @deprecated Use {@link #toFullString(StringificationProperties)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public String toFullString() {
-		StringBuilder stringBuilder = new StringBuilder(toString());
+		return toFullString(StringificationProperties.DEFAULT);
+	}
+
+	public String toFullString(StringificationProperties properties) {
+		StringBuilder stringBuilder = new StringBuilder(toString(properties));
 		PatternElement next = this;
 		while ((next = next.originalNext) != null) {
-			stringBuilder.append(next);
+			stringBuilder.append(next.toString(properties));
 		}
 		return stringBuilder.toString();
 	}

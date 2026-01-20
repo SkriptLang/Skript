@@ -1,5 +1,6 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -51,6 +52,11 @@ public class LiteralPatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
 		return new String(literal);
 	}
 

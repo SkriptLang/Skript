@@ -1,5 +1,6 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -75,13 +76,21 @@ public class ParseTagPatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
-		if (tag != null) {
-			if (tag.isEmpty())
-				return "";
-			return tag + ":";
-		} else {
-			return mark + "¦";
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
+		if (properties.excludeParseTags()) {
+			return "";
 		}
+		if (tag == null) {
+			return mark + ":";
+		}
+		if (tag.isEmpty()) {
+			return "";
+		}
+		return tag + ":";
 	}
 
 	/**
