@@ -21,11 +21,11 @@ public class ChoicePatternElement extends PatternElement {
 	}
 
 	public PatternElement getLast() {
-		return patternElements.get(patternElements.size() - 1);
+		return patternElements.getLast();
 	}
 
 	public void setLast(PatternElement patternElement) {
-		patternElements.remove(patternElements.size() - 1);
+		patternElements.removeLast();
 		patternElements.add(patternElement);
 	}
 
@@ -41,8 +41,7 @@ public class ChoicePatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		for (PatternElement patternElement : patternElements) {
 			MatchResult matchResultCopy = matchResult.copy();
 			MatchResult newMatchResult = patternElement.match(expr, matchResultCopy);

@@ -13,6 +13,10 @@ public class OptionalPatternElement extends PatternElement {
 	private final PatternElement patternElement;
 
 	public OptionalPatternElement(PatternElement patternElement) {
+		if (patternElement instanceof GroupPatternElement groupPatternElement && groupPatternElement.next == null) {
+			// convert [(...)] to [...], for example [(a|b)] to [a|b]
+			patternElement = groupPatternElement.getPatternElement();
+		}
 		this.patternElement = patternElement;
 	}
 
@@ -23,8 +27,7 @@ public class OptionalPatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		MatchResult newMatchResult = patternElement.match(expr, matchResult.copy());
 		if (newMatchResult != null)
 			return newMatchResult;

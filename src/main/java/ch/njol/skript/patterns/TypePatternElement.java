@@ -48,19 +48,14 @@ public class TypePatternElement extends PatternElement {
 		flags:
 		do {
 			switch (string.charAt(caret)) {
-				case '-':
-					isNullable = true;
-					break;
-				case '*':
-					flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
-					break;
-				case '~':
-					flagMask &= ~SkriptParser.PARSE_LITERALS;
-					break;
-				default:
+				case '-' -> isNullable = true;
+				case '*' -> flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
+				case '~' -> flagMask &= ~SkriptParser.PARSE_LITERALS;
+				default -> {
 					break flags;
+				}
 			}
-			++caret;
+			caret++;
 		} while (true);
 
 		int time = 0;
@@ -86,8 +81,7 @@ public class TypePatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		int newExprOffset;
 
 		String nextLiteral = null;
@@ -131,6 +125,7 @@ public class TypePatternElement extends PatternElement {
 		ParseLogHandler loopLogHandlerBackup = null;
 		ParseLogHandler expressionLogHandlerBackup = null;
 
+		//noinspection resource - managed manually due to other usages
 		ParseLogHandler loopLogHandler = SkriptLogger.startParseLogHandler();
 		try {
 			while (newExprOffset != -1) {
@@ -142,6 +137,7 @@ public class TypePatternElement extends PatternElement {
 				MatchResult newMatchResult = matchNext(expr, matchResultCopy);
 
 				if (newMatchResult != null) {
+					//noinspection resource - managed manually due to other usages
 					ParseLogHandler expressionLogHandler = SkriptLogger.startParseLogHandler();
 					try {
 						Expression<?> expression = new SkriptParser(expr.substring(matchResult.exprOffset, newExprOffset), matchResult.flags & flagMask, matchResult.parseContext).parseExpression(exprInfo);

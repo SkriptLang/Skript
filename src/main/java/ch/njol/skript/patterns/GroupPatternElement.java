@@ -27,8 +27,7 @@ public class GroupPatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		return patternElement.match(expr, matchResult);
 	}
 

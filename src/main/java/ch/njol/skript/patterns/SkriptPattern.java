@@ -101,7 +101,7 @@ public class SkriptPattern {
 					count += countNonNullTypes(groupPatternElement.getPatternElement());
 				case OptionalPatternElement optionalPatternElement ->
 					count += countNonNullTypes(optionalPatternElement.getPatternElement());
-				case TypePatternElement typePatternElement ->
+				case TypePatternElement ignored ->
 					// Increment when seeing a type
 					count++;
 				default -> {

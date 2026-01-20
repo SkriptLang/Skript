@@ -14,6 +14,7 @@ public class PatternCompilerTest {
 		assertEquals("hello [world]", PatternCompiler.compile("hello [world]").toString());
 		assertEquals("hello (world|server)", PatternCompiler.compile("hello (world|server)").toString());
 		assertEquals("hello <.*>", PatternCompiler.compile("hello <.*>").toString());
+		assertEquals("hello [world|server]", PatternCompiler.compile("hello [(world|server)]").toString());
 
 		StringificationProperties properties = StringificationProperties.builder()
 			.excludeParseTags()
