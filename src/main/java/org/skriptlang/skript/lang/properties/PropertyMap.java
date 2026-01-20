@@ -2,6 +2,7 @@ package org.skriptlang.skript.lang.properties;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 import java.util.HashMap;
 

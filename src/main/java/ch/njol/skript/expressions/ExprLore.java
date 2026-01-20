@@ -20,7 +20,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -39,7 +39,7 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @Name("Lore")
 @Description("An item's lore.")
-@Examples("set the 1st line of the item's lore to \"&lt;orange&gt;Excalibur 2.0\"")
+@Example("set the 1st line of the item's lore to \"&lt;orange&gt;Excalibur 2.0\"")
 @Since("2.1")
 public class ExprLore extends SimpleExpression<String> {
 

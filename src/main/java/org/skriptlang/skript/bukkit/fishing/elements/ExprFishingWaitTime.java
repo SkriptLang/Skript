@@ -19,11 +19,11 @@ import org.jetbrains.annotations.Nullable;
 	"Returns the minimum and/or maximum waiting time of the fishing hook. ",
 	"Default minimum value is 5 seconds and maximum is 30 seconds, before lure is applied."
 })
-@Examples({
-	"on fishing line cast:",
-		"\tset min fish waiting time to 10 seconds",
-		"\tset max fishing waiting time to 20 seconds",
-})
+@Example("""
+	on fishing line cast:
+		set min fish waiting time to 10 seconds
+		set max fishing waiting time to 20 seconds
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingWaitTime extends SimpleExpression<Timespan> {

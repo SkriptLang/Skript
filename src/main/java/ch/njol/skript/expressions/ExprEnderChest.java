@@ -5,7 +5,7 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -15,7 +15,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
  */
 @Name("Ender Chest")
 @Description("The ender chest of a player.")
-@Examples("open the player's ender chest to the player")
+@Example("open the player's ender chest to the player")
 @Since("2.0")
 public class ExprEnderChest extends SimplePropertyExpression<Player, Inventory> {
 	static {

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,12 +19,9 @@ import org.jetbrains.annotations.Nullable;
 	"Get the <a href='#blockdata'>block data</a> associated with a block.",
 	"This data can also be used to set blocks."
 })
-@Examples({
-	"set {_data} to block data of target block",
-	"set block at player to {_data}",
-	"",
-	"set block data of target block to oak_stairs[facing=south;waterlogged=true]"
-})
+@Example("set {_data} to block data of target block")
+@Example("set block at player to {_data}")
+@Example("set block data of target block to oak_stairs[facing=south;waterlogged=true]")
 @Since("2.5, 2.5.2 (set), 2.10 (block displays)")
 public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 

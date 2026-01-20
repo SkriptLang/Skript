@@ -10,7 +10,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -25,8 +25,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("Can Hold")
 @Description("Tests whether a player or a chest can hold the given item.")
-@Examples({"block can hold 200 cobblestone",
-		"player has enough space for 64 feathers"})
+@Example("block can hold 200 cobblestone")
+@Example("player has enough space for 64 feathers")
 @Since("1.0")
 public class CondCanHold extends Condition {
 	

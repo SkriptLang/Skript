@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -33,18 +33,20 @@ import java.util.Set;
 	"multiple values, then then indices will be reset as a single index cannot contain multiple values.",
 	"Only variable lists can be transformed with this effect. For other lists, see the transform expression."
 })
-@Examples({
-	"set {_a::*} to 1, 2, and 3",
-	"transform {_a::*} using input * 2",
-	"# {_a::*} is now 2, 4, and 6",
-	"",
-	"# get a list of the sizes of all clans without manually looping",
-	"set {_clan-sizes::*} to indices of {clans::*}",
-	"transform {_clan-sizes::*} using {clans::%input%::size}",
-	"",
-	"# set all existing values of a list to 0:",
-	"transform {_list::*} to 0"
-})
+@Example("""
+	set {_a::*} to 1, 2, and 3
+	transform {_a::*} using input * 2
+	# {_a::*} is now 2, 4, and 6
+	""")
+@Example("""
+	# get a list of the sizes of all clans without manually looping
+	set {_clan-sizes::*} to indices of {clans::*}
+	transform {_clan-sizes::*} using {clans::%input%::size}
+	""")
+@Example("""
+	# set all existing values of a list to 0:
+	transform {_list::*} with 0
+	""")
 @Since("2.10")
 @Keywords("input")
 public class EffTransform extends Effect implements InputSource {

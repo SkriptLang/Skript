@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -25,15 +25,16 @@ import org.jetbrains.annotations.Nullable;
 	"",
 	"NOTE: Offline players can not have their bed location changed, only online players."
 })
-@Examples({
-	"if bed of player exists:",
-	"\tteleport player the the player's bed",
-	"else:",
-	"\tteleport the player to the world's spawn point",
-	"",
-	"set the bed location of player to spawn location of world(\"world\") # unsafe/invalid bed location",
-	"set the safe bed location of player to spawn location of world(\"world\") # safe/valid bed location"
-})
+@Example("""
+    if bed of player exists:
+    	teleport player the the player's bed
+    else:
+    	teleport the player to the world's spawn point
+    """)
+@Example("""
+    set the bed location of player to spawn location of world("world") # unsafe/invalid bed location
+    set the safe bed location of player to spawn location of world("world") # safe/valid bed location
+    """)
 @Since("2.0, 2.7 (offlineplayers, safe bed)")
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 

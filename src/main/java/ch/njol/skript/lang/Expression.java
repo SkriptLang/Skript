@@ -5,6 +5,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.conditions.CondIsSet;
+import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
@@ -16,7 +17,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
-import ch.njol.skript.lang.simplification.Simplifiable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -238,6 +238,29 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T>, S
 	 * @see #setTime(int)
 	 */
 	int getTime();
+
+	/**
+	 * Allows the expression to return nested structures, i.e. lists of lists.
+	 * <p>
+	 * <b>Note</b>:
+	 * Nested structures must be flattened in {@link #getArray(Event)} and {@link #getAll(Event)},
+	 * i.e. if this expression returns a list of lists of players,
+	 * {@link #getArray(Event)} must return a single array containing all players of all lists
+	 *
+	 * @return Whether this expression supports nested structures.
+	 * @see #returnsNestedStructures()
+	 */
+	default boolean returnNestedStructures(boolean nested) {
+		return false;
+	}
+
+	/**
+	 * @return Whether this expression returns nested structures
+	 * @see #returnNestedStructures(boolean) 
+	 */
+	default boolean returnsNestedStructures() {
+		return false;
+	}
 
 	/**
 	 * Returns whether this value represents the default value of its type for the event, i.e. it can be replaced with a call to event.getXyz() if one knows the event & value type.

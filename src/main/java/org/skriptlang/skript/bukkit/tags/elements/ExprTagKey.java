@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -14,11 +14,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Tag Namespaced Key")
 @Description("The namespaced key of a minecraft tag. This takes the form of \"namespace:key\", e.g. \"minecraft:dirt\".")
-@Examples({
-	"broadcast namespaced keys of the tags of player's tool",
-	"if the key of {_my-tag} is \"minecraft:stone\":",
-		"\treturn true"
-})
+@Example("broadcast namespaced keys of the tags of player's tool")
+@Example("""
+	if the key of {_my-tag} is "minecraft:stone":
+		return true
+	""")
 @Since("2.10")
 @Keywords({"minecraft tag", "type", "key", "namespace"})
 public class ExprTagKey extends SimplePropertyExpression<Tag<?>, String> {

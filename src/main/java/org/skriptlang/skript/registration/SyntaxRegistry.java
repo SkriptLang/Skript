@@ -5,7 +5,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.Statement;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -17,7 +16,6 @@ import java.util.Collection;
 /**
  * A syntax registry is a central container for all {@link SyntaxInfo}s.
  */
-@ApiStatus.Experimental
 public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<SyntaxInfo<?>> {
 
 	/**
@@ -116,7 +114,6 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	 * Represents a syntax element type.
 	 * @param <I> The syntax type.
 	 */
-	@ApiStatus.Experimental
 	interface Key<I extends SyntaxInfo<?>> {
 
 		/**
@@ -141,7 +138,6 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	 * @param <I> The child key's syntax type.
 	 * @param <P> The parent key's syntax type.
 	 */
-	@ApiStatus.Experimental
 	interface ChildKey<I extends P, P extends SyntaxInfo<?>> extends Key<I> {
 
 		/**

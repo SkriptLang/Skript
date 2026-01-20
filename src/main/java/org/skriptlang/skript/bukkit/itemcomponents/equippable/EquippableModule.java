@@ -101,4 +101,9 @@ public class EquippableModule implements AddonModule {
 		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
+	@Override
+	public String name() {
+		return "equippable component";
+	}
+
 }

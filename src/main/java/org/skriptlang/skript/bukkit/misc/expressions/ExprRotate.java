@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.misc.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -38,11 +38,9 @@ import java.util.Objects;
 	"The same applies to rotations by all three axes at once. " +
 	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
 })
-@Examples({
-	"set {_new} to {_quaternion} rotated around x axis by 10 degrees",
-	"set {_new} to {_vector} rotated around vector(1, 1, 1) by 45",
-	"set {_new} to {_quaternion} rotated by x 45, y 90, z 135"
-})
+@Example("set {_new} to {_quaternion} rotated around x axis by 10 degrees")
+@Example("set {_new} to {_vector} rotated around vector(1, 1, 1) by 45")
+@Example("set {_new} to {_quaternion} rotated by x 45, y 90, z 135")
 @Since("2.10")
 public class ExprRotate extends SimpleExpression<Object> {
 

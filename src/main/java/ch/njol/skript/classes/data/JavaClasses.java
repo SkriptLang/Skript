@@ -5,7 +5,6 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -17,10 +16,10 @@ import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
+import org.skriptlang.skript.common.types.QuaternionClassInfo;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
 
 import java.io.StreamCorruptedException;
 import java.util.UUID;
@@ -326,37 +325,8 @@ public class JavaClasses {
 				ConditionPropertyHandler.of(String::isEmpty)));
 
 		// joml type - for display entities
-		if (Skript.classExists("org.joml.Quaternionf"))
-			Classes.registerClass(new ClassInfo<>(Quaternionf.class, "quaternion")
-				.user("quaternionf?s?")
-				.name("Quaternion")
-				.description("Quaternions are four dimensional vectors, often used for representing rotations.")
-				.since("2.10")
-				.parser(new Parser<>() {
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
+		Classes.registerClass(new QuaternionClassInfo());
 
-					@Override
-					public String toString(Quaternionf quaternion, int flags) {
-						return "w:" + Skript.toString(quaternion.w()) + ", x:" + Skript.toString(quaternion.x()) + ", y:" + Skript.toString(quaternion.y()) + ", z:" + Skript.toString(quaternion.z());
-					}
-
-					@Override
-					public String toVariableNameString(Quaternionf quaternion) {
-						return quaternion.w() + "," + quaternion.x() + "," + quaternion.y() + "," + quaternion.z();
-					}
-				})
-				.defaultExpression(new EventValueExpression<>(Quaternionf.class))
-				.cloner(quaternion -> {
-					try {
-						// Implements cloneable, but doesn't return a Quaternionf.
-						// org.joml improper override. Returns Object.
-						return (Quaternionf) quaternion.clone();
-					} catch (CloneNotSupportedException e) {
-						return null;
-					}
-				}));
 
 		Classes.registerClass(new ClassInfo<>(UUID.class, "uuid")
 			.user("uuids?")

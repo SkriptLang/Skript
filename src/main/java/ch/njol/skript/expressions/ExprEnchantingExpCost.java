@@ -8,7 +8,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,8 +23,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Enchanting Experience Cost")
 @Description({"The cost of enchanting in an enchant event.", 
 				"This is number that was displayed in the enchantment table, not the actual number of levels removed."})
-@Examples({"on enchant:",
-			"\tsend \"Cost: %the displayed enchanting cost%\" to player"})
+@Example("""
+	on enchant:
+		send "Cost: %the displayed enchanting cost%" to player
+	""")
 @Events("enchant")
 @Since("2.5")
 public class ExprEnchantingExpCost extends SimpleExpression<Long> {

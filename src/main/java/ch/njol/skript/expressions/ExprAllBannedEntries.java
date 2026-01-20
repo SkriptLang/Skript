@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,11 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("All Banned Players/IPs")
 @Description("Obtains the list of all banned players or IP addresses.")
-@Examples({
-	"command /banlist:",
-	"\ttrigger:",
-	"\t\tsend all the banned players"
-})
+@Example("""
+	command /banlist:
+		trigger:
+			send all the banned players
+	""")
 @Since("2.7")
 public class ExprAllBannedEntries extends SimpleExpression<Object> {
 

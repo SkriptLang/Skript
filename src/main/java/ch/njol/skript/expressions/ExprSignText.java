@@ -14,7 +14,7 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
@@ -30,10 +30,12 @@ import ch.njol.util.Kleenean;
  */
 @Name("Sign Text")
 @Description("A line of text on a sign. Can be changed, but remember that there is a 16 character limit per line (including color codes that use 2 characters each).")
-@Examples({"on rightclick on sign:",
-		"	line 2 of the clicked block is \"[Heal]\":",
-		"		heal the player",
-		"	set line 3 to \"%player%\""})
+@Example("""
+	on rightclick on sign:
+		line 2 of the clicked block is "[Heal]":
+			heal the player
+		set line 3 to "%player%"
+	""")
 @Since("1.3")
 public class ExprSignText extends SimpleExpression<String> {
 	static {

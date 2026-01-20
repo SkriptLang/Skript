@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,8 +22,10 @@ import org.jetbrains.annotations.Nullable;
 @Name("Max Players")
 @Description({"The count of max players. This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
 		"'real max players' returns the real count of max players of the server and can be modified on Paper 1.16 or later."})
-@Examples({"on server list ping:",
-		"	set the max players count to (online players count + 1)"})
+@Example("""
+	on server list ping:
+		set the max players count to (online players count + 1)
+	""")
 @Since("2.3, 2.7 (modify max real players)")
 public class ExprMaxPlayers extends SimpleExpression<Integer> {
 

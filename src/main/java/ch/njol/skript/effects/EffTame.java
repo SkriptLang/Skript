@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Tame / Untame")
 @Description("Tame a tameable entity (horse, parrot, cat, etc.).")
-@Examples({
-    "tame {_horse}",
-    "untame {_horse}"
-})
+@Example("tame {_horse}")
+@Example("untame {_horse}")
 @Since("2.10")
 public class EffTame extends Effect {
 

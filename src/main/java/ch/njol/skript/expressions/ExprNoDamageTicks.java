@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,10 +18,10 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("No Damage Ticks")
 @Description("The number of ticks that an entity is invulnerable to damage for.")
-@Examples({
-	"on damage:",
-		"\tset victim's invulnerability ticks to 20 #Victim will not take damage for the next second"
-})
+@Example("""
+	on damage:
+		set victim's invulnerability ticks to 20 #Victim will not take damage for the next second
+	""")
 @Since("2.5, 2.11 (deprecated)")
 @Deprecated(since = "2.11.0", forRemoval = true)
 public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {

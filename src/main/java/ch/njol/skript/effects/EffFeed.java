@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -15,7 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Feed")
 @Description("Feeds the specified players.")
-@Examples({"feed all players", "feed the player by 5 beefs"})
+@Example("feed all players")
+@Example("feed the player by 5 beefs")
 @Since("2.2-dev34")
 public class EffFeed extends Effect {
 

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -14,7 +14,7 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Entity AI")
 @Description("Returns whether an entity has AI.")
-@Examples("set artificial intelligence of target entity to false")
+@Example("set artificial intelligence of target entity to false")
 @Since("2.5")
 public class ExprAI extends SimplePropertyExpression<LivingEntity, Boolean> {
 	

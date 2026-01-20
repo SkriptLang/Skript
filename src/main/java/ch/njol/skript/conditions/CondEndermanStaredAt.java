@@ -11,7 +11,7 @@ import org.bukkit.entity.LivingEntity;
 	"Checks to see if an enderman has been stared at.",
 	"This will return true as long as the entity that stared at the enderman is still alive."
 })
-@Examples("if last spawned enderman has been stared at:")
+@Example("if last spawned enderman has been stared at:")
 @Since("2.11")
 public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {
 

@@ -16,10 +16,12 @@ import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.common.properties.expressions.PropExprName;
 import org.skriptlang.skript.common.types.QueueClassInfo;
 import org.skriptlang.skript.common.types.ScriptClassInfo;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
-import org.skriptlang.skript.lang.properties.PropertyHandler.TypedValuePropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
+import org.skriptlang.skript.lang.properties.handlers.TypedValueHandler;
+import org.skriptlang.skript.lang.properties.handlers.WXYZHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
 
 import java.util.Locale;
 
@@ -213,6 +215,16 @@ public record Property<Handler extends PropertyHandler<?>>(
 			ExpressionPropertyHandler.class);
 
 	/**
+	 * A property for getting the scale of something.
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> SCALE = Property.of(
+			"scale",
+			"The scale of something, say the x/y/z scales of a display entity.",
+			"2.14",
+			Skript.instance(),
+			ExpressionPropertyHandler.class);
+
+	/**
 	 * A property for getting the number of something.
 	 */
 	public static final Property<ExpressionPropertyHandler<?, ?>> NUMBER = Property.of(
@@ -237,12 +249,32 @@ public record Property<Handler extends PropertyHandler<?>>(
 	/**
 	 * A property for getting a specific value of something.
 	 */
-	public static final Property<TypedValuePropertyHandler<?, ?>> TYPED_VALUE = Property.of(
+	public static final Property<TypedValueHandler<?, ?>> TYPED_VALUE = Property.of(
 			"typed value",
 			"A value of a specific type, e.g. 'string value of x'.",
 			"2.13",
 			Skript.instance(),
-			TypedValuePropertyHandler.class);
+			TypedValueHandler.class);
+
+	/**
+	 * A property for getting the x, y, or z coordinates/components of something.
+	 */
+	public static final Property<WXYZHandler<?, ?>> WXYZ = Property.of(
+			"wxyz component",
+			"The W, X, Y, or Z components of something, e.g. the x coordinate of a location or vector.",
+			"2.14",
+			Skript.instance(),
+			WXYZHandler.class);
+
+	/**
+	 * A property for getting the speed of something
+	 */
+	public static final Property<ExpressionPropertyHandler<?,?>> SPEED = Property.of(
+			"speed",
+			"The speed at which something is moving.",
+			"2.14",
+			Skript.instance(),
+			ExpressionPropertyHandler.class);
 
 	/**
 	 * Register all Skript's default properties. Should be done prior to loading classinfos.
@@ -256,6 +288,8 @@ public record Property<Handler extends PropertyHandler<?>>(
 		NUMBER.register();
 		IS_EMPTY.register();
 		TYPED_VALUE.register();
+		SCALE.register();
+		SPEED.register();
 	}
 
 }

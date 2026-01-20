@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,7 +19,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Angle Between")
 @Description("Gets the angle between two vectors.")
-@Examples("send \"%the angle between vector 1, 0, 0 and vector 0, 1, 1%\"")
+@Example("send \"%the angle between vector 1, 0, 0 and vector 0, 1, 1%\"")
 @Since("2.2-dev28")
 public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 

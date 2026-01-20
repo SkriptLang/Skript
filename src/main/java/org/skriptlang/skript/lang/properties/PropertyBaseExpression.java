@@ -3,9 +3,7 @@ package org.skriptlang.skript.lang.properties;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
@@ -16,8 +14,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.properties.expressions.PropExprName;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -40,10 +39,6 @@ import java.util.stream.Stream;
 @ApiStatus.Experimental
 public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyHandler<?,?>> extends SimpleExpression<Object>
 	implements PropertyBaseSyntax<Handler> {
-
-	protected static void register(Class<? extends PropertyBaseExpression<?>> expressionClass, String property, String types) {
-		Skript.registerExpression(expressionClass, Object.class, ExpressionType.PROPERTY, PropertyExpression.getPatterns(property, types));
-	}
 
 	protected Expression<?> expr;
 	protected PropertyMap<Handler> properties;
@@ -214,20 +209,38 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 			}
 
 			// check if delta matches any of the allowed types
-			for (Class<?> allowedType : allowedTypes) {
-				// array type, compare to delta
-				// single type, compare to delta[0]
-				if ((allowedType.isArray() && allowedType.isInstance(delta))
-					|| (delta != null && allowedType.isInstance(delta[0]))) {
-					// if the propertyHaver is allowed, change
-					@SuppressWarnings("unchecked")
-					var handler = (ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
-					handler.change(propertyHaver, delta, mode);
-					return propertyHaver;
-				}
+			assert delta != null;
+			Object[] verifiedDelta = delta;
+			Class<?>[] flatAllowedTypes = new Class[allowedTypes.length];
+			for (int i = 0; i < allowedTypes.length; i++) {
+				flatAllowedTypes[i] = Utils.getComponentType(allowedTypes[i]);
 			}
-			// no matching types, go next
-			return null;
+			boolean tryConverting = false;
+			deltaLoop: for (Object object : verifiedDelta) {
+				for (Class<?> allowedType : flatAllowedTypes) {
+					if (allowedType.isInstance(object)) {
+						continue deltaLoop;
+					}
+				}
+				// delta value cannot be mapped to any allowed types
+				tryConverting = true;
+			}
+			if (tryConverting) {
+				// typing of delta may not be safe, create a new array
+				Object[] newDelta = new Object[verifiedDelta.length];
+				Converters.convert(verifiedDelta, newDelta, flatAllowedTypes);
+				for (Object object : newDelta) {
+					if (object == null) { // conversion failed
+						return null;
+					}
+				}
+				verifiedDelta = newDelta;
+			}
+			// all values verified, convert
+			//noinspection unchecked
+			var handler = (ExpressionPropertyHandler<Object, ?>) propertyInfo.handler();
+			handler.change(propertyHaver, verifiedDelta, mode);
+			return propertyHaver;
 		};
 
 		if (useCIP) {

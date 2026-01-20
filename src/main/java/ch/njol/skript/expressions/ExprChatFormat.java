@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 @Name("Chat Format")
 @Description("Can be used to get/retrieve the chat format. The sender of a message is " +
 		"represented by [player] or [sender], and the message by [message] or [msg].")
-@Examples({"set the chat format to \"&lt;yellow&gt;[player]&lt;light gray&gt;: &lt;green&gt;[message]\""})
+@Example("set the chat format to \"&lt;yellow&gt;[player]&lt;light gray&gt;: &lt;green&gt;[message]\"")
 @Since("2.2-dev31")
 public class ExprChatFormat extends SimpleExpression<String>{
 	static {

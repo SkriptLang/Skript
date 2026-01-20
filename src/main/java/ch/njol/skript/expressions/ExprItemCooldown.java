@@ -30,12 +30,12 @@ import java.util.stream.Stream;
 	If the provided item has a cooldown group component specified the cooldown of the group will be prioritized.
 	Otherwise the cooldown of the item material will be used.
 	""")
-@Examples({
-	"on right click using stick:",
-		"\tset item cooldown of player's tool for player to 1 minute",
-		"\tset item cooldown of stone and grass for all players to 20 seconds",
-		"\treset item cooldown of cobblestone and dirt for all players"
-})
+@Example("""
+	on right click using stick:
+		set item cooldown of player's tool for player to 1 minute
+		set item cooldown of stone and grass for all players to 20 seconds
+		reset item cooldown of cobblestone and dirt for all players
+	""")
 @RequiredPlugins("MC 1.21.2 (cooldown group)")
 @Since({"2.8.0", "2.12 (cooldown group)"})
 public class ExprItemCooldown extends SimpleExpression<Timespan> {

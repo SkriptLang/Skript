@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -19,10 +19,8 @@ import org.jetbrains.annotations.Nullable;
 	"Set whether an allay can or cannot duplicate itself.",
 	"This is not the same as breeding allays."
 })
-@Examples({
-	"allow all allays to duplicate",
-	"prevent all allays from duplicating"
-})
+@Example("allow all allays to duplicate")
+@Example("prevent all allays from duplicating")
 @Since("2.11")
 public class EffAllayCanDuplicate extends Effect {
 

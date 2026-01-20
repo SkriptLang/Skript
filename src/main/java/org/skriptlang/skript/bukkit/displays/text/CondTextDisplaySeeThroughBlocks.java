@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.text;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Display;
@@ -10,10 +10,10 @@ import org.bukkit.entity.TextDisplay;
 
 @Name("Text Display Visible Through Blocks")
 @Description("Returns whether text displays can be seen through blocks or not.")
-@Examples({
-	"if last spawned text display is visible through walls:",
-		"\tprevent last spawned text display from being visible through walls"
-})
+@Example("""
+	if last spawned text display is visible through walls:
+		prevent last spawned text display from being visible through walls
+	""")
 @Since("2.10")
 public class CondTextDisplaySeeThroughBlocks extends PropertyCondition<Display> {
 

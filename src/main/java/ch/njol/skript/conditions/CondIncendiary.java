@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -19,9 +19,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Is Incendiary")
 @Description("Checks if an entity will create fire when it explodes. This condition is also usable in an explosion prime event.")
-@Examples({"on explosion prime:", 
-			"\tif the explosion is fiery:",
-			"\t\tbroadcast \"A fiery explosive has been ignited!\""})
+@Example("""
+	on explosion prime:
+		if the explosion is fiery:
+			broadcast "A fiery explosive has been ignited!"
+	""")
 @Since("2.5")
 public class CondIncendiary extends Condition {
 

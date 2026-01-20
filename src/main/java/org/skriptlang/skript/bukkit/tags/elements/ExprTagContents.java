@@ -29,10 +29,8 @@ import java.util.stream.Stream;
 		"For item and block tags, this will return items. For entity tags, " +
 		"it will return entity datas (a creeper, a zombie)."
 })
-@Examples({
-		"broadcast tag values of minecraft tag \"dirt\"",
-		"broadcast (first element of player's tool's block tags)'s tag contents"
-})
+@Example("broadcast tag values of minecraft tag \"dirt\"")
+@Example("broadcast (first element of player's tool's block tags)'s tag contents")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagContents extends SimpleExpression<Object> {

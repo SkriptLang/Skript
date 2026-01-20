@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -17,7 +17,8 @@ import ch.njol.util.Kleenean;
 
 @Name("Make Fly")
 @Description("Forces a player to start/stop flying.")
-@Examples({"make player fly", "force all players to stop flying"})
+@Example("make player fly")
+@Example("force all players to stop flying")
 @Since("2.2-dev34")
 public class EffMakeFly extends Effect {
 

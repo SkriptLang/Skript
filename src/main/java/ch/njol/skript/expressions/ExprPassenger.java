@@ -15,7 +15,7 @@ import ch.njol.skript.bukkitutil.PassengerUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
@@ -33,16 +33,14 @@ import ch.njol.util.Kleenean;
 @Description({"The passenger of a vehicle, or the rider of a mob.",
 		"For 1.11.2 and above, it returns a list of passengers and you can use all changers in it.",
 		"See also: <a href='#ExprVehicle'>vehicle</a>"})
-@Examples({"#for 1.11 and lower",
-		"passenger of the minecart is a creeper or a cow",
-		"the saddled pig's passenger is a player",
-		"#for 1.11.2+",
-		"passengers of the minecart contains a creeper or a cow",
-		"the boat's passenger contains a pig",
-		"add a cow and a zombie to passengers of last spawned boat",
-		"set passengers of player's vehicle to a pig and a horse",
-		"remove all pigs from player's vehicle",
-		"clear passengers of boat"})
+@Example("""
+	passengers of the minecart contains a creeper or a cow
+	the boat's passenger contains a pig
+	add a cow and a zombie to passengers of last spawned boat
+	set passengers of player's vehicle to a pig and a horse
+	remove all pigs from player's vehicle
+	clear passengers of boat
+	""")
 @Since("2.0, 2.2-dev26 (Multiple passengers for 1.11.2+)")
 public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create 'vehicle' and 'passenger' expressions for vehicle enter/exit events?
 	static { // It was necessary to convert to SimpleExpression due to the method 'isSingle()'.

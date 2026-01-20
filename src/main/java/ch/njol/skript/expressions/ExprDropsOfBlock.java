@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -25,8 +25,10 @@ import ch.njol.util.Kleenean;
 @Name("Drops Of Block")
 @Description("A list of the items that will drop when a block is broken.")
 @RequiredPlugins("Minecraft 1.15+ ('as %entity%')")
-@Examples({"on break of block:",
-	"\tgive drops of block using player's tool to player"})
+@Example("""
+    on break of block:
+    	give drops of block using player's tool to player
+    """)
 @Since("2.5.1")
 public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
 

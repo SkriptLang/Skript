@@ -10,7 +10,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Set up JDK 21
@@ -34,7 +34,7 @@ jobs:
           sed -i "s|^distributionUrl=.*$|distributionUrl=${LATEST_GRADLE_DOWNLOAD_URL}|" gradle/wrapper/gradle-wrapper.properties
           ./gradlew wrapper --gradle-version ${LATEST_GRADLE_VERSION}
       - name: Validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v2
+        uses: gradle/actions/wrapper-validation@v5
       - name: Build Skript and run test scripts
         run: ./gradlew clean quickTest
       - name: Commit and push changes

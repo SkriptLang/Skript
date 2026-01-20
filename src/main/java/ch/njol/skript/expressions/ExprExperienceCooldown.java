@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,12 +19,12 @@ import org.jetbrains.annotations.Nullable;
 	"Experience cooldown is how long until a player can pick up another orb of experience.",
 	"The cooldown of a player must be 0 to pick up another orb of experience."
 })
-@Examples({
-	"send experience cooldown of player",
-	"set the xp pickup cooldown of player to 1 hour",
-	"if exp collection cooldown of player >= 10 minutes:",
-		"\tclear the experience pickup cooldown of player"
-})
+@Example("send experience cooldown of player")
+@Example("set the xp pickup cooldown of player to 1 hour")
+@Example("""
+	if exp collection cooldown of player >= 10 minutes:
+		clear the experience pickup cooldown of player
+	""")
 @Since("2.10")
 public class ExprExperienceCooldown extends SimplePropertyExpression<Player, Timespan> {
 

@@ -8,6 +8,7 @@ import org.skriptlang.skript.common.properties.PropertiesModule;
 import java.io.IOException;
 
 public class CommonModule implements AddonModule {
+
 	@Override
 	public void load(SkriptAddon addon) {
 		try {
@@ -18,4 +19,10 @@ public class CommonModule implements AddonModule {
 
 		addon.loadModules(new PropertiesModule());
 	}
+
+	@Override
+	public String name() {
+		return "common";
+	}
+
 }

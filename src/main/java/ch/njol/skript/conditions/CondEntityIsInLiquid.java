@@ -10,12 +10,10 @@ import org.bukkit.entity.Entity;
 
 @Name("Entity is in Liquid")
 @Description("Checks whether an entity is in rain, lava, water or a bubble column.")
-@Examples({
-	"if player is in rain:",
-	"if player is in water:",
-	"player is in lava:",
-	"player is in bubble column"
-})
+@Example("if player is in rain:")
+@Example("if player is in water:")
+@Example("player is in lava:")
+@Example("player is in bubble column")
 @Since("2.6.1")
 public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 	

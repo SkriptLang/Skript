@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,12 +25,14 @@ import ch.njol.util.Kleenean;
  */
 @Name("Command")
 @Description("The command that caused an 'on command' event (excluding the leading slash and all arguments)")
-@Examples({"# prevent any commands except for the /exit command during some game",
-		"on command:",
-		"\tif {game::%player%::playing} is true:",
-		"\t\tif the command is not \"exit\":",
-		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
-		"\t\t\tcancel the event"})
+@Example("""
+	# prevent any commands except for the /exit command during some game
+	on command:
+		if {game::%player%::playing} is true:
+			if the command is not "exit":
+				message "You're not allowed to use commands during the game"
+				cancel the event
+	""")
 @Since("2.0, 2.7 (support for script commands)")
 @Events("command")
 public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {

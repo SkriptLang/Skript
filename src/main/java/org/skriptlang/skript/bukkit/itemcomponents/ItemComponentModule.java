@@ -52,4 +52,9 @@ public class ItemComponentModule implements AddonModule {
 		ExprItemCompCopy.register(addon.syntaxRegistry());
 	}
 
+	@Override
+	public String name() {
+		return "item component";
+	}
+
 }

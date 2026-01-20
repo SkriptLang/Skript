@@ -4,7 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -20,10 +20,8 @@ import java.io.File;
 
 @Name("Is Script Loaded")
 @Description("Check if the current script, or another script, is currently loaded.")
-@Examples({
-	"script is loaded",
-	"script \"example.sk\" is loaded"
-})
+@Example("script is loaded")
+@Example("script \"example.sk\" is loaded")
 @Since("2.2-dev31")
 public class CondScriptLoaded extends Condition {
 

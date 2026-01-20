@@ -10,7 +10,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -18,7 +17,7 @@ public class EvtBrewingFuel extends SkriptEvent {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
-			BukkitRegistryKeys.EVENT,
+			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingFuel.class, "Brewing Fuel")
 				.addEvent(BrewingStandFuelEvent.class)
 				.addPatterns(

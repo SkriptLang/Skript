@@ -8,11 +8,10 @@ import org.bukkit.entity.Player;
 
 @Name("Has Chat Filtering")
 @Description("Checks whether a player has chat filtering enabled.")
-@Examples({
-	"if player doesn't have chat filtering enabled:",
-		"send \"<gray>This server may contain mature chat messages. You have been warned!\" to player",
-})
-
+@Example("""
+	if player doesn't have chat filtering enabled:
+		send "<gray>This server may contain mature chat messages. You have been warned!" to player
+	""")
 @Since("2.10")
 public class CondChatFiltering extends PropertyCondition<Player> {
 

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -21,10 +21,12 @@ import ch.njol.util.Kleenean;
  */
 @Name("Exists/Is Set")
 @Description("Checks whether a given expression or variable is set.")
-@Examples({"{teams::%player's uuid%::preferred-team} is not set",
-		"on damage:",
-		"	projectile exists",
-		"	broadcast \"%attacker% used a %projectile% to attack %victim%!\""})
+@Example("{teams::%player's uuid%::preferred-team} is not set")
+@Example("""
+	on damage:
+		projectile exists
+		broadcast "%attacker% used a %projectile% to attack %victim%!"
+	""")
 @Since("1.2")
 public class CondIsSet extends Condition implements VerboseAssert {
 	static {

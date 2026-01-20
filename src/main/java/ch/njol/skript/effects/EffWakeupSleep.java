@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -27,13 +27,11 @@ import org.jetbrains.annotations.Nullable;
 		+ "Does not work if the location of the bed is not in the world the player is currently in.",
 	"Using 'without spawn location update' will make players wake up without setting their spawn location to the bed."
 })
-@Examples({
-	"make {_fox} go to sleep",
-	"make {_bat} stop sleeping",
-	"make {_villager} start sleeping at location(0, 0, 0)",
-	"make player go to sleep at location(0, 0, 0) with force",
-	"make player wake up without spawn location update"
-})
+@Example("make {_fox} go to sleep")
+@Example("make {_bat} stop sleeping")
+@Example("make {_villager} start sleeping at location(0, 0, 0)")
+@Example("make player go to sleep at location(0, 0, 0) with force")
+@Example("make player wake up without spawn location update")
 @Since("2.11")
 public class EffWakeupSleep extends Effect {
 

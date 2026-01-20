@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.util.ClassUtils;
 import org.skriptlang.skript.util.Priority;
 
@@ -14,19 +15,40 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
 class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 
-	private final SyntaxOrigin origin;
+	private static Priority estimatePriority(Collection<String> patterns) {
+		Priority priority = SyntaxInfo.SIMPLE;
+		for (String pattern : patterns) {
+			char[] chars = pattern.toCharArray();
+			for (int i = 0; i < chars.length; i++) {
+				if (chars[i] == '%') {
+					if (i > 0 && chars[i - 1] == '\\') { // skip escaped percentages
+						continue;
+					}
+					// "%thing% %thing%" or "%thing% [%thing%]"
+					if ((i > 1 && chars[i - 2] == '%') || (i > 2 && chars[i - 3] == '%')) {
+						return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
+					}
+					priority = SyntaxInfo.COMBINED;
+				}
+			}
+		}
+		return priority;
+	}
+
+	private final Origin origin;
 	private final Class<T> type;
 	private final @Nullable Supplier<T> supplier;
-	private final Collection<String> patterns;
+	private final SequencedCollection<String> patterns;
 	private final Priority priority;
 
 	protected SyntaxInfoImpl(
-		SyntaxOrigin origin, Class<T> type, @Nullable Supplier<T> supplier,
-		Collection<String> patterns, Priority priority
+		Origin origin, Class<T> type, @Nullable Supplier<T> supplier,
+		SequencedCollection<String> patterns, @Nullable Priority priority
 	) {
 		Preconditions.checkArgument(supplier != null || ClassUtils.isNormalClass(type),
 				"Failed to register a syntax info for '" + type.getName() + "'."
@@ -38,6 +60,9 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		this.type = type;
 		this.supplier = supplier;
 		this.patterns = ImmutableList.copyOf(patterns);
+		if (priority == null) {
+			priority = estimatePriority(patterns);
+		}
 		this.priority = priority;
 	}
 
@@ -54,7 +79,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	}
 
 	@Override
-	public SyntaxOrigin origin() {
+	public Origin origin() {
 		return origin;
 	}
 
@@ -73,7 +98,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	}
 
 	@Override
-	public @Unmodifiable Collection<String> patterns() {
+	public @Unmodifiable SequencedCollection<String> patterns() {
 		return patterns;
 	}
 
@@ -87,9 +112,15 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		if (this == other) {
 			return true;
 		}
-		return other instanceof SyntaxInfo<?> info &&
-				Objects.equals(origin(), info.origin()) &&
-				Objects.equals(type(), info.type()) &&
+		if (!(other instanceof SyntaxInfo<?> info)) {
+			return false;
+		}
+		// if 'other' is a custom implementation, have it compare against this to ensure symmetry
+		if (other.getClass() != SyntaxInfoImpl.class && !other.equals(this)) {
+			return false;
+		}
+		// compare known data
+		return type() == info.type() &&
 				Objects.equals(patterns(), info.patterns()) &&
 				Objects.equals(priority(), info.priority());
 	}
@@ -112,36 +143,17 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	@SuppressWarnings("unchecked")
 	static class BuilderImpl<B extends Builder<B, E>, E extends SyntaxElement> implements Builder<B, E> {
 
-		/**
-		 * A default origin that describes the class of a syntax.
-		 */
-		private static final class ClassOrigin implements SyntaxOrigin {
-
-			private final String name;
-
-			ClassOrigin(Class<?> clazz) {
-				this.name = clazz.getName();
-			}
-
-			@Override
-			public String name() {
-				return name;
-			}
-
-		}
-
 		final Class<E> type;
-		SyntaxOrigin origin;
+		Origin origin = Origin.UNKNOWN;
 		@Nullable Supplier<E> supplier;
 		final List<String> patterns = new ArrayList<>();
-		Priority priority = SyntaxInfo.COMBINED;
+		@Nullable Priority priority;
 
 		BuilderImpl(Class<E> type) {
 			this.type = type;
-			origin = new ClassOrigin(type);
 		}
 
-		public B origin(SyntaxOrigin origin) {
+		public B origin(Origin origin) {
 			this.origin = origin;
 			return (B) this;
 		}
@@ -190,7 +202,9 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 				builder.supplier((Supplier) supplier);
 			}
 			builder.addPatterns(patterns);
-			builder.priority(priority);
+			if (priority != null) {
+				builder.priority(priority);
+			}
 		}
 
 	}

@@ -24,3 +24,17 @@ test "ExprElement":
 	assert elements from 5 to 5 of {_list::*} is not set with "Incorrect elements from 5 to 5"
 	assert elements from 1 to 1 of {_list::*} is "foo" with "Incorrect elements from 1 to 1"
 	assert (first element out of (5 and 6)) + 5 is 10 with "Incorrect return type"
+
+test "keyed ExprElement":
+	set {_list::a} to "foo"
+	set {_list::b} to "bar"
+	set {_list::c} to "foobar"
+	set {_other::*} to first 2 elements of keyed {_list::*}
+	assert {_other::a} is "foo"
+	assert {_other::b} is "bar"
+
+	loop last 2 elements of keyed {_list::*}:
+		if loop-counter is 1:
+			assert loop-value is "bar"
+		if loop-counter is 2:
+			assert loop-value is "foobar"

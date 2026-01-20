@@ -92,6 +92,11 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 			throw new UnsupportedOperationException("Cannot unregister syntax infos from an unmodifiable syntax registry.");
 		}
 
+		@Override
+		public SyntaxRegistry unmodifiableView() {
+			return this;
+		}
+
 	}
 
 	static class KeyImpl<T extends SyntaxInfo<?>> implements Key<T> {

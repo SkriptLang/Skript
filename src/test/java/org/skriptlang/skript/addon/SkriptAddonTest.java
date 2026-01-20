@@ -6,7 +6,7 @@ public class SkriptAddonTest extends BaseSkriptAddonTests {
 
 	@Override
 	public SkriptAddon addon() {
-		return Skript.of(source(), name())
+		return Skript.of(source(), "TestSkript")
 				.registerAddon(source(), name());
 	}
 

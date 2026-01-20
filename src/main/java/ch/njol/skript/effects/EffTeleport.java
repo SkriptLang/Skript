@@ -33,14 +33,13 @@ import java.util.stream.Stream;
 	"which may cause lag spikes or server crashes when using this effect to teleport entities to unloaded chunks.",
 	"Teleport flags are settings to retain during a teleport. Such as direction, passengers, x coordinate, etc."
 })
-@Examples({
-	"teleport the player to {home::%uuid of player%}",
-	"teleport the attacker to the victim",
-	"",
-	"on dismount:",
-		"\tcancel event",
-		"\tteleport the player to {server::spawn} retaining vehicle and passengers"
-})
+@Example("teleport the player to {home::%uuid of player%}")
+@Example("teleport the attacker to the victim")
+@Example("""
+	on dismount:
+		cancel event
+		teleport the player to {server::spawn} retaining vehicle and passengers
+	""")
 @Since("1.0, 2.10 (flags)")
 public class EffTeleport extends Effect {
 

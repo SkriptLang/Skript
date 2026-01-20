@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -22,13 +22,13 @@ import org.jetbrains.annotations.Nullable;
 	"The domestication of a horse is how close a horse is to becoming tame - the higher the domestication, the closer they are to becoming tame (must be between 1 and the max domestication level of the horse).",
 	"The max domestication of a horse is how long it will take for a horse to become tame (must be greater than 0)."
 })
-@Examples({
-	"function domesticateAndTame(horse: entity, p: offline player, i: int = 10):",
-		"\tadd {_i} to domestication level of {_horse}",
-		"\tif domestication level of {_horse} >= max domestication level of {_horse}:",
-			"\t\ttame {_horse}",
-			"\t\tset tamer of {_horse} to {_p}"
-})
+@Example("""
+	function domesticateAndTame(horse: entity, p: offline player, i: int = 10):
+		add {_i} to domestication level of {_horse}
+		if domestication level of {_horse} >= max domestication level of {_horse}:
+			tame {_horse}
+			set tamer of {_horse} to {_p}
+	""")
 @Since("2.10")
 public class ExprDomestication extends SimplePropertyExpression<LivingEntity, Integer> {
 

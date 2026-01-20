@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.displays.generic;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -31,12 +31,12 @@ import java.util.List;
 	"Make sure to set both block and sky levels to your desired values for the best results. " +
 	"Likewise, you can only clear the brightness override, you cannot clear/reset the sky/block values individually."
 })
-@Examples({
-	"set sky light override of the last spawned text display to 7",
-	"subtract 3 from the block light level override of the last spawned text display",
-	"if sky light level override of {_display} is 5:",
-		"\tclear brightness override of {_display}"
-})
+@Example("set sky light override of the last spawned text display to 7")
+@Example("subtract 3 from the block light level override of the last spawned text display")
+@Example("""
+	if sky light level override of {_display} is 5:
+		clear brightness override of {_display}
+	""")
 @Since("2.10")
 public class ExprDisplayBrightness extends SimpleExpression<Integer> {
 

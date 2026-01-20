@@ -134,6 +134,23 @@ public class ColorRGB implements Color {
 		);
 	}
 
+	/**
+	 * @param hex A [AA]RRGGBB hex string to parse into ARGB values. Must be either a length of 6 or 8. Omitting alpha will default it to 255 (FF).
+	 * @return a color with the provided ARGB values, or null if parsing failed.
+	 */
+	public static @Nullable ColorRGB fromHexString(String hex) {
+		if (hex.length() != 6 && hex.length() != 8)
+			return null;
+		if (hex.length() == 6)
+			hex = "FF" + hex; // default alpha to 255
+		try {
+			int argb = Integer.parseUnsignedInt(hex, 16);
+			return ColorRGB.fromRGBA(argb >> 16 & 255, argb >> 8 & 255, argb & 255, argb >> 24 & 255);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		return new Fields(this, Variables.yggdrasil);

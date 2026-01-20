@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -23,10 +23,8 @@ import java.util.function.Consumer;
 	"The current number of entities stored inside an entity block storage (i.e. beehive).",
 	"The maximum amount of entities an entity block storage can hold."
 })
-@Examples({
-	"broadcast the stored entity count of {_beehive}",
-	"set the maximum entity count of {_beehive} to 20"
-})
+@Example("broadcast the stored entity count of {_beehive}")
+@Example("set the maximum entity count of {_beehive} to 20")
 @Since("2.11")
 public class ExprEntityStorageEntityCount extends SimplePropertyExpression<Block, Integer> {
 

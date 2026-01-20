@@ -13,10 +13,10 @@ import org.jetbrains.annotations.Nullable;
 	"E.g. it takes 1.6 seconds to drink a potion, or 1.4 seconds to load an unenchanted crossbow.",
 	"Some items, like bows and shields, do not have a limit to their use. They will return 1 hour."
 })
-@Examples({
-	"on right click:",
-		"\tbroadcast max usage duration of player's tool"
-})
+@Example("""
+	on right click:
+		broadcast max usage duration of player's tool
+	""")
 @Since("2.8.0")
 public class ExprMaxItemUseTime extends SimplePropertyExpression<ItemStack, Timespan> {
 

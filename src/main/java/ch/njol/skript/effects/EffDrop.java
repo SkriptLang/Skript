@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -25,8 +25,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Drop")
 @Description("Drops one or more items.")
-@Examples({"on death of creeper:",
-		"	drop 1 TNT"})
+@Example("""
+	on death of creeper:
+		drop 1 TNT
+	""")
 @Since("1.0")
 public class EffDrop extends Effect {
 

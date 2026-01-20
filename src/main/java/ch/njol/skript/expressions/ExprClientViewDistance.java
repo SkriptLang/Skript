@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -14,7 +14,8 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Name("View Distance of Client")
 @Description("The view distance of the client. Can not be changed. " +
 	"This differs from the server side view distance of player as this will retrieve the view distance the player has set on their client.")
-@Examples({"set {_clientView} to the client view distance of player", "set view distance of player to client view distance of player"})
+@Example("set {_clientView} to the client view distance of player")
+@Example("set view distance of player to client view distance of player")
 @RequiredPlugins("1.13.2+")
 @Since("2.5")
 public class ExprClientViewDistance extends SimplePropertyExpression<Player, Long> {

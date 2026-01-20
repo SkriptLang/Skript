@@ -12,7 +12,6 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.StructureImpl;
  * Use {@link SyntaxInfo} instead.
  */
 @ApiStatus.Internal
-@ApiStatus.Experimental
 public interface DefaultSyntaxInfos {
 
 	/**
@@ -21,7 +20,6 @@ public interface DefaultSyntaxInfos {
 	 * @param <E> The class providing the implementation of the Expression this info represents.
 	 * @param <R> The type of the return type of the Expression.
 	 */
-	@ApiStatus.Experimental
 	interface Expression<E extends ch.njol.skript.lang.Expression<R>, R> extends SyntaxInfo<E> {
 
 		/**
@@ -75,7 +73,6 @@ public interface DefaultSyntaxInfos {
 	 * It contains additional details including the {@link EntryValidator} to use, if any.
 	 * @param <E> The class providing the implementation of the Structure this info represents.
 	 */
-	@ApiStatus.Experimental
 	interface Structure<E extends org.skriptlang.skript.lang.structure.Structure> extends SyntaxInfo<E> {
 
 		/**

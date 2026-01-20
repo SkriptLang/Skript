@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,8 +19,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Enchantment Bonus")
 @Description("The enchantment bonus in an enchant prepare event. This represents the number of bookshelves affecting/surrounding the enchantment table.")
-@Examples({"on enchant:", 
-			"\tsend \"There are %enchantment bonus% bookshelves surrounding this enchantment table!\" to player"})
+@Example("""
+	on enchant:
+		send "There are %enchantment bonus% bookshelves surrounding this enchantment table!" to player
+	""")
 @Events("enchant prepare")
 @Since("2.5")
 public class ExprEnchantmentBonus extends SimpleExpression<Long> {
