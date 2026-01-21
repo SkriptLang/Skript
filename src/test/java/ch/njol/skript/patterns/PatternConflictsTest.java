@@ -14,6 +14,7 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skriptlang.skript.bukkit.text.elements.ExprColored;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.CondHasPotion;
 import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -415,7 +416,7 @@ public class PatternConflictsTest extends SkriptJUnitTest {
 		// TODO - Fix these conflicts
 		// Exclusions by amount of conflicts
 		// 1 conflict
-		EXCLUSIONS.add(new Exclusion("formatted %*%", ExprFormatDate.class, ExprColoured.class));
+		EXCLUSIONS.add(new Exclusion("formatted %*%", ExprFormatDate.class, ExprColored.class));
 		EXCLUSIONS.add(new Exclusion("unload %*%", EffScriptFile.class, EffWorldLoad.class));
 		EXCLUSIONS.add(new Exclusion("the %*% of %*%", ExprArmorSlot.class, ExprEntities.class));
 		EXCLUSIONS.add(new Exclusion("%*% of %*%", ExprArmorSlot.class, ExprEntities.class, ExprXOf.class));

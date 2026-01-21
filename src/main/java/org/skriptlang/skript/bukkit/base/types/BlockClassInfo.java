@@ -12,6 +12,7 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.Fields;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Nameable;
 import org.bukkit.World;
@@ -54,39 +55,37 @@ public class BlockClassInfo extends ClassInfo<Block> {
 				new BlockNameHandler());
 	}
 
-	private static class BlockNameHandler implements ExpressionPropertyHandler<Block, String> {
+	private static class BlockNameHandler implements ExpressionPropertyHandler<Block, Component> {
 		//<editor-fold desc="name property for blocks" defaultstate="collapsed">
 		@Override
-		public String convert(Block block) {
+		public Component convert(Block block) {
 			BlockState state = block.getState();
 			if (state instanceof Nameable nameable)
-				//noinspection deprecation
-				return nameable.getCustomName();
+				return nameable.customName();
 			return null;
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return new Class[]{String.class};
+				return new Class[]{Component.class};
 			return null;
 		}
 
 		@Override
 		public void change(Block named, Object @Nullable [] delta, ChangeMode mode) {
 			assert mode == ChangeMode.SET || mode == ChangeMode.RESET;
-			String name = delta == null ? null : (String) delta[0];
+			Component name = delta == null ? null : (Component) delta[0];
 			BlockState state = named.getState();
 			if (state instanceof Nameable nameable) {
-				//noinspection deprecation
-				nameable.setCustomName(name);
+				nameable.customName(name);
 				state.update(true, false);
 			}
 		}
 
 		@Override
-		public @NotNull Class<String> returnType() {
-			return String.class;
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

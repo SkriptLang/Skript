@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class EventValues {
@@ -463,16 +464,38 @@ public class EventValues {
 	) {
 		Converter<? super F, ? extends T> converter = Converters.getConverter(info.valueClass, valueClass);
 
+		if (info.valueClass.isArray() && valueClass.isArray()) { // array to array
+			Class<?> valueComponentType = valueClass.getComponentType();
+			//noinspection rawtypes - no known types here, generics are unhelpful
+			Converter singleConverter = Converters.getConverter(info.valueClass.getComponentType(), valueComponentType);
+			if (singleConverter != null) {
+				converter = from -> {
+					Object[] fromArray = (Object[]) from;
+					Object[] array = (Object[]) Array.newInstance(valueComponentType, fromArray.length);
+					for (int i = 0; i < fromArray.length; i++) {
+						//noinspection unchecked
+						array[i] = singleConverter.convert(fromArray[i]);
+						if (array[i] == null) {
+							return null;
+						}
+					}
+					//noinspection unchecked
+					return (T) array;
+				};
+			}
+		}
+
 		if (converter == null)
 			return null;
 
+		Converter<? super F, ? extends T> finalConverter = converter;
 		return event -> {
 			if (checkInstanceOf && !info.eventClass.isInstance(event))
 				return null;
 			F f = info.converter.convert(event);
 			if (f == null)
 				return null;
-			return converter.convert(f);
+			return finalConverter.convert(f);
 		};
 	}
 

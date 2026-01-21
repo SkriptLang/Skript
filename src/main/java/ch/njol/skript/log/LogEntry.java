@@ -4,9 +4,9 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.util.Utils;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.util.logging.Level;
 
@@ -132,12 +132,12 @@ public class LogEntry {
 		}
 
 		// Replace configured messages chat styles without user variables
-		String lineInfoMsg = replaceNewline(Utils.replaceEnglishChatStyles(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue()));
-		String detailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(details.getValue() == null ? details.key : details.getValue()));
-		String lineDetailsMsg = replaceNewline(Utils.replaceEnglishChatStyles(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue()));
+		String lineInfoMsg = replaceNewline(lineInfo.getValue() == null ? lineInfo.key : lineInfo.getValue());
+		String detailsMsg = replaceNewline(details.getValue() == null ? details.key : details.getValue());
+		String lineDetailsMsg = replaceNewline(LINE_DETAILS.getValue() == null ? LINE_DETAILS.key : LINE_DETAILS.getValue());
 
 		if (node == null)
-			return String.format(detailsMsg.replaceAll("^\\s+", ""), message); // Remove line beginning spaces
+			return String.format(detailsMsg.stripLeading(), message); // Remove line beginning spaces
 
 		Config c = node.getConfig();
 		String from = this.from;
@@ -147,8 +147,8 @@ public class LogEntry {
 
 		return
 			String.format(lineInfoMsg, node.getLine(), c.getFileName()) +
-			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
-			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
+			String.format(detailsMsg, TextComponentParser.instance().escape(message.replaceAll("§", "&"))) + from +
+			String.format(lineDetailsMsg, TextComponentParser.instance().escape(node.save().trim().replaceAll("§", "&")));
 	}
 
 	private String replaceNewline(String s) {

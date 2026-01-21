@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.base.types;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
@@ -11,12 +10,8 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -236,36 +231,26 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 		//</editor-fold>
 	}
 
-	private static class InventoryNameHandler implements ExpressionPropertyHandler<Inventory, String> {
+	private static class InventoryNameHandler implements ExpressionPropertyHandler<Inventory, Component> {
 		//<editor-fold desc="inventory name property" defaultstate="collapsed">
-		private static @Nullable BungeeComponentSerializer serializer = null;
-
-		static {
-			// Check for Adventure API
-			if (Skript.classExists("net.kyori.adventure.text.Component") &&
-				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
-				serializer = BungeeComponentSerializer.get();
-		}
 
 		@Override
-		public String convert(Inventory inventory) {
+		public Component convert(Inventory inventory) {
 			if (inventory.getViewers().isEmpty())
 				return null;
-			return InventoryUtils.getTitle(inventory.getViewers().get(0).getOpenInventory());
+			return inventory.getViewers().getFirst().getOpenInventory().title();
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return new Class[]{String.class};
+				return new Class[]{Component.class};
 			return null;
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
 		public void change(Inventory inventory, Object @Nullable [] delta, ChangeMode mode) {
-
-			String name = (delta == null || delta.length == 0) ? null : (String) delta[0];
+			Component name = (delta == null || delta.length == 0) ? null : (Component) delta[0];
 
 			if (inventory.getViewers().isEmpty())
 				return;
@@ -276,34 +261,23 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 			if (!type.isCreatable())
 				return;
 
-			Inventory copy;
-			if (serializer == null) {
-				if (name == null)
-					name = type.getDefaultTitle();
-				if (type == InventoryType.CHEST) {
-					copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), name);
-				} else {
-					copy = Bukkit.createInventory(inventory.getHolder(), type, name);
-				}
-			} else {
-				Component component = type.defaultTitle();
-				if (name != null) {
-					BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(name));
-					component = serializer.deserialize(components);
-				}
-				if (type == InventoryType.CHEST) {
-					copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), component);
-				} else {
-					copy = Bukkit.createInventory(inventory.getHolder(), type, component);
-				}
+			if (name == null) {
+				name = type.defaultTitle();
 			}
+			Inventory copy;
+			if (type == InventoryType.CHEST) {
+				copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), name);
+			} else {
+				copy = Bukkit.createInventory(inventory.getHolder(), type, name);
+			}
+
 			copy.setContents(inventory.getContents());
 			viewers.forEach(viewer -> viewer.openInventory(copy));
 		}
 
 		@Override
-		public @NotNull Class<String> returnType() {
-			return String.class;
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

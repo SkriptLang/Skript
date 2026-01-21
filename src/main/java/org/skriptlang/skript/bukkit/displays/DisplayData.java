@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.variables.Variables;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.World;
@@ -72,7 +73,7 @@ public class DisplayData extends EntityData<Display> {
 
 	private @Nullable ItemStack item;
 
-	private @Nullable String text;
+	private @Nullable Component text;
 
 	public DisplayData() {}
 
@@ -125,7 +126,7 @@ public class DisplayData extends EntityData<Display> {
 					switch (type) {
 						case BLOCK -> blockData = ((BlockDisplay) entity).getBlock();
 						case ITEM -> item = ((ItemDisplay) entity).getItemStack();
-						case TEXT -> text = ((TextDisplay) entity).getText();
+						case TEXT -> text = ((TextDisplay) entity).text();
 					}
 				}
 				return true;
@@ -148,7 +149,7 @@ public class DisplayData extends EntityData<Display> {
 			}
 			case TEXT -> {
 				if (text != null && entity instanceof TextDisplay textDisplay)
-					textDisplay.setText(text);
+					textDisplay.text(text);
 			}
 		}
 	}
@@ -171,12 +172,9 @@ public class DisplayData extends EntityData<Display> {
 			case TEXT -> {
 				if (!(entity instanceof TextDisplay textDisplay))
 					return false;
-				if (text == null) // all text displays should match a blank one.
+				if (text == null || text.equals(Component.empty())) // all text displays should match a blank one.
 					return true;
-				String displayText = textDisplay.getText();
-				if (displayText == null)
-					return false;
-				return displayText.equals(text);
+				return textDisplay.text().equals(text);
 			}
 		}
 		return type.displaySubClass != null && type.displaySubClass.isInstance(entity);

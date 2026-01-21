@@ -11,12 +11,15 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -90,7 +93,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 			case REMOVE:
 			case DELETE:
 			case RESET:
-				return CollectionUtils.array(String[].class, Player[].class);
+				return CollectionUtils.array(Component[].class, Player[].class);
 		}
 		return null;
 	}
@@ -100,6 +103,13 @@ public class ExprHoverList extends SimpleExpression<String> {
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (!(event instanceof PaperServerListPingEvent))
 			return;
+
+		// convert components to legacy strings
+		if (delta != null) {
+			delta = Arrays.stream(delta)
+				.map(obj -> obj instanceof Component component ? TextComponentParser.instance().toLegacyString(component) : obj)
+				.toArray();
+		}
 
 		if (HAS_NEW_LISTED_PLAYER_INFO) {
 			List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();

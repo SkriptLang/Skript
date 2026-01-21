@@ -1,0 +1,2 @@
+test "component equality":
+	assert (formatted "<rainbow>Hello!") is (formatted "<rainbow>Hello!") with "components with virtual components failed comparison"

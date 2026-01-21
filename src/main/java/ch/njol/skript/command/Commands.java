@@ -10,7 +10,6 @@ import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.variables.Variables;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
@@ -30,6 +29,7 @@ import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -185,19 +185,20 @@ public abstract class Commands {
 					log.clear(); // ignore warnings and stuff
 					log.printLog();
 					if (!effectCommand.isCancelled()) {
-						sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
+						sender.sendRichMessage("<gray>Executing '" + TextComponentParser.instance().escape(command) + "'");
 						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
-							Skript.info(sender.getName() + " issued effect command: " + SkriptColor.replaceColorChar(command));
+							Skript.info(sender.getName() + " issued effect command: " + TextComponentParser.instance().escape(command));
 						TriggerItem.walk(effect, effectCommand);
 						Variables.removeLocals(effectCommand);
 					} else {
-						sender.sendMessage(ChatColor.RED + "your effect command '" + SkriptColor.replaceColorChar(command) + "' was cancelled.");
+						sender.sendRichMessage("<red>Your effect command '" + TextComponentParser.instance().escape(command) + "' was cancelled.");
 					}
 				} else {
 					if (sender == Bukkit.getConsoleSender()) // log as SEVERE instead of INFO like printErrors below
-						SkriptLogger.LOGGER.severe("Error in: " + SkriptColor.replaceColorChar(command));
+						SkriptLogger.LOGGER.severe("Error in: " + TextComponentParser.instance().escape(command));
 					else
-						sender.sendMessage(ChatColor.RED + "Error in: " + ChatColor.GRAY + SkriptColor.replaceColorChar(command));
+						sender.sendRichMessage("<red>Error in: <gray>" + TextComponentParser.instance().escape(command));
+					// TODO errors likely need to be escaped too
 					log.printErrors(sender, "(No specific information is available)");
 				}
 			} finally {
@@ -205,8 +206,8 @@ public abstract class Commands {
 			}
 			return true;
 		} catch (Exception e) {
-			Skript.exception(e, "Unexpected error while executing effect command '" + SkriptColor.replaceColorChar(command) + "' by '" + sender.getName() + "'");
-			sender.sendMessage(ChatColor.RED + "An internal error occurred while executing this effect. Please refer to the server log for details.");
+			Skript.exception(e, "Unexpected error while executing effect command '" + TextComponentParser.instance().escape(command) + "' by '" + sender.getName() + "'");
+			sender.sendRichMessage("<red>An internal error occurred while executing this effect. Please refer to the server log for details.");
 			return true;
 		}
 	}

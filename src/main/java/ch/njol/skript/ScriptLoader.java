@@ -14,7 +14,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.HintManager;
@@ -24,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -1036,7 +1036,7 @@ public class ScriptLoader {
 				}
 
 				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
+					Skript.debug(TextComponentParser.instance().escape(parser.getIndentation() + item.toString(null, true)));
 
 				items.add(item);
 			} else if (subNode instanceof SectionNode subSection) {
@@ -1089,7 +1089,7 @@ public class ScriptLoader {
 					handler.clear();
 					handler.printLog();
 					if (item != null && (Skript.debug() || subNode.debug()))
-						Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
+						Skript.debug(TextComponentParser.instance().escape(parser.getIndentation() + item.toString(null, true)));
 					afterParse.printLog();
 				}
 

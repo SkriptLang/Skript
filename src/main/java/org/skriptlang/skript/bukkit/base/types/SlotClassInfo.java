@@ -10,6 +10,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.slot.Slot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -147,42 +148,41 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 		//</editor-fold>
 	}
 
-	private static class SlotNameHandler implements ExpressionPropertyHandler<Slot, String> {
+	private static class SlotNameHandler implements ExpressionPropertyHandler<Slot, Component> {
 		//<editor-fold desc="slot name handler" defaultstate="collapsed">
 		@Override
-		public String convert(Slot slot) {
+		public Component convert(Slot slot) {
 			ItemStack stack = slot.getItem();
 			if (stack != null && stack.hasItemMeta()) {
 				ItemMeta meta = stack.getItemMeta();
-				return meta.hasDisplayName() ? meta.getDisplayName() : null;
+				return meta.hasDisplayName() ? meta.displayName() : null;
 			}
 			return null;
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			if (mode == ChangeMode.SET)
-				return new Class[] {String.class};
+			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
+				return new Class[] {Component.class};
 			return null;
 		}
 
 		@Override
 		public void change(Slot named, Object @Nullable [] delta, ChangeMode mode) {
 			assert mode == ChangeMode.SET;
-			assert delta != null;
-			String name = (String) delta[0];
+			Component name = delta == null ? null : (Component) delta[0];
 			ItemStack stack = named.getItem();
 			if (stack != null && !ItemUtils.isAir(stack.getType())) {
 				ItemMeta meta = stack.hasItemMeta() ? stack.getItemMeta() : Bukkit.getItemFactory().getItemMeta(stack.getType());
-				meta.setDisplayName(name);
+				meta.displayName(name);
 				stack.setItemMeta(meta);
 				named.setItem(stack);
 			}
 		}
 
 		@Override
-		public @NotNull Class<String> returnType() {
-			return String.class;
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

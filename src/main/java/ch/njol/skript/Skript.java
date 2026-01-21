@@ -49,9 +49,7 @@ import ch.njol.skript.util.EmptyStacktraceException;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
-import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
@@ -91,7 +89,13 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.block.BlockModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
+import org.skriptlang.skript.bukkit.entity.EntityModule;
+import org.skriptlang.skript.bukkit.item.ItemModule;
+import org.skriptlang.skript.bukkit.misc.MiscModule;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
+import org.skriptlang.skript.bukkit.text.TextModule;
 import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
@@ -604,13 +608,18 @@ public final class Skript extends JavaPlugin implements Listener {
 			LootTableModule.load();
 			skript.loadModules(
 				new CommonModule(),
+				new BlockModule(),
 				new BrewingModule(),
 				new EntityModule(),
 				new DamageSourceModule(),
 				new InteractionModule(),
+				new ItemModule(),
 				new ItemComponentModule(),
+				new MiscModule(),
 				new PotionModule(),
-				new ParticleModule());
+				new ParticleModule(),
+				new TextModule()
+			);
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -856,8 +865,9 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+					player.sendMessage(TextComponentParser.instance().parse(
+						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
+						false));
 				}
 			};
 		}
@@ -2192,7 +2202,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		logEx("Thread: " + (thread == null ? Thread.currentThread() : thread).getName());
 		logEx("Language: " + Language.getName());
-		logEx("Link parse mode: " + ChatMessages.linkParseMode);
+		logEx("Link parse mode: " + TextComponentParser.instance().linkParseMode());
 	}
 
 	static void logEx() {
@@ -2211,7 +2221,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + info));
+		sender.sendMessage(TextComponentParser.instance().parse(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2220,7 +2230,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(Utils.replaceEnglishChatStyles(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(TextComponentParser.instance().parse(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2234,11 +2244,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(info));
+		sender.sendMessage(TextComponentParser.instance().parse(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(Utils.replaceEnglishChatStyles(getSkriptPrefix() + ChatColor.DARK_RED + error));
+		sender.sendMessage(TextComponentParser.instance().parse(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**

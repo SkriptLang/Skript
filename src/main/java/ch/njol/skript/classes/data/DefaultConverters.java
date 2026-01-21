@@ -14,6 +14,7 @@ import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -35,6 +36,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -178,9 +180,14 @@ public class DefaultConverters {
 			Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
 				nameable -> new AnyNamed() {
 					@Override
-					public @UnknownNullability String name() {
+					public @Nullable String name() {
 						//noinspection deprecation
 						return nameable.getCustomName();
+					}
+
+					@Override
+					public @Nullable Component nameComponent() {
+						return nameable.customName();
 					}
 
 					@Override
@@ -193,17 +200,30 @@ public class DefaultConverters {
 						//noinspection deprecation
 						nameable.setCustomName(name);
 					}
+
+					@Override
+					public void setName(Component name) {
+						nameable.customName(name);
+					}
 				},
 				//</editor-fold>
 				Converter.NO_RIGHT_CHAINING);
 			Converters.registerConverter(Block.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
 				block -> new AnyNamed() {
 					@Override
-					public @UnknownNullability String name() {
+					public @Nullable String name() {
 						BlockState state = block.getState();
 						if (state instanceof Nameable nameable)
 							//noinspection deprecation
 							return nameable.getCustomName();
+						return null;
+					}
+
+					@Override
+					public @Nullable Component nameComponent() {
+						BlockState state = block.getState();
+						if (state instanceof Nameable nameable)
+							return nameable.customName();
 						return null;
 					}
 
@@ -218,6 +238,15 @@ public class DefaultConverters {
 						if (state instanceof Nameable nameable) {
 							//noinspection deprecation
 							nameable.setCustomName(name);
+							state.update(true, false);
+						}
+					}
+
+					@Override
+					public void setName(Component name) {
+						BlockState state = block.getState();
+						if (state instanceof Nameable nameable) {
+							nameable.customName(name);
 							state.update(true, false);
 						}
 					}

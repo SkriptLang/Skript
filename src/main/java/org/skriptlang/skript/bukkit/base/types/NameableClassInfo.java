@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Nameable;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
@@ -29,46 +30,40 @@ public class NameableClassInfo extends ClassInfo<Nameable> {
 				Skript.instance(),
 				ExpressionPropertyHandler.of(nameable -> {
 				if (nameable instanceof CommandSender sender) { // prioritize CommandSender names over Nameable names for "name of"
-					return sender.getName();
+					return sender.name();
 				}
-				return nameable.getCustomName();
-			}, String.class))
+				return nameable.customName();
+			}, Component.class))
 			.property(Property.DISPLAY_NAME,
 				"The custom name of the nameable, if it has one, as text. Can be set or reset.",
 				Skript.instance(),
 				new NameableNameHandler());
 	}
 
-	private static class NameableNameHandler implements ExpressionPropertyHandler<Nameable, String> {
+	private static class NameableNameHandler implements ExpressionPropertyHandler<Nameable, Component> {
 		//<editor-fold desc="name property for nameables" defaultstate="collapsed">
 		@Override
-		public String convert(Nameable nameable) {
-			return nameable.getCustomName();
+		public Component convert(Nameable nameable) {
+			return nameable.customName();
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return new Class[] {String.class};
+				return new Class[] {Component.class};
 			return null;
 		}
 
 		@Override
-		public void change(Nameable propertyHolder, Object @Nullable [] delta, ChangeMode mode) {
+		public void change(Nameable nameable, Object @Nullable [] delta, ChangeMode mode) {
 			assert mode == ChangeMode.SET || mode == ChangeMode.RESET;
-			if (mode == ChangeMode.SET) {
-				assert delta != null;
-				if (delta.length == 1) {
-					propertyHolder.setCustomName((String) delta[0]);
-				}
-			} else {
-				propertyHolder.setCustomName(null);
-			}
+			Component name = delta == null ? null : (Component) delta[0];
+			nameable.customName(name);
 		}
 
 		@Override
-		public @NotNull Class<String> returnType() {
-			return String.class;
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

@@ -12,6 +12,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -55,7 +56,7 @@ public class PlayerClassInfo extends ClassInfo<Player> {
 			.property(Property.NAME,
 				"A player's account/true name, as text. Cannot be changed.",
 				Skript.instance(),
-				ExpressionPropertyHandler.of(Player::getName, String.class))
+				ExpressionPropertyHandler.of(Player::name, Component.class))
 			.property(Property.DISPLAY_NAME,
 				"The player's display name, as text. Can be set or reset.",
 				Skript.instance(),
@@ -63,32 +64,30 @@ public class PlayerClassInfo extends ClassInfo<Player> {
 			.serializeAs(OfflinePlayer.class);
 	}
 
-	public static class PlayerDisplayNameHandler implements ExpressionPropertyHandler<Player, String> {
+	public static class PlayerDisplayNameHandler implements ExpressionPropertyHandler<Player, Component> {
 		//<editor-fold desc="display name handler" defaultstate="collapsed">
 		@Override
-		@SuppressWarnings("deprecation")
-		public String convert(Player named) {
-			return named.getDisplayName();
+		public Component convert(Player player) {
+			return player.displayName();
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			return switch (mode) {
-				case SET, RESET -> CollectionUtils.array(String.class);
+				case SET, RESET -> CollectionUtils.array(Component.class);
 				default -> null;
 			};
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
 		public void change(Player player, Object @Nullable [] delta, ChangeMode mode) {
-			String name = delta != null ? (String) delta[0] : null;
-			player.setDisplayName(name != null ? name + ChatColor.RESET : player.getName());
+			Component name = delta == null ? null : (Component) delta[0];
+			player.displayName(name);
 		}
 
 		@Override
-		public @NotNull Class<String> returnType() {
-			return String.class;
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

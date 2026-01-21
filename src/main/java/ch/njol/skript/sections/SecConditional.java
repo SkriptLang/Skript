@@ -15,12 +15,12 @@ import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.Patterns;
-import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.bukkit.text.TextComponentParser;
 import org.skriptlang.skript.lang.condition.Conditional;
 import org.skriptlang.skript.lang.condition.Conditional.Operator;
 
@@ -222,7 +222,7 @@ public class SecConditional extends Section {
 			if ((Skript.debug() || sectionNode.debug()) && conditionals.size() > 1) {
 				String indentation = parser.getIndentation() + "    ";
 				for (Conditional<?> condition : conditionals)
-					Skript.debug(indentation + SkriptColor.replaceColorChar(condition.toString(null, true)));
+					Skript.debug(indentation + TextComponentParser.instance().escape(condition.toString(null, true)));
 			}
 
 			conditional = Conditional.compound(ifAny ? Operator.OR : Operator.AND, conditionals);

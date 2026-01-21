@@ -10,8 +10,10 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.EnchantmentType;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -101,29 +103,32 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 		//</editor-fold>
 	}
 
-	private static class ItemTypeNameHandler implements ExpressionPropertyHandler<ItemType, String> {
+	private static class ItemTypeNameHandler implements ExpressionPropertyHandler<ItemType, Component> {
 		//<editor-fold desc="item type name handler" defaultstate="collapsed">
 		@Override
-		public String convert(ItemType itemType) {
-			return itemType.name();
+		public Component convert(ItemType itemType) {
+			ItemMeta meta = itemType.getItemMeta();
+			return meta.hasDisplayName() ? meta.displayName() : null;
 		}
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return new Class[] {String.class};
+				return new Class[] {Component.class};
 			return null;
 		}
 
 		@Override
 		public void change(ItemType itemType, Object @Nullable [] delta, ChangeMode mode) {
-			String name = delta != null ? (String) delta[0] : null;
-			itemType.setName(name);
+			Component name = delta == null ? null : (Component) delta[0];
+			ItemMeta meta = itemType.getItemMeta();
+			meta.displayName(name);
+			itemType.setItemMeta(meta);
 		}
 
 		@Override
-		public @NotNull Class<String> returnType() {
-			return String.class;
+		public @NotNull Class<Component> returnType() {
+			return Component.class;
 		}
 		//</editor-fold>
 	}

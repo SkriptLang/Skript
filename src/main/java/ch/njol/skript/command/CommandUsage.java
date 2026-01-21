@@ -36,7 +36,7 @@ public class CommandUsage {
 			assert usage != null;
 		}
 		this.usage = usage;
-		this.defaultUsage = Utils.replaceChatStyles(defaultUsage);
+		this.defaultUsage = defaultUsage;
 	}
 
 	/**
