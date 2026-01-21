@@ -7,8 +7,8 @@ import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.util.Priority;
 
-import java.util.Collection;
 import java.util.Objects;
+import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
 final class DefaultSyntaxInfosImpl {
@@ -23,7 +23,7 @@ final class DefaultSyntaxInfosImpl {
 
 		ExpressionImpl(
 			Origin origin, Class<E> type, @Nullable Supplier<E> supplier,
-			Collection<String> patterns, Priority priority, @Nullable Class<R> returnType
+			SequencedCollection<String> patterns, Priority priority, @Nullable Class<R> returnType
 		) {
 			super(origin, type, supplier, patterns, priority);
 			Preconditions.checkNotNull(returnType, "An expression syntax info must have a return type.");
@@ -109,7 +109,7 @@ final class DefaultSyntaxInfosImpl {
 
 		StructureImpl(
 			Origin origin, Class<E> type, @Nullable Supplier<E> supplier,
-			Collection<String> patterns, Priority priority,
+			SequencedCollection<String> patterns, Priority priority,
 			@Nullable EntryValidator entryValidator, NodeType nodeType
 		) {
 			super(origin, type, supplier, patterns, priority);

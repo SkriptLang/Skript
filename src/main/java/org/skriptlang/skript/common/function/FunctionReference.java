@@ -7,7 +7,6 @@ import ch.njol.skript.lang.function.FunctionRegistry;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
 import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
@@ -20,8 +19,6 @@ import org.skriptlang.skript.common.function.FunctionReferenceParser.EmptyExpres
 import org.skriptlang.skript.common.function.Parameter.Modifier;
 
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 /**
  * A reference to a {@link Function<T>} found in a script.
@@ -69,60 +66,31 @@ public final class FunctionReference<T> implements Debuggable {
 		if (cachedArguments == null) {
 			cachedArguments = new LinkedHashMap<>();
 
-			// mixing arguments is only allowed when the order of arguments matches param order
-			boolean mix = Arrays.stream(arguments)
-					.map(it -> it.type)
-					.collect(Collectors.toSet()).size() == ArgumentType.values().length;
+			Parameter<?>[] targets = signature.parameters().all();
+			for (int i = 0; i < arguments.length; i++) {
+				Argument<Expression<?>> argument = arguments[i];
+				Parameter<?> target = targets[i];
 
-			// get the target params of the function
-			SequencedMap<String, Parameter<?>> targetParameters =
-					new LinkedHashMap<>(signature.parameters().sequencedMap());
-
-			for (Argument<Expression<?>> argument : arguments) {
-				Parameter<?> target;
-				if (argument.type == ArgumentType.NAMED) {
-					target = targetParameters.get(argument.name);
-				} else {
-					Entry<String, Parameter<?>> first = targetParameters.firstEntry();
-
-					if (first == null) {
-						return false;
-					}
-
-					target = first.getValue();
-				}
-
-				if (target == null) {
-					return false;
-				}
-
-				// try to parse value in the argument
-				Class<?> conversionTarget = Utils.getComponentType(target.type());
 				if (argument.value instanceof EmptyExpression) {
-					targetParameters.remove(target.name());
 					continue;
 				}
 
+				// try to parse value in the argument
 				//noinspection unchecked
-				Expression<?> converted = argument.value.getConvertedExpression(conversionTarget);
+				Expression<?> converted = argument.value.getConvertedExpression(Utils.getComponentType(target.type()));
 
 				// failed to parse value
 				if (!validateArgument(target, argument.value, converted)) {
 					return false;
 				}
 
-				if (mix && !targetParameters.firstEntry().getKey().equals(target.name())) {
-					Skript.error(Language.get("functions.mixing named and unnamed arguments"));
-					return false;
-				}
-
 				// allows "keyed x" to pass all recursive values of x
-				if (converted != null && KeyProviderExpression.areKeysRecommended(converted))
+				if (converted != null && KeyProviderExpression.areKeysRecommended(converted)) {
 					converted.returnNestedStructures(true);
+				}
 
 				// all good
 				cachedArguments.put(target.name(), new ArgInfo(converted, target.type(), target.modifiers()));
-				targetParameters.remove(target.name());
 			}
 		}
 
@@ -332,12 +300,42 @@ public final class FunctionReference<T> implements Debuggable {
 	 * @param type  The type of the argument.
 	 * @param name  The name of the argument, possibly null.
 	 * @param value The value of the argument.
+	 * @param raw   The raw full string of this argument.
 	 */
 	public record Argument<T>(
 			ArgumentType type,
 			String name,
-			T value
+			T value,
+			@Nullable String raw
 	) {
+
+		/**
+		 * Secondary constructor where raw is null.
+		 *
+		 * @param type  The type of the argument.
+		 * @param name  The name of the argument, possibly null.
+		 * @param value The value of the argument.
+		 */
+		public Argument(ArgumentType type, String name, T value) {
+			this(type, name, value, null);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof Argument<?> argument)) {
+				return false;
+			}
+
+			return Objects.equals(value, argument.value) && Objects.equals(name, argument.name) && type == argument.type;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = Objects.hashCode(type);
+			result = 31 * result + Objects.hashCode(name);
+			result = 31 * result + Objects.hashCode(value);
+			return result;
+		}
 
 	}
 

@@ -50,7 +50,7 @@ import java.util.List;
 	for each {_index}, {_value} in {my list::*}:
 		broadcast "%{_index}% = %{_value}%"
 	""")
-@Since("2.10, INSERT VERSION (stable release)")
+@Since("2.10, 2.14 (stable release)")
 public class SecFor extends SecLoop {
 
 	static {

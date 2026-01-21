@@ -1,6 +1,9 @@
 package org.skriptlang.skript.addon;
 
+import ch.njol.skript.lang.SyntaxElement;
 import org.junit.Test;
+import org.skriptlang.skript.docs.Origin.AddonOrigin;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;
 
@@ -88,7 +91,6 @@ public abstract class BaseSkriptAddonTests {
 		assertNotNull(unmodifiable.syntaxRegistry());
 		// unmodifiable's syntax registry should be unmodifiable (different)
 		assertNotEquals(addon.syntaxRegistry(), unmodifiable.syntaxRegistry());
-		assertEquals(addon.registry(SyntaxRegistry.class), addon.syntaxRegistry());
 	}
 
 	@Test
@@ -97,6 +99,23 @@ public abstract class BaseSkriptAddonTests {
 
 		assertNotNull(addon.localizer());
 		assertNotNull(addon.unmodifiableView().localizer());
+	}
+
+	@Test
+	public void testAutomaticOrigin() {
+		final SkriptAddon addon = addon();
+
+		addon.syntaxRegistry().register(SyntaxRegistry.Key.of("OriginTest"), SyntaxInfo.builder(SyntaxElement.class)
+			.supplier(() -> {
+				throw new UnsupportedOperationException();
+			})
+			.addPattern("OriginTest")
+			.build()
+		);
+
+		var info = addon.syntaxRegistry().elements().iterator().next();
+		assertNotNull(info);
+		assertTrue(info.origin() instanceof AddonOrigin addonOrigin && addonOrigin.addon().name().equals(addon.name()));
 	}
 
 }
