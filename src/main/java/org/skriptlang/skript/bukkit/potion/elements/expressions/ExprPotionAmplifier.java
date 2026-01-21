@@ -17,7 +17,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("An expression to obtain the amplifier of a potion effect.")
 @Example("set the amplifier of {_potion} to 10")
 @Example("add 10 to the amplifier of the player's speed effect")
-@Since({"2.7", "INSERT VERSION (support for potion effect objects, changing)"})
+@Since({"2.7", "2.14 (support for potion effect objects, changing)"})
 public class ExprPotionAmplifier extends SimplePropertyExpression<SkriptPotionEffect, Integer> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

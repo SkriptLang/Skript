@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @Example("set text opacity of all text displays to 255 # fully opaque")
 @Example("set text opacity of all text displays to 128 # semi-transparent")
 @Example("set text opacity of all text displays to 4 # fully transparent")
-@Since("2.10, INSERT VERSION (0-255)")
+@Since("2.10, 2.14 (0-255)")
 public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, Integer> {
 
 	static {

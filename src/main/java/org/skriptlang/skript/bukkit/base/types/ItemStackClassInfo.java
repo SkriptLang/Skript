@@ -8,6 +8,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -46,6 +47,7 @@ public class ItemStackClassInfo extends ClassInfo<ItemStack> {
 			.parser(new ItemStackParser())
 			.cloner(ItemStack::clone)
 			.serializer(new ConfigurationSerializer<>())
+			.defaultExpression(new EventValueExpression<>(ItemStack.class))
 			.property(Property.AMOUNT,
 				"The number of items in this stack. Can be set.",
 				Skript.instance(),

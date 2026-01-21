@@ -2,7 +2,7 @@ name: Push documentation
 
 inputs:
   docs_repo_dir:
-    description: "The skript-docs repository directory"
+    description: "The documentation repository directory"
     required: true
     type: string
   git_email:

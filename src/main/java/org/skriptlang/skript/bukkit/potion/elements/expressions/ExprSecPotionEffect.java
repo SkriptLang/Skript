@@ -49,7 +49,7 @@ import java.util.List;
 	# creates a potion effect with the properties of an existing potion effect
 	set {_potion} to a potion effect of slowness based on the player's speed effect
 	""")
-@Since({"2.5.2", "INSERT VERSION (syntax changes, infinite duration support)"})
+@Since({"2.5.2", "2.14 (syntax changes, infinite duration support)"})
 public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {
