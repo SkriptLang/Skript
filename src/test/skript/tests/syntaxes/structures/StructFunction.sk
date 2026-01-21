@@ -90,7 +90,7 @@ test "function structure arguments":
 
 	parse:
 		location(1, 1, 1, 1, 1)
-	assert last parse logs is "Can't understand the argument for the world parameter 'world': 1."
+	assert last parse logs is "Can't understand the argument for the parameter 'world' with type 'world': 1."
 
 local function argument_default(x: int, y: int = 2) -> int:
     return {_x} + {_y}
@@ -124,7 +124,7 @@ test "named function arguments":
 
 	parse:
 		assert nfa(a: 8, c: adghadhaherta, b: 2) = 7
-	assert last parse logs is "Can't understand the argument for the integer parameter 'c': adghadhaherta."
+	assert last parse logs is "Can't understand the argument for the parameter 'c' with type 'integer': adghadhaherta."
 
 	parse:
 		assert nfa(8, c: 3, b: 2) = 7
@@ -146,7 +146,7 @@ test "named function arguments":
 
 	parse:
 		nfa(a: 1, b: 2, d: 2)
-	assert last parse logs is "Can't understand the argument for the integer parameter 'c': d: 2."
+	assert last parse logs is "Can't understand the argument for the parameter 'c' with type 'integer': d: 2."
 
 	parse:
 		nfa(a: 1, d: 2, b: 2)

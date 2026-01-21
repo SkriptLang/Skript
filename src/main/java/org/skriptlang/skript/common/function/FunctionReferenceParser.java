@@ -641,7 +641,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Expression<?> expression = parser.parseExpression(targetData.type());
 			if (expression == null) {
 				logHandler.printError(INVALID_ARGUMENT.toString(
-					Classes.getSuperClassInfo(targetData.type()).getName().getSingular(), argument.name(), argument.value()
+					argument.name(), Classes.getSuperClassInfo(targetData.type()).getName().getSingular(), argument.value()
 				));
 			}
 			return expression;
