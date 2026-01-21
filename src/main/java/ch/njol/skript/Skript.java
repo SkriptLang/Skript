@@ -985,8 +985,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				} catch (IOException e) {
 					Skript.exception(e, "Failed to write test results.");
 				}
-
-				Bukkit.getServer().shutdown();
+				// delay by 1 tick to avoid the watchdog from thinking the shutdown tick took too long.
+				Bukkit.getScheduler().runTaskLater(Skript.this, () -> Bukkit.getServer().shutdown(), 1);
 			}, shutdownDelay.get());
 		});
 	}
