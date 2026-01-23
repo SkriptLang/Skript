@@ -11,7 +11,6 @@ public class GoatModule implements AddonModule {
 		GoatData.register();
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
-
 		CondGoatHasHorns.register(registry);
 		EffGoatHorns.register(registry);
 		EffGoatRam.register(registry);

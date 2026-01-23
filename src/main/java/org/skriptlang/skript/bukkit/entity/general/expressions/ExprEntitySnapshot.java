@@ -1,8 +1,11 @@
 package org.skriptlang.skript.bukkit.entity.general.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
-import org.skriptlang.skript.bukkit.entity.EntityData;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,13 +15,15 @@ import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Entity Snapshot")
-@Description({
-	"Returns the entity snapshot of a provided entity, which includes all the data associated with it "
-	    + "(name, health, attributes, etc.) at the time this expression is used.",
-	"Individual attributes of a snapshot cannot be modified or retrieved."
-})
+@Description("""
+	Returns the entity snapshot of a provided entity, which includes all the data associated with it \
+	(name, health, attributes, etc.) at the time this expression is used.
+	Individual attributes of a snapshot cannot be modified or retrieved.
+	""")
 @Example("""
 	spawn a pig at location(0, 0, 0):
 		set the max health of entity to 20
@@ -31,9 +36,13 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprEntitySnapshot extends SimplePropertyExpression<Object, EntitySnapshot> {
 
-	static {
-		if (Skript.classExists("org.bukkit.entity.EntitySnapshot"))
-			register(ExprEntitySnapshot.class, EntitySnapshot.class, "entity snapshot", "entities/entitydatas");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEntitySnapshot.class, EntitySnapshot.class, "entity snapshot", "entities/entitydatas", false)
+				.supplier(ExprEntitySnapshot::new)
+				.build()
+		);
 	}
 
 	@Override

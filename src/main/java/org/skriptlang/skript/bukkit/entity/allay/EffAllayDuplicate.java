@@ -16,10 +16,10 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Make Allay Duplicate")
-@Description({
-	"Make an allay duplicate itself.",
-	"This effect will always make an allay duplicate regardless of whether the duplicate attribute is disabled."
-})
+@Description("""
+	Make an allay duplicate itself.
+	This effect will always make an allay duplicate regardless of whether the duplicate attribute is disabled.
+	""")
 @Example("make all allays duplicate")
 @Since("2.11")
 public class EffAllayDuplicate extends Effect {

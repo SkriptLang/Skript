@@ -139,7 +139,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 	};
 
-	static {
+	public static void register() {
 		Classes.registerClass(new ClassInfo<>(EntityData.class, "entitydata")
 				.user("entity ?types?")
 				.name("Entity Type")

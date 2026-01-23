@@ -11,7 +11,6 @@ public class StriderModule implements AddonModule {
 		StriderData.register();
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
-
 		EffStriderShivering.register(registry);
 	}
 

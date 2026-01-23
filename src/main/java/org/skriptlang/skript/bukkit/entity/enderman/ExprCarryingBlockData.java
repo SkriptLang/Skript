@@ -20,11 +20,11 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Enderman Carrying BlockData")
-@Description({
-	"The block data an enderman is carrying.",
-	"Custom attributes such as NBT or names do not transfer over.",
-	"Blocks, blockdatas and items are acceptable objects to change the carrying block."
-})
+@Description("""
+	The block data an enderman is carrying.
+	Custom attributes such as NBT or names do not transfer over.
+	Blocks, blockdatas and items are acceptable objects to change the carrying block.
+	""")
 @Example("broadcast the carrying blockdata of last spawned enderman")
 @Example("set the carried block of last spawned enderman to an oak log")
 @Example("set the carrying block data of {_enderman} to oak stairs[facing=north]")

@@ -11,7 +11,6 @@ public class PandaModule implements AddonModule {
 		PandaData.register();
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
-
 		CondPandaIsOnBack.register(registry);
 		CondPandaIsRolling.register(registry);
 		CondPandaIsScared.register(registry);

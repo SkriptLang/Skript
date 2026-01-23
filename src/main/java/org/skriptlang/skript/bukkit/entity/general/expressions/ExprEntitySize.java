@@ -13,14 +13,15 @@ import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Entity Size")
-@Description({
-	"Changes the entity size of slimes and phantoms. This is not the same as changing the scale attribute of an entity.",
-	"When changing the size of a slime, its health is fully resorted and will have changes done to its max health, movement speed and attack damage.",
-	"The default minecraft size of a slime is anywhere between 0 and 2, with a maximum of 126.",
-	"The default minecraft size of a phantom is 0 with a maximum size of 64."
-})
+@Description("""
+	Changes the entity size of slimes and phantoms. This is not the same as changing the scale attribute of an entity.
+	When changing the size of a slime, its health is fully resorted and will have changes done to its max health, movement speed and attack damage.
+	The default minecraft size of a slime is anywhere between 0 and 2, with a maximum of 126.
+	The default minecraft size of a phantom is 0 with a maximum size of 64.
+	""")
 @Example("""
 	spawn a slime at player:
 		set entity size of event-entity to 5
@@ -32,8 +33,13 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 	private static final int MAXIMUM_SLIME_SIZE = 127;
 	private static final int MAXIMUM_PHANTOM_SIZE = 64;
 
-	static {
-		register(ExprEntitySize.class, Integer.class, "entity size", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(ExprEntitySize.class, Integer.class, "entity size", "livingentities", false)
+				.supplier(ExprEntitySize::new)
+				.build()
+		);
 	}
 
 	@Override

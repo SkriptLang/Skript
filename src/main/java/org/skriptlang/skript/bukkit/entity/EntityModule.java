@@ -10,6 +10,10 @@ import org.skriptlang.skript.bukkit.entity.data.*;
 import org.skriptlang.skript.bukkit.entity.enderman.EndermanModule;
 import org.skriptlang.skript.bukkit.entity.general.conditions.*;
 import org.skriptlang.skript.bukkit.entity.general.effects.*;
+import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntityOwner;
+import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntitySize;
+import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntitySnapshot;
+import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntitySound;
 import org.skriptlang.skript.bukkit.entity.ghast.GhastModule;
 import org.skriptlang.skript.bukkit.entity.goat.GoatModule;
 import org.skriptlang.skript.bukkit.entity.nautilus.NautilusModule;
@@ -22,12 +26,14 @@ public class EntityModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
+		EntityData.register();
 		loadModules(addon);
 		registerEntityDatas();
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		registerConditions(registry);
 		registerEffects(registry);
+		registerExpressions(registry);
 	}
 
 	@Override
@@ -148,6 +154,15 @@ public class EntityModule implements AddonModule {
 		EffVehicle.register(registry);
 		EffWakeupSleep.register(registry);
 		EffZombify.register(registry);
+	}
+	//</editor-fold>
+
+	//<editor-fold desc="register expressions" defaultstate="collapsed">
+	private void registerExpressions(SyntaxRegistry registry) {
+		ExprEntityOwner.register(registry);
+		ExprEntitySize.register(registry);
+		ExprEntitySnapshot.register(registry);
+		ExprEntitySound.register(registry);
 	}
 	//</editor-fold>
 

@@ -13,7 +13,6 @@ public class WardenModule implements AddonModule {
 		SimpleEntityData.addSimpleEntity("warden", Warden.class);
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
-
 		EffWardenDisturbance.register(registry);
 	}
 

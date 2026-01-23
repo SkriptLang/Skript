@@ -11,7 +11,6 @@ public class AxolotlModule implements AddonModule {
 		AxolotlData.register();
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
-
 		CondIsPlayingDead.register(registry);
 		EffPlayingDead.register(registry);
 	}

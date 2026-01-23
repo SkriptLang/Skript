@@ -13,7 +13,6 @@ public class GhastModule implements AddonModule {
 		SimpleEntityData.addSimpleEntity("ghast", Ghast.class);
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
-
 		CondIsChargingFireball.register(registry);
 	}
 

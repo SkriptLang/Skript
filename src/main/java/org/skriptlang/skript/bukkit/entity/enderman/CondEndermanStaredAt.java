@@ -10,10 +10,10 @@ import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Enderman Has Been Stared At")
-@Description({
-	"Checks to see if an enderman has been stared at.",
-	"This will return true as long as the entity that stared at the enderman is still alive."
-})
+@Description("""
+	Checks to see if an enderman has been stared at.
+	This will return true as long as the entity that stared at the enderman is still alive.
+	""")
 @Example("if last spawned enderman has been stared at:")
 @Since("2.11")
 public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {

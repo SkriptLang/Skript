@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.entity.general.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.doc.Description;
@@ -9,7 +8,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
@@ -21,6 +19,8 @@ import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Objects;
 
@@ -114,9 +114,14 @@ public class ExprEntitySound extends SimpleExpression<String> {
 		{"%livingentities%'[s] ambient sound[s]", SoundType.AMBIENT}
 	});
 
-	static {
-		if (Skript.methodExists(LivingEntity.class, "getDeathSound"))
-			Skript.registerExpression(ExprEntitySound.class, String.class, ExpressionType.COMBINED, patterns.getPatterns());
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprEntitySound.class, String.class)
+				.addPatterns(patterns.getPatterns())
+				.supplier(ExprEntitySound::new)
+				.build()
+		);
 	}
 
 	private boolean bigOrSpeedy;

@@ -21,10 +21,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.function.Consumer;
 
 @Name("Enderman Teleport")
-@Description({
-	"Make an enderman teleport randomly or towards an entity.",
-	"Teleporting towards an entity teleports in the direction to the entity and not to them."
-})
+@Description("""
+	Make an enderman teleport randomly or towards an entity.
+	Teleporting towards an entity teleports in the direction to the entity and not to them
+	""")
 @Example("make last spawned enderman teleport randomly")
 @Example("""
 	loop 10 times:

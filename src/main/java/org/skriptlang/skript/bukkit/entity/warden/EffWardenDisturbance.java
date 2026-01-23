@@ -18,11 +18,11 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Make Disturbance")
-@Description({
-	"Make a warden sense a disturbance at a location, causing the warden to investigate that area.",
-	"The warden will not investigate if the warden is aggressive towards an entity.",
-	"This effect does not add anger to the warden."
-})
+@Description("""
+	Make a warden sense a disturbance at a location, causing the warden to investigate that area.
+	The warden will not investigate if the warden is aggressive towards an entity.
+	This effect does not add anger to the warden.
+	""")
 @Example("make last spawned warden sense a disturbance at location(0, 0, 0)")
 @Since("2.11")
 public class EffWardenDisturbance extends Effect {
