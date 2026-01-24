@@ -116,8 +116,8 @@ public class Version implements Serializable, Comparable<Version> {
 					// both have the same prefix, compare the numbers after it
 					String aNumberStr = postfixA.substring(prefix.length()).trim();
 					String bNumberStr = postfixB.substring(prefix.length()).trim();
-					int aNumber = Utils.parseInt(aNumberStr);
-					int bNumber = Utils.parseInt(bNumberStr);
+					int aNumber = Math.abs(Utils.parseInt(aNumberStr));
+					int bNumber = Math.abs(Utils.parseInt(bNumberStr));
 					return Integer.compare(aNumber, bNumber);
 				} else {
 					// one has the prefix, the other doesn't
