@@ -182,19 +182,25 @@ public class Environment {
 			Path target = env.resolve(resource.getTarget());
 
 			if (Files.isDirectory(source)) {
-				Files.walk(source).forEach(path -> {
-					try {
-						Path relative = source.relativize(path);
-						Path dest = target.resolve(relative);
+				Files.walkFileTree(source, new SimpleFileVisitor<>() {
 
-						if (Files.isDirectory(path)) {
-							Files.createDirectories(dest);
-						} else {
-							Files.createDirectories(dest.getParent());
-							Files.copy(path, dest, StandardCopyOption.REPLACE_EXISTING);
-						}
-					} catch (IOException e) {
-						throw new RuntimeException(e);
+					@Override
+					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+							throws IOException {
+						Path relative = source.relativize(dir);
+						Path dest = target.resolve(relative);
+						Files.createDirectories(dest);
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+							throws IOException {
+						Path relative = source.relativize(file);
+						Path dest = target.resolve(relative);
+						Files.createDirectories(dest.getParent());
+						Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
+						return FileVisitResult.CONTINUE;
 					}
 				});
 			} else {
