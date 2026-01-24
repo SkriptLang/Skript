@@ -172,6 +172,9 @@ disable variable missing and/or warnings: false
 disable starting a variable's name with an expression warnings: false
 # Disables the "Starting a variable's name with an expression is discouraged..." warnings
 
+disable single colon in variable name warnings: false
+# Disables the "... it's name should contain '::'. Having a single ':' does nothing!" warnings for variable names.
+
 disable unreachable code warnings: false
 # Disables the "Unreachable code. The previous statement stops further execution." warnings.
 

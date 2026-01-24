@@ -1,0 +1,10 @@
+test "variable colon warning":
+	parse:
+		set {var::minecraft:dirt} to 5
+	assert last parse logs contain "Using a single ':' in variable names is discouraged (in variable {var::minecraft:dirt}). If you meant to use it as part of the name, consider wrapping it in percent signs, e.g. {%%:%%}."
+
+	parse:
+		suppress variable contains colon warnings
+		set {var::custom:myvalue} to 10
+	assert last parse logs is not set
+
