@@ -72,23 +72,36 @@ public class Version implements Serializable, Comparable<Version> {
 			if (get(i) < other.get(i))
 				return -1;
 		}
-
-		if (postfix == null)
-			return other.postfix == null ? 0 : 1;
-		return other.postfix == null ? -1 : comparePostfixes(postfix, other.postfix);
+		return comparePostfixes(postfix, other.postfix);
 	}
 
-	private static int comparePostfixes(String postfixA, String postfixB) {
+	private static int comparePostfixes(@Nullable String postfixA, @Nullable String postfixB) {
+		// lowercase
+		postfixA = postfixA == null ? null : postfixA.toLowerCase();
+		postfixB = postfixB == null ? null : postfixB.toLowerCase();
+
+		// X.x.x vs X.X.X-postfix or vice versa
+		// pre, beta, and alpha are considered "smaller" than no postfix
+		// nightly is considered "larger" than no postfix, as it tends to be a cutting-edge build built on top of the no postfix version
+		if (postfixA == null && postfixB == null)
+			return 0;
+		if (postfixA == null) {
+			if (postfixB.startsWith("nightly"))
+				return -1;
+			return 1;
+		} else if (postfixB == null) {
+			if (postfixA.startsWith("nightly"))
+				return 1;
+			return -1;
+		}
+
+		// X.X.X-postfixA vs X.X.X-postfixB
 		// ordering: alphaX < betaX < preX < nightly
 		// X is an optional number, e.g. alpha1, beta2, pre3, which is compared numerically
 
-		// lowercase
-		postfixA = postfixA.toLowerCase();
-		postfixB = postfixB.toLowerCase();
-
 		// check for nightly
-		if (postfixA.toLowerCase().startsWith("nightly")) {
-			return postfixB.toLowerCase().startsWith("nightly") ? 0 : 1;
+		if (postfixA.startsWith("nightly")) {
+			return postfixB.startsWith("nightly") ? 0 : 1;
 		}
 
 		// check for alpha, beta, pre
