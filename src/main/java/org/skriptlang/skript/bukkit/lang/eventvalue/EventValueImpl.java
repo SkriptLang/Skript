@@ -3,22 +3,22 @@ package org.skriptlang.skript.bukkit.lang.eventvalue;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.patterns.MatchResult;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.RegexPatternElement;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import org.bukkit.event.Event;
-import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.EnumMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Default implementation of {@link EventValue}.
@@ -27,8 +27,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	private final Class<E> eventClass;
 	private final Class<V> valueClass;
-	private final Pattern[] identifierPatterns;
-	private final @Nullable Predicate<String> inputValidator;
+	private final String @Nullable [] patterns;
+	private final @Nullable BiPredicate<String, ParseResult> inputValidator;
 	private final @Nullable Function<Class<?>, Validation> eventValidator;
 	private final Converter<E, V> converter;
 	private final Map<ChangeMode, Changer<E, V>> changers;
@@ -39,8 +39,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	EventValueImpl(
 		Class<E> eventClass,
 		Class<V> valueClass,
-		Pattern[] identifierPatterns,
-		@Nullable Predicate<String> inputValidator,
+		String @Nullable [] patterns,
+		@Nullable BiPredicate<String, ParseResult> inputValidator,
 		@Nullable Function<Class<?>, Validation> eventValidator,
 		Converter<E, V> converter,
 		Map<ChangeMode, Changer<E, V>> changers,
@@ -50,7 +50,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	) {
 		this.eventClass = eventClass;
 		this.valueClass = valueClass;
-		this.identifierPatterns = identifierPatterns;
+		this.patterns = patterns;
 		this.inputValidator = inputValidator;
 		this.eventValidator = eventValidator;
 		this.converter = converter;
@@ -71,8 +71,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	}
 
 	@Override
-	public Pattern[] identifierPatterns() {
-		return identifierPatterns.clone();
+	public String @Nullable [] patterns() {
+		return patterns != null ? patterns.clone() : null;
 	}
 
 	@Override
@@ -93,11 +93,32 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	@Override
 	public boolean matchesInput(String input) {
-		for (Pattern pattern : identifierPatterns) {
-			if (pattern.matcher(input).matches())
-				return inputValidator == null || inputValidator.test(input);
+		SkriptPattern[] patterns = this.patterns == null ? patternsFromType(valueClass) : Arrays.stream(this.patterns)
+			.map(PatternCompiler::compile)
+			.toArray(SkriptPattern[]::new);
+		for (SkriptPattern pattern : patterns) {
+			MatchResult match = pattern.match(input);
+			if (match != null && (inputValidator == null || inputValidator.test(input, match.toParseResult())))
+				return true;
 		}
 		return false;
+	}
+
+	private SkriptPattern[] patternsFromType(Class<?> type) {
+		boolean plural = type.isArray();
+		if (plural)
+			type = type.componentType();
+
+		ClassInfo<?> info = Classes.getExactClassInfo(type);
+		if (info == null || info.getUserInputPatterns() == null) {
+			String name = type.getSimpleName().toLowerCase(Locale.ENGLISH);
+			return new SkriptPattern[] {PatternCompiler.compile(Utils.toEnglishPlural(name, plural))};
+		}
+
+		return Arrays.stream(info.getUserInputPatterns())
+			.map(RegexPatternElement::new)
+			.map(pattern -> new SkriptPattern(pattern, 0))
+			.toArray(SkriptPattern[]::new);
 	}
 
 	@Override
@@ -158,7 +179,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		return MoreObjects.toStringHelper(this)
 			.add("eventClass", eventClass)
 			.add("valueClass", valueClass)
-			.add("identifierPatterns", identifierPatterns)
+			.add("patterns", patterns)
 			.add("time", time)
 			.toString();
 	}
@@ -168,8 +189,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		private final Class<E> eventClass;
 		private final Class<V> valueClass;
 		private final Map<ChangeMode, Changer<E, V>> changers = new EnumMap<>(ChangeMode.class);
-		private String @Nullable [] identifierPatterns;
-		private @Nullable Predicate<String> inputValidator;
+		private String @Nullable [] patterns;
+		private @Nullable BiPredicate<String, ParseResult> inputValidator;
 		private @Nullable Function<Class<?>, Validation> eventValidator;
 		private Converter<E, V> converter;
 		private Time time = Time.NOW;
@@ -183,14 +204,14 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 		@Override
 		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> identifierPattern(@RegExp String... identifierPattern) {
-			this.identifierPatterns = identifierPattern;
+		public Builder<E,V> patterns(String... patterns) {
+			this.patterns = patterns;
 			return this;
 		}
 
 		@Override
 		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> inputValidator(Predicate<String> inputValidator) {
+		public Builder<E,V> inputValidator(BiPredicate<String, ParseResult> inputValidator) {
 			this.inputValidator = inputValidator;
 			return this;
 		}
@@ -275,33 +296,22 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 		@Override
 		public EventValue<E, V> build() {
-			Pattern[] identifierPatterns;
-			if (this.identifierPatterns == null) {
+			if (patterns == null) {
 				boolean plural = valueClass.isArray();
 				//noinspection unchecked
 				ClassInfo<?> type = Classes.getExactClassInfo(plural ? (Class<V>) valueClass.getComponentType() : valueClass);
 				if (type != null && type.getUserInputPatterns() != null) {
-					identifierPatterns = type.getUserInputPatterns();
 					inputValidator = combinePredicates(
-						input -> plural == Utils.getEnglishPlural(input).getSecond(),
+						(input, parseResult) -> plural == Utils.getEnglishPlural(input).getSecond(),
 						inputValidator
 					);
-				} else {
-					String className = plural
-						? Utils.toEnglishPlural(valueClass.getComponentType().getSimpleName())
-						: valueClass.getSimpleName();
-					identifierPatterns = new Pattern[] {Pattern.compile(className.toLowerCase(Locale.ENGLISH))};
 				}
-			} else {
-				identifierPatterns = new Pattern[this.identifierPatterns.length];
-				for (int i = 0; i < this.identifierPatterns.length; i++)
-					identifierPatterns[i] = Pattern.compile(this.identifierPatterns[i]);
 			}
 
 			return new EventValueImpl<>(
 				eventClass,
 				valueClass,
-				identifierPatterns,
+				patterns,
 				inputValidator,
 				eventValidator,
 				converter,
@@ -312,9 +322,9 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 			);
 		}
 
-		private static <V> Predicate<V> combinePredicates(
-			@Nullable Predicate<V> first,
-			@Nullable Predicate<V> second
+		private static <T, U> BiPredicate<T, U> combinePredicates(
+			@Nullable BiPredicate<T, U> first,
+			@Nullable BiPredicate<T, U> second
 		) {
 			if (first == null)
 				return second;

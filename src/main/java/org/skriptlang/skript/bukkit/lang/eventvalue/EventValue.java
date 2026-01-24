@@ -1,18 +1,17 @@
 package org.skriptlang.skript.bukkit.lang.eventvalue;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Describes a single "event value" available in a specific {@link org.bukkit.event.Event} context.
@@ -55,11 +54,10 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 
 	/**
 	 * Patterns used to identify this event value from user input.
-	 * These are regex patterns and are checked in order during resolution.
 	 *
-	 * @return the identifier patterns
+	 * @return the patterns
 	 */
-	Pattern[] identifierPatterns();
+	String @Nullable [] patterns();
 
 	/**
 	 * Validates that this event value can be used in the provided event context.
@@ -70,7 +68,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	Validation validate(Class<?> event);
 
 	/**
-	 * Checks whether the provided input matches one of {@link #identifierPatterns()} and
+	 * Checks whether the provided input matches one of {@link #patterns()} and
 	 * satisfies any additional input validation.
 	 *
 	 * @param input the identifier provided by the user
@@ -138,7 +136,7 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @return {@code true} if they match
 	 */
 	default boolean matches(EventValue<?, ?> eventValue) {
-		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.identifierPatterns());
+		return matches(eventValue.eventClass(), eventValue.valueClass(), eventValue.patterns());
 	}
 
 	/**
@@ -147,11 +145,11 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 *
 	 * @param eventClass the event class to compare against
 	 * @param valueClass the value class to compare against
-	 * @param identifiersPatterns the identifier patterns to compare against
+	 * @param patterns the patterns to compare against
 	 * @return {@code true} if they match
 	 */
-	default boolean matches(Class<? extends Event> eventClass, Class<?> valueClass, Pattern[] identifiersPatterns) {
-		return matches(eventClass, valueClass) && Arrays.equals(identifierPatterns(), identifiersPatterns);
+	default boolean matches(Class<? extends Event> eventClass, Class<?> valueClass, String[] patterns) {
+		return matches(eventClass, valueClass) && Arrays.equals(patterns(), patterns);
 	}
 
 	/**
@@ -347,22 +345,22 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	interface Builder<E extends Event, V> {
 
 		/**
-		 * Adds one or more regex identifier patterns matched against user input.
+		 * Adds one or more patterns matched against user input.
 		 *
-		 * @param identifierPattern regex patterns
+		 * @param patterns Skript patterns
 		 * @return this builder
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> identifierPattern(@RegExp String... identifierPattern);
+		Builder<E,V> patterns(String... patterns);
 
 		/**
-		 * Sets an additional validator that must accept the input for this value to match.
+		 * Sets an additional validator that must accept the input and parse result for this value to match.
 		 *
 		 * @param inputValidator predicate invoked after pattern match
 		 * @return this builder
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> inputValidator(Predicate<String> inputValidator);
+		Builder<E,V> inputValidator(BiPredicate<String, ParseResult> inputValidator);
 
 		/**
 		 * Sets an event-type validator that must accept the event class for this value to be valid.

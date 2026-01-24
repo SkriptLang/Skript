@@ -8,7 +8,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
  * An {@link EventValue} that is a converted version of another event value.
@@ -108,8 +107,8 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	}
 
 	@Override
-	public Pattern[] identifierPatterns() {
-		return source.identifierPatterns();
+	public String @Nullable [] patterns() {
+		return source.patterns();
 	}
 
 	@Override

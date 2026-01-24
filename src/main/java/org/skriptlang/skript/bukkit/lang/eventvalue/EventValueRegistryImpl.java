@@ -28,13 +28,8 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 
 	@Override
 	public <E extends Event> void register(EventValue<E, ?> eventValue) {
-		if (isRegistered(eventValue)) {
-			throw new SkriptAPIException("Event '"
-				+ eventValue.eventClass()
-				+ "' already has a registered event value with the identifier patterns '"
-				+ Arrays.toString(eventValue.identifierPatterns())
-				+ "' (time: " + eventValue.time() + ")");
-		}
+		if (isRegistered(eventValue))
+			throw new SkriptAPIException(eventValue + " is already registered");
 		List<EventValue<?, ?>> eventValues = eventValues(eventValue.time());
 		eventValues.add(eventValue);
 		eventValuesCache.clear();
