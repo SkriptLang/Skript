@@ -16,17 +16,14 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 
 	private final Skript skript;
 
-	@SuppressWarnings("unchecked")
-	private final List<EventValue<?, ?>>[] eventValues = new List[]{
-		new ArrayList<>(), // PAST
-		new ArrayList<>(), // NOW
-		new ArrayList<>(), // FUTURE
-	};
+	private final Map<EventValue.Time, List<EventValue<?, ?>>> eventValues = new EnumMap<>(EventValue.Time.class);
 
 	private final transient Map<Input<?, ?>, Resolution<?, ?>> eventValuesCache = new ConcurrentHashMap<>();
 
 	public EventValueRegistryImpl(Skript skript) {
 		this.skript = skript;
+		for (EventValue.Time time : EventValue.Time.values())
+			eventValues.put(time, new ArrayList<>());
 	}
 
 	@Override
@@ -249,12 +246,12 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 	}
 
 	private List<EventValue<?, ?>> eventValues(EventValue.Time time) {
-		return eventValues[time.ordinal()];
+		return eventValues.get(time);
 	}
 
 	@Override
 	public @Unmodifiable List<EventValue<?, ?>> elements() {
-		return Arrays.stream(eventValues)
+		return eventValues.values().stream()
 			.flatMap(List::stream)
 			.toList();
 	}
@@ -262,11 +259,6 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 	@Override
 	public @Unmodifiable List<EventValue<?, ?>> elements(EventValue.Time time) {
 		return List.copyOf(eventValues(time));
-	}
-
-	@Override
-	public EventValueRegistry unmodifiableView() {
-		return new UnmodifiableView();
 	}
 
 	private record Input<E extends Event, I>(
@@ -294,7 +286,13 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		}
 	}
 
-	private class UnmodifiableView implements EventValueRegistry {
+	static class UnmodifiableView implements EventValueRegistry {
+
+		private final EventValueRegistry delegate;
+
+		UnmodifiableView(EventValueRegistry delegate) {
+			this.delegate = delegate;
+		}
 
 		@Override
 		public <E extends Event> void register(EventValue<E, ?> eventValue) {
@@ -308,57 +306,57 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 
 		@Override
 		public boolean isRegistered(EventValue<?, ?> eventValue) {
-			return EventValueRegistryImpl.this.isRegistered(eventValue);
+			return delegate.isRegistered(eventValue);
 		}
 
 		@Override
 		public boolean isRegistered(Class<? extends Event> eventClass, Class<?> valueClass, EventValue.Time time) {
-			return EventValueRegistryImpl.this.isRegistered(eventClass, valueClass, time);
+			return delegate.isRegistered(eventClass, valueClass, time);
 		}
 
 		@Override
 		public <E extends Event, V> Resolution<E, V> resolve(Class<E> eventClass, String identifier) {
-			return EventValueRegistryImpl.this.resolve(eventClass, identifier);
+			return delegate.resolve(eventClass, identifier);
 		}
 
 		@Override
 		public <E extends Event, V> Resolution<E, V> resolve(Class<E> eventClass, String identifier, EventValue.Time time) {
-			return EventValueRegistryImpl.this.resolve(eventClass, identifier, time);
+			return delegate.resolve(eventClass, identifier, time);
 		}
 
 		@Override
 		public <E extends Event, V> Resolution<E, V> resolve(Class<E> eventClass, String identifier, EventValue.Time time, Flags flags) {
-			return EventValueRegistryImpl.this.resolve(eventClass, identifier, time, flags);
+			return delegate.resolve(eventClass, identifier, time, flags);
 		}
 
 		@Override
 		public <E extends Event, V> Resolution<E, ? extends V> resolve(Class<E> eventClass, Class<V> valueClass) {
-			return EventValueRegistryImpl.this.resolve(eventClass, valueClass);
+			return delegate.resolve(eventClass, valueClass);
 		}
 
 		@Override
 		public <E extends Event, V> Resolution<E, ? extends V> resolve(Class<E> eventClass, Class<V> valueClass, EventValue.Time time) {
-			return EventValueRegistryImpl.this.resolve(eventClass, valueClass, time);
+			return delegate.resolve(eventClass, valueClass, time);
 		}
 
 		@Override
 		public <E extends Event, V> Resolution<E, ? extends V> resolve(Class<E> eventClass, Class<V> valueClass, EventValue.Time time, Flags flags) {
-			return EventValueRegistryImpl.this.resolve(eventClass, valueClass, time, flags);
+			return delegate.resolve(eventClass, valueClass, time, flags);
 		}
 
 		@Override
 		public <E extends Event, V> Resolution<E, V> resolveExact(Class<E> eventClass, Class<V> valueClass, EventValue.Time time) {
-			return EventValueRegistryImpl.this.resolveExact(eventClass, valueClass, time);
+			return delegate.resolveExact(eventClass, valueClass, time);
 		}
 
 		@Override
 		public @Unmodifiable List<EventValue<?, ?>> elements() {
-			return EventValueRegistryImpl.this.elements();
+			return delegate.elements();
 		}
 
 		@Override
 		public @Unmodifiable List<EventValue<?, ?>> elements(EventValue.Time time) {
-			return EventValueRegistryImpl.this.elements(time);
+			return delegate.elements(time);
 		}
 
 		@Override

@@ -5,13 +5,17 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import com.google.common.base.MoreObjects;
 import org.bukkit.event.Event;
 import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -68,7 +72,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	@Override
 	public Pattern[] identifierPatterns() {
-		return identifierPatterns;
+		return identifierPatterns.clone();
 	}
 
 	@Override
@@ -123,7 +127,7 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	@Override
 	public Class<? extends E> @Nullable [] excludedEvents() {
-		return excludedEvents;
+		return excludedEvents != null ? excludedEvents.clone() : null;
 	}
 
 	@Override
@@ -151,11 +155,11 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	@Override
 	public String toString() {
-		return new StringJoiner(", ", EventValueImpl.class.getSimpleName() + "[", "]")
-			.add("eventClass=" + eventClass)
-			.add("valueClass=" + valueClass)
-			.add("identifierPatterns=" + Arrays.toString(identifierPatterns))
-			.add("time=" + time)
+		return MoreObjects.toStringHelper(this)
+			.add("eventClass", eventClass)
+			.add("valueClass", valueClass)
+			.add("identifierPatterns", identifierPatterns)
+			.add("time", time)
 			.toString();
 	}
 

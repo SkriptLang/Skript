@@ -29,14 +29,14 @@ import java.util.regex.Pattern;
  * @param <SourceValue> The source value type.
  * @param <ConvertedValue> The converted value type.
  */
-final class ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Event, SourceValue, ConvertedValue>
-	implements EventValue<ConvertedEvent, ConvertedValue> {
+record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Event, SourceValue, ConvertedValue>(
+	Class<ConvertedEvent> eventClass,
+	Class<ConvertedValue> valueClass,
+	EventValue<SourceEvent, SourceValue> source,
+	Converter<SourceValue, ConvertedValue> valueConverter,
+	@Nullable Converter<ConvertedValue, SourceValue> reverseConverter
+) implements EventValue<ConvertedEvent, ConvertedValue> {
 
-	private final Class<ConvertedEvent> eventClass;
-	private final Class<ConvertedValue> valueClass;
-	private final EventValue<SourceEvent, SourceValue> source;
-	private final Converter<SourceValue, ConvertedValue> converter;
-	private final @Nullable Converter<ConvertedValue, SourceValue> reverseConverter;
 
 	/**
 	 * Creates a new converted event value.
@@ -85,13 +85,13 @@ final class ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extend
 		Class<ConvertedEvent> eventClass,
 		Class<ConvertedValue> valueClass,
 		EventValue<SourceEvent, SourceValue> source,
-		Converter<SourceValue, ConvertedValue> converter,
+		Converter<SourceValue, ConvertedValue> valueConverter,
 		@Nullable Converter<ConvertedValue, SourceValue> reverseConverter
 	) {
 		this.eventClass = eventClass;
 		this.valueClass = valueClass;
 		this.source = source;
-		this.converter = converter;
+		this.valueConverter = valueConverter;
 		this.reverseConverter = reverseConverter == null
 			? getConverter(valueClass, source.valueClass())
 			: reverseConverter;
@@ -133,7 +133,7 @@ final class ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extend
 			if (!source.eventClass().isAssignableFrom(event.getClass()))
 				return null;
 			SourceValue sourceValue = source.get(source.eventClass().cast(event));
-			return converter.convert(sourceValue);
+			return valueConverter.convert(sourceValue);
 		};
 	}
 

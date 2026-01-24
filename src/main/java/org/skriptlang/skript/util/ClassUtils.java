@@ -48,9 +48,7 @@ public final class ClassUtils {
 	 */
 	public static int hierarchyDistanceBetween(Class<?> a, Class<?> b) {
 		int dist = hierarchyDistance(a, b);
-		if (dist == -1)
-			return hierarchyDistance(b, a);
-		return -1;
+		return dist != -1 ? dist : hierarchyDistance(b, a);
 	}
 
 	/**

@@ -281,6 +281,7 @@ class Resolver<E extends Event, V> {
 	 */
 	@FunctionalInterface
 	interface EventComparatorFactory {
+
 		/**
 		 * Creates a comparator for the given event class.
 		 *
@@ -288,6 +289,7 @@ class Resolver<E extends Event, V> {
 		 * @return The comparator.
 		 */
 		Comparator<EventValue<?, ?>> create(Class<? extends Event> eventClass);
+
 	}
 
 	/**
@@ -295,6 +297,7 @@ class Resolver<E extends Event, V> {
 	 */
 	@FunctionalInterface
 	interface EventValueComparatorFactory {
+
 		/**
 		 * Creates a comparator for the given event class and value class.
 		 *
@@ -303,6 +306,7 @@ class Resolver<E extends Event, V> {
 		 * @return The comparator.
 		 */
 		Comparator<EventValue<?, ?>> create(Class<? extends Event> eventClass, Class<?> valueClass);
+
 	}
 
 }

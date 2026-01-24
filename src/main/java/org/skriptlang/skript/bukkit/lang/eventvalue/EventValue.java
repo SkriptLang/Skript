@@ -288,8 +288,14 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		ABORT,
 	}
 
+	/**
+	 * A changer for applying modifications to the value for a given event instance.
+	 *
+	 * @param <E> the event type
+	 * @param <V> the value type
+	 */
 	@FunctionalInterface
-	interface Changer<E, V> {
+	interface Changer<E extends Event, V> {
 
 		/**
 		 * Applies a change to the value for the given event instance.
@@ -301,16 +307,30 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 
 	}
 
+	/**
+	 * A changer that does not require a value to be passed (e.g. for {@link ChangeMode#DELETE} or {@link ChangeMode#RESET}).
+	 *
+	 * @param <E> the event type
+	 * @param <V> the value type
+	 */
 	@FunctionalInterface
-	interface NoValueChanger<E, V> extends Changer<E, V> {
+	interface NoValueChanger<E extends Event, V> extends Changer<E, V> {
 
 		/**
-		 * Applies a change that does not require a value (e.g. {@link ChangeMode#RESET} or {@link ChangeMode#DELETE}).
+		 * Applies a change to the given event instance without a value.
 		 *
 		 * @param event the event instance
 		 */
 		void change(E event);
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * This implementation ignores the provided value and calls {@link #change(Event)}.
+		 *
+		 * @param event the event instance
+		 * @param value the value (ignored)
+		 */
 		@Override
 		default void change(E event, V value) {
 			change(event);
@@ -318,6 +338,12 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 
 	}
 
+	/**
+	 * A builder for creating {@link EventValue} instances.
+	 *
+	 * @param <E> the event type
+	 * @param <V> the value type
+	 */
 	interface Builder<E extends Event, V> {
 
 		/**
