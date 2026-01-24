@@ -159,8 +159,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 					&& !SkriptConfig.disableColonInVariableWarnings.value()
 					&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_CONTAINS_COLON)
 				) {
-					Skript.warning("Using a single '" + SINGLE_SEPARATOR_CHAR + "' in variable names is discouraged (in variable {" + name + "}). "
-						+ "If you meant to use it as part of the name, consider wrapping it in percent signs, e.g. {%" + SINGLE_SEPARATOR_CHAR + "%}.");
+					Skript.warning("If you meant to make the variable {" + name + "} a list, its name should contain '"
+						+ SEPARATOR + "'. Having a single '" + SINGLE_SEPARATOR_CHAR + "' does nothing!");
 				}
 			}
 		}
