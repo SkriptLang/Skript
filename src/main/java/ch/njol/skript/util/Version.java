@@ -102,6 +102,8 @@ public class Version implements Serializable, Comparable<Version> {
 		// check for nightly
 		if (postfixA.startsWith("nightly")) {
 			return postfixB.startsWith("nightly") ? 0 : 1;
+		} else if (postfixB.startsWith("nightly")) {
+			return -1;
 		}
 
 		// check for alpha, beta, pre
