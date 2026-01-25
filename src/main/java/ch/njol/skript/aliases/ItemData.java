@@ -659,31 +659,31 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 	private static void copyPotionInfo(PotionMeta potionMeta, ItemData data) {
 		PotionMeta newMeta = (PotionMeta) itemFactory.getItemMeta(data.type);
-		if (!newMeta.equals(potionMeta)) {
-			// copy potion meta info
-			if (potionMeta.hasBasePotionType())
-				newMeta.setBasePotionType(potionMeta.getBasePotionType());
-			if (potionMeta.hasCustomEffects()) {
-				for (PotionEffect effect : potionMeta.getCustomEffects()) {
-					newMeta.addCustomEffect(effect, false);
-				}
+		if (newMeta.equals(potionMeta))
+			return;
+		// copy potion meta info
+		if (potionMeta.hasBasePotionType())
+			newMeta.setBasePotionType(potionMeta.getBasePotionType());
+		if (potionMeta.hasCustomEffects()) {
+			for (PotionEffect effect : potionMeta.getCustomEffects()) {
+				newMeta.addCustomEffect(effect, false);
 			}
-			if (potionMeta.hasColor())
-				newMeta.setColor(potionMeta.getColor());
-			if (HAS_CUSTOM_NAME && potionMeta.hasCustomPotionName())
-				newMeta.setCustomPotionName(potionMeta.getCustomPotionName());
-			data.itemFlags = ItemFlags.CHANGED_TAGS;
-			data.setItemMeta(newMeta);
 		}
+		if (potionMeta.hasColor())
+			newMeta.setColor(potionMeta.getColor());
+		if (HAS_CUSTOM_NAME && potionMeta.hasCustomPotionName())
+			newMeta.setCustomPotionName(potionMeta.getCustomPotionName());
+		data.itemFlags = ItemFlags.CHANGED_TAGS;
+		data.setItemMeta(newMeta);
 	}
 
 	private static void copyMusicInfo(MusicInstrumentMeta musicMeta, ItemData data) {
 		MusicInstrumentMeta newMeta = (MusicInstrumentMeta) itemFactory.getItemMeta(data.type);
-		if (!newMeta.equals(musicMeta)) {
-			newMeta.setInstrument(musicMeta.getInstrument());
-			data.itemFlags = ItemFlags.CHANGED_TAGS;
-			data.setItemMeta(newMeta);
-		}
+		if (newMeta.equals(musicMeta))
+			return;
+		newMeta.setInstrument(musicMeta.getInstrument());
+		data.itemFlags = ItemFlags.CHANGED_TAGS;
+		data.setItemMeta(newMeta);
 	}
 
 	/**
