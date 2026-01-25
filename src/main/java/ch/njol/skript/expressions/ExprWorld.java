@@ -20,6 +20,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.Nullable;
 
+import static ch.njol.skript.registrations.EventValues.TIME_FUTURE;
+import static ch.njol.skript.registrations.EventValues.TIME_PAST;
+
 @Name("World")
 @Description("The world the event occurred in.")
 @Example("world is \"world_nether\"")
@@ -48,10 +51,10 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 			// - the source expr was the event-value
 			// check the event anyway since it casts for us
 			if (event instanceof PlayerTeleportEvent playerTeleportEvent) {
-				if (getTime() > 0) {
+				if (getTime() == TIME_FUTURE) {
 					// future
 					return playerTeleportEvent.getTo().getWorld();
-				} else if (getTime() < 0) {
+				} else if (getTime() == TIME_PAST) {
 					// past
 					return playerTeleportEvent.getFrom().getWorld();
 				}
