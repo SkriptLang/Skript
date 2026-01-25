@@ -79,7 +79,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		types.add(new SimpleEntityDataInfo(codeName, entityClass, true, allowSpawning));
 	}
 
-	static {
+	public static void register() {
 		// Simple Entities
 
 		// Alpha + Beta
@@ -274,9 +274,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		// TODO - remove this when 1.19 support is dropped
 		if (Skript.classExists("org.bukkit.entity.Enemy")) // 1.19.3
 			addSuperEntity("enemy", Enemy.class);
-	}
 
-	static {
 		String[] codeNames = new String[types.size()];
 		int i = 0;
 		for (SimpleEntityDataInfo info : types) {

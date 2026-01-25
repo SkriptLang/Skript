@@ -25,11 +25,16 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class EntityModule implements AddonModule {
 
 	@Override
-	public void load(SkriptAddon addon) {
-		EntityData.register();
+	public void init(SkriptAddon addon) {
 		loadModules(addon);
+		SimpleEntityData.register();
+		EntityData.register();
+		EntityType.register();
 		registerEntityDatas();
+	}
 
+	@Override
+	public void load(SkriptAddon addon) {
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		registerConditions(registry);
 		registerEffects(registry);

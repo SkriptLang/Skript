@@ -12,12 +12,8 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Language.LanguageListenerPriority;
-import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
@@ -41,6 +37,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityDataInfo.Builder;
 import org.skriptlang.skript.bukkit.entity.data.PigData;
 import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData;
 
@@ -52,12 +49,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {
@@ -93,15 +87,15 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			m_adult = new Adjective(LANGUAGE_NODE + ".age adjectives.adult");
 
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
-	private static final List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
+	private static final List<EntityDataInfo<EntityData<?>, ?>> infos = new ArrayList<>();
 
 	private static final List<EntityData> ALL_ENTITY_DATAS = new ArrayList<>();
 
-	public static Serializer<EntityData> serializer = new Serializer<EntityData>() {
+	public static Serializer<EntityData> serializer = new Serializer<>() {
 		@Override
 		public Fields serialize(EntityData entityData) throws NotSerializableException {
 			Fields fields = entityData.serialize();
-			fields.putObject("codeName", entityData.info.codeName);
+			fields.putObject("codeName", entityData.info.dataName());
 			return fields;
 		}
 
@@ -111,7 +105,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 
 		@Override
-		public void deserialize(EntityData entityData, Fields fields) throws StreamCorruptedException {
+		public void deserialize(EntityData entityData, Fields fields) {
 			assert false;
 		}
 
@@ -120,17 +114,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			String codeName = fields.getAndRemoveObject("codeName", String.class);
 			if (codeName == null)
 				throw new StreamCorruptedException();
-			EntityDataInfo<?> info = getInfo(codeName);
+			EntityDataInfo<?, ?> info = getInfo(codeName);
 			if (info == null)
 				throw new StreamCorruptedException("Invalid EntityData code name " + codeName);
-			try {
-				EntityData<?> entityData = info.getElementClass().newInstance();
-				entityData.deserialize(fields);
-				return entityData;
-			} catch (InstantiationException | IllegalAccessException e) {
-				Skript.exception(e);
-			}
-			throw new StreamCorruptedException();
+			EntityData<?> entityData = info.instance();
+			entityData.deserialize(fields);
+			return entityData;
 		}
 
 		@Override
@@ -148,10 +137,10 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				.examples("victim is a cow",
 						"spawn a creeper")
 				.since("1.3")
-				.defaultExpression(new SimpleLiteral<EntityData>(new SimpleEntityData(Entity.class), true))
+				.defaultExpression(new SimpleLiteral<>(new SimpleEntityData(Entity.class), true))
 				.before("entitytype")
 				.supplier(ALL_ENTITY_DATAS::iterator)
-				.parser(new Parser<EntityData>() {
+				.parser(new Parser<>() {
 					@Override
 					public String toString(EntityData entityData, int flags) {
 						return entityData.toString(flags);
@@ -185,12 +174,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			}
 
 			@Override
-			public boolean missingField(Object object, Field field) throws StreamCorruptedException {
+			public boolean missingField(Object object, Field field) {
                 return object instanceof EntityData<?>;
             }
 
 			@Override
-			public boolean incompatibleField(Object object, Field field, FieldContext context) throws StreamCorruptedException {
+			public boolean incompatibleField(Object object, Field field, FieldContext context) {
 				return false;
 			}
 		});
@@ -198,138 +187,38 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	public static void onRegistrationStop() {
 		infos.forEach(info -> {
-			if (SimpleEntityData.class.equals(info.getElementClass())) {
-				ALL_ENTITY_DATAS.addAll(Arrays.stream(info.codeNames)
+			if (SimpleEntityData.class.equals(info.type())) {
+				ALL_ENTITY_DATAS.addAll(Arrays.stream(info.codeNames().toArray(new String[0]))
 					.map(input -> SkriptParser.parseStatic(input, new SingleItemIterator<>(info), null))
-					.collect(Collectors.toList())
+					.toList()
 				);
 			} else {
-				ALL_ENTITY_DATAS.add(SkriptParser.parseStatic(info.codeName, new SingleItemIterator<>(info), null));
+				ALL_ENTITY_DATAS.add(SkriptParser.parseStatic(info.dataName(), new SingleItemIterator<>(info), null));
 			}
 		});
 	}
 
-	private static final class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
-
-		final String codeName;
-		final String[] codeNames;
-		final int defaultName;
-		final @Nullable EntityType entityType;
-		final Class<? extends Entity> entityClass;
-		final Noun[] names;
-		private String[] patterns;
-		private final Map<String, Integer> codeNamePlacements = new HashMap<>();
-		private final Map<Integer, String> matchedPatternToCodeName = new HashMap<>();
-		private final Map<Integer, Integer> matchedPatternToCodeNamePattern = new HashMap<>();
-
-		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
-			this(dataClass, codeName, codeNames, defaultName, EntityUtils.toBukkitEntityType(entityClass), entityClass);
-		}
-
-		public EntityDataInfo(
-			Class<T> dataClass,
-			String codeName,
-			String[] codeNames,
-			int defaultName,
-			@Nullable EntityType entityType,
-			Class<? extends Entity> entityClass
-		) {
-			super(new String[codeNames.length], dataClass, dataClass.getName());
-			assert codeName != null && entityClass != null && codeNames.length > 0;
-			this.codeName = codeName;
-			this.codeNames = codeNames;
-			this.defaultName = defaultName;
-			this.entityType = entityType;
-			this.entityClass = entityClass;
-			this.names = new Noun[codeNames.length];
-			for (int i = 0; i < codeNames.length; i++) {
-				assert codeNames[i] != null;
-				names[i] = new Noun(LANGUAGE_NODE + "." + codeNames[i] + ".name");
-				codeNamePlacements.put(codeNames[i], i);
-			}
-
-			Language.addListener(this, LanguageListenerPriority.LATEST);
-		}
-
-		@Override
-		public void onLanguageChange() {
-			List<String> allPatterns = new ArrayList<>();
-			matchedPatternToCodeName.clear();
-			matchedPatternToCodeNamePattern.clear();
-			for (String codeName : codeNames) {
-				if (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".pattern")) {
-					String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".pattern")
-						.replace("<age>", m_age_pattern.toString());
-					matchedPatternToCodeName.put(allPatterns.size(), codeName);
-					matchedPatternToCodeNamePattern.put(allPatterns.size(), 0);
-					allPatterns.add(pattern);
-				} else if (!Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns.0")) {
-					throw new IllegalStateException("lang section for '" + codeName + "' should contain 'pattern' or a 'patterns' section");
-				} else {
-					int multiCount = 0;
-					while (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)) {
-						String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)
-							.replace("<age>", m_age_pattern.toString());
-						// correlates '#init.matchedPattern' to 'codeName'
-						matchedPatternToCodeName.put(allPatterns.size(), codeName);
-						// correlates '#init.matchedPattern' to pattern in code name
-						matchedPatternToCodeNamePattern.put(allPatterns.size(), multiCount);
-						allPatterns.add(pattern);
-						multiCount++;
-					}
-				}
-			}
-			patterns = allPatterns.toArray(String[]::new);
-		}
-
-		@Override
-		public String[] getPatterns() {
-			return Arrays.copyOf(patterns, patterns.length);
-		}
-
-		/**
-		 * Gets the {@code codeName} corresponding to the {@code matchedPattern} in {@link #init(ch.njol.skript.lang.Expression[], int, Kleenean, ParseResult)}.
-		 * @param matchedPattern The placement of the pattern used.
-		 * @return The corresponding {@code codeName}.
-		 */
-		public String getCodeNameFromPattern(int matchedPattern) {
-			return matchedPatternToCodeName.get(matchedPattern);
-		}
-
-		/**
-		 * Gets the corresponding placement of {@code codeName}.
-		 * @param codeName The code name.
-		 * @return The placement.
-		 */
-		public int getCodeNamePlacement(String codeName) {
-			return codeNamePlacements.get(codeName);
-		}
-
-		/**
-		 * Gets the actual matched pattern from {@code matchedPattern} in {@link #init(ch.njol.skript.lang.Expression[], int, Kleenean, ParseResult)}.
-		 * @param matchedPattern The placement of the pattern used
-		 * @return The actual placement.
-		 */
-		public int getPatternInCodeName(int matchedPattern) {
-			return matchedPatternToCodeNamePattern.get(matchedPattern);
-		}
-
-		@Override
-		public boolean equals(@Nullable Object obj) {
-			if (!(obj instanceof EntityDataInfo<?> other))
-				return false;
-			if (!codeName.equals(other.codeName))
-				return false;
-			assert Arrays.equals(codeNames, other.codeNames);
-			assert defaultName == other.defaultName;
-			assert entityClass == other.entityClass;
-			return true;
-		}
-
+	protected static <Data extends EntityData<E>, E extends Entity> Builder<? extends Builder<?, Data, E>, Data, E> infoBuilder(
+		Class<Data> dataClass,
+		String dataName
+	) {
+		return new EntityDataInfoImpl.BuilderImpl<>(dataClass, dataName);
 	}
 
-	public static <E extends Entity, T extends EntityData<E>> void register(
-		Class<T> dataClass,
+	@SuppressWarnings("unchecked")
+	protected static <Data extends EntityData<E>, E extends Entity> void register(EntityDataInfo<Data, E> info) {
+		for (int i = 0; i < infos.size(); i++) {
+			if (infos.get(i).entityClass().isAssignableFrom(info.entityClass())) {
+				infos.add(i, (EntityDataInfo<EntityData<?>, ?>) info);
+				return;
+			}
+		}
+		infos.add((EntityDataInfo<EntityData<?>, ?>) info);
+	}
+
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public static <Data extends EntityData<E>, E extends Entity> void register(
+		Class<Data> dataClass,
 		String name,
 		Class<E> entityClass,
 		String codeName
@@ -337,40 +226,38 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		register(dataClass, name, entityClass, 0, codeName);
 	}
 
-	public static <E extends Entity, T extends EntityData<E>> void register(
-		Class<T> dataClass,
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public static <Data extends EntityData<E>, E extends Entity> void register(
+		Class<Data> dataClass,
 		String name,
 		Class<E> entityClass,
 		int defaultName,
 		String... codeNames
 	) throws IllegalArgumentException {
 		EntityType entityType = EntityUtils.toBukkitEntityType(entityClass);
-		EntityDataInfo<T> entityDataInfo = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityType, entityClass);
-		for (int i = 0; i < infos.size(); i++) {
-			if (infos.get(i).entityClass.isAssignableFrom(entityClass)) {
-				//noinspection unchecked
-				infos.add(i, (EntityDataInfo<EntityData<?>>) entityDataInfo);
-				return;
-			}
-		}
-		//noinspection unchecked
-		infos.add((EntityDataInfo<EntityData<?>>) entityDataInfo);
+		EntityDataInfo<Data, E> info = infoBuilder(dataClass, name)
+			.addCodeNames(codeNames)
+			.defaultCodeName(defaultName)
+			.entityType(entityType)
+			.entityClass(entityClass)
+			.build();
+		register(info);
 	}
 
-	transient EntityDataInfo<?> info;
+	transient EntityDataInfo<?, ?> info;
 
 	/**
 	 * References the corresponding code name in the order they're registered.
 	 */
-	protected int codeNameIndex = 0;
+	protected int codeNameIndex;
 	private Kleenean plural = Kleenean.UNKNOWN;
 	private Kleenean baby = Kleenean.UNKNOWN;
 
 	public EntityData() {
-		for (EntityDataInfo<?> info : infos) {
-			if (getClass() == info.getElementClass()) {
+		for (EntityDataInfo<?, ?> info : infos) {
+			if (getClass() == info.type()) {
 				this.info = info;
-				codeNameIndex = info.defaultName;
+				codeNameIndex = info.defaultCodeName();
 				return;
 			}
 		}
@@ -396,9 +283,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		} else {
 			this.baby = Kleenean.UNKNOWN;
 		}
-		String codeName = info.getCodeNameFromPattern(matchedPattern);
-		int matchedCodeName = info.getCodeNamePlacement(codeName);
-		int patternInCodeName = info.getPatternInCodeName(matchedPattern);
+		String codeName = info.codeNameFromMatchedPattern(matchedPattern);
+		int matchedCodeName = info.codeNamePlacement(codeName);
+		int patternInCodeName = info.matchedCodeNamePattern(matchedPattern);
 		this.codeNameIndex = matchedCodeName;
 		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedCodeName, patternInCodeName, parseResult);
 	}
@@ -408,7 +295,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * <p>
 	 *     As of Skript 2.13, code names can have multiple patterns registered in the default.lang file.
 	 *     {@code matchedCodeName} will be the index of the code name the matched pattern is linked to.
-	 *     		(e.g. {@link PigData} "unsaddled pig' = 0, "pig" = 1, "saddled pig" = 2)
+	 *     		(e.g. {@link PigData} "unsaddled pig" = 0, "pig" = 1, "saddled pig" = 2)
 	 *     {@code matchedPattern} will be the index of the pattern used from the patterns of the code name in the lang file.
 	 * </p>
 	 *
@@ -496,7 +383,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	protected Noun getName() {
-		return info.names[codeNameIndex];
+		return info.names()[codeNameIndex];
 	}
 
 	protected @Nullable Adjective getAgeAdjective() {
@@ -509,7 +396,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	public String toString(int flags) {
-		Noun name = info.names[codeNameIndex];
+		Noun name = info.names()[codeNameIndex];
 		if (baby.isTrue()) {
 			return m_baby.toString(name, flags);
 		} else if (baby.isFalse()) {
@@ -587,9 +474,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @return The corresponding {@link EntityDataInfo} instance.
 	 * @throws SkriptAPIException if the class has not been registered.
 	 */
-	public static EntityDataInfo<?> getInfo(Class<? extends EntityData<?>> entityDataClass) {
-		for (EntityDataInfo<?> info : infos) {
-			if (info.getElementClass() == entityDataClass)
+	public static EntityDataInfo<?, ?> getInfo(Class<? extends EntityData<?>> entityDataClass) {
+		for (EntityDataInfo<?, ?> info : infos) {
+			if (info.type() == entityDataClass)
 				return info;
 		}
 		throw new SkriptAPIException("Unregistered EntityData class " + entityDataClass.getName());
@@ -598,12 +485,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	/**
 	 * Retrieves the {@link EntityDataInfo} associated with the given {@code codeName}.
 	 *
-	 * @param codeName The code name used to register the entity data.
+	 * @param dataName The code name used to register the entity data.
 	 * @return The corresponding {@link EntityDataInfo}, or {@code null} if not found.
 	 */
-	public static @Nullable EntityDataInfo<?> getInfo(String codeName) {
-		for (EntityDataInfo<?> info : infos) {
-			if (info.codeName.equals(codeName))
+	public static @Nullable EntityDataInfo<?, ?> getInfo(String dataName) {
+		for (EntityDataInfo<?, ?> info : infos) {
+			if (info.dataName().equals(dataName))
 				return info;
 		}
 		return null;
@@ -616,7 +503,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @return The parsed entity data
 	 */
 	public static @Nullable EntityData<?> parse(String string) {
-		Iterator<EntityDataInfo<EntityData<?>>> it = new ArrayList<>(infos).iterator();
+		Iterator<EntityDataInfo<EntityData<?>, ?>> it = new ArrayList<>(infos).iterator();
 		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(string), it, null);
 	}
 
@@ -627,7 +514,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @return The parsed entity data
 	 */
 	public static @Nullable EntityData<?> parseWithoutIndefiniteArticle(String string) {
-		Iterator<EntityDataInfo<EntityData<?>>> it = new ArrayList<>(infos).iterator();
+		Iterator<EntityDataInfo<EntityData<?>, ?>> it = new ArrayList<>(infos).iterator();
 		return SkriptParser.parseStatic(string, it, null);
 	}
 
@@ -653,7 +540,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	public boolean canSpawn(@Nullable World world) {
 		if (world == null)
 			return false;
-		EntityType bukkitEntityType = info.entityType != null ? info.entityType : EntityUtils.toBukkitEntityType(this);
+		EntityType bukkitEntityType = info.entityType() != null ? info.entityType() : EntityUtils.toBukkitEntityType(this);
 		if (bukkitEntityType == null || !bukkitEntityType.isSpawnable())
 			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
@@ -681,7 +568,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @return The Entity object that is spawned.
 	 */
 	public final @Nullable E spawn(Location location) {
-		return spawn(location, (Consumer<E>) null);
+		return spawn(location, null);
 	}
 
 	/**
@@ -734,7 +621,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				if (CollectionUtils.contains(worlds, player.getWorld()))
 					list.add(player);
 			}
-			return (E[]) list.toArray(new Player[list.size()]);
+			return (E[]) list.toArray(new Player[0]);
 		}
 		List<E> list = new ArrayList<>();
 		if (worlds == null)
@@ -786,19 +673,19 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	private static <E extends Entity> EntityData<? super E> getData(@Nullable Class<E> entityClass, @Nullable E entity) {
 		assert entityClass == null ^ entity == null;
 		assert entityClass == null || entityClass.isInterface();
-		EntityDataInfo<?> closestInfo = null;
+		EntityDataInfo<?, ?> closestInfo = null;
 		EntityData<E> closestData = null;
-		for (EntityDataInfo<?> info : infos) {
-			if (info.entityClass == Entity.class)
+		for (EntityDataInfo<?, ?> info : infos) {
+			if (info.entityClass() == Entity.class)
 				continue;
-			if (entity == null ? info.entityClass.isAssignableFrom(entityClass) : info.entityClass.isInstance(entity)) {
+			if (entity == null ? info.entityClass().isAssignableFrom(entityClass) : info.entityClass().isInstance(entity)) {
 				EntityData<E> entityData = null;
 				try {
 					//noinspection unchecked
-					entityData = (EntityData<E>) info.getElementClass().newInstance();
+					entityData = (EntityData<E>) info.instance();
 				} catch (Exception ignored) {}
 				if (entityData != null && entityData.init(entityClass, entity)) {
-					if (closestInfo == null || closestInfo.entityClass.isAssignableFrom(info.entityClass)) {
+					if (closestInfo == null || closestInfo.entityClass().isAssignableFrom(info.entityClass())) {
 						closestInfo = info;
 						closestData = entityData;
 					}
@@ -811,7 +698,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			return new SimpleEntityData(entityClass);
 		}
 		return closestData;
-	};
+	}
 
 	/**
 	 * Creates an {@link EntityData} that represents the given entity class.

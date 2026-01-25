@@ -14,8 +14,8 @@ import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 
 public class EntityType implements Cloneable, YggdrasilSerializable {
-	
-	static {
+
+	public static void register() {
 		Classes.registerClass(new ClassInfo<>(EntityType.class, "entitytype")
 				.name("Entity Type with Amount")
 				.description("An <a href='#entitydata'>entity type</a> with an amount, e.g. '2 zombies'. I might remove this type in the future and make a more general 'type' type, i.e. a type that has a number and a type.")
@@ -23,21 +23,20 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 				.examples("spawn 5 creepers behind the player")
 				.since("1.3")
 				.defaultExpression(new SimpleLiteral<>(new EntityType(Entity.class, 1), true))
-				.parser(new Parser<EntityType>() {
+				.parser(new Parser<>() {
 					@Override
-					@Nullable
-					public EntityType parse(final String s, final ParseContext context) {
-						return EntityType.parse(s);
+					public @Nullable EntityType parse(String string, ParseContext context) {
+						return EntityType.parse(string);
 					}
 					
 					@Override
-					public String toString(final EntityType t, final int flags) {
-						return t.toString(flags);
+					public String toString(EntityType entityType, int flags) {
+						return entityType.toString(flags);
 					}
 					
 					@Override
-					public String toVariableNameString(final EntityType t) {
-						return "entitytype:" + t.toString();
+					public String toVariableNameString(EntityType entityType) {
+						return "entitytype:" + entityType.toString();
 					}
                 })
 				.serializer(new YggdrasilSerializer<>()));
@@ -55,28 +54,28 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 		data = null;
 	}
 	
-	public EntityType(final EntityData<?> data, final int amount) {
+	public EntityType(EntityData<?> data, int amount) {
 		assert data != null;
 		this.data = data;
 		this.amount = amount;
 	}
 	
-	public EntityType(final Class<? extends Entity> c, final int amount) {
-		assert c != null;
-		data = EntityData.fromClass(c);
+	public EntityType(Class<? extends Entity> entityClass, int amount) {
+		assert entityClass != null;
+		data = EntityData.fromClass(entityClass);
 		this.amount = amount;
 	}
 	
-	public EntityType(final Entity e) {
-		data = EntityData.fromEntity(e);
+	public EntityType(Entity entity) {
+		data = EntityData.fromEntity(entity);
 	}
 	
-	public EntityType(final EntityType other) {
+	public EntityType(EntityType other) {
 		amount = other.amount;
 		data = other.data;
 	}
 	
-	public boolean isInstance(final Entity entity) {
+	public boolean isInstance(Entity entity) {
 		return data.isInstance(entity);
 	}
 	
@@ -93,24 +92,20 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 		return amount == -1 ? 1 : amount;
 	}
 	
-	public boolean sameType(final EntityType other) {
+	public boolean sameType(EntityType other) {
 		return data.equals(other.data);
 	}
-	
-	@SuppressWarnings("null")
-	@Nullable
-	public static EntityType parse(String s) {
-		assert s != null && s.length() != 0;
+
+	public static @Nullable EntityType parse(String string) {
+		assert string != null && !string.isEmpty();
 		int amount = -1;
-		if (s.matches("\\d+ .+")) {
-			amount = Utils.parseInt(s.split(" ", 2)[0]);
-			s = s.split(" ", 2)[1];
-		} else if (s.matches("(?i)an? .+")) {
-			s = s.split(" ", 2)[1];
+		if (string.matches("\\d+ .+")) {
+			amount = Utils.parseInt(string.split(" ", 2)[0]);
+			string = string.split(" ", 2)[1];
+		} else if (string.matches("(?i)an? .+")) {
+			string = string.split(" ", 2)[1];
 		}
-//		final Pair<String, Boolean> p = Utils.getPlural(s, amount != 1 && amount != -1);
-//		s = p.first;
-		final EntityData<?> data = EntityData.parseWithoutIndefiniteArticle(s);
+		EntityData<?> data = EntityData.parseWithoutIndefiniteArticle(string);
 		if (data == null)
 			return null;
 		return new EntityType(data, amount);
@@ -123,7 +118,7 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = prime * result + amount;
 		result = prime * result + data.hashCode();
@@ -131,14 +126,13 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 	}
 	
 	@Override
-	public boolean equals(final @Nullable Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof EntityType))
+		if (!(obj instanceof EntityType other))
 			return false;
-		final EntityType other = (EntityType) obj;
 		if (amount != other.amount)
 			return false;
 		if (!data.equals(other.data))
