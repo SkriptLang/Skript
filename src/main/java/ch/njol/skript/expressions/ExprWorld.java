@@ -46,13 +46,15 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 			// - Not delayed
 			// - In a PlayerTeleportEvent
 			// - the source expr was the event-value
-			if (getTime() > 0 && event instanceof PlayerTeleportEvent playerTeleportEvent) {
-				// future
-				return playerTeleportEvent.getTo().getWorld();
-			}
-			if (getTime() < 0 && event instanceof PlayerTeleportEvent playerTeleportEvent) {
-				// past
-				return playerTeleportEvent.getFrom().getWorld();
+			// check the event anyway since it casts for us
+			if (event instanceof PlayerTeleportEvent playerTeleportEvent) {
+				if (getTime() > 0) {
+					// future
+					return playerTeleportEvent.getTo().getWorld();
+				} else if (getTime() < 0) {
+					// past
+					return playerTeleportEvent.getFrom().getWorld();
+				}
 			}
 			if (objInWorld instanceof Entity entity) {
 				return entity.getWorld();
