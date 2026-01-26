@@ -23,13 +23,11 @@ import ch.njol.skript.util.Utils.PluralResult;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.common.function.FunctionParser;
-import org.skriptlang.skript.common.function.Parameter;
-import org.skriptlang.skript.common.function.Parameters;
-import org.skriptlang.skript.common.function.ScriptParameter;
+import org.skriptlang.skript.common.function.*;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.SequencedMap;
@@ -159,6 +157,7 @@ public class StructFunction extends Structure {
 	public void unload() {
 		assert signature != null;
 		Functions.unregisterFunction(signature);
+		signature.calls().forEach(FunctionReference::invalidateCache);
 		VALIDATE_FUNCTIONS.set(true);
 	}
 
