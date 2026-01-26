@@ -19,6 +19,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.Sets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.function.FunctionReference.Argument;
@@ -43,6 +44,8 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 	private static final ArgsMessage UNEXPECTED_ARGUMENT = new ArgsMessage("functions.unexpected argument");
 	private static final ArgsMessage INVALID_ARGUMENT = new ArgsMessage("functions.invalid argument");
+	private static final ArgsMessage UNKNOWN_FUNCTION = new ArgsMessage("functions.unknown function");
+	private static final ArgsMessage POTENTIAL_SIGNATURE = new ArgsMessage("functions.potential signature");
 
 	/**
 	 * Attempts to parse {@code expr} as a function reference.
@@ -127,7 +130,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		Set<Signature<?>> options = FunctionRegistry.getRegistry().getSignatures(namespace, name);
 
 		if (options.isEmpty()) {
-			doesNotExist(name, arguments);
+			doesNotExist(name, arguments, options);
 			log.printError();
 			return null;
 		}
@@ -171,7 +174,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 		exactReferences.addAll(listReferences);
 
 		if (exactReferences.isEmpty()) {
-			doesNotExist(name, arguments);
+			doesNotExist(name, arguments, Sets.union(exacts, lists));
 			log.printError();
 			return null;
 		} else if (exactReferences.size() == 1) {
@@ -200,13 +203,20 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	) {
 		Set<FunctionReference<T>> exactReferences = new HashSet<>();
 
-		signatures:
+		// whether the arguments array contains any NAMED type parameters
+		// if there are no named parameters, then we consider the user arguments to already be in order
+		boolean hasNames = Arrays.stream(arguments).anyMatch(argument -> argument.type() == ArgumentType.NAMED);
+
 		// TODO! cache results
+		// 'arguments' may be reassigned when processing a signature
+		// retain a reference to the original array for resetting each time
+		Argument<String>[] originalArguments = arguments;
 		for (Signature<?> signature : signatures) {
 			// if arguments arent possible, skip
 			if (arguments.length > signature.getMaxParameters() || arguments.length < signature.getMinParameters()) {
 				continue;
 			}
+			arguments = originalArguments;
 
 			// all remaining arguments to parse
 			// if a passed argument is named it bypasses the regular argument order of unnamed arguments
@@ -220,9 +230,6 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			// fill in named arguments, placeholders for unnamed arguments
 			// essentially, we reorder the user provided arguments into the order defined by the parameters
 			int index = 0;
-			// whether the arguments array contains any NAMED type parameters
-			// if there are no named parameters, then we consider the user arguments to already be in order
-			boolean hasNames = Arrays.stream(arguments).anyMatch(argument -> argument.type() == ArgumentType.NAMED);
 			// whether, after this first pass completes, there are any placeholders to fill in
 			boolean hasPlaceholders = false;
 			for (var entry : parameters.entrySet()) {
@@ -375,7 +382,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 					continue;
 				}
 
-				doesNotExist(name, arguments);
+				doesNotExist(name, arguments, signatures);
 				return null;
 			}
 		}
@@ -399,7 +406,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 
 			if (arguments.length == 1 && arguments[0].type() == ArgumentType.NAMED) {
 				if (!arguments[0].name().equals(parameter.name())) {
-					doesNotExist(name, arguments);
+					doesNotExist(name, arguments, signatures);
 					continue;
 				}
 			}
@@ -422,7 +429,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				if (result.parsed().length == 1 && result.parsed()[0].value() instanceof ExpressionList<?> list) {
 					for (Expression<?> expression : list.getExpressions()) {
 						if (expression instanceof ExpressionList<?>) {
-							doesNotExist(name, arguments);
+							doesNotExist(name, arguments, signatures);
 							continue signatures;
 						}
 					}
@@ -478,10 +485,12 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 	 *
 	 * @param name      The function name.
 	 * @param arguments The passed arguments to the function call.
+	 * @param possibleSignatures A set of signatures that may contain what the user intended to match.
 	 */
-	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments) {
+	private void doesNotExist(String name, FunctionReference.Argument<String>[] arguments, Set<Signature<?>> possibleSignatures) {
 		StringJoiner joiner = new StringJoiner(", ");
 
+		List<Class<?>> argumentTypes = new ArrayList<>();
 		for (FunctionReference.Argument<String> argument : arguments) {
 			SkriptParser parser = new SkriptParser(argument.value(), flags | SkriptParser.PARSE_LITERALS, context);
 
@@ -499,7 +508,9 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 				continue;
 			}
 
-			ClassInfo<?> classInfo = Classes.getSuperClassInfo(expression.getReturnType());
+			Class<?> returnType = expression.getReturnType();
+			argumentTypes.add(returnType);
+			ClassInfo<?> classInfo = Classes.getSuperClassInfo(returnType);
 			if (expression.isSingle()) {
 				joiner.add(argumentName + classInfo.getName().getSingular());
 			} else {
@@ -507,7 +518,28 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			}
 		}
 
-		Skript.error("The function %s(%s) does not exist.", name, joiner);
+		String possibleMatch = "";
+		var intended = possibleSignatures.stream()
+			.filter(signature -> { // filter for signatures that contain all known arguments
+				List<Class<?>> currentArgumentTypes = new ArrayList<>(argumentTypes);
+				Arrays.stream(signature.parameters().all())
+					.map(parameter -> Utils.getComponentType(parameter.type()))
+					.forEach(type -> {
+						var iterator = currentArgumentTypes.iterator();
+						while (iterator.hasNext()) {
+							if (type.isAssignableFrom(iterator.next())) {
+								iterator.remove();
+								break;
+							}
+						}
+					});
+				return currentArgumentTypes.isEmpty();
+			})
+			.min(Comparator.comparingInt(signature -> Math.abs(arguments.length - signature.getMaxParameters())));
+		if (intended.isPresent()) {
+			possibleMatch = " " + POTENTIAL_SIGNATURE.toString(intended.get().toString(false, false));
+		}
+		Skript.error(UNKNOWN_FUNCTION.toString(name, joiner) + possibleMatch);
 	}
 
 	/**

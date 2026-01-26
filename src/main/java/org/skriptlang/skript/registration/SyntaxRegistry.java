@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.Statement;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
@@ -57,6 +58,17 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	@Contract("-> new")
 	static SyntaxRegistry empty() {
 		return new SyntaxRegistryImpl();
+	}
+
+	/**
+	 * Constructs a syntax registry that applies an origin to all syntax infos registered through it
+	 *  with the {@link Origin#UNKNOWN} origin.
+	 * @param syntaxRegistry The syntax registry providing the implementation.
+	 * @param origin The origin to apply.
+	 * @return A syntax registry that applies an origin.
+	 */
+	static SyntaxRegistry withOrigin(SyntaxRegistry syntaxRegistry, Origin origin) {
+		return new SyntaxRegistryImpl.OriginApplyingRegistry(syntaxRegistry, origin);
 	}
 
 	/**

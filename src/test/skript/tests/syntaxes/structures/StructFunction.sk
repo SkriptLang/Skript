@@ -161,6 +161,14 @@ test "named function arguments":
 		location(x: 1, y: 2, z: 3, 4, world: "world", 5)
 	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
 
+	parse:
+		nfa(1 if {_x} is 1, else 2, 3, 4)
+	assert last parse logs is "The function nfa(?, ?, integer, integer) does not exist. Did you mean to use the function 'local nfa(a: integer, b: integer, c: integer)'?"
+
+	parse:
+		nfa((1 if {_x} is 1, else 2), 3, 4)
+	assert last parse logs is not set
+
 local function nfa_incorrect_list(ns: numbers):
 	stop
 
