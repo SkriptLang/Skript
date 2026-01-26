@@ -101,7 +101,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("list");
 			options.add("show");
 			options.add("info");
-			if (Documentation.getDocsTemplateDirectory().exists())
+			if (TestMode.GEN_DOCS)
 				options.add("gen-docs");
 			if (TestMode.DEV_MODE)
 				options.add("test");

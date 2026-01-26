@@ -5,6 +5,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
@@ -33,7 +34,6 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,7 +43,7 @@ import java.util.Map.Entry;
 /**
  * Generates JSON docs
  */
-public class JSONGenerator extends DocumentationGenerator {
+public class JSONGenerator {
 
 	/**
 	 * The current version of the JSON generator
@@ -74,20 +74,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	private final @NotNull SkriptAddon source;
 
 	private JSONGenerator(@NotNull SkriptAddon source) {
-		super(Documentation.getDocsTemplateDirectory(), Documentation.getDocsOutputDirectory());
-
 		Preconditions.checkNotNull(source, "addon cannot be null");
-
 		this.source = source;
-	}
-
-	/**
-	 * @deprecated Use {@link #of(SkriptAddon)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "2.13")
-	public JSONGenerator(File templateDir, File outputDir) {
-		super(templateDir, outputDir);
-		source = Skript.instance();
 	}
 
 	/**
@@ -657,9 +645,13 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (strings == null || strings.length == 0 || (strings.length == 1 && strings[0].isBlank()))
 			return null;
 
+		// reformat patterns
 		for (int i = 0; i < strings.length; i++) {
-			strings[i] = Documentation.cleanPatterns(strings[i], false, false);
+			// TODO exclude some parts: parse tags, type flags, etc
+			strings[i] = PatternCompiler.compile(strings[i])
+				.toString();
 		}
+
 		return convertToJsonArray(strings);
 	}
 
@@ -713,19 +705,6 @@ public class JSONGenerator extends DocumentationGenerator {
 		} catch (IOException ex) {
 			Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
 			throw new IOException(ex);
-		}
-	}
-
-	/**
-	 * @deprecated Use {@link #generate(Path)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "2.13")
-	@Override
-	public void generate() {
-		try {
-			generate(outputDir.toPath());
-		} catch (IOException ex) {
-			Skript.exception(ex, "An error occurred while trying to generate JSON documentation");
 		}
 	}
 

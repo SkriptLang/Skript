@@ -3,7 +3,6 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.Documentation;
-import ch.njol.skript.doc.HTMLGenerator;
 import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
@@ -73,7 +72,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	static {
 		// Add command to generate documentation
-		if (TestMode.GEN_DOCS || Documentation.isDocsTemplateFound())
+		if (TestMode.GEN_DOCS)
 			SKRIPT_COMMAND_HELP.add("gen-docs");
 
 		// Add command to run individual tests
@@ -384,7 +383,6 @@ public class SkriptCommand implements CommandExecutor {
 					info(sender, "info.dependencies", "None");
 
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
-				File templateDir = Documentation.getDocsTemplateDirectory();
 				File outputDir = Documentation.getDocsOutputDirectory();
 				outputDir.mkdirs();
 
@@ -393,13 +391,6 @@ public class SkriptCommand implements CommandExecutor {
 				JSONGenerator.of(Skript.instance())
 					.generate(outputDir.toPath().resolve("docs.json"));
 
-				if (!templateDir.exists()) {
-					Skript.info(sender, "JSON-only documentation generated!");
-					return true;
-				}
-
-				HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
-				htmlGenerator.generate(); // Try to generate docs... hopefully
 				Skript.info(sender, "All documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
 				File scriptFile;
