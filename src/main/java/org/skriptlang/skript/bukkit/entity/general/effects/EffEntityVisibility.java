@@ -16,7 +16,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -55,9 +54,7 @@ public class EffEntityVisibility extends Effect {
 
 	private boolean reveal;
 
-	@UnknownNullability
 	private Expression<Entity> hidden;
-	@UnknownNullability
 	private Expression<Player> viewers;
 
 	@Override

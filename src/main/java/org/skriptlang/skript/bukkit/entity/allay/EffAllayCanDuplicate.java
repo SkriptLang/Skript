@@ -16,10 +16,10 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Allay Duplicate")
-@Description({
-	"Set whether an allay can or cannot duplicate itself.",
-	"This is not the same as breeding allays."
-})
+@Description("""
+	Set whether an allay can or cannot duplicate itself.
+	This is not the same as breeding allays.
+	""")
 @Example("allow all allays to duplicate")
 @Example("prevent all allays from duplicating")
 @Since("2.11")

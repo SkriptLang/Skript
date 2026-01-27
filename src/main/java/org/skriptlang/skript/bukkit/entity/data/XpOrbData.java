@@ -4,6 +4,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.ArgsMessage;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +17,14 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 	private final static ArgsMessage FORMAT = new ArgsMessage("entities.xp-orb.format");
 
 	public static void register() {
-		EntityData.register(XpOrbData.class, "xporb", ExperienceOrb.class, "xp-orb");
+		registerInfo(
+			infoBuilder(XpOrbData.class, "xporb")
+				.addCodeName("xp-orb")
+				.entityType(EntityType.EXPERIENCE_ORB)
+				.entityClass(ExperienceOrb.class)
+				.supplier(XpOrbData::new)
+				.build()
+		);
 	}
 
 	private int xp = -1;

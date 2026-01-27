@@ -22,15 +22,15 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Wake And Sleep")
-@Description({
-	"Make bats and foxes sleep or wake up.",
-	"Make villagers sleep by providing a location of a bed.",
-	"Make players sleep by providing a location of a bed. "
-		+ "Using 'with force' will bypass \"nearby monsters\" ,the max distance, allowing players to sleep even if the bed "
-		+ "is far away, and lets players sleep in the nether and end. "
-		+ "Does not work if the location of the bed is not in the world the player is currently in.",
-	"Using 'without spawn location update' will make players wake up without setting their spawn location to the bed."
-})
+@Description("""
+	Make bats and foxes sleep or wake up.
+	Make villagers sleep by providing a location of a bed.
+	Make players sleep by providing a location of a bed. \
+	Using 'with force' will bypass \\"nearby monsters\\" ,the max distance, allowing players to sleep even if the bed \
+	is far away, and lets players sleep in the nether and end. \
+	Does not work if the location of the bed is not in the world the player is currently in.
+	Using 'without spawn location update' will make players wake up without setting their spawn location to the bed.
+	""")
 @Example("make {_fox} go to sleep")
 @Example("make {_bat} stop sleeping")
 @Example("make {_villager} start sleeping at location(0, 0, 0)")

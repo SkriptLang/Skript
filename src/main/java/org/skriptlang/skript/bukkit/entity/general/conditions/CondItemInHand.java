@@ -59,9 +59,9 @@ public class CondItemInHand extends Condition {
 	}
 	
 	@Override
-	public boolean check(Event e) {
-		return entities.check(e,
-				livingEntity -> items.check(e,
+	public boolean check(Event event) {
+		return entities.check(event,
+				livingEntity -> items.check(event,
 						itemType -> {
 							EntityEquipment equipment = livingEntity.getEquipment();
 							if (equipment == null)
@@ -72,9 +72,9 @@ public class CondItemInHand extends Condition {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return entities.toString(e, debug) + " " + (entities.isSingle() ? "is" : "are")
-				+ " holding " + items.toString(e, debug)
+	public String toString(@Nullable Event event, boolean debug) {
+		return entities.toString(event, debug) + " " + (entities.isSingle() ? "is" : "are")
+				+ " holding " + items.toString(event, debug)
 				+ (offTool ? " in off-hand" : "");
 	}
 	

@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity.nautilus;
 
+import org.bukkit.entity.EntityType;
 import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -13,7 +14,14 @@ import java.util.Objects;
 public class NautilusData extends EntityData<Nautilus> {
 
 	public static void register() {
-		EntityData.register(NautilusData.class, "nautilus", Nautilus.class, 0, "nautilus");
+		registerInfo(
+			infoBuilder(NautilusData.class, "nautilus")
+				.addCodeName("nautilus")
+				.entityType(EntityType.NAUTILUS)
+				.entityClass(Nautilus.class)
+				.supplier(NautilusData::new)
+				.build()
+		);
 	}
 
 	private Kleenean isTamed = Kleenean.UNKNOWN;

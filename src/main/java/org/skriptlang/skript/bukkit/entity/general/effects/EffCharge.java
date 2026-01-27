@@ -40,7 +40,7 @@ public class EffCharge extends Effect {
 	private Expression<Entity> entities;
 	private boolean charge;
 
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<Entity>) exprs[0];

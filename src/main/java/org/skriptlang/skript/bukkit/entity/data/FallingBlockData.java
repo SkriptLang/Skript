@@ -13,6 +13,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +30,14 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
 
 	public static void register() {
-		EntityData.register(FallingBlockData.class, "falling block", FallingBlock.class, "falling block");
+		registerInfo(
+			infoBuilder(FallingBlockData.class, "falling block")
+				.addCodeName("falling block")
+				.entityType(EntityType.FALLING_BLOCK)
+				.entityClass(FallingBlock.class)
+				.supplier(FallingBlockData::new)
+				.build()
+		);
 	}
 
 	private ItemType @Nullable [] types = null;

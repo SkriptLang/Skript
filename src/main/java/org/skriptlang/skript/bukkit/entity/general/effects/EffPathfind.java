@@ -16,9 +16,13 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.function.Consumer;
+
 @Name("Pathfind")
-@Description({"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. " +
-	"If the pathfinding target is another entity, the entities may or may not continuously follow the target."})
+@Description("""
+	"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. \
+	If the pathfinding target is another entity, the entities may or may not continuously follow the target.
+	""")
 @Example("make all creepers pathfind towards player")
 @Example("make all cows stop pathfinding")
 @Example("make event-entity pathfind towards player at speed 1")
@@ -38,12 +42,8 @@ public class EffPathfind extends Effect {
 	}
 
 	private Expression<LivingEntity> entities;
-
-	@Nullable
-	private Expression<Number> speed;
-
-	@Nullable
-	private Expression<?> target;
+	private @Nullable Expression<Number> speed;
+	private @Nullable Expression<?> target;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -58,16 +58,18 @@ public class EffPathfind extends Effect {
 	protected void execute(Event event) {
 		Object target = this.target != null ? this.target.getSingle(event) : null;
 		double speed = this.speed != null ? this.speed.getOptionalSingle(event).orElse(1).doubleValue() : 1;
+		Consumer<Mob> consumer;
+		if (target instanceof LivingEntity entity) {
+			consumer = mob -> mob.getPathfinder().moveTo(entity, speed);
+		} else if (target instanceof Location location) {
+			consumer = mob -> mob.getPathfinder().moveTo(location, speed);
+		} else {
+			consumer = mob -> mob.getPathfinder().stopPathfinding();
+		}
 		for (LivingEntity entity : entities.getArray(event)) {
-			if (!(entity instanceof Mob))
+			if (!(entity instanceof Mob mob))
 				continue;
-			if (target instanceof LivingEntity) {
-				((Mob) entity).getPathfinder().moveTo((LivingEntity) target, speed);
-			} else if (target instanceof Location) {
-				((Mob) entity).getPathfinder().moveTo((Location) target, speed);
-			} else if (this.target == null) {
-				((Mob) entity).getPathfinder().stopPathfinding();
-			}
+			consumer.accept(mob);
 		}
 	}
 

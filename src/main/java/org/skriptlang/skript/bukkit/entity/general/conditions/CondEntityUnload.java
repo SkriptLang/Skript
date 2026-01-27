@@ -9,11 +9,11 @@ import org.bukkit.entity.LivingEntity;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Can Despawn")
-@Description({
-	"Check if an entity can despawn when the chunk they're located at is unloaded.",
-	"More information on what and when entities despawn can be found at "
-		+ "<a href=\"https://minecraft.wiki/w/Mob_spawning#Despawning\">reference</a>."
-})
+@Description("""
+	Check if an entity can despawn when the chunk they're located at is unloaded.
+	More information on what and when entities despawn can be found at \
+	<a href=\\"https://minecraft.wiki/w/Mob_spawning#Despawning\\">reference</a>.
+	""")
 @Example("""
 	if last spawned entity can despawn on chunk unload:
 		make last spawned entity not despawn on chunk unload

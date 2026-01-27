@@ -24,12 +24,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.function.Function;
 
 @Name("Zombify Villager")
-@Description({
-	"Turn a villager into a zombie villager. Cure a zombie villager immediately or after specified amount of time.",
-	"This effect removes the old entity and creates a new entity.",
-	"Zombifying a villager stored in a variable will update the variable to the new zombie villager.",
-	"Curing a zombie villager does not update the variable."
-})
+@Description("""
+	Turn a villager into a zombie villager. Cure a zombie villager immediately or after specified amount of time.
+	This effect removes the old entity and creates a new entity.
+	Zombifying a villager stored in a variable will update the variable to the new zombie villager.
+	Curing a zombie villager does not update the variable.
+	""")
 @Example("zombify last spawned villager")
 @Example("""
 	set {_villager} to last spawned villager

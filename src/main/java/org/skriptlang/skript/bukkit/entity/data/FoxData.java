@@ -5,6 +5,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fox;
 import org.bukkit.entity.Fox.Type;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +16,7 @@ import java.util.Objects;
 
 public class FoxData extends EntityData<Fox> {
 	
-	private static final Patterns<Type> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Type> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"fox", null},
 		{"red fox", Type.RED},
 		{"snow fox", Type.SNOW}
@@ -23,7 +24,14 @@ public class FoxData extends EntityData<Fox> {
 	private static final Type[] TYPES = Type.values();
 
 	public static void register() {
-		EntityData.register(FoxData.class, "fox", Fox.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(FoxData.class, "fox")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.FOX)
+				.entityClass(Fox.class)
+				.supplier(FoxData::new)
+				.build()
+		);
 
 		Variables.yggdrasil.registerSingleClass(Type.class, "Fox.Type");
 	}
@@ -34,12 +42,12 @@ public class FoxData extends EntityData<Fox> {
 	
 	public FoxData(@Nullable Type type) {
 		this.type = type;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		type = PATTERNS.getInfo(matchedCodeName);
+		type = CODE_NAMES.getInfo(matchedCodeName);
 		return true;
 	}
 	
@@ -47,7 +55,7 @@ public class FoxData extends EntityData<Fox> {
 	protected boolean init(@Nullable Class<? extends Fox> entityClass, @Nullable Fox fox) {
 		if (fox != null) {
 			type = fox.getFoxType();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
 		}
 		return true;
 	}

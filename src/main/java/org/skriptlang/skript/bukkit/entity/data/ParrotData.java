@@ -5,6 +5,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Parrot;
 import org.bukkit.entity.Parrot.Variant;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,7 @@ import java.util.Objects;
 public class ParrotData extends EntityData<Parrot> {
 
 	private static final Variant[] VARIANTS = Variant.values();
-	private static final Patterns<Variant> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"parrot", null},
 		{"red parrot", Variant.RED},
 		{"blue parrot", Variant.BLUE},
@@ -26,8 +27,14 @@ public class ParrotData extends EntityData<Parrot> {
 	});
 
 	public static void register() {
-		EntityData.register(ParrotData.class, "parrot", Parrot.class, 0,
-			PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(ParrotData.class, "parrot")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.PARROT)
+				.entityClass(Parrot.class)
+				.supplier(ParrotData::new)
+				.build()
+		);
 
 		Variables.yggdrasil.registerSingleClass(Variant.class, "Parrot.Variant");
 	}
@@ -38,12 +45,12 @@ public class ParrotData extends EntityData<Parrot> {
 	
 	public ParrotData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = PATTERNS.getInfo(matchedCodeName);
+		variant = CODE_NAMES.getInfo(matchedCodeName);
 		return true;
 	}
 
@@ -51,7 +58,7 @@ public class ParrotData extends EntityData<Parrot> {
 	protected boolean init(@Nullable Class<? extends Parrot> entityClass, @Nullable Parrot parrot) {
 		if (parrot != null) {
 			variant = parrot.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

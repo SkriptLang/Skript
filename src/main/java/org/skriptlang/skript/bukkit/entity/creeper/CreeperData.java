@@ -5,20 +5,28 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
 
 public class CreeperData extends EntityData<Creeper> {
 
-	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"creeper", Kleenean.UNKNOWN},
 		{"powered creeper", Kleenean.TRUE},
 		{"unpowered creeper", Kleenean.FALSE}
 	});
 
 	public static void register() {
-		EntityData.register(CreeperData.class, "creeper", Creeper.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(CreeperData.class, "creeper")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.CREEPER)
+				.entityClass(Creeper.class)
+				.supplier(CreeperData::new)
+				.build()
+		);
 	}
 	
 	private Kleenean powered = Kleenean.UNKNOWN;
@@ -27,12 +35,12 @@ public class CreeperData extends EntityData<Creeper> {
 
 	public CreeperData(@Nullable Kleenean powered)  {
 		this.powered = powered != null ? powered : Kleenean.UNKNOWN;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.powered, 0).orElseThrow();
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.powered, 0).orElseThrow();
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		powered = PATTERNS.getInfo(matchedCodeName);
+		powered = CODE_NAMES.getInfo(matchedCodeName);
 		return true;
 	}
 	
@@ -40,7 +48,7 @@ public class CreeperData extends EntityData<Creeper> {
 	protected boolean init(@Nullable Class<? extends Creeper> entityClass, @Nullable Creeper creeper) {
 		if (creeper != null) {
 			powered = Kleenean.get(creeper.isPowered());
-			super.codeNameIndex = PATTERNS.getMatchedPattern(powered, 0).orElseThrow();
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(powered, 0).orElseThrow();
 		}
 		return true;
 	}

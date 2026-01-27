@@ -10,6 +10,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +22,7 @@ public class PigData extends EntityData<Pig> {
 
 	private static boolean VARIANTS_ENABLED;
 	private static Object[] VARIANTS;
-	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"pig", Kleenean.UNKNOWN},
 		{"saddled pig", Kleenean.TRUE},
 		{"unsaddled pig", Kleenean.FALSE}
@@ -47,7 +48,14 @@ public class PigData extends EntityData<Pig> {
 			.requiredPlugins("Minecraft 1.21.5+")
 			.documentationId("PigVariant"));
 
-		register(PigData.class, "pig", Pig.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(PigData.class, "pig")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.PIG)
+				.entityClass(Pig.class)
+				.supplier(PigData::new)
+				.build()
+		);
 		if (Skript.classExists("org.bukkit.entity.Pig$Variant")) {
 			VARIANTS_ENABLED = true;
 			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Pig.Variant.class).getSupplier().get(), Pig.Variant.class);
@@ -66,12 +74,12 @@ public class PigData extends EntityData<Pig> {
 	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
 		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.saddled, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.saddled, 0).orElse(0);
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		saddled = PATTERNS.getInfo(matchedCodeName);
+		saddled = CODE_NAMES.getInfo(matchedCodeName);
 		if (VARIANTS_ENABLED && exprs[0] != null) {
 			//noinspection unchecked
 			variant = ((Literal<Pig.Variant>) exprs[0]).getSingle();
@@ -83,7 +91,7 @@ public class PigData extends EntityData<Pig> {
 	protected boolean init(@Nullable Class<? extends Pig> entityClass, @Nullable Pig pig) {
 		if (pig != null) {
 			saddled = Kleenean.get(pig.hasSaddle());
-			super.codeNameIndex = PATTERNS.getMatchedPattern(saddled, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(saddled, 0).orElse(0);
 			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
 		}

@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.entity.creeper;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -8,7 +7,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
@@ -40,27 +38,12 @@ public class EffExplodeCreeper extends Effect {
 	}
 
 	private Expression<LivingEntity> entities;
-
 	private boolean instant;
-
 	private boolean stop;
 
-	/*
-	 * setIgnited() was added in Paper 1.13
-	 * ignite() was added in Spigot 1.14, so we can use setIgnited() 
-	 * to offer this functionality to Paper 1.13 users.
-	 */
-	private final boolean paper = Skript.methodExists(Creeper.class, "setIgnited", boolean.class);
-
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (matchedPattern == 4) {
-			if (!paper) {
-				Skript.error("Stopping the ignition process is only possible on Paper 1.13+", ErrorQuality.SEMANTIC_ERROR);
-				return false;
-			}
-		}
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		//noinspection unchecked
 		entities = (Expression<LivingEntity>) exprs[0];
 		instant = matchedPattern == 0;
 		stop = matchedPattern == 4;
@@ -76,19 +59,15 @@ public class EffExplodeCreeper extends Effect {
 				} else if (stop) {
 					creeper.setIgnited(false);
 				} else {
-					if (paper) {
-						creeper.setIgnited(true);
-					} else {
-						creeper.ignite();
-					}
+					creeper.setIgnited(true);
 				}
 			}
 		}
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (instant == true ? "instantly explode " : "start the explosion process of ") + entities.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (instant ? "instantly explode " : "start the explosion process of ") + entities.toString(event, debug);
 	}
 
 }

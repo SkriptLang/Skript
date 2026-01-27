@@ -13,15 +13,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Is Screaming")
 @Description("Check whether a goat or enderman is screaming.")
 @Example("""
-		if last spawned goat is not screaming:
-			make last spawned goat scream
-	"""
-)
+	if last spawned goat is not screaming:
+		make last spawned goat scream
+	""")
 @Example("""
-		if {_enderman} is screaming:
-			force {_enderman} to stop screaming
-	"""
-)
+	if {_enderman} is screaming:
+		force {_enderman} to stop screaming
+	""")
 @Since("2.11")
 public class CondIsScreaming extends PropertyCondition<LivingEntity> {
 

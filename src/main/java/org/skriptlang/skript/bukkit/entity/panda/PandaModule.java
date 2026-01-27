@@ -18,6 +18,7 @@ public class PandaModule implements AddonModule {
 		EffPandaOnBack.register(registry);
 		EffPandaRolling.register(registry);
 		EffPandaSneezing.register(registry);
+		ExprPandaGene.register(registry);
 	}
 
 	@Override

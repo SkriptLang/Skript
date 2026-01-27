@@ -128,7 +128,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 	};
 
-	public static void register() {
+	static void register() {
 		Classes.registerClass(new ClassInfo<>(EntityData.class, "entitydata")
 				.user("entity ?types?")
 				.name("Entity Type")
@@ -198,6 +198,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
+	/**
+	 * Helper method for getting a newly constructed {@link Builder}.
+	 * @param dataClass The class extending {@link EntityData}.
+	 * @param dataName The name {@code dataClass} will be identified as.
+	 * @return The constructed {@link Builder}.
+	 * @param <Data> The entity data class being used.
+	 * @param <E> The entity class {@code Data} is assigned to.
+	 */
 	protected static <Data extends EntityData<E>, E extends Entity> Builder<? extends Builder<?, Data, E>, Data, E> infoBuilder(
 		Class<Data> dataClass,
 		String dataName
@@ -205,8 +213,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return new EntityDataInfoImpl.BuilderImpl<>(dataClass, dataName);
 	}
 
+	/**
+	 * Register a {@link EntityDataInfo}.
+	 * @param info The {@link EntityDataInfo} to register.
+	 * @param <Data> The entity data class being used.
+	 * @param <E> The entity class {@code Data} is assigned to.
+	 */
 	@SuppressWarnings("unchecked")
-	protected static <Data extends EntityData<E>, E extends Entity> void register(EntityDataInfo<Data, E> info) {
+	protected static <Data extends EntityData<E>, E extends Entity> void registerInfo(EntityDataInfo<Data, E> info) {
 		for (int i = 0; i < infos.size(); i++) {
 			if (infos.get(i).entityClass().isAssignableFrom(info.entityClass())) {
 				infos.add(i, (EntityDataInfo<EntityData<?>, ?>) info);
@@ -241,7 +255,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			.entityType(entityType)
 			.entityClass(entityClass)
 			.build();
-		register(info);
+		registerInfo(info);
 	}
 
 	transient EntityDataInfo<?, ?> info;

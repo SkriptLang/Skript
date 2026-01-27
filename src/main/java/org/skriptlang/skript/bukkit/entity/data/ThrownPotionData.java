@@ -26,7 +26,13 @@ import java.util.function.Consumer;
 public class ThrownPotionData extends EntityData<ThrownPotion> {
 
 	public static void register() {
-		EntityData.register(ThrownPotionData.class, "thrown potion", ThrownPotion.class, "thrown potion");
+		registerInfo(
+			infoBuilder(ThrownPotionData.class, "thrown potion")
+				.addCodeName("thrown potion")
+				.entityClass(ThrownPotion.class)
+				.supplier(ThrownPotionData::new)
+				.build()
+		);
 	}
 	
 	private static final Adjective m_adjective = new Adjective("entities.thrown potion.adjective");

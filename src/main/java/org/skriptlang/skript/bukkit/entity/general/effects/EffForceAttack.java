@@ -21,13 +21,13 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Force Attack")
-@Description({
-	"Makes a living entity attack an entity with a melee attack.",
-	"Using 'attack' will make the attacker use the item in their main hand "
-		+ "and will apply extra data from the item, including enchantments and attributes.",
-	"Using 'damage' with a number of hearts will not account for the item in the main hand "
-		+ "and will always be the number provided."
-})
+@Description("""
+	Makes a living entity attack an entity with a melee attack.
+	Using 'attack' will make the attacker use the item in their main hand \
+	and will apply extra data from the item, including enchantments and attributes.
+	Using 'damage' with a number of hearts will not account for the item in the main hand \
+	and will always be the number provided.
+	""")
 @Example("""
 	spawn a wolf at location(0, 0, 0)
 	make last spawned wolf attack all players

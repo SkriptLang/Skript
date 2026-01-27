@@ -11,6 +11,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Sheep;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,14 +21,21 @@ import java.util.Arrays;
 
 public class SheepData extends EntityData<Sheep> {
 
-	private static final Patterns<Kleenean> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"sheep", Kleenean.UNKNOWN},
 		{"sheared sheep", Kleenean.TRUE},
 		{"unsheared sheep", Kleenean.FALSE}
 	});
 
 	public static void register() {
-		EntityData.register(SheepData.class, "sheep", Sheep.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(SheepData.class, "sheep")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.SHEEP)
+				.entityClass(Sheep.class)
+				.supplier(SheepData::new)
+				.build()
+		);
 	}
 
 	private Color @Nullable [] colors = null;
@@ -39,12 +47,12 @@ public class SheepData extends EntityData<Sheep> {
 	public SheepData(@Nullable Kleenean sheared, Color @Nullable [] colors) {
 		this.sheared = sheared != null ? sheared : Kleenean.UNKNOWN;
 		this.colors = colors;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(this.sheared, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.sheared, 0).orElse(0);
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		sheared = PATTERNS.getInfo(matchedCodeName);
+		sheared = CODE_NAMES.getInfo(matchedCodeName);
 		if (exprs[0] != null) {
 			//noinspection unchecked
 			colors = ((Literal<Color>) exprs[0]).getAll();
@@ -57,7 +65,7 @@ public class SheepData extends EntityData<Sheep> {
 		if (sheep != null) {
 			sheared = Kleenean.get(sheep.isSheared());
 			colors = CollectionUtils.array(SkriptColor.fromDyeColor(sheep.getColor()));
-			super.codeNameIndex = PATTERNS.getMatchedPattern(sheared, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(sheared, 0).orElse(0);
 		}
 		return true;
 	}

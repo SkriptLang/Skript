@@ -15,10 +15,10 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Make Invisible")
-@Description({
-	"Makes a living entity visible/invisible. This is not a potion and therefore does not have features such as a time limit or particles.",
-	"When setting an entity to invisible while using an invisibility potion on it, the potion will be overridden and when it runs out the entity keeps its invisibility."
-})
+@Description("""
+	Makes a living entity visible/invisible. This is not a potion and therefore does not have features such as a time limit or particles.
+	When setting an entity to invisible while using an invisibility potion on it, the potion will be overridden and when it runs out the entity keeps its invisibility.
+	""")
 @Example("make target entity invisible")
 @Since("2.7")
 public class EffInvisible extends Effect {

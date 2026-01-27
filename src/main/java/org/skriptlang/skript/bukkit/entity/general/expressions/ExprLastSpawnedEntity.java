@@ -1,0 +1,130 @@
+package org.skriptlang.skript.bukkit.entity.general.expressions;
+
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.effects.EffDrop;
+import ch.njol.skript.effects.EffFireworkLaunch;
+import ch.njol.skript.effects.EffLightning;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.sections.EffSecShoot;
+import ch.njol.skript.sections.EffSecSpawn;
+import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LightningStrike;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.EntityData;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import java.lang.reflect.Array;
+
+@Name("Last Spawned Entity")
+@Description("Holds the entity that was spawned most recently with the spawn effect (section), dropped with the <a href='../effects/#EffDrop'>drop effect</a>, shot with the <a href='../effects/#EffShoot'>shoot effect</a> or created with the <a href='../effects/#EffLightning'>lightning effect</a>. " +
+		"Please note that even though you can spawn multiple mobs simultaneously (e.g. with 'spawn 5 creepers'), only the last spawned mob is saved and can be used. " +
+		"If you spawn an entity, shoot a projectile and drop an item you can however access all them together.")
+@Example("""
+	spawn a priest
+	set {healer::%spawned priest%} to true
+	""")
+@Example("""
+	shoot an arrow from the last spawned entity
+	ignite the shot projectile
+	""")
+@Example("""
+	drop a diamond sword
+	push last dropped item upwards
+	""")
+@Example("teleport player to last struck lightning")
+@Example("delete last launched firework")
+@Since("1.3 (spawned entity), 2.0 (shot entity), 2.2-dev26 (dropped item), 2.7 (struck lightning, firework)")
+public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprLastSpawnedEntity.class, Entity.class)
+				.addPatterns(
+					"[the] [last[ly]] (0:spawned|1:shot) %*entitydata%",
+					"[the] [last[ly]] dropped (2:item)",
+					"[the] [last[ly]] (created|struck) (3:lightning)",
+					"[the] [last[ly]] (launched|deployed) (4:firework)"
+				).supplier(ExprLastSpawnedEntity::new)
+				.build()
+		);
+	}
+
+	private EntityData<?> type;
+	private int from;
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		from = parseResult.mark;
+		if (from == 2) { // It's just to make an extra expression for item only
+			type = EntityData.fromClass(Item.class);
+		} else if (from == 3) {
+			type = EntityData.fromClass(LightningStrike.class);
+		} else if (from == 4) {
+			type = EntityData.fromClass(Firework.class);
+		} else {
+			type = ((Literal<EntityData<?>>) exprs[0]).getSingle();
+		}
+		return true;
+	}
+	
+	@Override
+	protected Entity @Nullable [] get(Event event) {
+		Entity en = switch (from) {
+			case 0 -> EffSecSpawn.lastSpawned;
+			case 1 -> EffSecShoot.lastSpawned;
+			case 2 -> EffDrop.lastSpawned;
+			case 3 -> EffLightning.lastSpawned;
+			case 4 -> EffFireworkLaunch.lastSpawned;
+			default -> null;
+		};
+
+		if (en == null)
+			return null;
+		if (!type.isInstance(en))
+			return null;
+
+		Entity[] one = (Entity[]) Array.newInstance(type.getType(), 1);
+		one[0] = en;
+		return one;
+	}
+	
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
+	
+	@Override
+	public Class<? extends Entity> getReturnType() {
+		return type.getType();
+	}
+	
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		String word = "";
+		switch (from) {
+			case 0 -> word = "spawned";
+			case 1 -> word = "shot";
+			case 2 -> word = "dropped";
+			case 3 -> word = "struck";
+			case 4 -> word = "launched";
+			default -> {
+				assert false;
+			}
+		}
+		return "the last " + word + " " + type;
+	}
+	
+}

@@ -36,8 +36,7 @@ public class EffSwingHand extends Effect {
 	}
 	
 	public static final boolean SWINGING_IS_SUPPORTED = Skript.methodExists(LivingEntity.class, "swingMainHand");
-	
-	@SuppressWarnings("null")
+
 	private Expression<LivingEntity> entities;
 	private boolean isMainHand;
 	
@@ -54,21 +53,21 @@ public class EffSwingHand extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		if (isMainHand) {
-			for (LivingEntity entity : entities.getArray(e)) {
+			for (LivingEntity entity : entities.getArray(event)) {
 				entity.swingMainHand();
 			}
 		} else {
-			for (LivingEntity entity : entities.getArray(e)) {
+			for (LivingEntity entity : entities.getArray(event)) {
 				entity.swingOffHand();
 			}
 		}
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + entities.toString(e, debug) + " swing their " + (isMainHand ? "hand" : "off hand");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + entities.toString(event, debug) + " swing their " + (isMainHand ? "hand" : "off hand");
 	}
 	
 }

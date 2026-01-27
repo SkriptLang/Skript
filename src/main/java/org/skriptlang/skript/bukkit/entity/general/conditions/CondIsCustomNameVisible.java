@@ -35,6 +35,7 @@ public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setNegated(matchedPattern == 1 || matchedPattern == 3);
+		//noinspection unchecked
 		setExpr((Expression<Entity>) exprs[0]);
 		return true;
 	}

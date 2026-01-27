@@ -16,10 +16,10 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Leash entities")
-@Description({
-	"Leash living entities to other entities. When trying to leash an Ender Dragon, Wither, Player, or a Bat, this effect will not work.",
-	"See <a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/LivingEntity.html#setLeashHolder(org.bukkit.entity.Entity)\">Spigot's Javadocs for more info</a>."
-})
+@Description("""
+	Leash living entities to other entities. When trying to leash an Ender Dragon, Wither, Player, or a Bat, this effect will not work.
+	See <a href=\\"https://jd.papermc.io/paper/1.21.11/org/bukkit/entity/LivingEntity.html#setLeashHolder(org.bukkit.entity.Entity)\\">Spigot's Javadocs for more info</a>.
+	""")
 @Example("""
 	on right click:
 		leash event-entity to player
@@ -41,9 +41,7 @@ public class EffLeash extends Effect {
 		);
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Entity> holder;
-	@SuppressWarnings("null")
 	private Expression<LivingEntity> targets;
 	private boolean leash;
 
@@ -61,25 +59,26 @@ public class EffLeash extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		if (leash) {
-			Entity holder = this.holder.getSingle(e);
+			Entity holder = this.holder.getSingle(event);
 			if (holder == null)
 				return;
-			for (LivingEntity target : targets.getArray(e))
+			for (LivingEntity target : targets.getArray(event))
 				target.setLeashHolder(holder);
 		} else {
-			for (LivingEntity target : targets.getArray(e))
+			for (LivingEntity target : targets.getArray(event))
 				target.setLeashHolder(null);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		if (leash)
-			return "leash " + targets.toString(e, debug) + " to " + holder.toString(e, debug);
-		else
-			return "unleash " + targets.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		if (leash) {
+			return "leash " + targets.toString(event, debug) + " to " + holder.toString(event, debug);
+		} else {
+			return "unleash " + targets.toString(event, debug);
+		}
 	}
 
 }

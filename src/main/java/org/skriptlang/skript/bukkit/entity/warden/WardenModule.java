@@ -14,6 +14,8 @@ public class WardenModule implements AddonModule {
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		EffWardenDisturbance.register(registry);
+		ExprWardenAngryAt.register(registry);
+		ExprWardenEntityAnger.register(registry);
 	}
 
 	@Override

@@ -33,12 +33,11 @@ public class EffSilence extends Effect {
 				.build()
 		);
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<Entity> entities;
 	private boolean silence;
 	
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<Entity>) exprs[0];
@@ -47,14 +46,15 @@ public class EffSilence extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		for (Entity entity : entities.getArray(e)) {
+	protected void execute(Event event) {
+		for (Entity entity : entities.getArray(event)) {
 			entity.setSilent(silence);
 		}
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (silence ? "silence " : "unsilence ") + entities.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (silence ? "silence " : "unsilence ") + entities.toString(event, debug);
 	}
+
 }

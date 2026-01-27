@@ -7,6 +7,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.DyeColor;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TropicalFish;
 import org.bukkit.entity.TropicalFish.Pattern;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ import java.util.Objects;
 
 public class TropicalFishData extends EntityData<TropicalFish> {
 
-	private static final Patterns<Pattern> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Pattern> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"tropical fish", null},
 		{"kob", Pattern.KOB},
 		{"sunstreak", Pattern.SUNSTREAK},
@@ -35,7 +36,14 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	private static final Pattern[] FISH_PATTERNS = Pattern.values();
 
 	public static void register() {
-		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(TropicalFishData.class, "tropical fish")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.TROPICAL_FISH)
+				.entityClass(TropicalFish.class)
+				.supplier(TropicalFishData::new)
+				.build()
+		);
 
 		Variables.yggdrasil.registerSingleClass(Pattern.class, "TropicalFish.Pattern");
 	}
@@ -50,12 +58,12 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		this.fishPattern = fishPattern;
 		this.bodyColor = bodyColor;
 		this.patternColor = patternColor;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(fishPattern, 0).orElse(0);
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		fishPattern = PATTERNS.getInfo(matchedCodeName);
+		fishPattern = CODE_NAMES.getInfo(matchedCodeName);
 		if (exprs.length == 0)
 			return true; // FIXME aliases reloading must work
 
@@ -83,7 +91,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 			bodyColor = tropicalFish.getBodyColor();
 			patternColor = tropicalFish.getPatternColor();
 			fishPattern = tropicalFish.getPattern();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(fishPattern, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(fishPattern, 0).orElse(0);
 		}
 		return true;
 	}

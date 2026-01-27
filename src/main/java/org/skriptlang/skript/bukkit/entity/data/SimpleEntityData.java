@@ -79,6 +79,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		types.add(new SimpleEntityDataInfo(codeName, entityClass, true, allowSpawning));
 	}
 
+	//<editor-fold desc="register" defaultstate="collapsed">
 	public static void register() {
 		// Simple Entities
 
@@ -260,7 +261,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("tameable", Tameable.class);
 		addSuperEntity("fish", Fish.class);
 		addSuperEntity("golem", Golem.class);
-		addSuperEntity("projectile", Projectile.class);
 		addSuperEntity("living entity", LivingEntity.class);
 		addSuperEntity("entity", Entity.class);
 		addSuperEntity("chested horse", ChestedHorse.class);
@@ -280,8 +280,16 @@ public class SimpleEntityData extends EntityData<Entity> {
 		for (SimpleEntityDataInfo info : types) {
 			codeNames[i++] = info.codeName;
 		}
-		EntityData.register(SimpleEntityData.class, "simple", Entity.class, 0, codeNames);
+
+		registerInfo(
+			infoBuilder(SimpleEntityData.class, "simple")
+				.addCodeNames(codeNames)
+				.entityClass(Entity.class)
+				.supplier(SimpleEntityData::new)
+				.build()
+		);
 	}
+	//</editor-fold>
 	
 	private transient SimpleEntityDataInfo simpleInfo;
 	

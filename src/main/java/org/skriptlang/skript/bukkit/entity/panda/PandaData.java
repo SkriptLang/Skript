@@ -6,6 +6,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Panda;
 import org.bukkit.entity.Panda.Gene;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +20,14 @@ public class PandaData extends EntityData<Panda> {
 	private static final Gene[] GENES = Gene.values();
 
 	public static void register() {
-		EntityData.register(PandaData.class, "panda", Panda.class, "panda");
+		registerInfo(
+			infoBuilder(PandaData.class, "panda")
+				.addCodeName("panda")
+				.entityType(EntityType.PANDA)
+				.entityClass(Panda.class)
+				.supplier(PandaData::new)
+				.build()
+		);
 
 		Classes.registerClass(new EnumClassInfo<>(Gene.class, "gene", "genes")
 			.user("(panda )?genes?")

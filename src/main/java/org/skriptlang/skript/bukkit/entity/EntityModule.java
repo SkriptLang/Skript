@@ -10,31 +10,29 @@ import org.skriptlang.skript.bukkit.entity.data.*;
 import org.skriptlang.skript.bukkit.entity.enderman.EndermanModule;
 import org.skriptlang.skript.bukkit.entity.general.conditions.*;
 import org.skriptlang.skript.bukkit.entity.general.effects.*;
-import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntityOwner;
-import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntitySize;
-import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntitySnapshot;
-import org.skriptlang.skript.bukkit.entity.general.expressions.ExprEntitySound;
+import org.skriptlang.skript.bukkit.entity.general.expressions.*;
 import org.skriptlang.skript.bukkit.entity.ghast.GhastModule;
 import org.skriptlang.skript.bukkit.entity.goat.GoatModule;
+import org.skriptlang.skript.bukkit.entity.item.ItemModule;
+import org.skriptlang.skript.bukkit.entity.minecart.MinecartModule;
 import org.skriptlang.skript.bukkit.entity.nautilus.NautilusModule;
 import org.skriptlang.skript.bukkit.entity.panda.PandaModule;
+import org.skriptlang.skript.bukkit.entity.projectile.ProjectileModule;
 import org.skriptlang.skript.bukkit.entity.strider.StriderModule;
+import org.skriptlang.skript.bukkit.entity.villager.VillagerModule;
 import org.skriptlang.skript.bukkit.entity.warden.WardenModule;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EntityModule implements AddonModule {
 
 	@Override
-	public void init(SkriptAddon addon) {
+	public void load(SkriptAddon addon) {
 		loadModules(addon);
 		SimpleEntityData.register();
 		EntityData.register();
 		EntityType.register();
 		registerEntityDatas();
-	}
 
-	@Override
-	public void load(SkriptAddon addon) {
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		registerConditions(registry);
 		registerEffects(registry);
@@ -56,9 +54,13 @@ public class EntityModule implements AddonModule {
 			new EndermanModule(),
 			new GhastModule(),
 			new GoatModule(),
+			new ItemModule(),
+			new MinecartModule(),
 			new NautilusModule(),
 			new PandaModule(),
+			new ProjectileModule(),
 			new StriderModule(),
+			new VillagerModule(),
 			new WardenModule()
 		);
 	}
@@ -72,12 +74,10 @@ public class EntityModule implements AddonModule {
 		CatData.register();
 		ChickenData.register();
 		CowData.register();
-		DroppedItemData.register();
 		FallingBlockData.register();
 		FoxData.register();
 		FrogData.register();
 		LlamaData.register();
-		MinecartData.register();
 		MooshroomData.register();
 		ParrotData.register();
 		PigData.register();
@@ -86,10 +86,8 @@ public class EntityModule implements AddonModule {
 		SheepData.register();
 		ThrownPotionData.register();
 		TropicalFishData.register();
-		VillagerData.register();
 		WolfData.register();
 		XpOrbData.register();
-		ZombieVillagerData.register();
 	}
 	//</editor-fold>
 
@@ -164,10 +162,34 @@ public class EntityModule implements AddonModule {
 
 	//<editor-fold desc="register expressions" defaultstate="collapsed">
 	private void registerExpressions(SyntaxRegistry registry) {
+		ExprAI.register(registry);
+		ExprArmorSlot.register(registry);
+		ExprDomestication.register(registry);
 		ExprEntityOwner.register(registry);
 		ExprEntitySize.register(registry);
 		ExprEntitySnapshot.register(registry);
 		ExprEntitySound.register(registry);
+		ExprEyeLocation.register(registry);
+		ExprFallDistance.register(registry);
+		ExprFallDistance.register(registry);
+		ExprFireTicks.register(registry);
+		ExprFreezeTicks.register(registry);
+		ExprGlidingState.register(registry);
+		ExprGlowing.register(registry);
+		ExprGravity.register(registry);
+		ExprHealth.register(registry);
+		ExprLastAttacker.register(registry);
+		ExprLastDamage.register(registry);
+		ExprLastDamageCause.register(registry);
+		ExprLastSpawnedEntity.register(registry);
+		ExprLeashHolder.register(registry);
+		ExprMaxFreezeTicks.register(registry);
+		ExprMaxHealth.register(registry);
+		ExprNoDamageTime.register(registry);
+		ExprPickupDelay.register(registry);
+		ExprTimeLived.register(registry);
+		ExprTotalExperience.register(registry);
+		ExprVehicle.register(registry);
 	}
 	//</editor-fold>
 

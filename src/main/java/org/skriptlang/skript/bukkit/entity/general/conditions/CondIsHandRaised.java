@@ -16,10 +16,10 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Hand Raised")
-@Description({
-	"Checks whether an entity has one or both of their hands raised.",
-	"Hands are raised when an entity is using an item (eg: blocking, drawing a bow, eating)."
-})
+@Description("""
+	Checks whether an entity has one or both of their hands raised.
+	Hands are raised when an entity is using an item (eg: blocking, drawing a bow, eating).
+	""")
 @Example("""
 	on damage of player:
 		if victim's main hand is raised:
@@ -49,8 +49,7 @@ public class CondIsHandRaised extends Condition {
 	}
 
 	private Expression<LivingEntity> entities;
-	@Nullable
-	private EquipmentSlot hand;
+	private @Nullable EquipmentSlot hand;
 
 	@Override
 	@SuppressWarnings("unchecked")

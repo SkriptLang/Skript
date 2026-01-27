@@ -12,6 +12,7 @@ import com.google.common.collect.Iterators;
 import org.bukkit.Registry;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Cat.Type;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
@@ -39,7 +40,15 @@ public class CatData extends EntityData<Cat> {
 			.requiredPlugins("Minecraft 1.14 or newer")
 			.documentationId("CatType"));
 
-		EntityData.register(CatData.class, "cat", Cat.class, "cat");
+		registerInfo(
+			infoBuilder(CatData.class, "cat")
+				.addCodeName("cat")
+				.entityType(EntityType.CAT)
+				.entityClass(Cat.class)
+				.supplier(CatData::new)
+				.build()
+		);
+
 		TYPES = Iterators.toArray(catTypeClassInfo.getSupplier().get(), Type.class);
 	}
 

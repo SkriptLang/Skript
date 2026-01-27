@@ -20,10 +20,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Pathfinding")
-@Description({
-	"Checks whether living entities are pathfinding.",
-	"Can only be a living entity that is a Mob."
-})
+@Description("""
+	Checks whether living entities are pathfinding.
+	Can only be a living entity that is a Mob.
+	""")
 @Example("""
 	make {_entity} pathfind to {_location} at speed 2
 	while {_entity} is pathfinding

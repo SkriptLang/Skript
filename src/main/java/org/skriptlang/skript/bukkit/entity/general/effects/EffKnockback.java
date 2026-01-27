@@ -35,10 +35,10 @@ public class EffKnockback extends Effect {
 
 	private Expression<LivingEntity> entities;
 	private Expression<Direction> direction;
-	@Nullable
-	private Expression<Number> strength;
+	private @Nullable Expression<Number> strength;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
 		direction = (Expression<Direction>) exprs[1];

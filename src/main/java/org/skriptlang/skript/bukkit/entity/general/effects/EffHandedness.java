@@ -41,6 +41,7 @@ public class EffHandedness extends Effect {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		leftHanded = parseResult.hasTag("left");
+		//noinspection unchecked
 		livingEntities = (Expression<LivingEntity>) exprs[0];
 		return true;
 	}
@@ -48,8 +49,8 @@ public class EffHandedness extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (LivingEntity livingEntity : livingEntities.getArray(event)) {
-			if (livingEntity instanceof Mob) {
-				((Mob) livingEntity).setLeftHanded(leftHanded);
+			if (livingEntity instanceof Mob mob) {
+				mob.setLeftHanded(leftHanded);
 			}
 		}
 	}

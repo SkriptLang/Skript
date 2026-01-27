@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Enderman;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +24,14 @@ public class EndermanData extends EntityData<Enderman> {
 	private final static ArgsMessage FORMAT = new ArgsMessage("entities.enderman.format");
 
 	public static void register() {
-		EntityData.register(EndermanData.class, "enderman", Enderman.class, "enderman");
+		registerInfo(
+			infoBuilder(EndermanData.class, "enderman")
+				.addCodeName("enderman")
+				.entityType(EntityType.ENDERMAN)
+				.entityClass(Enderman.class)
+				.supplier(EndermanData::new)
+				.build()
+		);
 	}
 
 	private ItemType @Nullable [] hand = null;

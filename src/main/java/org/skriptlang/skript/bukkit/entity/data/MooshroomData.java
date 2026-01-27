@@ -5,6 +5,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +16,7 @@ import java.util.Objects;
 
 public class MooshroomData extends EntityData<MushroomCow> {
 
-	private static final Patterns<Variant> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"mooshroom", null},
 		{"red mooshroom", Variant.RED},
 		{"brown mooshroom", Variant.BROWN}
@@ -23,7 +24,14 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	private static final Variant[] VARIANTS = Variant.values();
 
 	public static void register() {
-		EntityData.register(MooshroomData.class, "mooshroom", MushroomCow.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(MooshroomData.class, "mooshroom")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.MOOSHROOM)
+				.entityClass(MushroomCow.class)
+				.supplier(MooshroomData::new)
+				.build()
+		);
 
 		Variables.yggdrasil.registerSingleClass(Variant.class, "MushroomCow.Variant");
 	}
@@ -34,12 +42,12 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	
 	public MooshroomData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = PATTERNS.getInfo(matchedCodeName);
+		variant = CODE_NAMES.getInfo(matchedCodeName);
 		return true;
 	}
 	
@@ -47,7 +55,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	protected boolean init(@Nullable Class<? extends MushroomCow> entityClass, @Nullable MushroomCow mushroomCow) {
 		if (mushroomCow != null) {
 			variant = mushroomCow.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

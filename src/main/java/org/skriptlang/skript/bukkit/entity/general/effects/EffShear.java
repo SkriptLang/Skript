@@ -16,11 +16,11 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Shear")
-@Description({
-	"Shears or un-shears a shearable entity with drops by shearing and a 'sheared' sound. Using with 'force' will force this effect despite the entity's 'shear state'.",
-	"\nPlease note that..:",
-	"\n- Force-shearing or un-shearing on a sheared mushroom cow is not possible"
-})
+@Description("""
+	Shears or un-shears a shearable entity with drops by shearing and a 'sheared' sound. Using with 'force' will force this effect despite the entity's 'shear state'.
+	Please note that..:
+	- Force-shearing or un-shearing on a sheared mushroom cow is not possible
+	""")
 @Example("""
 	on rightclick on a sheep holding a sword:
 		shear the clicked sheep

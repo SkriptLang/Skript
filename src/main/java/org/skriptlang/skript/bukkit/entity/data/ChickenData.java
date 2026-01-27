@@ -10,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Chicken.Variant;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
@@ -42,7 +43,15 @@ public class ChickenData extends EntityData<Chicken> {
 			.documentationId("ChickenVariant")
 		);
 
-		register(ChickenData.class, "chicken", Chicken.class, "chicken");
+		registerInfo(
+			infoBuilder(ChickenData.class, "chicken")
+				.addCodeName("chicken")
+				.entityType(EntityType.CHICKEN)
+				.entityClass(Chicken.class)
+				.supplier(ChickenData::new)
+				.build()
+		);
+
 		if (Skript.classExists("org.bukkit.entity.Chicken$Variant")) {
 			VARIANTS_ENABLED = true;
 			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Chicken.Variant.class).getSupplier().get(), Chicken.Variant.class);

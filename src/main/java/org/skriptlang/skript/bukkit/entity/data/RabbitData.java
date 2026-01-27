@@ -5,6 +5,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Rabbit.Type;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ public class RabbitData extends EntityData<Rabbit> {
 
 	private static final Type[] TYPES = Type.values();
 
-	private static final Patterns<Type> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Type> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"rabbit", null},
 		{"white rabbit", Type.WHITE},
 		{"black rabbit", Type.BLACK},
@@ -29,7 +30,14 @@ public class RabbitData extends EntityData<Rabbit> {
 	});
 
 	public static void register() {
-		EntityData.register(RabbitData.class, "rabbit", Rabbit.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(RabbitData.class, "rabbit")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.RABBIT)
+				.entityClass(Rabbit.class)
+				.supplier(RabbitData::new)
+				.build()
+		);
 
 		Variables.yggdrasil.registerSingleClass(Type.class, "Rabbit.Type");
     }
@@ -40,12 +48,12 @@ public class RabbitData extends EntityData<Rabbit> {
     
     public RabbitData(@Nullable Type type) {
     	this.type = type;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
 	}
 
     @Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-        type = PATTERNS.getInfo(matchedCodeName);
+        type = CODE_NAMES.getInfo(matchedCodeName);
         return true;
     }
 
@@ -53,7 +61,7 @@ public class RabbitData extends EntityData<Rabbit> {
     protected boolean init(@Nullable Class<? extends Rabbit> entityClass, @Nullable Rabbit rabbit) {
 		if (rabbit != null) {
 			type = rabbit.getRabbitType();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(type, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
 		}
         return true;
     }

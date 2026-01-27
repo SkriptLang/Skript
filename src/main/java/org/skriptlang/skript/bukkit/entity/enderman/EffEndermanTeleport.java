@@ -55,9 +55,10 @@ public class EffEndermanTeleport extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) exprs[0];
-		if (matchedPattern >= 2)
+		if (matchedPattern >= 2) {
 			//noinspection unchecked
 			target = (Expression<Entity>) exprs[1];
+		}
 		return true;
 	}
 

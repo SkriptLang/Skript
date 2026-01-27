@@ -16,10 +16,10 @@ import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Saddled")
-@Description({
-	"Checks whether a given entity (horse or steerable) is saddled.",
-	"If 'properly' is used, this will only return true if the entity is wearing specifically a saddle item."
-})
+@Description("""
+	Checks whether a given entity (horse or steerable) is saddled.
+	If 'properly' is used, this will only return true if the entity is wearing specifically a saddle item.
+	""")
 @Example("send whether {_horse} is saddled")
 @Since("2.10")
 public class CondIsSaddled extends PropertyCondition<LivingEntity> {

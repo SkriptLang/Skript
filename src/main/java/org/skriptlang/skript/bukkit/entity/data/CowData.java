@@ -11,6 +11,7 @@ import com.google.common.collect.Iterators;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Cow.Variant;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
@@ -56,7 +57,14 @@ public class CowData extends EntityData<Cow> {
 		} catch (Exception ignored) {}
 
 		COW_CLASS = cowClass;
-		register(CowData.class, "cow", COW_CLASS, 0, "cow");
+		registerInfo(
+			infoBuilder(CowData.class,  "cow")
+				.addCodeName("cow")
+				.entityType(EntityType.COW)
+				.entityClass(COW_CLASS)
+				.supplier(CowData::new)
+				.build()
+		);
 		if (Skript.classExists("org.bukkit.entity.Cow$Variant")) {
 			VARIANTS_ENABLED = true;
 			VARIANTS = Iterators.toArray(Classes.getExactClassInfo(Cow.Variant.class).getSupplier().get(), Cow.Variant.class);

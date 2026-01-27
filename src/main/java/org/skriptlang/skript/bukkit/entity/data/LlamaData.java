@@ -5,6 +5,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Llama.Color;
 import org.bukkit.entity.TraderLlama;
@@ -18,7 +19,7 @@ public class LlamaData extends EntityData<Llama> {
 
 	public record LlamaState(Color color, boolean trader) {}
 
-	private static final Patterns<LlamaState> PATTERNS =  new Patterns<>(new Object[][]{
+	private static final Patterns<LlamaState> CODE_NAMES =  new Patterns<>(new Object[][]{
 		{"llama", new LlamaState(null, false)},
 		{"creamy llama", new LlamaState(Color.CREAMY, false)},
 		{"white llama", new LlamaState(Color.WHITE, false)},
@@ -33,7 +34,14 @@ public class LlamaData extends EntityData<Llama> {
 	private static final Color[] LLAMA_COLORS = Color.values();
 
 	public static void register() {
-		EntityData.register(LlamaData.class, "llama", Llama.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(LlamaData.class, "llama")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.LLAMA)
+				.entityClass(Llama.class)
+				.supplier(LlamaData::new)
+				.build()
+		);
 
 		Variables.yggdrasil.registerSingleClass(Color.class, "Llama.Color");
 	}
@@ -46,24 +54,24 @@ public class LlamaData extends EntityData<Llama> {
 	public LlamaData(@Nullable Color color, boolean isTrader) {
 		this.color = color;
 		this.isTrader = isTrader;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
 	}
 
 	public LlamaData(@Nullable LlamaState llamaState) {
 		if (llamaState != null) {
 			this.color = llamaState.color;
 			this.isTrader = llamaState.trader;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(llamaState, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(llamaState, 0).orElse(0);
 		} else {
 			this.color = null;
 			this.isTrader = false;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(this.color, this.isTrader), 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(new LlamaState(this.color, this.isTrader), 0).orElse(0);
 		}
 	}
 	
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		LlamaState llamaState = PATTERNS.getInfo(matchedCodeName);
+		LlamaState llamaState = CODE_NAMES.getInfo(matchedCodeName);
 		assert llamaState != null;
 		color = llamaState.color;
 		isTrader = llamaState.trader;
@@ -77,7 +85,7 @@ public class LlamaData extends EntityData<Llama> {
 		if (llama != null) {
 			color = llama.getColor();
 			isTrader = llama instanceof TraderLlama;
-			super.codeNameIndex = PATTERNS.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
 		}
 		return true;
 	}

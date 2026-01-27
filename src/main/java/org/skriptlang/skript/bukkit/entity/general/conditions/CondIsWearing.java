@@ -45,7 +45,7 @@ public class CondIsWearing extends Condition {
 	private Expression<LivingEntity> entities;
 	private Expression<ItemType> types;
 	
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) vars[0];

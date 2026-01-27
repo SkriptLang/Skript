@@ -39,8 +39,8 @@ public class CondIsAlive extends PropertyCondition<Entity> {
 	}
 
 	@Override
-	public boolean check(Entity e) {
-		return isNegated == e.isDead();
+	public boolean check(Entity entity) {
+		return isNegated == entity.isDead();
 	}
 
 	@Override

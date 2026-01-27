@@ -7,6 +7,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Axolotl.Variant;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
@@ -15,7 +16,7 @@ import java.util.Objects;
 
 public class AxolotlData extends EntityData<Axolotl> {
 
-	private static final Patterns<Variant> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"axolotl", null},
 		{"lucy axolotl", Variant.LUCY},
 		{"wild axolotl", Variant.WILD},
@@ -26,7 +27,14 @@ public class AxolotlData extends EntityData<Axolotl> {
 	private static final Variant[] VARIANTS = Variant.values();
 
 	public static void register() {
-		EntityData.register(AxolotlData.class, "axolotl", Axolotl.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(AxolotlData.class, "axolotl")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.AXOLOTL)
+				.entityClass(Axolotl.class)
+				.supplier(AxolotlData::new)
+				.build()
+		);
 
 		Variables.yggdrasil.registerSingleClass(Variant.class,  "Axolotl.Variant");
 	}
@@ -37,12 +45,12 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	public AxolotlData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = PATTERNS.getInfo(matchedCodeName);
+		variant = CODE_NAMES.getInfo(matchedCodeName);
 		return true;
 	}
 
@@ -50,7 +58,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 	protected boolean init(@Nullable Class<? extends Axolotl> entityClass, @Nullable Axolotl axolotl) {
 		if (axolotl != null) {
 			variant = axolotl.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

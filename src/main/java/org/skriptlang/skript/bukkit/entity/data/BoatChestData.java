@@ -39,7 +39,13 @@ public class BoatChestData extends EntityData<ChestBoat> {
 				patterns[boat.ordinal() + 2] = boatName;
 			}
 
-			EntityData.register(BoatChestData.class, "chest boat", ChestBoat.class, 0, patterns);
+			registerInfo(
+				infoBuilder(BoatChestData.class, "chest boat")
+					.addCodeNames(patterns)
+					.entityClass(ChestBoat.class)
+					.supplier(BoatChestData::new)
+					.build()
+			);
 		}
 	}
 

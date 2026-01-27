@@ -7,6 +7,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ import java.util.Objects;
 
 public class FrogData extends EntityData<Frog> {
 
-	private static final Patterns<Variant> PATTERNS = new Patterns<>(new Object[][]{
+	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
 		{"frog", null},
 		{"temperate frog", Variant.TEMPERATE},
 		{"warm frog", Variant.WARM},
@@ -27,7 +28,14 @@ public class FrogData extends EntityData<Frog> {
 	private static final Variant[] VARIANTS = new Variant[]{Variant.TEMPERATE, Variant.WARM, Variant.COLD};
 
 	public static void register() {
-		EntityData.register(FrogData.class, "frog", Frog.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(FrogData.class, "frog")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.FROG)
+				.entityClass(Frog.class)
+				.supplier(FrogData::new)
+				.build()
+		);
 		ClassInfo<?> frogVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Frog$Variant",
 			"FROG_VARIANT",
@@ -51,12 +59,12 @@ public class FrogData extends EntityData<Frog> {
 
 	public FrogData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = PATTERNS.getInfo(matchedCodeName);
+		variant = CODE_NAMES.getInfo(matchedCodeName);
 		return true;
 	}
 
@@ -64,7 +72,7 @@ public class FrogData extends EntityData<Frog> {
 	protected boolean init(@Nullable Class<? extends Frog> entityClass, @Nullable Frog frog) {
 		if (frog != null) {
 			variant = frog.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}

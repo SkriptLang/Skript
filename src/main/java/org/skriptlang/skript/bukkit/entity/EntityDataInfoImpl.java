@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.entity;
 
+import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
 import ch.njol.skript.localization.LanguageChangeListener;
@@ -28,10 +29,30 @@ import static org.skriptlang.skript.bukkit.entity.EntityData.m_age_pattern;
 final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends EntityData<E>, E extends Entity>
 	implements EntityDataInfo<Data, E>, LanguageChangeListener {
 
+	private static Priority estimatePriority(Collection<String> patterns) {
+		Priority priority = SyntaxInfo.SIMPLE;
+		for (String pattern : patterns) {
+			char[] chars = pattern.toCharArray();
+			for (int i = 0; i < chars.length; i++) {
+				if (chars[i] == '%') {
+					if (i > 0 && chars[i - 1] == '\\') { // skip escaped percentages
+						continue;
+					}
+					// "%thing% %thing%" or "%thing% [%thing%]"
+					if ((i > 1 && chars[i - 2] == '%') || (i > 2 && chars[i - 3] == '%')) {
+						return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
+					}
+					priority = SyntaxInfo.COMBINED;
+				}
+			}
+		}
+		return priority;
+	}
+
 	private final Origin origin;
 	private final Class<Data> dataClass;
 	private final @Nullable Supplier<Data> supplier;
-	private final @Nullable Priority priority;
+	private @Nullable Priority priority;
 	private SequencedCollection<String> patterns = new ArrayList<>();
 
 	private final String dataName;
@@ -64,7 +85,11 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		this.dataName = dataName;
 		this.codeNames.addAll(codeNames);
 		this.defaultCodeName = defaultCodeName;
-		this.entityType = entityType;
+		if (entityType == null) {
+			this.entityType = EntityUtils.toBukkitEntityType(entityClass);
+		} else {
+			this.entityType = entityType;
+		}
 		this.entityClass = entityClass;
 
 		this.names = new Noun[codeNames.size()];
@@ -107,6 +132,9 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 			}
 		}
 		patterns = allPatterns;
+		if (this.priority == null) {
+			this.priority = estimatePriority(patterns);
+		}
 	}
 
 	@Override
@@ -216,7 +244,7 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		implements Builder<B, Data, E> {
 
 		private final Class<Data> dataClass;
-		private Origin origin;
+		private Origin origin = Origin.UNKNOWN;
 		private @Nullable Supplier<Data> supplier = null;
 		private @Nullable Priority priority;
 

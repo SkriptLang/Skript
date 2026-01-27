@@ -37,7 +37,14 @@ public class BoatData extends EntityData<Boat> {
 				}
 				patterns[boat.ordinal() + 2] = boatName;
 			}
-			EntityData.register(BoatData.class, "boat", Boat.class, 0, patterns);
+
+			registerInfo(
+				infoBuilder(BoatData.class, "boat")
+					.addCodeNames(patterns)
+					.entityClass(Boat.class)
+					.supplier(BoatData::new)
+					.build()
+			);
 		}
 	}
 	

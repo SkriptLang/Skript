@@ -6,6 +6,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Salmon;
 import org.bukkit.entity.Salmon.Variant;
 import org.jetbrains.annotations.NotNull;
@@ -18,12 +19,12 @@ public class SalmonData extends EntityData<Salmon> {
 
 	private static final boolean SUPPORT_SALMON_VARIANTS = Skript.classExists("org.bukkit.entity.Salmon$Variant");
 	private static Object[] VARIANTS;
-	private static Patterns<Object> PATTERNS;
+	private static Patterns<Object> CODE_NAMES;
 
 	public static void register() {
 		if (SUPPORT_SALMON_VARIANTS) {
 			VARIANTS = Salmon.Variant.values();
-			PATTERNS = new Patterns<>(new Object[][]{
+			CODE_NAMES = new Patterns<>(new Object[][]{
 				{"salmon", null},
 				{"any salmon", null},
 				{"small salmon", Variant.SMALL},
@@ -34,12 +35,19 @@ public class SalmonData extends EntityData<Salmon> {
 			Variables.yggdrasil.registerSingleClass(Variant.class, "Salmon.Variant");
 		} else {
 			VARIANTS = null;
-			PATTERNS = new Patterns<>(new Object[][]{
+			CODE_NAMES = new Patterns<>(new Object[][]{
 				{"salmon", null}
 			});
 		}
 
-		EntityData.register(SalmonData.class, "salmon", Salmon.class, 0, PATTERNS.getPatterns());
+		registerInfo(
+			infoBuilder(SalmonData.class, "salmon")
+				.addCodeNames(CODE_NAMES.getPatterns())
+				.entityType(EntityType.SALMON)
+				.entityClass(Salmon.class)
+				.supplier(SalmonData::new)
+				.build()
+		);
 	}
 
 	private @Nullable Object variant = null;
@@ -49,12 +57,12 @@ public class SalmonData extends EntityData<Salmon> {
 	// TODO: When safe, 'variant' should have the type changed to 'Salmon.Variant' when 1.21.2 is minimum supported version
 	public SalmonData(@Nullable Object variant) {
 		this.variant = variant;
-		super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = PATTERNS.getInfo(matchedCodeName);
+		variant = CODE_NAMES.getInfo(matchedCodeName);
 		return true;
 	}
 
@@ -62,7 +70,7 @@ public class SalmonData extends EntityData<Salmon> {
 	protected boolean init(@Nullable Class<? extends Salmon> entityClass, @Nullable Salmon salmon) {
 		if (salmon != null && SUPPORT_SALMON_VARIANTS) {
 			variant = salmon.getVariant();
-			super.codeNameIndex = PATTERNS.getMatchedPattern(variant, 0).orElse(0);
+			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
 		}
 		return true;
 	}
