@@ -276,6 +276,7 @@ public final class Parameter<T> implements org.skriptlang.skript.common.function
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof Parameter<?> parameter)) {
+
 			return false;
 		}
 
