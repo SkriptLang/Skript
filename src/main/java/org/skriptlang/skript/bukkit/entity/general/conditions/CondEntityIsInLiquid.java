@@ -26,7 +26,7 @@ public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 			infoBuilder(
 				CondEntityIsInLiquid.class,
 				PropertyType.BE,
-				"in (1¦water|2¦lava|3¦[a] bubble[ ]column|4¦rain)",
+				"in (1:water|2:lava|3:[a] bubble[ ]column|4:rain)",
 				"entities"
 			).supplier(CondEntityIsInLiquid::new)
 				.build()

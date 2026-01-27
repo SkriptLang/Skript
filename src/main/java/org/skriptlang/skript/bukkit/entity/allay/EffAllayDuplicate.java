@@ -28,7 +28,7 @@ public class EffAllayDuplicate extends Effect {
 		registry.register(
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffAllayDuplicate.class)
-				.addPattern("make %livingentities% (duplicate|clone)")
+				.addPattern("make %livingentities% (duplicate|clone) [themsel(f|ves)]")
 				.supplier(EffAllayDuplicate::new)
 				.build()
 		);

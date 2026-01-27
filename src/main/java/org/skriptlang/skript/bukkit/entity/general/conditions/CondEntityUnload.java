@@ -12,7 +12,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("""
 	Check if an entity can despawn when the chunk they're located at is unloaded.
 	More information on what and when entities despawn can be found at \
-	<a href=\\"https://minecraft.wiki/w/Mob_spawning#Despawning\\">reference</a>.
+	<a href="https://minecraft.wiki/w/Mob_spawning#Despawning">reference</a>.
 	""")
 @Example("""
 	if last spawned entity can despawn on chunk unload:
@@ -38,6 +38,11 @@ public class CondEntityUnload extends PropertyCondition<LivingEntity> {
 	@Override
 	protected String getPropertyName() {
 		return "despawn on chunk unload";
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
 	}
 
 }
