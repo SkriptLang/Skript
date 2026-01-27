@@ -57,7 +57,8 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 
 	private final String dataName;
 	private final SequencedCollection<String> codeNames = new ArrayList<>();
-	private final int defaultCodeName;
+	private final String defaultCodeName;
+	private final int defaultIndex;
 	private final @Nullable EntityType entityType;
 	private final Class<? extends E> entityClass;
 
@@ -73,18 +74,20 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		@Nullable Priority priority,
 		String dataName,
 		SequencedCollection<String> codeNames,
-		int defaultCodeName,
+		int defaultIndex,
 		@Nullable EntityType entityType,
 		Class<? extends E> entityClass
 	) {
 		assert entityClass != null && !codeNames.isEmpty();
+		assert defaultIndex < codeNames.size();
 		this.origin = origin;
 		this.dataClass = dataClass;
 		this.supplier = supplier;
 		this.priority = priority;
 		this.dataName = dataName;
 		this.codeNames.addAll(codeNames);
-		this.defaultCodeName = defaultCodeName;
+		this.defaultCodeName = new ArrayList<>(codeNames).get(defaultIndex);
+		this.defaultIndex = defaultIndex;
 		if (entityType == null) {
 			this.entityType = EntityUtils.toBukkitEntityType(entityClass);
 		} else {
@@ -197,8 +200,13 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 	}
 
 	@Override
-	public int defaultCodeName() {
+	public String defaultCodeName() {
 		return defaultCodeName;
+	}
+
+	@Override
+	public int defaultCodeNameIndex() {
+		return defaultIndex;
 	}
 
 	@Override
@@ -219,7 +227,7 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 			.supplier(supplier)
 			.priority(priority)
 			.addCodeNames(codeNames)
-			.defaultCodeName(defaultCodeName)
+			.defaultCodeName(defaultIndex)
 			.entityType(entityType)
 			.entityClass(entityClass);
 	}
@@ -234,7 +242,7 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 			return false;
 		if (!codeNames.equals(other.codeNames()))
 			return false;
-		if (defaultCodeName != other.defaultCodeName())
+		if (defaultIndex != other.defaultCodeNameIndex())
 			return false;
 		return entityClass.equals(other.entityClass());
 	}

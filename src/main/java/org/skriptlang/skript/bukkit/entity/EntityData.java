@@ -271,7 +271,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		for (EntityDataInfo<?, ?> info : infos) {
 			if (getClass() == info.type()) {
 				this.info = info;
-				codeNameIndex = info.defaultCodeName();
+				codeNameIndex = info.defaultCodeNameIndex();
 				return;
 			}
 		}

@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
@@ -73,9 +74,16 @@ public class CondItemInHand extends Condition {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return entities.toString(event, debug) + " " + (entities.isSingle() ? "is" : "are")
-				+ " holding " + items.toString(event, debug)
-				+ (offTool ? " in off-hand" : "");
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append(entities);
+		if (entities.isSingle()) {
+			builder.append("is");
+		} else {
+			builder.append("are");
+		}
+		builder.append("holding", items);
+		builder.appendIf(offTool, "in off-hand");
+		return builder.toString();
 	}
 	
 }

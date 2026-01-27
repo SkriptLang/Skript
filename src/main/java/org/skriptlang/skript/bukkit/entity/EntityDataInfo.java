@@ -31,12 +31,17 @@ interface EntityDataInfo<Data extends EntityData<E>, E extends Entity> extends S
 	SequencedCollection<String> codeNames();
 
 	/**
-	 * @return The index of the default code name.
+	 * @return The default code name.
 	 */
-	int defaultCodeName();
+	String defaultCodeName();
 
 	/**
-	 * @return
+	 * @return The index of the default code name.
+	 */
+	int defaultCodeNameIndex();
+
+	/**
+	 * @return The {@link Noun} format of the 'name' node for each code name in the lang file.
 	 */
 	Noun[] names();
 
