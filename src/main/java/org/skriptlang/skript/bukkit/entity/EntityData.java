@@ -54,7 +54,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("rawtypes")
-public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {
+public abstract class EntityData<E extends Entity>
+	extends ch.njol.skript.entity.EntityData<E>
+	implements SyntaxElement, YggdrasilExtendedSerializable {
 
 	// Removed in 1.21.9 in favor of 'FeatureFlagSetHolder'
 	private static final boolean HAS_ENABLED_BY_FEATURE = Skript.methodExists(EntityType.class, "isEnabledByFeature", World.class);
@@ -228,34 +230,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			}
 		}
 		infos.add((EntityDataInfo<EntityData<?>, ?>) info);
-	}
-
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public static <Data extends EntityData<E>, E extends Entity> void register(
-		Class<Data> dataClass,
-		String name,
-		Class<E> entityClass,
-		String codeName
-	) throws IllegalArgumentException {
-		register(dataClass, name, entityClass, 0, codeName);
-	}
-
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public static <Data extends EntityData<E>, E extends Entity> void register(
-		Class<Data> dataClass,
-		String name,
-		Class<E> entityClass,
-		int defaultName,
-		String... codeNames
-	) throws IllegalArgumentException {
-		EntityType entityType = EntityUtils.toBukkitEntityType(entityClass);
-		EntityDataInfo<Data, E> info = infoBuilder(dataClass, name)
-			.addCodeNames(codeNames)
-			.defaultCodeName(defaultName)
-			.entityType(entityType)
-			.entityClass(entityClass)
-			.build();
-		registerInfo(info);
 	}
 
 	transient EntityDataInfo<?, ?> info;
@@ -863,6 +837,26 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		if (from == null)
 			return true;
 		return from == to;
+	}
+
+	// Remove when old EntityData is removed //
+
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public static <Data extends EntityData<E>, E extends Entity> void registerOld(
+		Class<Data> dataClass,
+		String name,
+		Class<E> entityClass,
+		int defaultName,
+		String... codeNames
+	) {
+		EntityType entityType = EntityUtils.toBukkitEntityType(entityClass);
+		EntityDataInfo<Data, E> info = infoBuilder(dataClass, name)
+			.addCodeNames(codeNames)
+			.defaultCodeName(defaultName)
+			.entityType(entityType)
+			.entityClass(entityClass)
+			.build();
+		registerInfo(info);
 	}
 
 }

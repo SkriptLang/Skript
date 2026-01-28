@@ -13,7 +13,9 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 
-public class EntityType implements Cloneable, YggdrasilSerializable {
+public class EntityType
+	extends ch.njol.skript.entity.EntityType
+	implements Cloneable, YggdrasilSerializable {
 
 	public static void register() {
 		Classes.registerClass(new ClassInfo<>(EntityType.class, "entitytype")
@@ -84,7 +86,7 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 		return getAmount() == 1 ? data.toString(0) : amount + " " + data.toString(Language.F_PLURAL);
 	}
 	
-	public String toString(final int flags) {
+	public String toString(int flags) {
 		return getAmount() == 1 ? data.toString(flags) : amount + " " + data.toString(flags | Language.F_PLURAL);
 	}
 	
