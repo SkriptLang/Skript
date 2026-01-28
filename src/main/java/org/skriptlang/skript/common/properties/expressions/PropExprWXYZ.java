@@ -52,7 +52,7 @@ public class PropExprWXYZ extends PropertyBaseExpression<WXYZHandler<?, ?>> {
 			Skript.error("None of the types returned by " + expr + " have an " + axis.name().toLowerCase(Locale.ENGLISH) + " axis component.");
 			return false;
 		}
-		// warn about deprecated syntax (remove in INSERT VERSION + 2)
+		// warn about deprecated syntax (remove in 2.14 + 2)
 		if (parseResult.hasTag("dep")) {
 			Skript.warning("Using 'pos[ition]' or 'loc[ation]' to refer to specific coordinates is deprecated and will be removed. " +
 							"Please use 'coord[inate]', 'component[s]' or just the axis name 'x of {loc}' instead.");
