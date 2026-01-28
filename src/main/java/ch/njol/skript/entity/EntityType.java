@@ -22,7 +22,7 @@ public abstract class EntityType implements Cloneable, YggdrasilSerializable {
 	 * Only used for deserialisation
 	 */
 	@SuppressWarnings({"unused", "null"})
-	private EntityType() {
+	protected EntityType() {
 		data = null;
 	}
 
@@ -30,25 +30,29 @@ public abstract class EntityType implements Cloneable, YggdrasilSerializable {
 		assert data != null;
 		this.data = data;
 		this.amount = amount;
-		this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(data.newEntityData, amount);
+		if (!(this instanceof org.skriptlang.skript.bukkit.entity.EntityType))
+			this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(data.newEntityData, amount);
 	}
 
 	public EntityType(Class<? extends Entity> entityClass, int amount) {
 		assert entityClass != null;
 		data = EntityData.fromClass(entityClass);
 		this.amount = amount;
-		this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(entityClass, amount);
+		if (!(this instanceof org.skriptlang.skript.bukkit.entity.EntityType))
+			this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(entityClass, amount);
 	}
 
 	public EntityType(Entity entity) {
 		data = EntityData.fromEntity(entity);
-		this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(entity);
+		if (!(this instanceof org.skriptlang.skript.bukkit.entity.EntityType))
+			this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(entity);
 	}
 
 	public EntityType(EntityType other) {
 		amount = other.amount;
 		data = other.data;
-		this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(other.newEntityType);
+		if (!(this instanceof org.skriptlang.skript.bukkit.entity.EntityType))
+			this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(other.newEntityType);
 	}
 
 	public boolean isInstance(Entity entity) {

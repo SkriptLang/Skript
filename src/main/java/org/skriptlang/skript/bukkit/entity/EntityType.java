@@ -53,16 +53,19 @@ public class EntityType
 	 */
 	@SuppressWarnings({"unused", "null"})
 	private EntityType() {
+		super();
 		data = null;
 	}
 	
 	public EntityType(EntityData<?> data, int amount) {
+		super();
 		assert data != null;
 		this.data = data;
 		this.amount = amount;
 	}
 	
 	public EntityType(Class<? extends Entity> entityClass, int amount) {
+		super();
 		assert entityClass != null;
 		data = EntityData.fromClass(entityClass);
 		this.amount = amount;
