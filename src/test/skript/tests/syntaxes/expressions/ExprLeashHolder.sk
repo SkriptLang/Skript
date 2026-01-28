@@ -1,0 +1,13 @@
+test "leash holder expression":
+	set block at test-location to oak fence
+	set {_fence} to block at test-location
+	spawn a wolf at test-location
+	set {_wolf} to last spawned entity
+	assert {_wolf} is not leashed with "wolf should not be leashed initially"
+	assert leash holder of {_wolf} is not set with "leash holder should not be set initially"
+	delete {_wolf}
+	set block at test-location to air
+	spawn a snowball at test-location
+	set {_snowball} to last spawned entity
+	assert leash holder of {_snowball} is not set with "non-leashable entity should return null for leash holder"
+	delete {_snowball}

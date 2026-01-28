@@ -17,8 +17,8 @@ import ch.njol.util.Kleenean;
 
 @Name("Leash entities")
 @Description({
-	"Leash living entities to other entities. When trying to leash an Ender Dragon, Wither, Player, or a Bat, this effect will not work.",
-	"See <a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/LivingEntity.html#setLeashHolder(org.bukkit.entity.Entity)\">Spigot's Javadocs for more info</a>."
+	"Leash entities to other entities.",
+	"See <a href=\"https://jd.papermc.io/paper/1.21/io/papermc/paper/entity/Leashable.html\">Paper's Javadocs for more info</a>."
 })
 @Example("""
 	on right click:
@@ -28,17 +28,19 @@ import ch.njol.util.Kleenean;
 @Since("2.3")
 public class EffLeash extends Effect {
 
+	private static final boolean SUPPORTS_LEASHABLE = Skript.classExists("io.papermc.paper.entity.Leashable");
+
 	static {
 		Skript.registerEffect(EffLeash.class,
-			"(leash|lead) %livingentities% to %entity%",
-			"make %entity% (leash|lead) %livingentities%",
-			"un(leash|lead) [holder of] %livingentities%");
+			"(leash|lead) %entities% to %entity%",
+			"make %entity% (leash|lead) %entities%",
+			"un(leash|lead) [holder of] %entities%");
 	}
 
 	@SuppressWarnings("null")
 	private Expression<Entity> holder;
 	@SuppressWarnings("null")
-	private Expression<LivingEntity> targets;
+	private Expression<Entity> targets;
 	private boolean leash;
 
 	@Override
@@ -47,9 +49,9 @@ public class EffLeash extends Effect {
 		leash = matchedPattern != 2;
 		if (leash) {
 			holder = (Expression<Entity>) exprs[1 - matchedPattern];
-			targets = (Expression<LivingEntity>) exprs[matchedPattern];
+			targets = (Expression<Entity>) exprs[matchedPattern];
 		} else {
-			targets = (Expression<LivingEntity>) exprs[0];
+			targets = (Expression<Entity>) exprs[0];
 		}
 		return true;
 	}
@@ -60,11 +62,31 @@ public class EffLeash extends Effect {
 			Entity holder = this.holder.getSingle(e);
 			if (holder == null)
 				return;
-			for (LivingEntity target : targets.getArray(e))
-				target.setLeashHolder(holder);
+			for (Entity target : targets.getArray(e)) {
+				if (SUPPORTS_LEASHABLE) {
+					if (target instanceof io.papermc.paper.entity.Leashable leashable) {
+						leashable.setLeashHolder(holder);
+					}
+				} else {
+					// Fallback for older versions
+					if (target instanceof LivingEntity livingEntity) {
+						livingEntity.setLeashHolder(holder);
+					}
+				}
+			}
 		} else {
-			for (LivingEntity target : targets.getArray(e))
-				target.setLeashHolder(null);
+			for (Entity target : targets.getArray(e)) {
+				if (SUPPORTS_LEASHABLE) {
+					if (target instanceof io.papermc.paper.entity.Leashable leashable) {
+						leashable.setLeashHolder(null);
+					}
+				} else {
+					// Fallback for older versions
+					if (target instanceof LivingEntity livingEntity) {
+						livingEntity.setLeashHolder(null);
+					}
+				}
+			}
 		}
 	}
 
