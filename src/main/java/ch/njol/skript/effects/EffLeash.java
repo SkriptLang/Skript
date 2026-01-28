@@ -1,7 +1,6 @@
 package ch.njol.skript.effects;
 
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,21 +13,22 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import io.papermc.paper.entity.Leashable;
+import ch.njol.util.Kleenean;
 
 @Name("Leash entities")
 @Description({
-	"Leash entities to other entities.",
-	"See <a href=\"https://jd.papermc.io/paper/1.21/io/papermc/paper/entity/Leashable.html\">Paper's Javadocs for more info</a>."
+	"Leash entities to other entities, or unleash them.",
+	"Leashable entities include wolves, cats, parrots, llamas, iron golems, snow golems, hoglins, zoglins, and boats.",
+	"Some entities like the Ender Dragon, Wither, and Bats cannot be leashed."
 })
 @Example("""
 	on right click:
 		leash event-entity to player
 		send "&aYou leashed &2%event-entity%!" to player
 	""")
-@Since("2.3")
+@Since("2.3, 2.10 (entities)")
 public class EffLeash extends Effect {
-
-	private static final boolean SUPPORTS_LEASHABLE = Skript.classExists("io.papermc.paper.entity.Leashable");
 
 	static {
 		Skript.registerEffect(EffLeash.class,
@@ -37,9 +37,7 @@ public class EffLeash extends Effect {
 			"un(leash|lead) [holder of] %entities%");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Entity> holder;
-	@SuppressWarnings("null")
 	private Expression<Entity> targets;
 	private boolean leash;
 
@@ -57,35 +55,14 @@ public class EffLeash extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		if (leash) {
-			Entity holder = this.holder.getSingle(e);
-			if (holder == null)
-				return;
-			for (Entity target : targets.getArray(e)) {
-				if (SUPPORTS_LEASHABLE) {
-					if (target instanceof io.papermc.paper.entity.Leashable leashable) {
-						leashable.setLeashHolder(holder);
-					}
-				} else {
-					// Fallback for older versions
-					if (target instanceof LivingEntity livingEntity) {
-						livingEntity.setLeashHolder(holder);
-					}
-				}
-			}
-		} else {
-			for (Entity target : targets.getArray(e)) {
-				if (SUPPORTS_LEASHABLE) {
-					if (target instanceof io.papermc.paper.entity.Leashable leashable) {
-						leashable.setLeashHolder(null);
-					}
-				} else {
-					// Fallback for older versions
-					if (target instanceof LivingEntity livingEntity) {
-						livingEntity.setLeashHolder(null);
-					}
-				}
+	protected void execute(Event event) {
+		Entity holder = leash ? this.holder.getSingle(event) : null;
+		if (leash && holder == null)
+			return;
+		
+		for (Entity target : targets.getArray(event)) {
+			if (target instanceof Leashable leashable) {
+				leashable.setLeashHolder(holder);
 			}
 		}
 	}

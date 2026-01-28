@@ -1,18 +1,26 @@
 test "leash effect":
-	set block at test-location to oak fence
-	set {_fence} to block at test-location
+	spawn a wolf at test-location
+	set {_leash_holder} to last spawned entity
 	spawn a wolf at test-location
 	set {_wolf} to last spawned entity
 	assert {_wolf} is not leashed with "wolf should not be leashed initially"
+	leash {_wolf} to {_leash_holder}
+	assert {_wolf} is leashed with "wolf should be leashed after leash effect"
+	unleash {_wolf}
+	assert {_wolf} is not leashed with "wolf should be unleashed after unleash effect"
 	delete {_wolf}
-	set block at test-location to air
+	delete {_leash_holder}
+	spawn a wolf at test-location
+	set {_leash_holder} to last spawned entity
 	spawn a snowball at test-location
 	set {_snowball} to last spawned entity
-	leash {_snowball} to {_fence}
+	leash {_snowball} to {_leash_holder}
 	delete {_snowball}
+	delete {_leash_holder}
+	spawn a wolf at test-location
+	set {_leash_holder} to last spawned entity
 	spawn 3 wolves at test-location
-	assert size of all wolves >= 3 with "at least 3 wolves should be spawned"
-	leash all wolves to {_fence}
+	assert size of all wolves >= 4 with "at least 4 wolves should be spawned"
+	leash all wolves to {_leash_holder}
 	unleash all wolves
-	set block at test-location to air
 	delete all wolves

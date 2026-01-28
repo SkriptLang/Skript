@@ -1,19 +1,21 @@
 test "is leashed condition":
-	set block at test-location to oak fence
-	set {_fence} to block at test-location
 	spawn a wolf at test-location
 	set {_wolf} to last spawned entity
 	assert {_wolf} is not leashed with "wolf should not be leashed initially"
 	assert {_wolf} isn't leashed with "wolf should not be leashed initially (alternate syntax)"
 	delete {_wolf}
-	set block at test-location to air
 	spawn a snowball at test-location
 	set {_snowball} to last spawned entity
 	assert {_snowball} is not leashed with "non-leashable entity should return false for is leashed"
 	delete {_snowball}
-	spawn 2 wolves at test-location
-	assert size of all wolves >= 2 with "at least 2 wolves should be spawned"
-	leash all wolves to {_fence}
-	unleash all wolves
-	set block at test-location to air
-	delete all wolves
+	spawn a wolf at test-location
+	set {_leash_holder} to last spawned entity
+	spawn a wolf at test-location
+	set {_wolf} to last spawned entity
+	assert {_wolf} is not leashed with "wolf should not be leashed initially"
+	leash {_wolf} to {_leash_holder}
+	assert {_wolf} is leashed with "wolf should be leashed after leashing"
+	unleash {_wolf}
+	assert {_wolf} is not leashed with "wolf should not be leashed after unleashing"
+	delete {_wolf}
+	delete {_leash_holder}
