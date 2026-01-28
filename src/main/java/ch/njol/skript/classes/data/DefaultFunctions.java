@@ -14,6 +14,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -641,53 +642,45 @@ public class DefaultFunctions {
 				return uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name));
 			}));
 
-		{ // offline player function
-			// TODO - remove this when Spigot support is dropped
-			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
+		Functions.register(DefaultFunction.builder(skript, "offlineplayer", OfflinePlayer.class)
+				.description("Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
+						"The 'lookup' parameter can be set to false to prevent this function from doing a " +
+						"web lookup for players who have not joined before. Lookups can cause lag spikes of up to multiple seconds, so " +
+						"use offline players with caution."
+				)
+				.examples(
+						"set {_p} to offlineplayer(\"Notch\")",
+						"set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")",
+						"set {_p} to offlineplayer(\"Notch\", false)"
+				)
+				.since("2.8.0, 2.9.0 (prevent lookups)")
+				.parameter("value", String.class)
+				.parameter("lookup", Boolean.class, Modifier.OPTIONAL)
+				.build(args -> {
+					String value = args.get("value");
+					boolean lookup = args.getOrDefault("lookup", true);
 
-			List<Parameter<?>> params = new ArrayList<>();
-			params.add(new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null));
-			if (hasIfCached)
-				params.add(new Parameter<>("allowLookups", DefaultClasses.BOOLEAN, true, new SimpleLiteral<>(true, true)));
+					if (Utils.isValidUUID(value)) {
+						UUID uuid = UUID.fromString(value);
+						OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
 
-			Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", params.toArray(new Parameter[0]),
-				DefaultClasses.OFFLINE_PLAYER, true) {
-				@Override
-				public OfflinePlayer[] executeSimple(Object[][] params) {
-					String name = (String) params[0][0];
-					UUID uuid = null;
-					if (name.length() > 16 || name.contains("-")) { // shortcut
-						if (Utils.isValidUUID(name))
-							uuid = UUID.fromString(name);
+						PlayerProfile profile = player.getPlayerProfile();
+						if (lookup && !profile.isComplete()) {
+							profile.complete();
+						}
+
+						return player;
 					}
-					OfflinePlayer result;
 
-					if (uuid != null) {
-						result = Bukkit.getOfflinePlayer(uuid); // doesn't do lookups
-					} else if (hasIfCached && !((Boolean) params[1][0])) {
-						result = Bukkit.getOfflinePlayerIfCached(name);
-						if (result == null)
-							return new OfflinePlayer[0];
+					OfflinePlayer player;
+					if (lookup) {
+						player = Bukkit.getOfflinePlayer(value);
 					} else {
-						result = Bukkit.getOfflinePlayer(name);
+						player = Bukkit.getOfflinePlayerIfCached(value);
 					}
 
-					return CollectionUtils.array(result);
-				}
-
-			}).description(
-				"Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
-				"If Paper 1.16.5+ is used, the 'allowLookup' parameter can be set to false to prevent this function from doing a " +
-				"web lookup for players who have not joined before. Lookups can cause lag spikes of up to multiple seconds, so " +
-				"use offline players with caution."
-			)
-			.examples(
-				"set {_p} to offlineplayer(\"Notch\")",
-				"set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")",
-				"set {_p} to offlineplayer(\"Notch\", false)"
-			)
-			.since("2.8.0, 2.9.0 (prevent lookups)");
-		} // end offline player function
+					return player;
+				}));
 
 		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
 			@Override
