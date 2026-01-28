@@ -41,9 +41,9 @@ import java.util.regex.Pattern;
 	local function multiply(x: number, y: number) returns number:
 		return {_x} * {_y}
 	
-	set {_x} to function multiply with arguments:
-		x as 2
-		y as 3
+	set {_x} to result of function multiply with arguments:
+		x set to 2
+		y set to 3
 	
 	broadcast "%{_x}%" # returns 6
 	""")
@@ -59,10 +59,11 @@ public class ExprSecFunction extends SectionExpression<Object> {
 	/**
 	 * The pattern for an argument that can be passed in the children of this section.
 	 */
-	private static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?:(?:the )?argument )?(?<name>%s) set to (?<value>.+)".formatted(FUNCTION_NAME_PATTERN.toString()));
+	private static final Pattern ARGUMENT_PATTERN = Pattern.compile("(?:argument )?(?<name>%s) set to (?<value>.+)".formatted(FUNCTION_NAME_PATTERN.toString()));
 
 	static {
-		Skript.registerExpression(ExprSecFunction.class, Object.class, ExpressionType.SIMPLE, "[the] function <.+> with [the] arg[ument][s]");
+		Skript.registerExpression(ExprSecFunction.class, Object.class, ExpressionType.SIMPLE,
+				"[the] result[s] of [running|executing] function <.+> with [the] arg[ument][s]");
 	}
 
 	private FunctionReference<?> reference;
