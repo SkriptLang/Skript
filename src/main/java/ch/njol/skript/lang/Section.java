@@ -16,6 +16,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -58,8 +59,9 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
-		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems)
-			&& sectionContext.claim(this);
+		return sectionContext.attemptClaim(this, parseResult.expr,
+			(context, syntax) -> init(expressions, matchedPattern, isDelayed, parseResult,
+											context.sectionNode, context.triggerItems));
 	}
 
 	public abstract boolean init(Expression<?>[] expressions,
@@ -212,6 +214,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 		protected SectionNode sectionNode;
 		protected List<TriggerItem> triggerItems;
 		protected @Nullable Debuggable owner;
+		protected @Nullable String ownerErrorRepresentation;
 
 		public SectionContext(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -230,43 +233,89 @@ public abstract class Section extends TriggerSection implements SyntaxElement, S
 			SectionNode prevSectionNode = this.sectionNode;
 			List<TriggerItem> prevTriggerItems = this.triggerItems;
 			Debuggable owner = this.owner;
+			String ownerErrorRepresentation = this.ownerErrorRepresentation;
 
 			this.sectionNode = sectionNode;
 			this.triggerItems = triggerItems;
 			this.owner = null;
+			this.ownerErrorRepresentation = null;
 
 			T result = supplier.get();
 
 			this.sectionNode = prevSectionNode;
 			this.triggerItems = prevTriggerItems;
 			this.owner = owner;
+			this.ownerErrorRepresentation = ownerErrorRepresentation;
 
 			return result;
+		}
+
+		/**
+		 * Attempts to claim the section this context represents for the given syntax.
+		 * If the claim is successful, the provided function will be run.
+		 * If the function returns false, the claim will be reverted.
+		 * Once a syntax has claimed a section, another syntax may not claim it.
+		 *
+		 * @param syntax The syntax that wants to own this section. This will likely not yet be initialized.
+		 * @param errorRepresentation A string representation of the syntax for error messages, as {@link #toString(Event, boolean)} cannot be used yet.
+		 * @param runIfClaimed A function that will be run if the claim was successful. Usually this is the syntax's init method.
+		 * @return True if this was successfully claimed and the provided function ran successfully, false otherwise
+		 */
+		@ApiStatus.Internal
+		public <Syntax extends SyntaxElement & Debuggable> boolean attemptClaim(Syntax syntax, String errorRepresentation, BiFunction<SectionContext, Syntax, Boolean> runIfClaimed) {
+			if (!claim(syntax, errorRepresentation))
+				return false;
+			boolean success = runIfClaimed.apply(this, syntax);
+			if (!success) {
+				unclaim(syntax);
+				return false;
+			}
+			return true;
 		}
 
 		/**
 		 * Marks the section this context represents as having been 'claimed' by the current syntax.
 		 * Once a syntax has claimed a section, another syntax may not claim it.
 		 *
-		 * @param syntax The syntax that wants to own this section
+		 * @param syntax The syntax that wants to own this section. This will likely not yet be initialized.
+		 * @param errorRepresentation A string representation of the syntax for error messages, as {@link #toString(Event, boolean)} cannot be used yet.
 		 * @return True if this was successfully claimed, false if it was already owned
 		 */
 		@ApiStatus.Internal
-		public <Syntax extends SyntaxElement & Debuggable> boolean claim(Syntax syntax) {
+		public <Syntax extends SyntaxElement & Debuggable> boolean claim(Syntax syntax, String errorRepresentation) {
 			if (sectionNode == null)
 				return true;
 			if (this.claimed()) {
 				if (owner == syntax)
 					return true;
 				assert owner != null;
-				Skript.error("The syntax '" + syntax.toString(null, false)
+				Skript.error("The syntax '" + errorRepresentation
 					+ "' tried to claim the current section, but it was already claimed by '"
-					+ this.owner.toString(null, false)
+					+ ownerErrorRepresentation
 					+ "'. You cannot have two section-starters in the same line.");
 				return false;
 			}
 			this.owner = syntax;
+			this.ownerErrorRepresentation = errorRepresentation;
 			return true;
+		}
+
+
+		/**
+		 * Removes this syntax's claim on this section. A new syntax may claim it later.
+		 *
+		 * @param syntax The syntax that wants to unclaim this section
+		 */
+		@ApiStatus.Internal
+		public <Syntax extends SyntaxElement & Debuggable> void unclaim(Syntax syntax) {
+			if (sectionNode == null)
+				return;
+			if (!this.claimed() || owner != syntax) {
+				throw new IllegalStateException("The syntax '" + syntax.toString(null, false)
+					+ "' tried to unclaim the current section, but it does not own it.");
+			}
+			this.owner = null;
+			this.ownerErrorRepresentation = null;
 		}
 
 		/**
