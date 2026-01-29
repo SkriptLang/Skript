@@ -5,16 +5,8 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.util.slot.DisplayEntitySlot;
-import ch.njol.skript.util.slot.DroppedItemSlot;
-import ch.njol.skript.util.slot.ItemFrameSlot;
-import ch.njol.skript.util.slot.Slot;
-import ch.njol.skript.util.slot.ThrowableProjectileSlot;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.ItemDisplay;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.ThrowableProjectile;
+import ch.njol.skript.util.slot.*;
+import org.bukkit.entity.*;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Item of an Entity")
@@ -22,11 +14,13 @@ import org.jetbrains.annotations.Nullable;
 	"An item associated with an entity. For dropped item entities, it gets the item that was dropped.",
 	"For item frames, the item inside the frame is returned.",
 	"For throwable projectiles (snowballs, enderpearls etc.) or item displays, it gets the displayed item.",
+	"For arrows, it gets the item that will be picked up when retrieving the arrow. Note that setting the item may not change the displayed " +
+	"model, and that setting a spectral arrow to a non-spectral arrow or vice-versa will not affect the effects of the projectile.",
 	"Other entities do not have items associated with them."
 })
 @Example("item of event-entity")
 @Example("set the item inside of event-entity to a diamond sword named \"Example\"")
-@Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), 2.10 (item displays)")
+@Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), 2.10 (item displays), INSERT VERSION (arrows)")
 public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
 
@@ -42,6 +36,8 @@ public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 			return new DroppedItemSlot(item);
 		} else if (entity instanceof ThrowableProjectile throwableProjectile) {
 			return new ThrowableProjectileSlot(throwableProjectile);
+		} else if (entity instanceof AbstractArrow arrow) {
+			return new AbstractArrowSlot(arrow);
 		} else if (entity instanceof ItemDisplay itemDisplay) {
 			return new DisplayEntitySlot(itemDisplay);
 		}
