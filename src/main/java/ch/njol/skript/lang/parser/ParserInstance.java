@@ -729,7 +729,7 @@ public final class ParserInstance implements Experimented {
 	}
 
 	// Unparsable literals cache
-	
+
 	private final EnumMap<ParseContext, Set<String>> unparsableLiterals = new EnumMap<>(ParseContext.class) {{
 		for (ParseContext context : ParseContext.values()) {
 			put(context, new ObjectOpenHashSet<>());

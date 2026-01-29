@@ -174,6 +174,7 @@ public class TypePatternElement extends PatternElement {
 							 * if it is unsuccessful, a backup of the first successful match (with unparsed literals) is saved to be returned.
 							 */
 							boolean hasUnparsedLiteral = false;
+							ParserInstance parserInstance = ParserInstance.get();
 							for (int i = expressionIndex + 1; i < newMatchResult.expressions.length; i++) {
 								if (newMatchResult.expressions[i] instanceof UnparsedLiteral unparsedLiteral) {
 									String data = unparsedLiteral.getData();
