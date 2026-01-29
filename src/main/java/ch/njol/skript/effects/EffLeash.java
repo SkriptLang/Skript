@@ -14,20 +14,18 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import io.papermc.paper.entity.Leashable;
-import ch.njol.util.Kleenean;
 
 @Name("Leash entities")
 @Description({
 	"Leash entities to other entities, or unleash them.",
-	"Leashable entities include wolves, cats, parrots, llamas, iron golems, snow golems, hoglins, zoglins, and boats.",
-	"Some entities like the Ender Dragon, Wither, and Bats cannot be leashed."
+	"Most mobs, iron golems, snow golems, and boats can be leashed."
 })
 @Example("""
 	on right click:
 		leash event-entity to player
 		send "&aYou leashed &2%event-entity%!" to player
 	""")
-@Since("2.3, 2.10 (entities)")
+@Since("2.3, INSERT VERSION (non-living entities)")
 public class EffLeash extends Effect {
 
 	static {

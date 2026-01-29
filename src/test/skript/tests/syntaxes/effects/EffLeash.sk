@@ -6,21 +6,28 @@ test "leash effect":
 	assert {_wolf} is not leashed with "wolf should not be leashed initially"
 	leash {_wolf} to {_leash_holder}
 	assert {_wolf} is leashed with "wolf should be leashed after leash effect"
+	assert leash holder of {_wolf} is {_leash_holder} with "wolf should be leashed to the correct entity"
 	unleash {_wolf}
 	assert {_wolf} is not leashed with "wolf should be unleashed after unleash effect"
-	delete {_wolf}
-	delete {_leash_holder}
+	clear entity within {_wolf}
+	clear entity within {_leash_holder}
 	spawn a wolf at test-location
 	set {_leash_holder} to last spawned entity
 	spawn a snowball at test-location
 	set {_snowball} to last spawned entity
 	leash {_snowball} to {_leash_holder}
-	delete {_snowball}
-	delete {_leash_holder}
+	clear entity within {_snowball}
+	clear entity within {_leash_holder}
 	spawn a wolf at test-location
 	set {_leash_holder} to last spawned entity
 	spawn 3 wolves at test-location
 	assert size of all wolves >= 4 with "at least 4 wolves should be spawned"
 	leash all wolves to {_leash_holder}
+	loop all wolves:
+		if loop-entity is not {_leash_holder}:
+			assert loop-entity is leashed with "all wolves (except holder) should be leashed"
+			assert leash holder of loop-entity is {_leash_holder} with "all wolves should be leashed to the correct entity"
 	unleash all wolves
-	delete all wolves
+	loop all wolves:
+		assert loop-entity is not leashed with "all wolves should be unleashed"
+	clear all entities
