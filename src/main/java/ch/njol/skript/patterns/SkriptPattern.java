@@ -50,11 +50,6 @@ public class SkriptPattern {
 		return match(expr, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT);
 	}
 
-	@Override
-	public String toString() {
-		return first.toFullString();
-	}
-
 	/**
 	 * @return the size of the {@link MatchResult#expressions} array
 	 * from a match.
@@ -85,28 +80,32 @@ public class SkriptPattern {
 
 		// Iterate over all consequent pattern elements
 		while (patternElement != null) {
-			if (patternElement instanceof ChoicePatternElement) {
-				// Keep track of the max type count of each component
-				int max = 0;
+			switch (patternElement) {
+				case ChoicePatternElement choicePatternElement -> {
+					// Keep track of the max type count of each component
+					int max = 0;
 
-				for (PatternElement component : ((ChoicePatternElement) patternElement).getPatternElements()) {
-					int componentCount = countNonNullTypes(component);
-					if (componentCount > max) {
-						max = componentCount;
+					for (PatternElement component : choicePatternElement.getPatternElements()) {
+						int componentCount = countNonNullTypes(component);
+						if (componentCount > max) {
+							max = componentCount;
+						}
 					}
-				}
 
-				// Only one of the components will be used, the rest will be non-null
-				//  So we only need to add the max
-				count += max;
-			} else if (patternElement instanceof GroupPatternElement) {
-				// For groups and optionals, simply recurse
-				count += countNonNullTypes(((GroupPatternElement) patternElement).getPatternElement());
-			} else if (patternElement instanceof OptionalPatternElement) {
-				count += countNonNullTypes(((OptionalPatternElement) patternElement).getPatternElement());
-			} else if (patternElement instanceof TypePatternElement) {
-				// Increment when seeing a type
-				count++;
+					// Only one of the components will be used, the rest will be non-null
+					//  So we only need to add the max
+					count += max;
+				}
+				case GroupPatternElement groupPatternElement ->
+					// For groups and optionals, simply recurse
+					count += countNonNullTypes(groupPatternElement.getPatternElement());
+				case OptionalPatternElement optionalPatternElement ->
+					count += countNonNullTypes(optionalPatternElement.getPatternElement());
+				case TypePatternElement ignored ->
+					// Increment when seeing a type
+					count++;
+				default -> {
+				}
 			}
 
 			// Move on to the next pattern element
@@ -142,12 +141,12 @@ public class SkriptPattern {
 	 */
 	private static <T extends PatternElement> List<T> getElements(Class<T> type, PatternElement element, List<T> elements) {
 		while (element != null) {
-			if (element instanceof ChoicePatternElement) {
-				((ChoicePatternElement) element).getPatternElements().forEach(e -> getElements(type, e, elements));
-			} else if (element instanceof GroupPatternElement) {
-				getElements(type, ((GroupPatternElement) element).getPatternElement(), elements);
-			} else if (element instanceof OptionalPatternElement) {
-				getElements(type, ((OptionalPatternElement) element).getPatternElement(), elements);
+			if (element instanceof ChoicePatternElement choicePatternElement) {
+				choicePatternElement.getPatternElements().forEach(e -> getElements(type, e, elements));
+			} else if (element instanceof GroupPatternElement groupPatternElement) {
+				getElements(type, groupPatternElement.getPatternElement(), elements);
+			} else if (element instanceof OptionalPatternElement optionalPatternElement) {
+				getElements(type, optionalPatternElement.getPatternElement(), elements);
 			} else if (type.isInstance(element)) {
 				//noinspection unchecked - it is checked with isInstance
 				elements.add((T) element);
@@ -155,6 +154,103 @@ public class SkriptPattern {
 			element = element.originalNext;
 		}
 		return elements;
+	}
+
+	/**
+	 * Properties to consider when stringifying a pattern.
+	 */
+	public interface StringificationProperties {
+
+		/**
+		 * Default properties to use for stringification.
+		 */
+		StringificationProperties DEFAULT = builder().build();
+
+		/**
+		 * @return A new builder for specifying stringification properties.
+		 */
+		static Builder builder() {
+			return new StringificationPropertiesImpl.BuilderImpl();
+		}
+
+		/**
+		 * @return Whether parse tags should be excluded.
+		 */
+		boolean excludeParseTags();
+
+		/**
+		 * @return Whether type flags should be excluded.
+		 */
+		boolean excludeTypeFlags();
+
+		/**
+		 * Builder for constructing stringification properties.
+		 */
+		interface Builder {
+
+			/**
+			 * Excludes parse tags from stringified patterns.
+			 * @return This builder.
+			 */
+			Builder excludeParseTags();
+
+			/**
+			 * Excludes type flags from stringified patterns.
+			 * @return This builder.
+			 */
+			Builder excludeTypeFlags();
+
+			/**
+			 *
+			 * @return A StringificationProperties representing the properties set in this builder.
+			 */
+			StringificationProperties build();
+
+		}
+
+	}
+
+	private record StringificationPropertiesImpl(
+		boolean excludeParseTags, boolean excludeTypeFlags) implements StringificationProperties {
+
+		private static class BuilderImpl implements StringificationProperties.Builder {
+
+			private boolean excludeParseTags = false;
+			private boolean excludeTypeFlags = false;
+
+			@Override
+			public Builder excludeParseTags() {
+				excludeParseTags = true;
+				return this;
+			}
+
+			@Override
+			public Builder excludeTypeFlags() {
+				excludeTypeFlags = true;
+				return this;
+			}
+
+			@Override
+			public StringificationProperties build() {
+				return new StringificationPropertiesImpl(excludeParseTags, excludeTypeFlags);
+			}
+
+		}
+
+	}
+
+	/**
+	 * Stringifies this pattern.
+	 * @param properties The properties to consider during stringification.
+	 * @return A string representing this pattern.
+	 */
+	public String toString(StringificationProperties properties) {
+		return first.toFullString(properties);
+	}
+
+	@Override
+	public String toString() {
+		return toString(StringificationProperties.DEFAULT);
 	}
 
 }

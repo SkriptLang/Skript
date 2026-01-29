@@ -1,5 +1,6 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -12,6 +13,10 @@ public class OptionalPatternElement extends PatternElement {
 	private final PatternElement patternElement;
 
 	public OptionalPatternElement(PatternElement patternElement) {
+		if (patternElement instanceof GroupPatternElement groupPatternElement && groupPatternElement.next == null) {
+			// convert [(...)] to [...], for example [(a|b)] to [a|b]
+			patternElement = groupPatternElement.getPatternElement();
+		}
 		this.patternElement = patternElement;
 	}
 
@@ -22,8 +27,7 @@ public class OptionalPatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		MatchResult newMatchResult = patternElement.match(expr, matchResult.copy());
 		if (newMatchResult != null)
 			return newMatchResult;
@@ -36,7 +40,12 @@ public class OptionalPatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
-		return "[" + patternElement.toFullString() + "]";
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
+		return "[" + patternElement.toFullString(properties) + "]";
 	}
 
 	@Override
