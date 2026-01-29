@@ -175,8 +175,16 @@ public class TypePatternElement extends PatternElement {
 							 */
 							boolean hasUnparsedLiteral = false;
 							for (int i = expressionIndex + 1; i < newMatchResult.expressions.length; i++) {
-								if (newMatchResult.expressions[i] instanceof UnparsedLiteral) {
-									hasUnparsedLiteral = Classes.parse(((UnparsedLiteral) newMatchResult.expressions[i]).getData(), Object.class, newMatchResult.parseContext) == null;
+								if (newMatchResult.expressions[i] instanceof UnparsedLiteral unparsedLiteral) {
+									String data = unparsedLiteral.getData();
+									if (parserInstance.isKnownUnparsableLiteral(data, newMatchResult.parseContext)) {
+										hasUnparsedLiteral = true;
+									} else {
+										hasUnparsedLiteral = Classes.parse(data, Object.class, newMatchResult.parseContext) == null;
+										if (hasUnparsedLiteral) {
+											parserInstance.markUnparsableLiteral(data, newMatchResult.parseContext);
+										}
+									}
 									if (hasUnparsedLiteral) {
 										break;
 									}
