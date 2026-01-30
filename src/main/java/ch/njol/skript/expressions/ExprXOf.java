@@ -47,10 +47,16 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 		Expression<?> type = exprs[1];
 		setExpr(type);
 
-		// "x of y" is also an ItemType syntax
+		// "x of y" is also an ItemType syntax.
+		// But we want to allow 5 of <particle>.
+		// Todo: this should be handled better. Fix the original issue of needing to use the itemtype parser.
+		//noinspection rawtypes
 		if (amount instanceof Literal && amount.getSource() instanceof Literal &&
-				type instanceof Literal && type.getSource() instanceof Literal) {
-			return false;
+			type instanceof Literal literalType && type.getSource() instanceof Literal) {
+			Object[] items = literalType.getAll();
+			if (items.length > 0 && !(items[0] instanceof ParticleEffect)) {
+				return false;
+			}
 		}
 
 		// build possible return types
