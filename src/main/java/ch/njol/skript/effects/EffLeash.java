@@ -25,7 +25,7 @@ import io.papermc.paper.entity.Leashable;
 		leash event-entity to player
 		send "&aYou leashed &2%event-entity%!" to player
 	""")
-@Since("2.3, INSERT VERSION (any entity type)")
+@Since("2.3, INSERT VERSION (entities implementing Leashable)")
 public class EffLeash extends Effect {
 
 	static {

@@ -14,7 +14,7 @@ test "leash holder expression":
 	clear entity within {_wolf}
 	clear entity within {_leash_holder}
 
-	spawn a zombie at test-location
-	set {_zombie} to last spawned entity
-	assert leash holder of {_zombie} is not set with "non-leashable entity should return null for leash holder"
-	clear entity within {_zombie}
+	spawn an armor stand at test-location
+	set {_stand} to last spawned entity
+	assert leash holder of {_stand} is not set with "non-leashable entity should return null for leash holder"
+	clear entity within {_stand}

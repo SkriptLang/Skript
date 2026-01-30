@@ -5,10 +5,10 @@ test "is leashed condition":
 	assert {_wolf} isn't leashed with "wolf should not be leashed initially (alternate syntax)"
 	clear entity within {_wolf}
 
-	spawn a zombie at test-location
-	set {_zombie} to last spawned entity
-	assert {_zombie} is not leashed with "non-leashable entity should return false for is leashed"
-	clear entity within {_zombie}
+	spawn an armor stand at test-location
+	set {_stand} to last spawned entity
+	assert {_stand} is not leashed with "non-leashable entity should return false for is leashed"
+	clear entity within {_stand}
 
 	spawn a wolf at test-location
 	set {_leash_holder} to last spawned entity
