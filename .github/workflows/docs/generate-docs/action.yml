@@ -44,6 +44,7 @@ runs:
         GENERATE_JAVADOCS: ${{ inputs.generate_javadocs }}
       run: |
         # Generate docs.json from Skript repository
+        export SKRIPT_DOCS_OUTPUT_DIR=$DOCS_OUTPUT_DIR
         cd $SKRIPT_REPO_DIR
         if [[ "${IS_RELEASE}" == "true" ]]; then
           ./gradlew genReleaseDocs javadoc
@@ -58,14 +59,24 @@ runs:
 
         # Compare generated file vs existing file for changes
         cd $DOCS_OUTPUT_DIR
-        diff -qb ${src_file} Skript-docs.json || diff_exit_code=$?
-        # If diff exits with exit code 1, that means there were some differences
-        if [[ ${diff_exit_code} -ne 1 ]]; then
-          echo "Documentation hasn't changed since last push"
-          exit
-        else
+        docs_changed=false
+        if [[ -f ${src_file} ]]; then
+          diff -qb ${src_file} Skript-docs.json || diff_exit_code=$?
+          # If diff exits with exit code 1, that means there were some differences
+          if [[ ${diff_exit_code} -eq 1 ]]; then
+            docs_changed=true
+          fi
+        else # generating these docs for the first time
+          docs_changed=true
+        fi
+
+        # Record status
+        if [[ ${docs_changed} == "true" ]]; then
           echo "Documentation has changed since last push"
           echo "DOCS_CHANGED=true" >> $GITHUB_OUTPUT
+        else
+          echo "Documentation hasn't changed since last push"
+          exit
         fi
 
         # Replace existing file with generated file
