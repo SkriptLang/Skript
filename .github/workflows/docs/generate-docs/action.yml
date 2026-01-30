@@ -54,7 +54,7 @@ runs:
         fi
 
         # Sanitize expected existing file name
-        src_file = "${DOCS_FILE_NAME//\//-}.json"
+        src_file="${DOCS_FILE_NAME//\//-}.json"
 
         # Compare generated file vs existing file for changes
         cd $DOCS_OUTPUT_DIR
