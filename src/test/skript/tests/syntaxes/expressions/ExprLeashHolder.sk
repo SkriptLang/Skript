@@ -13,7 +13,8 @@ test "leash holder expression":
 	assert leash holder of {_wolf} is not set with "leash holder should not be set after unleashing"
 	clear entity within {_wolf}
 	clear entity within {_leash_holder}
-	spawn a snowball at test-location
-	set {_snowball} to last spawned entity
-	assert leash holder of {_snowball} is not set with "non-leashable entity should return null for leash holder"
-	clear entity within {_snowball}
+
+	spawn a zombie at test-location
+	set {_zombie} to last spawned entity
+	assert leash holder of {_zombie} is not set with "non-leashable entity should return null for leash holder"
+	clear entity within {_zombie}

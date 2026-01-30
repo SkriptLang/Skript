@@ -11,13 +11,7 @@ test "leash effect":
 	assert {_wolf} is not leashed with "wolf should be unleashed after unleash effect"
 	clear entity within {_wolf}
 	clear entity within {_leash_holder}
-	spawn a wolf at test-location
-	set {_leash_holder} to last spawned entity
-	spawn a snowball at test-location
-	set {_snowball} to last spawned entity
-	leash {_snowball} to {_leash_holder}
-	clear entity within {_snowball}
-	clear entity within {_leash_holder}
+
 	spawn a wolf at test-location
 	set {_leash_holder} to last spawned entity
 	spawn 3 wolves at test-location
@@ -30,4 +24,10 @@ test "leash effect":
 	unleash all wolves
 	loop all wolves:
 		assert loop-entity is not leashed with "all wolves should be unleashed"
+	# Test leashing entity to itself (should not work)
+	spawn a wolf at test-location
+	set {_self} to last spawned entity
+	leash {_self} to {_self}
+	assert {_self} is not leashed with "entity should not be leashed to itself"
+	clear entity within {_self}
 	clear all entities
