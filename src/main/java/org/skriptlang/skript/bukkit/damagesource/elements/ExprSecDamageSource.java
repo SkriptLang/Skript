@@ -50,7 +50,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprSecDamageSource extends SectionExpression<DamageSource> {
 
 	static class DamageSourceSectionEvent extends Event {

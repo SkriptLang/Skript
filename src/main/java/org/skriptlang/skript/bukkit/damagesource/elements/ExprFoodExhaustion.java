@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> {
 
 	static {

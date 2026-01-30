@@ -33,7 +33,6 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
 public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> {
 
 	static {
