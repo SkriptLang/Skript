@@ -27,6 +27,42 @@ abstract class Keyword {
 	abstract boolean isPresent(String expr);
 
 	/**
+	 * Computes the minimum length of input required to match a pattern.
+	 * Walks the linked list of pattern elements and sums mandatory character counts.
+	 * @param first The first element of the pattern.
+	 * @return The minimum number of characters an input must have to possibly match.
+	 */
+	public static int computeMinLength(PatternElement first) {
+		int length = 0;
+		PatternElement next = first;
+		while (next != null) {
+			if (next instanceof LiteralPatternElement) {
+				// Count non-space characters since spaces are flexible
+				String literal = next.toString();
+				for (int i = 0; i < literal.length(); i++) {
+					if (literal.charAt(i) != ' ')
+						length++;
+				}
+			} else if (next instanceof ChoicePatternElement) {
+				// Must match one choice — contribute the minimum of all choices
+				int min = Integer.MAX_VALUE;
+				for (PatternElement choice : ((ChoicePatternElement) next).getPatternElements()) {
+					int choiceLen = computeMinLength(choice);
+					if (choiceLen < min)
+						min = choiceLen;
+				}
+				if (min != Integer.MAX_VALUE)
+					length += min;
+			} else if (next instanceof GroupPatternElement) {
+				length += computeMinLength(((GroupPatternElement) next).getPatternElement());
+			}
+			// OptionalPatternElement, TypePatternElement, RegexPatternElement, ParseTagPatternElement: 0
+			next = next.originalNext;
+		}
+		return length;
+	}
+
+	/**
 	 * Builds a list of keywords starting from the provided pattern element.
 	 * @param first The pattern to build keywords from.
 	 * @return A list of all keywords within <b>first</b>.

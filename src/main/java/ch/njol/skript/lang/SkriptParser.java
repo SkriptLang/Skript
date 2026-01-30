@@ -15,6 +15,7 @@ import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
+import ch.njol.skript.lang.parser.ExpressionParseCache;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.simplification.Simplifiable;
@@ -914,6 +915,8 @@ public final class SkriptParser {
 		assert types.length > 0;
 		assert types.length == 1 || !CollectionUtils.contains(types, Object.class);
 
+		ExpressionParseCache cache = ParserInstance.get().getExpressionParseCache();
+		cache.push();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			Expression<? extends T> parsedExpression = parseSingleExpr(true, null, types);
 			if (parsedExpression != null) {
@@ -923,6 +926,8 @@ public final class SkriptParser {
 			log.clear();
 
 			return parseExpressionList(log, types);
+		} finally {
+			cache.pop();
 		}
 	}
 
@@ -931,6 +936,8 @@ public final class SkriptParser {
 			return null;
 		}
 
+		ExpressionParseCache cache = ParserInstance.get().getExpressionParseCache();
+		cache.push();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			Expression<?> parsedExpression = parseSingleExpr(true, null, exprInfo);
 			if (parsedExpression != null) {
@@ -940,6 +947,8 @@ public final class SkriptParser {
 			log.clear();
 
 			return parseExpressionList(log, exprInfo);
+		} finally {
+			cache.pop();
 		}
 	}
 

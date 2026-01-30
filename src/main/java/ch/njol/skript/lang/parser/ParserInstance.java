@@ -5,14 +5,16 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.base.Preconditions;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +51,7 @@ public final class ParserInstance implements Experimented {
 	public void setInactive() {
 		this.isActive = false;
 		reset();
+		this.literalParseCache.clear();
 		setCurrentScript((Script) null);
 	}
 
@@ -90,6 +93,30 @@ public final class ParserInstance implements Experimented {
 		this.node = null;
 		this.hintManager = new HintManager(this.hintManager.isActive());
 		dataMap.clear();
+		this.expressionParseCache.clear();
+	}
+
+	// Expression parse failure cache
+
+	private final ExpressionParseCache expressionParseCache = new ExpressionParseCache();
+
+	/**
+	 * @return The expression parse failure cache for this parser instance.
+	 */
+	public ExpressionParseCache getExpressionParseCache() {
+		return expressionParseCache;
+	}
+
+	// Literal parse failure cache — persists across reset() calls within a load batch,
+	// cleared only in setInactive().
+
+	private final LiteralParseCache literalParseCache = new LiteralParseCache();
+
+	/**
+	 * @return The literal parse failure cache for this parser instance.
+	 */
+	public LiteralParseCache getLiteralParseCache() {
+		return literalParseCache;
 	}
 
 	// Script API
@@ -726,38 +753,6 @@ public final class ParserInstance implements Experimented {
 	 */
 	public void restoreBackup(Backup backup) {
 		backup.apply(this);
-	}
-
-	// Unparsable literals cache
-
-	private final EnumMap<ParseContext, Set<String>> unparsableLiterals = new EnumMap<>(ParseContext.class) {{
-		for (ParseContext context : ParseContext.values()) {
-			put(context, new ObjectOpenHashSet<>());
-		}
-	}};
-
-	/**
-	 * Returns whether the given literal string is known to be unparsable
-	 * (i.e. {@code Classes.parse} returned null for it previously).
-	 */
-	public boolean isKnownUnparsableLiteral(String data, ParseContext context) {
-		return unparsableLiterals.get(context).contains(data);
-	}
-
-	/**
-	 * Records that the given literal string failed to parse.
-	 */
-	public void markUnparsableLiteral(String data, ParseContext context) {
-		unparsableLiterals.get(context).add(data);
-	}
-
-	/**
-	 * Clear all known unparsable literals for all contexts.
-	 */
-	public void clearUnparsableLiterals() {
-		for (Set<String> set : unparsableLiterals.values()) {
-			set.clear();
-		}
 	}
 
 	// Deprecated API
