@@ -1,5 +1,6 @@
 package ch.njol.skript.classes;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Debuggable;
@@ -10,6 +11,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,6 +77,8 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	private String documentationId = null;
 
+	private final SkriptAddon source;
+
 	/**
 	 * @param c The class
 	 * @param codeName The name used in patterns
@@ -85,6 +89,20 @@ public class ClassInfo<T> implements Debuggable {
 			throw new IllegalArgumentException("Code names for classes must be lowercase and only consist of latin letters and arabic numbers");
 		this.codeName = codeName;
 		name = new Noun("types." + codeName);
+
+		// questionably obtain source...
+		SkriptAddon source;
+		try {
+			Class<?> caller = Class.forName(Thread.currentThread().getStackTrace()[2].getClassName());
+			JavaPlugin callerPlugin = JavaPlugin.getProvidingPlugin(caller);
+			source = Skript.instance().addons().stream()
+				.filter(addon -> JavaPlugin.getProvidingPlugin(addon.source()) == callerPlugin)
+				.findFirst()
+				.orElse(Skript.instance());
+		} catch (ClassNotFoundException ignored) {
+			source = Skript.instance();
+		}
+		this.source = source;
 	}
 
 	public static boolean isValidCodeName(final String name) {
@@ -478,6 +496,14 @@ public class ClassInfo<T> implements Debuggable {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();
+	}
+
+	/**
+	 * @return The addon that created this ClassInfo.
+	 */
+	@ApiStatus.Experimental
+	public SkriptAddon source() {
+		return source;
 	}
 
 	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();

@@ -383,13 +383,26 @@ public class SkriptCommand implements CommandExecutor {
 					info(sender, "info.dependencies", "None");
 
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
+				// determine addon to generate for
+				SkriptAddon addon;
+				if (args.length == 2) {
+					addon = Skript.instance().addon(args[1]);
+					if (addon == null) {
+						Skript.error(sender, "No addon by that name exists!");
+						return true;
+					}
+				} else {
+					addon = Skript.instance();
+				}
+
+				// generate
 				File outputDir = Documentation.getDocsOutputDirectory();
 				outputDir.mkdirs();
 
 				Skript.info(sender, "Generating docs...");
 
-				JSONGenerator.of(Skript.instance())
-					.generate(outputDir.toPath().resolve("docs.json"));
+				JSONGenerator.of(addon)
+					.generate(outputDir.toPath().resolve(addon.name() + "-docs.json"));
 
 				Skript.info(sender, "All documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
