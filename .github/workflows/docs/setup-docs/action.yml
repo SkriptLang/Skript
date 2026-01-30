@@ -17,7 +17,7 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: ${{ inputs.docs_repo }}
-        path: skript-docs
+        path: docs
         token: ${{ inputs.docs_token }}
     - uses: actions/setup-java@v3
       with:

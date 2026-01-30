@@ -5,6 +5,10 @@ inputs:
     description: "The documentation repository directory"
     required: true
     type: string
+  docs_repo_branch:
+    description: "The branch of the documentation repository to push to"
+    required: true
+    type: string
   git_email:
     description: "The email to use for the Git commit"
     required: true
@@ -25,6 +29,7 @@ runs:
       if: success()
       env:
         DOCS_REPO_DIR: ${{ inputs.docs_repo_dir }}
+        DOCS_REPO_BRANCH: ${{ inputs.docs_repo_branch }}
         GIT_EMAIL: ${{ inputs.git_email }}
         GIT_NAME: ${{ inputs.git_name }}
         GIT_COMMIT_MESSAGE: ${{ inputs.git_commit_message }}
@@ -37,7 +42,7 @@ runs:
         # Attempt rebasing and pushing 5 times in case another job pushes before us
         for i in 1 2 3 4 5
         do
-          git pull --rebase -X theirs origin main
-          git push origin main && break
+          git pull --rebase -X theirs origin ${DOCS_REPO_BRANCH}
+          git push origin ${DOCS_REPO_BRANCH} && break
           sleep 5
         done

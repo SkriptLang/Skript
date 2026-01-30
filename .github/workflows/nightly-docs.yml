@@ -19,8 +19,8 @@ jobs:
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/*/}"
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
-          echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/nightly/${BRANCH_NAME}" >> $GITHUB_OUTPUT
-          echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
+          echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/docs/src/assets/syntaxes/" >> $GITHUB_OUTPUT
+          echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/docs" >> $GITHUB_OUTPUT
           echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
       - name: Checkout Skript
         uses: actions/checkout@v6
@@ -30,7 +30,7 @@ jobs:
       - name: Setup documentation environment
         uses: ./skript/.github/workflows/docs/setup-docs
         with:
-          docs_repo: "SkriptLang/skript-docs"
+          docs_repo: "SkriptLang/docs"
           docs_token: ${{ secrets.DOCS_TOKEN }}
       - name: Generate documentation
         id: generate
@@ -38,12 +38,14 @@ jobs:
         with:
           docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
           docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+          docs_file_name: ${{ steps.configuration.outputs.BRANCH_NAME }}
           skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
       - name: Push nightly documentation
         if: steps.generate.outputs.DOCS_CHANGED == 'true'
         uses: ./skript/.github/workflows/docs/push-docs
         with:
           docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+          docs_repo_branch: "master"
           git_name: Nightly Docs Bot
           git_email: nightlydocs@skriptlang.org
           git_commit_message: "Update ${{ steps.configuration.outputs.BRANCH_NAME }} branch nightly docs to ${{ github.repository }}@${{ github.sha }}"
