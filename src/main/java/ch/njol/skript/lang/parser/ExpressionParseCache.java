@@ -39,10 +39,13 @@ public final class ExpressionParseCache {
 		boolean isNullable,
 		int time
 	) {
+
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (!(obj instanceof Failure other)) return false;
+			if (this == obj)
+				return true;
+			if (!(obj instanceof Failure other))
+				return false;
 			return effectiveFlags == other.effectiveFlags
 				&& isNullable == other.isNullable
 				&& time == other.time
@@ -53,27 +56,30 @@ public final class ExpressionParseCache {
 
 		@Override
 		public int hashCode() {
-			int h = substring.hashCode() * 31 + effectiveFlags;
-			h = h * 31 + Arrays.hashCode(classes);
-			h = h * 31 + Arrays.hashCode(isPlural);
-			h = h * 31 + Boolean.hashCode(isNullable);
-			h = h * 31 + time;
-			return h;
+			int hash = substring.hashCode() * 31 + effectiveFlags;
+			hash = hash * 31 + Arrays.hashCode(classes);
+			hash = hash * 31 + Arrays.hashCode(isPlural);
+			hash = hash * 31 + Boolean.hashCode(isNullable);
+			hash = hash * 31 + time;
+			return hash;
 		}
 
 		@Override
 		public String toString() {
-			StringBuilder sb = new StringBuilder("Failure{\"")
-				.append(substring).append("\" as ");
+			StringBuilder result = new StringBuilder("Failure{\"").append(substring).append("\" as ");
 			for (int i = 0; i < classes.length; i++) {
-				if (i > 0) sb.append('/');
-				sb.append(classes[i].getCodeName());
-				if (isPlural[i]) sb.append('s');
+				if (i > 0)
+					result.append('/');
+				result.append(classes[i].getCodeName());
+				if (isPlural[i])
+					result.append('s');
 			}
-			if (isNullable) sb.append(" (nullable)");
-			if (time != 0) sb.append(" @").append(time);
-			sb.append(" flags=").append(effectiveFlags).append('}');
-			return sb.toString();
+			if (isNullable)
+				result.append(" (nullable)");
+			if (time != 0)
+				result.append(" @").append(time);
+			result.append(" flags=").append(effectiveFlags).append('}');
+			return result.toString();
 		}
 	}
 
