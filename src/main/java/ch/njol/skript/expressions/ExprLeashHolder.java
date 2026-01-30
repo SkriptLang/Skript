@@ -13,7 +13,7 @@ import io.papermc.paper.entity.Leashable;
 @Name("Leash Holder")
 @Description("The leash holder of an entity.")
 @Example("set {_example} to the leash holder of the target mob")
-@Since("2.3, INSERT VERSION (entities implementing Leashable)")
+@Since("2.3, INSERT VERSION (all leashable entities)")
 public class ExprLeashHolder extends SimplePropertyExpression<Entity, Entity> {
 
 	static {
