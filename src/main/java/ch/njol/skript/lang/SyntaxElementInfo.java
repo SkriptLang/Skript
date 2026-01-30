@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -149,8 +150,15 @@ public class SyntaxElementInfo<E extends SyntaxElement> implements SyntaxInfo<E>
 	@ApiStatus.Internal
 	public Priority priority() {
 		if (source != null)
-			source.priority();
+			return source.priority();
 		return SyntaxInfo.COMBINED;
+	}
+
+	@Override
+	public Documentation documentation() {
+		if (source != null)
+			return source.documentation();
+		return Documentation.builder().build();
 	}
 
 }

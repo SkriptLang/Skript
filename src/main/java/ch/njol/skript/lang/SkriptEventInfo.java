@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
@@ -350,6 +351,16 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		@Override
 		public Collection<Class<? extends Event>> events() {
 			return List.of(events);
+		}
+
+		@Override
+		public Documentation documentation() {
+			return Documentation.builder()
+				.name(name())
+				.addDescription(description())
+				.addExamples(examples())
+				.addSince(since())
+				.build();
 		}
 	}
 

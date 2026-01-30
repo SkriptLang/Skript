@@ -5,6 +5,7 @@ import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
@@ -73,19 +74,25 @@ public final class BukkitSyntaxInfos {
 		/**
 		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added or modified.
 		 * @see ch.njol.skript.doc.Since
+		 * @deprecated Use {@link #documentation()} instead.
 		 */
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		SequencedCollection<String> since();
 
 		/**
 		 * @return Documentation data. A description of a syntax.
 		 * @see ch.njol.skript.doc.Description
+		 * @deprecated Use {@link #documentation()} instead.
 		 */
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		SequencedCollection<String> description();
 
 		/**
 		 * @return Documentation data. Examples for using a syntax.
 		 * @see ch.njol.skript.doc.Examples
+		 * @deprecated Use {@link #documentation()} instead.
 		 */
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		Collection<String> examples();
 
 		/**
@@ -138,8 +145,10 @@ public final class BukkitSyntaxInfos {
 			 * @param since The "since" value to use.
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addSince(String since);
 
 			/**
@@ -147,8 +156,10 @@ public final class BukkitSyntaxInfos {
 			 * @param since The "since" values to use.
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addSince(String ...since);
 
 
@@ -157,16 +168,20 @@ public final class BukkitSyntaxInfos {
 			 * @param since The "since" values to use.
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addSince(Collection<String> since);
 
 			/**
 			 * Removes all "since" values from the event's documentation
 			 * @return This builder.
 			 * @see Event#since()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
-			@Contract("_ -> this")
+			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearSince();
 
 			/**
@@ -174,8 +189,10 @@ public final class BukkitSyntaxInfos {
 			 * @param description The description line to add.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addDescription(String description);
 
 			/**
@@ -183,8 +200,10 @@ public final class BukkitSyntaxInfos {
 			 * @param description The description lines to add.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addDescription(String... description);
 
 			/**
@@ -192,16 +211,20 @@ public final class BukkitSyntaxInfos {
 			 * @param description The description lines to add.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addDescription(Collection<String> description);
 
 			/**
 			 * Removes all description lines from the event's documentation.
 			 * @return This builder.
 			 * @see Event#description()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearDescription();
 
 			/**
@@ -209,8 +232,10 @@ public final class BukkitSyntaxInfos {
 			 * @param example The example to add.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addExample(String example);
 
 			/**
@@ -218,8 +243,10 @@ public final class BukkitSyntaxInfos {
 			 * @param examples The examples to add.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addExamples(String... examples);
 
 			/**
@@ -227,16 +254,20 @@ public final class BukkitSyntaxInfos {
 			 * @param examples The examples to add.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addExamples(Collection<String> examples);
 
 			/**
 			 * Removes all examples from the event's documentation.
 			 * @return This builder.
 			 * @see Event#examples()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearExamples();
 
 			/**

@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.util.ClassUtils;
 import org.skriptlang.skript.util.Priority;
@@ -45,10 +46,11 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	private final @Nullable Supplier<T> supplier;
 	private final SequencedCollection<String> patterns;
 	private final Priority priority;
+	private final Documentation documentation;
 
 	protected SyntaxInfoImpl(
-		Origin origin, Class<T> type, @Nullable Supplier<T> supplier,
-		SequencedCollection<String> patterns, @Nullable Priority priority
+		Origin origin, Class<T> type, @Nullable Supplier<T> supplier, SequencedCollection<String> patterns,
+		@Nullable Priority priority, @Nullable Documentation documentation
 	) {
 		Preconditions.checkArgument(supplier != null || ClassUtils.isNormalClass(type),
 				"Failed to register a syntax info for '" + type.getName() + "'."
@@ -64,6 +66,10 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			priority = estimatePriority(patterns);
 		}
 		this.priority = priority;
+		if (documentation == null) {
+			documentation = Documentation.of(type);
+		}
+		this.documentation = documentation;
 	}
 
 	@Override
@@ -108,6 +114,11 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	}
 
 	@Override
+	public Documentation documentation() {
+		return documentation;
+	}
+
+	@Override
 	public boolean equals(Object other) {
 		if (this == other) {
 			return true;
@@ -148,6 +159,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		@Nullable Supplier<E> supplier;
 		final List<String> patterns = new ArrayList<>();
 		@Nullable Priority priority;
+		@Nullable Documentation documentation = null;
 
 		BuilderImpl(Class<E> type) {
 			this.type = type;
@@ -190,8 +202,14 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			return (B) this;
 		}
 
+		@Override
+		public B documentation(Documentation documentation) {
+			this.documentation = documentation;
+			return (B) this;
+		}
+
 		public SyntaxInfo<E> build() {
-			return new SyntaxInfoImpl<>(origin, type, supplier, patterns, priority);
+			return new SyntaxInfoImpl<>(origin, type, supplier, patterns, priority, documentation);
 		}
 
 		@Override
@@ -204,6 +222,9 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			builder.addPatterns(patterns);
 			if (priority != null) {
 				builder.priority(priority);
+			}
+			if (documentation != null) {
+				builder.documentation(documentation);
 			}
 		}
 

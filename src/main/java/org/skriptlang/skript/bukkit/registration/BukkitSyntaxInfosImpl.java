@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos.Event;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.util.Priority;
@@ -29,16 +30,13 @@ final class BukkitSyntaxInfosImpl {
 		private final String name;
 		private final String id;
 		private final @Nullable String documentationId;
-		private final SequencedCollection<String> since;
-		private final SequencedCollection<String> description;
-		private final Collection<String> examples;
 		private final Collection<String> keywords;
 		private final Collection<String> requiredPlugins;
 		private final Collection<Class<? extends org.bukkit.event.Event>> events;
 
 		EventImpl(
 			SyntaxInfo<E> defaultInfo, ListeningBehavior listeningBehavior, String name,
-			@Nullable String documentationId, Collection<String> since, Collection<String> description, Collection<String> examples,
+			@Nullable String documentationId,
 			Collection<String> keywords, Collection<String> requiredPlugins, Collection<Class<? extends org.bukkit.event.Event>> events
 		) {
 			this.defaultInfo = defaultInfo;
@@ -48,9 +46,6 @@ final class BukkitSyntaxInfosImpl {
 					.replaceAll("[#'\"<>/&]", "")
 					.replaceAll("\\s+", "_");
 			this.documentationId = documentationId;
-			this.since = ImmutableList.copyOf(since);
-			this.description = ImmutableList.copyOf(description);
-			this.examples = ImmutableList.copyOf(examples);
 			this.keywords = ImmutableList.copyOf(keywords);
 			this.requiredPlugins = ImmutableList.copyOf(requiredPlugins);
 			this.events = ImmutableList.copyOf(events);
@@ -66,9 +61,6 @@ final class BukkitSyntaxInfosImpl {
 			if (documentationId != null) {
 				builder.documentationId(documentationId);
 			}
-			builder.addSince(since);
-			builder.addDescription(description);
-			builder.addExamples(examples);
 			builder.addKeywords(keywords);
 			builder.addRequiredPlugins(requiredPlugins);
 			builder.addEvents(events);
@@ -98,17 +90,17 @@ final class BukkitSyntaxInfosImpl {
 
 		@Override
 		public SequencedCollection<String> since() {
-			return since;
+			return documentation().since();
 		}
 
 		@Override
 		public SequencedCollection<String> description() {
-			return description;
+			return documentation().description();
 		}
 
 		@Override
 		public Collection<String> examples() {
-			return examples;
+			return documentation().examples();
 		}
 
 		@Override
@@ -193,16 +185,19 @@ final class BukkitSyntaxInfosImpl {
 			return defaultInfo.priority();
 		}
 
+		@Override
+		public Documentation documentation() {
+			return defaultInfo.documentation();
+		}
+
 		@SuppressWarnings("unchecked")
 		static final class BuilderImpl<B extends Event.Builder<B, E>, E extends SkriptEvent> implements Event.Builder<B, E> {
 
 			private final SyntaxInfo.Builder<?, E> defaultBuilder;
 			private ListeningBehavior listeningBehavior = ListeningBehavior.UNCANCELLED;
+			private @Nullable Documentation.Builder documentationBuilder;
 			private final String name;
 			private @Nullable String documentationId;
-			private final List<String> since = new ArrayList<>();
-			private final List<String> description = new ArrayList<>();
-			private final List<String> examples = new ArrayList<>();
 			private final List<String> keywords = new ArrayList<>();
 			private final List<String> requiredPlugins = new ArrayList<>();
 			private final List<Class<? extends org.bukkit.event.Event>> events = new ArrayList<>();
@@ -210,6 +205,13 @@ final class BukkitSyntaxInfosImpl {
 			BuilderImpl(Class<E> type, String name) {
 				this.defaultBuilder = SyntaxInfo.builder(type);
 				this.name = name;
+			}
+
+			private Documentation.Builder documentationBuilder() {
+				if (documentationBuilder == null) {
+					documentationBuilder = Documentation.builder();
+				}
+				return documentationBuilder;
 			}
 
 			@Override
@@ -226,73 +228,73 @@ final class BukkitSyntaxInfosImpl {
 
 			@Override
 			public B addSince(String since) {
-				this.since.add(since);
+				documentationBuilder().addSince(since);
 				return (B) this;
 			}
 
 			@Override
 			public B addSince(String... since) {
-				this.since.addAll(List.of(since));
+				documentationBuilder().addSince(since);
 				return (B) this;
 			}
 
 			@Override
 			public B addSince(Collection<String> since) {
-				this.since.addAll(since);
+				documentationBuilder().addSince(since);
 				return (B) this;
 			}
 
 			@Override
 			public B clearSince() {
-				this.since.clear();
+				documentationBuilder().clearSince();
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(String description) {
-				this.description.add(description);
+				documentationBuilder().addDescription(description);
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(String... description) {
-				Collections.addAll(this.description, description);
+				documentationBuilder().addDescription(description);
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(Collection<String> description) {
-				this.description.addAll(description);
+				documentationBuilder().addDescription(description);
 				return (B) this;
 			}
 
 			@Override
 			public B clearDescription() {
-				this.description.clear();
+				documentationBuilder().clearDescription();
 				return (B) this;
 			}
 
 			@Override
 			public B addExample(String example) {
-				this.examples.add(example);
+				documentationBuilder().addExamples(example);
 				return (B) this;
 			}
 
 			@Override
 			public B addExamples(String... examples) {
-				Collections.addAll(this.examples, examples);
+				documentationBuilder().addExamples(examples);
 				return (B) this;
 			}
 
 			@Override
 			public B addExamples(Collection<String> examples) {
-				this.examples.addAll(examples);
+				documentationBuilder().addExamples(examples);
 				return (B) this;
 			}
 
 			@Override
 			public B clearExamples() {
-				this.examples.clear();
+				documentationBuilder().clearExamples();
 				return (B) this;
 			}
 
@@ -411,25 +413,34 @@ final class BukkitSyntaxInfosImpl {
 			}
 
 			@Override
+			public B documentation(Documentation documentation) {
+				defaultBuilder.documentation(documentation);
+				return (B) this;
+			}
+
+			@Override
 			public Event<E> build() {
+				if (documentationBuilder != null) {
+					defaultBuilder.documentation(documentationBuilder.build());
+				}
 				return new EventImpl<>(
 					defaultBuilder.build(), listeningBehavior, name,
-					documentationId, since, description, examples, keywords, requiredPlugins, events
+					documentationId, keywords, requiredPlugins, events
 				);
 			}
 
 			@Override
 			public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
 				defaultBuilder.applyTo(builder);
+				if (documentationBuilder != null) {
+					builder.documentation(documentationBuilder.build());
+				}
 				//noinspection rawtypes - Should be safe, generics will not influence this
 				if (builder instanceof Event.Builder eventBuilder) {
 					eventBuilder.listeningBehavior(listeningBehavior);
 					if (documentationId != null) {
 						eventBuilder.documentationId(documentationId);
 					}
-					eventBuilder.addSince(since);
-					eventBuilder.addDescription(description);
-					eventBuilder.addExamples(examples);
 					eventBuilder.addKeywords(keywords);
 					eventBuilder.addRequiredPlugins(requiredPlugins);
 					eventBuilder.addEvents(events);

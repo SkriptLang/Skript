@@ -3,6 +3,8 @@ package org.skriptlang.skript.registration;
 import ch.njol.skript.lang.SyntaxElement;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
@@ -15,7 +17,7 @@ import java.util.function.Supplier;
  * A syntax info contains the details of a syntax, including its origin and patterns.
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
-public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
+public interface SyntaxInfo<E extends SyntaxElement> extends Documentable, DefaultSyntaxInfos {
 
 	/**
 	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
@@ -78,6 +80,12 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 	 * @return The priority of this syntax, which dictates its position for matching during parsing.
 	 */
 	Priority priority();
+
+	/**
+	 * @return Documentation describing this syntax.
+	 */
+	@Override
+	Documentation documentation();
 
 	/**
 	 * A builder is used for constructing a new syntax info.
@@ -147,6 +155,13 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 		 */
 		@Contract("_ -> this")
 		B priority(Priority priority);
+
+		/**
+		 * Sets the documentation the syntax info will use.
+		 * @param documentation The documentation to use.
+		 * @return This builder.
+		 */
+		B documentation(Documentation documentation);
 
 		/**
 		 * Builds a new syntax info from the set details.
