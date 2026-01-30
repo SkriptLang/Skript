@@ -2,12 +2,8 @@ package ch.njol.skript.patterns;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ExprInfo;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.parser.ExpressionParseCache;
 import ch.njol.skript.lang.parser.LiteralParseCache;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -17,7 +13,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -80,17 +76,16 @@ public class TypePatternElement extends PatternElement {
 		boolean[] isPlural = new boolean[classes.length];
 
 		for (int i = 0; i < classes.length; i++) {
-			NonNullPair<String, Boolean> p = Utils.getEnglishPlural(classes[i]);
-			classInfos[i] = Classes.getClassInfo(p.getFirst());
-			isPlural[i] = p.getSecond();
+			Utils.PluralResult p = Utils.isPlural(classes[i]);
+			classInfos[i] = Classes.getClassInfo(p.updated());
+			isPlural[i] = p.plural();
 		}
 
 		return new TypePatternElement(classInfos, isPlural, isNullable, flagMask, time, expressionIndex);
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		int exprOffset = initOffset(expr, matchResult);
 		if (exprOffset == -1)
 			return null;
@@ -198,7 +193,7 @@ public class TypePatternElement extends PatternElement {
 	 * that cannot be parsed as Object. If so, the loop should continue
 	 * to try to find a match without unparsed literals.
 	 */
-	private boolean hasUnparsedLiterals(MatchResult matchResult) {
+	private boolean hasUnparsedLiterals(@NotNull MatchResult matchResult) {
 		LiteralParseCache literalCache = ParserInstance.get().getLiteralParseCache();
 		for (int i = expressionIndex + 1; i < matchResult.expressions.length; i++) {
 			if (!(matchResult.expressions[i] instanceof UnparsedLiteral unparsed))

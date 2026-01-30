@@ -107,8 +107,8 @@ public final class ParserInstance implements Experimented {
 		return expressionParseCache;
 	}
 
-	// Literal parse failure cache — persists across reset() calls within a load batch,
-	// cleared only in setInactive().
+	// Literal parse failure cache - can persist a little longer than Expression,
+	// since ClassInfo parsers don't rely on nearly as much context. Keep an eye on it, though.
 
 	private final LiteralParseCache literalParseCache = new LiteralParseCache();
 

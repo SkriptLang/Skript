@@ -36,27 +36,32 @@ abstract class Keyword {
 		int length = 0;
 		PatternElement next = first;
 		while (next != null) {
-			if (next instanceof LiteralPatternElement) {
-				// Count non-space characters since spaces are flexible
-				String literal = next.toString();
-				for (int i = 0; i < literal.length(); i++) {
-					if (literal.charAt(i) != ' ')
-						length++;
+			switch (next) {
+				case LiteralPatternElement ignored -> {
+					// Count non-space characters since spaces are flexible
+					String literal = next.toString();
+					for (int i = 0; i < literal.length(); i++) {
+						if (literal.charAt(i) != ' ')
+							length++;
+					}
 				}
-			} else if (next instanceof ChoicePatternElement) {
-				// Must match one choice — contribute the minimum of all choices
-				int min = Integer.MAX_VALUE;
-				for (PatternElement choice : ((ChoicePatternElement) next).getPatternElements()) {
-					int choiceLen = computeMinLength(choice);
-					if (choiceLen < min)
-						min = choiceLen;
+				case ChoicePatternElement choicePatternElement -> {
+					// Must match one choice — contribute the minimum of all choices
+					int min = Integer.MAX_VALUE;
+					for (PatternElement choice : choicePatternElement.getPatternElements()) {
+						int choiceLen = computeMinLength(choice);
+						if (choiceLen < min)
+							min = choiceLen;
+					}
+					if (min != Integer.MAX_VALUE)
+						length += min;
 				}
-				if (min != Integer.MAX_VALUE)
-					length += min;
-			} else if (next instanceof GroupPatternElement) {
-				length += computeMinLength(((GroupPatternElement) next).getPatternElement());
+				case GroupPatternElement groupPatternElement ->
+					length += computeMinLength(groupPatternElement.getPatternElement());
+				default -> {
+				}
 			}
-			// OptionalPatternElement, TypePatternElement, RegexPatternElement, ParseTagPatternElement: 0
+			// OptionalPatternElement, TypePatternElement, RegexPatternElement, ParseTagPatternElement: 0 min length
 			next = next.originalNext;
 		}
 		return length;
