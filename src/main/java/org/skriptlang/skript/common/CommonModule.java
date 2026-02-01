@@ -12,7 +12,8 @@ public class CommonModule implements AddonModule {
 	@Override
 	public void load(SkriptAddon addon) {
 		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.common", "expressions");
+			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.common",
+					"expressions", "sections");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
