@@ -131,12 +131,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	public org.skriptlang.skript.bukkit.entity.EntityData<E> newEntityData;
 
 	public EntityData() {
-		try {
-			//noinspection unchecked
-			this.newEntityData = (org.skriptlang.skript.bukkit.entity.EntityData<E>) org.skriptlang.skript.bukkit.entity.EntityData.class.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		//noinspection unchecked
+		this.newEntityData = (org.skriptlang.skript.bukkit.entity.EntityData<E>) org.skriptlang.skript.bukkit.entity.EntityData.fromClass(getType());
 	}
 
 	/**
