@@ -31,7 +31,7 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 	More detailed information on particle behavior can be found at \
 	<a href="https://docs.papermc.io/paper/dev/particles/#count-argument-behavior">Paper's particle documentation</a>.
 	""")
-@Example("draw an electric spark particle with a speed of 0 at player")
+@Example("draw an electric spark particle with a particle speed of 0 at player")
 @Example("draw 12 red dust particles with an extra value of 0.4 at player's head location")
 @Since("2.14")
 public class ExprParticleWithSpeed extends PropertyExpression<ParticleEffect, ParticleEffect> {
