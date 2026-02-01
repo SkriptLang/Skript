@@ -29,7 +29,8 @@ import org.jetbrains.annotations.Nullable;
 public class EffOpenInventory extends Effect {
 
 	private static final Patterns<InventoryType> PATTERNS = new Patterns<>(new Object[][]{
-		{"close (%players%'[s] inventory [view]|[the] inventory [view] (to|of|for) %players%)", null},
+		{"close %players%'[s] inventory [view]", null},
+		{"close [the] inventory [view] (to|of|for) %players%", null},
 		{"open %inventory/inventorytype% (to|for) %players%", null},
 		{"open [a] (crafting table|workbench) (to|for) %players%", InventoryType.WORKBENCH},
 		{"open [a] chest (to|for) %players%", InventoryType.CHEST},
@@ -60,9 +61,9 @@ public class EffOpenInventory extends Effect {
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 
-		open = matchedPattern != 0;
+		open = matchedPattern > 1;
 		if (open) {
-			if (matchedPattern <= 1) {
+			if (matchedPattern == 2) {
 				inventoryExpr = exprs[0];
 			} else {
 				inventoryType = PATTERNS.getInfo(matchedPattern);
