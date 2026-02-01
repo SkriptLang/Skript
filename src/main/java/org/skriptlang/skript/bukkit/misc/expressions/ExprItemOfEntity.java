@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Example("item of event-entity")
 @Example("set the item inside of event-entity to a diamond sword named \"Example\"")
-@Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), 2.10 (item displays), INSERT VERSION (arrows)")
+@Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), 2.10 (item displays), 2.14.1 (arrows)")
 public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
 
