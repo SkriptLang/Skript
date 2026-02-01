@@ -35,6 +35,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityDataInfo.Builder;
@@ -750,6 +751,13 @@ public abstract class EntityData<E extends Entity>
 	 * @return {@code true} if this is a supertype of the given entity data, otherwise {@code false}.
 	 */
 	public abstract boolean isSupertypeOf(EntityData<?> entityData);
+
+	@Internal
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	@Override
+	public boolean isSupertypeOf(ch.njol.skript.entity.EntityData<?> entityData) {
+		return isSupertypeOf((EntityData<?>) entityData);
+	}
 
 	@Override
 	public Fields serialize() throws NotSerializableException {

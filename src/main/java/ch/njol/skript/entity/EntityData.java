@@ -128,13 +128,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return org.skriptlang.skript.bukkit.entity.EntityData.toString(entityClass, flags);
 	}
 
-	public org.skriptlang.skript.bukkit.entity.EntityData<E> newEntityData;
-
-	public EntityData() {
-		//noinspection unchecked
-		this.newEntityData = (org.skriptlang.skript.bukkit.entity.EntityData<E>) org.skriptlang.skript.bukkit.entity.EntityData.fromClass(getType());
-	}
-
 	/**
 	 * Applies this {@link EntityData} to a newly spawned {@link Entity}.
 	 * <p>
@@ -142,18 +135,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * </p>
 	 * @param entity The spawned entity.
 	 */
-	public void set(E entity) {
-		this.newEntityData.set(entity);
-	};
+	public abstract void set(E entity);
 
 	/**
 	 * Returns the {@link Class} of the {@link Entity} that this {@link EntityData} represents or handles.
 	 *
 	 * @return The entity's {@link Class}, such as {@code Pig.class}.
 	 */
-	public Class<? extends E> getType() {
-		return newEntityData.getType();
-	};
+	public abstract Class<? extends E> getType();
 
 	/**
 	 * Returns a more general version of this {@link EntityData} with specific data removed.
@@ -164,42 +153,28 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 *
 	 * @return A generalized {@link EntityData} representing the base entity type.
 	 */
-	public @NotNull EntityData<?> getSuperType() {
-		return newEntityData.getSuperType();
-	}
+	public abstract @NotNull EntityData<?> getSuperType();
 
 	@Override
-	public String toString() {
-		return newEntityData.toString();
-	}
+	public abstract String toString();
 
-	public String toString(int flags) {
-		return newEntityData.toString(flags);
-	}
+	public abstract String toString(int flags);
 
 	/**
 	 * @return {@link Kleenean} determining whether this {@link EntityData} is representing plurality.
 	 */
-	public Kleenean isPlural() {
-		return newEntityData.isPlural();
-	}
+	public abstract Kleenean isPlural();
 
 	/**
 	 * @return {@link Kleenean} determining whether this {@link EntityData} is representing baby type.
 	 */
-	public Kleenean isBaby() {
-		return newEntityData.isBaby();
-	}
+	public abstract Kleenean isBaby();
 
 	@Override
-	public int hashCode() {
-		return newEntityData.hashCode();
-	}
+	public abstract int hashCode();
 
 	@Override
-	public boolean equals(@Nullable Object obj) {
-		return newEntityData.equals(obj);
-	}
+	public abstract boolean equals(@Nullable Object obj);
 
 	/**
 	 * Checks whether this entity type is allowed to spawn in the given {@link World}.
@@ -210,9 +185,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param world The world to check spawning permissions in.
 	 * @return {@code true} if the entity can be spawned in the given world, or in general if world is {@code null}; otherwise {@code false}.
 	 */
-	public boolean canSpawn(@Nullable World world) {
-		return newEntityData.canSpawn(world);
-	}
+	public abstract boolean canSpawn(@Nullable World world);
 
 	/**
 	 * Spawn this entity data at a location.
@@ -220,9 +193,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @return The Entity object that is spawned.
 	 */
-	public @Nullable E spawn(Location location) {
-		return newEntityData.spawn(location);
-	}
+	public abstract @Nullable E spawn(Location location);
 
 	/**
 	 * Spawn this entity data at a location.
@@ -232,17 +203,11 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
 	 */
-	public @Nullable E spawn(Location location, @Nullable Consumer<E> consumer) {
-		return newEntityData.spawn(location, consumer);
-	}
+	public abstract @Nullable E spawn(Location location, @Nullable Consumer<E> consumer);
 
-	public E[] getAll(World... worlds) {
-		return newEntityData.getAll(worlds);
-	}
+	public abstract E[] getAll(World... worlds);
 
-	public boolean isInstance(@Nullable Entity entity) {
-		return newEntityData.isInstance(entity);
-	}
+	public abstract boolean isInstance(@Nullable Entity entity);
 
 	/**
 	 * Determines whether this {@link EntityData} is a supertype of the given {@code entityData}.
@@ -260,32 +225,22 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param entityData The {@link EntityData} to compare against.
 	 * @return {@code true} if this is a supertype of the given entity data, otherwise {@code false}.
 	 */
-	public boolean isSupertypeOf(EntityData<?> entityData) {
-		return newEntityData.isSupertypeOf(entityData);
-	}
+	public abstract boolean isSupertypeOf(EntityData<?> entityData);
 
-	public Fields serialize() throws NotSerializableException {
-		return newEntityData.serialize();
-	}
+	public abstract Fields serialize() throws NotSerializableException;
 
 	@Override
-	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException  {
-		newEntityData.deserialize(fields);
-	}
+	public abstract void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException;
 
 	@Override
-	public @NotNull String getSyntaxTypeName() {
-		return newEntityData.getSyntaxTypeName();
-	}
+	public abstract @NotNull String getSyntaxTypeName();
 
 	/**
 	 * Creates an entity in the server but does not spawn it
 	 *
 	 * @return The created entity
 	 */
-	public @Nullable E create() {
-		return newEntityData.create();
-	}
+	public abstract @Nullable E create();
 
 	/**
 	 * Creates an entity at the provided location, but does not spawn it
@@ -293,8 +248,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param location The {@link Location} to create the entity at
 	 * @return The created entity
 	 */
-	public @Nullable E create(Location location) {
-		return newEntityData.create(location);
-	}
+	public abstract @Nullable E create(Location location);
 
 }

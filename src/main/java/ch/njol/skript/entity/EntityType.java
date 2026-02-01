@@ -31,7 +31,7 @@ public abstract class EntityType implements Cloneable, YggdrasilSerializable {
 		this.data = data;
 		this.amount = amount;
 		if (!(this instanceof org.skriptlang.skript.bukkit.entity.EntityType))
-			this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType(data.newEntityData, amount);
+			this.newEntityType = new org.skriptlang.skript.bukkit.entity.EntityType((org.skriptlang.skript.bukkit.entity.EntityData<?>) data, amount);
 	}
 
 	public EntityType(Class<? extends Entity> entityClass, int amount) {
