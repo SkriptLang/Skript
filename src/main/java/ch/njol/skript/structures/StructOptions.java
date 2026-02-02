@@ -1,16 +1,14 @@
 package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.EntryNode;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.OptionRegistry;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -18,10 +16,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 @Name("Options")
 @Description({
@@ -56,23 +51,14 @@ public class StructOptions extends Structure {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		Script script = getParser().getCurrentScript();
 		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(-1);
-		loadOptions(node, "", getParser().getCurrentScript().getData(OptionsData.class, OptionsData::new).options);
+		OptionRegistry optionRegistry = Skript.instance().registry(OptionRegistry.class);
+		optionRegistry.loadLocalOptions(script, node);
+		script.getData(OptionsData.class, () -> new OptionsData(script));
 		return true;
-	}
-
-	private void loadOptions(SectionNode sectionNode, String prefix, Map<String, String> options) {
-		for (Node node : sectionNode) {
-			if (node instanceof EntryNode) {
-				options.put(prefix + node.getKey(), ((EntryNode) node).getValue());
-			} else if (node instanceof SectionNode) {
-				loadOptions((SectionNode) node, prefix + node.getKey() + ".", options);
-			} else {
-				Skript.error("Invalid line in options");
-			}
-		}
 	}
 
 	@Override
@@ -82,7 +68,10 @@ public class StructOptions extends Structure {
 
 	@Override
 	public void unload() {
-		getParser().getCurrentScript().removeData(OptionsData.class);
+		Script script = getParser().getCurrentScript();
+		OptionRegistry optionRegistry = Skript.instance().registry(OptionRegistry.class);
+		optionRegistry.deleteLocalOptions(script);
+		script.removeData(OptionsData.class);
 	}
 
 	@Override
@@ -95,32 +84,37 @@ public class StructOptions extends Structure {
 		return "options";
 	}
 
+	/**
+	 * @deprecated Use {@code Skript.instance().registry(OptionRegistry.class)} instead.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public static final class OptionsData implements ScriptData {
 
-		private final Map<String, String> options = new HashMap<>();
+		private final Script script;
+
+		public OptionsData(Script script) {
+			this.script = script;
+		}
 
 		/**
 		 * Replaces all options in the provided String using the options of this data.
+		 *
 		 * @param string The String to replace options in.
 		 * @return A String with all options replaced, or the original String if the provided Script has no options.
+		 * @deprecated Use <code>Skript.instance().registry(OptionRegistry.class).replaceOptions()</code> instead
 		 */
-		@SuppressWarnings("ConstantConditions") // no way to get null as callback does not return null anywhere
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		public String replaceOptions(String string) {
-			return StringUtils.replaceAll(string, "\\{@(.+?)\\}", m -> {
-				String option = options.get(m.group(1));
-				if (option == null) {
-					Skript.error("undefined option " + m.group());
-					return m.group();
-				}
-				return Matcher.quoteReplacement(option);
-			});
+			return Skript.instance().registry(OptionRegistry.class).replaceOptions(script, string);
 		}
 
 		/**
 		 * @return An unmodifiable version of this data's option mappings.
+		 * @deprecated Use <code>Skript.instance().registry(OptionRegistry.class).getLocalOptions()</code> instead
 		 */
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
 		public Map<String, String> getOptions() {
-			return Collections.unmodifiableMap(options);
+			return Skript.instance().registry(OptionRegistry.class).getLocalOptions(script);
 		}
 
 	}

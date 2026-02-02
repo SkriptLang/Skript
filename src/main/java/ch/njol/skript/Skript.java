@@ -11,6 +11,8 @@ import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Condition.ConditionType;
+import ch.njol.skript.lang.globals.GlobalFileRegistry;
+import ch.njol.skript.lang.globals.GlobalOptions;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
@@ -527,6 +529,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		// init runtime error manager and add bukkit consumer.
 		RuntimeErrorManager.refresh();
 		getRuntimeErrorManager().addConsumer(new BukkitRuntimeErrorConsumer());
+
+		skript.storeRegistry(OptionRegistry.class, new OptionRegistry());
+
+		GlobalFileRegistry globalFileRegistry = new GlobalFileRegistry();
+		skript.storeRegistry(GlobalFileRegistry.class, globalFileRegistry);
+
+		globalFileRegistry.registerGlobal(new GlobalOptions(addon));
 
 		// Now override the verbosity if test mode is enabled
 		if (TestMode.VERBOSITY != null)

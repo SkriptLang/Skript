@@ -11,7 +11,6 @@ import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.SkriptColor;
@@ -975,18 +974,23 @@ public class ScriptLoader {
 
 	/**
 	 * Replaces options in a string.
-	 * Options are obtained from a {@link Script}'s {@link OptionsData}.
-	 * Example: <code>script.getData(OptionsData.class)</code>
+	 * Options are obtained from a {@link OptionRegistry}.
+	 * Example: <code>addon.registry(OptionRegistry.class)</code>
 	 */
 	// TODO this system should eventually be replaced with a more generalized "node processing" system
 	public static String replaceOptions(String string) {
 		ParserInstance parser = getParser();
 		if (!parser.isActive()) // getCurrentScript() is not safe to use
 			return string;
-		OptionsData optionsData = parser.getCurrentScript().getData(OptionsData.class);
-		if (optionsData == null)
-			return string;
-		return optionsData.replaceOptions(string);
+
+		OptionRegistry registry = Skript.instance().registry(OptionRegistry.class);
+		Script script = parser.getCurrentScript();
+
+		if (registry.getOptions().get(script) != null) {
+			return registry.replaceOptions(script, string);
+		}
+
+		return string;
 	}
 
 	/**

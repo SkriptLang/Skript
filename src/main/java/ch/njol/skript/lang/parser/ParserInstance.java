@@ -5,12 +5,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.TriggerSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.log.HandlerList;
-import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.variables.HintManager;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -731,20 +727,6 @@ public final class ParserInstance implements Experimented {
 	}
 
 	// Deprecated API
-
-	/**
-	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained. 
-	 * Example: <code>script.getData(OptionsData.class)</code>
-	 */
-	@Deprecated(since = "2.7.0", forRemoval = true)
-	public HashMap<String, String> getCurrentOptions() {
-		if (!isActive())
-			return new HashMap<>(0);
-		OptionsData data = getCurrentScript().getData(OptionsData.class);
-		if (data == null)
-			return new HashMap<>(0);
-		return new HashMap<>(data.getOptions()); // ensure returned map is modifiable
-	}
 
 	/**
 	 * @deprecated Use {@link #getCurrentStructure()} instead.
