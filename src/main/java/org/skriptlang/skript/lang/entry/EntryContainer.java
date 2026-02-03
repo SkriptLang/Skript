@@ -19,7 +19,7 @@ public class EntryContainer {
 	private final @Nullable Map<String, Collection<Node>> handledNodes;
 	private final List<Node> unhandledNodes;
 
-	EntryContainer(
+	protected EntryContainer(
 		SectionNode source, @Nullable EntryValidator entryValidator,
 		@Nullable Map<String, Collection<Node>> handledNodes, List<Node> unhandledNodes
 	) {
