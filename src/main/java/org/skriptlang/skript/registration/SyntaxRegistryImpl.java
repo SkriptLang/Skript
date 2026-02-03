@@ -3,8 +3,10 @@ package org.skriptlang.skript.registration;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Origin;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,6 +59,47 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 			}
 		});
 		return builder.build();
+	}
+
+	static final class OriginApplyingRegistry implements SyntaxRegistry {
+
+		private final SyntaxRegistry syntaxRegistry;
+		private final Origin origin;
+
+		OriginApplyingRegistry(SyntaxRegistry syntaxRegistry, Origin origin) {
+			this.syntaxRegistry = syntaxRegistry;
+			this.origin = origin;
+		}
+
+		@Override
+		public @Unmodifiable <I extends SyntaxInfo<?>> Collection<I> syntaxes(Key<I> key) {
+			return syntaxRegistry.syntaxes(key);
+		}
+
+		@Override
+		public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
+			if (info.origin() == Origin.UNKNOWN) { // when origin is unspecified, add one
+				//noinspection unchecked
+				info = (I) info.toBuilder().origin(origin).build();
+			}
+			syntaxRegistry.register(key, info);
+		}
+
+		@Override
+		public void unregister(SyntaxInfo<?> info) {
+			syntaxRegistry.unregister(info);
+		}
+
+		@Override
+		public <I extends SyntaxInfo<?>> void unregister(Key<I> key, I info) {
+			syntaxRegistry.unregister(key, info);
+		}
+
+		@Override
+		public @Unmodifiable Collection<SyntaxInfo<?>> elements() {
+			return syntaxRegistry.elements();
+		}
+
 	}
 
 	static final class UnmodifiableRegistry implements SyntaxRegistry {

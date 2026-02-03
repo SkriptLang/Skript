@@ -12,6 +12,7 @@ import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Condition.ConditionType;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -25,8 +26,8 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.Date;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
@@ -74,6 +75,7 @@ import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
+import org.skriptlang.skript.bukkit.misc.MiscModule;
 import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.pdc.PDCModule;
@@ -583,7 +585,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				new ItemComponentModule(),
 				new PotionModule(),
 				new ParticleModule(),
-				new PDCModule());
+				new PDCModule(),
+				new MiscModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -958,8 +961,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				} catch (IOException e) {
 					Skript.exception(e, "Failed to write test results.");
 				}
-
-				Bukkit.getServer().shutdown();
+				// delay by 1 tick to avoid the watchdog from thinking the shutdown tick took too long.
+				Bukkit.getScheduler().runTaskLater(Skript.this, () -> Bukkit.getServer().shutdown(), 1);
 			}, shutdownDelay.get());
 		});
 	}

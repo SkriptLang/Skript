@@ -153,9 +153,16 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				Skript.error("A variable's name must not contain the separator '" + SEPARATOR + "' multiple times in a row (error in variable {" + name + "})");
 			return false;
 		} else if (name.replace(SEPARATOR, "").contains(SINGLE_SEPARATOR_CHAR)) {
-			if (printErrors)
-				Skript.warning("If you meant to make the variable {" + name + "} a list, its name should contain '"
-					+ SEPARATOR + "'. Having a single '" + SINGLE_SEPARATOR_CHAR + "' does nothing!");
+			if (printErrors) {
+				ParserInstance parser = ParserInstance.get();
+				Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
+				if (!(currentScript != null && currentScript.suppressesWarning(ScriptWarning.VARIABLE_CONTAINS_COLON))
+					&& !SkriptConfig.disableColonInVariableWarnings.value()
+				) {
+					Skript.warning("If you meant to make the variable {" + name + "} a list, its name should contain '"
+						+ SEPARATOR + "'. Having a single '" + SINGLE_SEPARATOR_CHAR + "' does nothing!");
+				}
+			}
 		}
 		return true;
 	}
