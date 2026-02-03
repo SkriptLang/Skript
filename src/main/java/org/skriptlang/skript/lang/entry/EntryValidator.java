@@ -140,9 +140,9 @@ public class EntryValidator {
 		protected final List<EntryData<?>> entryData = new ArrayList<>();
 		protected String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
 
-		protected @Nullable Predicate<Node> unexpectedNodeTester;
+		private @Nullable Predicate<Node> unexpectedNodeTester;
 
-		protected @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+		private @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
 		/**
 		 * Updates the separator to be used when creating KeyValue entries. Please note
