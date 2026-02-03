@@ -5,6 +5,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ClassInfoReference;
@@ -24,7 +25,9 @@ import org.skriptlang.skript.bukkit.pdc.SkriptDataType;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class ExprPersistentData extends PropertyExpression<Object, Object> {
@@ -34,13 +37,14 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
 				ExprPersistentData.class, Object.class,
-				"[persistent] [%-*classinfo%] data (value|tag) %string%", "chunks/worlds/entities/blocks/itemtypes/offlineplayers",
+				"[persistent] [%-*classinfo%] [:list] data (value|tag) %string%", "chunks/worlds/entities/blocks/itemtypes/offlineplayers",
 				false
 			).build());
 	}
 
-	private @Nullable Expression<ClassInfoReference> type;
+	private @Nullable ClassInfoReference parsedType;
 	private Expression<String> tag;
+	private boolean plural;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -48,10 +52,51 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		tag = (Expression<String>) expressions[matchedPattern + 1];
 		var classInfoExpression = (Expression<ClassInfo<?>>) expressions[matchedPattern];
 		if (classInfoExpression != null) {
-			type = ClassInfoReference.wrap(classInfoExpression);
+			var type = ClassInfoReference.wrap(classInfoExpression);
+			parsedType = ((Literal<ClassInfoReference>) type).getSingle();
 		}
+		plural = parseResult.hasTag("list") || (parsedType != null && parsedType.isPlural().isTrue());
 		setExpr(expressions[matchedPattern == 0 ? 2 : 0]);
 		return true;
+	}
+
+	/**
+	 * Gets all elements from the PDC, whether stored as a single value or a list.
+	 */
+	private List<Object> getAllElements(PersistentDataContainer container, NamespacedKey key) {
+		List<Object> elements = new ArrayList<>();
+
+		// Try representable types first
+		for (var candidateType : PDCSerializer.getRepresentablePDCTypes()) {
+			if (container.has(key, candidateType)) {
+				Object value = container.get(key, candidateType);
+				if (value != null) {
+					elements.add(value);
+				}
+				return elements;
+			}
+		}
+
+		// Try SkriptDataType for compound objects
+		if (container.has(key, SkriptDataType.get())) {
+			Object value = container.get(key, SkriptDataType.get());
+			if (value != null) {
+				elements.add(value);
+			}
+			return elements;
+		}
+
+		// Try as a list
+		if (container.has(key, PersistentDataType.LIST.dataContainers())) {
+			List<PersistentDataContainer> containers = container.get(key, PersistentDataType.LIST.dataContainers());
+			if (containers != null) {
+				for (var subContainer : containers) {
+					elements.add(PDCSerializer.deserialize(subContainer, container.getAdapterContext()));
+				}
+			}
+		}
+
+		return elements;
 	}
 
 	@Override
@@ -60,45 +105,55 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		if (tagName == null)
 			return new Object[0];
 		NamespacedKey key = NamespacedKey.fromString(tagName);
-		ClassInfoReference expectedType = type != null ? type.getSingle(event) : null;
 
 		List<Object> values = new ArrayList<>();
 		for (Object holder : source) {
-			if (holder == null)
-				continue;
 			editPersistentDataContainer(holder, container -> {
 				assert key != null;
-				Object value = null;
-				// If an expected type is provided, we check if the stored value matches the expected type
-				if (expectedType != null) {
-					ClassInfo<?> classInfo = expectedType.getClassInfo();
-					var tagType = PDCSerializer.getPDCType(classInfo);
-					if (container.has(key, tagType)) {
-						value = container.get(key, tagType);
-						if (value != null && !classInfo.getC().isInstance(value)) {
-							error("The data in tag '" + tagName + "' is was of type "
-									+ Classes.toString(Classes.getSuperClassInfo(value.getClass()))
+				List<Object> elements = getAllElements(container, key);
+				if (elements.isEmpty())
+					return;
+
+				if (parsedType != null) {
+					ClassInfo<?> classInfo = parsedType.getClassInfo();
+
+					if (plural) {
+						// Plural: get all matching elements, warn on mismatches
+						Set<Class<?>> mismatches = new HashSet<>();
+						for (Object element : elements) {
+							if (classInfo.getC().isInstance(element)) {
+								values.add(element);
+							} else {
+								mismatches.add(element.getClass());
+							}
+						}
+						if (!mismatches.isEmpty()) {
+							warning(mismatches.size() + " element(s) in tag '" + tagName + "' were of type(s) "
+									+ Classes.toString(mismatches.stream()
+										.map(Classes::getSuperClassInfo)
+										.toArray(ClassInfo[]::new), true)
+									+ ", not the expected type "
+									+ Classes.toString(classInfo) + ". Skipping.");
+						}
+					} else {
+						// Singular: get first element and check type
+						Object first = elements.getFirst();
+						if (classInfo.getC().isInstance(first)) {
+							values.add(first);
+						} else {
+							error("The data in tag '" + tagName + "' was of type "
+									+ Classes.toString(Classes.getSuperClassInfo(first.getClass()))
 									+ ", not the expected type "
 									+ Classes.toString(classInfo) + ".");
-							value = null; // Type mismatch
 						}
 					}
 				} else {
-					// Try all registered PDC types
-					for (var tagType : PDCSerializer.getRepresentablePDCTypes()) {
-						if (container.has(key, tagType)) {
-							value = container.get(key, tagType);
-							break;
-						}
+					// No type specified: return all elements if plural, else first
+					if (plural) {
+						values.addAll(elements);
+					} else {
+						values.add(elements.getFirst());
 					}
-					// Finally, try to get the value as a SkriptDataType (only works for compound tags)
-					// handles all tags that consist of a compound tag: "key: {}"
-					if (container.has(key, SkriptDataType.get())) {
-						value = container.get(key, SkriptDataType.get());
-					}
-				}
-				if (value != null) {
-					values.add(value);
 				}
 			});
 		}
@@ -106,11 +161,23 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	}
 
 	@Override
+	public boolean isSingle() {
+		return !plural;
+	}
+
+	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-		return switch (mode) {
-			case SET, DELETE -> new Class<?>[]{Object.class};
-			default -> null;
-		};
+		if (mode == Changer.ChangeMode.DELETE) {
+			return new Class<?>[0];
+		}
+		if (mode == Changer.ChangeMode.SET) {
+			if (parsedType != null) {
+				Class<?> typeClass = parsedType.getClassInfo().getC();
+				return new Class<?>[]{plural ? typeClass.arrayType() : typeClass};
+			}
+			return new Class<?>[]{plural ? Object[].class : Object.class};
+		}
+		return null;
 	}
 
 	@Override
@@ -122,14 +189,35 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		if (key == null)
 			return; // Invalid key, cannot proceed
 
+		// ensure set to correct types
+		ClassInfo<?> classInfo = null;
+		if (mode == Changer.ChangeMode.SET) {
+			assert delta != null;
+			for (Object deltaValue : delta) {
+				classInfo = Classes.getSuperClassInfo(deltaValue.getClass());
+				if (classInfo.getSerializer() == null) {
+					error("Skript cannot serialize " + classInfo.getName().toString(true) + " as persistent data!");
+					return;
+				}
+			}
+		}
+
+		final ClassInfo<?> finalClassInfo = classInfo;
 		for (Object holder : getExpr().getArray(event)) {
 			editPersistentDataContainer(holder, container -> {
 				if (mode == Changer.ChangeMode.SET) {
-					assert delta != null;
-					ClassInfo<?> classInfo = Classes.getSuperClassInfo(delta[0].getClass());
-					//noinspection unchecked
-					PersistentDataType<?, Object> tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(classInfo);
-					container.set(key, tagType, delta[0]);
+					// don't use wrapping list if not needed.
+					if (delta.length == 1) {
+						//noinspection unchecked
+						PersistentDataType<?, Object> tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(finalClassInfo);
+						container.set(key, tagType, delta[0]);
+					} else {
+						List<PersistentDataContainer> containers = new ArrayList<>();
+						for (Object object : delta) {
+							containers.add(SkriptDataType.get().toPrimitive(object, container.getAdapterContext()));
+						}
+						container.set(key, PersistentDataType.LIST.dataContainers(), containers);
+					}
 				} else if (mode == Changer.ChangeMode.DELETE) {
 					container.remove(key);
 				}
@@ -137,6 +225,11 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		}
 	}
 
+	/**
+	 * Helper to easily edit PDCs.
+	 * @param holder The holder of the PDC.
+	 * @param consumer The method to run to edit the PDC.
+	 */
 	private void editPersistentDataContainer(Object holder, Consumer<PersistentDataContainer> consumer) {
 		if (holder instanceof PersistentDataHolder dataHolder)
 			consumer.accept(dataHolder.getPersistentDataContainer());
@@ -146,15 +239,11 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 			itemType.setItemMeta(meta);
 		} else if (holder instanceof ItemStack itemStack) {
 			if (!itemStack.hasItemMeta()) return;
-			var meta = itemStack.getItemMeta();
-			consumer.accept(meta.getPersistentDataContainer());
-			itemStack.setItemMeta(meta);
+			itemStack.editPersistentDataContainer(consumer);
 		} else if (holder instanceof Slot slot) {
 			var item =  slot.getItem();
 			if (item == null || !item.hasItemMeta()) return;
-			var meta = item.getItemMeta();
-			consumer.accept(meta.getPersistentDataContainer());
-			item.setItemMeta(meta);
+			item.editPersistentDataContainer(consumer);
 			slot.setItem(item);
 		} else if (holder instanceof Block block && block.getState() instanceof TileState tileState) {
 			consumer.accept(tileState.getPersistentDataContainer());
@@ -164,6 +253,9 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
 	@Override
 	public Class<?> getReturnType() {
+		if (parsedType != null) {
+			return parsedType.getClassInfo().getC();
+		}
 		return Object.class;
 	}
 

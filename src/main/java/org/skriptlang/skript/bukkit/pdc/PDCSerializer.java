@@ -3,7 +3,9 @@ package org.skriptlang.skript.bukkit.pdc;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.Yggdrasil;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataAdapterContext;
@@ -13,12 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**
  * A serializer that can serialize and deserialize Yggsdrasil serializable objects to and from PersistentDataContainers.
@@ -30,16 +28,19 @@ public class PDCSerializer {
 	 * Never add a custom type that uses {@link PersistentDataContainer} as the primitive. That will cause
 	 * the {@link SkriptDataType} to not be used.
 	 */
-	private static final Map<Class<?>, PersistentDataType<?, ?>> REPRESENTABLE_TYPES = new HashMap<>();
+	private static final Map<Class<?>, PersistentDataType<?, ?>> REPRESENTABLE_TYPES = new LinkedHashMap<>();
+
+	private static final Yggdrasil YGGDRASIL = Variables.yggdrasil;
 
 	static {
+		// ensure boolean is first to avoid them being interpreted as bytes
+		REPRESENTABLE_TYPES.put(Boolean.class, PersistentDataType.BOOLEAN);
 		REPRESENTABLE_TYPES.put(Byte.class, PersistentDataType.BYTE);
 		REPRESENTABLE_TYPES.put(Short.class, PersistentDataType.SHORT);
 		REPRESENTABLE_TYPES.put(Integer.class, PersistentDataType.INTEGER);
 		REPRESENTABLE_TYPES.put(Long.class, PersistentDataType.LONG);
 		REPRESENTABLE_TYPES.put(Double.class, PersistentDataType.DOUBLE);
 		REPRESENTABLE_TYPES.put(Float.class, PersistentDataType.FLOAT);
-		REPRESENTABLE_TYPES.put(Boolean.class, PersistentDataType.BOOLEAN);
 		REPRESENTABLE_TYPES.put(String.class, PersistentDataType.STRING);
 	}
 
@@ -78,15 +79,15 @@ public class PDCSerializer {
 		}
 
 		var serializer = (Serializer<Object>) classInfo.getSerializer();
-		if (serializer == null) // value cannot be saved
-			throw new IllegalArgumentException("Cannot serialize " + classInfo.getCodeName() + " because it has no serializer");
+		if (serializer == null) // no serializer, fall back to Yggdrasil byte array as base64 string
+			return serializeToBase64(unserializedData, context);
 
 		assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
 		var container = context.newPersistentDataContainer();
 
 		// shortcut for primitives
 		if (REPRESENTABLE_TYPES.containsKey(classInfo.getC())) {
-			container.set(new NamespacedKey("skript", "type"), PersistentDataType.STRING, classInfo.getCodeName());
+			container.set(new NamespacedKey("skript", "pdc_type"), PersistentDataType.STRING, classInfo.getCodeName());
 			var tag = new NamespacedKey("skript", "value");
 			var pdcType = (PersistentDataType<Object, Object>) REPRESENTABLE_TYPES.get(classInfo.getC());
 			container.set(tag, pdcType, unserializedData);
@@ -96,11 +97,12 @@ public class PDCSerializer {
 		// If not a primitive, serialize normally and use Fields to store data
 		try {
 			Fields fields = serializer.serialize(unserializedData);
-			container.set(new NamespacedKey("skript", "type"), PersistentDataType.STRING, classInfo.getCodeName());
+			container.set(new NamespacedKey("skript", "pdc_type"), PersistentDataType.STRING, classInfo.getCodeName());
 			for (var field : fields) {
 				var tag = new NamespacedKey("skript", field.getID());
 				var data = field.isPrimitive() ? field.getPrimitive() : field.getObject();
 				if (data == null) {
+					container.set(tag, PersistentDataType.TAG_CONTAINER, context.newPersistentDataContainer());
 					continue;
 				}
 				if (field.isPrimitive() || data instanceof String) {
@@ -125,13 +127,17 @@ public class PDCSerializer {
 		@NotNull PersistentDataContainer serializedData,
 		@NotNull PersistentDataAdapterContext context
 	) {
-		String typeName = serializedData.get(new NamespacedKey("skript", "type"), PersistentDataType.STRING);
+		// check for base64 blob fallback
+		if (serializedData.has(BLOB_KEY, PersistentDataType.STRING))
+			return deserializeFromBase64(serializedData);
+
+		String typeName = serializedData.get(new NamespacedKey("skript", "pdc_type"), PersistentDataType.STRING);
 		if (typeName == null) {
 			throw new IllegalArgumentException("Cannot deserialize PDC because it has no type");
 		}
 		ClassInfo<?> classInfo = Classes.getClassInfo(typeName);
 		//noinspection unchecked
-		var serializer = (Serializer<Object>) classInfo.getSerializer();
+		Serializer<Object> serializer = (Serializer<Object>) classInfo.getSerializer();
 		if (serializer == null) {
 			throw new IllegalArgumentException("Cannot deserialize " + classInfo.getCodeName() + " because it has no serializer");
 		}
@@ -150,9 +156,9 @@ public class PDCSerializer {
 
 		// If not a primitive, deserialize normally using Fields
 		try {
-			Fields fields = new Fields();
+			Fields fields = new Fields(YGGDRASIL);
 			for (var key : serializedData.getKeys()) {
-				if (key.getNamespace().equals("skript") && key.getKey().equals("type")) {
+				if (key.getNamespace().equals("skript") && key.getKey().equals("pdc_type")) {
 					continue;
 				}
 				Object data = null;
@@ -169,6 +175,11 @@ public class PDCSerializer {
 					if (serializedData.has(key, PersistentDataType.TAG_CONTAINER)) {
 						PersistentDataContainer nestedContainer = serializedData.get(key, PersistentDataType.TAG_CONTAINER);
 						assert nestedContainer != null;
+						if (nestedContainer.isEmpty()) {
+							// empty container is a null sentinel
+							fields.putObject(key.getKey(), null);
+							continue;
+						}
 						data = PDCSerializer.deserialize(nestedContainer, context);
 						primitive = false;
 					} else {
@@ -182,8 +193,55 @@ public class PDCSerializer {
 				}
 			}
 			assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
+			if (serializer.canBeInstantiated(classInfo.getC())) {
+				Object obj = serializer.newInstance(classInfo.getC());
+				serializer.deserialize(obj, fields);
+				if (obj == null)
+					throw new NotSerializableException("Could not deserialize object of type " + classInfo.getC());
+				return obj;
+			}
 			return serializer.deserialize(classInfo.getC(), fields);
 		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static final NamespacedKey BLOB_KEY = new NamespacedKey("skript", "blob");
+
+	/**
+	 * Serializes an object to a base64-encoded Yggdrasil byte string, stored in a PDC.
+	 * Used as a fallback for objects whose types have no Skript serializer (e.g. nested fields
+	 * like {@link ArrayList} that are part of a larger serializable object).
+	 */
+	private static @NotNull PersistentDataContainer serializeToBase64(
+		@NotNull Object data,
+		@NotNull PersistentDataAdapterContext context
+	) {
+		try {
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			var yggOut = YGGDRASIL.newOutputStream(byteOut);
+			yggOut.writeObject(data);
+			yggOut.flush();
+			yggOut.close();
+			var container = context.newPersistentDataContainer();
+			container.set(BLOB_KEY, PersistentDataType.STRING, Base64.getEncoder().encodeToString(byteOut.toByteArray()));
+			return container;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Deserializes an object from a base64-encoded Yggdrasil byte string stored in a PDC.
+	 */
+	private static @NotNull Object deserializeFromBase64(@NotNull PersistentDataContainer container) {
+		String blob = container.get(BLOB_KEY, PersistentDataType.STRING);
+		if (blob == null)
+			throw new IllegalArgumentException("Cannot deserialize PDC because blob value is missing");
+		try {
+			var yggIn = YGGDRASIL.newInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(blob)));
+			return yggIn.readObject();
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
