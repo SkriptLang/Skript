@@ -25,19 +25,19 @@ public class EntryValidator {
 		return new EntryValidatorBuilder();
 	}
 
-	private static final Function<String, String>
+	protected static final Function<String, String>
 		DEFAULT_UNEXPECTED_ENTRY_MESSAGE =
 			key -> "Unexpected entry '" + key + "'. Check whether it's spelled correctly or remove it",
 		DEFAULT_MISSING_REQUIRED_ENTRY_MESSAGE =
 			key -> "Required entry '" + key + "' is missing";
 
-	private final List<EntryData<?>> entryData;
+	protected final List<EntryData<?>> entryData;
 
-	private final @Nullable Predicate<Node> unexpectedNodeTester;
+	protected final @Nullable Predicate<Node> unexpectedNodeTester;
 
-	private final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+	protected final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
-	private EntryValidator(
+	protected EntryValidator(
 		List<EntryData<?>> entryData,
 		@Nullable Predicate<Node> unexpectedNodeTester,
 		@Nullable Function<String, String> unexpectedEntryMessage,
@@ -135,14 +135,14 @@ public class EntryValidator {
 		 */
 		public static final String DEFAULT_ENTRY_SEPARATOR = ": ";
 
-		private EntryValidatorBuilder() { }
+		protected EntryValidatorBuilder() { }
 
-		private final List<EntryData<?>> entryData = new ArrayList<>();
-		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
+		protected final List<EntryData<?>> entryData = new ArrayList<>();
+		protected String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
 
-		private @Nullable Predicate<Node> unexpectedNodeTester;
+		protected @Nullable Predicate<Node> unexpectedNodeTester;
 
-		private @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+		protected @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
 		/**
 		 * Updates the separator to be used when creating KeyValue entries. Please note
