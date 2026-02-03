@@ -12,7 +12,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
@@ -35,6 +34,8 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 	private final Time time;
 	private final Class<? extends E> @Nullable [] excludedEvents;
 	private final @Nullable String excludedErrorMessage;
+
+	private SkriptPattern[] compiledPatterns;
 
 	EventValueImpl(
 		Class<E> eventClass,
@@ -93,15 +94,21 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 	@Override
 	public boolean matchesInput(String input) {
-		SkriptPattern[] patterns = this.patterns == null ? patternsFromType(valueClass) : Arrays.stream(this.patterns)
-			.map(PatternCompiler::compile)
-			.toArray(SkriptPattern[]::new);
-		for (SkriptPattern pattern : patterns) {
+		for (SkriptPattern pattern : compilePatterns()) {
 			MatchResult match = pattern.match(input);
 			if (match != null && (inputValidator == null || inputValidator.test(input, match.toParseResult())))
 				return true;
 		}
 		return false;
+	}
+
+	private SkriptPattern[] compilePatterns() {
+		if (compiledPatterns != null)
+			return compiledPatterns;
+		compiledPatterns = patterns == null ? patternsFromType(valueClass) : Arrays.stream(patterns)
+			.map(PatternCompiler::compile)
+			.toArray(SkriptPattern[]::new);
+		return compiledPatterns;
 	}
 
 	private SkriptPattern[] patternsFromType(Class<?> type) {
@@ -203,77 +210,36 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 		}
 
 		@Override
-		@Contract(value = "_ -> this", mutates = "this")
 		public Builder<E,V> patterns(String... patterns) {
 			this.patterns = patterns;
 			return this;
 		}
 
 		@Override
-		@Contract(value = "_ -> this", mutates = "this")
 		public Builder<E,V> inputValidator(BiPredicate<String, ParseResult> inputValidator) {
 			this.inputValidator = inputValidator;
 			return this;
 		}
 
 		@Override
-		@Contract(value = "_ -> this", mutates = "this")
 		public Builder<E,V> eventValidator(Function<Class<?>, Validation> eventValidator) {
 			this.eventValidator = eventValidator;
 			return this;
 		}
 
 		@Override
-		@Contract(value = "_ -> this", mutates = "this")
 		public Builder<E,V> getter(Converter<E, V> converter) {
 			this.converter = converter;
 			return this;
 		}
 
 		@Override
-		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> registerSetChanger(Changer<E, V> changer) {
-			changers.put(ChangeMode.SET, changer);
+		public Builder<E,V> registerChanger(ChangeMode mode, Changer<E, V> changer) {
+			changers.put(mode, changer);
 			return this;
 		}
 
 		@Override
-		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> registerAddChanger(Changer<E, V> changer) {
-			changers.put(ChangeMode.ADD, changer);
-			return this;
-		}
-
-		@Override
-		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> registerRemoveChanger(Changer<E, V> changer) {
-			changers.put(ChangeMode.REMOVE, changer);
-			return this;
-		}
-
-		@Override
-		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> registerRemoveAllChanger(Changer<E, V> changer) {
-			changers.put(ChangeMode.REMOVE_ALL, changer);
-			return this;
-		}
-
-		@Override
-		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> registerDeleteChanger(NoValueChanger<E, V> changer) {
-			changers.put(ChangeMode.DELETE, changer);
-			return this;
-		}
-
-		@Override
-		@Contract(value = "_ -> this", mutates = "this")
-		public Builder<E,V> registerResetChanger(NoValueChanger<E, V> changer) {
-			changers.put(ChangeMode.RESET, changer);
-			return this;
-		}
-
-		@Override
-		@Contract(value = "_ -> this", mutates = "this")
 		public Builder<E,V> time(Time time) {
 			this.time = time;
 			return this;
@@ -281,14 +247,12 @@ final class EventValueImpl<E extends Event, V> implements EventValue<E, V> {
 
 		@Override
 		@SafeVarargs
-		@Contract(value = "_ -> this", mutates = "this")
 		public final Builder<E, V> excludes(Class<? extends E>... events) {
 			this.excludedEvents = events;
 			return this;
 		}
 
 		@Override
-		@Contract(value = "_ -> this", mutates = "this")
 		public Builder<E, V> excludedErrorMessage(String excludedErrorMessage) {
 			this.excludedErrorMessage = excludedErrorMessage;
 			return this;

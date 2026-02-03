@@ -36,7 +36,6 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 	@Nullable Converter<ConvertedValue, SourceValue> reverseConverter
 ) implements EventValue<ConvertedEvent, ConvertedValue> {
 
-
 	/**
 	 * Creates a new converted event value.
 	 * <p>

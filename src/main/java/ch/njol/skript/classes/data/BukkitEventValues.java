@@ -3,6 +3,7 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.events.bukkit.ScriptEvent;
@@ -477,7 +478,7 @@ public final class BukkitEventValues {
 		// PlayerItemConsumeEvent
 		registry.register(EventValue.builder(PlayerItemConsumeEvent.class, ItemStack.class)
 			.getter(PlayerItemConsumeEvent::getItem)
-			.registerSetChanger(PlayerItemConsumeEvent::setItem)
+			.registerChanger(ChangeMode.SET, PlayerItemConsumeEvent::setItem)
 			.build());
 		// PlayerItemBreakEvent
 		registry.register(EventValue.builder(PlayerItemBreakEvent.class, ItemStack.class)
@@ -1222,7 +1223,7 @@ public final class BukkitEventValues {
 		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
 			registry.register(EventValue.builder(VaultDisplayItemEvent.class, ItemStack.class)
 				.getter(VaultDisplayItemEvent::getDisplayItem)
-				.registerSetChanger(VaultDisplayItemEvent::setDisplayItem)
+				.registerChanger(ChangeMode.SET, VaultDisplayItemEvent::setDisplayItem)
 				.build());
 		}
 
@@ -1231,7 +1232,7 @@ public final class BukkitEventValues {
 			.build());
 		registry.register(EventValue.builder(VillagerCareerChangeEvent.class, Villager.Profession.class)
 			.getter(VillagerCareerChangeEvent::getProfession)
-			.registerSetChanger((event, profession) -> {
+			.registerChanger(ChangeMode.SET, (event, profession) -> {
 				if (profession == null)
 					return;
 				event.setProfession(profession);

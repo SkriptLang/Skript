@@ -131,7 +131,7 @@ public class EventValues {
 			.excludedErrorMessage(excludeErrorMessage)
 			.excludes(excludes);
 		if (converter instanceof EventConverter<E,T> eventConverter)
-			builder.registerSetChanger(eventConverter::set);
+			builder.registerChanger(ChangeMode.SET, eventConverter::set);
 		registry.register(builder.build());
 	}
 

@@ -381,58 +381,14 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 		Builder<E,V> getter(Converter<E, V> converter);
 
 		/**
-		 * Registers a changer for {@link ChangeMode#SET}.
+		 * Registers a changer for the event value.
 		 *
+		 * @param mode the change mode
 		 * @param changer the changer implementation
 		 * @return this builder
 		 */
-		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> registerSetChanger(Changer<E, V> changer);
-
-		/**
-		 * Registers a changer for {@link ChangeMode#ADD}.
-		 *
-		 * @param changer the changer implementation
-		 * @return this builder
-		 */
-		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> registerAddChanger(Changer<E, V> changer);
-
-		/**
-		 * Registers a changer for {@link ChangeMode#REMOVE}.
-		 *
-		 * @param changer the changer implementation
-		 * @return this builder
-		 */
-		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> registerRemoveChanger(Changer<E, V> changer);
-
-		/**
-		 * Registers a changer for {@link ChangeMode#REMOVE_ALL}.
-		 *
-		 * @param changer the changer implementation
-		 * @return this builder
-		 */
-		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> registerRemoveAllChanger(Changer<E, V> changer);
-
-		/**
-		 * Registers a changer for {@link ChangeMode#DELETE} that does not require a value.
-		 *
-		 * @param changer the changer implementation
-		 * @return this builder
-		 */
-		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> registerDeleteChanger(NoValueChanger<E, V> changer);
-
-		/**
-		 * Registers a changer for {@link ChangeMode#RESET} that does not require a value.
-		 *
-		 * @param changer the changer implementation
-		 * @return this builder
-		 */
-		@Contract(value = "_ -> this", mutates = "this")
-		Builder<E,V> registerResetChanger(NoValueChanger<E, V> changer);
+		@Contract(value = "_, _ -> this", mutates = "this")
+		Builder<E,V> registerChanger(ChangeMode mode, Changer<E, V> changer);
 
 		/**
 		 * Sets the time state for which this event value is registered.

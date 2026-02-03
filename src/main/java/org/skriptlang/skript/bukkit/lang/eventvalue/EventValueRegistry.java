@@ -191,8 +191,6 @@ public interface EventValueRegistry extends Registry<EventValue<?, ?>>, ViewProv
 	List<EventValue<?, ?>> elements(EventValue.Time time);
 
 	/**
-	 * Returns an unmodifiable view of this registry.
-	 *
 	 * @return an unmodifiable view of this registry
 	 */
 	@Override
