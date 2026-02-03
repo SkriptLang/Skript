@@ -137,12 +137,32 @@ public class EntryValidator {
 
 		protected EntryValidatorBuilder() { }
 
-		protected final List<EntryData<?>> entryData = new ArrayList<>();
-		protected String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
+		private final List<EntryData<?>> entryData = new ArrayList<>();
+		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
 
 		private @Nullable Predicate<Node> unexpectedNodeTester;
 
 		private @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+
+		protected @Nullable Function<String, String> getMissingRequiredEntryMessage() {
+			return missingRequiredEntryMessage;
+		}
+
+		protected @Nullable Function<String, String> getUnexpectedEntryMessage() {
+			return unexpectedEntryMessage;
+		}
+
+		protected @Nullable Predicate<Node> getUnexpectedNodeTester() {
+			return unexpectedNodeTester;
+		}
+
+		protected List<EntryData<?>> getEntryData() {
+			return entryData;
+		}
+
+		protected String getEntrySeparator() {
+			return entrySeparator;
+		}
 
 		/**
 		 * Updates the separator to be used when creating KeyValue entries. Please note
