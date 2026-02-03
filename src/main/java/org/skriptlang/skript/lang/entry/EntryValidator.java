@@ -25,17 +25,17 @@ public class EntryValidator {
 		return new EntryValidatorBuilder();
 	}
 
-	protected static final Function<String, String>
+	private static final Function<String, String>
 		DEFAULT_UNEXPECTED_ENTRY_MESSAGE =
 			key -> "Unexpected entry '" + key + "'. Check whether it's spelled correctly or remove it",
 		DEFAULT_MISSING_REQUIRED_ENTRY_MESSAGE =
 			key -> "Required entry '" + key + "' is missing";
 
-	protected final List<EntryData<?>> entryData;
+	private final List<EntryData<?>> entryData;
 
-	protected final @Nullable Predicate<Node> unexpectedNodeTester;
+	private final @Nullable Predicate<Node> unexpectedNodeTester;
 
-	protected final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+	private final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
 	protected EntryValidator(
 		List<EntryData<?>> entryData,
@@ -58,6 +58,18 @@ public class EntryValidator {
 	 */
 	public List<EntryData<?>> getEntryData() {
 		return Collections.unmodifiableList(entryData);
+	}
+
+	public @Nullable Predicate<Node> getUnexpectedNodeTester() {
+		return unexpectedNodeTester;
+	}
+
+	public Function<String, String> getUnexpectedEntryMessage() {
+		return unexpectedEntryMessage;
+	}
+
+	public Function<String, String> getMissingRequiredEntryMessage() {
+		return missingRequiredEntryMessage;
 	}
 
 	/**
