@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("PvP")
 @Description("Checks the PvP state of a world.")
-@Examples({"PvP is enabled",
-		"PvP is disabled in \"world\""})
+@Example("PvP is enabled")
+@Example("PvP is disabled in \"world\"")
 @Since("1.3.4")
 public class CondPvP extends Condition {
 

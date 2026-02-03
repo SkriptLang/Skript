@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.text;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display Line Width")
 @Description("Returns or changes the line width of <a href='#display'>text displays</a>. Default is 200.")
-@Examples("set the line width of the last spawned text display to 300")
+@Example("set the line width of the last spawned text display to 300")
 @Since("2.10")
 public class ExprTextDisplayLineWidth extends SimplePropertyExpression<Display, Integer> {
 

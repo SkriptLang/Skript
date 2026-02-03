@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -31,10 +31,10 @@ import java.util.List;
 @Name("Named Item/Inventory")
 @Description("Directly names an item/inventory, useful for defining a named item/inventory in a script. " +
 		"If you want to (re)name existing items/inventories you can either use this expression or use <code>set <a href='#PropExprName'>name of &lt;item/inventory&gt;</a> to &lt;text&gt;</code>.")
-@Examples({"give a diamond sword of sharpness 100 named \"&lt;gold&gt;Excalibur\" to the player",
-		"set tool of player to the player's tool named \"&lt;gold&gt;Wand\"",
-		"set the name of the player's tool to \"&lt;gold&gt;Wand\"",
-		"open hopper inventory named \"Magic Hopper\" to player"})
+@Example("give a diamond sword of sharpness 100 named \"<gold>Excalibur\" to the player")
+@Example("set tool of player to the player's tool named \"<gold>Wand\"")
+@Example("set the name of the player's tool to \"<gold>Wand\"")
+@Example("open hopper inventory named \"Magic Hopper\" to player")
 @Since("2.0, 2.2-dev34 (inventories)")
 public class ExprNamed extends PropertyExpression<Object, Object> {
 	static {

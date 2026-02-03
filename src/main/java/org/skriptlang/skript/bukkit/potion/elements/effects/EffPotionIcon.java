@@ -14,7 +14,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"Modify whether a potion effect shows an icon.",
 })
 @Example("hide the icon for the player's potion effects")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class EffPotionIcon extends PotionPropertyEffect {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

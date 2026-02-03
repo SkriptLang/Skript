@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,12 +22,12 @@ import java.util.List;
 
 @Name("Barter Drops")
 @Description("The items dropped by the piglin in a piglin bartering event.")
-@Examples({
-	"on piglin barter:",
-		"\tif the bartering drops contain a jack o lantern:",
-			"\t\tremove jack o lantern from bartering output",
-			"\t\tbroadcast \"it's not halloween yet!\""
-})
+@Example("""
+    on piglin barter:
+    	if the bartering drops contain a jack o lantern:
+    		remove jack o lantern from bartering output
+    		broadcast "it's not halloween yet!"
+    """)
 @Since("2.10")
 public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	

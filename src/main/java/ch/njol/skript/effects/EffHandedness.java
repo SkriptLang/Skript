@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,12 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Handedness")
 @Description("Make mobs left or right-handed. This does not affect players.")
-@Examples({
-	"spawn skeleton at spawn of world \"world\":",
-		"\tmake entity left handed",
-	"",
-	"make all zombies in radius 10 of player right handed"
-})
+@Example("""
+	spawn skeleton at spawn of world "world":
+		make entity left handed
+	""")
+@Example("make all zombies in radius 10 of player right handed")
 @Since("2.8.0")
 public class EffHandedness extends Effect {
 

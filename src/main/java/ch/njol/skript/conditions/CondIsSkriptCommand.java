@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
@@ -10,14 +10,10 @@ import static ch.njol.skript.command.Commands.scriptCommandExists;
 
 @Name("Is a Skript command")
 @Description("Checks whether a command/string is a custom Skript command.")
-@Examples({
-	"# Example 1",
-	"on command:", 
-		"\tcommand is a skript command",
-	"",
-	"# Example 2",
-	"\"sometext\" is a skript command"
-})
+@Example("""
+	on command:
+		command is a skript command
+	""")
 @Since("2.6")
 public class CondIsSkriptCommand extends PropertyCondition<String> {
 	

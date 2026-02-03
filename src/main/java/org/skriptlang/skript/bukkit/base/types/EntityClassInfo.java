@@ -25,7 +25,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -165,7 +165,10 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 		}
 
 		@Override
+		@SuppressWarnings("deprecation")
 		public String convert(Entity propertyHolder) {
+			if (displayName)
+				return propertyHolder.getCustomName();
 			return propertyHolder.getName();
 		}
 

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
@@ -18,6 +18,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -26,14 +27,14 @@ import java.util.List;
 
 @Name("X of Item/Entity Type")
 @Description("An expression for using an item or entity type with a different amount.")
-@Examples("give level of player of iron pickaxes to the player")
+@Example("give level of player of iron pickaxes to the player")
 @Since("1.2")
 @Keywords("amount")
 public class ExprXOf extends PropertyExpression<Object, Object> {
 
 	static {
 		Skript.registerExpression(ExprXOf.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-			"%number% of %itemstacks/itemtypes/entitytype%");
+			"%number% of %itemstacks/itemtypes/entitytypes/particles%");
 	}
 
 	private Class<?>[] possibleReturnTypes;
@@ -46,9 +47,13 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 		Expression<?> type = exprs[1];
 		setExpr(type);
 
-		// "x of y" is also an ItemType syntax
-		if (amount instanceof Literal && amount.getSource() instanceof Literal &&
-				type instanceof Literal && type.getSource() instanceof Literal) {
+		// "x of y" is also an ItemType syntax.
+		// But we want to allow 5 of <particle>.
+		// Todo: this should be handled better. Fix the original issue of needing to use the itemtype parser.
+		if (amount instanceof Literal && amount.getSource() instanceof Literal
+			&& type instanceof Literal && type.getSource() instanceof Literal
+			&& type.canReturnAnyOf(ItemStack.class, ItemType.class)
+		) {
 			return false;
 		}
 
@@ -63,6 +68,9 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 		if (type.canReturn(EntityType.class)) {
 			possibleReturnTypes.add(EntityType.class);
 		}
+		if (type.canReturn(ParticleEffect.class)) {
+			possibleReturnTypes.add(ParticleEffect.class);
+		}
 		this.possibleReturnTypes = possibleReturnTypes.toArray(new Class[0]);
 
 		return true;
@@ -74,20 +82,27 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 		if (amount == null)
 			return (Object[]) Array.newInstance(getReturnType(), 0);
 
+		long absAmount = Math.max(amount.longValue(), 0);
+
 		return get(source, object -> {
 			if (object instanceof ItemStack itemStack) {
 				itemStack = itemStack.clone();
-				itemStack.setAmount(amount.intValue());
+				itemStack.setAmount((int) absAmount);
 				return itemStack;
 			} else if (object instanceof ItemType itemType) {
 				ItemType type = itemType.clone();
-				type.setAmount(amount.intValue());
+				type.setAmount(absAmount);
 				return type;
-			} else {
-				EntityType entityType = ((EntityType) object).clone();
-				entityType.amount = amount.intValue();
+			} else if (object instanceof EntityType ogType) {
+				EntityType entityType = ogType.clone();
+				entityType.amount = (int) absAmount;
 				return entityType;
+			} else if (object instanceof ParticleEffect particleEffect) {
+				ParticleEffect effect = particleEffect.copy();
+				effect.count((int) absAmount);
+				return effect;
 			}
+			return null;
 		});
 	}
 

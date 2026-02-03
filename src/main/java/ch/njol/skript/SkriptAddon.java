@@ -21,7 +21,7 @@ import org.skriptlang.skript.util.Registry;
  * Register using {@link org.skriptlang.skript.Skript#registerAddon(Class, String)}.
  * Obtain a Skript instance with {@link Skript#instance()}.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.14", forRemoval = true)
 public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddon {
 
 	public final JavaPlugin plugin;

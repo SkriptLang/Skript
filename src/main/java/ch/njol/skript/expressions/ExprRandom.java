@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -27,10 +27,8 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Random")
 @Description("Gets a random item out of a set, e.g. a random player out of all players online.")
-@Examples({
-	"give a diamond to a random player out of all players",
-	"give a random item out of all items to the player"
-})
+@Example("give a diamond to a random player out of all players")
+@Example("give a random item out of all items to the player")
 @Since("1.4.9")
 public class ExprRandom extends SimpleExpression<Object> {
 

@@ -146,7 +146,8 @@ public class StructAutoReload extends Structure {
 
 	@Override
 	public void unload() {
-		task.cancel();
+		if (task != null)
+			task.cancel();
 	}
 
 	@Override

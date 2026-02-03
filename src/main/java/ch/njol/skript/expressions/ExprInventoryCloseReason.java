@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Inventory Close Reason")
 @Description("The <a href='/#inventoryclosereason'>inventory close reason</a> of an <a href='/#inventory_close'>inventory close event</a>.")
-@Examples({
-	"on inventory close:",
-		"\tinventory close reason is teleport",
-		"\tsend \"Your inventory closed due to teleporting!\" to player"
-})
+@Example("""
+	on inventory close:
+		inventory close reason is teleport
+		send "Your inventory closed due to teleporting!" to player
+	""")
 @Events("Inventory Close")
 @Since("2.8.0")
 public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> {

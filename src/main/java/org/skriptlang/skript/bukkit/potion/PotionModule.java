@@ -170,7 +170,7 @@ public class PotionModule implements AddonModule {
 					if the event-potion effect action is removal:
 						message "One of your existing potion effects was removed!"
 				""")
-			.since("INSERT VERSION"));
+			.since("2.14"));
 
 		// Added in 1.21
 		if (Skript.classExists("org.bukkit.potion.PotionEffectTypeCategory")) {
@@ -178,7 +178,7 @@ public class PotionModule implements AddonModule {
 				.user("potion ?effect ?type? categor(y|ies)")
 				.name("Potion Effect Type Category")
 				.description("Represents the type of effect a potion effect type has on an entity.")
-				.since("INSERT VERSION"));
+				.since("2.14"));
 			Comparators.registerComparator(PotionEffectType.class, PotionEffectTypeCategory.class,
 				(type, category) -> Relation.get(type.getCategory() == category));
 		}
@@ -197,7 +197,7 @@ public class PotionModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		// Load Syntax
 		SyntaxRegistry registry = addon.syntaxRegistry();
-		Origin origin = AddonModule.origin(addon, "potions");
+		Origin origin = AddonModule.origin(addon, this);
 		// conditions
 		CondHasPotion.register(registry, origin);
 		CondIsPoisoned.register(registry, origin);
@@ -222,6 +222,11 @@ public class PotionModule implements AddonModule {
 		ExprPotionEffectTypeCategory.register(registry, origin);
 		ExprSecPotionEffect.register(registry, origin);
 		ExprSkriptPotionEffect.register(registry, origin);
+	}
+
+	@Override
+	public String name() {
+		return "potion";
 	}
 
 }

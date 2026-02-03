@@ -3,7 +3,7 @@ package ch.njol.skript.hooks.permission.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -28,9 +28,11 @@ import java.util.concurrent.CompletableFuture;
 	"The primary group or all groups of a player. This expression requires Vault and a compatible permissions plugin to be installed.",
 	"If you have LuckPerms, ensure you have vault integration enabled in the luck perms configurations."
 })
-@Examples({"on join:",
-			"\tbroadcast \"%group of player%\" # this is the player's primary group",
-			"\tbroadcast \"%groups of player%\" # this is all of the player's groups"})
+@Example("""
+	on join:
+		broadcast "%group of player%" # this is the player's primary group
+		broadcast "%groups of player%" # this is all of the player's groups
+	""")
 @Since("2.2-dev35")
 @RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
 public class ExprGroup extends SimpleExpression<String> {

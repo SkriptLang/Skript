@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,15 +25,13 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Custom Chest Inventory")
 @Description("Returns a chest inventory with the given amount of rows and the name. Use the <a href=#EffOpenInventory>open inventory</a> effect to open it.")
-@Examples({
-	"open chest inventory with 1 row named \"test\" to player",
-	"",
-	"set {_inventory} to a chest inventory with 1 row",
-	"set slot 4 of {_inventory} to a diamond named \"example\"",
-	"open {_inventory} to player",
-	"",
-	"open chest inventory named \"<#00ff00>hex coloured title!\" with 6 rows to player",
-})
+@Example("open chest inventory with 1 row named \"test\" to player")
+@Example("""
+	set {_inventory} to a chest inventory with 1 row
+	set slot 4 of {_inventory} to a diamond named "example"
+	open {_inventory} to player
+	""")
+@Example("open chest inventory named \"<#00ff00>hex coloured title!\" with 6 rows to player")
 @Since("2.2-dev34, 2.8.0 (chat format)")
 public class ExprChestInventory extends SimpleExpression<Inventory> {
 

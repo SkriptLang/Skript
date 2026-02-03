@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -16,11 +16,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Ignition Process")
 @Description("Checks if a creeper is going to explode.")
-@Examples({
-	"if the last spawned creeper is going to explode:",
-		"\tloop all players in radius 3 of the last spawned creeper",
-		"\t\tsend \"RUN!!!\" to the loop-player"
-})
+@Example("""
+	if the last spawned creeper is going to explode:
+		loop all players in radius 3 of the last spawned creeper
+			send "RUN!!!" to the loop-player
+	""")
 @Since("2.5")
 public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 

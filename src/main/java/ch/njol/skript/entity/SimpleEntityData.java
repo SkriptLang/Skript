@@ -262,6 +262,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("mob", Mob.class);
 		addSuperEntity("creature", Creature.class);
 		addSuperEntity("animal", Animals.class);
+		addSuperEntity("tameable", Tameable.class);
 		addSuperEntity("fish", Fish.class);
 		addSuperEntity("golem", Golem.class);
 		addSuperEntity("projectile", Projectile.class);

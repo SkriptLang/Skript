@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.util.common.AnyAmount;
@@ -19,7 +19,7 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
  */
 @Name("Is Empty")
 @Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
-@Examples("player's inventory is empty")
+@Example("player's inventory is empty")
 @Since("unknown (before 2.1)")
 @Deprecated(since="2.13", forRemoval = true)
 public class CondIsEmpty extends PropertyCondition<Object> {

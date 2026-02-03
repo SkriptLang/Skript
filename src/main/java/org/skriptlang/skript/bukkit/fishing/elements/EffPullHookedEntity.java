@@ -12,10 +12,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Pull In Hooked Entity")
 @Description("Pull the hooked entity to the player.")
-@Examples({
-	"on fishing state of caught entity:",
-		"\tpull in hooked entity"
-})
+@Example("""
+	on fishing state of caught entity:
+		pull in hooked entity
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class EffPullHookedEntity extends Effect {

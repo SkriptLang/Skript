@@ -18,7 +18,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	if any of the potion effects of the player's tool are instant:
 		message "Use your tool for immediate benefits!"
 	""")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class CondIsPotionInstant extends PropertyCondition<PotionEffectType> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

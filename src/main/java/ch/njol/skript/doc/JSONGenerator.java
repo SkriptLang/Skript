@@ -122,7 +122,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param syntaxInfo the syntax info element to generate the documentation object of
 	 * @return the JsonObject representing the documentation of the provided syntax element
 	 */
-	private static JsonObject generatedAnnotatedElement(SyntaxInfo<?> syntaxInfo) {
+	private JsonObject generatedAnnotatedElement(SyntaxInfo<?> syntaxInfo) {
 		Class<?> syntaxClass = syntaxInfo.type();
 		Name name = syntaxClass.getAnnotation(Name.class);
 		if (name == null || syntaxClass.getAnnotation(NoDoc.class) != null)
@@ -189,7 +189,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param events The events annotation.
 	 * @return A json array with the formatted events value, or null if there is no annotation.
 	 */
-	private static @Nullable JsonArray getAnnotatedEvents(Events events) {
+	private @Nullable JsonArray getAnnotatedEvents(Events events) {
 		if (events == null || events.value() == null) {
 			return null;
 		}
@@ -199,8 +199,43 @@ public class JSONGenerator extends DocumentationGenerator {
 		for (String event : events.value()) {
 			JsonObject object = new JsonObject();
 
-			object.addProperty("id", event);
-			object.addProperty("name", event);
+			// determine candidate infos
+			List<BukkitSyntaxInfos.Event<?>> candidates = new ArrayList<>();
+			for (BukkitSyntaxInfos.Event<?> info : source.syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY)) {
+				String infoName = info.name().toLowerCase(Locale.ENGLISH);
+				if (infoName.startsWith("on ")) {
+					infoName = infoName.substring(3);
+				}
+				if (infoName.equals(event.toLowerCase(Locale.ENGLISH)) || info.id().equals(event)) {
+					candidates.add(info);
+				} else if (event.equals(info.documentationId())) { // should be unique, this is an exact match
+					candidates.clear();
+					candidates.add(info);
+					break;
+				}
+			}
+
+			// determine id, name
+			String id;
+			String name;
+			if (candidates.isEmpty()) {
+				throw new IllegalArgumentException("No matching info found for event annotation: " + event);
+			} else if (candidates.size() == 1) {
+				var info = candidates.getFirst();
+				id = info.documentationId();
+				if (id == null) {
+					id = info.id();
+				}
+				name = info.name();
+			} else {
+				// TODO other options?
+				throw new IllegalArgumentException("Multiple matching info found for event annotation: " + event +
+					"\nDifferentiate by specifying a documentationId on the relevant event infos.");
+			}
+
+			// add properties
+			object.addProperty("id", id);
+			object.addProperty("name", name);
 
 			array.add(object);
 		}
@@ -216,10 +251,16 @@ public class JSONGenerator extends DocumentationGenerator {
 	 */
 	private static @NotNull JsonObject getExpressionReturnTypes(DefaultSyntaxInfos.Expression<?, ?> expression) {
 		ClassInfo<?> exact = Classes.getSuperClassInfo(expression.returnType());
+		String name = Objects.requireNonNullElse(exact.getDocName(), exact.getName().getSingular());
+		if (name.equals(ClassInfo.NO_DOC)) { // undocumented type is not helpful
+			// hopefully the supertype has something better...
+			exact = Classes.getSuperClassInfo(expression.returnType().getSuperclass());
+			name = Objects.requireNonNullElse(exact.getDocName(), exact.getName().getSingular());
+		}
 
 		JsonObject object = new JsonObject();
 		object.addProperty("id", exact.getCodeName());
-		object.addProperty("name", exact.getName().getSingular());
+		object.addProperty("name", name);
 		return object;
 	}
 
@@ -338,7 +379,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param infos the structures to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each structure
 	 */
-	private static <T extends SyntaxInfo<? extends Structure>> JsonArray generateStructureElementArray(Collection<T> infos) {
+	private <T extends SyntaxInfo<? extends Structure>> JsonArray generateStructureElementArray(Collection<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
 		infos.forEach(info -> {
 			if (info instanceof BukkitSyntaxInfos.Event<?> eventInfo) {
@@ -358,7 +399,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param infos the syntax elements to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each syntax element
 	 */
-	private static <T extends SyntaxInfo<? extends SyntaxElement>> JsonArray generateSyntaxElementArray(Collection<T> infos) {
+	private <T extends SyntaxInfo<? extends SyntaxElement>> JsonArray generateSyntaxElementArray(Collection<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
 		infos.forEach(info -> {
 			JsonObject syntaxJsonObject = generatedAnnotatedElement(info);

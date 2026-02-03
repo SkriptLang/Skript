@@ -16,7 +16,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if the potion effect has an icon:
 			hide the icon of event-potioneffecttype for event-entity
 	""")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class CondPotionHasIcon extends PropertyCondition<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

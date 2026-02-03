@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 @Name("Has Played Before")
 @Description("Checks whether a player has played on this server before. You can also use " +
 	"<a href='#first_join'>on first join</a> if you want to make triggers for new players.")
-@Examples({
-	"player has played on this server before",
-	"player hasn't played before"
-})
+@Example("player has played on this server before")
+@Example("player hasn't played before")
 @Since("1.4, 2.7 (multiple players)")
 public class CondPlayedBefore extends Condition {
 	

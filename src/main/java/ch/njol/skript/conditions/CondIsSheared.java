@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import io.papermc.paper.entity.Shearable;
@@ -15,10 +15,10 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 @Name("Entity Is Sheared")
 @Description("Checks whether entities are sheared.")
-@Examples({
-	"if targeted entity of player is sheared:",
-		"\tsend \"This entity has nothing left to shear!\" to player"
-})
+@Example("""
+	if targeted entity of player is sheared:
+		send "This entity has nothing left to shear!" to player
+	""")
 @Since("2.8.0")
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 

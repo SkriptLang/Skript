@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,9 +19,9 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Date Ago/Later")
 @Description("A date the specified timespan before/after another date.")
-@Examples({"set {_yesterday} to 1 day ago",
-			"set {_hourAfter} to 1 hour after {someOtherDate}",
-			"set {_hoursBefore} to 5 hours before {someOtherDate}"})
+@Example("set {_yesterday} to 1 day ago")
+@Example("set {_hourAfter} to 1 hour after {someOtherDate}")
+@Example("set {_hoursBefore} to 5 hours before {someOtherDate}")
 @Since("2.2-dev33")
 public class ExprDateAgoLater extends SimpleExpression<Date> {
 

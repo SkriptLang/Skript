@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 	"Checks whether a given entity (horse or steerable) is saddled.",
 	"If 'properly' is used, this will only return true if the entity is wearing specifically a saddle item."
 })
-@Examples("send whether {_horse} is saddled")
+@Example("send whether {_horse} is saddled")
 @Since("2.10")
 public class CondIsSaddled extends PropertyCondition<LivingEntity> {
 

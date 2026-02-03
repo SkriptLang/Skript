@@ -7,7 +7,7 @@ import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -34,12 +34,10 @@ import java.util.function.Consumer;
 	"Damage, heal, or repair an entity or item.",
 	"Servers running Spigot 1.20.4+ can optionally choose to specify a fake damage cause."
 })
-@Examples({
-	"damage player by 5 hearts",
-	"damage player by 3 hearts with fake cause fall",
-	"heal the player",
-	"repair tool of player"
-})
+@Example("damage player by 5 hearts")
+@Example("damage player by 3 hearts with fake cause fall")
+@Example("heal the player")
+@Example("repair tool of player")
 @Since("1.0, 2.10 (damage cause)")
 @RequiredPlugins("Spigot 1.20.4+ (for damage cause)")
 public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {

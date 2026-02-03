@@ -45,7 +45,7 @@ import java.util.List;
 @Example("reset the player's weakness effects")
 @Example("delete the player's active jump boost effect")
 @RequiredPlugins("Paper 1.20.4+ for hidden effects")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprPotionEffect extends PropertyExpression<Object, SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

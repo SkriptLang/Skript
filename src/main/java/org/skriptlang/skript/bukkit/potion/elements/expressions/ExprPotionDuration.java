@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("An expression to obtain the duration of a potion effect.")
 @Example("set the duration of {_potion} to 10 seconds")
 @Example("add 10 seconds to the duration of the player's speed effect")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEffect, Timespan> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

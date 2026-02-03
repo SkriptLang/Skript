@@ -24,12 +24,10 @@ import java.util.regex.Pattern;
 	"",
 	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself."
 })
-@Examples({
-	"stop sound \"block.chest.open\" for the player",
-	"stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player",
-	"stop all sounds for all players",
-	"stop sound in the record category"
-})
+@Example("stop sound \"block.chest.open\" for the player")
+@Example("stop playing sounds \"ambient.underwater.loop\" and \"ambient.underwater.loop.additions\" to the player")
+@Example("stop all sounds for all players")
+@Example("stop sound in the record category")
 @Since("2.4, 2.7 (stop all sounds)")
 public class EffStopSound extends Effect {
 

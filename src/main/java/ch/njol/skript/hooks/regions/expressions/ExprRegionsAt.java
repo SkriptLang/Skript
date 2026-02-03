@@ -2,7 +2,7 @@ package ch.njol.skript.hooks.regions.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -28,15 +28,15 @@ import java.util.ArrayList;
 	"All <a href='#region'>regions</a> at a particular <a href='./classes/#location'>location</a>.",
 	"This expression requires a supported regions plugin to be installed."
 })
-@Examples({
-	"On click on a sign:",
-	"\tline 1 of the clicked block is \"[region info]\"",
-	"\tset {_regions::*} to regions at the clicked block",
-	"\tif {_regions::*} is empty:",
-	"\t\tmessage \"No regions exist at this sign.\"",
-	"\telse:",
-	"\t\tmessage \"Regions containing this sign: &lt;gold&gt;%{_regions::*}%<r>.\""
-})
+@Example("""
+	On click on a sign:
+		line 1 of the clicked block is "[region info]"
+		set {_regions::*} to regions at the clicked block
+		if {_regions::*} is empty:
+			message "No regions exist at this sign."
+		else:
+			message "Regions containing this sign: <gold>%{_regions::*}%<r>."
+	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprRegionsAt extends SimpleExpression<Region> {

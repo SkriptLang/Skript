@@ -10,7 +10,7 @@ import org.skriptlang.skript.registration.SyntaxInfo;
  * Special {@link SyntaxElementInfo} for {@link Structure}s that may contain information such as the {@link EntryValidator}.
  * @deprecated Use {@link SyntaxInfo.Structure} ({@link SyntaxInfo.Structure#builder(Class)}) instead.
  */
-@Deprecated(since = "INSERT VERSION", forRemoval = true)
+@Deprecated(since = "2.14", forRemoval = true)
 public class StructureInfo<E extends Structure> extends SyntaxElementInfo<E> {
 
 	@Nullable

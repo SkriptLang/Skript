@@ -17,13 +17,16 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseSyntax;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ContainsHandler;
 import org.skriptlang.skript.lang.properties.PropertyMap;
+import org.skriptlang.skript.lang.properties.handlers.ContainsHandler;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -45,14 +48,19 @@ import java.util.StringJoiner;
 @RelatedProperty("contains")
 public class PropCondContains extends Condition implements PropertyBaseSyntax<ContainsHandler<?,?>>, VerboseAssert {
 
-	static {
-		Skript.registerCondition(PropCondContains.class,
-			"%objects% contain[1:s] %objects%",
-			"%objects% (1:doesn't|1:does not|do not|don't) contain %objects%",
-			"contents of %objects% contain %objects%",
-			"contents of %objects% (do not|don't) contain %objects%",
-			"%inventories% (has|have) %itemtypes% [in [(the[ir]|his|her|its)] inventory]",
-			"%inventories% (doesn't|does not|do not|don't) have %itemtypes% [in [(the[ir]|his|her|its)] inventory]");
+	public static void register(SyntaxRegistry registry, Origin origin) {
+		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(PropCondContains.class)
+			.origin(origin)
+			.addPatterns(
+				"%objects% contain[1:s] %objects%",
+				"%objects% (1:doesn't|1:does not|do not|don't) contain %objects%",
+				"contents of %objects% contain %objects%",
+				"contents of %objects% (do not|don't) contain %objects%",
+				"%inventories% (has|have) %itemtypes% [in [(the[ir]|his|her|its)] inventory]",
+				"%inventories% (doesn't|does not|do not|don't) have %itemtypes% [in [(the[ir]|his|her|its)] inventory]"
+			)
+			.supplier(PropCondContains::new)
+			.build());
 	}
 
 	/*
@@ -142,8 +150,9 @@ public class PropCondContains extends Condition implements PropertyBaseSyntax<Co
 			var convertedNeedles = needles.getConvertedExpression((Class[]) elementTypeSet);
 			if (convertedNeedles == null) {
 				// attempt direct contains
-				return initDirect("'" + tempHaystack + "'  cannot contain " + Classes.toString(Arrays.stream(needles.possibleReturnTypes()).map(Classes::getSuperClassInfo).toArray(), false));
+				return initDirect("'" + tempHaystack + "' cannot contain " + Classes.toString(Arrays.stream(needles.possibleReturnTypes()).map(Classes::getSuperClassInfo).toArray(), false));
 			}
+			needles = convertedNeedles;
 			return LiteralUtils.canInitSafely(haystack, needles);
 		} else {
 			return initDirect(null);

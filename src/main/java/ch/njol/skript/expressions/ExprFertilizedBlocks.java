@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -25,7 +25,7 @@ import ch.njol.util.Kleenean;
 @Description("The blocks fertilized in block fertilize events.")
 @RequiredPlugins("Minecraft 1.13 or newer")
 @Events("block fertilize")
-@Examples("the fertilized blocks")
+@Example("the fertilized blocks")
 @Since("2.5")
 public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {
 	

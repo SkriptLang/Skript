@@ -9,11 +9,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Fishing Hook")
 @Description("The <a href='#entity'>fishing hook</a> in a fishing event.")
-@Examples({
-	"on fish line cast:",
-		"\twait a second",
-		"\tteleport player to fishing hook"
-})
+@Example("""
+	on fish line cast:
+		wait a second
+		teleport player to fishing hook
+	""")
 @Events("Fishing")
 @Since("2.10")
 public class ExprFishingHook extends EventValueExpression<Entity> {

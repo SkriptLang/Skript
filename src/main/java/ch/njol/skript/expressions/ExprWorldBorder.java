@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	"Get the border of a world or a player.",
 	"A player's world border is not persistent. Restarts, quitting, death or changing worlds will reset the border."
 })
-@Examples("set {_border} to world border of player's world")
+@Example("set {_border} to world border of player's world")
 @Since("2.11")
 public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorder> {
 

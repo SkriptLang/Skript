@@ -11,7 +11,7 @@ import java.io.File;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.lang.Effect;
@@ -25,10 +25,8 @@ import ch.njol.util.Kleenean;
 	"Enforces or un-enforce a server's whitelist.",
 	"All non-whitelisted players will be kicked upon enforcing the whitelist."
 })
-@Examples({
-	"enforce the whitelist",
-	"unenforce the whitelist"
-})
+@Example("enforce the whitelist")
+@Example("unenforce the whitelist")
 @Since("2.9.0")
 @RequiredPlugins("MC 1.17+")
 public class EffEnforceWhitelist extends Effect {

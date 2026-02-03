@@ -28,11 +28,9 @@ import java.util.TreeSet;
 		"and `custom tag` will look in the \"skript\" namespace for custom tags you've registered.",
 	"You can also filter by tag types using \"item\", \"block\", or \"entity\"."
 })
-@Examples({
-	"broadcast minecraft tags",
-	"send paper entity tags",
-	"broadcast all block tags"
-})
+@Example("broadcast minecraft tags")
+@Example("send paper entity tags")
+@Example("broadcast all block tags")
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagsOfType extends SimpleExpression<Tag> {

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,10 +23,8 @@ import java.util.concurrent.ThreadLocalRandom;
 	"This expression uses the Unicode numerical code of a character to determine which characters are between the two given characters.",
 	"If strings of more than one character are given, only the first character of each is used."
 })
-@Examples({
-	"set {_captcha} to join (5 random characters between \"a\" and \"z\") with \"\"",
-	"send 3 random alphanumeric characters between \"0\" and \"z\""
-})
+@Example("set {_captcha} to join (5 random characters between \"a\" and \"z\") with \"\"")
+@Example("send 3 random alphanumeric characters between \"0\" and \"z\"")
 @Since("2.8.0")
 public class ExprRandomCharacter extends SimpleExpression<String> {
 

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,15 +18,13 @@ import org.jetbrains.annotations.Nullable;
 	"The total experience, in points, of players or experience orbs.",
 	"Adding to a player's experience will trigger Mending, but setting their experience will not."
 })
-@Examples({
-	"set total experience of player to 100",
-	"",
-	"add 100 to player's experience",
-	"",
-	"if player's total experience is greater than 100:",
-	"\tset player's total experience to 0",
-	"\tgive player 1 diamond"
-})
+@Example("set total experience of player to 100")
+@Example("add 100 to player's experience")
+@Example("""
+	if player's total experience is greater than 100:
+		set player's total experience to 0
+		give player 1 diamond
+	""")
 @Since("2.7")
 public class ExprTotalExperience extends SimplePropertyExpression<Entity, Integer> {
 

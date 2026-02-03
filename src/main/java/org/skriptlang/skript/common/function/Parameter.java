@@ -1,16 +1,30 @@
 package org.skriptlang.skript.common.function;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.KeyProviderExpression;
+import ch.njol.skript.lang.KeyedValue;
+import ch.njol.skript.localization.Noun;
+import ch.njol.skript.registrations.Classes;
+import com.google.common.base.Preconditions;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction.Builder;
+import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Represents a function parameter.
  *
  * @param <T> The type of the function parameter.
  */
+@NonExtendable
 public interface Parameter<T> {
 
 	/**
@@ -38,15 +52,99 @@ public interface Parameter<T> {
 	}
 
 	/**
+	 * Gets a modifier of the specified type if present.
+	 * @param modifierClass The class of the modifier to retrieve
+	 * @return The modifier instance, or null if not present
+	 */
+	default <M extends Modifier> M getModifier(Class<M> modifierClass) {
+		return modifiers().stream()
+			.filter(modifierClass::isInstance)
+			.map(modifierClass::cast)
+			.findFirst()
+			.orElse(null);
+	}
+
+	/**
+	 * Evaluates the provided argument expression and returns the resulting values, taking into account this parameter's modifiers.
+	 *
+	 * <p>If this parameter has the {@link org.skriptlang.skript.common.function.Parameter.Modifier#KEYED} modifier,
+	 * the returned array will contain {@link ch.njol.skript.lang.KeyedValue} objects, pairing each value with its corresponding key.
+	 * If the argument expression does not provide keys, numerical indices (1, 2, 3, ...) will be used as keys;
+	 * otherwise, the returned array will contain only the values.</p>
+	 *
+	 * @param argument the argument passed to this parameter; or {@code null} to use the default value if present
+	 * @param event the event in which to evaluate the expression
+	 * @return an object array containing either value-only elements or {@code KeyedValue[]} when keyed
+	 * @throws IllegalStateException if the argument is {@code null} and this parameter does not have a default value
+	 */
+	default Object[] evaluate(@Nullable Expression<? extends T> argument, Event event) {
+		if (argument == null) {
+			return null;
+		}
+
+		Object[] values = argument.getArray(event);
+
+		// Don't allow mutating across function boundary; same hack is applied to variables
+		for (int i = 0; i < values.length; i++)
+			values[i] = Classes.clone(values[i]);
+
+		if (!hasModifier(Modifier.KEYED))
+			return values;
+
+		String[] keys = KeyProviderExpression.areKeysRecommended(argument)
+				? ((KeyProviderExpression<?>) argument).getArrayKeys(event)
+				: null;
+		return KeyedValue.zip(values, keys);
+	}
+
+	/**
 	 * @return Whether this parameter is for single values.
 	 */
-	default boolean single() {
+	default boolean isSingle() {
 		return !type().isArray();
 	}
 
 	/**
+	 * @deprecated Use {@link #isSingle()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "2.14")
+	default boolean single() {
+		return isSingle();
+	}
+
+	/**
+	 * @return A human-readable string representing this parameter.
+	 */
+	default String toFormattedString() {
+		StringJoiner joiner = new StringJoiner(" ");
+
+		joiner.add("%s:".formatted(name()));
+
+		if (hasModifier(Modifier.OPTIONAL)) {
+			joiner.add("optional");
+		}
+
+		Noun exact = Classes.getSuperClassInfo(type()).getName();
+		if (type().isArray()) {
+			joiner.add(exact.getPlural());
+		} else {
+			joiner.add(exact.getSingular());
+		}
+
+		if (hasModifier(Modifier.RANGED)) {
+			RangedModifier<?> range = getModifier(RangedModifier.class);
+			joiner.add("between")
+				.add(range.getMin().toString())
+				.add("and")
+				.add(range.getMax().toString());
+		}
+
+		return joiner.toString();
+	}
+
+	/**
 	 * Represents a modifier that can be applied to a parameter
-	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}}.
+	 * when constructing one using {@link Builder#parameter(String, Class, Modifier[])}.
 	 */
 	interface Modifier {
 
@@ -70,6 +168,104 @@ public interface Parameter<T> {
 		 */
 		Modifier KEYED = of();
 
+		/**
+		 * A modifier to use for checking if a parameter is ranged.
+		 * Do NOT use for declaring a parameter to be ranged, use {@link Modifier#ranged(Comparable, Comparable)}
+		 * Accessing the min and the max values can be done via {@link Parameter#getModifier(Class)}.
+		 */
+		Modifier RANGED = new RangedModifier<>(0,0); // 0 and 0 are just dummy values.
+
+		/**
+		 * Creates a range modifier with inclusive min and max bounds.
+		 */
+		static <T extends Comparable<T>> RangedModifier<T> ranged(T min, T max) {
+			return new RangedModifier<>(min, max);
+		}
+
+		/**
+		 * Modifier specifying valid range bounds for numeric parameters.
+		 * Note that ALL instances will have the same hashCode and will be equal to {@link Modifier#RANGED}.
+		 * Avoid comparing these objects or putting multiple into a HashSet or HashMap!
+		 */
+		class RangedModifier<T extends Comparable<T>> implements Modifier {
+			private final T min;
+			private final T max;
+
+			/**
+			 * Inclusive range between min and max
+			 * @param min min value
+			 * @param max max value
+			 */
+			private RangedModifier(T min, T max) {
+				Preconditions.checkState(min.compareTo(max) < 1, "Min value cannot be greater than max value!");
+				this.min = min;
+				this.max = max;
+			}
+
+			/**
+			 * @return Min value of the range (inclusive)
+			 */
+			public T getMin() {
+				return min;
+			}
+
+			/**
+			 * @return Max value of the range (inclusive)
+			 */
+			public T getMax() {
+				return max;
+			}
+
+			/**
+			 * @param input The value to test.
+			 * @return Whether input is between min and max.
+			 */
+			@SuppressWarnings("unchecked")
+			public boolean inRange(Object input) {
+				// convert to right type
+				if (!min.getClass().isInstance(input)) {
+					Converter<Object, ?> converter = (Converter<Object, ?>) Converters.getConverter(input.getClass(), min.getClass());
+					if (converter == null)
+						return false;
+					input = converter.convert(input);
+					if (input == null)
+						return false;
+				}
+				// compare
+				return ((T) input).compareTo(min) > -1 && ((T) input).compareTo(max) < 1;
+			}
+
+			/**
+			 * @param inputs The values to test.
+			 * @return Whether all the inputs are between min and max.
+			 */
+			public boolean inRange(Object @NotNull [] inputs) {
+				if (inputs.length == 0)
+					return false;
+				for (Object input : inputs) {
+					if (!inRange(input))
+						return false;
+				}
+				return true;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+				// equal to the RANGED singleton for hasModifier checks
+				return obj == Modifier.RANGED || ((obj instanceof RangedModifier<?> range) && (this == Modifier.RANGED || range.max == this.max && range.min  == this.min));
+			}
+
+			@Override
+			public int hashCode() {
+				return 439824729; // all should be equal
+			}
+
+			@Override
+			public String toString() {
+				return "RangedModifier(min=" + min + ", max=" + max + ")";
+			}
+
+		}
 	}
 
 }

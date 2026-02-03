@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * A record that represents a key-value pair
@@ -54,6 +55,34 @@ public record KeyedValue<T>(@NotNull String key, @NotNull T value) implements Ma
 	 */
 	public <U> KeyedValue<U> withValue(@NotNull U newValue) {
 		return new KeyedValue<>(key(), newValue);
+	}
+
+	/**
+	 * Maps an array of {@link KeyedValue} objects to a new array by applying a mapping function to each value.
+	 * <p>
+	 * For each non-null element in the source array, the provided mapper function is applied to its value.
+	 * If the result of the mapping is non-null, a new {@link KeyedValue} is created with the same key and the mapped value.
+	 * If the mapping result is null, the corresponding element in the result array will be null.
+	 * <p>
+	 * Null elements in the source array are skipped and remain null in the result array.
+	 *
+	 * @param source the source array of {@link KeyedValue} objects to map; may be null
+	 * @param mapper a function to apply to each value in the source array
+	 * @return a new array of {@link KeyedValue} objects with mapped values; never null, but may contain null elements
+	 */
+	public static <T, U> KeyedValue<U>[] map(KeyedValue<T>[] source, Function<T, @Nullable U> mapper) {
+		if (source == null)
+			//noinspection unchecked
+			return new KeyedValue[0];
+		//noinspection unchecked
+		KeyedValue<U>[] mapped = new KeyedValue[source.length];
+		for (int i = 0; i < source.length; i++) {
+			if (source[i] == null)
+				continue;
+			U mappedValue = mapper.apply(source[i].value());
+			mapped[i] = mappedValue != null ? source[i].withValue(mappedValue) : null;
+		}
+		return mapped;
 	}
 
 	/**

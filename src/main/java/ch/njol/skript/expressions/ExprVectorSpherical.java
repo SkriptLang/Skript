@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,11 +19,11 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Spherical Shape")
 @Description("Forms a 'spherical shaped' vector using yaw and pitch to manipulate the current point.")
-@Examples({
-	"loop 360 times:",
-		"\tset {_v} to spherical vector radius 1, yaw loop-value, pitch loop-value",
-	"set {_v} to spherical vector radius 1, yaw 45, pitch 90"
-})
+@Example("""
+	loop 360 times:
+		set {_v} to spherical vector radius 1, yaw loop-value, pitch loop-value
+	""")
+@Example("set {_v} to spherical vector radius 1, yaw 45, pitch 90")
 @Since("2.2-dev28")
 public class ExprVectorSpherical extends SimpleExpression<Vector> {
 

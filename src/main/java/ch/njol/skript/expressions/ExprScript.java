@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -26,17 +26,23 @@ import java.util.Objects;
 @Description({"The current script, or a script from its (file) name.",
 	"If the script is enabled or disabled (or reloaded) this reference will become invalid.",
 	"Therefore, it is recommended to obtain a script reference <em>when needed</em>."})
-@Examples({
-	"on script load:",
-	"\tbroadcast \"Loaded %the current script%\"",
-	"on script load:",
-	"\tset {running::%script%} to true",
-	"on script unload:",
-	"\tset {running::%script%} to false",
-	"set {script} to the script named \"weather.sk\"",
-	"loop the scripts in directory \"quests/\":",
-	"\tenable loop-value"
-})
+@Example("""
+	on script load:
+		broadcast "Loaded %the current script%"
+	""")
+@Example("""
+	on script load:
+		set {running::%script%} to true
+	""")
+@Example("""
+	on script unload:
+		set {running::%script%} to false
+	""")
+@Example("set {script} to the script named \"weather.sk\"")
+@Example("""
+	loop the scripts in directory "quests/":
+		enable loop-value
+	""")
 @Since("2.0")
 public class ExprScript extends SimpleExpression<Script> {
 

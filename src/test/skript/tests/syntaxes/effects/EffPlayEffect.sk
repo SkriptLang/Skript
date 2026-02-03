@@ -1,0 +1,126 @@
+test "all particle effects":
+	set {_effects::*} to all particle effects
+	set particle offset of {_effects::*} to vector(1, 1, 1)
+	assert particle offset of {_effects::*} is vector(1, 1, 1) with "particle offset was not set correctly for all effects"
+
+	set particle speed of {_effects::*} to 2
+	assert particle speed of {_effects::*} is 2 with "speed was not set correctly for all effects"
+
+	set particle count of {_effects::*} to 5
+	assert particle count of {_effects::*} is 5 with "count was not set correctly for all effects"
+	assert particle offset of {_effects::*} is vector(1, 1, 1) with "setting count from 1 to 5 changed particle offset"
+	assert particle speed of {_effects::*} is 2 with "setting count from 1 to 5 changed speed"
+
+	set particle count of {_effects::*} to 0
+	assert particle count of {_effects::*} is 0 with "count was not set correctly to 0"
+	assert particle offset of {_effects::*} is vector(1, 1, 1) with "setting count to 0 changed particle offset"
+	assert particle speed of {_effects::*} is 2 with "setting count to 0 changed speed"
+
+	set the particle distribution of {_effects::*} to vector(0.5, 0.5, 0.5)
+	assert particle distribution of {_effects::*} is vector(0.5, 0.5, 0.5) with "particle distribution was not set correctly"
+	assert particle offset of {_effects::*} is vector(0.5, 0.5, 0.5) with "setting particle distribution did not set particle offset"
+	assert particle count of {_effects::*} is 1 with "setting particle distribution did not set count to 1"
+
+	set particle count of {_effects::*} to 10
+	assert particle count of {_effects::*} is 10 with "particle count was not set correctly"
+	set the particle distribution of {_effects::*} to vector(1, 1, 1)
+	assert particle count of {_effects::*} is 10 with "setting particle distribution did not keep particle count"
+
+	draw {_effects::*} at location(0, 0, 0)
+
+test "directional particle effects":
+	set {_directional_effects::*} to all directional particle effects
+	assert particle count of {_directional_effects::*} is 1 with "directional effects particle count did not default to 1"
+	assert velocity of {_directional_effects::*} is not set with "directional effects had velocity at count of 1"
+
+	set velocity of {_directional_effects::*} to vector(0, 1, 0)
+	assert velocity of {_directional_effects::*} is vector(0, 1, 0) with "velocity was not set correctly for directional effects"
+	assert particle count of {_directional_effects::*} is 0 with "setting velocity did not set particle count to 0"
+	assert particle distribution of {_directional_effects::*} is not set with "distribution was set when velocity was set"
+
+	set particle count of {_directional_effects::*} to 5
+	assert velocity of {_directional_effects::*} is not set with "setting particle count exited velocity mode"
+	assert particle offset of {_directional_effects::*} is vector(0, 1, 0) with "particle offset did not remain after exiting velocity mode"
+
+	set particle count of {_directional_effects::*} to 0
+	set particle offset of {_directional_effects::*} to vector(1, 1, 1)
+	assert particle offset of {_directional_effects::*} is vector(1, 1, 1) with "particle offset was not set correctly in velocity mode"
+	assert velocity of {_directional_effects::*} is vector(1, 1, 1) with "setting particle offset did not change velocity"
+
+	draw {_directional_effects::*} at location(0, 0, 0)
+
+
+test "scalable particle effects":
+	set {_scalable_effects::*} to all scalable particle effects
+	assert particle count of {_scalable_effects::*} is 1 with "scalable effects particle count did not default to 1"
+	assert scale of {_scalable_effects::*} is not set with "scalable effects had scale at count of 1"
+
+	set scale of {_scalable_effects::*} to 1
+	assert particle count of {_scalable_effects::*} is 0 with "setting scale did not set count to 0"
+	assert scale of {_scalable_effects::*} is 1 with "scale was not set correctly"
+	assert particle distribution of {_scalable_effects::*} is not set with "distribution was set when scale was set"
+
+	set particle count of {_scalable_effects::*} to 5
+	assert scale of {_scalable_effects::*} is not set with "setting particle count exited scale mode"
+	assert particle offset of {_scalable_effects::*} is not vector(0, 0, 0) with "particle offset was reset after exiting scale mode"
+
+	set particle count of {_scalable_effects::*} to 0
+	set particle offset of {_scalable_effects::*} to vector(10, 0, 0)
+	assert particle offset of {_scalable_effects::*} is vector(10, 0, 0) with "particle offset was not set correctly in scale mode"
+	assert scale of {_scalable_effects::*} > 0 with "setting particle offset did not change scale"
+
+	draw {_scalable_effects::*} at location(0, 0, 0)
+
+
+test "particle effects with data":
+	parse if running minecraft "1.21.9":
+		draw red entity effect particle at test-location
+		draw red flash particle at test-location
+		draw dragon breath particle of power 4 at test-location
+
+	parse if running minecraft "1.21.5":
+		draw red tinted leaves particle at test-location
+
+	parse if running minecraft "1.21.4":
+		draw a red trail particle moving to test-location ~ vector(1,0,10) over 10 seconds at test-location
+	parse if running minecraft "1.21.2":
+		draw dirt crumble particle at test-location
+		draw a red trail particle moving to test-location ~ vector(1,0,10) at test-location
+
+	draw red dust particle at test-location
+	draw red dust particle that transitions to white at test-location
+	draw diamond sword item particle at test-location
+	draw dirt block particle at test-location
+	draw dirt marker particle at test-location
+	draw dirt dust pillar particle at test-location
+	draw falling dirt dust particle at test-location
+	draw sculk charge particle with roll angle of 10 degrees at test-location
+	draw a vibration particle moving to test-location ~ vector(1,0,10) over 5 seconds at test-location
+
+test "game effects":
+	draw all game effects at location(0, 0, 0)
+
+test "game effects with data":
+	play record song of music disc cat at test-location # broken in paper versions but should still parse and execute without errors
+	play black smoke effect upwards at test-location
+	play white smoke effect upwards at test-location
+	play stone footsteps sound effect at test-location
+	play red potion break effect at test-location
+	play red instant potion break effect at test-location
+	play compost success sound at test-location
+	play compost fail sound at test-location
+	play villager plant grow effect at test-location
+	play fake bone meal effect at test-location
+	play copper spark effect along the x axis at test-location
+	play sculk charge effect using data 64 at test-location
+	play brush stone effect at test-location
+	play trial spawner detecting players effect at test-location
+	play ominous trial spawner detecting players effect at test-location
+	play trial spawner spawning mob effect at test-location
+	play ominous trial spawner spawning mob effect at test-location
+	play trial spawner spawning mob effect with sound at test-location
+	play ominous trial spawner spawning mob effect with sound at test-location
+	play bee growth effect at test-location
+
+
+

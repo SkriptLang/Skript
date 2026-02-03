@@ -32,7 +32,7 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 			.user("zombie ?nautilus ?variants?")
 			.name("Zombie Nautilus Variant")
 			.description("Represents the variant of a zombie nautilus.")
-			.since("INSERT VERSION")
+			.since("2.14")
 			.documentationId("ZombieNautilusVariant"));
 	}
 

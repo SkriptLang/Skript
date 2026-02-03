@@ -3,7 +3,7 @@ package org.skriptlang.skript.bukkit.furnace.elements;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
@@ -38,14 +38,14 @@ import java.util.List;
 @Description({
 	"A slot of a furnace, i.e. either the ore, fuel or result slot."
 })
-@Examples({
-	"set the fuel slot of the clicked block to a lava bucket",
-	"set the block's ore slot to 64 iron ore",
-	"clear the result slot of the block",
-	"on smelt:",
-		"\tif the fuel slot is charcoal:",
-			"\t\tadd 5 seconds to the burn time"
-})
+@Example("set the fuel slot of the clicked block to a lava bucket")
+@Example("set the block's ore slot to 64 iron ore")
+@Example("clear the result slot of the block")
+@Example("""
+	on smelt:
+		if the fuel slot is charcoal:
+			add 5 seconds to the burn time
+	""")
 @Events({"smelt", "fuel burn"})
 @Since("1.0, 2.8.0 (syntax rework)")
 public class ExprFurnaceSlot extends SimpleExpression<Slot> {

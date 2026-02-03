@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,7 +21,7 @@ import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Vector from Location")
 @Description("Creates a vector from a location.")
-@Examples("set {_v} to vector of {_loc}")
+@Example("set {_v} to vector of {_loc}")
 @Since("2.2-dev28")
 public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 

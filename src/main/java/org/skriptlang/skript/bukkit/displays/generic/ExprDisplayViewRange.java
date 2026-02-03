@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.generic;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 	"Default value is 1.0. This value is then multiplied by 64 and the player's entity view distance setting to determine the actual range.",
 	"For example, a player with 150% entity view distance will see a block display with a view range of 1.2 at 1.2 * 64 * 150% = 115.2 blocks away."
 })
-@Examples("set view range of the last spawned text display to 2.9")
+@Example("set view range of the last spawned text display to 2.9")
 @Since("2.10")
 public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Float> {
 

@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -19,16 +19,16 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Sea Pickles")
 @Description("An expression to obtain or modify data relating to the pickles of a sea pickle block.")
-@Examples({
-	"on block break:",
-	"\ttype of block is sea pickle",
-	"\tsend \"Wow! This stack of sea pickles contained %event-block's sea pickle count% pickles!\"",
-	"\tsend \"It could've contained a maximum of %event-block's maximum sea pickle count% pickles!\"",
-	"\tsend \"It had to have contained at least %event-block's minimum sea pickle count% pickles!\"",
-	"\tcancel event",
-	"\tset event-block's sea pickle count to event-block's maximum sea pickle count",
-	"\tsend \"This bad boy is going to hold so many pickles now!!\""
-})
+@Example("""
+	on block break:
+		type of block is sea pickle
+		send "Wow! This stack of sea pickles contained %event-block's sea pickle count% pickles!"
+		send "It could've contained a maximum of %event-block's maximum sea pickle count% pickles!"
+		send "It had to have contained at least %event-block's minimum sea pickle count% pickles!"
+		cancel event
+		set event-block's sea pickle count to event-block's maximum sea pickle count
+		send "This bad boy is going to hold so many pickles now!!"
+	""")
 @Since("2.7")
 public class ExprSeaPickles extends SimplePropertyExpression<Block, Integer> {
 

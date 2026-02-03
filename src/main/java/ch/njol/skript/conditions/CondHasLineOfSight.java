@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,11 +17,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Has Line of Sight")
 @Description("Checks whether living entities have an unobstructed line of sight to other entities or locations.")
-@Examples({
-		"player has direct line of sight to location 5 blocks to the right of player",
-		"victim has line of sight to attacker",
-		"player has no line of sight to location 100 blocks in front of player"
-})
+@Example("player has direct line of sight to location 5 blocks to the right of player")
+@Example("victim has line of sight to attacker")
+@Example("player has no line of sight to location 100 blocks in front of player")
 @Since("2.8.0")
 public class CondHasLineOfSight extends Condition {
 

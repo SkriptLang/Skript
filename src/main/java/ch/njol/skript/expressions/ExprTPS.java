@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("TPS (ticks per second)")
 @Description("Returns the 3 most recent TPS readings, like the /tps command. " +
 			"This expression is only supported on some server software (PaperSpigot).")
-@Examples("broadcast \"%tps%\"")
+@Example("broadcast \"%tps%\"")
 @Since("2.2-dev36")
 public class ExprTPS extends SimpleExpression<Number> {
 

@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Has Scoreboard Tag")
 @Description("Checks whether the given entities has the given <a href='#ExprScoreboardTags'>scoreboard tags</a>.")
-@Examples("if the targeted armor stand has the scoreboard tag \"test tag\":")
+@Example("if the targeted armor stand has the scoreboard tag \"test tag\":")
 @Since("2.3")
 public class CondHasScoreboardTag extends Condition {
 	

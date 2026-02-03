@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Name("Loot Table from Key")
 @Description("Returns the loot table from a namespaced key.")
-@Examples("set {_table} to loot table \"minecraft:chests/simple_dungeon\"")
+@Example("set {_table} to loot table \"minecraft:chests/simple_dungeon\"")
 @Since("2.10")
 public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 

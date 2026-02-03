@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.displays.text;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display Drop Shadow")
 @Description("Applies or removes drop shadow from the displayed text on a text display.")
-@Examples({
-	"apply drop shadow to last spawned text display",
-	"if {_display} has drop shadow:",
-		"\tremove drop shadow from the text of {_display}"
-})
+@Example("""
+	apply drop shadow to last spawned text display
+	if {_display} has drop shadow:
+		remove drop shadow from the text of {_display}
+	""")
 @Since("2.10")
 public class EffTextDisplayDropShadow extends Effect {
 

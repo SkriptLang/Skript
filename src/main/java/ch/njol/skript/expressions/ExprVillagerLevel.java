@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -26,14 +26,12 @@ import org.jetbrains.annotations.Nullable;
 	"Experience must be greater than or equal to 0.",
 	"Learn more about villager levels on <a href='https://minecraft.wiki/w/Trading#Level'>Minecraft Wiki</a>"
 })
-@Examples({
-	"set {_level} to villager level of {_villager}",
-	"set villager level of last spawned villager to 2",
-	"add 1 to villager level of target entity",
-	"remove 1 from villager level of event-entity",
-	"reset villager level of event-entity",
-	"set villager experience of last spawned entity to 100"
-})
+@Example("set {_level} to villager level of {_villager}")
+@Example("set villager level of last spawned villager to 2")
+@Example("add 1 to villager level of target entity")
+@Example("remove 1 from villager level of event-entity")
+@Example("reset villager level of event-entity")
+@Example("set villager experience of last spawned entity to 100")
 @Since("2.10")
 public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Number> {
 

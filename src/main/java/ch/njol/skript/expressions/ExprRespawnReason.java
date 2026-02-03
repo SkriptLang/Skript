@@ -15,7 +15,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 		if respawn reason is end portal:
 			broadcast "%player% took the end portal to the overworld!"
 	""")
-@Since("INSERT VERSION")
+@Since("2.14")
 public class ExprRespawnReason extends EventValueExpression<RespawnReason> {
 
 	static {

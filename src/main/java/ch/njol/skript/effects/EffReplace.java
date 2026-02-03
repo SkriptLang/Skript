@@ -6,7 +6,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -34,17 +34,15 @@ import java.util.regex.Pattern;
 	"Replaces all occurrences of a given text or regex with another text. Please note that you can only change " +
 		"variables and a few expressions, e.g. a <a href='/#ExprMessage'>message</a> or a line of a sign."
 )
-@Examples({
-	"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
-	"replace every \"&\" with \"§\" in line 1 of targeted block",
-	"",
-	"# Very simple chat censor",
-	"on chat:",
-		"\treplace all \"idiot\" and \"noob\" with \"****\" in the message",
-		"\tregex replace \"\\b(idiot|noob)\\b\" with \"****\" in the message # Regex version using word boundaries for better results",
-	"",
-	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
-})
+@Example("replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"")
+@Example("replace every \"&\" with \"§\" in line 1 of targeted block")
+@Example("""
+	# Very simple chat censor
+	on chat:
+		replace all "idiot" and "noob" with "****" in the message
+		regex replace "\b(idiot|noob)\b" with "****" in the message # Regex version using word boundaries for better results
+	""")
+@Example("replace all stone and dirt in player's inventory and player's top inventory with diamond")
 @Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), 2.10 (regex)")
 public class EffReplace extends Effect {
 

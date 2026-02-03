@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,10 +17,14 @@ import ch.njol.util.Kleenean;
 
 @Name("Is Block Redstone Powered")
 @Description("Checks if a block is indirectly or directly powered by redstone")
-@Examples({"if clicked block is redstone powered:",
-	"\tsend \"This block is well-powered by redstone!\"",
-	"if clicked block is indirectly redstone powered:",
-	"\tsend \"This block is indirectly redstone powered.\""})
+@Example("""
+	if clicked block is redstone powered:
+		send "This block is well-powered by redstone!"
+	""")
+@Example("""
+	if clicked block is indirectly redstone powered:
+		send "This block is indirectly redstone powered."
+	""")
 @Since("2.5")
 public class CondIsBlockRedstonePowered extends Condition {
 	

@@ -2,30 +2,34 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.function.FunctionRegistry.Retrieval;
 import ch.njol.skript.lang.function.FunctionRegistry.RetrievalResult;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.common.function.FunctionReference.Argument;
+import org.skriptlang.skript.common.function.FunctionReference.ArgumentType;
+import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.common.function.Parameter.Modifier;
+import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.util.Executable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Reference to a {@link Function Skript function}.
+ * @deprecated Use {@link org.skriptlang.skript.common.function.FunctionReference} instead.
  */
+@Deprecated(forRemoval = true, since = "2.14")
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 	private static final String AMBIGUOUS_ERROR =
@@ -135,13 +139,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		StringJoiner args = new StringJoiner(", ");
 		for (Class<?> parameterType : parameterTypes) {
-			Class<?> searchType;
-			if (parameterType.isArray()) {
-				searchType = parameterType.componentType();
-			} else {
-				searchType = parameterType;
-			}
-			args.add(Classes.getSuperClassInfo(searchType).getCodeName());
+			args.add(Classes.getSuperClassInfo(Utils.getComponentType(parameterType)).getCodeName());
 		}
 		String stringified = "%s(%s)".formatted(functionName, args);
 
@@ -158,10 +156,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		// Validate that return types are what caller expects they are
-		Class<? extends T>[] returnTypes = this.returnTypes;
-		if (returnTypes != null) {
-			ClassInfo<?> rt = sign.returnType;
-			if (rt == null) {
+		Class<? extends T>[] expectedReturnTypes = this.returnTypes;
+		if (expectedReturnTypes != null) {
+			Class<?> candidateReturnType = sign.returnType();
+			if (candidateReturnType == null) {
 				if (first) {
 					Skript.error("The function '" + stringified + "' doesn't return any value.");
 				} else {
@@ -171,9 +169,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				}
 				return false;
 			}
-			if (!Converters.converterExists(rt.getC(), returnTypes)) {
+
+			if (!Converters.converterExists(candidateReturnType, expectedReturnTypes)) {
 				if (first) {
-					Skript.error("The returned value of the function '" + stringified + "', " + sign.returnType + ", is " + SkriptParser.notOfType(returnTypes) + ".");
+					Skript.error("The returned value of the function '" + stringified + "', " + candidateReturnType + ", is " + SkriptParser.notOfType(expectedReturnTypes) + ".");
 				} else {
 					Skript.error("The function '" + stringified + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 						+ " These will continue to use the old version of the function until Skript restarts.");
@@ -182,8 +181,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				return false;
 			}
 			if (first) {
-				single = sign.single;
-			} else if (single && !sign.single) {
+				single = sign.isSingle();
+			} else if (single && !sign.isSingle()) {
 				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
 					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
@@ -192,7 +191,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		// Validate parameter count
-		singleListParam = sign.getMaxParameters() == 1 && !sign.getParameter(0).single;
+		singleListParam = sign.getMaxParameters() == 1 && !sign.parameters().getFirst().isSingle();
 		if (!singleListParam) { // Check that parameter count is within allowed range
 			// Too many parameters
 			if (parameters.length > sign.getMaxParameters()) {
@@ -229,17 +228,19 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		// Check parameter types
 		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
+			Parameter<?> signatureParam = sign.parameters().get(singleListParam ? 0 : i);
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
+				Class<?> target = Utils.getComponentType(signatureParam.type());
+
 				//noinspection unchecked
-				Expression<?> e = parameters[i].getConvertedExpression(p.type());
-				if (e == null) {
+				Expression<?> exprParam = parameters[i].getConvertedExpression(target);
+				if (exprParam == null) {
 					if (first) {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
 							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
-							String type = Classes.toString(getClassInfo(p.type()));
+							String type = Classes.toString(Classes.getSuperClassInfo(target));
 
 							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + stringified + "' is not of the required type " + type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
@@ -251,7 +252,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 						function = previousFunction;
 					}
 					return false;
-				} else if (p.single && !e.isSingle()) {
+				} else if (signatureParam.isSingle() && !exprParam.isSingle()) {
 					if (first) {
 						Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is plural, "
 							+ "but a single argument was expected");
@@ -262,7 +263,19 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 					}
 					return false;
 				}
-				parameters[i] = e;
+
+				// check ranged parameters
+				if (signatureParam.hasModifier(Modifier.RANGED) && exprParam instanceof Literal<?> literalParam) {
+					RangedModifier<?> range = signatureParam.getModifier(RangedModifier.class);
+					if (!range.inRange(literalParam.getArray())) {
+						Skript.error("The argument '" + signatureParam.name() +"' only accepts values between "
+							+ Classes.toString(range.getMin()) + " and " + Classes.toString(range.getMax()) + ". "
+							+ "Provided: " + literalParam.toString(null, Skript.debug()));
+						return false;
+					}
+				}
+
+				parameters[i] = exprParam;
 			} finally {
 				log.printLog();
 			}
@@ -270,31 +283,19 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		//noinspection unchecked
 		signature = (Signature<? extends T>) sign;
-		sign.calls.add(this);
+
+		//noinspection unchecked
+		Argument<Expression<?>>[] arguments = (Argument<Expression<?>>[]) Arrays.stream(parameters)
+			.map(it -> new Argument<>(ArgumentType.UNNAMED, null, it))
+			.toArray(Argument[]::new);
+
+		sign.calls().add(new org.skriptlang.skript.common.function.FunctionReference<>(script, functionName, signature, arguments));
 
 		Contract contract = sign.getContract();
 		if (contract != null)
 			this.contract = contract;
 
 		return true;
-	}
-
-	/**
-	 * Returns the {@link ClassInfo} of the non-array type of {@code cls}.
-	 *
-	 * @param cls The class.
-	 * @param <T> The type of class.
-	 * @return The non-array {@link ClassInfo} of {@code cls}.
-	 */
-	private static <T> ClassInfo<? super T> getClassInfo(Class<T> cls) {
-		ClassInfo<? super T> classInfo;
-		if (cls.isArray()) {
-			//noinspection unchecked
-			classInfo = (ClassInfo<? super T>) Classes.getSuperClassInfo(cls.componentType());
-		} else {
-			classInfo = Classes.getSuperClassInfo(cls);
-		}
-		return classInfo;
 	}
 
 	// attempt to get the types of the parameters for this function reference
@@ -386,66 +387,56 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 		// Prepare parameter values for calling
 		Object[][] params = new Object[singleListParam ? 1 : parameters.length][];
-		if (singleListParam && parameters.length > 1) { // All parameters to one list
-			params[0] = evaluateSingleListParameter(parameters, event, function.getParameter(0).hasModifier(Modifier.KEYED));
+		if (singleListParam) { // All parameters to one list
+			params[0] = evaluateSingleListParameter(function.signature().parameters().getFirst(), parameters, event);
 		} else { // Use parameters in normal way
 			for (int i = 0; i < parameters.length; i++)
-				params[i] = evaluateParameter(parameters[i], event, function.getParameter(i).hasModifier(Modifier.KEYED));
+				//noinspection rawtypes,unchecked
+				params[i] = function.signature().parameters().get(i).evaluate((Expression) parameters[i], event);
 		}
 
 		// Execute the function
 		return function.execute(params);
 	}
 
-	private Object[] evaluateSingleListParameter(Expression<?>[] parameters, Event event, boolean keyed) {
-		if (!keyed) {
+	private Object[] evaluateSingleListParameter(Parameter<?> parameter, Expression<?>[] arguments, Event event) {
+		if (arguments.length == 0)
+			return null;
+
+		if (arguments.length == 1)
+			//noinspection unchecked,rawtypes
+			return parameter.evaluate((Expression) arguments[0], event);
+
+		if (!parameter.hasModifier(Modifier.KEYED)) {
 			List<Object> list = new ArrayList<>();
-			for (Expression<?> parameter : parameters)
-				list.addAll(Arrays.asList(evaluateParameter(parameter, event, false)));
+			for (Expression<?> argument : arguments)
+				//noinspection unchecked,rawtypes
+				list.addAll(Arrays.asList(parameter.evaluate((Expression) argument, event)));
 			return list.toArray();
 		}
 
 		List<Object> values = new ArrayList<>();
 		Set<String> keys = new LinkedHashSet<>();
 		int keyIndex = 1;
-		for (Expression<?> parameter : parameters) {
-			Object[] valuesArray = parameter.getArray(event);
-			String[] keysArray = KeyProviderExpression.areKeysRecommended(parameter)
-				? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
+		for (Expression<?> argument : arguments) {
+			Object[] valuesArray = argument.getArray(event);
+			String[] keysArray = KeyProviderExpression.areKeysRecommended(argument)
+				? ((KeyProviderExpression<?>) argument).getArrayKeys(event)
 				: null;
 
-			// Don't allow mutating across function boundary; same hack is applied to variables
-			for (Object value : valuesArray)
-				values.add(Classes.clone(value));
-
-			if (keysArray != null) {
-				keys.addAll(Arrays.asList(keysArray));
-				continue;
-			}
-
 			for (int i = 0; i < valuesArray.length; i++) {
-				while (keys.contains(String.valueOf(keyIndex)))
-					keyIndex++;
-				keys.add(String.valueOf(keyIndex++));
+				if (keysArray == null) {
+					while (keys.contains(String.valueOf(keyIndex)))
+						keyIndex++;
+					keys.add(String.valueOf(keyIndex++));
+				} else if (!keys.add(keysArray[i])) {
+					continue;
+				}
+				// Don't allow mutating across function boundary; same hack is applied to variables
+				values.add(Classes.clone(valuesArray[i]));
 			}
 		}
 		return KeyedValue.zip(values.toArray(), keys.toArray(new String[0]));
-	}
-
-	private Object[] evaluateParameter(Expression<?> parameter, Event event, boolean keyed) {
-		Object[] values = parameter.getArray(event);
-
-		// Don't allow mutating across function boundary; same hack is applied to variables
-		for (int i = 0; i < values.length; i++)
-			values[i] = Classes.clone(values[i]);
-
-		if (!keyed)
-			return values;
-
-		String[] keys = KeyProviderExpression.areKeysRecommended(parameter)
-			? ((KeyProviderExpression<?>) parameter).getArrayKeys(event)
-			: null;
-		return KeyedValue.zip(values, keys);
 	}
 
 	public boolean isSingle() {
@@ -467,8 +458,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		if (signature == null)
 			throw new SkriptAPIException("Signature of function is null when return type is asked!");
 
-		ClassInfo<? extends T> ret = signature.returnType;
-		return ret == null ? null : ret.getC();
+		return signature.returnType();
 	}
 
 	/**
