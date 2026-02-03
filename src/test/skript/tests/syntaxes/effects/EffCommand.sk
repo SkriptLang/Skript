@@ -1,0 +1,7 @@
+on command "testCommandEffect":
+	set {executed-command} to true
+
+test "command effect":
+	execute console command "testCommandEffect"
+	assert {executed-command} is true with "command effect should have executed the command"
+	clear {executed-command}

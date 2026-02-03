@@ -1,0 +1,10 @@
+using error catching
+
+test "catch errors section":
+	catch runtime errors:
+		set {_t} to 1
+	assert last caught runtime errors is not set with "There should be no caught errors."
+	catch runtime errors:
+		set {_border} to worldborder of world "world"
+		set worldborder center of {_border} to location(0, 0, NaN value)
+	assert last caught runtime errors is set with "There should be a caught error."
