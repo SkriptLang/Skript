@@ -23,6 +23,10 @@ import java.util.*;
  */
 public class PDCSerializer {
 
+	private static final NamespacedKey BLOB_KEY = new NamespacedKey("skript", "blob");
+	private static final NamespacedKey TYPE_KEY = new NamespacedKey("skript", "pdc_type");
+	private static final NamespacedKey VALUE_KEY = new NamespacedKey("skript", "pdc_value");
+
 	/**
 	 * Types that are directly serializable to PDC, and therefore do not need to be handled through Fields.
 	 * Never add a custom type that uses {@link PersistentDataContainer} as the primitive. That will cause
@@ -56,10 +60,18 @@ public class PDCSerializer {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static @NotNull PersistentDataContainer serialize(
 		@NotNull Object unserializedData,
 		@NotNull PersistentDataAdapterContext context
+	) {
+		return serialize(unserializedData, context, false);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static @NotNull PersistentDataContainer serialize(
+		@NotNull Object unserializedData,
+		@NotNull PersistentDataAdapterContext context,
+		boolean nested
 	) {
 		// temporary
 		assert Bukkit.isPrimaryThread();
@@ -79,25 +91,28 @@ public class PDCSerializer {
 		}
 
 		var serializer = (Serializer<Object>) classInfo.getSerializer();
-		if (serializer == null) // no serializer, fall back to Yggdrasil byte array as base64 string
-			return serializeToBase64(unserializedData, context);
+		if (serializer == null) { // no serializer, fall back to Yggdrasil byte array as base64 string if this is a subvalue
+			if (nested)
+				return serializeToBase64(unserializedData, context);
+			// unnested unserializable type is invalid
+			throw new RuntimeException("The value " + unserializedData + " is not serializable!");
+		}
 
 		assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
 		var container = context.newPersistentDataContainer();
 
 		// shortcut for primitives
 		if (REPRESENTABLE_TYPES.containsKey(classInfo.getC())) {
-			container.set(new NamespacedKey("skript", "pdc_type"), PersistentDataType.STRING, classInfo.getCodeName());
-			var tag = new NamespacedKey("skript", "value");
+			container.set(TYPE_KEY, PersistentDataType.STRING, classInfo.getCodeName());
 			var pdcType = (PersistentDataType<Object, Object>) REPRESENTABLE_TYPES.get(classInfo.getC());
-			container.set(tag, pdcType, unserializedData);
+			container.set(VALUE_KEY, pdcType, unserializedData);
 			return container;
 		}
 
 		// If not a primitive, serialize normally and use Fields to store data
 		try {
 			Fields fields = serializer.serialize(unserializedData);
-			container.set(new NamespacedKey("skript", "pdc_type"), PersistentDataType.STRING, classInfo.getCodeName());
+			container.set(TYPE_KEY, PersistentDataType.STRING, classInfo.getCodeName());
 			for (var field : fields) {
 				var tag = new NamespacedKey("skript", field.getID());
 				var data = field.isPrimitive() ? field.getPrimitive() : field.getObject();
@@ -113,7 +128,7 @@ public class PDCSerializer {
 					container.set(tag, (PersistentDataType<Object, Object>) type, data);
 				} else {
 					// write a nested PDC
-					data = PDCSerializer.serialize(data, context);
+					data = PDCSerializer.serialize(data, context, true);
 					container.set(tag, PersistentDataType.TAG_CONTAINER, (PersistentDataContainer) data);
 				}
 			}
@@ -131,7 +146,7 @@ public class PDCSerializer {
 		if (serializedData.has(BLOB_KEY, PersistentDataType.STRING))
 			return deserializeFromBase64(serializedData);
 
-		String typeName = serializedData.get(new NamespacedKey("skript", "pdc_type"), PersistentDataType.STRING);
+		String typeName = serializedData.get(TYPE_KEY, PersistentDataType.STRING);
 		if (typeName == null) {
 			throw new IllegalArgumentException("Cannot deserialize PDC because it has no type");
 		}
@@ -144,10 +159,9 @@ public class PDCSerializer {
 
 		// shortcut for primitives
 		if (REPRESENTABLE_TYPES.containsKey(classInfo.getC())) {
-			var tag = new NamespacedKey("skript", "value");
 			//noinspection unchecked
 			var pdcType = (PersistentDataType<Object, Object>) REPRESENTABLE_TYPES.get(classInfo.getC());
-			Object value = serializedData.get(tag, pdcType);
+			Object value = serializedData.get(VALUE_KEY, pdcType);
 			if (value == null) {
 				throw new IllegalArgumentException("Cannot deserialize " + classInfo.getCodeName() + " because its value is missing");
 			}
@@ -158,9 +172,8 @@ public class PDCSerializer {
 		try {
 			Fields fields = new Fields(YGGDRASIL);
 			for (var key : serializedData.getKeys()) {
-				if (key.getNamespace().equals("skript") && key.getKey().equals("pdc_type")) {
+				if (key.equals(TYPE_KEY))
 					continue;
-				}
 				Object data = null;
 				boolean primitive = true;
 				for (var entry : REPRESENTABLE_TYPES.entrySet()) {
@@ -206,14 +219,12 @@ public class PDCSerializer {
 		}
 	}
 
-	private static final NamespacedKey BLOB_KEY = new NamespacedKey("skript", "blob");
-
 	/**
 	 * Serializes an object to a base64-encoded Yggdrasil byte string, stored in a PDC.
 	 * Used as a fallback for objects whose types have no Skript serializer (e.g. nested fields
 	 * like {@link ArrayList} that are part of a larger serializable object).
 	 */
-	private static @NotNull PersistentDataContainer serializeToBase64(
+	private static PersistentDataContainer serializeToBase64(
 		@NotNull Object data,
 		@NotNull PersistentDataAdapterContext context
 	) {
@@ -234,7 +245,7 @@ public class PDCSerializer {
 	/**
 	 * Deserializes an object from a base64-encoded Yggdrasil byte string stored in a PDC.
 	 */
-	private static @NotNull Object deserializeFromBase64(@NotNull PersistentDataContainer container) {
+	private static Object deserializeFromBase64(@NotNull PersistentDataContainer container) {
 		String blob = container.get(BLOB_KEY, PersistentDataType.STRING);
 		if (blob == null)
 			throw new IllegalArgumentException("Cannot deserialize PDC because blob value is missing");
@@ -251,4 +262,5 @@ public class PDCSerializer {
 			key == Long.class || key == Double.class || key == Float.class ||
 			key == Boolean.class || key == Character.class;
 	}
+
 }

@@ -1,12 +1,16 @@
 package org.skriptlang.skript.bukkit.pdc.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.slot.Slot;
@@ -22,24 +26,57 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.pdc.PDCSerializer;
 import org.skriptlang.skript.bukkit.pdc.SkriptDataType;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
+@Name("Persistent Data Value")
+@Description("""
+	Provides access to the 'persistent data container' Bukkit provides on many objects. These values are stored on the \
+	chunk/world/item/entity directly, like custom NBT, but are much faster and reliable to access.
+	Persistent values natively support numbers and text, but any Skript type that can be saved in a variable can also be \
+	stored in pdc via this expression. Lists of objects can also be saved.
+	If you attempt to save invalid types, runtime errors will be thrown.
+	
+	The names of tags must be valid namespaced keys, i.e. a-z, 0-9, '_', '.', '/', and '-' are the allowed characters. \
+	If no namespace is provided, it will default to 'minecraft'.
+	""")
+@Example("set persistent data tag \"custom_damage\" of player's tool to 10")
+@Example("""
+	on jump:
+		if data tag "boost" of player's boots is set:
+			push player upwards
+	""")
+@Example("""
+	on shoot:
+		set {_strength} to number data tag "strength" of shooter's tool
+		if {_strength} is set:
+			set number data tag "damage" of projectile to {_strength}
+	
+	on damage:
+		set {_damage} to data tag "damage" of projectile
+		if {_damage} is set:
+			set damage to {_damage}
+	""")
+@Example("set {_pet-uuids::*} to list data tag \"pets\" of player")
+@Since("INSERT VERSION")
+@Keywords({"pdc", "persistent data container", "custom data", "nbt"})
 public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
-	public static void register(SyntaxRegistry registry) {
+	public static void register(SyntaxRegistry registry, Origin origin) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
 				ExprPersistentData.class, Object.class,
-				"[persistent] [%-*classinfo%] [:list] data (value|tag) %string%", "chunks/worlds/entities/blocks/itemtypes/offlineplayers",
+				"[persistent] [%-*classinfo%] [:list] data (value|tag) %string%",
+					"chunks/worlds/entities/blocks/itemtypes/offlineplayers",
 				false
-			).build());
+			)
+			.origin(origin)
+			.supplier(ExprPersistentData::new)
+			.build());
 	}
 
 	private @Nullable ClassInfoReference parsedType;
@@ -54,6 +91,12 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		if (classInfoExpression != null) {
 			var type = ClassInfoReference.wrap(classInfoExpression);
 			parsedType = ((Literal<ClassInfoReference>) type).getSingle();
+			// check if serializable
+			ClassInfo<?> classInfo = parsedType.getClassInfo();
+			if (classInfo.getSerializer() == null) {
+				Skript.error("Skript cannot serialize " + classInfo.getName().toString(true) + " as persistent data!");
+				return false;
+			}
 		}
 		plural = parseResult.hasTag("list") || (parsedType != null && parsedType.isPlural().isTrue());
 		setExpr(expressions[matchedPattern == 0 ? 2 : 0]);
@@ -104,13 +147,14 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		String tagName = tag.getSingle(event);
 		if (tagName == null)
 			return new Object[0];
-		NamespacedKey key = NamespacedKey.fromString(tagName);
+		NamespacedKey key = NamespacedUtils.checkValidationAndSend(tagName.toLowerCase(Locale.ENGLISH), this);
+		if (key == null)
+			return new Object[0];
 
 		List<Object> values = new ArrayList<>();
 		for (Object holder : source) {
 			editPersistentDataContainer(holder, container -> {
-				assert key != null;
-				List<Object> elements = getAllElements(container, key);
+                List<Object> elements = getAllElements(container, key);
 				if (elements.isEmpty())
 					return;
 
@@ -182,12 +226,12 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
-		var tagName = tag.getSingle(event);
+		String tagName = tag.getSingle(event);
 		if (tagName == null)
 			return;
-		var key = NamespacedKey.fromString(tagName);
+		NamespacedKey key = NamespacedUtils.checkValidationAndSend(tagName.toLowerCase(Locale.ENGLISH), this);
 		if (key == null)
-			return; // Invalid key, cannot proceed
+			return;
 
 		// ensure set to correct types
 		ClassInfo<?> classInfo = null;
@@ -202,8 +246,13 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 			}
 		}
 
+		Set<Block> invalidBlocks = new HashSet<>();
 		final ClassInfo<?> finalClassInfo = classInfo;
 		for (Object holder : getExpr().getArray(event)) {
+			if (holder instanceof Block block && !(block.getState() instanceof TileState)) {
+				invalidBlocks.add(block);
+				continue;
+			}
 			editPersistentDataContainer(holder, container -> {
 				if (mode == Changer.ChangeMode.SET) {
 					// don't use wrapping list if not needed.
@@ -222,6 +271,11 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 					container.remove(key);
 				}
 			});
+		}
+		if (!invalidBlocks.isEmpty()) {
+			Block[] blocks = invalidBlocks.stream().limit(3).toArray(Block[]::new);
+			warning("Could not set persistent data on blocks (" + Classes.toString(blocks, true)
+					+ ") as they are not tile entities (chests, furnaces, signs, etc.).");
 		}
 	}
 
@@ -261,7 +315,12 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "pdc tag " + tag.toString(event, debug) + " of " + getExpr().toString(event, debug);
+		SyntaxStringBuilder ssb = new SyntaxStringBuilder(event, debug);
+		if (parsedType != null) {
+			ssb.append(parsedType.getClassInfo().getName().toString());
+		}
+		ssb.appendIf(plural, "list").append("data tag", tag, "of", getExpr());
+		return ssb.toString();
 	}
 
 }
