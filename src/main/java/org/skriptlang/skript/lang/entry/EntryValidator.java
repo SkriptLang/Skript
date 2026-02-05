@@ -60,14 +60,25 @@ public class EntryValidator {
 		return Collections.unmodifiableList(entryData);
 	}
 
+	/**
+	 * @return A predicate that tests whether a node should be allowed.
+	 */
 	public @Nullable Predicate<Node> getUnexpectedNodeTester() {
 		return unexpectedNodeTester;
 	}
 
+	/**
+	 * @return A function that creates an error message from the key of an unexpected
+	 *         entry when one is encountered during validation.
+	 */
 	public Function<String, String> getUnexpectedEntryMessage() {
 		return unexpectedEntryMessage;
 	}
 
+	/**
+	 * @return A function that creates an error message from the key of an entry
+	 *         missing during validation.
+	 */
 	public Function<String, String> getMissingRequiredEntryMessage() {
 		return missingRequiredEntryMessage;
 	}
