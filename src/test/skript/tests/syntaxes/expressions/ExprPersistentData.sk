@@ -160,91 +160,178 @@ test "persistent data typed get type mismatch":
 	assert last caught runtime errors contains "The data in tag 'skript:mismatch' was of type text, not the expected type location." with "compound type mismatch should error"
 	delete persistent data tag "skript:mismatch" of {_item}
 
-test "persistent data singular type on list":
+test "persistent data singular access on list errors":
 	set {_item} to a diamond sword
-	# Singular type should get first element from list
 	set list data tag "skript:singular_list" of {_item} to "hello", "world", and "foo"
-	set {_val} to string data tag "skript:singular_list" of {_item}
-	assert {_val} is "hello" with "singular type should get first element from list"
-	# Should error if first element doesn't match type
-	set list data tag "skript:singular_list" of {_item} to 42, "hello", and "world"
+	# Typed singular access should error
 	catch runtime errors:
 		set {_val} to string data tag "skript:singular_list" of {_item}
-	assert last caught runtime errors contains "The data in tag 'skript:singular_list' was of type integer, not the expected type text." with "should error when first element doesn't match"
+	assert last caught runtime errors contains "The data in tag 'skript:singular_list' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "typed singular access on list should error"
+	assert {_val} is not set with "should return nothing on list/singular mismatch"
+	# Untyped singular access should also error
+	catch runtime errors:
+		set {_val} to persistent data tag "skript:singular_list" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:singular_list' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "untyped singular access on list should error"
 	delete persistent data tag "skript:singular_list" of {_item}
 
-test "persistent data plural type filters list":
+test "persistent data typed list filtering":
 	set {_item} to a diamond sword
 	set list data tag "skript:typed_list" of {_item} to "hello", 42, "world", and 100
-	# Get only strings (plural type filters, warns about non-matching)
+	# Plural type filters (strings data tag)
 	catch runtime errors:
 		set {_strings::*} to strings data tag "skript:typed_list" of {_item}
 	assert size of {_strings::*} is 2 with "should get 2 strings from mixed list"
 	assert {_strings::1} is "hello" with "first string should be hello"
-	assert {_strings::2} is "world" with "second string should be world"
-	# Get only integers
+	# Singular type with list tag also filters (string list data tag)
+	catch runtime errors:
+		set {_vals::*} to string list data tag "skript:typed_list" of {_item}
+	assert size of {_vals::*} is 2 with "string list should filter to 2 strings"
+	# Integer filtering
 	catch runtime errors:
 		set {_ints::*} to integers data tag "skript:typed_list" of {_item}
 	assert size of {_ints::*} is 2 with "should get 2 integers from mixed list"
-	# Setting with plural type should also work
-	set persistent strings data tag "skript:typed_list" of {_item} to "a", "b", and "c"
-	set {_values::*} to list data tag "skript:typed_list" of {_item}
-	assert size of {_values::*} is 3 with "plural type should accept list set"
 	delete persistent data tag "skript:typed_list" of {_item}
 
-test "persistent data list tag with singular type":
+test "persistent data list access on single errors":
 	set {_item} to a diamond sword
-	set list data tag "skript:list_singular" of {_item} to 1, "text", 2, and "more"
-	# "string list" should get all strings even though string is singular
+	set persistent data tag "skript:single_val" of {_item} to 42
+	# Plural type access should error
 	catch runtime errors:
-		set {_vals::*} to string list data tag "skript:list_singular" of {_item}
-	assert size of {_vals::*} is 2 with "string list should filter to 2 strings"
-	assert {_vals::1} is "text" with "first string should be text"
-	# "integer list" should get all integers
+		set {_vals::*} to integers data tag "skript:single_val" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:single_val' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "plural access on single should error"
+	assert size of {_vals::*} is 0 with "should return nothing"
+	# List tag access should also error
 	catch runtime errors:
-		set {_nums::*} to integer list data tag "skript:list_singular" of {_item}
-	assert size of {_nums::*} is 2 with "integer list should get 2 integers"
-	delete persistent data tag "skript:list_singular" of {_item}
+		set {_values::*} to list data tag "skript:single_val" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:single_val' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "list access on single should error"
+	delete persistent data tag "skript:single_val" of {_item}
 
-test "persistent data untyped singular gets first element":
+test "persistent data single element stored as list":
 	set {_item} to a diamond sword
-	set list data tag "skript:untyped_first" of {_item} to "first", "second", and "third"
-	# Without type or list tag, should get first element only
-	set {_val} to persistent data tag "skript:untyped_first" of {_item}
-	assert {_val} is "first" with "untyped singular should get first element"
-	delete persistent data tag "skript:untyped_first" of {_item}
-
-test "persistent data plural type on single value":
-	set {_item} to a diamond sword
-	set persistent data tag "skript:plural_single" of {_item} to 42
-	# Plural type on single value should return it if it matches
-	set {_vals::*} to integers data tag "skript:plural_single" of {_item}
-	assert size of {_vals::*} is 1 with "plural type on matching single should get 1"
-	assert {_vals::1} is 42 with "should get the integer"
-	# Plural type that doesn't match should return empty (warns about mismatch)
-	catch runtime errors:
-		set {_strs::*} to strings data tag "skript:plural_single" of {_item}
-	assert size of {_strs::*} is 0 with "plural type on non-matching single should get 0"
-	delete persistent data tag "skript:plural_single" of {_item}
-
-test "persistent data list tag on single stored value":
-	set {_item} to a diamond sword
-	set persistent data tag "skript:single_as_list" of {_item} to "only"
-	# Using "list" tag on single value should still work (returns 1 element)
-	set {_values::*} to list data tag "skript:single_as_list" of {_item}
-	assert size of {_values::*} is 1 with "list tag on single should get 1 element"
+	# Setting with list syntax stores as list, even for single element
+	set list data tag "skript:single_in_list" of {_item} to "only"
+	# Must use list syntax to retrieve
+	set {_values::*} to list data tag "skript:single_in_list" of {_item}
+	assert size of {_values::*} is 1 with "should have 1 element"
 	assert {_values::1} is "only" with "element should be only"
-	delete persistent data tag "skript:single_as_list" of {_item}
+	# Singular syntax should error because it's stored as a list
+	catch runtime errors:
+		set {_val} to persistent data tag "skript:single_in_list" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:single_in_list' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "singular access on list-stored single should error"
+	delete persistent data tag "skript:single_in_list" of {_item}
 
-test "persistent data invalid type error":
+test "persistent data add to singular value":
 	set {_item} to a diamond sword
-	set persistent data tag "skript:valid" of {_item} to "safe"
-	# Attempting to set an inventory (non-serializable) should error
+	# Add to a number (arithmetic)
+	set persistent data tag "skript:add_single" of {_item} to 10
+	add 5 to persistent data tag "skript:add_single" of {_item}
+	set {_val} to persistent data tag "skript:add_single" of {_item}
+	assert {_val} is 15 with "adding to number should work"
+	# Subtract from a number
+	remove 3 from persistent data tag "skript:add_single" of {_item}
+	set {_val} to persistent data tag "skript:add_single" of {_item}
+	assert {_val} is 12 with "removing from number should work"
+	delete persistent data tag "skript:add_single" of {_item}
+
+test "persistent data add to list":
+	set {_item} to a diamond sword
+	# Start with a list, then add to it
+	set list data tag "skript:add_list" of {_item} to "a" and "b"
+	add "c" to list data tag "skript:add_list" of {_item}
+	set {_values::*} to list data tag "skript:add_list" of {_item}
+	assert size of {_values::*} is 3 with "list should have 3 elements after add"
+	assert {_values::3} is "c" with "third element should be c"
+	# Add multiple
+	add "d" and "e" to list data tag "skript:add_list" of {_item}
+	set {_values::*} to list data tag "skript:add_list" of {_item}
+	assert size of {_values::*} is 5 with "list should have 5 elements after adding 2"
+	delete persistent data tag "skript:add_list" of {_item}
+
+test "persistent data add to nonexistent list":
+	set {_item} to a diamond sword
+	# Adding to a tag that doesn't exist should create a new list
+	add "first" to list data tag "skript:add_new" of {_item}
+	set {_values::*} to list data tag "skript:add_new" of {_item}
+	assert size of {_values::*} is 1 with "adding to nonexistent should create list"
+	assert {_values::1} is "first" with "element should be first"
+	delete persistent data tag "skript:add_new" of {_item}
+
+test "persistent data remove from list":
+	set {_item} to a diamond sword
+	set list data tag "skript:remove_list" of {_item} to "a", "b", "c", and "d"
+	# Remove a single element
+	remove "b" from list data tag "skript:remove_list" of {_item}
+	set {_values::*} to list data tag "skript:remove_list" of {_item}
+	assert size of {_values::*} is 3 with "list should have 3 elements after remove"
+	assert {_values::1} is "a" with "first element should still be a"
+	assert {_values::2} is "c" with "second element should now be c"
+	# Remove multiple elements
+	remove "a" and "d" from list data tag "skript:remove_list" of {_item}
+	set {_values::*} to list data tag "skript:remove_list" of {_item}
+	assert size of {_values::*} is 1 with "list should have 1 element after removing 2"
+	assert {_values::1} is "c" with "remaining element should be c"
+	delete persistent data tag "skript:remove_list" of {_item}
+
+test "persistent data remove nonexistent element from list":
+	set {_item} to a diamond sword
+	set list data tag "skript:remove_noop" of {_item} to "a" and "b"
+	# Removing an element that doesn't exist should not change the list
+	remove "z" from list data tag "skript:remove_noop" of {_item}
+	set {_values::*} to list data tag "skript:remove_noop" of {_item}
+	assert size of {_values::*} is 2 with "list should still have 2 elements"
+	delete persistent data tag "skript:remove_noop" of {_item}
+
+test "persistent data non-serializable type errors":
+	set {_item} to a diamond sword
 	set {_inv} to chest inventory with 1 row
+	# SET with non-serializable should error
+	set persistent data tag "skript:valid" of {_item} to "safe"
 	catch runtime errors:
 		set persistent data tag "skript:valid" of {_item} to {_inv}
-	assert last caught runtime errors contains "Skript cannot serialize inventories as persistent data!" with "should error on non-serializable type"
-	# Original value should still be intact
+	assert last caught runtime errors contains "Skript cannot serialize inventories as persistent data!" with "set should error on non-serializable type"
 	set {_val} to persistent data tag "skript:valid" of {_item}
 	assert {_val} is "safe" with "invalid set should not overwrite existing data"
+	# ADD to list with non-serializable should error
+	set list data tag "skript:valid" of {_item} to "a" and "b"
+	catch runtime errors:
+		add {_inv} to list data tag "skript:valid" of {_item}
+	set {_values::*} to list data tag "skript:valid" of {_item}
+	assert size of {_values::*} is 2 with "list should be unchanged after adding non-serializable"
 	delete persistent data tag "skript:valid" of {_item}
+
+test "persistent data add incompatible types":
+	set {_item} to a diamond sword
+	# Adding a string to a number should not change it (no arithmetic defined)
+	set persistent data tag "skript:add_incompat" of {_item} to 10
+	add "hello" to persistent data tag "skript:add_incompat" of {_item}
+	set {_val} to persistent data tag "skript:add_incompat" of {_item}
+	assert {_val} is 10 with "adding string to number should not change value"
+	# Adding a number to a string should not change it
+	set persistent data tag "skript:add_incompat" of {_item} to "hello"
+	add 5 to persistent data tag "skript:add_incompat" of {_item}
+	set {_val} to persistent data tag "skript:add_incompat" of {_item}
+	assert {_val} is "hello" with "adding number to string should not change value"
+	delete persistent data tag "skript:add_incompat" of {_item}
+
+test "persistent data add/remove with mismatched syntax errors":
+	set {_item} to a diamond sword
+	# Add to list syntax when singular exists - should error
+	set persistent data tag "skript:mismatch" of {_item} to "single"
+	catch runtime errors:
+		add "new" to list data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "add to list when singular exists should error"
+	set {_val} to persistent data tag "skript:mismatch" of {_item}
+	assert {_val} is "single" with "value should still be single"
+	# Remove from list syntax when singular exists - should error
+	catch runtime errors:
+		remove "single" from list data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' is a single value, not a list. Use 'data tag' instead of 'list data tag'." with "remove from list when singular exists should error"
+	delete persistent data tag "skript:mismatch" of {_item}
+	# Add to singular syntax when list exists - should error
+	set list data tag "skript:mismatch" of {_item} to 10, 20, and 30
+	catch runtime errors:
+		add 5 to persistent data tag "skript:mismatch" of {_item}
+	assert last caught runtime errors contains "The data in tag 'skript:mismatch' is a list, not a single value. Use 'list data tag' instead of 'data tag'." with "add to singular when list exists should error"
+	set {_values::*} to list data tag "skript:mismatch" of {_item}
+	assert size of {_values::*} is 3 with "list should be unchanged"
+	delete persistent data tag "skript:mismatch" of {_item}

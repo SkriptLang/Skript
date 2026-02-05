@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -14,6 +15,7 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -27,8 +29,14 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.pdc.PDCSerializer;
 import org.skriptlang.skript.bukkit.pdc.SkriptDataType;
 import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -104,29 +112,37 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	}
 
 	/**
-	 * Gets all elements from the PDC, whether stored as a single value or a list.
+	 * Result of retrieving elements from PDC, including storage format info.
+	 * @param elements The deserialized elements
+	 * @param storedAsList Whether the data was stored as a list (vs a single value)
 	 */
-	private List<Object> getAllElements(PersistentDataContainer container, NamespacedKey key) {
+	private record ElementsResult(List<Object> elements, boolean storedAsList) {}
+
+	/**
+	 * Gets all elements from the PDC, whether stored as a single value or a list.
+	 * Also indicates whether the data was stored as a list.
+	 */
+	private ElementsResult getAllElements(PersistentDataContainer container, NamespacedKey key) {
 		List<Object> elements = new ArrayList<>();
 
-		// Try representable types first
+		// Try representable types first (singular storage)
 		for (var candidateType : PDCSerializer.getRepresentablePDCTypes()) {
 			if (container.has(key, candidateType)) {
 				Object value = container.get(key, candidateType);
 				if (value != null) {
 					elements.add(value);
 				}
-				return elements;
+				return new ElementsResult(elements, false);
 			}
 		}
 
-		// Try SkriptDataType for compound objects
+		// Try SkriptDataType for compound objects (singular storage)
 		if (container.has(key, SkriptDataType.get())) {
 			Object value = container.get(key, SkriptDataType.get());
 			if (value != null) {
 				elements.add(value);
 			}
-			return elements;
+			return new ElementsResult(elements, false);
 		}
 
 		// Try as a list
@@ -137,9 +153,11 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 					elements.add(PDCSerializer.deserialize(subContainer, container.getAdapterContext()));
 				}
 			}
+			return new ElementsResult(elements, true);
 		}
 
-		return elements;
+		// Key doesn't exist
+		return new ElementsResult(elements, false);
 	}
 
 	@Override
@@ -154,9 +172,22 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		List<Object> values = new ArrayList<>();
 		for (Object holder : source) {
 			editPersistentDataContainer(holder, container -> {
-                List<Object> elements = getAllElements(container, key);
+				ElementsResult result = getAllElements(container, key);
+				List<Object> elements = result.elements();
 				if (elements.isEmpty())
 					return;
+
+				// Check for list/singular mismatch
+				if (plural && !result.storedAsList()) {
+					error("The data in tag '" + tagName + "' is a single value, not a list. "
+							+ "Use 'data tag' instead of 'list data tag'.");
+					return;
+				}
+				if (!plural && result.storedAsList()) {
+					error("The data in tag '" + tagName + "' is a list, not a single value. "
+							+ "Use 'list data tag' instead of 'data tag'.");
+					return;
+				}
 
 				if (parsedType != null) {
 					ClassInfo<?> classInfo = parsedType.getClassInfo();
@@ -210,22 +241,22 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.DELETE) {
-			return new Class<?>[0];
-		}
-		if (mode == Changer.ChangeMode.SET) {
-			if (parsedType != null) {
-				Class<?> typeClass = parsedType.getClassInfo().getC();
-				return new Class<?>[]{plural ? typeClass.arrayType() : typeClass};
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case DELETE -> new Class[0];
+			case SET, ADD, REMOVE -> {
+				if (parsedType != null) {
+					Class<?> typeClass = parsedType.getClassInfo().getC();
+					yield new Class<?>[]{plural ? typeClass.arrayType() : typeClass};
+				}
+				yield new Class<?>[]{plural ? Object[].class : Object.class};
 			}
-			return new Class<?>[]{plural ? Object[].class : Object.class};
-		}
-		return null;
+			default -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		String tagName = tag.getSingle(event);
 		if (tagName == null)
 			return;
@@ -235,7 +266,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
 		// ensure set to correct types
 		ClassInfo<?> classInfo = null;
-		if (mode == Changer.ChangeMode.SET) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
 			assert delta != null;
 			for (Object deltaValue : delta) {
 				classInfo = Classes.getSuperClassInfo(deltaValue.getClass());
@@ -254,21 +285,50 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 				continue;
 			}
 			editPersistentDataContainer(holder, container -> {
-				if (mode == Changer.ChangeMode.SET) {
-					// don't use wrapping list if not needed.
-					if (delta.length == 1) {
+				if (mode == ChangeMode.SET) {
+					if (!plural) {
+						// Singular: store first value only
 						//noinspection unchecked
 						PersistentDataType<?, Object> tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(finalClassInfo);
 						container.set(key, tagType, delta[0]);
 					} else {
+						// List: always store as list, even for single element
 						List<PersistentDataContainer> containers = new ArrayList<>();
 						for (Object object : delta) {
 							containers.add(SkriptDataType.get().toPrimitive(object, container.getAdapterContext()));
 						}
 						container.set(key, PersistentDataType.LIST.dataContainers(), containers);
 					}
-				} else if (mode == Changer.ChangeMode.DELETE) {
+				} else if (mode == ChangeMode.DELETE) {
 					container.remove(key);
+				} else if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
+					if (!plural) {
+						// Check for list/singular mismatch
+						if (container.has(key, PersistentDataType.LIST.dataContainers())) {
+							error("The data in tag '" + tagName + "' is a list, not a single value. "
+									+ "Use 'list data tag' instead of 'data tag'.");
+							return;
+						}
+						//noinspection unchecked
+						var tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(finalClassInfo);
+						if (!container.has(key, tagType))
+							return;
+						Object original = container.get(key, tagType);
+						addOrRemoveFromSingleValue(original, delta, mode, value -> {
+							// arithmetic may have modified the value's type, so need to check again
+							//noinspection unchecked
+							var resultType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(Classes.getSuperClassInfo(value.getClass()));
+							container.set(key, resultType, value);
+						});
+					} else {
+						// Check for list/singular mismatch
+						if (container.has(key) && !container.has(key, PersistentDataType.LIST.dataContainers())) {
+							error("The data in tag '" + tagName + "' is a single value, not a list. "
+									+ "Use 'data tag' instead of 'list data tag'.");
+							return;
+						}
+						addOrRemoveFromList(container, key, delta, mode);
+					}
 				}
 			});
 		}
@@ -321,6 +381,104 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		}
 		ssb.appendIf(plural, "list").append("data tag", tag, "of", getExpr());
 		return ssb.toString();
+	}
+
+	/**
+	 * Helper for adding/removing values from a given value. Falls back to arithmetic, then type changers.
+	 * See {@link Variables} for initial impl. Adapted due to need to maintain type.
+	 * @param originalValue The previous existing value.
+	 * @param delta The values to add/remove
+	 * @param mode Whether to add or remove.
+	 * @param setSingle A consumer used to set the new value if arithmetic is used.
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void addOrRemoveFromSingleValue(Object originalValue, Object[] delta, ChangeMode mode, Consumer<Object> setSingle) {
+		// Todo: decide if to, and how best to, de-duplicate the code shared between this and Variable#change(). Perhaps pr to improve changer standards/utils.
+		Class<?> clazz = originalValue == null ? null : originalValue.getClass();
+		Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
+		Changer<?> changer;
+		Class<?>[] classes;
+		// attempt to find arithmetic for each value in delta
+		if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
+			boolean changed = false;
+			for (Object newValue : delta) {
+				var info = Arithmetics.getOperationInfo(operator, clazz != null ? (Class) clazz : newValue.getClass(), newValue.getClass());
+				if (info == null)
+					continue;
+				Object value = originalValue == null ? Arithmetics.getDefaultValue(info.left()) : originalValue;
+				if (value == null)
+					continue;
+				// ensure the operation returns a valid pdc-serializable value
+				if (Classes.getSuperClassInfo(info.returnType()).getSerializer() == null)
+					continue;
+				originalValue = info.operation().calculate(value, newValue);
+				changed = true;
+			}
+			if (changed)
+				setSingle.accept(originalValue);
+			// attempt to use the class's changer
+		} else if ((changer = Classes.getSuperClassInfo(clazz).getChanger()) != null && (classes = changer.acceptChange(mode)) != null) {
+			Object[] originalValueArray = (Object[]) Array.newInstance(originalValue.getClass(), 1);
+			originalValueArray[0] = originalValue;
+
+			Class<?>[] classes2 = new Class<?>[classes.length];
+			for (int i = 0; i < classes.length; i++)
+				classes2[i] = classes[i].isArray() ? classes[i].getComponentType() : classes[i];
+
+			ArrayList<Object> convertedDelta = new ArrayList<>();
+			for (Object value : delta) {
+				Object convertedValue = Converters.convert(value, classes2);
+				if (convertedValue != null)
+					convertedDelta.add(convertedValue);
+			}
+
+			Changer.ChangerUtils.change(changer, originalValueArray, convertedDelta.toArray(), mode);
+		}
+	}
+
+	/**
+	 * Helper for adding/removing values from a given list.
+	 * @param container The container to add to/remove from.
+	 * @param key The key for the existing list.
+	 * @param delta The values to add/remove
+	 * @param mode Whether to add or remove.
+	 */
+	private void addOrRemoveFromList(PersistentDataContainer container, NamespacedKey key, Object[] delta, ChangeMode mode) {
+		// get all values
+		List<PersistentDataContainer> containers = new ArrayList<>();
+		if (container.has(key, PersistentDataType.LIST.dataContainers())) {
+			var data = container.get(key, PersistentDataType.LIST.dataContainers());
+			assert data != null;
+			containers.addAll(data);
+		}
+		// add/remove (for remove, we need to convert object, compare, then remove if needed)
+		if (mode == ChangeMode.ADD) {
+			for (Object object : delta) {
+				containers.add(SkriptDataType.get().toPrimitive(object, container.getAdapterContext()));
+			}
+		} else {
+			var containerIterator = containers.iterator();
+			List<Object> toRemove = new ArrayList<>(delta.length);
+			toRemove.addAll(Arrays.asList(delta));
+			while (containerIterator.hasNext()) {
+				// deserialize
+				var toDeserialize = containerIterator.next();
+				Object value = PDCSerializer.deserialize(toDeserialize, toDeserialize.getAdapterContext());
+				// compare
+				var removeIterator = toRemove.iterator();
+				while (removeIterator.hasNext()) {
+					Object removeCandidate = removeIterator.next();
+					if (Relation.EQUAL.isImpliedBy(Comparators.compare(removeCandidate, value))) {
+						// remove
+						containerIterator.remove();
+						removeIterator.remove();
+						break;
+					}
+				}
+			}
+		}
+		// re-write remaining values
+		container.set(key, PersistentDataType.LIST.dataContainers(), containers);
 	}
 
 }
