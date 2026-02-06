@@ -3,10 +3,10 @@ package org.skriptlang.skript.bukkit.furnace;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.furnace.elements.EvtFurnace;
-import org.skriptlang.skript.bukkit.furnace.elements.ExprFurnaceEventItems;
-import org.skriptlang.skript.bukkit.furnace.elements.ExprFurnaceSlot;
-import org.skriptlang.skript.bukkit.furnace.elements.ExprFurnaceTime;
+import org.skriptlang.skript.bukkit.furnace.elements.events.EvtFurnace;
+import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceEventItems;
+import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceSlot;
+import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceTime;
 
 import java.util.List;
 

@@ -11,6 +11,13 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.breeding.elements.*;
+import org.skriptlang.skript.bukkit.breeding.elements.conditions.*;
+import org.skriptlang.skript.bukkit.breeding.elements.effects.EffAllowAging;
+import org.skriptlang.skript.bukkit.breeding.elements.effects.EffBreedable;
+import org.skriptlang.skript.bukkit.breeding.elements.effects.EffMakeAdultOrBaby;
+import org.skriptlang.skript.bukkit.breeding.elements.events.EvtBreed;
+import org.skriptlang.skript.bukkit.breeding.elements.expressions.ExprBreedingFamily;
+import org.skriptlang.skript.bukkit.breeding.elements.expressions.ExprLoveTime;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 
 import java.util.List;
