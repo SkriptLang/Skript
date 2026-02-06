@@ -45,8 +45,7 @@ public class EffAllowAging extends Effect {
 	private Expression<LivingEntity> entities;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern,
-						Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) expressions[0];
 		unlock = matchedPattern > 2;

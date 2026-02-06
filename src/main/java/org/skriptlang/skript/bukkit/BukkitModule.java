@@ -30,18 +30,18 @@ public class BukkitModule extends HierarchicalAddonModule {
 	@Override
 	public Iterable<AddonModule> children() {
 		return List.of(
-			new BrewingModule(this),
-			new EntityModule(this),
-			new DamageSourceModule(this),
-			new ItemComponentModule(this),
-			new PotionModule(this),
-			new FishingModule(this),
-			new ParticleModule(this),
-			new MiscModule(this),
-			new LootTableModule(this),
 			new BreedingModule(this),
+			new BrewingModule(this),
+			new DamageSourceModule(this),
+			new EntityModule(this),
+			new FishingModule(this),
 			new FurnaceModule(this),
 			new InputModule(this),
+			new ItemComponentModule(this),
+			new LootTableModule(this),
+			new MiscModule(this),
+			new ParticleModule(this),
+			new PotionModule(this),
 			new TagModule(this)
 		);
 	}

@@ -43,11 +43,6 @@ public class DisplayModule extends HierarchicalAddonModule {
 	}
 
 	@Override
-	protected boolean canLoadSelf(SkriptAddon addon) {
-		return Skript.classExists("org.bukkit.entity.Display");
-	}
-
-	@Override
 	protected void initSelf(SkriptAddon addon) {
 		// Classes
 
@@ -128,10 +123,10 @@ public class DisplayModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		DisplayData.register(moduleRegistry(addon));
-
 		//noinspection DuplicatedCode
 		register(addon, List.of(
+			DisplayData::register,
+
 			ExprDisplayBillboard::register,
 			ExprDisplayBrightness::register,
 			ExprDisplayGlowOverride::register,
@@ -159,6 +154,7 @@ public class DisplayModule extends HierarchicalAddonModule {
 
 	@Override
 	public String name() {
-		return "";
+		return "displays";
 	}
+
 }

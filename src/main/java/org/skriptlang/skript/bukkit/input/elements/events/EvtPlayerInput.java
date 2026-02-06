@@ -5,6 +5,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.skript.registrations.EventValues;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +40,12 @@ public class EvtPlayerInput extends SkriptEvent {
 					.supplier(EvtPlayerInput::new)
 					.build()
 			);
+
+			EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
+				event -> InputKey.fromInput(event.getInput()).toArray(new InputKey[0]));
+			EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
+				event -> InputKey.fromInput(event.getPlayer().getCurrentInput()).toArray(new InputKey[0]),
+				EventValues.TIME_PAST);
 		}
 	}
 

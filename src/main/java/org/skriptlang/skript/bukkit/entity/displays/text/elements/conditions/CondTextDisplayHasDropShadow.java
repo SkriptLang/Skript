@@ -33,6 +33,7 @@ public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 					"%displays%'[s] text (doesn't|does not|do not|don't) have [a] (drop|text) shadow"
 				)
 				.supplier(CondTextDisplayHasDropShadow::new)
+				.priority(DEFAULT_PRIORITY)
 				.build()
 		);
 	}

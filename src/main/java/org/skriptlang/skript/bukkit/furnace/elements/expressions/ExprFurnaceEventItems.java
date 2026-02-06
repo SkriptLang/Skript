@@ -80,6 +80,7 @@ public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> 
 			SyntaxInfo.Expression.builder(ExprFurnaceEventItems.class, ItemStack.class)
 				.addPatterns(patterns)
 				.supplier(ExprFurnaceEventItems::new)
+				.priority(PropertyExpression.DEFAULT_PRIORITY)
 				.build()
 		);
 	}

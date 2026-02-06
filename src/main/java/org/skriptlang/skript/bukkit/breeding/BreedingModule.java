@@ -47,7 +47,7 @@ public class BreedingModule extends HierarchicalAddonModule {
 		));
 
 		moduleRegistry(addon).register(
-				BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Love Mode Enter")
 				.addEvent(EntityEnterLoveModeEvent.class)
 				.addPatterns(

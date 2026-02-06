@@ -32,7 +32,7 @@ public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprFishingHookEntity.class, Entity.class)
-				.addPatterns("hook[ed] entity")
+				.addPatterns("[the] hook[ed] entity")
 				.supplier(ExprFishingHookEntity::new)
 				.priority(EventValueExpression.DEFAULT_PRIORITY)
 				.build());

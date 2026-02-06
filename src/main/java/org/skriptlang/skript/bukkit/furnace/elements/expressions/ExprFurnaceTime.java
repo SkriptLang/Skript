@@ -76,6 +76,7 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 			SyntaxInfo.Expression.builder(ExprFurnaceTime.class, Timespan.class)
 				.addPatterns(patterns)
 				.supplier(ExprFurnaceTime::new)
+				.priority(PropertyExpression.DEFAULT_PRIORITY)
 				.build()
 		);
 	}

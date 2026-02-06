@@ -31,31 +31,18 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondIsPressingKey extends Condition {
 
 	public static void register(SyntaxRegistry registry) {
-		if (Skript.classExists("org.bukkit.event.player.PlayerInputEvent")) {
-			registry.register(
-				SyntaxRegistry.CONDITION,
-				SyntaxInfo.builder(CondIsPressingKey.class)
-					.addPatterns(
-						"%players% (is|are) pressing %inputkeys%",
-						"%players% (isn't|is not|aren't|are not) pressing %inputkeys%",
-						"%players% (was|were) pressing %inputkeys%",
-						"%players% (wasn't|was not|weren't|were not) pressing %inputkeys%"
-					)
-					.supplier(CondIsPressingKey::new)
-					.build()
-			);
-		} else {
-			registry.register(
-				SyntaxRegistry.CONDITION,
-				SyntaxInfo.builder(CondIsPressingKey.class)
-					.addPatterns(
-						"%players% (is|are) pressing %inputkeys%",
-						"%players% (isn't|is not|aren't|are not) pressing %inputkeys%"
-					)
-					.supplier(CondIsPressingKey::new)
-					.build()
-			);
-		}
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			SyntaxInfo.builder(CondIsPressingKey.class)
+				.addPatterns(
+					"%players% (is|are) pressing %inputkeys%",
+					"%players% (isn't|is not|aren't|are not) pressing %inputkeys%",
+					"%players% (was|were) pressing %inputkeys%",
+					"%players% (wasn't|was not|weren't|were not) pressing %inputkeys%"
+				)
+				.supplier(CondIsPressingKey::new)
+				.build()
+		);
 	}
 
 	private Expression<Player> players;

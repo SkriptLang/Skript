@@ -53,12 +53,8 @@ public class DamageSourceModule extends HierarchicalAddonModule {
 			.since("2.12")
 		);
 
-		if (Skript.methodExists(EntityDamageEvent.class, "getDamageSource")) {
-			EventValues.registerEventValue(EntityDamageEvent.class, DamageSource.class, EntityDamageEvent::getDamageSource);
-		}
-		if (Skript.methodExists(EntityDeathEvent.class, "getDamageSource")) {
-			EventValues.registerEventValue(EntityDeathEvent.class, DamageSource.class, EntityDeathEvent::getDamageSource);
-		}
+		EventValues.registerEventValue(EntityDamageEvent.class, DamageSource.class, EntityDamageEvent::getDamageSource);
+		EventValues.registerEventValue(EntityDeathEvent.class, DamageSource.class, EntityDeathEvent::getDamageSource);
 	}
 
 	@Override

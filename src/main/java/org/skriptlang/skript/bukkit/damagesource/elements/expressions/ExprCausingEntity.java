@@ -35,7 +35,6 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		set {_causing} to the causing entity of event-damage source
 	""")
 @Since("2.12")
-@RequiredPlugins("Minecraft 1.20.4+")
 public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
 	public static void register(SyntaxRegistry registry) {

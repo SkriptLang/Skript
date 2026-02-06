@@ -20,7 +20,7 @@ public class ExprLootContext extends EventValueExpression<LootContext> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			EventValueExpression.infoBuilder(
+			infoBuilder(
 				ExprLootContext.class,
 				LootContext.class,
 				"loot[ ]context"

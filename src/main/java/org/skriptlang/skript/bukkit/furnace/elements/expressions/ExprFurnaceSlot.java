@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -77,6 +78,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 			SyntaxInfo.Expression.builder(ExprFurnaceSlot.class, Slot.class)
 				.addPatterns(patterns)
 				.supplier(ExprFurnaceSlot::new)
+				.priority(PropertyExpression.DEFAULT_PRIORITY)
 				.build()
 		);
 	}

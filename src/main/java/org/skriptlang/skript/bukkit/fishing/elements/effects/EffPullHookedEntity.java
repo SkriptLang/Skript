@@ -9,7 +9,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -25,7 +24,7 @@ public class EffPullHookedEntity extends Effect {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffFishingLure.class)
-			.addPatterns("(reel|pull) in hook[ed] entity")
+			.addPatterns("(reel|pull) in [the] hook[ed] entity")
 			.supplier(EffFishingLure::new)
 			.build());
 	}

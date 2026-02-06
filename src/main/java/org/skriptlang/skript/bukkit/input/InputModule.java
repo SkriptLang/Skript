@@ -3,8 +3,6 @@ package org.skriptlang.skript.bukkit.input;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.EventValues;
-import org.bukkit.event.player.PlayerInputEvent;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
@@ -42,12 +40,6 @@ public class InputModule extends HierarchicalAddonModule {
 			EvtPlayerInput::register,
 			ExprCurrentInputKeys::register
 		));
-
-		EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
-			event -> InputKey.fromInput(event.getInput()).toArray(new InputKey[0]));
-		EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
-			event -> InputKey.fromInput(event.getPlayer().getCurrentInput()).toArray(new InputKey[0]),
-			EventValues.TIME_PAST);
 	}
 
 	@Override
