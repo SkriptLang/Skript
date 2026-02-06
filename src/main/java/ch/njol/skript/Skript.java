@@ -480,8 +480,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
 
-		experimentRegistry = new ExperimentRegistry(this);
-		Feature.registerAll(getAddonInstance(), experimentRegistry);
+		experimentRegistry = new ExperimentRegistry(skript);
+		Feature.registerAll(skript, experimentRegistry);
 
 		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
