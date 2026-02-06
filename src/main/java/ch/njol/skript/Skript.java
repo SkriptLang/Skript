@@ -554,7 +554,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
-			TagModule.load();
 			skript.loadModules(
 				new CommonModule(),
 				new BukkitModule());

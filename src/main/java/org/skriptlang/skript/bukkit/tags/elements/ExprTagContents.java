@@ -1,12 +1,11 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
@@ -18,6 +17,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagType;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.Array;
 import java.util.Objects;
@@ -35,10 +35,19 @@ import java.util.stream.Stream;
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagContents extends SimpleExpression<Object> {
 
-	static {
-		Skript.registerExpression(ExprTagContents.class, Object.class, ExpressionType.PROPERTY,
-				"[the] tag (contents|values) of %minecrafttag%",
-				"%minecrafttag%'[s] tag (contents|values)");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			PropertyExpression.infoBuilder(
+				ExprTagContents.class,
+				Object.class,
+				"tag (contents|values)",
+				"minecrafttag",
+				false
+			)
+				.supplier(ExprTagContents::new)
+				.build()
+		);
 	}
 
 	private Expression<Tag<?>> tag;

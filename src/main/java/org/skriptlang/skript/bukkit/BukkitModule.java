@@ -17,6 +17,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.misc.MiscModule;
 import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.potion.PotionModule;
+import org.skriptlang.skript.bukkit.tags.TagModule;
 
 import java.util.List;
 
@@ -36,7 +37,8 @@ public class BukkitModule implements AddonModule {
 			new BreedingModule(this),
 			new FurnaceModule(this),
 			new InputModule(this),
-			new DisplayModule(this)
+			new DisplayModule(this),
+			new TagModule(this)
 	);
 
 	private List<AddonModule> filteredSubmodules;

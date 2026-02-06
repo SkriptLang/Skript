@@ -3,11 +3,7 @@ package org.skriptlang.skript.bukkit.tags.elements;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -18,6 +14,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Tagged")
 @Description({
@@ -32,10 +29,18 @@ import org.skriptlang.skript.bukkit.tags.TagModule;
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class CondIsTagged extends Condition {
 
-	static {
-		PropertyCondition.register(CondIsTagged.class, PropertyCondition.PropertyType.BE,
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			PropertyCondition.infoBuilder(
+				CondIsTagged.class,
+				PropertyType.BE,
 				"tagged (as|with) %minecrafttags%",
-				"itemtypes/entities/entitydatas");
+				"itemtypes/entities/entitydatas"
+			)
+				.supplier(CondIsTagged::new)
+				.build()
+			);
 	}
 
 	private Expression<Tag<Keyed>> tags;

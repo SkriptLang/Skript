@@ -1,14 +1,11 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 // TODO: adapt to generic expression after Any X is merged
 
@@ -23,8 +20,19 @@ import org.jetbrains.annotations.Nullable;
 @Keywords({"minecraft tag", "type", "key", "namespace"})
 public class ExprTagKey extends SimplePropertyExpression<Tag<?>, String> {
 
-	static {
-		register(ExprTagKey.class, String.class, "[namespace[d]] key[s]", "minecrafttags");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+					ExprTagKey.class,
+					String.class,
+					"[namespace[d]] key[s]",
+					"minecrafttags",
+					false
+				)
+				.supplier(ExprTagKey::new)
+				.build()
+		);
 	}
 
 	@Override

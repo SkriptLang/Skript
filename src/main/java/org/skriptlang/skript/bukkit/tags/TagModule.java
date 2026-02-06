@@ -17,12 +17,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.tags.elements.*;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
-import java.io.IOException;
+import java.util.List;
 
-public class TagModule {
+public class TagModule extends ChildAddonModule {
 
 	// paper tags
 	public static final boolean PAPER_TAGS_EXIST = Skript.classExists("com.destroystokyo.paper.MaterialTags");
@@ -30,11 +34,17 @@ public class TagModule {
 	// tag object
 	public static TagRegistry tagRegistry;
 
-	public static void load() throws IOException {
-		// abort if no class exists
-		if (!Skript.classExists("org.bukkit.Tag"))
-			return;
+	public TagModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
+	@Override
+	public boolean canLoad(SkriptAddon addon) {
+		return Skript.classExists("org.bukkit.Tag");
+	}
+
+	@Override
+	public void init(SkriptAddon addon) {
 		// Classes
 		Classes.registerClass(new ClassInfo<>(Tag.class, "minecrafttag")
 			.user("minecraft ?tags?")
@@ -58,14 +68,24 @@ public class TagModule {
 				}
 			}));
 
-		// load classes (todo: replace with registering methods after registration api
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "tags");
-
 		// compare tags by keys, not by object instance.
 		Comparators.registerComparator(Tag.class, Tag.class, (a, b) -> Relation.get(a.getKey().equals(b.getKey())));
 
 		// init tags
 		tagRegistry = new TagRegistry();
+	}
+
+	@Override
+	public void load(SkriptAddon addon) {
+		register(addon, List.of(
+			CondIsTagged::register,
+			EffRegisterTag::register,
+			ExprTag::register,
+			ExprTagContents::register,
+			ExprTagKey::register,
+			ExprTagsOf::register,
+			ExprTagsOfType::register
+		));
 	}
 
 	/**
@@ -104,6 +124,11 @@ public class TagModule {
 		if (value == null)
 			return values;
 		return new Keyed[]{value};
+	}
+
+	@Override
+	public String name() {
+		return "tags";
 	}
 
 }

@@ -1,9 +1,7 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -15,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.TagOrigin;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Comparator;
 import java.util.Set;
@@ -35,9 +35,14 @@ import java.util.TreeSet;
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagsOfType extends SimpleExpression<Tag> {
 
-	static {
-		Skript.registerExpression(ExprTagsOfType.class, Tag.class, ExpressionType.SIMPLE,
-				"[all [[of] the]|the] " + TagOrigin.getFullPattern() + " " + TagType.getFullPattern() + " tags");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprTagsOfType.class, Tag.class)
+				.addPattern("[all [[of] the]|the] " + TagOrigin.getFullPattern() + " " + TagType.getFullPattern() + " tags")
+				.supplier(ExprTagsOfType::new)
+				.build()
+		);
 	}
 
 	TagType<?>[] types;

@@ -2,11 +2,7 @@ package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
@@ -26,6 +22,8 @@ import org.skriptlang.skript.bukkit.tags.SkriptTag;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.SkriptTagSource;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +57,15 @@ public class EffRegisterTag extends Effect {
 
 	private static final Pattern KEY_PATTERN = Pattern.compile("[a-zA-Z0-9/._-]+");
 
-	static {
-		Skript.registerEffect(EffRegisterTag.class,
-				"register [a[n]] [custom] " + TagType.getFullPattern(true) +
-					" tag named %string% (containing|using) %entitydatas/itemtypes%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffRegisterTag.class)
+				.addPattern("register [a[n]] [custom] " + TagType.getFullPattern(true) +
+					" tag named %string% (containing|using) %entitydatas/itemtypes%")
+				.supplier(EffRegisterTag::new)
+				.build()
+		);
 	}
 
 	private Expression<String> name;
