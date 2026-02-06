@@ -8,25 +8,44 @@ import java.util.Collection;
 import java.util.SequencedCollection;
 
 record DocumentationImpl(
+	String id,
 	String name,
 	SequencedCollection<String> description,
-	SequencedCollection<String> examples,
-	SequencedCollection<String> since
+	Collection<String> examples,
+	SequencedCollection<String> since,
+	Collection<String> requirements,
+	Collection<String> keywords,
+	boolean deprecated
 ) implements Documentation {
 
-	DocumentationImpl(String name,
+	DocumentationImpl(String id,
+					  String name,
 					  Collection<String> description,
 					  Collection<String> examples,
-					  Collection<String> since) {
-		this(name, ImmutableList.copyOf(description), ImmutableList.copyOf(examples), ImmutableList.copyOf(since));
+					  Collection<String> since,
+					  Collection<String> requirements,
+					  Collection<String> keywords,
+					  boolean deprecated) {
+		this(id, name, ImmutableList.copyOf(description), ImmutableList.copyOf(examples), ImmutableList.copyOf(since),
+			ImmutableList.copyOf(requirements), ImmutableList.copyOf(keywords), deprecated);
 	}
 
 	static class BuilderImpl implements Documentation.Builder {
 
+		private String id;
 		private String name;
 		private final Collection<String> description = new ArrayList<>();
 		private final Collection<String> examples = new ArrayList<>();
 		private final Collection<String> since = new ArrayList<>();
+		private final Collection<String> requirements = new ArrayList<>();
+		private final Collection<String> keywords = new ArrayList<>();
+		private boolean deprecated;
+
+		@Override
+		public Builder id(String id) {
+			this.id = id;
+			return this;
+		}
 
 		@Override
 		public Builder name(String name) {
@@ -89,8 +108,50 @@ record DocumentationImpl(
 		}
 
 		@Override
+		public Builder addRequirements(String... requirements) {
+			this.requirements.addAll(Arrays.asList(requirements));
+			return this;
+		}
+
+		@Override
+		public Builder addRequirements(Collection<String> requirements) {
+			this.requirements.addAll(requirements);
+			return this;
+		}
+
+		@Override
+		public Builder clearRequirements() {
+			this.requirements.clear();
+			return this;
+		}
+
+		@Override
+		public Builder addKeywords(String... keywords) {
+			this.keywords.addAll(Arrays.asList(keywords));
+			return this;
+		}
+
+		@Override
+		public Builder addKeywords(Collection<String> keywords) {
+			this.keywords.addAll(keywords);
+			return this;
+		}
+
+		@Override
+		public Builder clearKeywords() {
+			this.keywords.clear();
+			return this;
+		}
+
+		@Override
+		public Builder deprecated() {
+			this.deprecated = true;
+			return this;
+		}
+
+		@Override
 		public Documentation build() {
-			return new DocumentationImpl(name, description, examples, since);
+			return new DocumentationImpl(id, name, description, examples, since, requirements, keywords, deprecated);
 		}
 
 	}

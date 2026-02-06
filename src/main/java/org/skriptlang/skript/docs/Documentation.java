@@ -1,6 +1,7 @@
 package org.skriptlang.skript.docs;
 
 import ch.njol.skript.doc.*;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
@@ -51,6 +52,11 @@ public interface Documentation {
 	static Documentation of(Class<?> clazz) {
 		Builder builder = builder();
 
+		DocumentationId id = clazz.getAnnotation(DocumentationId.class);
+		if (id != null) {
+			builder.id(id.value());
+		}
+
 		Name name = clazz.getAnnotation(Name.class);
 		if (name != null) {
 			builder.name(name.value());
@@ -81,8 +87,28 @@ public interface Documentation {
 			builder.addSince(since.value());
 		}
 
+		RequiredPlugins requiredPlugins = clazz.getAnnotation(RequiredPlugins.class);
+		if (requiredPlugins != null) {
+			builder.addRequirements(requiredPlugins.value());
+		}
+
+		Keywords keywords = clazz.getAnnotation(Keywords.class);
+		if (keywords != null) {
+			builder.addKeywords(keywords.value());
+		}
+
+		Deprecated deprecated = clazz.getAnnotation(Deprecated.class);
+		if (deprecated != null) {
+			builder.deprecated();
+		}
+
 		return builder.build();
 	}
+
+	/**
+	 * @return An identifier for referencing the thing represented by this documentation.
+	 */
+	@Nullable String id();
 
 	/**
 	 * @return A name for the thing represented by this documentation.
@@ -105,14 +131,38 @@ public interface Documentation {
 	@Unmodifiable SequencedCollection<String> since();
 
 	/**
+	 * @return Requirements for using the thing represented by this documentation.
+	 */
+	@Unmodifiable Collection<String> requirements();
+
+	/**
+	 * @return Keywords for referencing the thing represented by this documentation.
+	 */
+	@Unmodifiable Collection<String> keywords();
+
+	/**
+	 * @return Whether the thing represented by this documentation is considered deprecated.
+	 */
+	boolean deprecated();
+
+	/**
 	 * Describes a builder for creating a {@link Documentation} object.
 	 */
 	interface Builder {
 
 		/**
+		 * Sets the id to use for the documentation.
+		 * @param id The id to use.
+		 * @return This builder.
+		 * @see Documentation#id()
+		 */
+		Builder id(String id);
+
+		/**
 		 * Sets the name to use for the documentation.
 		 * @param name The name to use.
 		 * @return This builder.
+		 * @see Documentation#name()
 		 */
 		Builder name(String name);
 
@@ -120,6 +170,7 @@ public interface Documentation {
 		 * Adds one or more lines of description to the documentation.
 		 * @param description The lines of description to add.
 		 * @return This builder.
+		 * @see Documentation#description()
 		 */
 		Builder addDescription(String... description);
 
@@ -127,12 +178,14 @@ public interface Documentation {
 		 * Adds one or more lines of description to the documentation.
 		 * @param description The lines of description to add.
 		 * @return This builder.
+		 * @see Documentation#description()
 		 */
 		Builder addDescription(Collection<String> description);
 
 		/**
 		 * Clears all added lines of description.
 		 * @return This builder.
+		 * @see Documentation#description()
 		 */
 		Builder clearDescription();
 
@@ -140,6 +193,7 @@ public interface Documentation {
 		 * Adds one or more examples to the documentation.
 		 * @param examples The examples to add.
 		 * @return This builder.
+		 * @see Documentation#examples()
 		 */
 		Builder addExamples(String... examples);
 
@@ -147,12 +201,14 @@ public interface Documentation {
 		 * Adds one or more examples to the documentation.
 		 * @param examples The examples to add.
 		 * @return This builder.
+		 * @see Documentation#examples()
 		 */
 		Builder addExamples(Collection<String> examples);
 
 		/**
 		 * Clears all added examples.
 		 * @return This builder.
+		 * @see Documentation#examples()
 		 */
 		Builder clearExamples();
 
@@ -161,6 +217,7 @@ public interface Documentation {
 		 *  by the documentation was added or changed.
 		 * @param since The entries to add.
 		 * @return This builder.
+		 * @see Documentation#since()
 		 */
 		Builder addSince(String... since);
 
@@ -169,14 +226,69 @@ public interface Documentation {
 		 *  by the documentation was added or changed.
 		 * @param since The entries to add.
 		 * @return This builder.
+		 * @see Documentation#since()
 		 */
 		Builder addSince(Collection<String> since);
 
 		/**
 		 * Clears all added since entries.
 		 * @return This builder.
+		 * @see Documentation#since()
 		 */
 		Builder clearSince();
+
+		/**
+		 * Adds one or more requirements to the documentation.
+		 * @param requirements The requirements to add.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		Builder addRequirements(String... requirements);
+
+		/**
+		 * Adds one or more requirements to the documentation.
+		 * @param requirements The requirements to add.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		Builder addRequirements(Collection<String> requirements);
+
+		/**
+		 * Clears all added requirements.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		Builder clearRequirements();
+
+		/**
+		 * Adds one or more keywords to the documentation.
+		 * @param keywords The keywords to add.
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		Builder addKeywords(String... keywords);
+
+		/**
+		 * Adds one or more keywords to the documentation.
+		 * @param keywords The keywords to add.
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		Builder addKeywords(Collection<String> keywords);
+
+		/**
+		 * Clears all added keywords
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		Builder clearKeywords();
+
+		/**
+		 * Marks that the thing being represented by the documentation is considered deprecated.
+		 * @return This builder.
+		 * @see Documentation#deprecated()
+		 */
+		Builder deprecated();
 
 		/**
 		 * @return A {@link Documentation} object representing the values set on this builder.
