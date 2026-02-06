@@ -14,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.*;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.conditions.*;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.effects.*;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.expressions.*;

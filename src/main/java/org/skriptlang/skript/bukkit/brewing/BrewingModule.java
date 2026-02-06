@@ -3,7 +3,6 @@ package org.skriptlang.skript.bukkit.brewing;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.brewing.elements.*;
 import org.skriptlang.skript.bukkit.brewing.elements.conditions.CondBrewingConsume;
 import org.skriptlang.skript.bukkit.brewing.elements.effects.EffBrewingConsume;
 import org.skriptlang.skript.bukkit.brewing.elements.events.EvtBrewingComplete;

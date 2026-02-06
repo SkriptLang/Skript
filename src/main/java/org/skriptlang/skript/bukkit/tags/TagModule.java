@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.tags.elements.*;
 import org.skriptlang.skript.bukkit.tags.elements.conditions.CondIsTagged;
 import org.skriptlang.skript.bukkit.tags.elements.effects.EffRegisterTag;
 import org.skriptlang.skript.bukkit.tags.elements.expressions.*;
