@@ -1,6 +1,7 @@
 package org.skriptlang.skript.docs;
 
 import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,9 +9,9 @@ import java.util.Collection;
 import java.util.SequencedCollection;
 
 record DocumentationImpl(
-	String id,
+	@Nullable String id,
 	String name,
-	SequencedCollection<String> description,
+	String description,
 	Collection<String> examples,
 	SequencedCollection<String> since,
 	Collection<String> requirements,
@@ -18,23 +19,23 @@ record DocumentationImpl(
 	boolean deprecated
 ) implements Documentation {
 
-	DocumentationImpl(String id,
+	DocumentationImpl(@Nullable String id,
 					  String name,
-					  Collection<String> description,
+					  String description,
 					  Collection<String> examples,
 					  Collection<String> since,
 					  Collection<String> requirements,
 					  Collection<String> keywords,
 					  boolean deprecated) {
-		this(id, name, ImmutableList.copyOf(description), ImmutableList.copyOf(examples), ImmutableList.copyOf(since),
+		this(id, name, description, ImmutableList.copyOf(examples), ImmutableList.copyOf(since),
 			ImmutableList.copyOf(requirements), ImmutableList.copyOf(keywords), deprecated);
 	}
 
 	static class BuilderImpl implements Documentation.Builder {
 
 		private String id;
-		private String name;
-		private final Collection<String> description = new ArrayList<>();
+		private String name = "";
+		private String description = "";
 		private final Collection<String> examples = new ArrayList<>();
 		private final Collection<String> since = new ArrayList<>();
 		private final Collection<String> requirements = new ArrayList<>();
@@ -42,7 +43,7 @@ record DocumentationImpl(
 		private boolean deprecated;
 
 		@Override
-		public Builder id(String id) {
+		public Builder id(@Nullable String id) {
 			this.id = id;
 			return this;
 		}
@@ -54,20 +55,8 @@ record DocumentationImpl(
 		}
 
 		@Override
-		public Builder addDescription(String... description) {
-			this.description.addAll(Arrays.asList(description));
-			return this;
-		}
-
-		@Override
-		public Builder addDescription(Collection<String> description) {
-			this.description.addAll(description);
-			return this;
-		}
-
-		@Override
-		public Builder clearDescription() {
-			this.description.clear();
+		public Builder description(String description) {
+			this.description = description;
 			return this;
 		}
 

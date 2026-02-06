@@ -30,14 +30,14 @@ public interface Documentation {
 	 * Creates documentation consisting of the four standard properties.
 	 * @param name The name to use.
 	 * @param description The description to use.
-	 * @param since The since to use.
+	 * @param since The since entry to use.
 	 * @param examples The examples to use.
 	 * @return Documentation built from the provided standard properties.
 	 */
 	static Documentation of(String name, String description, String since, String... examples) {
 		return builder()
 			.name(name)
-			.addDescription(description)
+			.description(description)
 			.addSince(since)
 			.addExamples(examples)
 			.build();
@@ -64,7 +64,7 @@ public interface Documentation {
 
 		Description description = clazz.getAnnotation(Description.class);
 		if (description != null) {
-			builder.addDescription(description.value());
+			builder.description(String.join("\n", description.value()));
 		}
 
 		if (clazz.isAnnotationPresent(Examples.class)) {
@@ -116,9 +116,9 @@ public interface Documentation {
 	String name();
 
 	/**
-	 * @return Paragraphs of description for the thing represented by this documentation.
+	 * @return A description for the thing represented by this documentation.
 	 */
-	@Unmodifiable SequencedCollection<String> description();
+	@Unmodifiable String description();
 
 	/**
 	 * @return Examples for using the thing represented by this documentation.
@@ -151,12 +151,12 @@ public interface Documentation {
 	interface Builder {
 
 		/**
-		 * Sets the id to use for the documentation.
-		 * @param id The id to use.
+		 * Sets the identifier to use for the documentation.
+		 * @param id The identifier to use. Use {@code null} to unset it.
 		 * @return This builder.
 		 * @see Documentation#id()
 		 */
-		Builder id(String id);
+		Builder id(@Nullable String id);
 
 		/**
 		 * Sets the name to use for the documentation.
@@ -167,27 +167,12 @@ public interface Documentation {
 		Builder name(String name);
 
 		/**
-		 * Adds one or more lines of description to the documentation.
-		 * @param description The lines of description to add.
+		 * Sets the description to use for the documentation.
+		 * @param description The description to use.
 		 * @return This builder.
 		 * @see Documentation#description()
 		 */
-		Builder addDescription(String... description);
-
-		/**
-		 * Adds one or more lines of description to the documentation.
-		 * @param description The lines of description to add.
-		 * @return This builder.
-		 * @see Documentation#description()
-		 */
-		Builder addDescription(Collection<String> description);
-
-		/**
-		 * Clears all added lines of description.
-		 * @return This builder.
-		 * @see Documentation#description()
-		 */
-		Builder clearDescription();
+		Builder description(String description);
 
 		/**
 		 * Adds one or more examples to the documentation.
