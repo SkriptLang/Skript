@@ -13,6 +13,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Height/Width")
 @Description({
@@ -26,8 +27,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Float> {
 
-	static {
-		registerDefault(ExprDisplayHeightWidth.class, Float.class, "display (:height|width)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDisplayHeightWidth.class,
+				Float.class,
+				"display (:height|width)",
+				"displays",
+				true
+			)
+				.supplier(ExprDisplayHeightWidth::new)
+				.build()
+		);
 	}
 
 	private boolean height;

@@ -9,7 +9,6 @@ import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -25,7 +24,11 @@ public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprCreatedDamageSource.class, DamageSource.class,"created damage source")
+			infoBuilder(
+				ExprCreatedDamageSource.class,
+				DamageSource.class,
+				"created damage source"
+			)
 				.supplier(ExprCreatedDamageSource::new)
 				.build()
 		);

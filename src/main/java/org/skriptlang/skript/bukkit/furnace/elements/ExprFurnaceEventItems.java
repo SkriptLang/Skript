@@ -6,7 +6,6 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -19,6 +18,8 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Furnace Event Items")
 @Description({
@@ -67,14 +68,20 @@ public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> 
 
 	private static final FurnaceValues[] FURNACE_VALUES = FurnaceValues.values();
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		int size = FURNACE_VALUES.length;
-		String[] patterns  = new String[size];
+		String[] patterns = new String[size];
 		for (FurnaceValues value : FURNACE_VALUES) {
 			patterns[value.ordinal()] = value.pattern;
 		}
 
-		Skript.registerExpression(ExprFurnaceEventItems.class, ItemStack.class, ExpressionType.PROPERTY, patterns);
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprFurnaceEventItems.class, ItemStack.class)
+				.addPatterns(patterns)
+				.supplier(ExprFurnaceEventItems::new)
+				.build()
+		);
 	}
 
 	private FurnaceValues type;

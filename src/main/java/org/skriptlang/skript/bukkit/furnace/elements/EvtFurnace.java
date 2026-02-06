@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.furnace.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -12,54 +11,86 @@ import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtFurnace extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Smelt", EvtFurnace.class, FurnaceSmeltEvent.class,
-				"[furnace] [ore] smelt[ed|ing] [of %-itemtypes%]",
-				"[furnace] smelt[ed|ing] of ore")
-			.description("Called when a furnace smelts an item in its <a href='#ExprFurnaceSlot'>input slot</a>.")
-			.examples(
-				"on smelt:",
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtFurnace.class, "Smelt")
+				.addEvent(FurnaceSmeltEvent.class)
+				.addPatterns(
+					"[furnace] [ore] smelt[ed|ing] [of %-itemtypes%]",
+					"[furnace] smelt[ed|ing] of ore"
+				)
+				.addDescription("Called when a furnace smelts an item in its <a href='#ExprFurnaceSlot'>input slot</a>.")
+				.addExamples(
+					"on smelt:",
 					"\tclear the smelted item",
-				"on smelt of raw iron:",
+					"on smelt of raw iron:",
 					"\tbroadcast smelted item",
 					"\tset the smelted item to iron block"
-			)
-			.since("1.0, 2.10 (specific item)");
+				)
+				.addSince("1.0, 2.10 (specific item)")
+				.supplier(EvtFurnace::new)
+				.build()
+		);
 
-		Skript.registerEvent("Fuel Burn", EvtFurnace.class, FurnaceBurnEvent.class, "[furnace] fuel burn[ing] [of %-itemtypes%]")
-			.description("Called when a furnace burns an item from its <a href='#ExprFurnaceSlot'>fuel slot</a>.")
-			.examples(
-				"on fuel burning:",
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtFurnace.class, "Fuel Burn")
+				.addEvent(FurnaceBurnEvent.class)
+				.addPatterns("[furnace] fuel burn[ing] [of %-itemtypes%]")
+				.addDescription("Called when a furnace burns an item from its <a href='#ExprFurnaceSlot'>fuel slot</a>.")
+				.addExamples(
+					"on fuel burning:",
 					"\tbroadcast fuel burned",
 					"\tif burned fuel is coal:",
-						"\t\tadd 20 seconds to burn time"
-			)
-			.since("1.0, 2.10 (specific item)");
+					"\t\tadd 20 seconds to burn time"
+				)
+				.addSince("1.0, 2.10 (specific item)")
+				.supplier(EvtFurnace::new)
+				.build()
+		);
 
-		Skript.registerEvent("Furnace Item Extract", EvtFurnace.class, FurnaceExtractEvent.class, "furnace [item] extract[ion] [of %-itemtypes%]")
-			.description("Called when a player takes any item out of the furnace.")
-			.examples(
-				"on furnace extract:",
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtFurnace.class, "Furnace Item Extract")
+				.addEvent(FurnaceExtractEvent.class)
+				.addPatterns("furnace [item] extract[ion] [of %-itemtypes%]")
+				.addDescription("Called when a player takes any item out of the furnace.")
+				.addExamples(
+					"on furnace extract:",
 					"\tif event-items is an iron ingot:",
-						"\t\tremove event-items from event-player's inventory"
-			)
-			.since("2.10");
+					"\t\tremove event-items from event-player's inventory"
+				)
+				.addSince("2.10")
+				.supplier(EvtFurnace::new)
+				.build()
+		);
 
-		Skript.registerEvent("Start Smelt", EvtFurnace.class, FurnaceStartSmeltEvent.class,
-			"[furnace] start [of] smelt[ing] [[of] %-itemtypes%]",
-			"[furnace] smelt[ing] start [of %-itemtypes%]")
-			.description("Called when a furnace starts smelting an item in its ore slot.")
-			.examples(
-				"on smelting start:",
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtFurnace.class, "Start Smelt")
+				.addEvent(FurnaceStartSmeltEvent.class)
+				.addPatterns(
+					"[furnace] start [of] smelt[ing] [[of] %-itemtypes%]",
+					"[furnace] smelt[ing] start [of %-itemtypes%]"
+				)
+				.addDescription("Called when a furnace starts smelting an item in its ore slot.")
+				.addExamples(
+					"on smelting start:",
 					"\tif the smelting item is raw iron:",
-						"\t\tset total cook time to 1 second",
-				"on smelting start of raw iron:",
+					"\t\tset total cook time to 1 second",
+					"on smelting start of raw iron:",
 					"\tadd 20 seconds to total cook time"
-			)
-			.since("2.10");
+				)
+				.addSince("2.10")
+				.supplier(EvtFurnace::new)
+				.build()
+		);
 	}
 
 	private @Nullable Literal<ItemType> types;

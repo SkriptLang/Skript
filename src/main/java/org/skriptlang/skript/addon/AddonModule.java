@@ -44,6 +44,14 @@ public interface AddonModule {
 	 * An origin to be used for something provided by one or more modules of an addon.
 	 */
 	sealed interface ModuleOrigin extends AddonOrigin permits AddonModuleImpl.ModuleOriginImpl, ChildAddonModule.ChildModuleOriginImpl {
+		/**
+		 * @return The names of the modules represented by this origin.
+		 * @deprecated Use {@link #moduleNames()}
+		 */
+		@Deprecated(since="INSERT VERSION", forRemoval = true)
+		default String moduleName() {
+			return String.join(", ", moduleNames());
+		}
 
 		/**
 		 * @return The names of the modules represented by this origin.

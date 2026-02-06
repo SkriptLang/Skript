@@ -18,14 +18,32 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.loottables.elements.conditions.CondHasLootTable;
+import org.skriptlang.skript.bukkit.loottables.elements.conditions.CondIsLootable;
+import org.skriptlang.skript.bukkit.loottables.elements.effects.EffGenerateLoot;
+import org.skriptlang.skript.bukkit.loottables.elements.expressions.*;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
 import java.io.StreamCorruptedException;
+import java.util.List;
 
-public class LootTableModule {
+public class LootTableModule extends ChildAddonModule {
 
-	public static void load() throws IOException {
+	/**
+	 * Constructs a child addon module with the given parent module.
+	 *
+	 * @param parentModule The parent module that created this child module.
+	 */
+	public LootTableModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
+	@Override
+	public void init(SkriptAddon addon) {
 		// --- CLASSES --- //
 
 		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
@@ -135,24 +153,47 @@ public class LootTableModule {
 				}
 			})
 		);
+	}
 
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.loottables", "elements");
+	@Override
+	public void load(SkriptAddon addon) {
+		register(addon, List.of(
+			CondHasLootTable::register,
+			CondIsLootable::register,
+
+			EffGenerateLoot::register,
+
+			ExprLoot::register,
+			ExprLootContext::register,
+			ExprLootContextEntity::register,
+			ExprLootContextLocation::register,
+			ExprLootContextLooter::register,
+			ExprLootContextLuck::register,
+			ExprLootItems::register,
+			ExprLootTable::register,
+			ExprLootTableFromString::register,
+			ExprLootTableSeed::register,
+			ExprSecCreateLootContext::register
+		));
 
 		// --- SIMPLE EVENTS --- //
-
-		Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-			.description(
-				"Called when a loot table of an inventory is generated in the world.",
-				"For example, when opening a shipwreck chest."
-			)
-			.examples(
-				"on loot generate:",
-					"\tchance of 10%",
-					"\tadd 64 diamonds to the loot",
-					"\tsend \"You hit the jackpot at %event-location%!\""
-			)
-			.since("2.7")
-			.requiredPlugins("MC 1.16+");
+		SyntaxRegistry registry = moduleRegistry(addon);
+		registry.register(BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(SimpleEvent.class, "Loot Generate")
+				.addEvent(LootGenerateEvent.class)
+				.addPattern("loot generat(e|ing)")
+				.addDescription(
+					"Called when a loot table of an inventory is generated in the world.",
+					"For example, when opening a shipwreck chest."
+				)
+				.addExample("""
+					on loot generate:
+						chance of 10%
+						add 64 diamonds to the loot
+						send "You hit the jackpot at %event-location%!"
+					""")
+				.addSince("2.7")
+				.build());
 
 		// --- EVENT VALUES --- //
 
@@ -161,6 +202,12 @@ public class LootTableModule {
 		EventValues.registerEventValue(LootGenerateEvent.class, Location.class, event -> event.getLootContext().getLocation());
 		EventValues.registerEventValue(LootGenerateEvent.class, LootTable.class, LootGenerateEvent::getLootTable);
 		EventValues.registerEventValue(LootGenerateEvent.class, LootContext.class, LootGenerateEvent::getLootContext);
+	}
+
+
+	@Override
+	public String name() {
+		return "loot tables";
 	}
 
 }

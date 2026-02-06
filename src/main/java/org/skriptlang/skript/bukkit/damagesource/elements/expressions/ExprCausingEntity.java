@@ -12,7 +12,6 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -42,7 +41,13 @@ public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, En
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprCausingEntity.class, Entity.class,"(causing|responsible) entity", "damagesources", true)
+			infoBuilder(
+				ExprCausingEntity.class,
+				Entity.class,
+				"(causing|responsible) entity",
+				"damagesources",
+				true
+			)
 				.supplier(ExprCausingEntity::new)
 				.build()
 		);

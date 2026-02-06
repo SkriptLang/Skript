@@ -11,6 +11,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Opacity")
 @Description("""
@@ -28,8 +29,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10, 2.14 (0-255)")
 public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, Integer> {
 
-	static {
-		registerDefault(ExprTextDisplayOpacity.class, Integer.class, "[display] [text] opacity", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprTextDisplayOpacity.class,
+				Integer.class,
+				"[display] [text] opacity",
+				"displays",
+				true
+			)
+				.supplier(ExprTextDisplayOpacity::new)
+				.build()
+		);
 	}
 
 	private static int convertToUnsigned(byte value) {

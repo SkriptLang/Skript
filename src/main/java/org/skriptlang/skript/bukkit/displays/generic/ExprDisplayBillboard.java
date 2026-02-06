@@ -11,6 +11,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Billboard")
 @Description({
@@ -22,8 +23,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayBillboard extends SimplePropertyExpression<Display, Billboard> {
 
-	static {
-		registerDefault(ExprDisplayBillboard.class, Billboard.class, "bill[ |-]board[ing] [setting]", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDisplayBillboard.class,
+				Billboard.class,
+				"bill[ |-]board[ing] [setting]",
+				"displays",
+				true
+			)
+				.supplier(ExprDisplayBillboard::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -13,6 +12,8 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Make Adult/Baby")
 @Description("Force a animal to become an adult or baby.")
@@ -24,10 +25,17 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class EffMakeAdultOrBaby extends Effect {
 
-	static {
-		Skript.registerEffect(EffMakeAdultOrBaby.class,
-			"make %livingentities% [a[n]] (:adult|baby|child)",
-			"force %livingentities% to be[come] a[n] (:adult|baby|child)");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffMakeAdultOrBaby.class)
+				.addPatterns(
+					"make %livingentities% [a[n]] (:adult|baby|child)",
+					"force %livingentities% to be[come] a[n] (:adult|baby|child)"
+				)
+				.supplier(EffMakeAdultOrBaby::new)
+				.build()
+		);
 	}
 
 	private boolean adult;

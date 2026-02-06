@@ -15,7 +15,6 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -43,7 +42,13 @@ public class ExprDamageType extends SimplePropertyExpression<DamageSource, Damag
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprDamageType.class, DamageType.class,"damage type", "damagesources", true)
+			infoBuilder(
+				ExprDamageType.class,
+				DamageType.class,
+				"damage type",
+				"damagesources",
+				true
+			)
 				.supplier(ExprDamageType::new)
 				.build()
 		);

@@ -13,6 +13,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Shadow Radius/Strength")
 @Description("Returns or changes the shadow radius/strength of <a href='#display'>displays</a>.")
@@ -20,8 +21,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> {
 
-	static {
-		registerDefault(ExprDisplayShadow.class, Float.class, "shadow (:radius|strength)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDisplayShadow.class,
+				Float.class,
+				"shadow (:radius|strength)",
+				"displays",
+				true
+			)
+				.supplier(ExprDisplayShadow::new)
+				.build()
+		);
 	}
 
 	private boolean radius;

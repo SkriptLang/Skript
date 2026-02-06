@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Transformation Rotation")
 @Description({
@@ -25,8 +26,19 @@ import org.joml.Quaternionf;
 @Since("2.10")
 public class ExprDisplayTransformationRotation extends SimplePropertyExpression<Display, Quaternionf> {
 
-	static {
-		registerDefault(ExprDisplayTransformationRotation.class, Quaternionf.class, "(:left|right) [transformation] rotation", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDisplayTransformationRotation.class,
+				Quaternionf.class,
+				"(:left|right) [transformation] rotation",
+				"displays",
+				true
+			)
+				.supplier(ExprDisplayTransformationRotation::new)
+				.build()
+		);
 	}
 
 	private boolean left;

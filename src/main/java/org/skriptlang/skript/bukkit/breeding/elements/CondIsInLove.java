@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is In Love")
 @Description("Checks whether or not a living entity is in love.")
@@ -18,8 +19,18 @@ import org.bukkit.entity.LivingEntity;
 @Since("2.10")
 public class CondIsInLove extends PropertyCondition<LivingEntity> {
 
-	static {
-		register(CondIsInLove.class, "in lov(e|ing) [state|mode]", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			PropertyCondition.infoBuilder(
+				CondIsInLove.class,
+				PropertyType.BE,
+				"in lov(e|ing) [state|mode]",
+				"livingentities"
+			)
+				.supplier(CondIsInLove::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Alignment")
 @Description("Returns or changes the <a href='#textalignment'>alignment</a> setting of <a href='#display'>text displays</a>.")
@@ -19,8 +20,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprTextDisplayAlignment extends SimplePropertyExpression<Display, TextAlignment> {
 
-	static {
-		registerDefault(ExprTextDisplayAlignment.class, TextAlignment.class, "text alignment[s]", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprTextDisplayAlignment.class,
+				TextAlignment.class,
+				"text alignment[s]",
+				"displays",
+				true
+			)
+				.supplier(ExprTextDisplayAlignment::new)
+				.build()
+		);
 	}
 
 	@Override

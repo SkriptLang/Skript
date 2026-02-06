@@ -19,6 +19,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class DisplayData extends EntityData<Display> {
 
 	public static final Color DEFAULT_BACKGROUND_COLOR = ColorRGB.fromRGBA(0, 0, 0, 64).asBukkitColor();
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		EntityData.register(DisplayData.class, "display", Display.class, 0, DisplayType.codeNames);
 		Variables.yggdrasil.registerSingleClass(DisplayType.class, "DisplayType");
 	}

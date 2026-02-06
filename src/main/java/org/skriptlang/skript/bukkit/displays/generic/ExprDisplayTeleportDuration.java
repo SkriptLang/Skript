@@ -1,12 +1,7 @@
 package org.skriptlang.skript.bukkit.displays.generic;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
@@ -15,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Teleport Duration")
 @Description({
@@ -33,9 +29,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Display, Timespan> {
 
-	static {
-		if (Skript.isRunningMinecraft(1, 20, 4))
-			registerDefault(ExprDisplayTeleportDuration.class, Timespan.class, "teleport[ation] duration[s]", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDisplayTeleportDuration.class,
+				Timespan.class,
+				"teleport[ation] duration[s]",
+				"displays",
+				true
+			)
+				.supplier(ExprDisplayTeleportDuration::new)
+				.build()
+		);
 	}
 
 	@Override

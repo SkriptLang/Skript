@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Baby")
 @Description("Checks whether or not a living entity is a baby.")
@@ -18,8 +19,18 @@ import org.bukkit.entity.LivingEntity;
 @Since("2.10")
 public class CondIsBaby extends PropertyCondition<LivingEntity> {
 
-	static {
-		register(CondIsBaby.class, "a (child|baby)", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			PropertyCondition.infoBuilder(
+				CondIsBaby.class,
+				PropertyType.BE,
+				"a (child|baby)",
+				"livingentities"
+			)
+				.supplier(CondIsBaby::new)
+				.build()
+		);
 	}
 
 	@Override

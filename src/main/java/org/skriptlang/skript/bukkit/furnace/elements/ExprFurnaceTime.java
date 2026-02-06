@@ -6,7 +6,6 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
@@ -21,6 +20,8 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -61,9 +62,8 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 	}
 
 	private static final FurnaceExpressions[] furnaceExprs = FurnaceExpressions.values();
-	
-	static {
 
+	public static void register(SyntaxRegistry registry) {
 		int size = furnaceExprs.length;
 		String[] patterns = new String[size * 2];
 		for (FurnaceExpressions value : furnaceExprs) {
@@ -71,7 +71,13 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 			patterns[2 * value.ordinal() + 1] = "%blocks%'[s]" + value.pattern;
 		}
 
-		Skript.registerExpression(ExprFurnaceTime.class, Timespan.class, ExpressionType.PROPERTY, patterns);
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprFurnaceTime.class, Timespan.class)
+				.addPatterns(patterns)
+				.supplier(ExprFurnaceTime::new)
+				.build()
+		);
 	}
 
 	private FurnaceExpressions type;

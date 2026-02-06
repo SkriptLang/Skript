@@ -63,12 +63,7 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
-import org.skriptlang.skript.bukkit.breeding.BreedingModule;
-import org.skriptlang.skript.bukkit.displays.DisplayModule;
-import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
-import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
-import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.common.CommonModule;
@@ -559,12 +554,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
-			BreedingModule.load();
-			DisplayModule.load();
-			InputModule.load();
 			TagModule.load();
-			FurnaceModule.load();
-			LootTableModule.load();
 			skript.loadModules(
 				new CommonModule(),
 				new BukkitModule());

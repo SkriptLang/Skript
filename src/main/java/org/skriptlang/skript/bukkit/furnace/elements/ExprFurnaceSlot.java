@@ -8,7 +8,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.EventValues;
@@ -30,6 +29,8 @@ import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,13 +66,19 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 
 	private static final FurnaceSlot[] furnaceSlots = FurnaceSlot.values();
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		String[] patterns = new String[furnaceSlots.length * 2];
 		for (FurnaceSlot slot : furnaceSlots) {
 			patterns[2 * slot.ordinal()] = "[the] " + slot.pattern + " slot[s] [of %blocks%]";
 			patterns[2 * slot.ordinal() + 1] = "%blocks%'[s] " + slot.pattern + " slot[s]";
 		}
-		Skript.registerExpression(ExprFurnaceSlot.class, Slot.class, ExpressionType.PROPERTY, patterns);
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprFurnaceSlot.class, Slot.class)
+				.addPatterns(patterns)
+				.supplier(ExprFurnaceSlot::new)
+				.build()
+		);
 	}
 
 

@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.fishing.elements.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -12,8 +13,7 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.docs.Origin;
-import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Bite Time")
@@ -31,9 +31,10 @@ public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
-			DefaultSyntaxInfos.Expression.builder(ExprFishingBiteTime.class, Timespan.class)
+			SyntaxInfo.Expression.builder(ExprFishingBiteTime.class, Timespan.class)
 				.addPatterns("fish[ing] bit(e|ing) [wait] time")
 				.supplier(ExprFishingBiteTime::new)
+				.priority(EventValueExpression.DEFAULT_PRIORITY)
 				.build());
 	}
 

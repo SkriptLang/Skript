@@ -16,6 +16,7 @@ import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Transformation Scale/Translation")
 @Description("Returns or changes the transformation scale or translation of <a href='#display'>displays</a>.")
@@ -23,8 +24,19 @@ import org.joml.Vector3f;
 @Since("2.10")
 public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExpression<Display, Vector> {
 
-	static {
-		register(ExprDisplayTransformationScaleTranslation.class, Vector.class, "(display|[display] transformation) (:scale|translation)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDisplayTransformationScaleTranslation.class,
+				Vector.class,
+				"(display|[display] transformation) (:scale|translation)",
+				"displays",
+				true
+			)
+				.supplier(ExprDisplayTransformationScaleTranslation::new)
+				.build()
+		);
 	}
 
 	private boolean scale;

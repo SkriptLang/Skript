@@ -11,6 +11,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Line Width")
 @Description("Returns or changes the line width of <a href='#display'>text displays</a>. Default is 200.")
@@ -18,8 +19,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprTextDisplayLineWidth extends SimplePropertyExpression<Display, Integer> {
 
-	static {
-		registerDefault(ExprTextDisplayLineWidth.class, Integer.class, "line width", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprTextDisplayLineWidth.class,
+				Integer.class,
+				"line width",
+				"displays",
+				true
+			)
+				.supplier(ExprTextDisplayLineWidth::new)
+				.build()
+		);
 	}
 
 	@Override

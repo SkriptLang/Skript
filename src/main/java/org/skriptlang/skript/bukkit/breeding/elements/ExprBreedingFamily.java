@@ -6,7 +6,6 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -14,6 +13,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Breeding Family")
 @Description("Represents family members within a breeding event.")
@@ -24,12 +25,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 
-	static {
-		Skript.registerExpression(ExprBreedingFamily.class, LivingEntity.class, ExpressionType.SIMPLE,
-			"[the] breeding mother",
-			"[the] breeding father",
-			"[the] [bred] (offspring|child)",
-			"[the] breeder");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprBreedingFamily.class, LivingEntity.class)
+				.addPatterns(
+					"[the] breeding mother",
+					"[the] breeding father",
+					"[the] [bred] (offspring|child)",
+					"[the] breeder"
+				)
+				.supplier(ExprBreedingFamily::new)
+				.build()
+		);
 	}
 
 	private int pattern;

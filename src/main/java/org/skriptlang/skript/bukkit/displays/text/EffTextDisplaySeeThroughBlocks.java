@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.displays.text;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -13,6 +12,8 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display See Through Blocks")
 @Description("Forces a text display to either be or not be visible through blocks.")
@@ -21,12 +22,18 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class EffTextDisplaySeeThroughBlocks extends Effect {
 
-	static {
-		Skript.registerEffect(EffTextDisplaySeeThroughBlocks.class,
-				"make %displays% visible through (blocks|walls)",
-				"force %displays% to be visible through (blocks|walls)",
-				"(prevent|block) %displays% from being (visible|seen) through (blocks|walls)"
-			);
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffTextDisplaySeeThroughBlocks.class)
+				.addPatterns(
+					"make %displays% visible through (blocks|walls)",
+					"force %displays% to be visible through (blocks|walls)",
+					"(prevent|block) %displays% from being (visible|seen) through (blocks|walls)"
+				)
+				.supplier(EffTextDisplaySeeThroughBlocks::new)
+				.build()
+		);
 	}
 
 	Expression<Display> displays;

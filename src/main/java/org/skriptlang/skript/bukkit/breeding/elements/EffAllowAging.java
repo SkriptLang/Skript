@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -13,6 +12,8 @@ import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Allow Aging")
 @Description("Sets whether or not living entities will be able to age.")
@@ -23,14 +24,21 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class EffAllowAging extends Effect {
 
-	static {
-		Skript.registerEffect(EffAllowAging.class,
-			"lock age of %livingentities%",
-			"prevent aging of %livingentities%",
-			"prevent %livingentities% from aging",
-			"unlock age of %livingentities%",
-			"allow aging of %livingentities%",
-			"allow %livingentities% to age");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffAllowAging.class)
+				.addPatterns(
+					"lock age of %livingentities%",
+					"prevent aging of %livingentities%",
+					"prevent %livingentities% from aging",
+					"unlock age of %livingentities%",
+					"allow aging of %livingentities%",
+					"allow %livingentities% to age"
+				)
+				.supplier(EffAllowAging::new)
+				.build()
+		);
 	}
 
 	private boolean unlock;

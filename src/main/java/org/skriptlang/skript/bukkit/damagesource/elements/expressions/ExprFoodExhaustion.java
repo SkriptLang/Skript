@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -23,7 +22,13 @@ public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, F
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprFoodExhaustion.class, Float.class,"food exhaustion", "damagesources", true)
+			infoBuilder(
+				ExprFoodExhaustion.class,
+				Float.class,
+				"food exhaustion",
+				"damagesources",
+				true
+			)
 				.supplier(ExprFoodExhaustion::new)
 				.build()
 		);

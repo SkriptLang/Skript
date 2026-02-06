@@ -23,9 +23,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
-import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
@@ -82,10 +81,8 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			DefaultSyntaxInfos.Expression.builder(ExprSecDamageSource.class, DamageSource.class)
-				.addPatterns(
-					"[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]"
-				)
+			SyntaxInfo.Expression.builder(ExprSecDamageSource.class, DamageSource.class)
+				.addPatterns("[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]")
 				.supplier(ExprSecDamageSource::new)
 				.build()
 		);

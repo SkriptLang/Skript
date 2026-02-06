@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Can Breed")
 @Description("Checks whether or not a living entity can be bred.")
@@ -18,8 +19,18 @@ import org.bukkit.entity.LivingEntity;
 @Since("2.10")
 public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
-	static {
-		register(CondCanBreed.class, PropertyType.CAN, "(breed|be bred)", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			PropertyCondition.infoBuilder(
+				CondCanBreed.class,
+				PropertyType.CAN,
+				"(breed|be bred)",
+				"livingentities"
+			)
+				.supplier(CondCanBreed::new)
+				.build()
+		);
 	}
 
 	@Override

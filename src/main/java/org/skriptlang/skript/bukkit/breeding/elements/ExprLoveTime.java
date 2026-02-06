@@ -12,6 +12,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Love Time")
 @Description({
@@ -26,8 +27,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 
-	static {
-		register(ExprLoveTime.class, Timespan.class, "love[d] time", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprLoveTime.class,
+				Timespan.class,
+				"love[d] time",
+				"livingentities",
+				false
+			)
+				.supplier(ExprLoveTime::new)
+				.build()
+		);
 	}
 
 	@Override

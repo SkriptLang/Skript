@@ -17,23 +17,32 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.displays.generic.*;
+import org.skriptlang.skript.bukkit.displays.item.ExprItemDisplayTransform;
+import org.skriptlang.skript.bukkit.displays.text.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
-import java.io.IOException;
+import java.util.List;
 
-public class DisplayModule {
+public class DisplayModule extends ChildAddonModule {
 
-	public static void load() throws IOException {
-		// abort if no class exists
-		if (!Skript.classExists("org.bukkit.entity.Display"))
-			return;
+	public DisplayModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
-		// load classes (todo: replace with registering methods after regitration api
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "displays");
+	@Override
+	public boolean canLoad(SkriptAddon addon) {
+		return Skript.classExists("org.bukkit.entity.Display");
+	}
 
+	@Override
+	public void init(SkriptAddon addon) {
 		// Classes
 
 		Classes.registerClass(new ClassInfo<>(Display.class, "display")
@@ -73,10 +82,10 @@ public class DisplayModule {
 							return;
 						Transformation transformation = propertyHolder.getTransformation();
 						Transformation change = new Transformation(
-								transformation.getTranslation(),
-								transformation.getLeftRotation(),
-								vector,
-								transformation.getRightRotation());
+							transformation.getTranslation(),
+							transformation.getLeftRotation(),
+							vector,
+							transformation.getRightRotation());
 						propertyHolder.setTransformation(change);
 					}
 
@@ -107,8 +116,43 @@ public class DisplayModule {
 			.since("2.10"));
 
 		Converters.registerConverter(Entity.class, Display.class,
-				entity -> entity instanceof Display display ? display : null,
-				Converter.NO_RIGHT_CHAINING);
+			entity -> entity instanceof Display display ? display : null,
+			Converter.NO_RIGHT_CHAINING);
 	}
 
+	@Override
+	public void load(SkriptAddon addon) {
+		DisplayData.register(moduleRegistry(addon));
+
+		//noinspection DuplicatedCode
+		register(addon, List.of(
+			ExprDisplayBillboard::register,
+			ExprDisplayBrightness::register,
+			ExprDisplayGlowOverride::register,
+			ExprDisplayHeightWidth::register,
+			ExprDisplayInterpolation::register,
+			ExprDisplayShadow::register,
+			ExprDisplayTeleportDuration::register,
+			ExprDisplayTransformationRotation::register,
+			ExprDisplayTransformationScaleTranslation::register,
+			ExprDisplayViewRange::register,
+
+			ExprItemDisplayTransform::register,
+
+			CondTextDisplayHasDropShadow::register,
+			CondTextDisplaySeeThroughBlocks::register,
+
+			EffTextDisplayDropShadow::register,
+			EffTextDisplaySeeThroughBlocks::register,
+
+			ExprTextDisplayAlignment::register,
+			ExprTextDisplayLineWidth::register,
+			ExprTextDisplayOpacity::register
+		));
+	}
+
+	@Override
+	public String name() {
+		return "";
+	}
 }

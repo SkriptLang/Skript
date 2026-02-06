@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Can Age")
 @Description("Checks whether or not an entity will be able to age/grow up.")
@@ -18,8 +19,18 @@ import org.bukkit.entity.LivingEntity;
 @Since("2.10")
 public class CondCanAge extends PropertyCondition<LivingEntity> {
 
-	static {
-		register(CondCanAge.class, PropertyType.CAN, "(age|grow (up|old[er]))", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			PropertyCondition.infoBuilder(
+				CondCanAge.class,
+				PropertyType.CAN,
+				"(age|grow (up|old[er]))",
+				"livingentities"
+			)
+				.supplier(CondCanAge::new)
+				.build()
+		);
 	}
 
 	@Override

@@ -1,11 +1,13 @@
 package org.skriptlang.skript.bukkit.damagesource.elements.expressions;
 
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -26,7 +28,13 @@ public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, L
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			infoBuilder(ExprSourceLocation.class, Location.class,"source location", "damagesources", true)
+			infoBuilder(
+				ExprSourceLocation.class,
+				Location.class,
+				"source location",
+				"damagesources",
+				true
+			)
 				.supplier(ExprSourceLocation::new)
 				.build()
 		);

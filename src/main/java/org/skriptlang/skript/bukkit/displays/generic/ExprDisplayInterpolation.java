@@ -16,6 +16,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Interpolation Delay/Duration")
 @Description({
@@ -29,8 +30,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, Timespan> {
 
-	static {
-		registerDefault(ExprDisplayInterpolation.class, Timespan.class, "interpolation (:delay|duration)[s]", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprDisplayInterpolation.class,
+				Timespan.class,
+				"interpolation (:delay|duration)[s]",
+				"displays",
+				true
+			)
+				.supplier(ExprDisplayInterpolation::new)
+				.build()
+		);
 	}
 
 	private boolean delay;

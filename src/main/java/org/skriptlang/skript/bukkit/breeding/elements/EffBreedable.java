@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
@@ -13,6 +12,8 @@ import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Make Breedable")
 @Description("Sets whether or not entities will be able to breed. Only works on animals.")
@@ -23,12 +24,19 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class EffBreedable extends Effect {
 
-	static {
-		Skript.registerEffect(EffBreedable.class,
-			"make %livingentities% breedable",
-			"unsterilize %livingentities%",
-			"make %livingentities% (not |non(-| )|un)breedable",
-			"sterilize %livingentities%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffBreedable.class)
+				.addPatterns(
+					"make %livingentities% breedable",
+					"unsterilize %livingentities%",
+					"make %livingentities% (not |non(-| )|un)breedable",
+					"sterilize %livingentities%"
+				)
+				.supplier(EffBreedable::new)
+				.build()
+		);
 	}
 
 	private boolean sterilize;
