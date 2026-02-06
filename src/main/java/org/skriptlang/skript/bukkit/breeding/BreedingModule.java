@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityEnterLoveModeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.breeding.elements.conditions.*;
 import org.skriptlang.skript.bukkit.breeding.elements.effects.EffAllowAging;
@@ -21,14 +21,14 @@ import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 
 import java.util.List;
 
-public class BreedingModule extends ChildAddonModule {
+public class BreedingModule extends HierarchicalAddonModule {
 
 	public BreedingModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			CondCanAge::register,
 			CondCanBreed::register,

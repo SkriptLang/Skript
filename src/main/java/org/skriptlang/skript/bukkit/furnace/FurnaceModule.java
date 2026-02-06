@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.furnace;
 
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.furnace.elements.events.EvtFurnace;
 import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceEventItems;
@@ -10,14 +10,14 @@ import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceTime
 
 import java.util.List;
 
-public class FurnaceModule extends ChildAddonModule {
+public class FurnaceModule extends HierarchicalAddonModule {
 
 	public FurnaceModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			EvtFurnace::register,
 			ExprFurnaceEventItems::register,

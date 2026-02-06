@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.loottables;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -19,7 +18,7 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.loottables.elements.conditions.CondHasLootTable;
 import org.skriptlang.skript.bukkit.loottables.elements.conditions.CondIsLootable;
@@ -31,19 +30,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.io.StreamCorruptedException;
 import java.util.List;
 
-public class LootTableModule extends ChildAddonModule {
+public class LootTableModule extends HierarchicalAddonModule {
 
-	/**
-	 * Constructs a child addon module with the given parent module.
-	 *
-	 * @param parentModule The parent module that created this child module.
-	 */
 	public LootTableModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		// --- CLASSES --- //
 
 		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
@@ -156,7 +150,7 @@ public class LootTableModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			CondHasLootTable::register,
 			CondIsLootable::register,

@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.brewing;
 
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.brewing.elements.conditions.CondBrewingConsume;
 import org.skriptlang.skript.bukkit.brewing.elements.effects.EffBrewingConsume;
@@ -18,14 +18,14 @@ import java.util.List;
 /**
  * Module containing brewing stand related elements.
  */
-public class BrewingModule extends ChildAddonModule {
+public class BrewingModule extends HierarchicalAddonModule {
 
 	public BrewingModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			CondBrewingConsume::register,
 

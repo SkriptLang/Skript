@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.tags.elements.conditions.CondIsTagged;
 import org.skriptlang.skript.bukkit.tags.elements.effects.EffRegisterTag;
@@ -28,7 +28,7 @@ import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.List;
 
-public class TagModule extends ChildAddonModule {
+public class TagModule extends HierarchicalAddonModule {
 
 	// paper tags
 	public static final boolean PAPER_TAGS_EXIST = Skript.classExists("com.destroystokyo.paper.MaterialTags");
@@ -41,12 +41,12 @@ public class TagModule extends ChildAddonModule {
 	}
 
 	@Override
-	public boolean canLoad(SkriptAddon addon) {
+	protected boolean canLoadSelf(SkriptAddon addon) {
 		return Skript.classExists("org.bukkit.Tag");
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		// Classes
 		Classes.registerClass(new ClassInfo<>(Tag.class, "minecrafttag")
 			.user("minecraft ?tags?")
@@ -78,7 +78,7 @@ public class TagModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			CondIsTagged::register,
 			EffRegisterTag::register,

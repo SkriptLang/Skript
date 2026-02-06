@@ -15,7 +15,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.*;
 import org.skriptlang.skript.bukkit.potion.elements.effects.*;
@@ -30,19 +30,14 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.io.StreamCorruptedException;
 import java.util.List;
 
-public class PotionModule extends ChildAddonModule {
+public class PotionModule extends HierarchicalAddonModule {
 
-	/**
-	 * Constructs a child addon module with the given parent module.
-	 *
-	 * @param parentModule The parent module that created this child module.
-	 */
 	public PotionModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "skriptpotioneffect")
 			.name(ClassInfo.NO_DOC)
@@ -199,7 +194,7 @@ public class PotionModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		// Load Syntax
 		register(addon, List.of(
 			// conditions

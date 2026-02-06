@@ -6,31 +6,31 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
 import org.skriptlang.skript.bukkit.itemcomponents.generic.elements.expressions.ExprItemCompCopy;
 
 import java.util.List;
 
-public class ItemComponentModule extends ChildAddonModule {
+public class ItemComponentModule extends HierarchicalAddonModule {
 
-	/**
-	 * Constructs a child addon module with the given parent module.
-	 *
-	 * @param parentModule The parent module that created this child module.
-	 */
 	public ItemComponentModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public boolean canLoad(SkriptAddon addon) {
+	protected boolean canLoadSelf(SkriptAddon addon) {
 		return Skript.classExists("io.papermc.paper.datacomponent.BuildableDataComponent");
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	public Iterable<AddonModule> children() {
+		return List.of(new EquippableModule(this));
+	}
+
+	@Override
+	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(ComponentWrapper.class, "itemcomponent")
 			.user("item ?components?")
 			.name("Item Component")
@@ -58,8 +58,7 @@ public class ItemComponentModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
-		addon.loadModules(new EquippableModule(this));
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			ExprItemCompCopy::register
 		));

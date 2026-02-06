@@ -1,10 +1,12 @@
 package org.skriptlang.skript.addon;
 
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.docs.Origin.AddonOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.SequencedCollection;
 import java.util.function.Consumer;
 
 /**
@@ -21,42 +23,45 @@ import java.util.function.Consumer;
 public interface AddonModule {
 
 	/**
-	 * Constructs an origin from an addon and module name.
+	 * Constructs an origin from an addon and a single module.
 	 * @param addon The addon providing the module.
 	 * @param module The module to construct this origin from.
 	 * @return An origin from the provided information.
 	 */
 	static ModuleOrigin origin(SkriptAddon addon, AddonModule module) {
-		return new AddonModuleImpl.ModuleOriginImpl(addon, module.name());
+		return new AddonModuleImpl.ModuleOriginImpl(addon, module);
 	}
 
 	/**
-	 * Constructs an origin from an addon and module name.
-	 * @param addon The addon providing the module.
-	 * @param moduleNames The names of the providing modules. The most specific module name should be first.
+	 * Constructs an origin from an addon and module chain.
+	 * @param addon The addon providing the modules.
+	 * @param modules The module chain, from most specific to root.
 	 * @return An origin from the provided information.
 	 */
-	static ModuleOrigin origin(SkriptAddon addon, String... moduleNames) {
-		return new AddonModuleImpl.ModuleOriginImpl(addon, moduleNames);
+	static ModuleOrigin origin(SkriptAddon addon, AddonModule... modules) {
+		return new AddonModuleImpl.ModuleOriginImpl(addon, modules);
 	}
 
 	/**
 	 * An origin to be used for something provided by one or more modules of an addon.
 	 */
-	sealed interface ModuleOrigin extends AddonOrigin permits AddonModuleImpl.ModuleOriginImpl, ChildAddonModule.ChildModuleOriginImpl {
+	sealed interface ModuleOrigin extends AddonOrigin permits AddonModuleImpl.ModuleOriginImpl {
+
 		/**
-		 * @return The names of the modules represented by this origin.
-		 * @deprecated Use {@link #moduleNames()}
+		 * @return The providing modules for this origin, in order from most specific to least.
+		 */
+		@Unmodifiable SequencedCollection<AddonModule> modules();
+
+		/**
+		 * @return The names of the modules providing this origin, in order from most specific to least.
+		 * @deprecated Use {@link #modules()} and call {@link AddonModule#name()} on each.
 		 */
 		@Deprecated(since="INSERT VERSION", forRemoval = true)
 		default String moduleName() {
-			return String.join(", ", moduleNames());
+			return String.join(", ", modules().stream()
+				.map(AddonModule::name)
+				.toArray(String[]::new));
 		}
-
-		/**
-		 * @return The names of the modules represented by this origin.
-		 */
-		String[] moduleNames();
 
 	}
 
@@ -95,7 +100,7 @@ public interface AddonModule {
 	 * @return An origin representing this module.
 	 */
 	default Origin origin(SkriptAddon addon) {
-		return AddonModule.origin(addon, name());
+		return AddonModule.origin(addon, this);
 	}
 
 	/**

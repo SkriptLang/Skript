@@ -6,7 +6,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.input.elements.conditions.CondIsPressingKey;
 import org.skriptlang.skript.bukkit.input.elements.events.EvtPlayerInput;
@@ -14,19 +14,19 @@ import org.skriptlang.skript.bukkit.input.elements.expressions.ExprCurrentInputK
 
 import java.util.List;
 
-public class InputModule extends ChildAddonModule {
+public class InputModule extends HierarchicalAddonModule {
 
 	public InputModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public boolean canLoad(SkriptAddon addon) {
+	protected boolean canLoadSelf(SkriptAddon addon) {
 		return Skript.classExists("org.bukkit.Input");
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new EnumClassInfo<>(InputKey.class, "inputkey", "input keys")
 			.user("input ?keys?")
 			.name("Input Key")
@@ -36,7 +36,7 @@ public class InputModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			CondIsPressingKey::register,
 			EvtPlayerInput::register,

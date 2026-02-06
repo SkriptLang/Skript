@@ -17,7 +17,7 @@ import org.bukkit.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.particles.elements.effects.EffPlayEffect;
 import org.skriptlang.skript.bukkit.particles.elements.expressions.*;
@@ -39,19 +39,14 @@ import java.util.List;
 /**
  * Module for particle and game effect related classes and elements.
  */
-public class ParticleModule extends ChildAddonModule {
+public class ParticleModule extends HierarchicalAddonModule {
 
-	/**
-	 * Constructs a child addon module with the given parent module.
-	 *
-	 * @param parentModule The parent module that created this child module.
-	 */
 	public ParticleModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		registerClasses();
 		registerDataSerializers();
 		DataGameEffects.getGameEffectInfos();
@@ -59,7 +54,7 @@ public class ParticleModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		// load elements!
 		register(addon, List.of(
 			EffPlayEffect::register,

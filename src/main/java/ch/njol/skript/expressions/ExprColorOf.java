@@ -30,7 +30,7 @@ import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.displays.DisplayData;
+import org.skriptlang.skript.bukkit.entity.displays.DisplayData;
 
 import java.util.ArrayList;
 import java.util.List;

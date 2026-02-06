@@ -2,16 +2,15 @@ package org.skriptlang.skript.bukkit;
 
 import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
-import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
-import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.misc.MiscModule;
@@ -21,52 +20,30 @@ import org.skriptlang.skript.bukkit.tags.TagModule;
 
 import java.util.List;
 
-public class BukkitModule implements AddonModule {
+public class BukkitModule extends HierarchicalAddonModule {
 
-	private final List<AddonModule> allSubmodules = List.of(
+	@Override
+	protected boolean canLoadSelf(SkriptAddon addon) {
+		return Skript.classExists("org.bukkit.Bukkit");
+	}
+
+	@Override
+	public Iterable<AddonModule> children() {
+		return List.of(
 			new BrewingModule(this),
 			new EntityModule(this),
 			new DamageSourceModule(this),
 			new ItemComponentModule(this),
 			new PotionModule(this),
 			new FishingModule(this),
-			new InteractionModule(this),
 			new ParticleModule(this),
 			new MiscModule(this),
 			new LootTableModule(this),
 			new BreedingModule(this),
 			new FurnaceModule(this),
 			new InputModule(this),
-			new DisplayModule(this),
 			new TagModule(this)
-	);
-
-	private List<AddonModule> filteredSubmodules;
-
-	@Override
-	public boolean canLoad(SkriptAddon addon) {
-		if (!Skript.classExists("org.bukkit.Bukkit"))
-			return false;
-		filteredSubmodules = allSubmodules.stream()
-				.filter(module -> module.canLoad(addon))
-				.toList();
-		return !filteredSubmodules.isEmpty();
-	}
-
-	@Override
-	public void init(SkriptAddon addon) {
-		// initialize submodules
-		for (AddonModule module : filteredSubmodules) {
-			module.init(addon);
-		}
-	}
-
-	@Override
-	public void load(SkriptAddon addon) {
-		// load submodules
-		for (AddonModule module : filteredSubmodules) {
-			module.load(addon);
-		}
+		);
 	}
 
 	@Override

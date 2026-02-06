@@ -4,7 +4,7 @@ import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.registrations.Classes;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.fishing.elements.conditions.CondFishingLure;
 import org.skriptlang.skript.bukkit.fishing.elements.conditions.CondIsInOpenWater;
@@ -16,19 +16,14 @@ import org.skriptlang.skript.bukkit.fishing.elements.expressions.*;
 
 import java.util.List;
 
-public class FishingModule extends ChildAddonModule {
+public class FishingModule extends HierarchicalAddonModule {
 
-	/**
-	 * Constructs a child addon module with the given parent module.
-	 *
-	 * @param parentModule The parent module that created this child module.
-	 */
 	public FishingModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
 			.user("fishing ?states?")
 			.name("Fishing State")
@@ -38,7 +33,7 @@ public class FishingModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			CondFishingLure::register,
 			CondIsInOpenWater::register,

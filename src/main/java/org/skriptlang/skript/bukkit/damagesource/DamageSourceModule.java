@@ -13,7 +13,7 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.addon.ChildAddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.damagesource.elements.conditions.CondScalesWithDifficulty;
 import org.skriptlang.skript.bukkit.damagesource.elements.conditions.CondWasIndirect;
@@ -21,19 +21,19 @@ import org.skriptlang.skript.bukkit.damagesource.elements.expressions.*;
 
 import java.util.List;
 
-public class DamageSourceModule extends ChildAddonModule {
+public class DamageSourceModule extends HierarchicalAddonModule {
 
 	public DamageSourceModule(AddonModule parentModule) {
 		super(parentModule);
 	}
 
 	@Override
-	public boolean canLoad(SkriptAddon addon) {
+	protected boolean canLoadSelf(SkriptAddon addon) {
 		return Skript.classExists("org.bukkit.damage.DamageSource");
 	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(DamageSource.class, "damagesource")
 			.user("damage ?sources?")
 			.name("Damage Source")
@@ -62,7 +62,7 @@ public class DamageSourceModule extends ChildAddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		register(addon, List.of(
 			CondScalesWithDifficulty::register,
 			CondWasIndirect::register,
