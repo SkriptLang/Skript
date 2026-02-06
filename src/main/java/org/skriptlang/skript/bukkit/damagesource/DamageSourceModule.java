@@ -19,8 +19,6 @@ import org.skriptlang.skript.bukkit.damagesource.elements.conditions.CondScalesW
 import org.skriptlang.skript.bukkit.damagesource.elements.conditions.CondWasIndirect;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.*;
 
-import java.util.List;
-
 public class DamageSourceModule extends HierarchicalAddonModule {
 
 	public DamageSourceModule(AddonModule parentModule) {
@@ -59,7 +57,7 @@ public class DamageSourceModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondScalesWithDifficulty::register,
 			CondWasIndirect::register,
 
@@ -72,7 +70,7 @@ public class DamageSourceModule extends HierarchicalAddonModule {
 			ExprSourceLocation::register,
 
 			ExprSecDamageSource::register
-		));
+		);
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import org.skriptlang.skript.docs.Origin.AddonOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.SequencedCollection;
-import java.util.function.Consumer;
 
 /**
  * A module is a component of a {@link SkriptAddon} used for registering syntax and other {@link Skript} components.
@@ -117,11 +116,19 @@ public interface AddonModule {
 	 * @param addon The addon to register with.
 	 * @param registrationMethods A series of consumers to call to register syntax.
 	 */
-	default void register(SkriptAddon addon, Iterable<Consumer<SyntaxRegistry>> registrationMethods) {
+	default void register(SkriptAddon addon, Registrar... registrationMethods) {
 		SyntaxRegistry registry = moduleRegistry(addon);
 		for (var func : registrationMethods) {
 			func.accept(registry);
 		}
+	}
+
+	/**
+	 * A method of registration via a {@link SyntaxRegistry}
+	 */
+	@FunctionalInterface
+	interface Registrar {
+		void accept(SyntaxRegistry registry);
 	}
 
 }

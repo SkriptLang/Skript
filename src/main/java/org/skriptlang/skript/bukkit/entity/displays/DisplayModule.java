@@ -34,8 +34,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
-import java.util.List;
-
 public class DisplayModule extends HierarchicalAddonModule {
 
 	public DisplayModule(AddonModule parentModule) {
@@ -124,7 +122,7 @@ public class DisplayModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		//noinspection DuplicatedCode
-		register(addon, List.of(
+		register(addon,
 			DisplayData::register,
 
 			ExprDisplayBillboard::register,
@@ -149,7 +147,7 @@ public class DisplayModule extends HierarchicalAddonModule {
 			ExprTextDisplayAlignment::register,
 			ExprTextDisplayLineWidth::register,
 			ExprTextDisplayOpacity::register
-		));
+		);
 	}
 
 	@Override

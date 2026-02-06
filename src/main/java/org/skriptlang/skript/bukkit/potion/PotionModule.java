@@ -28,7 +28,6 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.StreamCorruptedException;
-import java.util.List;
 
 public class PotionModule extends HierarchicalAddonModule {
 
@@ -196,7 +195,7 @@ public class PotionModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		// Load Syntax
-		register(addon, List.of(
+		register(addon,
 			// conditions
 			CondHasPotion::register,
 			CondIsPoisoned::register,
@@ -221,7 +220,7 @@ public class PotionModule extends HierarchicalAddonModule {
 			ExprPotionEffectTypeCategory::register,
 			ExprSecPotionEffect::register,
 			ExprSkriptPotionEffect::register
-		));
+		);
 	}
 
 	@Override

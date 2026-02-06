@@ -26,8 +26,6 @@ import org.skriptlang.skript.bukkit.tags.elements.expressions.*;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
-import java.util.List;
-
 public class TagModule extends HierarchicalAddonModule {
 
 	// paper tags
@@ -79,7 +77,7 @@ public class TagModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondIsTagged::register,
 			EffRegisterTag::register,
 			ExprTag::register,
@@ -87,7 +85,7 @@ public class TagModule extends HierarchicalAddonModule {
 			ExprTagKey::register,
 			ExprTagsOf::register,
 			ExprTagsOfType::register
-		));
+		);
 	}
 
 	/**

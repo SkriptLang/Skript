@@ -19,8 +19,6 @@ import org.skriptlang.skript.bukkit.breeding.elements.expressions.ExprBreedingFa
 import org.skriptlang.skript.bukkit.breeding.elements.expressions.ExprLoveTime;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 
-import java.util.List;
-
 public class BreedingModule extends HierarchicalAddonModule {
 
 	public BreedingModule(AddonModule parentModule) {
@@ -29,7 +27,7 @@ public class BreedingModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondCanAge::register,
 			CondCanBreed::register,
 			CondIsAdult::register,
@@ -44,7 +42,7 @@ public class BreedingModule extends HierarchicalAddonModule {
 
 			ExprBreedingFamily::register,
 			ExprLoveTime::register
-		));
+		);
 
 		moduleRegistry(addon).register(
 			BukkitSyntaxInfos.Event.KEY,

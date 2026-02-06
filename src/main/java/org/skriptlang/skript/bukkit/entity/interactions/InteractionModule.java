@@ -12,8 +12,6 @@ import org.skriptlang.skript.bukkit.entity.interactions.elements.expressions.Exp
 import org.skriptlang.skript.bukkit.entity.interactions.elements.expressions.ExprLastInteractionDate;
 import org.skriptlang.skript.bukkit.entity.interactions.elements.expressions.ExprLastInteractionPlayer;
 
-import java.util.List;
-
 public class InteractionModule extends HierarchicalAddonModule {
 
 	/**
@@ -27,13 +25,13 @@ public class InteractionModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondIsResponsive::register,
 			EffMakeResponsive::register,
 			ExprInteractionDimensions::register,
 			ExprLastInteractionDate::register,
 			ExprLastInteractionPlayer::register
-		));
+		);
 	}
 
 	public enum InteractionType {

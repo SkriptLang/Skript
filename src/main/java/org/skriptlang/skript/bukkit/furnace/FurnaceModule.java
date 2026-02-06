@@ -8,8 +8,6 @@ import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceEven
 import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceSlot;
 import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceTime;
 
-import java.util.List;
-
 public class FurnaceModule extends HierarchicalAddonModule {
 
 	public FurnaceModule(AddonModule parentModule) {
@@ -18,12 +16,12 @@ public class FurnaceModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			EvtFurnace::register,
 			ExprFurnaceEventItems::register,
 			ExprFurnaceSlot::register,
 			ExprFurnaceTime::register
-		));
+		);
 	}
 
 	@Override

@@ -20,8 +20,6 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.expressio
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import java.util.List;
-
 public class EquippableModule extends HierarchicalAddonModule {
 
 	public EquippableModule(AddonModule parentModule) {
@@ -77,7 +75,7 @@ public class EquippableModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondEquipCompDamage::register,
 			CondEquipCompDispensable::register,
 			CondEquipCompInteract::register,
@@ -99,7 +97,7 @@ public class EquippableModule extends HierarchicalAddonModule {
 			ExprEquippableComponent::register,
 
 			ExprSecBlankEquipComp::register
-		));
+		);
 	}
 
 	@Override

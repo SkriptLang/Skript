@@ -59,9 +59,7 @@ public class ItemComponentModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
-			ExprItemCompCopy::register
-		));
+		register(addon, ExprItemCompCopy::register);
 	}
 
 	@Override

@@ -28,7 +28,6 @@ import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.StreamCorruptedException;
-import java.util.List;
 
 public class LootTableModule extends HierarchicalAddonModule {
 
@@ -151,7 +150,7 @@ public class LootTableModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondHasLootTable::register,
 			CondIsLootable::register,
 
@@ -168,7 +167,7 @@ public class LootTableModule extends HierarchicalAddonModule {
 			ExprLootTableFromString::register,
 			ExprLootTableSeed::register,
 			ExprSecCreateLootContext::register
-		));
+		);
 
 		// --- SIMPLE EVENTS --- //
 		SyntaxRegistry registry = moduleRegistry(addon);

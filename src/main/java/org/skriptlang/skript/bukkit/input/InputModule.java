@@ -10,8 +10,6 @@ import org.skriptlang.skript.bukkit.input.elements.conditions.CondIsPressingKey;
 import org.skriptlang.skript.bukkit.input.elements.events.EvtPlayerInput;
 import org.skriptlang.skript.bukkit.input.elements.expressions.ExprCurrentInputKeys;
 
-import java.util.List;
-
 public class InputModule extends HierarchicalAddonModule {
 
 	public InputModule(AddonModule parentModule) {
@@ -35,11 +33,11 @@ public class InputModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondIsPressingKey::register,
 			EvtPlayerInput::register,
 			ExprCurrentInputKeys::register
-		));
+		);
 	}
 
 	@Override

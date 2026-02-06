@@ -13,8 +13,6 @@ import org.skriptlang.skript.bukkit.brewing.elements.expressions.ExprBrewingResu
 import org.skriptlang.skript.bukkit.brewing.elements.expressions.ExprBrewingSlot;
 import org.skriptlang.skript.bukkit.brewing.elements.expressions.ExprBrewingTime;
 
-import java.util.List;
-
 /**
  * Module containing brewing stand related elements.
  */
@@ -26,7 +24,7 @@ public class BrewingModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		register(addon, List.of(
+		register(addon,
 			CondBrewingConsume::register,
 
 			EffBrewingConsume::register,
@@ -39,7 +37,7 @@ public class BrewingModule extends HierarchicalAddonModule {
 			ExprBrewingResults::register,
 			ExprBrewingSlot::register,
 			ExprBrewingTime::register
-		));
+		);
 	}
 
 	@Override
