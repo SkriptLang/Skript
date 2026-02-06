@@ -1,6 +1,7 @@
 package org.skriptlang.skript.docs;
 
 import ch.njol.skript.doc.*;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -22,6 +23,7 @@ public interface Documentation {
 	/**
 	 * @return A builder for creating documentation.
 	 */
+	@Contract("-> new")
 	static Builder builder() {
 		return new DocumentationImpl.BuilderImpl();
 	}
@@ -34,6 +36,7 @@ public interface Documentation {
 	 * @param examples The examples to use.
 	 * @return Documentation built from the provided standard properties.
 	 */
+	@Contract("_, _, _, _ -> new")
 	static Documentation of(String name, String description, String since, String... examples) {
 		return builder()
 			.name(name)
@@ -49,6 +52,7 @@ public interface Documentation {
 	 * @return Documentation created from any documentation annotations present on {@code clazz}.
 	 *  If {@code clazz} has no documentation annotations, the result of building an empty builder is returned.
 	 */
+	@Contract("_ -> new")
 	static Documentation of(Class<?> clazz) {
 		Builder builder = builder();
 
@@ -156,6 +160,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#id()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder id(@Nullable String id);
 
 		/**
@@ -164,6 +169,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#name()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder name(String name);
 
 		/**
@@ -172,6 +178,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#description()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder description(String description);
 
 		/**
@@ -180,6 +187,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#examples()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addExample(String example);
 
 		/**
@@ -188,6 +196,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#examples()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addExamples(String... examples);
 
 		/**
@@ -196,6 +205,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#examples()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addExamples(Collection<String> examples);
 
 		/**
@@ -203,6 +213,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#examples()
 		 */
+		@Contract(value = "-> this", mutates = "this")
 		Builder clearExamples();
 
 		/**
@@ -212,6 +223,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#since()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addSince(String since);
 
 		/**
@@ -221,6 +233,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#since()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addSince(String... since);
 
 		/**
@@ -230,6 +243,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#since()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addSince(Collection<String> since);
 
 		/**
@@ -237,6 +251,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#since()
 		 */
+		@Contract(value = "-> this", mutates = "this")
 		Builder clearSince();
 
 		/**
@@ -245,6 +260,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#requirements()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addRequirement(String requirement);
 
 		/**
@@ -253,6 +269,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#requirements()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addRequirements(String... requirements);
 
 		/**
@@ -261,6 +278,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#requirements()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addRequirements(Collection<String> requirements);
 
 		/**
@@ -268,6 +286,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#requirements()
 		 */
+		@Contract(value = "-> this", mutates = "this")
 		Builder clearRequirements();
 
 		/**
@@ -276,6 +295,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#keywords()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addKeyword(String keyword);
 
 		/**
@@ -284,6 +304,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#keywords()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addKeywords(String... keywords);
 
 		/**
@@ -292,6 +313,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#keywords()
 		 */
+		@Contract(value = "_ -> this", mutates = "this")
 		Builder addKeywords(Collection<String> keywords);
 
 		/**
@@ -299,6 +321,7 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#keywords()
 		 */
+		@Contract(value = "-> this", mutates = "this")
 		Builder clearKeywords();
 
 		/**
@@ -306,11 +329,13 @@ public interface Documentation {
 		 * @return This builder.
 		 * @see Documentation#deprecated()
 		 */
+		@Contract(value = "-> this", mutates = "this")
 		Builder deprecated();
 
 		/**
 		 * @return A {@link Documentation} object representing the values set on this builder.
 		 */
+		@Contract("-> new")
 		Documentation build();
 
 	}
