@@ -30,10 +30,10 @@ public class EvtPlayerInput extends SkriptEvent {
 						"Called when a player sends an updated input to the server.",
 						"Note: The input keys event value is the set of keys the player is currently pressing, not the keys that were pressed or released."
 					)
-					.addExamples(
-						"on input key press:",
-						"\tsend \"You are pressing: %event-inputkeys%\" to player"
-					)
+					.addExample("""
+						on input key press:
+							send "You are pressing: %event-inputkeys%" to player
+						""")
 					.addSince("2.10")
 					.addRequiredPlugins("Minecraft 1.21.3+")
 					.supplier(EvtPlayerInput::new)

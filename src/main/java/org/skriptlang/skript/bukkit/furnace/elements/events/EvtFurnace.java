@@ -26,13 +26,15 @@ public class EvtFurnace extends SkriptEvent {
 					"[furnace] smelt[ed|ing] of ore"
 				)
 				.addDescription("Called when a furnace smelts an item in its <a href='#ExprFurnaceSlot'>input slot</a>.")
-				.addExamples(
-					"on smelt:",
-					"\tclear the smelted item",
-					"on smelt of raw iron:",
-					"\tbroadcast smelted item",
-					"\tset the smelted item to iron block"
-				)
+				.addExample("""
+					on smelt:
+						clear the smelted item
+					""")
+				.addExample("""
+					on smelt of raw iron:
+						broadcast smelted item
+						set the smelted item to iron block
+					""")
 				.addSince("1.0, 2.10 (specific item)")
 				.supplier(EvtFurnace::new)
 				.build()
@@ -44,12 +46,12 @@ public class EvtFurnace extends SkriptEvent {
 				.addEvent(FurnaceBurnEvent.class)
 				.addPatterns("[furnace] fuel burn[ing] [of %-itemtypes%]")
 				.addDescription("Called when a furnace burns an item from its <a href='#ExprFurnaceSlot'>fuel slot</a>.")
-				.addExamples(
-					"on fuel burning:",
-					"\tbroadcast fuel burned",
-					"\tif burned fuel is coal:",
-					"\t\tadd 20 seconds to burn time"
-				)
+				.addExample("""
+					on fuel burning:
+						broadcast fuel burned
+						if burned fuel is coal:
+							add 20 seconds to burn time
+					""")
 				.addSince("1.0, 2.10 (specific item)")
 				.supplier(EvtFurnace::new)
 				.build()
@@ -61,11 +63,11 @@ public class EvtFurnace extends SkriptEvent {
 				.addEvent(FurnaceExtractEvent.class)
 				.addPatterns("furnace [item] extract[ion] [of %-itemtypes%]")
 				.addDescription("Called when a player takes any item out of the furnace.")
-				.addExamples(
-					"on furnace extract:",
-					"\tif event-items is an iron ingot:",
-					"\t\tremove event-items from event-player's inventory"
-				)
+				.addExample("""
+					on furnace extract:
+						if event-items is an iron ingot:
+							remove event-items from event-player's inventory
+					""")
 				.addSince("2.10")
 				.supplier(EvtFurnace::new)
 				.build()
@@ -80,13 +82,15 @@ public class EvtFurnace extends SkriptEvent {
 					"[furnace] smelt[ing] start [of %-itemtypes%]"
 				)
 				.addDescription("Called when a furnace starts smelting an item in its ore slot.")
-				.addExamples(
-					"on smelting start:",
-					"\tif the smelting item is raw iron:",
-					"\t\tset total cook time to 1 second",
-					"on smelting start of raw iron:",
-					"\tadd 20 seconds to total cook time"
-				)
+				.addExample("""
+					on smelting start:
+						if the smelting item is raw iron:
+							set total cook time to 1 second
+					""")
+				.addExample("""
+					on smelting start of raw iron:
+						add 20 seconds to total cook time
+					""")
 				.addSince("2.10")
 				.supplier(EvtFurnace::new)
 				.build()

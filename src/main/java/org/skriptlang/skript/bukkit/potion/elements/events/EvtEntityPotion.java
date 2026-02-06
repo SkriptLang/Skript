@@ -12,7 +12,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Arrays;
@@ -25,16 +24,18 @@ public class EvtEntityPotion extends SkriptEvent {
 				.addEvent(EntityPotionEffectEvent.class)
 				.addPattern("entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [%-potionactions%] [due to %-potioncauses%]")
 				.addDescription("Called when an entity's potion effect is modified.")
-				.addExamples(
-					"on entity potion effect modification:",
-						"\tbroadcast \"A potion effect was added to %event-entity%!\"",
-					"",
-					"on entity potion effect of night vision added:",
-						"\tmessage \"You can now see in the dark!\"",
-					"",
-					"on entity potion effect of strength removed:",
-						"\tmessage \"You're now weaker!\""
-				)
+				.addExample("""
+					on entity potion effect modification:
+						broadcast "A potion effect was added to %event-entity%!"
+					""")
+				.addExample("""
+					on entity potion effect of night vision added:
+						message "You can now see in the dark!"
+					""")
+				.addExample("""
+					on entity potion effect of strength removed:
+						message "You're now weaker!"
+					""")
 				.addSince("2.10", "2.14 (action support)")
 				.build());
 

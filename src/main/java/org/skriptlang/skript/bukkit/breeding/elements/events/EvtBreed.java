@@ -20,11 +20,10 @@ public class EvtBreed extends SkriptEvent {
 				.addEvent(EntityBreedEvent.class)
 				.addPatterns("[entity] breed[ing] [of %-entitytypes%]")
 				.addDescription("Called whenever two animals begin to conceive a child. The type can be specified.")
-				.addExamples(
-					"on breeding of llamas:",
-					"\tsend \"When a %breeding mother% and %breeding father% love each " +
-						"other very much they make %offspring%\" to breeder"
-				)
+				.addExample("""
+					on breeding of llamas:
+						send "When a %breeding mother% and %breeding father% love each other very much they make %offspring%" to breeder
+					""")
 				.addSince("2.10")
 				.supplier(EvtBreed::new)
 				.build()
