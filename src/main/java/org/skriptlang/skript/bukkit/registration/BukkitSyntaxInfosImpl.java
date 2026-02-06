@@ -95,7 +95,7 @@ final class BukkitSyntaxInfosImpl {
 
 		@Override
 		public SequencedCollection<String> description() {
-			return documentation().description();
+			return List.of(documentation().description().split("\n"));
 		}
 
 		@Override
