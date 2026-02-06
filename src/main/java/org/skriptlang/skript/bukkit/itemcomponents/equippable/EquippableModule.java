@@ -108,4 +108,9 @@ public class EquippableModule extends ChildAddonModule {
 		return "equippable component";
 	}
 
+	@Override
+	public String name() {
+		return "equippable component";
+	}
+
 }

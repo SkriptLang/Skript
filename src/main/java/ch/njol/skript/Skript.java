@@ -12,6 +12,7 @@ import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Condition.ConditionType;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -25,7 +26,6 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
@@ -944,8 +944,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				} catch (IOException e) {
 					Skript.exception(e, "Failed to write test results.");
 				}
-
-				Bukkit.getServer().shutdown();
+				// delay by 1 tick to avoid the watchdog from thinking the shutdown tick took too long.
+				Bukkit.getScheduler().runTaskLater(Skript.this, () -> Bukkit.getServer().shutdown(), 1);
 			}, shutdownDelay.get());
 		});
 	}

@@ -60,21 +60,17 @@ public class ParticleModule extends ChildAddonModule {
 	@Override
 	public void load(SkriptAddon addon) {
 		// load elements!
-		AddonModule.register(addon.syntaxRegistry(), origin(addon),
-			EffPlayEffect::register,
-			ExprGameEffectWithData::register,
-			ExprParticleCount::register,
-			ExprParticleDistribution::register,
-			ExprParticleOffset::register,
-			ExprParticleSpeed::register,
-			ExprParticleWithData::register,
-			ExprParticleWithOffset::register,
-			ExprParticleWithSpeed::register);
-	}
-
-	@Override
-	public String name() {
-		return "particles";
+		SyntaxRegistry registry = addon.syntaxRegistry();
+		ModuleOrigin origin = AddonModule.origin(addon, this);
+		EffPlayEffect.register(registry, origin);
+		ExprGameEffectWithData.register(registry, origin);
+		ExprParticleCount.register(registry, origin);
+		ExprParticleDistribution.register(registry, origin);
+		ExprParticleOffset.register(registry, origin);
+		ExprParticleSpeed.register(registry, origin);
+		ExprParticleWithData.register(registry, origin);
+		ExprParticleWithOffset.register(registry, origin);
+		ExprParticleWithSpeed.register(registry, origin);
 	}
 
 	/**
@@ -222,7 +218,26 @@ public class ParticleModule extends ChildAddonModule {
 				.map(ConvergingEffect::new)
 				.iterator())
 			.serializer(new ParticleSerializer())
-			.defaultExpression(new EventValueExpression<>(ConvergingEffect.class)));
+			.defaultExpression(new EventValueExpression<>(ConvergingEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public ConvergingEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof ConvergingEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(ConvergingEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(ConvergingEffect effect) {
+					return effect.particle().name();
+				}
+			}));
 
 		Classes.registerClass(new ClassInfo<>(DirectionalEffect.class, "directionalparticle")
 			.user("directional ?particle( ?effect)?s?")
@@ -233,7 +248,26 @@ public class ParticleModule extends ChildAddonModule {
 				.map(DirectionalEffect::new)
 				.iterator())
 			.serializer(new ParticleSerializer())
-			.defaultExpression(new EventValueExpression<>(DirectionalEffect.class)));
+			.defaultExpression(new EventValueExpression<>(DirectionalEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public DirectionalEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof DirectionalEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(DirectionalEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(DirectionalEffect effect) {
+					return effect.particle().name();
+				}
+			}));
 
 		Classes.registerClass(new ClassInfo<>(ScalableEffect.class, "scalableparticle")
 			.user("scalable ?particle( ?effect)?s?")
@@ -245,6 +279,25 @@ public class ParticleModule extends ChildAddonModule {
 				.iterator())
 			.serializer(new ParticleSerializer())
 			.defaultExpression(new EventValueExpression<>(ScalableEffect.class))
+			.parser(new Parser<>() {
+				@Override
+				public ScalableEffect parse(String input, ParseContext context) {
+					ParticleEffect effect = ParticleEffect.parse(input, context);
+					if (effect instanceof ScalableEffect convergingEffect)
+						return convergingEffect;
+					return null;
+				}
+
+				@Override
+				public String toString(ScalableEffect effect, int flags) {
+					return effect.toString();
+				}
+
+				@Override
+				public String toVariableNameString(ScalableEffect effect) {
+					return effect.particle().name();
+				}
+			})
 			.property(Property.SCALE,
 				"The scale multiplier to use for a particle. Generally larger numbers will result in larger particles.",
 				Skript.instance(),
@@ -504,6 +557,11 @@ public class ParticleModule extends ChildAddonModule {
 		protected boolean canBeInstantiated() {
 			return false;
 		}
+	}
+
+	@Override
+	public String name() {
+		return "particle";
 	}
 
 }

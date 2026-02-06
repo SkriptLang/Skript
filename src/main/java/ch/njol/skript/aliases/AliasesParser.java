@@ -1,16 +1,5 @@
 package ch.njol.skript.aliases;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
-
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.AliasesProvider.Variation;
 import ch.njol.skript.aliases.AliasesProvider.VariationGroup;
@@ -22,6 +11,10 @@ import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * Parses aliases.
@@ -612,7 +605,7 @@ public class AliasesParser {
 	
 	/**
 	 * Gets singular and plural forms for given name. This might work
-	 * slightly differently from {@link Noun#getPlural(String)}, to ensure
+	 * slightly differently from {@link Noun#parsePlural(String)}, to ensure
 	 * it meets specification of aliases.
 	 * @param name Name to get forms from.
 	 * @return Singular form, plural form.

@@ -26,7 +26,7 @@ public class EntityModule extends ChildAddonModule {
 
 	@Override
 	public String name() {
-		return "entities";
+		return "entity";
 	}
 
 }

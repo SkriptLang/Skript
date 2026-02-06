@@ -2,10 +2,6 @@ package org.skriptlang.skript.addon;
 
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.docs.Origin.AddonOrigin;
-import org.skriptlang.skript.registration.SyntaxRegistry;
-
-import java.util.Arrays;
-import java.util.function.BiConsumer;
 
 /**
  * A module is a component of a {@link SkriptAddon} used for registering syntax and other {@link Skript} components.
@@ -19,6 +15,16 @@ import java.util.function.BiConsumer;
  * @see SkriptAddon#loadModules(AddonModule...)
  */
 public interface AddonModule {
+
+	/**
+	 * Constructs an origin from an addon and module name.
+	 * @param addon The addon providing the module.
+	 * @param module The module to construct this origin from.
+	 * @return An origin from the provided information.
+	 */
+	static ModuleOrigin origin(SkriptAddon addon, AddonModule module) {
+		return new AddonModuleImpl.ModuleOriginImpl(addon, module.name());
+	}
 
 	/**
 	 * Constructs an origin from an addon and module name.
@@ -43,6 +49,17 @@ public interface AddonModule {
 	}
 
 	/**
+	 * Allow addons to specify whether they can load or not.
+	 * Called prior to {@link #init(SkriptAddon)}
+	 *
+	 * @param addon The addon this module belongs to.
+	 * @return Whether this module can load.
+	 */
+	default boolean canLoad(SkriptAddon addon) {
+		return true;
+	}
+
+	/**
 	 * Used for loading the components of this module that are needed first or by other modules (e.g. class infos).
 	 * <b>This method will always be called before {@link #load(SkriptAddon)}</b>.
 	 * @param addon The addon this module belongs to.
@@ -58,18 +75,7 @@ public interface AddonModule {
 	void load(SkriptAddon addon);
 
 	/**
-	 * Allow addons to specify whether they can load or not.
-	 * Called prior to {@link #init(SkriptAddon)}
-	 *
-	 * @param addon The addon this module belongs to.
-	 * @return Whether this module can load.
-	 */
-	default boolean canLoad(SkriptAddon addon) {
-		return true;
-	}
-
-	/**
-	 * @return A name representing this module to be using in the {@link ModuleOrigin}. e.g. "discord", "nbt", "particles"...
+	 * @return The name of this module.
 	 */
 	String name();
 
@@ -78,17 +84,6 @@ public interface AddonModule {
 	 */
 	default ModuleOrigin origin(SkriptAddon addon) {
 		return AddonModule.origin(addon, name());
-	}
-
-	/**
-	 * Helper method to register syntaxes to a registry with a shared origin.
-	 * @param registry The syntax registry to register to.
-	 * @param origin The origin to use for the registrations.
-	 * @param consumers The consumers that will register syntax to the registry.
-	 */
-	@SafeVarargs
-	static void register(SyntaxRegistry registry, ModuleOrigin origin, BiConsumer<SyntaxRegistry, ModuleOrigin>... consumers) {
-		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry, origin));
 	}
 
 }

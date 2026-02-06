@@ -67,4 +67,9 @@ public class ItemComponentModule extends ChildAddonModule {
 		return "item component";
 	}
 
+	@Override
+	public String name() {
+		return "item component";
+	}
+
 }

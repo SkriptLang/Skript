@@ -199,37 +199,38 @@ public class PotionModule extends ChildAddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		// Load Syntax			
-		AddonModule.register(addon.syntaxRegistry(), origin(addon),
-			// conditions
-			CondHasPotion::register,
-			CondIsPoisoned::register,
-			CondIsPotionAmbient::register,
-			CondIsPotionInstant::register,
-			CondPotionHasIcon::register,
-			CondPotionHasParticles::register,
-			// effect
-			EffApplyPotionEffect::register,
-			EffPoison::register,
-			EffPotionAmbient::register,
-			EffPotionIcon::register,
-			EffPotionInfinite::register,
-			EffPotionParticles::register,
-			// event
-			EvtEntityPotion::register,
-			// expression
-			ExprPotionAmplifier::register,
-			ExprPotionDuration::register,
-			ExprPotionEffect::register,
-			ExprPotionEffects::register,
-			ExprPotionEffectTypeCategory::register,
-			ExprSecPotionEffect::register,
-			ExprSkriptPotionEffect::register);
+		// Load Syntax
+		SyntaxRegistry registry = addon.syntaxRegistry();
+		Origin origin = AddonModule.origin(addon, this);
+		// conditions
+		CondHasPotion.register(registry, origin);
+		CondIsPoisoned.register(registry, origin);
+		CondIsPotionAmbient.register(registry, origin);
+		CondIsPotionInstant.register(registry, origin);
+		CondPotionHasIcon.register(registry, origin);
+		CondPotionHasParticles.register(registry, origin);
+		// effects
+		EffApplyPotionEffect.register(registry, origin);
+		EffPoison.register(registry, origin);
+		EffPotionAmbient.register(registry, origin);
+		EffPotionIcon.register(registry, origin);
+		EffPotionInfinite.register(registry, origin);
+		EffPotionParticles.register(registry, origin);
+		// events
+		EvtEntityPotion.register(registry, origin);
+		// expressions
+		ExprPotionAmplifier.register(registry, origin);
+		ExprPotionDuration.register(registry, origin);
+		ExprPotionEffect.register(registry, origin);
+		ExprPotionEffects.register(registry, origin);
+		ExprPotionEffectTypeCategory.register(registry, origin);
+		ExprSecPotionEffect.register(registry, origin);
+		ExprSkriptPotionEffect.register(registry, origin);
 	}
 
 	@Override
 	public String name() {
-		return "potions";
+		return "potion";
 	}
 
 }

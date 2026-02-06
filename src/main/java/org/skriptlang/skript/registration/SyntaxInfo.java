@@ -8,13 +8,14 @@ import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.Collection;
+import java.util.SequencedCollection;
 import java.util.function.Supplier;
 
 /**
  * A syntax info contains the details of a syntax, including its origin and patterns.
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
-public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
+public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
 
 	/**
 	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
@@ -71,7 +72,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos 
 	/**
 	 * @return The patterns of this syntax.
 	 */
-	@Unmodifiable Collection<String> patterns();
+	@Unmodifiable SequencedCollection<String> patterns();
 
 	/**
 	 * @return The priority of this syntax, which dictates its position for matching during parsing.

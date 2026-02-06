@@ -37,4 +37,9 @@ public class BrewingModule extends ChildAddonModule {
 		return "brewing";
 	}
 
+	@Override
+	public String name() {
+		return "brewing";
+	}
+
 }

@@ -82,4 +82,9 @@ public class DamageSourceModule extends ChildAddonModule {
 		return "damage source";
 	}
 
+	@Override
+	public String name() {
+		return "damage source";
+	}
+
 }

@@ -43,7 +43,7 @@ import java.util.List;
 @Example("reset the potion effects of the player's tool")
 @Example("remove speed and night vision from the potion effects of the player")
 @RequiredPlugins("Paper 1.20.4+ for hidden effects")
-@Since("2.5.2, INSERT VERSION (active/hidden support, more change modes)")
+@Since("2.5.2, 2.14 (active/hidden support, more change modes)")
 public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {

@@ -59,7 +59,7 @@ public class InteractionModule extends ChildAddonModule {
 
 	@Override
 	public String name() {
-		return "interactions";
+		return "interaction";
 	}
 
 }

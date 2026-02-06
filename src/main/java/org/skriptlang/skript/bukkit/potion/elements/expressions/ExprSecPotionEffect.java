@@ -1,5 +1,7 @@
 package org.skriptlang.skript.bukkit.potion.elements.expressions;
 
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
@@ -12,20 +14,22 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SectionUtils;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -49,7 +53,7 @@ import java.util.List;
 	# creates a potion effect with the properties of an existing potion effect
 	set {_potion} to a potion effect of slowness based on the player's speed effect
 	""")
-@Since({"2.5.2", "INSERT VERSION (syntax changes, infinite duration support)"})
+@Since({"2.5.2", "2.14 (syntax changes, infinite duration support)"})
 public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {
@@ -68,7 +72,7 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 				.origin(origin)
 				.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
 				.addPatterns(
-						"%*potioneffecttype% %*number%"
+						"%*potioneffecttype% <" + JavaClasses.INTEGER_NUMBER_PATTERN + ">"
 				)
 				.build());
 		EventValues.registerEventValue(PotionEffectSectionEvent.class, SkriptPotionEffect.class, event -> event.effect);
@@ -99,6 +103,18 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 		potionEffectType = (Expression<PotionEffectType>) expressions[0];
 		if (matchedPattern == 3) {
 			source = (Expression<PotionEffect>) expressions[1];
+		} else if (!parseResult.regexes.isEmpty()) {
+			Parser<? extends Number> numberParser = Classes.getParser(Number.class);
+			if (numberParser == null) {
+				return false;
+			}
+			Number number = numberParser.parse(parseResult.regexes.getFirst().group(), null);
+			if (number == null) {
+				return false;
+			}
+			amplifier = new SimpleLiteral<>(number, false);
+			infinite = false;
+			ambient = false;
 		} else {
 			amplifier = (Expression<Number>) expressions[1];
 			infinite = matchedPattern != 0;

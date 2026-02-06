@@ -1,0 +1,10 @@
+test "variable colon warning":
+	parse:
+		set {var::minecraft:dirt} to 5
+	assert last parse logs contain "If you meant to make the variable {var::minecraft:dirt} a list, its name should contain '::'. Having a single ':' does nothing!"
+
+	parse:
+		suppress variable contains colon warnings
+		set {var::custom:myvalue} to 10
+	assert last parse logs is not set
+
