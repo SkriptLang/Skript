@@ -2,43 +2,64 @@ package ch.njol.skript.doc;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentation;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
  * Represents any object that can be documented using methods.
+ * @deprecated Use {@link org.skriptlang.skript.docs.Documentable} instead.
  */
+@Deprecated(forRemoval = true, since = "INSERT VERSION")
 public interface Documentable {
+
+	private Documentation asDocumentation() {
+		if (this instanceof org.skriptlang.skript.docs.Documentable documentable) {
+			return documentable.documentation();
+		}
+		throw new IllegalStateException("Missing override of Documentable method");
+	}
 
 	/**
 	 * @return The name.
 	 */
-	@NotNull String name();
+	default @NotNull String name() {
+		return asDocumentation().name();
+	}
 
 	/**
 	 * @return The unmodifiable description.
 	 */
-	@Unmodifiable @NotNull List<String> description();
+	default @Unmodifiable @NotNull List<String> description() {
+		return List.of(asDocumentation().description().split("\n"));
+	}
 
 	/**
 	 * @return The unmodifiable version history.
 	 */
-	@Unmodifiable @NotNull List<String> since();
+	default @Unmodifiable @NotNull List<String> since() {
+		return List.copyOf(asDocumentation().since());
+	}
 
 	/**
 	 * @return The unmodifiable examples.
 	 */
-	@Unmodifiable @NotNull List<String> examples();
+	default @Unmodifiable @NotNull List<String> examples() {
+		return List.copyOf(asDocumentation().examples());
+	}
 
 	/**
 	 * @return The unmodifiable keywords.
 	 */
-	@Unmodifiable @NotNull List<String> keywords();
+	default @Unmodifiable @NotNull List<String> keywords() {
+		return List.copyOf(asDocumentation().keywords());
+	}
 
 	/**
 	 * @return The unmodifiable requirements.
 	 */
-	@Unmodifiable @NotNull List<String> requires();
+	default @Unmodifiable @NotNull List<String> requires() {
+		return List.copyOf(asDocumentation().requirements());
+	}
 
 }
