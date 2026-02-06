@@ -24,7 +24,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Integer> {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
@@ -35,7 +35,6 @@ public class ExprBrewingFuelLevel extends SimplePropertyExpression<Block, Intege
 				true
 			)
 				.supplier(ExprBrewingFuelLevel::new)
-				.origin(origin)
 				.build()
 		);
 	}

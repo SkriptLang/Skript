@@ -28,10 +28,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RelatedProperty("size")
 public class PropExprSize extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprSize.class, Object.class, "size[:s]", "objects", false)
-				.origin(origin)
 				.supplier(PropExprSize::new)
 				.build());
 	}

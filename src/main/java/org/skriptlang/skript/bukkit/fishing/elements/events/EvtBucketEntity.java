@@ -33,12 +33,11 @@ import java.util.List;
 @Since("2.10")
 public class EvtBucketEntity extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtBucketEntity.class, "Bucket Catch Entity")
 			.addPatterns("bucket (catch[ing]|captur(e|ing)) [[of] %-entitydatas%]")
 			.supplier(EvtBucketEntity::new)
 			.addEvent(PlayerBucketEntityEvent.class)
-			.origin(origin)
 			.build());
 
 		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, PlayerBucketEntityEvent::getOriginalBucket);

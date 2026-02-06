@@ -36,12 +36,11 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 	private static final float DEFAULT_MINIMUM_DEGREES = 0;
 	private static final float DEFAULT_MAXIMUM_DEGREES = 360;
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			DefaultSyntaxInfos.Expression.builder(ExprFishingApproachAngle.class, Float.class)
 				.addPatterns("(min:min[imum]|max[imum]) fish[ing] approach[ing] angle")
 				.supplier(ExprFishingApproachAngle::new)
-				.origin(origin)
 				.build());
 	}
 

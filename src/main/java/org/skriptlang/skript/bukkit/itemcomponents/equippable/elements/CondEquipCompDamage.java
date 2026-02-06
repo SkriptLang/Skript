@@ -29,14 +29,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class CondEquipCompDamage extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondEquipCompDamage.class)
 			.addPatterns(
 				"%equippablecomponents% will (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
 				"%equippablecomponents% (will not|won't) (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
 			)
 			.supplier(CondEquipCompDamage::new)
-			.origin(origin)
 			.build()
 		);
 	}

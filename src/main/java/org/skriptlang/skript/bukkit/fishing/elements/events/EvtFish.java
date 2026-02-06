@@ -49,7 +49,7 @@ public class EvtFish extends SkriptEvent {
 		}
 	}
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		List<String> patterns = new ArrayList<>();
 		for (State state : State.values()) {
 			if (state.state == null && state != State.STATE_CHANGE)
@@ -83,7 +83,6 @@ public class EvtFish extends SkriptEvent {
 					""")
 				.addSince("2.10", "2.11 (state change)")
 				.supplier(EvtFish::new)
-				.origin(origin)
 				.build()
 		);
 

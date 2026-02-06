@@ -27,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.12")
 public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondWasIndirect.class)
@@ -35,7 +35,6 @@ public class CondWasIndirect extends PropertyCondition<DamageSource> implements 
 					"%damagesources% (was|were) ([:in]directly caused|caused [:in]directly)",
 					"%damagesources% (was not|wasn't|were not|weren't) ([:in]directly caused|caused [:in]directly)")
 				.supplier(CondWasIndirect::new)
-				.origin(origin)
 				.build()
 		);
 	}

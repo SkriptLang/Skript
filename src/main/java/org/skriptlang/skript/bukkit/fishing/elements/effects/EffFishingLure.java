@@ -23,14 +23,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.10")
 public class EffFishingLure extends Effect {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffFishingLure.class)
 			.addPatterns(
 				"apply [the] lure enchantment bonus",
 				"remove [the] lure enchantment bonus"
 			)
 			.supplier(EffFishingLure::new)
-			.origin(origin)
 			.build());
 	}
 

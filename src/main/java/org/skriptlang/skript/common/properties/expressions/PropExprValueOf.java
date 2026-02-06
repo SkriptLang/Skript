@@ -43,10 +43,9 @@ import java.util.stream.Stream;
 @RelatedProperty("typed value")
 public class PropExprValueOf extends PropertyBaseExpression<TypedValueHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprValueOf.class, Object.class, "[%-*classinfo%] value", "objects", false)
-				.origin(origin)
 				.supplier(PropExprValueOf::new)
 				.build());
 	}

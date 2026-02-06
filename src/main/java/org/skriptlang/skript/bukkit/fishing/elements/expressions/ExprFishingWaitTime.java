@@ -33,12 +33,11 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 	private static final int DEFAULT_MINIMUM_TICKS = 5 * 20;
 	private static final int DEFAULT_MAXIMUM_TICKS = 30 * 20;
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			DefaultSyntaxInfos.Expression.builder(ExprFishingWaitTime.class, Timespan.class)
 				.addPatterns("(min:min[imum]|max[imum]) fish[ing] wait[ing] time")
 				.supplier(ExprFishingWaitTime::new)
-				.origin(origin)
 				.build());
 	}
 

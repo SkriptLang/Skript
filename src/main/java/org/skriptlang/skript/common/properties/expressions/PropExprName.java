@@ -44,10 +44,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RelatedProperty("name")
 public class PropExprName extends PropertyBaseExpression<ExpressionPropertyHandler<?,?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprName.class, Object.class, "name[s]", "objects", false)
-				.origin(origin)
 				.supplier(PropExprName::new)
 				.build());
 	}

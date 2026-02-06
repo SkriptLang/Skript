@@ -41,12 +41,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.12")
 public class ExprDirectEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprDirectEntity.class, Entity.class,"direct entity", "damagesources", true)
 				.supplier(ExprDirectEntity::new)
-				.origin(origin)
 				.build()
 		);
 	}

@@ -65,11 +65,10 @@ public class ExprSecBlankEquipComp extends SectionExpression<EquippableWrapper> 
 		}
 	}
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecBlankEquipComp.class, EquippableWrapper.class)
 			.addPatterns("a (blank|empty) equippable component")
 			.supplier(ExprSecBlankEquipComp::new)
-			.origin(origin)
 			.build()
 		);
 		EventValues.registerEventValue(BlankEquippableSectionEvent.class, EquippableWrapper.class, BlankEquippableSectionEvent::getWrapper);

@@ -18,6 +18,8 @@ import org.skriptlang.skript.bukkit.itemcomponents.equippable.elements.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.util.List;
+
 public class EquippableModule extends ChildAddonModule {
 
 	/**
@@ -78,7 +80,7 @@ public class EquippableModule extends ChildAddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		AddonModule.register(addon.syntaxRegistry(), origin(addon),
+		register(addon, List.of(
 			CondEquipCompDamage::register,
 			CondEquipCompDispensable::register,
 			CondEquipCompInteract::register,
@@ -100,12 +102,7 @@ public class EquippableModule extends ChildAddonModule {
 			ExprEquippableComponent::register,
 
 			ExprSecBlankEquipComp::register
-		);
-	}
-
-	@Override
-	public String name() {
-		return "equippable component";
+		));
 	}
 
 	@Override

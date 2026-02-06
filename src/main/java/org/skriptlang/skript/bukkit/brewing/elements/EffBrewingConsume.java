@@ -10,7 +10,6 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -27,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Events("Brewing Fuel")
 public class EffBrewingConsume extends Effect implements EventRestrictedSyntax {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffBrewingConsume.class)
@@ -36,7 +35,6 @@ public class EffBrewingConsume extends Effect implements EventRestrictedSyntax {
 					"prevent [the] brewing stand from consuming [its|the] fuel"
 				)
 				.supplier(EffBrewingConsume::new)
-				.origin(origin)
 				.build()
 		);
 	}

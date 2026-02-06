@@ -9,6 +9,7 @@ import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
+import org.skriptlang.skript.bukkit.misc.MiscModule;
 import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.potion.PotionModule;
 
@@ -24,7 +25,8 @@ public class BukkitModule implements AddonModule {
 			new PotionModule(this),
 			new FishingModule(this),
 			new InteractionModule(this),
-			new ParticleModule(this)
+			new ParticleModule(this),
+			new MiscModule(this)
 	);
 
 	private List<AddonModule> filteredSubmodules;

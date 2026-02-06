@@ -19,10 +19,9 @@ import java.util.Arrays;
 
 public class EvtEntityPotion extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtEntityPotion.class, "Entity Potion Effect")
 				.supplier(EvtEntityPotion::new)
-				.origin(origin)
 				.addEvent(EntityPotionEffectEvent.class)
 				.addPattern("entity potion effect [modif[y|ication]] [[of] %-potioneffecttypes%] [%-potionactions%] [due to %-potioncauses%]")
 				.addDescription("Called when an entity's potion effect is modified.")

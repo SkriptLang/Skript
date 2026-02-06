@@ -79,7 +79,7 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 		}
 	}
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			DefaultSyntaxInfos.Expression.builder(ExprSecDamageSource.class, DamageSource.class)
@@ -87,7 +87,6 @@ public class ExprSecDamageSource extends SectionExpression<DamageSource> impleme
 					"[a] custom damage source [(with|using) [the|a] [damage type [of]] %-damagetype%]"
 				)
 				.supplier(ExprSecDamageSource::new)
-				.origin(origin)
 				.build()
 		);
 		EventValues.registerEventValue(DamageSourceSectionEvent.class, DamageSource.class, DamageSourceSectionEvent::buildDamageSource);

@@ -10,7 +10,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperimentSyntax;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -32,13 +31,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class CondEquipCompDispensable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondEquipCompDispensable.class)
 			.addPatterns(getPatterns(PropertyType.CAN, "be dispensed", "equippablecomponents"))
 			.addPatterns(getPatterns(PropertyType.BE, "(able to be dispensed|dispensable)", "equippablecomponents"))
 			.supplier(CondEquipCompDispensable::new)
 			.priority(DEFAULT_PRIORITY)
-			.origin(origin)
 			.build()
 		);
 	}

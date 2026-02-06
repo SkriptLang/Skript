@@ -29,7 +29,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class EffEquipCompDamageable extends Effect implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompDamageable.class)
 			.addPatterns(
 				"(make|let) %equippablecomponents% (lose durability|be damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))",
@@ -38,7 +38,6 @@ public class EffEquipCompDamageable extends Effect implements EquippableExperime
 				"(disallow|prevent) %equippablecomponents% from (lose durability|being damaged) (on [wearer['s]] injury|when [[the] wearer [is]] (hurt|injured|damaged))"
 			)
 			.supplier(EffEquipCompDamageable::new)
-			.origin(origin)
 			.build()
 		);
 	}

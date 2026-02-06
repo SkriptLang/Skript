@@ -18,14 +18,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @SuppressWarnings("rawtypes")
 public class ExprItemCompCopy extends SimplePropertyExpression<ComponentWrapper, ComponentWrapper> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprItemCompCopy.class, ComponentWrapper.class)
 			.addPatterns(
 				"[the|a[n]] [item] component copy of %itemcomponents%",
 				"[the] [item] component copies of %itemcomponents%"
 			)
 			.supplier(ExprItemCompCopy::new)
-			.origin(origin)
 			.build()
 		);
 	}

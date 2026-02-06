@@ -36,12 +36,11 @@ import static org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression.b
 @Since("2.14")
 public class ExprParticleWithSpeed extends PropertyExpression<ParticleEffect, ParticleEffect> {
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprParticleWithSpeed.class, ParticleEffect.class)
 			.addPatterns("%particles% with ([a] particle speed [value]|[an] extra value) [of] %number%")
 			.supplier(ExprParticleWithSpeed::new)
 			.priority(SyntaxInfo.COMBINED)
-			.origin(origin)
 			.build());
 	}
 

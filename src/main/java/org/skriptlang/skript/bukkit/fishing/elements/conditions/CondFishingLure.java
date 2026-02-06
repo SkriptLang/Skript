@@ -24,14 +24,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.10")
 public class CondFishingLure extends Condition {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondFishingLure.class)
 			.addPatterns(
 				"lure enchantment bonus is (applied|active)",
 				"lure enchantment bonus is(n't| not) (applied|active)"
 			)
 			.supplier(CondFishingLure::new)
-			.origin(origin)
 			.build());
 	}
 

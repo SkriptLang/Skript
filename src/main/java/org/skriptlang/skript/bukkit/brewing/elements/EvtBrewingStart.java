@@ -12,7 +12,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtBrewingStart extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingStart.class, "Brewing Start")
@@ -25,7 +25,6 @@ public class EvtBrewingStart extends SkriptEvent {
 					""")
 				.addSince("2.13")
 				.supplier(EvtBrewingStart::new)
-				.origin(origin)
 				.build()
 		);
 	}

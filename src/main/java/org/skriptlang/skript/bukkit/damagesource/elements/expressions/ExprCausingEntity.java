@@ -39,12 +39,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprCausingEntity.class, Entity.class,"(causing|responsible) entity", "damagesources", true)
 				.supplier(ExprCausingEntity::new)
-				.origin(origin)
 				.build()
 		);
 	}

@@ -23,11 +23,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.10")
 public class EffPullHookedEntity extends Effect {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffFishingLure.class)
 			.addPatterns("(reel|pull) in hook[ed] entity")
 			.supplier(EffFishingLure::new)
-			.origin(origin)
 			.build());
 	}
 

@@ -37,12 +37,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.12")
 public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprDamageLocation.class, Location.class,"damage location", "damagesources", true)
 				.supplier(ExprDamageLocation::new)
-				.origin(origin)
 				.build()
 		);
 	}

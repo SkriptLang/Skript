@@ -26,7 +26,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.12")
 public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondScalesWithDifficulty.class)
@@ -36,7 +36,6 @@ public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> im
 					"%damagesources%'[s] damage ((does|do) scale|scales) with difficulty",
 					"%damagesources%'[s] damage (do not|don't|does not|doesn't) scale with difficulty")
 				.supplier(CondScalesWithDifficulty::new)
-				.origin(origin)
 				.build()
 		);
 	}

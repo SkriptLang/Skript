@@ -29,11 +29,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprEquipCompEquipSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEquipCompEquipSound.class, String.class, "equip sound", "equippablecomponents", true)
 				.supplier(ExprEquipCompEquipSound::new)
-				.origin(origin)
 				.build()
 		);
 	}

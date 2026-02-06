@@ -29,12 +29,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.10")
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			DefaultSyntaxInfos.Expression.builder(ExprFishingBiteTime.class, Timespan.class)
 				.addPatterns("fish[ing] bit(e|ing) [wait] time")
 				.supplier(ExprFishingBiteTime::new)
-				.origin(origin)
 				.build());
 	}
 

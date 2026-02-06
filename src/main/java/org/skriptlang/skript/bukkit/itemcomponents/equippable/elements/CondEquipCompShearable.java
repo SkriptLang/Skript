@@ -25,14 +25,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class CondEquipCompShearable extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		if (!EquippableWrapper.HAS_CAN_BE_SHEARED)
 			return;
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			infoBuilder(CondEquipCompShearable.class, PropertyType.CAN, "be sheared off [of entities]", "equippablecomponents")
 				.supplier(CondEquipCompShearable::new)
-				.origin(origin)
 				.build()
 		);
 	}

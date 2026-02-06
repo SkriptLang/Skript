@@ -20,11 +20,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.10")
 public class ExprFishingHook extends EventValueExpression<Entity> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprFishingHook.class, Entity.class, "fish[ing] (hook|bobber)")
 				.supplier(ExprFishingHook::new)
-				.origin(origin)
 				.build());
 	}
 

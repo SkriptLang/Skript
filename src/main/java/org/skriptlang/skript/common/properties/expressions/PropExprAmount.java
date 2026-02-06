@@ -31,10 +31,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RelatedProperty("amount")
 public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprAmount.class, Object.class, "amount[:s]", "objects", false)
-				.origin(origin)
 				.supplier(PropExprAmount::new)
 				.build());
 	}

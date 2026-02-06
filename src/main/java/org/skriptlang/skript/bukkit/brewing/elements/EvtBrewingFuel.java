@@ -16,7 +16,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtBrewingFuel extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingFuel.class, "Brewing Fuel")
@@ -33,7 +33,6 @@ public class EvtBrewingFuel extends SkriptEvent {
 					""")
 				.addSince("2.13")
 				.supplier(EvtBrewingFuel::new)
-				.origin(origin)
 				.build()
 		);
 

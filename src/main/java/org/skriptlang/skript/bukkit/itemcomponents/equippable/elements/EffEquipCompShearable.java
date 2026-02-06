@@ -29,7 +29,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class EffEquipCompShearable extends Effect implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		if (!EquippableWrapper.HAS_CAN_BE_SHEARED)
 			return;
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompShearable.class)
@@ -38,7 +38,6 @@ public class EffEquipCompShearable extends Effect implements EquippableExperimen
 				"(disallow|prevent) %equippablecomponents% from being sheared off [of entities]"
 			)
 			.supplier(EffEquipCompShearable::new)
-			.origin(origin)
 			.build()
 		);
 	}

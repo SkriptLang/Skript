@@ -5,6 +5,8 @@ import org.skriptlang.skript.addon.ChildAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.brewing.elements.*;
 
+import java.util.List;
+
 /**
  * Module containing brewing stand related elements.
  */
@@ -16,7 +18,7 @@ public class BrewingModule extends ChildAddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		AddonModule.register(addon.syntaxRegistry(), origin(addon),
+		register(addon, List.of(
 			CondBrewingConsume::register,
 
 			EffBrewingConsume::register,
@@ -29,12 +31,7 @@ public class BrewingModule extends ChildAddonModule {
 			ExprBrewingResults::register,
 			ExprBrewingSlot::register,
 			ExprBrewingTime::register
-		);
-	}
-
-	@Override
-	public String name() {
-		return "brewing";
+		));
 	}
 
 	@Override

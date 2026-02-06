@@ -18,10 +18,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class EffPotionAmbient extends PotionPropertyEffect {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionAmbient.class)
 				.supplier(EffPotionAmbient::new)
-				.origin(origin)
 				.addPatterns(getPatterns(Type.MAKE, "ambient"))
 				.build());
 	}

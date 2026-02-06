@@ -22,11 +22,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.10")
 public class CondIsInOpenWater extends PropertyCondition<Entity> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION,
 			infoBuilder(CondIsInOpenWater.class, PropertyType.BE, "in open water[s]", "entities")
 				.supplier(CondIsInOpenWater::new)
-				.origin(origin)
 				.build());
 	}
 

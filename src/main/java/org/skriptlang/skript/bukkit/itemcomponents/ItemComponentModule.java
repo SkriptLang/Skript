@@ -11,6 +11,8 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableModule;
 import org.skriptlang.skript.bukkit.itemcomponents.generic.ExprItemCompCopy;
 
+import java.util.List;
+
 public class ItemComponentModule extends ChildAddonModule {
 
 	/**
@@ -58,13 +60,9 @@ public class ItemComponentModule extends ChildAddonModule {
 	@Override
 	public void load(SkriptAddon addon) {
 		addon.loadModules(new EquippableModule(this));
-
-		ExprItemCompCopy.register(addon.syntaxRegistry(), origin(addon));
-	}
-
-	@Override
-	public String name() {
-		return "item component";
+		register(addon, List.of(
+			ExprItemCompCopy::register
+		));
 	}
 
 	@Override

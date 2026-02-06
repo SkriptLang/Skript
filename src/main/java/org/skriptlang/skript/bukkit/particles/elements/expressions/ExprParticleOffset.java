@@ -29,11 +29,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class ExprParticleOffset extends SimplePropertyExpression<ParticleEffect, Vector> {
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprParticleOffset.class, Vector.class, "particle offset", "particles", false)
 				.supplier(ExprParticleOffset::new)
-				.origin(origin)
 				.build());
 	}
 

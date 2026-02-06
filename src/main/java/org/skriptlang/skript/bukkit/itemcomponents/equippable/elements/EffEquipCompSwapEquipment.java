@@ -27,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class EffEquipCompSwapEquipment extends Effect implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompSwapEquipment.class)
 			.addPatterns(
 				"(allow|force) %equippablecomponents% to swap equipment [on right click|when right clicked]",
@@ -36,7 +36,6 @@ public class EffEquipCompSwapEquipment extends Effect implements EquippableExper
 				"make %equippablecomponents% not swap equipment [on right click|when right clicked]"
 			)
 			.supplier(EffEquipCompSwapEquipment::new)
-			.origin(origin)
 			.build()
 		);
 	}

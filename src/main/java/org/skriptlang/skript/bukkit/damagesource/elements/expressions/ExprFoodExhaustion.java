@@ -20,12 +20,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.12")
 public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprFoodExhaustion.class, Float.class,"food exhaustion", "damagesources", true)
 				.supplier(ExprFoodExhaustion::new)
-				.origin(origin)
 				.build()
 		);
 	}

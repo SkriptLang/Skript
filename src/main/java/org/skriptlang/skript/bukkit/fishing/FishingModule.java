@@ -14,6 +14,8 @@ import org.skriptlang.skript.bukkit.fishing.elements.events.EvtBucketEntity;
 import org.skriptlang.skript.bukkit.fishing.elements.events.EvtFish;
 import org.skriptlang.skript.bukkit.fishing.elements.expressions.*;
 
+import java.util.List;
+
 public class FishingModule extends ChildAddonModule {
 
 	/**
@@ -37,7 +39,7 @@ public class FishingModule extends ChildAddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		AddonModule.register(addon.syntaxRegistry(), origin(addon),
+		register(addon, List.of(
 			CondFishingLure::register,
 			CondIsInOpenWater::register,
 
@@ -51,7 +53,8 @@ public class FishingModule extends ChildAddonModule {
 			ExprFishingBiteTime::register,
 			ExprFishingHook::register,
 			ExprFishingHookEntity::register,
-			ExprFishingWaitTime::register);
+			ExprFishingWaitTime::register
+		));
 	}
 
 	@Override

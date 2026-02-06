@@ -32,13 +32,12 @@ import java.util.Objects;
 @Events("Brewing Complete")
 public class ExprBrewingResults extends SimpleExpression<ItemStack> implements EventRestrictedSyntax {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprBrewingResults.class, ItemStack.class)
 				.addPatterns("[the] brewing results")
 				.supplier(ExprBrewingResults::new)
-				.origin(origin)
 				.build()
 		);
 	}

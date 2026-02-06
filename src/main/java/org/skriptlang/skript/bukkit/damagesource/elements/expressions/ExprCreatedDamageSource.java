@@ -22,12 +22,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.12")
 public class ExprCreatedDamageSource extends EventValueExpression<DamageSource> implements EventRestrictedSyntax {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprCreatedDamageSource.class, DamageSource.class,"created damage source")
 				.supplier(ExprCreatedDamageSource::new)
-				.origin(origin)
 				.build()
 		);
 	}

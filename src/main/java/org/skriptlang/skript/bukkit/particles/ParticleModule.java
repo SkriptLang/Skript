@@ -34,6 +34,7 @@ import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Module for particle and game effect related classes and elements.
@@ -60,17 +61,17 @@ public class ParticleModule extends ChildAddonModule {
 	@Override
 	public void load(SkriptAddon addon) {
 		// load elements!
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		ModuleOrigin origin = AddonModule.origin(addon, this);
-		EffPlayEffect.register(registry, origin);
-		ExprGameEffectWithData.register(registry, origin);
-		ExprParticleCount.register(registry, origin);
-		ExprParticleDistribution.register(registry, origin);
-		ExprParticleOffset.register(registry, origin);
-		ExprParticleSpeed.register(registry, origin);
-		ExprParticleWithData.register(registry, origin);
-		ExprParticleWithOffset.register(registry, origin);
-		ExprParticleWithSpeed.register(registry, origin);
+		register(addon, List.of(
+			EffPlayEffect::register,
+			ExprGameEffectWithData::register,
+			ExprParticleCount::register,
+			ExprParticleDistribution::register,
+			ExprParticleOffset::register,
+			ExprParticleSpeed::register,
+			ExprParticleWithData::register,
+			ExprParticleWithOffset::register,
+			ExprParticleWithSpeed::register
+		));
 	}
 
 	/**

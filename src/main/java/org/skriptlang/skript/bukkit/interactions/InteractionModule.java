@@ -12,6 +12,8 @@ import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprIntera
 import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprLastInteractionDate;
 import org.skriptlang.skript.bukkit.interactions.elements.expressions.ExprLastInteractionPlayer;
 
+import java.util.List;
+
 public class InteractionModule extends ChildAddonModule {
 
 	/**
@@ -25,12 +27,13 @@ public class InteractionModule extends ChildAddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		AddonModule.register(addon.syntaxRegistry(), origin(addon),
+		register(addon, List.of(
 			CondIsResponsive::register,
 			EffMakeResponsive::register,
 			ExprInteractionDimensions::register,
 			ExprLastInteractionDate::register,
-			ExprLastInteractionPlayer::register);
+			ExprLastInteractionPlayer::register
+		));
 	}
 
 	public enum InteractionType {

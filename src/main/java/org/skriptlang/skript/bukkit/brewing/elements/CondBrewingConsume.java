@@ -28,7 +28,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Events("Brewing Fuel")
 public class CondBrewingConsume extends Condition implements EventRestrictedSyntax {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			SyntaxInfo.builder(CondBrewingConsume.class)
@@ -37,7 +37,6 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 					"[the] brewing stand (will not|won't) consume [the] fuel"
 				)
 				.supplier(CondBrewingConsume::new)
-				.origin(origin)
 				.build()
 		);
 	}

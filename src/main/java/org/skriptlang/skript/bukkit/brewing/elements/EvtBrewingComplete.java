@@ -20,7 +20,7 @@ import java.util.List;
 
 public class EvtBrewingComplete extends SkriptEvent {
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			BukkitSyntaxInfos.Event.KEY,
 			BukkitSyntaxInfos.Event.builder(EvtBrewingComplete.class, "Brewing Complete")
@@ -35,7 +35,6 @@ public class EvtBrewingComplete extends SkriptEvent {
 					""")
 				.addSince("2.13")
 				.supplier(EvtBrewingComplete::new)
-				.origin(origin)
 				.build()
 		);
 	}

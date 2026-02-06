@@ -17,12 +17,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RequiredPlugins("Minecraft 1.21.5+")
 public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
 			infoBuilder(CondEquipCompInteract.class, PropertyType.CAN, "be (equipped|put) on[to] entities", "equippablecomponents")
 				.supplier(CondEquipCompInteract::new)
-				.origin(origin)
 				.build()
 		);
 	}

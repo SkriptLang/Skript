@@ -29,13 +29,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprEquipCompShearSound extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		if (!EquippableWrapper.HAS_SHEAR_SOUND)
 			return;
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEquipCompShearSound.class, String.class, "shear[ed [off]] sound", "equippablecomponents", true)
 				.supplier(ExprEquipCompShearSound::new)
-				.origin(origin)
 				.build()
 		);
 	}

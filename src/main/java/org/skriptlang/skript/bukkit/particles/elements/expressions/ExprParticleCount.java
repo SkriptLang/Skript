@@ -29,11 +29,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class ExprParticleCount extends SimplePropertyExpression<ParticleEffect, Number> {
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprParticleCount.class, Number.class, "particle count", "particles", false)
 				.supplier(ExprParticleCount::new)
-				.origin(origin)
 				.build());
 	}
 

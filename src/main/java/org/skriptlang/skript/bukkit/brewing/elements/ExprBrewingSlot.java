@@ -53,7 +53,7 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 
 	private static final BrewingSlot[] BREWING_SLOTS = BrewingSlot.values();
 
-	public static void register(SyntaxRegistry registry, ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		String[] patterns = new String[BREWING_SLOTS.length * 2];
 		for (BrewingSlot slot : BREWING_SLOTS) {
 			patterns[2 * slot.ordinal()] = "[the] " + slot.pattern + " slot[s] [of %blocks%]";
@@ -65,7 +65,6 @@ public class ExprBrewingSlot extends PropertyExpression<Block, Slot> {
 			SyntaxInfo.Expression.builder(ExprBrewingSlot.class, Slot.class)
 				.addPatterns(patterns)
 				.supplier(ExprBrewingSlot::new)
-				.origin(origin)
 				.build()
 		);
 	}

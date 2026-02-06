@@ -1,7 +1,11 @@
 package org.skriptlang.skript.addon;
 
 import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.docs.Origin.AddonOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+import java.util.function.Consumer;
 
 /**
  * A module is a component of a {@link SkriptAddon} used for registering syntax and other {@link Skript} components.
@@ -82,8 +86,29 @@ public interface AddonModule {
 	/**
 	 * @return An origin representing this module.
 	 */
-	default ModuleOrigin origin(SkriptAddon addon) {
+	default Origin origin(SkriptAddon addon) {
 		return AddonModule.origin(addon, name());
+	}
+
+	/**
+	 * Provides a syntax registry that auto-applies the origin of this module/addon.
+	 * @param addon The addon to register with
+	 * @return An origin-applying {@link SyntaxRegistry}.
+	 */
+	default SyntaxRegistry moduleRegistry(SkriptAddon addon) {
+		return SyntaxRegistry.withOrigin(addon.syntaxRegistry(), origin(addon));
+	}
+
+	/**
+	 * Helper method that calls the given methods with a origin-applying {@link SyntaxRegistry}
+	 * @param addon The addon to register with.
+	 * @param registrationMethods A series of consumers to call to register syntax.
+	 */
+	default void register(SkriptAddon addon, Iterable<Consumer<SyntaxRegistry>> registrationMethods) {
+		SyntaxRegistry registry = moduleRegistry(addon);
+		for (var func : registrationMethods) {
+			func.accept(registry);
+		}
 	}
 
 }

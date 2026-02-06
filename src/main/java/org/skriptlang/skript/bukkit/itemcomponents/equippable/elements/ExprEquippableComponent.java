@@ -33,11 +33,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprEquippableComponent extends SimplePropertyExpression<Object, EquippableWrapper> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEquippableComponent.class, EquippableWrapper.class, "equippable component[s]", "slots/itemtypes", false)
 				.supplier(ExprEquippableComponent::new)
-				.origin(origin)
 				.build()
 		);
 	}

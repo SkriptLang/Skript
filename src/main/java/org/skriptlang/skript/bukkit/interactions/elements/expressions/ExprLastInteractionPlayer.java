@@ -32,7 +32,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class ExprLastInteractionPlayer extends SimplePropertyExpression<Entity, OfflinePlayer> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			SyntaxInfo.Expression.builder(ExprLastInteractionPlayer.class, OfflinePlayer.class)
@@ -41,7 +41,6 @@ public class ExprLastInteractionPlayer extends SimplePropertyExpression<Entity, 
 					"[the] last player[s] (who|that) (attacked|1:interacted with|2:clicked [on]) %entities%"
 				)
 				.supplier(ExprLastInteractionPlayer::new)
-				.origin(origin)
 				.build());
 	}
 

@@ -37,11 +37,11 @@ public abstract class ChildAddonModule implements AddonModule {
 		 * @param moduleName The name of the providing module.
 		 */
 		public ChildModuleOriginImpl(SkriptAddon addon, AddonModule parentModule, String moduleName) {
-			this.addon = addon;
+			this.addon = addon.unmodifiableView();
 			this.parentModule = parentModule;
 
 			List<String> names = new ArrayList<>(List.of(moduleName));
-			names.addAll(List.of(parentModule.origin(addon).moduleNames()));
+			names.addAll(List.of(((ModuleOrigin) parentModule.origin(addon)).moduleNames()));
 			moduleNames = names.toArray(new String[0]);
 		}
 
@@ -69,4 +69,5 @@ public abstract class ChildAddonModule implements AddonModule {
 	public ModuleOrigin origin(SkriptAddon addon) {
 		return ChildAddonModule.origin(addon, parentModule, name());
 	}
+
 }

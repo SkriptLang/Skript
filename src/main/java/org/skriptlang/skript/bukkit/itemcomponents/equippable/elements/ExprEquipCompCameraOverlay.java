@@ -34,11 +34,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class ExprEquipCompCameraOverlay extends SimplePropertyExpression<EquippableWrapper, String> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEquipCompCameraOverlay.class, String.class, "camera overlay", "equippablecomponents", true)
 				.supplier(ExprEquipCompCameraOverlay::new)
-				.origin(origin)
 				.build()
 		);
 	}

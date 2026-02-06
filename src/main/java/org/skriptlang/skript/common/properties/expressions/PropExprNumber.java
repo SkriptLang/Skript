@@ -28,10 +28,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RelatedProperty("number")
 public class PropExprNumber extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprNumber.class, Object.class, "number[:s]", "objects", false)
-				.origin(origin)
 				.supplier(PropExprNumber::new)
 				.build());
 	}

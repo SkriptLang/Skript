@@ -29,12 +29,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.10")
 public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			DefaultSyntaxInfos.Expression.builder(ExprFishingHookEntity.class, Entity.class)
 				.addPatterns("hook[ed] entity")
 				.supplier(ExprFishingHookEntity::new)
-				.origin(origin)
 				.build());
 	}
 

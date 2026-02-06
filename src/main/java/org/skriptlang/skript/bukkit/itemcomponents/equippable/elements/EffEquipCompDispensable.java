@@ -27,7 +27,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.13")
 public class EffEquipCompDispensable extends Effect implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffEquipCompDispensable.class)
 			.addPatterns(
 				"allow %equippablecomponents% to be dispensed",
@@ -37,7 +37,6 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 				"make %equippablecomponents% not dispensable"
 			)
 			.supplier(EffEquipCompDispensable::new)
-			.origin(origin)
 			.build()
 		);
 	}

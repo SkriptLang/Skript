@@ -26,14 +26,13 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class ExprInteractionDimensions extends SimplePropertyExpression<Entity, Number> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprInteractionDimensions.class, Number.class,
 						"interaction (height|:width)[s]", "entities",
 						true)
 				.supplier(ExprInteractionDimensions::new)
-				.origin(origin)
 				.build());
 	}
 

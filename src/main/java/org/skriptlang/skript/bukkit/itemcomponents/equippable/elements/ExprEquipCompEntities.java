@@ -36,11 +36,10 @@ import java.util.List;
 @SuppressWarnings({"rawtypes", "UnstableApiUsage"})
 public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperimentSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			infoBuilder(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents", true)
 				.supplier(ExprEquipCompEntities::new)
-				.origin(origin)
 				.build()
 		);
 	}

@@ -38,7 +38,7 @@ public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 
 	private static final boolean BREWING_START_EVENT_1_21 = Skript.methodExists(BrewingStartEvent.class, "setBrewingTime", int.class);
 
-	public static void register(SyntaxRegistry registry, AddonModule.ModuleOrigin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
@@ -49,7 +49,6 @@ public class ExprBrewingTime extends PropertyExpression<Block, Timespan> {
 				true
 			)
 				.supplier(ExprBrewingTime::new)
-				.origin(origin)
 				.build()
 		);
 	}
