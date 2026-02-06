@@ -2,7 +2,7 @@ package ch.njol.skript.hooks;
 
 import java.io.IOException;
 
-import ch.njol.skript.doc.Documentation;
+import ch.njol.skript.test.runner.TestMode;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
@@ -40,11 +40,11 @@ public class VaultHook extends Hook<Vault> {
 	@Override
 	@SuppressWarnings("null")
 	protected void loadClasses() throws IOException {
-		if (economy != null || Documentation.canGenerateUnsafeDocs())
+		if (economy != null || TestMode.canGenerateUnsafeDocs())
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".economy");
-		if (chat != null || (Documentation.canGenerateUnsafeDocs()))
+		if (chat != null || (TestMode.canGenerateUnsafeDocs()))
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".chat");
-		if (permission != null || (Documentation.canGenerateUnsafeDocs()))
+		if (permission != null || (TestMode.canGenerateUnsafeDocs()))
 			Skript.getAddonInstance().loadClasses(getClass().getPackage().getName() + ".permission");
 
 	}

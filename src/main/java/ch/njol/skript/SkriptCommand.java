@@ -2,7 +2,6 @@ package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
-import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
@@ -396,7 +395,7 @@ public class SkriptCommand implements CommandExecutor {
 				}
 
 				// generate
-				File outputDir = Documentation.getDocsOutputDirectory();
+				File outputDir = TestMode.getDocsOutputDirectory();
 				outputDir.mkdirs();
 
 				Skript.info(sender, "Generating docs...");
