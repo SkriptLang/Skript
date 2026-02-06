@@ -1,17 +1,18 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A pattern element represents a part of a {@link SkriptPattern}.
+ */
 public abstract class PatternElement {
 
-	@Nullable
-	PatternElement next;
-
-	@Nullable
-	PatternElement originalNext;
+	@Nullable PatternElement originalNext;
+	@Nullable PatternElement next;
 
 	void setNext(@Nullable PatternElement next) {
 		this.next = next;
@@ -28,11 +29,9 @@ public abstract class PatternElement {
 		}
 	}
 
-	@Nullable
-	public abstract MatchResult match(String expr, MatchResult matchResult);
+	public abstract @Nullable MatchResult match(String expr, MatchResult matchResult);
 
-	@Nullable
-	protected MatchResult matchNext(String expr, MatchResult matchResult) {
+	protected @Nullable MatchResult matchNext(String expr, MatchResult matchResult) {
 		if (next == null) {
 			return matchResult.exprOffset == expr.length() ? matchResult : null;
 		}
@@ -42,11 +41,31 @@ public abstract class PatternElement {
 	@Override
 	public abstract String toString();
 
+	/**
+	 * Constructs a string representation of this pattern element.
+	 * @param properties Properties to consider during stringification.
+	 * @return A string representation of this pattern element.
+	 */
+	public abstract String toString(StringificationProperties properties);
+
+	/**
+	 * @deprecated Use {@link #toFullString(StringificationProperties)}.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public String toFullString() {
-		StringBuilder stringBuilder = new StringBuilder(toString());
+		return toFullString(StringificationProperties.DEFAULT);
+	}
+
+	/**
+	 * Constructs a string representation of this pattern element and those that follow it.
+	 * @param properties Properties to consider during stringification.
+	 * @return A string representation of this pattern element and those that follow it.
+	 */
+	public String toFullString(StringificationProperties properties) {
+		StringBuilder stringBuilder = new StringBuilder(toString(properties));
 		PatternElement next = this;
 		while ((next = next.originalNext) != null) {
-			stringBuilder.append(next);
+			stringBuilder.append(next.toString(properties));
 		}
 		return stringBuilder.toString();
 	}

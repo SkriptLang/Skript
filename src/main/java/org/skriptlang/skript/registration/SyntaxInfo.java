@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * A syntax info contains the details of a syntax, including its origin and patterns.
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
-public interface SyntaxInfo<E extends SyntaxElement> extends Documentable, DefaultSyntaxInfos {
+public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Documentable, DefaultSyntaxInfos {
 
 	/**
 	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
