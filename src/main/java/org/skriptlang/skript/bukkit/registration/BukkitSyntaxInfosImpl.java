@@ -195,6 +195,7 @@ final class BukkitSyntaxInfosImpl {
 
 			private final SyntaxInfo.Builder<?, E> defaultBuilder;
 			private ListeningBehavior listeningBehavior = ListeningBehavior.UNCANCELLED;
+			String description = "";
 			private @Nullable Documentation.Builder documentationBuilder;
 			private final String name;
 			private @Nullable String documentationId;
@@ -252,25 +253,29 @@ final class BukkitSyntaxInfosImpl {
 
 			@Override
 			public B addDescription(String description) {
-				documentationBuilder().addDescription(description);
+				this.description += description;
+				documentationBuilder().description(this.description);
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(String... description) {
-				documentationBuilder().addDescription(description);
+				this.description += String.join("\n", description);
+				documentationBuilder().description(this.description);
 				return (B) this;
 			}
 
 			@Override
 			public B addDescription(Collection<String> description) {
-				documentationBuilder().addDescription(description);
+				this.description += String.join("\n", description);
+				documentationBuilder().description(this.description);
 				return (B) this;
 			}
 
 			@Override
 			public B clearDescription() {
-				documentationBuilder().clearDescription();
+				this.description = "";
+				documentationBuilder().description(this.description);
 				return (B) this;
 			}
 

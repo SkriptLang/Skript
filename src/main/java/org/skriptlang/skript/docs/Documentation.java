@@ -175,6 +175,14 @@ public interface Documentation {
 		Builder description(String description);
 
 		/**
+		 * Adds an example to the documentation.
+		 * @param example The example to add.
+		 * @return This builder.
+		 * @see Documentation#examples()
+		 */
+		Builder addExample(String example);
+
+		/**
 		 * Adds one or more examples to the documentation.
 		 * @param examples The examples to add.
 		 * @return This builder.
@@ -196,6 +204,15 @@ public interface Documentation {
 		 * @see Documentation#examples()
 		 */
 		Builder clearExamples();
+
+		/**
+		 * Adds an entry describing a version when the thing represented
+		 *  by the documentation was added or changed.
+		 * @param since The entry to add.
+		 * @return This builder.
+		 * @see Documentation#since()
+		 */
+		Builder addSince(String since);
 
 		/**
 		 * Adds one or more entries describing a version when the thing represented
@@ -223,6 +240,14 @@ public interface Documentation {
 		Builder clearSince();
 
 		/**
+		 * Adds a requirement to the documentation.
+		 * @param requirement The requirement to add.
+		 * @return This builder.
+		 * @see Documentation#requirements()
+		 */
+		Builder addRequirement(String requirement);
+
+		/**
 		 * Adds one or more requirements to the documentation.
 		 * @param requirements The requirements to add.
 		 * @return This builder.
@@ -244,6 +269,14 @@ public interface Documentation {
 		 * @see Documentation#requirements()
 		 */
 		Builder clearRequirements();
+
+		/**
+		 * Adds a keyword to the documentation.
+		 * @param keyword The keyword to add.
+		 * @return This builder.
+		 * @see Documentation#keywords()
+		 */
+		Builder addKeyword(String keyword);
 
 		/**
 		 * Adds one or more keywords to the documentation.

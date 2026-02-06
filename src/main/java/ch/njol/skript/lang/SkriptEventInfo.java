@@ -357,7 +357,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		public Documentation documentation() {
 			return Documentation.builder()
 				.name(name())
-				.addDescription(description())
+				.description(String.join("\n", description()))
 				.addExamples(examples())
 				.addSince(since())
 				.build();

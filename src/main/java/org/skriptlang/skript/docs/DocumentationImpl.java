@@ -61,6 +61,12 @@ record DocumentationImpl(
 		}
 
 		@Override
+		public Builder addExample(String example) {
+			this.examples.add(example);
+			return this;
+		}
+
+		@Override
 		public Builder addExamples(String... examples) {
 			this.examples.addAll(Arrays.asList(examples));
 			return this;
@@ -75,6 +81,12 @@ record DocumentationImpl(
 		@Override
 		public Builder clearExamples() {
 			this.examples.clear();
+			return this;
+		}
+
+		@Override
+		public Builder addSince(String since) {
+			this.since.add(since);
 			return this;
 		}
 
@@ -97,6 +109,12 @@ record DocumentationImpl(
 		}
 
 		@Override
+		public Builder addRequirement(String requirement) {
+			this.requirements.add(requirement);
+			return this;
+		}
+
+		@Override
 		public Builder addRequirements(String... requirements) {
 			this.requirements.addAll(Arrays.asList(requirements));
 			return this;
@@ -112,6 +130,11 @@ record DocumentationImpl(
 		public Builder clearRequirements() {
 			this.requirements.clear();
 			return this;
+		}
+
+		@Override
+		public Builder addKeyword(String keyword) {
+			return null;
 		}
 
 		@Override
