@@ -17,7 +17,13 @@ import java.util.SequencedCollection;
  *  such as class infos (think numeric types that are used everywhere).
  * <br>
  * The <code>load</code> phase should be used for loading components more specific to the module, such as syntax.
+ * {@link #register(SkriptAddon, Registrar...)} provides a helper method to register many syntax elements and handles
+ * assigning proper origins to the registered syntax.
+ * <br>
+ * For modules that are nested within other modules, use {@link HierarchicalAddonModule}. It provides automatic handling
+ * for child modules and proper origins.
  * @see SkriptAddon#loadModules(AddonModule...)
+ * @see HierarchicalAddonModule
  */
 public interface AddonModule {
 
