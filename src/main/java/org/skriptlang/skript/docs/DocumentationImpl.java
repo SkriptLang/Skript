@@ -31,6 +31,22 @@ record DocumentationImpl(
 			ImmutableList.copyOf(requirements), ImmutableList.copyOf(keywords), deprecated);
 	}
 
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new BuilderImpl()
+			.id(id)
+			.name(name)
+			.description(description)
+			.addExamples(examples)
+			.addSince(since)
+			.addRequirements(requirements)
+			.addKeywords(keywords);
+		if (deprecated) {
+			builder.deprecated();
+		}
+		return builder;
+	}
+
 	static class BuilderImpl implements Documentation.Builder {
 
 		private String id;
@@ -134,7 +150,8 @@ record DocumentationImpl(
 
 		@Override
 		public Builder addKeyword(String keyword) {
-			return null;
+			this.keywords.add(keyword);
+			return this;
 		}
 
 		@Override

@@ -150,6 +150,12 @@ public interface Documentation {
 	boolean deprecated();
 
 	/**
+	 * Converts this documentation back into a builder.
+	 * @return A builder capable of building this documentation.
+	 */
+	Builder toBuilder();
+
+	/**
 	 * Describes a builder for creating a {@link Documentation} object.
 	 */
 	interface Builder {
