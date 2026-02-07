@@ -30,14 +30,11 @@ final class BukkitSyntaxInfosImpl {
 		private final String name;
 		private final String id;
 		private final @Nullable String documentationId;
-		private final Collection<String> keywords;
-		private final Collection<String> requiredPlugins;
 		private final Collection<Class<? extends org.bukkit.event.Event>> events;
 
 		EventImpl(
 			SyntaxInfo<E> defaultInfo, ListeningBehavior listeningBehavior, String name,
-			@Nullable String documentationId,
-			Collection<String> keywords, Collection<String> requiredPlugins, Collection<Class<? extends org.bukkit.event.Event>> events
+			@Nullable String documentationId, Collection<Class<? extends org.bukkit.event.Event>> events
 		) {
 			this.defaultInfo = defaultInfo;
 			this.listeningBehavior = listeningBehavior;
@@ -46,8 +43,6 @@ final class BukkitSyntaxInfosImpl {
 					.replaceAll("[#'\"<>/&]", "")
 					.replaceAll("\\s+", "_");
 			this.documentationId = documentationId;
-			this.keywords = ImmutableList.copyOf(keywords);
-			this.requiredPlugins = ImmutableList.copyOf(requiredPlugins);
 			this.events = ImmutableList.copyOf(events);
 		}
 
@@ -61,8 +56,6 @@ final class BukkitSyntaxInfosImpl {
 			if (documentationId != null) {
 				builder.documentationId(documentationId);
 			}
-			builder.addKeywords(keywords);
-			builder.addRequiredPlugins(requiredPlugins);
 			builder.addEvents(events);
 			return builder;
 		}
@@ -86,31 +79,6 @@ final class BukkitSyntaxInfosImpl {
 		@Nullable
 		public String documentationId() {
 			return documentationId;
-		}
-
-		@Override
-		public SequencedCollection<String> since() {
-			return documentation().since();
-		}
-
-		@Override
-		public SequencedCollection<String> description() {
-			return List.of(documentation().description().split("\n"));
-		}
-
-		@Override
-		public Collection<String> examples() {
-			return documentation().examples();
-		}
-
-		@Override
-		public Collection<String> keywords() {
-			return keywords;
-		}
-
-		@Override
-		public Collection<String> requiredPlugins() {
-			return requiredPlugins;
 		}
 
 		@Override
@@ -146,10 +114,10 @@ final class BukkitSyntaxInfosImpl {
 		@Override
 		public String toString() {
 			return MoreObjects.toStringHelper(this)
-					.add("origin", origin())
 					.add("type", type())
 					.add("patterns", patterns())
 					.add("priority", priority())
+					.add("documentation", documentation())
 					.add("name", name())
 					.add("events", events())
 					.toString();
@@ -158,11 +126,6 @@ final class BukkitSyntaxInfosImpl {
 		//
 		// default methods
 		//
-
-		@Override
-		public Origin origin() {
-			return defaultInfo.origin();
-		}
 
 		@Override
 		public Class<E> type() {
@@ -199,8 +162,6 @@ final class BukkitSyntaxInfosImpl {
 			private @Nullable Documentation.Builder documentationBuilder;
 			private final String name;
 			private @Nullable String documentationId;
-			private final List<String> keywords = new ArrayList<>();
-			private final List<String> requiredPlugins = new ArrayList<>();
 			private final List<Class<? extends org.bukkit.event.Event>> events = new ArrayList<>();
 
 			BuilderImpl(Class<E> type, String name) {
@@ -305,49 +266,49 @@ final class BukkitSyntaxInfosImpl {
 
 			@Override
 			public B addKeyword(String keyword) {
-				this.keywords.add(keyword);
+				documentationBuilder().addKeywords(keyword);
 				return (B) this;
 			}
 
 			@Override
 			public B addKeywords(String... keywords) {
-				Collections.addAll(this.keywords, keywords);
+				documentationBuilder().addKeywords(keywords);
 				return (B) this;
 			}
 
 			@Override
 			public B addKeywords(Collection<String> keywords) {
-				this.keywords.addAll(keywords);
+				documentationBuilder().addKeywords(keywords);
 				return (B) this;
 			}
 
 			@Override
 			public B clearKeywords() {
-				this.keywords.clear();
+				documentationBuilder().clearKeywords();
 				return (B) this;
 			}
 
 			@Override
 			public B addRequiredPlugin(String plugin) {
-				this.requiredPlugins.add(plugin);
+				documentationBuilder().addRequirements(plugin);
 				return (B) this;
 			}
 
 			@Override
 			public B addRequiredPlugins(String... plugins) {
-				Collections.addAll(this.requiredPlugins, plugins);
+				documentationBuilder().addRequirements(plugins);
 				return (B) this;
 			}
 
 			@Override
 			public B addRequiredPlugins(Collection<String> plugins) {
-				this.requiredPlugins.addAll(plugins);
+				documentationBuilder().addRequirements(plugins);
 				return (B) this;
 			}
 
 			@Override
 			public B clearRequiredPlugins() {
-				this.requiredPlugins.clear();
+				documentationBuilder().clearRequirements();
 				return (B) this;
 			}
 
@@ -428,10 +389,7 @@ final class BukkitSyntaxInfosImpl {
 				if (documentationBuilder != null) {
 					defaultBuilder.documentation(documentationBuilder.build());
 				}
-				return new EventImpl<>(
-					defaultBuilder.build(), listeningBehavior, name,
-					documentationId, keywords, requiredPlugins, events
-				);
+				return new EventImpl<>(defaultBuilder.build(), listeningBehavior, name, documentationId, events);
 			}
 
 			@Override
@@ -446,8 +404,6 @@ final class BukkitSyntaxInfosImpl {
 					if (documentationId != null) {
 						eventBuilder.documentationId(documentationId);
 					}
-					eventBuilder.addKeywords(keywords);
-					eventBuilder.addRequiredPlugins(requiredPlugins);
 					eventBuilder.addEvents(events);
 				}
 			}

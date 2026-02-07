@@ -258,22 +258,12 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		public BukkitSyntaxInfos.Event.Builder<? extends BukkitSyntaxInfos.Event.Builder<?, E>, E> toBuilder() {
 			// add asterisk to prevent prepending "on" again
 			return BukkitSyntaxInfos.Event.builder(type(), "*" + name())
-				.origin(origin)
 				.addPatterns(patterns())
 				.priority(priority())
+				.documentation(documentation())
 				.listeningBehavior(listeningBehavior())
-				.addSince(since())
 				.documentationId(id())
-				.addDescription(description())
-				.addExamples(examples())
-				.addKeywords(keywords())
-				.addRequiredPlugins(requiredPlugins())
 				.addEvents(events());
-		}
-
-		@Override
-		public Origin origin() {
-			return origin;
 		}
 
 		@Override
@@ -355,11 +345,18 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 		@Override
 		public Documentation documentation() {
+			if (getDescription() == NO_DOC) {
+				return Documentation.NONE;
+			}
 			return Documentation.builder()
+				.origin(origin)
+				.id(documentationId())
 				.name(name())
 				.description(String.join("\n", description()))
 				.addExamples(examples())
 				.addSince(since())
+				.addKeywords(keywords())
+				.addRequirements(requiredPlugins())
 				.build();
 		}
 	}

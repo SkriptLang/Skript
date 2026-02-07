@@ -11,6 +11,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.SequencedCollection;
 
 /**
@@ -77,7 +78,9 @@ public final class BukkitSyntaxInfos {
 		 * @deprecated Use {@link #documentation()} instead.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
-		SequencedCollection<String> since();
+		default SequencedCollection<String> since() {
+			return documentation().since();
+		}
 
 		/**
 		 * @return Documentation data. A description of a syntax.
@@ -85,7 +88,9 @@ public final class BukkitSyntaxInfos {
 		 * @deprecated Use {@link #documentation()} instead.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
-		SequencedCollection<String> description();
+		default SequencedCollection<String> description() {
+			return List.of(documentation().description().split("\n"));
+		}
 
 		/**
 		 * @return Documentation data. Examples for using a syntax.
@@ -93,19 +98,29 @@ public final class BukkitSyntaxInfos {
 		 * @deprecated Use {@link #documentation()} instead.
 		 */
 		@Deprecated(since = "INSERT VERSION", forRemoval = true)
-		Collection<String> examples();
+		default Collection<String> examples() {
+			return documentation().examples();
+		}
 
 		/**
 		 * @return Documentation data. Keywords are used by the search engine to provide relevant results.
 		 * @see ch.njol.skript.doc.Keywords
+		 * @deprecated Use {@link #documentation()} instead.
 		 */
-		Collection<String> keywords();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default Collection<String> keywords() {
+			return documentation().keywords();
+		}
 
 		/**
 		 * @return Documentation data. Plugins other than Skript that are required by a syntax.
 		 * @see ch.njol.skript.doc.RequiredPlugins
+		 * @deprecated Use {@link #documentation()} instead.
 		 */
-		Collection<String> requiredPlugins();
+		@Deprecated(since = "INSERT VERSION", forRemoval = true)
+		default Collection<String> requiredPlugins() {
+			return documentation().requirements();
+		}
 
 		/**
 		 * @return A collection of the classes representing the Bukkit events the {@link SkriptEvent} listens for.
@@ -275,8 +290,10 @@ public final class BukkitSyntaxInfos {
 			 * @param keyword The keyword to add.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addKeyword(String keyword);
 
 			/**
@@ -284,8 +301,10 @@ public final class BukkitSyntaxInfos {
 			 * @param keywords The keywords to add.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addKeywords(String... keywords);
 
 			/**
@@ -293,16 +312,20 @@ public final class BukkitSyntaxInfos {
 			 * @param keywords The keywords to add.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addKeywords(Collection<String> keywords);
 
 			/**
 			 * Removes all keywords from the event's documentation.
 			 * @return This builder.
 			 * @see Event#keywords()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearKeywords();
 
 			/**
@@ -310,8 +333,10 @@ public final class BukkitSyntaxInfos {
 			 * @param plugin The required plugin to add.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addRequiredPlugin(String plugin);
 
 			/**
@@ -319,8 +344,10 @@ public final class BukkitSyntaxInfos {
 			 * @param plugins The required plugins to add.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addRequiredPlugins(String... plugins);
 
 			/**
@@ -328,15 +355,20 @@ public final class BukkitSyntaxInfos {
 			 * @param plugins The required plugins to add.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
 			@Contract("_ -> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B addRequiredPlugins(Collection<String> plugins);
 
 			/**
 			 * Removes all required plugins from the event's documentation.
 			 * @return This builder.
 			 * @see Event#requiredPlugins()
+			 * @deprecated Use {@link #documentation(Documentation)} instead.
 			 */
+			@Contract("-> this")
+			@Deprecated(since = "INSERT VERSION", forRemoval = true)
 			B clearRequiredPlugins();
 
 			/**

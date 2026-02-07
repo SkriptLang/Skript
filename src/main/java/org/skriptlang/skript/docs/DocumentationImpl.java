@@ -36,6 +36,7 @@ record DocumentationImpl(
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new BuilderImpl()
+			.origin(origin)
 			.id(id)
 			.name(name)
 			.description(description)

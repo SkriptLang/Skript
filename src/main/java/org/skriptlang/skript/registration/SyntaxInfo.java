@@ -57,8 +57,12 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 
 	/**
 	 * @return The origin of this syntax.
+	 * @deprecated Use {@link Documentation#origin()}.
 	 */
-	Origin origin();
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	default Origin origin() {
+		return documentation().origin();
+	}
 
 	/**
 	 * @return The class providing the implementation of this syntax.
@@ -102,6 +106,7 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 		 * @see SyntaxInfo#origin()
 		 */
 		@Contract("_ -> this")
+		@Deprecated(forRemoval = true, since = "INSERT VERSION")
 		B origin(Origin origin);
 
 		/**
