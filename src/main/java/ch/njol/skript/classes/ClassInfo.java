@@ -17,6 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
 import org.skriptlang.skript.lang.properties.handlers.base.PropertyHandler;
@@ -31,7 +34,7 @@ import java.util.regex.PatternSyntaxException;
  * @param <T> The class this info is for
  */
 @SuppressFBWarnings("DM_STRING_VOID_CTOR")
-public class ClassInfo<T> implements Debuggable {
+public class ClassInfo<T> implements Documentable, Debuggable {
 
 	private final Class<T> c;
 	private final String codeName;
@@ -62,22 +65,8 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	private Class<?> mathRelativeType = null;
 
-	@Nullable
-	private String docName = null;
-	private String @Nullable [] description = null;
+	private Documentation documentation;
 	private String @Nullable [] usage = null;
-	private String @Nullable [] examples = null;
-	@Nullable
-	private String since = null;
-	private String @Nullable [] requiredPlugins = null;
-	
-	/**
-	 * Overrides documentation id assigned from class name.
-	 */
-	@Nullable
-	private String documentationId = null;
-
-	private final SkriptAddon source;
 
 	/**
 	 * @param c The class
@@ -102,7 +91,9 @@ public class ClassInfo<T> implements Debuggable {
 		} catch (ClassNotFoundException ignored) {
 			source = Skript.instance();
 		}
-		this.source = source;
+		documentation = Documentation.builder()
+			.origin(Origin.of(source))
+			.build();
 	}
 
 	public static boolean isValidCodeName(final String name) {
@@ -217,10 +208,18 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * @param name
 	 * @return This ClassInfo object
+	 * @deprecated Use {@link #documentation()}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> name(final String name) {
-		assert this.docName == null;
-		this.docName = name;
+		//noinspection StringEquality intentional == comparison
+		if (name == NO_DOC) {
+			documentation = Documentation.NONE;
+		} else {
+			documentation = documentation.toBuilder()
+				.name(name)
+				.build();
+		}
 		return this;
 	}
 
@@ -229,10 +228,13 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * @param description
 	 * @return This ClassInfo object
+	 * @deprecated Use {@link #documentation()}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> description(final String... description) {
-		assert this.description == null;
-		this.description = description;
+		documentation = documentation.toBuilder()
+			.description(String.join("\n", description))
+			.build();
 		return this;
 	}
 
@@ -253,10 +255,13 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * @param examples
 	 * @return This ClassInfo object
+	 * @deprecated Use {@link #documentation()}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> examples(final String... examples) {
-		assert this.examples == null;
-		this.examples = examples;
+		documentation = documentation.toBuilder()
+			.addExamples(examples)
+			.build();
 		return this;
 	}
 
@@ -265,10 +270,13 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * @param since
 	 * @return This ClassInfo object
+	 * @deprecated Use {@link #documentation()}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> since(final String since) {
-		assert this.since == null;
-		this.since = since;
+		documentation = documentation.toBuilder()
+			.addSince(since)
+			.build();
 		return this;
 	}
 
@@ -279,10 +287,13 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * @param pluginNames
 	 * @return This ClassInfo object
+	 * @deprecated Use {@link #documentation()}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> requiredPlugins(final String... pluginNames) {
-		assert this.requiredPlugins == null;
-		this.requiredPlugins = pluginNames;
+		documentation = documentation.toBuilder()
+			.addRequirements(pluginNames)
+			.build();
 		return this;
 	}
 
@@ -292,10 +303,13 @@ public class ClassInfo<T> implements Debuggable {
 	 * parent class name as a context.
 	 * @param id Documentation id override.
 	 * @return This ClassInfo object.
+	 * @deprecated Use {@link #documentation()}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> documentationId(String id) {
-		assert this.documentationId == null;
-		this.documentationId = id;
+		documentation = documentation.toBuilder()
+			.id(id)
+			.build();
 		return this;
 	}
 
@@ -379,49 +393,79 @@ public class ClassInfo<T> implements Debuggable {
 		return serializeAs;
 	}
 
-	@Nullable
-	public String[] getDescription() {
-		return description;
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public String @Nullable [] getDescription() {
+		if (documentation.description().isEmpty()) {
+			return null;
+		}
+		return documentation.description().split("\n");
 	}
 
-	@Nullable
-	public String[] getUsage() {
+	public String @Nullable [] getUsage() {
 		return usage;
 	}
 
-	@Nullable
-	public String[] getExamples() {
-		return examples;
-	}
-
-	@Nullable
-	public String getSince() {
-		return since;
-	}
-
-	@Nullable
-	public String getDocName() {
-		return docName;
-	}
-
-	@Nullable
-	public String[] getRequiredPlugins() {
-		return requiredPlugins;
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public String @Nullable [] getExamples() {
+		if (documentation.examples().isEmpty()) {
+			return null;
+		}
+		return documentation.examples().toArray(new String[0]);
 	}
 
 	/**
-	 * Gets overridden documentation id of this this type. If no override has
-	 * been set, null is returned and the caller may try to derive this from
-	 * name of {@code #getC()}.
-	 * @return Documentation id override, or null.
+	 * @deprecated Use {@link #documentation()}.
 	 */
-	@Nullable
-	public String getDocumentationID() {
-		return documentationId;
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String getSince() {
+		if (documentation.since().isEmpty()) {
+			return null;
+		}
+		return String.join(", ", documentation.since());
 	}
 
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String getDocName() {
+		if (documentation.name().isEmpty()) {
+			return null;
+		}
+		return documentation.name();
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String[] getRequiredPlugins() {
+		if (documentation.requirements().isEmpty()) {
+			return null;
+		}
+		return documentation.requirements().toArray(new String[0]);
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String getDocumentationID() {
+		return documentation.id();
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated
 	public boolean hasDocs() {
-		return getDocName() != null && !ClassInfo.NO_DOC.equals(getDocName());
+		return documentation() != Documentation.NONE;
 	}
 
 	// === ORDERING ===
@@ -499,11 +543,11 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	/**
-	 * @return The addon that created this ClassInfo.
+	 * @return Documentation describing this class info.
 	 */
-	@ApiStatus.Experimental
-	public SkriptAddon source() {
-		return source;
+	@Override
+	public Documentation documentation() {
+		return documentation;
 	}
 
 	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
