@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.SequencedCollection;
 
 record DocumentationImpl(
+	Origin origin,
 	@Nullable String id,
 	String name,
 	String description,
@@ -19,7 +20,8 @@ record DocumentationImpl(
 	boolean deprecated
 ) implements Documentation {
 
-	DocumentationImpl(@Nullable String id,
+	DocumentationImpl(Origin origin,
+					  @Nullable String id,
 					  String name,
 					  String description,
 					  Collection<String> examples,
@@ -27,7 +29,7 @@ record DocumentationImpl(
 					  Collection<String> requirements,
 					  Collection<String> keywords,
 					  boolean deprecated) {
-		this(id, name, description, ImmutableList.copyOf(examples), ImmutableList.copyOf(since),
+		this(origin, id, name, description, ImmutableList.copyOf(examples), ImmutableList.copyOf(since),
 			ImmutableList.copyOf(requirements), ImmutableList.copyOf(keywords), deprecated);
 	}
 
@@ -49,6 +51,7 @@ record DocumentationImpl(
 
 	static class BuilderImpl implements Documentation.Builder {
 
+		private Origin origin = Origin.UNKNOWN;
 		private String id;
 		private String name = "";
 		private String description = "";
@@ -57,6 +60,12 @@ record DocumentationImpl(
 		private final Collection<String> requirements = new ArrayList<>();
 		private final Collection<String> keywords = new ArrayList<>();
 		private boolean deprecated;
+
+		@Override
+		public Builder origin(Origin origin) {
+			this.origin = origin;
+			return this;
+		}
 
 		@Override
 		public Builder id(@Nullable String id) {
@@ -180,7 +189,7 @@ record DocumentationImpl(
 
 		@Override
 		public Documentation build() {
-			return new DocumentationImpl(id, name, description, examples, since, requirements, keywords, deprecated);
+			return new DocumentationImpl(origin, id, name, description, examples, since, requirements, keywords, deprecated);
 		}
 
 	}

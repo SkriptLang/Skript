@@ -106,8 +106,17 @@ public interface Documentation {
 			builder.deprecated();
 		}
 
+		// TODO @Events
+
+		// TODO RelatedProperty
+
 		return builder.build();
 	}
+
+	/**
+	 * @return An origin identifying the provider of the thing represented by this documentation.
+	 */
+	Origin origin();
 
 	/**
 	 * @return An identifier for referencing the thing represented by this documentation.
@@ -159,6 +168,15 @@ public interface Documentation {
 	 * Describes a builder for creating a {@link Documentation} object.
 	 */
 	interface Builder {
+
+		/**
+		 * Sets the origin to use for the documentation.
+		 * @param origin The origin to use.
+		 * @return This builder.
+		 * @see Documentation#origin()
+		 */
+		@Contract(value = "_ -> this", mutates = "this")
+		Builder origin(Origin origin);
 
 		/**
 		 * Sets the identifier to use for the documentation.
