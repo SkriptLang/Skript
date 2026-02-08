@@ -25,10 +25,13 @@ import java.util.function.Consumer;
 
 public class ThrownPotionData extends EntityData<ThrownPotion> {
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("thrown potion¦s @a",
+		"thrown (potion[plural:s]|unknown_plural:%-itemtypes%)");
+
 	public static void register() {
 		registerInfo(
 			infoBuilder(ThrownPotionData.class, "thrown potion")
-				.addCodeName("thrown potion")
+				.dataPatterns(GROUP)
 				.entityClass(ThrownPotion.class)
 				.supplier(ThrownPotionData::new)
 				.build()
@@ -48,7 +51,7 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 	private ItemType @Nullable [] types;
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null) {
 			//noinspection unchecked
 			ItemType[] itemTypes = ((Literal<ItemType>) exprs[0]).getAll();

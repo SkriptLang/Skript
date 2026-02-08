@@ -53,8 +53,10 @@ public class ExprWardenAngryAt extends SimplePropertyExpression<LivingEntity, Li
 		assert delta != null;
 		LivingEntity target = (LivingEntity) delta[0];
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
-			if (livingEntity instanceof Warden warden)
+			if (livingEntity instanceof Warden warden) {
+				// https://jd.papermc.io/paper/1.21.11/org/bukkit/entity/Warden.html#setAnger(org.bukkit.entity.Entity,int)
 				warden.setAnger(target, 150);
+			}
 		}
 	}
 

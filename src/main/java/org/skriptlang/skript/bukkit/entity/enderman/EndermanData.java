@@ -4,7 +4,6 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
@@ -21,12 +20,15 @@ import java.util.Arrays;
 
 public class EndermanData extends EntityData<Enderman> {
 
-	private final static ArgsMessage FORMAT = new ArgsMessage("entities.enderman.format");
+	private final static String FORMAT = "%1$s holding %2$s";
+
+	private final static EntityDataPatterns<?> GROUP =
+		EntityDataPatterns.of("ender¦man¦men @an", "enderm(a|plural:e)n [(carrying|holding) %-itemtype%]");
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(EndermanData.class, "enderman")
-				.addCodeName("enderman")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.ENDERMAN)
 				.entityClass(Enderman.class)
 				.supplier(EndermanData::new)
@@ -43,7 +45,7 @@ public class EndermanData extends EntityData<Enderman> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (exprs[0] != null) {
 			//noinspection unchecked
 			hand = ((Literal<ItemType>) exprs[0]).getAll();
@@ -121,7 +123,7 @@ public class EndermanData extends EntityData<Enderman> {
 		ItemType[] hand = this.hand;
 		if (hand == null)
 			return super.toString(flags);
-		return FORMAT.toString(super.toString(flags), Classes.toString(hand, false));
+		return String.format(FORMAT, super.toString(flags), Classes.toString(hand, false));
 	}
 
 	private boolean isSubhand(@Nullable ItemType[] sub) {

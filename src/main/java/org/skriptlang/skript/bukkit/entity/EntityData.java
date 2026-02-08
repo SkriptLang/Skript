@@ -50,8 +50,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.SequencedCollection;
 import java.util.function.Consumer;
 
 @SuppressWarnings("rawtypes")
@@ -167,7 +170,7 @@ public abstract class EntityData<E extends Entity>
 					return false;
 				if (field.getID().equals("matchedPattern")) {
 					//noinspection DataFlowIssue
-					entityData.codeNameIndex = (int) field.getObject();
+					entityData.groupIndex = (int) field.getObject();
 					return true;
 				}
 				// Typically do not experience any drastic changes in field names or types
@@ -236,9 +239,9 @@ public abstract class EntityData<E extends Entity>
 	transient EntityDataInfo<?, ?> info;
 
 	/**
-	 * References the corresponding code name in the order they're registered.
+	 * References the corresponding group in the order they're registered.
 	 */
-	protected int codeNameIndex;
+	protected int groupIndex;
 	private Kleenean plural = Kleenean.UNKNOWN;
 	private Kleenean baby = Kleenean.UNKNOWN;
 
@@ -246,7 +249,7 @@ public abstract class EntityData<E extends Entity>
 		for (EntityDataInfo<?, ?> info : infos) {
 			if (getClass() == info.type()) {
 				this.info = info;
-				codeNameIndex = info.defaultCodeNameIndex();
+				groupIndex = info.defaultGroupIndex();
 				return;
 			}
 		}
@@ -272,18 +275,17 @@ public abstract class EntityData<E extends Entity>
 		} else {
 			this.baby = Kleenean.UNKNOWN;
 		}
-		String codeName = info.codeNameFromMatchedPattern(matchedPattern);
-		int matchedCodeName = info.codeNamePlacement(codeName);
-		int patternInCodeName = info.matchedCodeNamePattern(matchedPattern);
-		this.codeNameIndex = matchedCodeName;
-		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedCodeName, patternInCodeName, parseResult);
+		int matchedGroup = info.groupFromMatchedPattern(matchedPattern).index();
+		int patternInGroup = info.matchedGroupPattern(matchedPattern);
+		this.groupIndex = matchedGroup;
+		return init(Arrays.copyOf(exprs, exprs.length, Literal[].class), matchedGroup, patternInGroup, parseResult);
 	}
 
 	/**
 	 * Initializes this {@link EntityData}.
 	 * <p>
 	 *     As of Skript 2.13, code names can have multiple patterns registered in the default.lang file.
-	 *     {@code matchedCodeName} will be the index of the code name the matched pattern is linked to.
+	 *     {@code matchedGroup} will be the index of the code name the matched pattern is linked to.
 	 *     		(e.g. {@link PigData} "unsaddled pig" = 0, "pig" = 1, "saddled pig" = 2)
 	 *     {@code matchedPattern} will be the index of the pattern used from the patterns of the code name in the lang file.
 	 * </p>
@@ -291,14 +293,14 @@ public abstract class EntityData<E extends Entity>
 	 * @param exprs An array of {@link Literal} expressions from the matched pattern, in the order they appear.
 	 *              If an optional value was omitted by the user, it will still be present in the array
 	 *              with a value of {@code null}.
-	 * @param matchedCodeName The index of the code name which matched.
-	 * @param matchedPattern The index of the pattern of the code name which matched.
+	 * @param matchedGroup The index of the group which matched.
+	 * @param matchedPattern The index of the pattern of the group which matched.
 	 * @param parseResult Additional information from the parser.
 	 * @return {@code true} if initialization was successful, otherwise {@code false}.
 	 */
 	protected abstract boolean init(
 		Literal<?>[] exprs,
-		int matchedCodeName,
+		int matchedGroup,
 		int matchedPattern,
 		ParseResult parseResult
 	);
@@ -372,7 +374,7 @@ public abstract class EntityData<E extends Entity>
 	}
 
 	protected Noun getName() {
-		return info.names()[codeNameIndex];
+		return info.dataPatterns().getName(groupIndex);
 	}
 
 	protected @Nullable Adjective getAgeAdjective() {
@@ -385,7 +387,7 @@ public abstract class EntityData<E extends Entity>
 	}
 
 	public String toString(int flags) {
-		Noun name = info.names()[codeNameIndex];
+		Noun name = getName();
 		if (baby.isTrue()) {
 			return m_baby.toString(name, flags);
 		} else if (baby.isFalse()) {
@@ -422,7 +424,7 @@ public abstract class EntityData<E extends Entity>
 		int result = 1;
 		result = prime * result + baby.hashCode();
 		result = prime * result + plural.hashCode();
-		result = prime * result + codeNameIndex;
+		result = prime * result + groupIndex;
 		result = prime * result + info.hashCode();
 		result = prime * result + hashCode_i();
 		return result;
@@ -449,7 +451,7 @@ public abstract class EntityData<E extends Entity>
 			return false;
 		if (plural != other.plural)
 			return false;
-		if (codeNameIndex != other.codeNameIndex)
+		if (groupIndex != other.groupIndex)
 			return false;
 		if (!info.equals(other.info))
 			return false;
@@ -847,24 +849,92 @@ public abstract class EntityData<E extends Entity>
 		return from == to;
 	}
 
-	// Remove when old EntityData is removed //
+	public static class EntityDataPatterns<Data> {
 
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public static <Data extends EntityData<E>, E extends Entity> void registerOld(
-		Class<Data> dataClass,
-		String name,
-		Class<E> entityClass,
-		int defaultName,
-		String... codeNames
-	) {
-		EntityType entityType = EntityUtils.toBukkitEntityType(entityClass);
-		EntityDataInfo<Data, E> info = infoBuilder(dataClass, name)
-			.addCodeNames(codeNames)
-			.defaultCodeName(defaultName)
-			.entityType(entityType)
-			.entityClass(entityClass)
-			.build();
-		registerInfo(info);
+		public static EntityDataPatterns<?> of(String name, String... patterns) {
+			return of(name, null, patterns);
+		}
+
+		public static <Data> EntityDataPatterns<Data> of(String name, @Nullable Data data, String... patterns) {
+			return new EntityDataPatterns<>(
+				new PatternGroup<>(0, name, data, patterns)
+			);
+		}
+
+		private final PatternGroup<Data>[] patternGroups;
+		private final Map<Integer, PatternGroup<Data>> groupMap = new HashMap<>();
+		private final Map<Data, PatternGroup<Data>> dataMap = new HashMap<>();
+		private PatternGroup<Data> genericGroup;
+		private final SequencedCollection<Noun> names = new ArrayList<>();
+
+		@SafeVarargs
+		public EntityDataPatterns(PatternGroup<Data>... patternGroups) {
+			this.patternGroups = patternGroups;
+			for (PatternGroup<Data> group : patternGroups) {
+				groupMap.put(group.index(), group);
+				dataMap.put(group.data(), group);
+				names.add(group.name());
+				if (group.data() == null)
+					genericGroup = group;
+			}
+		}
+
+		public PatternGroup<Data> getGenericGroup() {
+			return genericGroup;
+		}
+
+		public SequencedCollection<Noun> getNames() {
+			return names;
+		}
+
+		public PatternGroup<Data>[] getPatternGroups() {
+			return patternGroups;
+		}
+
+		public PatternGroup<Data> getPatternGroup(int index) {
+			if (!groupMap.containsKey(index))
+				return genericGroup;
+			return groupMap.get(index);
+		}
+
+		public PatternGroup<Data> getPatternGroup(@Nullable Data data) {
+			if (!dataMap.containsKey(data))
+				return genericGroup;
+			return dataMap.get(data);
+		}
+
+		public int getIndex(@Nullable Data data) {
+			return getPatternGroup(data).index();
+		}
+
+		public @Nullable Data getData(int index) {
+			return getPatternGroup(index).data();
+		}
+
+		public Noun getName(int index) {
+			return getPatternGroup(index).name();
+		}
+
+		public Noun getName(@Nullable Data data) {
+			return getPatternGroup(data).name();
+		}
+
+	}
+
+	public record PatternGroup<Data>(int index, Noun name, @Nullable Data data, String... patterns) {
+
+		public PatternGroup(int index, Noun name, String... patterns) {
+			this(index, name, null, patterns);
+		}
+
+		public PatternGroup(int index, String name, @Nullable Data data, String... patterns) {
+			this(index, new Noun(name), data, patterns);
+		}
+
+		public PatternGroup(int index, String name, String... patterns) {
+			this(index, name, null, patterns);
+		}
+
 	}
 
 }

@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.goat;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Goat;
@@ -12,16 +11,26 @@ import org.skriptlang.skript.bukkit.entity.EntityData;
 
 public class GoatData extends EntityData<Goat> {
 
-	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"goat", Kleenean.UNKNOWN},
-		{"screaming goat", Kleenean.TRUE},
-		{"quiet goat", Kleenean.FALSE}
-	});
+	private static final EntityDataPatterns<Kleenean> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "goat¦s @a", Kleenean.UNKNOWN, getPatterns("")),
+		new PatternGroup<>(1, "screaming goat¦s @a", Kleenean.TRUE, getPatterns("screaming")),
+		new PatternGroup<>(2, "quiet goat¦s @a", Kleenean.FALSE, getPatterns("quiet"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> goat [plural:s]";
+		String second = "baby:goat (kid[plural:s]|child[plural:ren])";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " goat[plural:s]";
+			second = "baby:" + prefix + " goaat (kid[plural:s]|child[plural:ren])";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(GoatData.class, "goat")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.GOAT)
 				.entityClass(Goat.class)
 				.supplier(GoatData::new)
@@ -35,12 +44,12 @@ public class GoatData extends EntityData<Goat> {
 
 	public GoatData(@Nullable Kleenean screaming) {
 		this.screaming = screaming != null ? screaming : Kleenean.UNKNOWN;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.screaming, 0).orElseThrow();
+		super.groupIndex = GROUPS.getIndex(this.screaming);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		screaming = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		screaming = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -48,7 +57,7 @@ public class GoatData extends EntityData<Goat> {
 	protected boolean init(@Nullable Class<? extends Goat> entityClass, @Nullable Goat goat) {
 		if (goat != null) {
 			screaming = Kleenean.get(goat.isScreaming());
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(screaming, 0).orElseThrow();
+			super.groupIndex = GROUPS.getIndex(screaming);
 		}
 		return true;
 	}

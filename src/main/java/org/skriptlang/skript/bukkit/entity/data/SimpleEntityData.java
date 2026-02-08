@@ -56,6 +56,10 @@ public class SimpleEntityData extends EntityData<Entity> {
 	
 	private final static List<SimpleEntityDataInfo> types = new ArrayList<>();
 
+	private static final List<PatternGroup<SimpleEntityDataInfo>> PATTERN_GROUPS = new ArrayList<>();
+
+	private static EntityDataPatterns<SimpleEntityDataInfo> GROUPS;
+
 	@ApiStatus.Internal
 	public static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass) {
 		addSimpleEntity(codeName, entityClass, Kleenean.UNKNOWN);
@@ -66,6 +70,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 	 */
 	@ApiStatus.Internal
 	public static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
+		SimpleEntityDataInfo info = new SimpleEntityDataInfo(codeName, entityClass, false, allowSpawning);
+
+
 		types.add(new SimpleEntityDataInfo(codeName, entityClass, false, allowSpawning));
 	}
 
@@ -300,7 +307,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	private SimpleEntityData(SimpleEntityDataInfo simpleInfo) {
 		assert simpleInfo != null;
 		this.simpleInfo = simpleInfo;
-		codeNameIndex = types.indexOf(simpleInfo);
+		groupIndex = types.indexOf(simpleInfo);
 	}
 	
 	public SimpleEntityData(Class<? extends Entity> entityClass) {
@@ -319,7 +326,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.simpleInfo = closestInfo;
-			this.codeNameIndex = closestPattern;
+			this.groupIndex = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();
@@ -340,16 +347,16 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		if (closestInfo != null) {
 			this.simpleInfo = closestInfo;
-			this.codeNameIndex = closestPattern;
+			this.groupIndex = closestPattern;
 			return;
 		}
 		throw new IllegalStateException();
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		simpleInfo = types.get(matchedCodeName);
-		assert simpleInfo != null : matchedCodeName;
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		simpleInfo = types.get(matchedGroup);
+		assert simpleInfo != null : matchedGroup;
 		return true;
 	}
 	

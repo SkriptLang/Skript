@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
@@ -18,21 +17,37 @@ public class RabbitData extends EntityData<Rabbit> {
 
 	private static final Type[] TYPES = Type.values();
 
-	private static final Patterns<Type> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"rabbit", null},
-		{"white rabbit", Type.WHITE},
-		{"black rabbit", Type.BLACK},
-		{"black and white rabbit", Type.BLACK_AND_WHITE},
-		{"brown rabbit", Type.BROWN},
-		{"gold rabbit", Type.GOLD},
-		{"salt and pepper rabbit", Type.SALT_AND_PEPPER},
-		{"killer rabbit", Type.THE_KILLER_BUNNY}
-	});
+	private static final EntityDataPatterns<Type> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "rabbit¦s @a", getPatterns("")),
+		new PatternGroup<>(1, "white rabbit¦s @a", Type.WHITE, getPatterns("white")),
+		new PatternGroup<>(2, "black rabbit¦s @a", Type.BLACK, getPatterns("black")),
+		new PatternGroup<>(3, "black and white rabbit¦s @a", Type.BLACK_AND_WHITE, getPatterns("black [and] white")),
+		new PatternGroup<>(4, "brown rabbit¦s @a", Type.BROWN, getPatterns("brown")),
+		new PatternGroup<>(5, "gold rabbit¦s @a", Type.GOLD, getPatterns("gold")),
+		new PatternGroup<>(6, "salt and pepper rabbit¦s @a", Type.SALT_AND_PEPPER, getPatterns("salt [and] pepper")),
+		new PatternGroup<>(7, "killer rabbit¦s @a", Type.THE_KILLER_BUNNY, getPatterns("killer"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		if (!prefix.isEmpty()) {
+			return new String[] {
+				"<age> " + prefix + " rabbit[plural:s]",
+				prefix + " <age> rabbit[plural:s]",
+				prefix + " rabbit <age>[plural:s]",
+				"baby:" + prefix + " (kid[plural:s]|child[plural:ren])"
+			};
+		}
+		return new String[] {
+			"<age> rabbit[plural:s]",
+			"rabbit <age>[plural:s]",
+			"baby:rabbit (kid[plural:s]|child[plural:ren])"
+		};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(RabbitData.class, "rabbit")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.RABBIT)
 				.entityClass(Rabbit.class)
 				.supplier(RabbitData::new)
@@ -48,12 +63,12 @@ public class RabbitData extends EntityData<Rabbit> {
     
     public RabbitData(@Nullable Type type) {
     	this.type = type;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(type);
 	}
 
     @Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-        type = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+        type = GROUPS.getData(matchedGroup);
         return true;
     }
 
@@ -61,7 +76,7 @@ public class RabbitData extends EntityData<Rabbit> {
     protected boolean init(@Nullable Class<? extends Rabbit> entityClass, @Nullable Rabbit rabbit) {
 		if (rabbit != null) {
 			type = rabbit.getRabbitType();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(type);
 		}
         return true;
     }

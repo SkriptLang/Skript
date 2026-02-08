@@ -33,7 +33,7 @@ public class ExprMaxMinecartSpeed extends SimplePropertyExpression<Entity, Numbe
 
 	@Override
 	public @Nullable Number convert(Entity entity) {
-		return entity instanceof Minecart ? ((Minecart) entity).getMaxSpeed() : null;
+		return entity instanceof Minecart minecart ? minecart.getMaxSpeed() : null;
 	}
 
 	@Override

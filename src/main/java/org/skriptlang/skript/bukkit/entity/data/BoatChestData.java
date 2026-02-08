@@ -7,12 +7,15 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Boat.Type;
 import org.bukkit.entity.ChestBoat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.entity.EntityData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -22,26 +25,38 @@ public class BoatChestData extends EntityData<ChestBoat> {
 
 	private static final Boat.Type[] types = Boat.Type.values();
 
+	private static EntityDataPatterns<Boat.Type> GROUPS;
+
 	public static void register() {
 		if (!Skript.isRunningMinecraft(1, 21, 2)) {
-			// This ensures all boats are registered
-			// As well as in the correct order via 'ordinal'
-			String[] patterns = new String[types.length + 2];
-			patterns[0] = "chest boat";
-			patterns[1] = "any chest boat";
-			for (Boat.Type boat : types) {
-				String boatName;
-				if (boat == Boat.Type.BAMBOO) {
-					boatName = "bamboo chest raft";
+
+			List<PatternGroup<Boat.Type>> groups = new ArrayList<>();
+			groups.add(
+				new PatternGroup<>(0, "chest boat¦s @a", "[any] chest boat[plural:s]")
+			);
+
+			for (Boat.Type type : types) {
+				String name;
+				String pattern;
+				if (type == Type.BAMBOO) {
+					name = "bamboo chest raft¦s @a";
+					pattern = "bamboo chest (raft|boat)[plural:s]";
 				} else {
-					boatName = boat.toString().replace("_", " ").toLowerCase(Locale.ENGLISH) + " chest boat";
+					String boat = type.toString().replace("_", " ").toLowerCase(Locale.ENGLISH);
+					name = boat + " chest boat¦s @a";
+					pattern = boat + " chest boat[plural:s]";
 				}
-				patterns[boat.ordinal() + 2] = boatName;
+				groups.add(
+					new PatternGroup<>(type.ordinal() + 1, name, type, pattern)
+				);
 			}
+
+			//noinspection unchecked
+			GROUPS = new EntityDataPatterns<>(groups.toArray(PatternGroup[]::new));
 
 			registerInfo(
 				infoBuilder(BoatChestData.class, "chest boat")
-					.addCodeNames(patterns)
+					.dataPatterns(GROUPS)
 					.entityClass(ChestBoat.class)
 					.supplier(BoatChestData::new)
 					.build()
@@ -50,40 +65,38 @@ public class BoatChestData extends EntityData<ChestBoat> {
 	}
 
 	public BoatChestData() {
-		this(0);
+		this(null);
 	}
 
 	public BoatChestData(@Nullable Boat.Type type) {
-		this(type != null ? type.ordinal() + 2 : 1);
-	}
-
-	private BoatChestData(int type) {
-		codeNameIndex = type;
+		super.groupIndex = GROUPS.getIndex(type);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		return true;
 	}
 
 	@Override
 	protected boolean init(@Nullable Class<? extends ChestBoat> entityClass, @Nullable ChestBoat chestBoat) {
 		if (chestBoat != null)
-			codeNameIndex = 2 + chestBoat.getBoatType().ordinal();
+			super.groupIndex = GROUPS.getIndex(chestBoat.getBoatType());
 		return true;
 	}
 
 	@Override
 	public void set(ChestBoat chestBoat) {
-		if (codeNameIndex == 1) // If the type is 'any boat'.
-			codeNameIndex += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
-		if (codeNameIndex > 1) // 0 and 1 are excluded
-			chestBoat.setBoatType(types[codeNameIndex - 2]); // Removes 2 to fix the index.
+		if (super.groupIndex == 0) // If the type is 'any boat'.
+			super.groupIndex += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
+
+		Boat.Type type = GROUPS.getData(super.groupIndex);
+		assert type != null;
+		chestBoat.setBoatType(type);
 	}
 
 	@Override
 	protected boolean match(ChestBoat chestBoat) {
-		return codeNameIndex <= 1 || chestBoat.getBoatType().ordinal() == codeNameIndex - 2;
+		return super.groupIndex == 0 || GROUPS.getIndex(chestBoat.getBoatType()) == super.groupIndex;
 	}
 
 	@Override
@@ -98,20 +111,20 @@ public class BoatChestData extends EntityData<ChestBoat> {
 
 	@Override
 	protected int hashCode_i() {
-		return codeNameIndex <= 1 ? 0 : codeNameIndex;
+		return groupIndex;
 	}
 
 	@Override
 	protected boolean equals_i(EntityData<?> entityData) {
 		if (entityData instanceof BoatChestData other)
-			return codeNameIndex == other.codeNameIndex;
+			return super.groupIndex == other.groupIndex;
 		return false;
 	}
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> entityData) {
 		if (entityData instanceof BoatChestData other)
-			return codeNameIndex <= 1 || codeNameIndex == other.codeNameIndex;
+			return super.groupIndex == 0 || super.groupIndex == other.groupIndex;
 		return false;
 	}
 
@@ -131,13 +144,11 @@ public class BoatChestData extends EntityData<ChestBoat> {
 
 	public boolean isOfItemType(ItemType itemType) {
 		for (ItemData itemData : itemType.getTypes()) {
-			int ordinal;
 			Material material = itemData.getType();
 			Boat.Type type = materialToType.get(material);
 			// material is a boat AND (data matches any boat OR material and data are same)
 			if (type != null) {
-				ordinal = type.ordinal();
-				if (codeNameIndex <= 1 || codeNameIndex == ordinal + 2)
+				if (super.groupIndex == 0 || super.groupIndex == GROUPS.getIndex(type))
 					return true;
 			}
 		}

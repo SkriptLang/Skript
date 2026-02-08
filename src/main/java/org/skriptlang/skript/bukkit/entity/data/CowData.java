@@ -28,6 +28,9 @@ public class CowData extends EntityData<Cow> {
 	private static @Nullable Method getVariantMethod;
 	private static @Nullable Method setVariantMethod;
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("cow¦s @a",
+		"<age> [%-cowvariant%] cow[plural:s]", "baby:[%-cowvariant%] cal(f|plural:ves)");
+
 	public static void register() {
 		ClassInfo<?> cowVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Cow$Variant",
@@ -59,7 +62,7 @@ public class CowData extends EntityData<Cow> {
 		COW_CLASS = cowClass;
 		registerInfo(
 			infoBuilder(CowData.class,  "cow")
-				.addCodeName("cow")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.COW)
 				.entityClass(COW_CLASS)
 				.supplier(CowData::new)
@@ -92,7 +95,7 @@ public class CowData extends EntityData<Cow> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (VARIANTS_ENABLED && exprs[0] != null) {
 			//noinspection unchecked
 			variant = ((Literal<Cow.Variant>) exprs[0]).getSingle();

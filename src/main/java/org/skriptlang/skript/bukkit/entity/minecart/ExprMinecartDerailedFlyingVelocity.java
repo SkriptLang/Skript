@@ -35,7 +35,7 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 			infoBuilder(
 				ExprMinecartDerailedFlyingVelocity.class,
 				Vector.class,
-				"[minecart] (1¦derailed|2¦flying) velocity",
+				"[minecart] (derailed|:flying) velocity",
 				"entities",
 				false
 			).supplier(ExprMinecartDerailedFlyingVelocity::new)
@@ -47,7 +47,7 @@ public class ExprMinecartDerailedFlyingVelocity extends SimplePropertyExpression
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		flying = parseResult.mark == 2;
+		flying = parseResult.hasTag("flying");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 

@@ -7,7 +7,6 @@ import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.util.Color;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -21,16 +20,20 @@ import java.util.Arrays;
 
 public class SheepData extends EntityData<Sheep> {
 
-	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"sheep", Kleenean.UNKNOWN},
-		{"sheared sheep", Kleenean.TRUE},
-		{"unsheared sheep", Kleenean.FALSE}
-	});
+	private static final EntityDataPatterns<Kleenean> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "sheep @a", Kleenean.UNKNOWN,
+			"[%-colors%] <age> sheep(unknown_plural:|plural:s)", "<age> [%-colors%] sheep(unknown_plural:|plural:s)",
+			"baby:[%-colors%] lamb[plural:s]"),
+		new PatternGroup<>(1, "sheared sheep @a", Kleenean.TRUE,
+			"sheared [%-colors%] sheep(unknown_plural:|plural:s)", "[%-colors%] sheared sheep(unknown_plural:|plural:s)"),
+		new PatternGroup<>(2, "unsheared sheep @an", Kleenean.FALSE,
+			"unsheared [%-colors%] sheep(unknown_plural:|plural:s)", "[%-colors%] unsheared sheep(unknown_plural:|plural:s)")
+	);
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(SheepData.class, "sheep")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.SHEEP)
 				.entityClass(Sheep.class)
 				.supplier(SheepData::new)
@@ -47,12 +50,12 @@ public class SheepData extends EntityData<Sheep> {
 	public SheepData(@Nullable Kleenean sheared, Color @Nullable [] colors) {
 		this.sheared = sheared != null ? sheared : Kleenean.UNKNOWN;
 		this.colors = colors;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.sheared, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(this.sheared);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		sheared = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		sheared = GROUPS.getData(matchedGroup);
 		if (exprs[0] != null) {
 			//noinspection unchecked
 			colors = ((Literal<Color>) exprs[0]).getAll();
@@ -65,7 +68,7 @@ public class SheepData extends EntityData<Sheep> {
 		if (sheep != null) {
 			sheared = Kleenean.get(sheep.isSheared());
 			colors = CollectionUtils.array(SkriptColor.fromDyeColor(sheep.getColor()));
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(sheared, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(this.sheared);
 		}
 		return true;
 	}

@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.villager;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager.Profession;
@@ -21,29 +20,36 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 		Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
 		Profession.WEAPONSMITH
 	};
-	private static final Patterns<Profession> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"zombie villager", null},
-		{"zombie normal", Profession.NONE},
-		{"zombie armorer", Profession.ARMORER},
-		{"zombie butcher", Profession.BUTCHER},
-		{"zombie cartographer", Profession.CARTOGRAPHER},
-		{"zombie cleric", Profession.CLERIC},
-		{"zombie farmer", Profession.FARMER},
-		{"zombie fisherman", Profession.FISHERMAN},
-		{"zombie fletcher", Profession.FLETCHER},
-		{"zombie leatherworker", Profession.LEATHERWORKER},
-		{"zombie librarian", Profession.LIBRARIAN},
-		{"zombie mason", Profession.MASON},
-		{"zombie nitwit", Profession.NITWIT},
-		{"zombie shepherd", Profession.SHEPHERD},
-		{"zombie toolsmith", Profession.TOOLSMITH},
-		{"zombie weaponsmith", Profession.WEAPONSMITH}
-	});
+
+	private static final EntityDataPatterns<Profession> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "zombie villager¦s @a", getPatterns("zombie villager")),
+		new PatternGroup<>(1, "unemployed zombie villager¦s @an", Profession.NONE, getPatterns("(unemployed|jobless|normal) zombie villager")),
+		new PatternGroup<>(2, "zombie armorer¦s @an", Profession.ARMORER, getPatterns("zombie armo[u]rer")),
+		new PatternGroup<>(3, "zombie butcher¦s @a", Profession.BUTCHER, getPatterns("zombie butcher")),
+		new PatternGroup<>(4, "zombie cartographer¦s @a", Profession.CARTOGRAPHER, getPatterns("zombie cartographer")),
+		new PatternGroup<>(5, "zombie cleric¦s @a", Profession.CLERIC, getPatterns("zombie cleric")),
+		new PatternGroup<>(6, "zombie farmer¦s @a", Profession.FARMER, getPatterns("zombie farmer")),
+		new PatternGroup<>(7, "zombie fisherman¦s @a", Profession.FISHERMAN, getPatterns("zombie fisherman")),
+		new PatternGroup<>(8, "zombie fletcher¦s @a", Profession.FLETCHER, getPatterns("zombie fletcher")),
+		new PatternGroup<>(9, "zombie leatherworker¦s @a", Profession.LEATHERWORKER, getPatterns("zombie leatherworker")),
+		new PatternGroup<>(10, "zombie librarian¦s @a", Profession.LIBRARIAN, getPatterns("zombie librarian")),
+		new PatternGroup<>(11, "zombie mason¦s @a", Profession.MASON, getPatterns("zombie mason")),
+		new PatternGroup<>(12, "zombie nitwit¦s @a", Profession.NITWIT, getPatterns("zombie nitwit")),
+		new PatternGroup<>(12, "zombie shepherd¦s @a", Profession.SHEPHERD, getPatterns("zombie shepherd")),
+		new PatternGroup<>(14, "zombie toolsmith¦s @a", Profession.TOOLSMITH, getPatterns("zombie tool[ ](smith|maker)")),
+		new PatternGroup<>(15, "zombie weaponsmith¦s @a", Profession.WEAPONSMITH, getPatterns("zombie weapon[ ]smith"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> " + prefix + "[plural:s]";
+		String second = "baby:" + prefix + " (kid[plural:s]|child[plural:ren])";
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(ZombieVillagerData.class, "zombie villager")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.ZOMBIE_VILLAGER)
 				.entityClass(ZombieVillager.class)
 				.supplier(ZombieVillagerData::new)
@@ -57,12 +63,12 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	
 	public ZombieVillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(profession, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(profession);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		profession = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		profession = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -70,7 +76,7 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	protected boolean init(@Nullable Class<? extends ZombieVillager> entityClass, @Nullable ZombieVillager zombieVillager) {
 		if (zombieVillager != null) {
 			profession = zombieVillager.getVillagerProfession();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(profession, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(profession);;
 		}
 		return true;
 	}

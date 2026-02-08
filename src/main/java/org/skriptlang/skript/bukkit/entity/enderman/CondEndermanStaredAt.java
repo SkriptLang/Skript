@@ -36,6 +36,11 @@ public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
+	}
+
+	@Override
 	protected String getPropertyName() {
 		return "stared at";
 	}

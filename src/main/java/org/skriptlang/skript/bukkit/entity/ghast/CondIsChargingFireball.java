@@ -36,7 +36,7 @@ public class CondIsChargingFireball extends PropertyCondition<LivingEntity> {
 
 	@Override
 	protected String getPropertyName() {
-		return "charging fireball";
+		return "charging a fireball";
 	}
 
 }

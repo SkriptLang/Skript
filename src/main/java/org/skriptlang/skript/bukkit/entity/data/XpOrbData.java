@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.localization.ArgsMessage;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -14,12 +13,15 @@ import java.util.function.Consumer;
 
 public class XpOrbData extends EntityData<ExperienceOrb> {
 
-	private final static ArgsMessage FORMAT = new ArgsMessage("entities.xp-orb.format");
+	private final static String FORMAT = "%2$s-%1$s";
+
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("experience orb¦s @an",
+		"([e]xp|experience)( |-)orb[plural:s]");
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(XpOrbData.class, "xporb")
-				.addCodeName("xp-orb")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.EXPERIENCE_ORB)
 				.entityClass(ExperienceOrb.class)
 				.supplier(XpOrbData::new)
@@ -36,7 +38,7 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		return true;
 	}
 
@@ -99,7 +101,7 @@ public class XpOrbData extends EntityData<ExperienceOrb> {
 
 	@Override
 	public String toString(final int flags) {
-		return xp == -1 ? super.toString(flags) : FORMAT.toString(super.toString(flags), xp);
+		return xp == -1 ? super.toString(flags) : String.format(FORMAT, super.toString(flags), xp);
 	}
 
 	public int getExperience() {

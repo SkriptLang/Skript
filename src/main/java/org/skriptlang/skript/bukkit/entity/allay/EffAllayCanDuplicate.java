@@ -31,7 +31,7 @@ public class EffAllayCanDuplicate extends Effect {
 			SyntaxInfo.builder(EffAllayCanDuplicate.class)
 				.addPatterns(
 					"allow %livingentities% to (duplicate|clone)",
-					"prevent %livingentities% from (duplicating|cloning)"
+					"(prevent|disallow) %livingentities% from (duplicating|cloning)"
 				).supplier(EffAllayCanDuplicate::new)
 				.build()
 		);

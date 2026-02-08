@@ -1,6 +1,6 @@
 package org.skriptlang.skript.test.tests.syntaxes.effects;
 
-import org.skriptlang.skript.bukkit.entity.general.effects.EffSwingHand;
+import org.skriptlang.skript.bukkit.entity.elements.effects.EffSwingHand;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.ContextlessEvent;

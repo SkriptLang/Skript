@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.minecart;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Minecart;
@@ -37,21 +36,22 @@ public class MinecartData extends EntityData<Minecart> {
 	}
 
 	private static final MinecartType[] TYPES = MinecartType.values();
-	private static final Patterns<MinecartType> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"minecart", MinecartType.ANY},
-		{"regular minecart", MinecartType.NORMAL},
-		{"storage minecart", MinecartType.STORAGE},
-		{"powered minecart", MinecartType.POWERED},
-		{"hopper minecart", MinecartType.HOPPER},
-		{"explosive minecart", MinecartType.EXPLOSIVE},
-		{"spawner minecart", MinecartType.SPAWNER},
-		{"command minecart", MinecartType.COMMAND}
-	});
+
+	private static final EntityDataPatterns<MinecartType> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0,  "minecart¦s @a", MinecartType.ANY, "[mine]cart[plural:s]"),
+		new PatternGroup<>(1,  "regular minecart¦s @a", MinecartType.NORMAL, "regular [mine]cart[plural:s]"),
+		new PatternGroup<>(2,  "storage minecart¦s @a", MinecartType.STORAGE, "storage [mine]cart[plural:s]", "[mine]cart[plural:s] with chest[s]"),
+		new PatternGroup<>(3,  "powered minecart¦s @a", MinecartType.POWERED, "powered [mine]cart[plural:s]", "[mine]cart[plural:s] with furnace[s]"),
+		new PatternGroup<>(4,  "hopper minecart¦s @a", MinecartType.HOPPER, "hopper [mine]cart[plural:s]", "[mine]cart[plural:s] with hopper[s]"),
+		new PatternGroup<>(5,  "explosive minecart¦s @an", MinecartType.EXPLOSIVE, "explosive [mine]cart[plural:s]", "[mine]cart[plural:s] with TNT[s]"),
+		new PatternGroup<>(6,  "spawner minecart¦s @a", MinecartType.SPAWNER, "[monster|mob] spawner [mine]cart[plural:s]", "[mine]cart[plural:s] with [monster|mob] spawner[s]"),
+		new PatternGroup<>(7,  "command minecart¦s @a", MinecartType.COMMAND, "command [block] [mine]cart[plural:s]", "[mine]cart[plural:s] with command block[s]")
+	);
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(MinecartData.class, "minecart")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.MINECART)
 				.entityClass(Minecart.class)
 				.supplier(MinecartData::new)
@@ -67,12 +67,12 @@ public class MinecartData extends EntityData<Minecart> {
 	
 	public MinecartData(@Nullable MinecartType type) {
 		this.type = type != null ? type : MinecartType.ANY;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.type, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(this.type);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		type = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		type = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -89,7 +89,7 @@ public class MinecartData extends EntityData<Minecart> {
 		}
 		if (this.type == null)
 			this.type = MinecartType.ANY;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(this.type);
 		return true;
 	}
 	

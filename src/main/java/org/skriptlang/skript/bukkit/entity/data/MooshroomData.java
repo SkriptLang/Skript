@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
@@ -16,17 +15,30 @@ import java.util.Objects;
 
 public class MooshroomData extends EntityData<MushroomCow> {
 
-	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"mooshroom", null},
-		{"red mooshroom", Variant.RED},
-		{"brown mooshroom", Variant.BROWN}
-	});
 	private static final Variant[] VARIANTS = Variant.values();
+
+	private static final EntityDataPatterns<Variant> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "mooshroom¦s @a", getPatterns("")),
+		new PatternGroup<>(1, "red mooshroom¦s @a", Variant.RED, getPatterns("red")),
+		new PatternGroup<>(2, "brown mooshroom¦s @a", Variant.BROWN, getPatterns("brown"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> (mooshroom[ cow]|mushroom cow)[plural:s]";
+		String second = "baby:mooshroom (kid[plural:s]|child[plural:ren])";
+		String third = "baby:(mooshroom|mushroom) cal(f|plural:ves)";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " (mooshroom[ cow]|mushroom cow)[plural:s]";
+			second = "baby:" + prefix + " mooshroom (kid[plural:s]|child[plural:ren])";
+			third = "baby:" + prefix + " (mooshroom|mushroom) cal(f|plural:ves)";
+		}
+		return new String[]{first, second, third};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(MooshroomData.class, "mooshroom")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.MOOSHROOM)
 				.entityClass(MushroomCow.class)
 				.supplier(MooshroomData::new)
@@ -42,12 +54,12 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	
 	public MooshroomData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(variant);
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		variant = GROUPS.getData(matchedGroup);
 		return true;
 	}
 	
@@ -55,7 +67,7 @@ public class MooshroomData extends EntityData<MushroomCow> {
 	protected boolean init(@Nullable Class<? extends MushroomCow> entityClass, @Nullable MushroomCow mushroomCow) {
 		if (mushroomCow != null) {
 			variant = mushroomCow.getVariant();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(variant);
 		}
 		return true;
 	}

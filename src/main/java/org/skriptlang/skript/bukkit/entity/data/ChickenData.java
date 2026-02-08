@@ -22,6 +22,9 @@ public class ChickenData extends EntityData<Chicken> {
 	private static boolean VARIANTS_ENABLED;
 	private static Object[] VARIANTS;
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("chicken¦s @a",
+		"<age> [%-chickenvariant%] chicken[plural:s]", "baby:[%-chickenvariant%] chick[plural:s]");
+
 	public static void register() {
 		ClassInfo<?> chickenVariantClassInfo = BukkitUtils.getRegistryClassInfo(
 			"org.bukkit.entity.Chicken$Variant",
@@ -45,7 +48,7 @@ public class ChickenData extends EntityData<Chicken> {
 
 		registerInfo(
 			infoBuilder(ChickenData.class, "chicken")
-				.addCodeName("chicken")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.CHICKEN)
 				.entityClass(Chicken.class)
 				.supplier(ChickenData::new)
@@ -71,7 +74,7 @@ public class ChickenData extends EntityData<Chicken> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (VARIANTS_ENABLED && exprs[0] != null) {
 			//noinspection unchecked
 			variant = ((Literal<Chicken.Variant>) exprs[0]).getSingle();

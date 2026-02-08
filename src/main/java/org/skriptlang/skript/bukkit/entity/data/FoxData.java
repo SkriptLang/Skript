@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
@@ -15,18 +14,29 @@ import org.skriptlang.skript.bukkit.entity.EntityData;
 import java.util.Objects;
 
 public class FoxData extends EntityData<Fox> {
-	
-	private static final Patterns<Type> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"fox", null},
-		{"red fox", Type.RED},
-		{"snow fox", Type.SNOW}
-	});
+
 	private static final Type[] TYPES = Type.values();
+
+	private static final EntityDataPatterns<Type> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "fox¦es @a", getPatterns("")),
+		new PatternGroup<>(1, "red fox¦es @a", Type.RED, getPatterns("red")),
+		new PatternGroup<>(2, "snow fox¦es @a", Type.SNOW, getPatterns("snow"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> fox[plural:es]";
+		String second = "baby:fox (kid[plural:s]|child[plural:ren])";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " fox[plural:es]";
+			second = "baby:" + prefix + " fox (kid[plural:s]|child[plural:ren])";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(FoxData.class, "fox")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.FOX)
 				.entityClass(Fox.class)
 				.supplier(FoxData::new)
@@ -42,12 +52,12 @@ public class FoxData extends EntityData<Fox> {
 	
 	public FoxData(@Nullable Type type) {
 		this.type = type;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(type);
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		type = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		type = GROUPS.getData(matchedGroup);
 		return true;
 	}
 	
@@ -55,7 +65,7 @@ public class FoxData extends EntityData<Fox> {
 	protected boolean init(@Nullable Class<? extends Fox> entityClass, @Nullable Fox fox) {
 		if (fox != null) {
 			type = fox.getFoxType();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(type, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(type);
 		}
 		return true;
 	}

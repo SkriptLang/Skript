@@ -31,7 +31,7 @@ public class EffWardenDisturbance extends Effect {
 		registry.register(
 			SyntaxRegistry.EFFECT,
 			SyntaxInfo.builder(EffWardenDisturbance.class)
-				.addPattern("make %livingentities% sense [a] disturbance %direction% %location%")
+				.addPattern("make %livingentities% sense [a] disturbance [in the force] %direction% %location%")
 				.supplier(EffWardenDisturbance::new)
 				.build()
 		);
@@ -54,12 +54,12 @@ public class EffWardenDisturbance extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		Location finalLocation = location.getSingle(event);
-		if (finalLocation == null)
+		Location location = this.location.getSingle(event);
+		if (location == null)
 			return;
 		for (LivingEntity livingEntity : wardens.getArray(event)) {
 			if (livingEntity instanceof Warden warden)
-				warden.setDisturbanceLocation(finalLocation);
+				warden.setDisturbanceLocation(location);
 		}
 	}
 

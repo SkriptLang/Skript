@@ -29,10 +29,13 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	private final static Message m_not_a_block_error = new Message("entities.falling block.not a block error");
 	private final static Adjective m_adjective = new Adjective("entities.falling block.adjective");
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("falling block¦s @a",
+		"falling block[plural:s]", "unknown_plural:falling %-itemtype% [block[s]]");
+
 	public static void register() {
 		registerInfo(
 			infoBuilder(FallingBlockData.class, "falling block")
-				.addCodeName("falling block")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.FALLING_BLOCK)
 				.entityClass(FallingBlock.class)
 				.supplier(FallingBlockData::new)
@@ -49,7 +52,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (matchedPattern == 1) {
 			assert exprs[0] != null;
 			//noinspection unchecked

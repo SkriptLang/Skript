@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.villager;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
@@ -27,31 +26,38 @@ public class VillagerData extends EntityData<Villager> {
 		Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
 		Profession.WEAPONSMITH
 	};
-	private static final Patterns<Profession> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"villager", null},
-		{"unemployed", Profession.NONE},
-		{"armorer", Profession.ARMORER},
-		{"butcher", Profession.BUTCHER},
-		{"cartographer", Profession.CARTOGRAPHER},
-		{"cleric", Profession.CLERIC},
-		{"farmer", Profession.FARMER},
-		{"fisherman", Profession.FISHERMAN},
-		{"fletcher", Profession.FLETCHER},
-		{"leatherworker", Profession.LEATHERWORKER},
-		{"librarian", Profession.LIBRARIAN},
-		{"mason", Profession.MASON},
-		{"nitwit", Profession.NITWIT},
-		{"shepherd", Profession.SHEPHERD},
-		{"toolsmith", Profession.TOOLSMITH},
-		{"weaponsmith", Profession.WEAPONSMITH}
-	});
+
+	private static final EntityDataPatterns<Profession> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "villager¦s @a", getPatterns("villager")),
+		new PatternGroup<>(1, "unemployed villager¦s @an", Profession.NONE, getPatterns("(unemployed|jobless|normal) villager")),
+		new PatternGroup<>(2, "armorer¦s @an", Profession.ARMORER, getPatterns("armo[u]rer")),
+		new PatternGroup<>(3, "butcher¦s @a", Profession.BUTCHER, getPatterns("butcher")),
+		new PatternGroup<>(4, "cartographer¦s @a", Profession.CARTOGRAPHER, getPatterns("cartographer")),
+		new PatternGroup<>(5, "cleric¦s @a", Profession.CLERIC, getPatterns("cleric")),
+		new PatternGroup<>(6, "farmer¦s @a", Profession.FARMER, getPatterns("farmer")),
+		new PatternGroup<>(7, "fisherman¦s @a", Profession.FISHERMAN, getPatterns("fisherman")),
+		new PatternGroup<>(8, "fletcher¦s @a", Profession.FLETCHER, getPatterns("fletcher")),
+		new PatternGroup<>(9, "leatherworker¦s @a", Profession.LEATHERWORKER, getPatterns("leatherworker")),
+		new PatternGroup<>(10, "librarian¦s @a", Profession.LIBRARIAN, getPatterns("librarian")),
+		new PatternGroup<>(11, "mason¦s @a", Profession.MASON, getPatterns("mason")),
+		new PatternGroup<>(12, "nitwit¦s @a", Profession.NITWIT, getPatterns("nitwit")),
+		new PatternGroup<>(12, "shepherd¦s @a", Profession.SHEPHERD, getPatterns("shepherd")),
+		new PatternGroup<>(14, "toolsmith¦s @a", Profession.TOOLSMITH, getPatterns("tool[ ](smith|maker)")),
+		new PatternGroup<>(15, "weaponsmith¦s @a", Profession.WEAPONSMITH, getPatterns("weapon[ ]smith"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> " + prefix + "[plural:s]";
+		String second = "baby:" + prefix + " (kid[plural:s]|child[plural:ren])";
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		Variables.yggdrasil.registerSingleClass(Profession.class, "Villager.Profession");
 
 		registerInfo(
 			infoBuilder(VillagerData.class, "villager")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.VILLAGER)
 				.entityClass(Villager.class)
 				.supplier(VillagerData::new)
@@ -65,12 +71,12 @@ public class VillagerData extends EntityData<Villager> {
 	
 	public VillagerData(@Nullable Profession profession) {
 		this.profession = profession;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(profession, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(profession);
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		profession = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		profession = GROUPS.getData(matchedGroup);
 		return true;
 	}
 	
@@ -78,7 +84,7 @@ public class VillagerData extends EntityData<Villager> {
 	protected boolean init(@Nullable Class<? extends Villager> villagerClass, @Nullable Villager villager) {
 		if (villager != null) {
 			profession = villager.getProfession();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(profession, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(profession);
 		}
 		return true;
 	}

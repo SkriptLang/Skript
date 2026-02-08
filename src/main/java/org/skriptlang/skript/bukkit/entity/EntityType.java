@@ -17,7 +17,7 @@ public class EntityType
 	extends ch.njol.skript.entity.EntityType
 	implements Cloneable, YggdrasilSerializable {
 
-	public static void register() {
+	static void register() {
 		Classes.registerClass(new ClassInfo<>(EntityType.class, "entitytype")
 				.name("Entity Type with Amount")
 				.description("An <a href='#entitydata'>entity type</a> with an amount, e.g. '2 zombies'. I might remove this type in the future and make a more general 'type' type, i.e. a type that has a number and a type.")
@@ -43,10 +43,10 @@ public class EntityType
                 })
 				.serializer(new YggdrasilSerializer<>()));
 	}
-	
-	public int amount = -1;
-	
-	public final EntityData<?> data;
+
+	private final int amount;
+
+	private final EntityData<?> data;
 	
 	/**
 	 * Only used for deserialisation
@@ -55,6 +55,7 @@ public class EntityType
 	private EntityType() {
 		super();
 		data = null;
+		amount = 1;
 	}
 	
 	public EntityType(EntityData<?> data, int amount) {
@@ -73,6 +74,7 @@ public class EntityType
 	
 	public EntityType(Entity entity) {
 		data = EntityData.fromEntity(entity);
+		amount = 1;
 	}
 	
 	public EntityType(EntityType other) {
@@ -86,17 +88,25 @@ public class EntityType
 	
 	@Override
 	public String toString() {
-		return getAmount() == 1 ? data.toString(0) : amount + " " + data.toString(Language.F_PLURAL);
+		if (amount == 1)
+			return data.toString(0);
+		return amount + " " + data.toString(Language.F_PLURAL);
 	}
 	
 	public String toString(int flags) {
-		return getAmount() == 1 ? data.toString(flags) : amount + " " + data.toString(flags | Language.F_PLURAL);
+		if (amount == 1)
+			return data.toString(flags);
+		return amount + " " + data.toString(flags | Language.F_PLURAL);
 	}
 	
 	public int getAmount() {
-		return amount == -1 ? 1 : amount;
+		return amount;
 	}
-	
+
+	public EntityData<?> getData() {
+		return data;
+	}
+
 	public boolean sameType(EntityType other) {
 		return data.equals(other.data);
 	}

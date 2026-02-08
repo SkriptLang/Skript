@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.axolotl;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Axolotl;
@@ -16,20 +15,31 @@ import java.util.Objects;
 
 public class AxolotlData extends EntityData<Axolotl> {
 
-	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"axolotl", null},
-		{"lucy axolotl", Variant.LUCY},
-		{"wild axolotl", Variant.WILD},
-		{"gold axolotl", Variant.GOLD},
-		{"cyan axolotl", Variant.CYAN},
-		{"blue axolotl", Variant.BLUE}
-	});
+	private static final EntityDataPatterns<Variant> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "axolotl¦s @an", getPatterns("")),
+		new PatternGroup<>(1, "lucy axolotl¦s @a", Variant.LUCY, getPatterns("lucy")),
+		new PatternGroup<>(2, "wild axolotl¦s @a", Variant.WILD, getPatterns("wild")),
+		new PatternGroup<>(3, "gold axolotl¦s @a", Variant.GOLD, getPatterns("gold")),
+		new PatternGroup<>(4, "cyan axolotl¦s @a", Variant.CYAN, getPatterns("cyan")),
+		new PatternGroup<>(5, "blue axolotl¦s @a", Variant.BLUE, getPatterns("blue"))
+	);
+
 	private static final Variant[] VARIANTS = Variant.values();
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> axolotl[plural:s]";
+		String second = "baby:axolotl (kid[plural:s]|child[plural:ren])";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " axolotl[plural:s]";
+			second = "baby:" + prefix + " axolotl (kid[plural:s]|child[plural:ren])";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(AxolotlData.class, "axolotl")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.AXOLOTL)
 				.entityClass(Axolotl.class)
 				.supplier(AxolotlData::new)
@@ -45,12 +55,12 @@ public class AxolotlData extends EntityData<Axolotl> {
 
 	public AxolotlData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(variant);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		variant = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -58,7 +68,7 @@ public class AxolotlData extends EntityData<Axolotl> {
 	protected boolean init(@Nullable Class<? extends Axolotl> entityClass, @Nullable Axolotl axolotl) {
 		if (axolotl != null) {
 			variant = axolotl.getVariant();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(variant);
 		}
 		return true;
 	}

@@ -23,10 +23,13 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 
 	private static Variant[] VARIANTS;
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("zombie nautilus¦es @a",
+		"[:tamed] [%-zombienautilusvariant%] (zombie|zombified) nautilus[plural:es]");
+
 	public static void register() {
 		registerInfo(
 			infoBuilder(ZombieNautilusData.class, "zombie nautilus")
-				.addCodeName("zombie nautilus")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.ZOMBIE_NAUTILUS)
 				.entityClass(ZombieNautilus.class)
 				.supplier(ZombieNautilusData::new)
@@ -55,7 +58,7 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (parseResult.hasTag("tamed")) {
 			isTamed = Kleenean.TRUE;
 		}

@@ -19,10 +19,12 @@ public class PandaData extends EntityData<Panda> {
 	
 	private static final Gene[] GENES = Gene.values();
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("panda¦s @a", "<age> [%-gene%[[-]%-gene%]] panda[plural:s]");
+
 	public static void register() {
 		registerInfo(
 			infoBuilder(PandaData.class, "panda")
-				.addCodeName("panda")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.PANDA)
 				.entityClass(Panda.class)
 				.supplier(PandaData::new)
@@ -49,7 +51,7 @@ public class PandaData extends EntityData<Panda> {
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (exprs[0] != null) {
 			mainGene = (Gene) exprs[0].getSingle();
 			if (exprs[1] != null)

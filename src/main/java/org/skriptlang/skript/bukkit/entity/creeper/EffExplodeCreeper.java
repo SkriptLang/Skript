@@ -45,7 +45,7 @@ public class EffExplodeCreeper extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) exprs[0];
-		instant = matchedPattern == 0;
+		instant = matchedPattern == 0 || matchedPattern == 1;
 		stop = matchedPattern == 4;
 		return true;
 	}

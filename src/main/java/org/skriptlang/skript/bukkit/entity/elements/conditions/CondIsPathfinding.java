@@ -1,0 +1,95 @@
+package org.skriptlang.skript.bukkit.entity.elements.conditions;
+
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Condition;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import com.destroystokyo.paper.entity.Pathfinder;
+import com.destroystokyo.paper.entity.Pathfinder.PathResult;
+import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+@Name("Is Pathfinding")
+@Description("""
+	Checks whether living entities are pathfinding.
+	Can only be a living entity that is a Mob.
+	""")
+@Example("""
+	make {_entity} pathfind to {_location} at speed 2
+	while {_entity} is pathfinding
+		wait a second
+	launch flickering trailing burst firework colored red at location of {_entity}
+	subtract 10 from {defence::tower::health}
+	clear entity within {_entity}
+	""")
+@Since("2.9.0")
+public class CondIsPathfinding extends Condition {
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.CONDITION,
+			PropertyCondition.infoBuilder(
+				CondIsPathfinding.class,
+				PropertyType.BE,
+				"pathfinding [to[wards] %-livingentity/location%]",
+				"livingentities"
+			).supplier(CondIsPathfinding::new)
+				.build()
+		);
+	}
+
+	private Expression<LivingEntity> entities;
+	private Expression<?> target;
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		entities = (Expression<LivingEntity>) expressions[0];
+		target = expressions[1];
+		setNegated(matchedPattern == 1);
+		return true;
+	}
+
+	@Override
+	public boolean check(Event event) {
+		return entities.check(event, entity -> {
+			if (!(entity instanceof Mob mob))
+				return false;
+			Pathfinder pathfind = mob.getPathfinder();
+			if (target == null)
+				return pathfind.hasPath();
+
+			PathResult current = pathfind.getCurrentPath();
+			Object target = this.target.getSingle(event);
+			if (target == null || current == null)
+				return false;
+
+			Location pathLocation = current.getFinalPoint();
+			if (pathLocation == null)
+				return false;
+			if (target instanceof Location targetLocation) {
+				return pathLocation.equals(targetLocation);
+			} else if (target instanceof LivingEntity targetEntity) {
+				return pathLocation.distance(targetEntity.getLocation()) < 1;
+			}
+			return false;
+		}, isNegated());
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, entities, "pathfinding" +
+				(target == null ? "" : " to " + target.toString(event, debug)));
+	}
+
+}

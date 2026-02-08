@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.creeper;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
@@ -12,16 +11,16 @@ import org.skriptlang.skript.bukkit.entity.EntityData;
 
 public class CreeperData extends EntityData<Creeper> {
 
-	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"creeper", Kleenean.UNKNOWN},
-		{"powered creeper", Kleenean.TRUE},
-		{"unpowered creeper", Kleenean.FALSE}
-	});
+	private static final EntityDataPatterns<Kleenean> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "creeper¦s @a", Kleenean.UNKNOWN, "creeper[plural:s]"),
+		new PatternGroup<>(1, "powered creeper¦s @a", Kleenean.TRUE, "(powered|charged) creeper[plural:s]"),
+		new PatternGroup<>(2, "unpowered creeper¦s @an", Kleenean.FALSE, "un(powered|charged) creeper[plural:s]")
+	);
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(CreeperData.class, "creeper")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.CREEPER)
 				.entityClass(Creeper.class)
 				.supplier(CreeperData::new)
@@ -35,12 +34,12 @@ public class CreeperData extends EntityData<Creeper> {
 
 	public CreeperData(@Nullable Kleenean powered)  {
 		this.powered = powered != null ? powered : Kleenean.UNKNOWN;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.powered, 0).orElseThrow();
+		super.groupIndex = GROUPS.getIndex(this.powered);
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		powered = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		powered = GROUPS.getData(matchedGroup);
 		return true;
 	}
 	
@@ -48,7 +47,7 @@ public class CreeperData extends EntityData<Creeper> {
 	protected boolean init(@Nullable Class<? extends Creeper> entityClass, @Nullable Creeper creeper) {
 		if (creeper != null) {
 			powered = Kleenean.get(creeper.isPowered());
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(powered, 0).orElseThrow();
+			super.groupIndex = GROUPS.getIndex(powered);
 		}
 		return true;
 	}

@@ -13,10 +13,12 @@ import java.util.Objects;
 
 public class NautilusData extends EntityData<Nautilus> {
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("nautilus¦es @a", "[:tamed] <age> nautilus[plural:es]");
+
 	public static void register() {
 		registerInfo(
 			infoBuilder(NautilusData.class, "nautilus")
-				.addCodeName("nautilus")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.NAUTILUS)
 				.entityClass(Nautilus.class)
 				.supplier(NautilusData::new)
@@ -28,8 +30,12 @@ public class NautilusData extends EntityData<Nautilus> {
 
 	public NautilusData() { }
 
+	public NautilusData(@Nullable Kleenean isTamed) {
+		this.isTamed = isTamed != null ? isTamed : Kleenean.UNKNOWN;
+	}
+
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (parseResult.hasTag("tamed")) {
 			isTamed = Kleenean.TRUE;
 		}

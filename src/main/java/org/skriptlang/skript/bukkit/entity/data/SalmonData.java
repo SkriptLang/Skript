@@ -3,7 +3,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
@@ -19,30 +18,29 @@ public class SalmonData extends EntityData<Salmon> {
 
 	private static final boolean SUPPORT_SALMON_VARIANTS = Skript.classExists("org.bukkit.entity.Salmon$Variant");
 	private static Object[] VARIANTS;
-	private static Patterns<Object> CODE_NAMES;
+
+	private static EntityDataPatterns<Object> GROUPS;
 
 	public static void register() {
 		if (SUPPORT_SALMON_VARIANTS) {
 			VARIANTS = Salmon.Variant.values();
-			CODE_NAMES = new Patterns<>(new Object[][]{
-				{"salmon", null},
-				{"any salmon", null},
-				{"small salmon", Variant.SMALL},
-				{"medium salmon", Variant.MEDIUM},
-				{"large salmon", Variant.LARGE}
-			});
+			GROUPS = new EntityDataPatterns<>(
+				new PatternGroup<>(0, "salmon¦s @a", "[any] salmon[plural:s]"),
+				new PatternGroup<>(1, "small salmon¦s @a", Variant.SMALL, "small salmon[plural:s]"),
+				new PatternGroup<>(2, "medium salmon¦s @a", Variant.MEDIUM, "medium salmon[plural:s]"),
+				new PatternGroup<>(3, "large salmon¦s @a", Variant.LARGE, "large salmon[plural:s]")
+			);
 
 			Variables.yggdrasil.registerSingleClass(Variant.class, "Salmon.Variant");
 		} else {
 			VARIANTS = null;
-			CODE_NAMES = new Patterns<>(new Object[][]{
-				{"salmon", null}
-			});
+			//noinspection unchecked
+			GROUPS = (EntityDataPatterns<Object>) EntityDataPatterns.of("salmon¦s @a", "salmon[plural:s]");
 		}
 
 		registerInfo(
 			infoBuilder(SalmonData.class, "salmon")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.SALMON)
 				.entityClass(Salmon.class)
 				.supplier(SalmonData::new)
@@ -57,12 +55,12 @@ public class SalmonData extends EntityData<Salmon> {
 	// TODO: When safe, 'variant' should have the type changed to 'Salmon.Variant' when 1.21.2 is minimum supported version
 	public SalmonData(@Nullable Object variant) {
 		this.variant = variant;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(variant);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		variant = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -70,7 +68,7 @@ public class SalmonData extends EntityData<Salmon> {
 	protected boolean init(@Nullable Class<? extends Salmon> entityClass, @Nullable Salmon salmon) {
 		if (salmon != null && SUPPORT_SALMON_VARIANTS) {
 			variant = salmon.getVariant();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(variant);
 		}
 		return true;
 	}

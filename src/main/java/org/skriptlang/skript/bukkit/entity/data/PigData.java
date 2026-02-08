@@ -6,7 +6,6 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
@@ -22,11 +21,15 @@ public class PigData extends EntityData<Pig> {
 
 	private static boolean VARIANTS_ENABLED;
 	private static Object[] VARIANTS;
-	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"pig", Kleenean.UNKNOWN},
-		{"saddled pig", Kleenean.TRUE},
-		{"unsaddled pig", Kleenean.FALSE}
-	});
+
+	private static final EntityDataPatterns<Kleenean> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "pig¦s @a", Kleenean.UNKNOWN,
+			"<age> [%-pigvariant%] pig[plural:s]", "[%-pigvariant%] <age> pig[plural:s]"),
+		new PatternGroup<>(1, "saddled pig¦s @a", Kleenean.TRUE,
+			"saddled [%-pigvariant%] pig[plural:s]", "[%-pigvariant%] saddled pig[plural:s]"),
+		new PatternGroup<>(2, "unsaddled pig¦s @an", Kleenean.FALSE,
+			"unsaddled [%-pigvariant%] pig[plural:s]", "[%-pigvariant%] unsaddled pig[plural:s]")
+	);
 
 	public static void register() {
 		ClassInfo<?> pigVariantClassInfo = BukkitUtils.getRegistryClassInfo(
@@ -50,7 +53,7 @@ public class PigData extends EntityData<Pig> {
 
 		registerInfo(
 			infoBuilder(PigData.class, "pig")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.PIG)
 				.entityClass(Pig.class)
 				.supplier(PigData::new)
@@ -74,12 +77,12 @@ public class PigData extends EntityData<Pig> {
 	public PigData(@Nullable Kleenean saddled, @Nullable Object variant) {
 		this.saddled = saddled != null ? saddled : Kleenean.UNKNOWN;
 		this.variant = variant;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.saddled, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(this.saddled);
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		saddled = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		saddled = GROUPS.getData(matchedGroup);
 		if (VARIANTS_ENABLED && exprs[0] != null) {
 			//noinspection unchecked
 			variant = ((Literal<Pig.Variant>) exprs[0]).getSingle();
@@ -91,7 +94,7 @@ public class PigData extends EntityData<Pig> {
 	protected boolean init(@Nullable Class<? extends Pig> entityClass, @Nullable Pig pig) {
 		if (pig != null) {
 			saddled = Kleenean.get(pig.hasSaddle());
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(saddled, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(saddled);
 			if (VARIANTS_ENABLED)
 				variant = pig.getVariant();
 		}

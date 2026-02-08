@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
@@ -19,24 +18,35 @@ public class LlamaData extends EntityData<Llama> {
 
 	public record LlamaState(Color color, boolean trader) {}
 
-	private static final Patterns<LlamaState> CODE_NAMES =  new Patterns<>(new Object[][]{
-		{"llama", new LlamaState(null, false)},
-		{"creamy llama", new LlamaState(Color.CREAMY, false)},
-		{"white llama", new LlamaState(Color.WHITE, false)},
-		{"brown llama", new LlamaState(Color.BROWN, false)},
-		{"gray llama", new LlamaState(Color.GRAY, false)},
-		{"trader llama", new LlamaState(null, true)},
-		{"creamy trader llama", new LlamaState(Color.CREAMY, true)},
-		{"white trader llama", new LlamaState(Color.WHITE, true)},
-		{"brown trader llama", new LlamaState(Color.BROWN, true)},
-		{"gray trader llama", new LlamaState(Color.GRAY, true)}
-	});
 	private static final Color[] LLAMA_COLORS = Color.values();
+
+	private static final EntityDataPatterns<LlamaState> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "llama¦s @a", new LlamaState(null, false), getPatterns("")),
+		new PatternGroup<>(1, "creamy llama¦s @a", new LlamaState(Color.CREAMY, false), getPatterns("creamy")),
+		new PatternGroup<>(2, "white llama¦s @a", new LlamaState(Color.WHITE, false), getPatterns("white")),
+		new PatternGroup<>(3, "brown llama¦s @a", new LlamaState(Color.BROWN, false), getPatterns("brown")),
+		new PatternGroup<>(4, "gray llama¦s @a", new LlamaState(Color.GRAY, false), getPatterns("gray")),
+		new PatternGroup<>(5, "trader llama¦s @a", new LlamaState(null, true), getPatterns("trader")),
+		new PatternGroup<>(6, "creamy trader llama¦s @a", new LlamaState(Color.CREAMY, true), getPatterns("creamy trader")),
+		new PatternGroup<>(7, "white trader llama¦s @a", new LlamaState(Color.WHITE, true), getPatterns("white trader")),
+		new PatternGroup<>(8, "brown trader llama¦s @a", new LlamaState(Color.BROWN, true), getPatterns("brown trader")),
+		new PatternGroup<>(9, "gray trader llama¦s @a", new LlamaState(Color.GRAY, true), getPatterns("gray trader"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> llama[plural:s]";
+		String second = "baby:llama cria[plural:s]";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " llama[plural:s]";
+			second = "baby:" + prefix + " llama cria[plural:s]";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(LlamaData.class, "llama")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.LLAMA)
 				.entityClass(Llama.class)
 				.supplier(LlamaData::new)
@@ -54,24 +64,24 @@ public class LlamaData extends EntityData<Llama> {
 	public LlamaData(@Nullable Color color, boolean isTrader) {
 		this.color = color;
 		this.isTrader = isTrader;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(new LlamaState(color, isTrader));
 	}
 
 	public LlamaData(@Nullable LlamaState llamaState) {
 		if (llamaState != null) {
 			this.color = llamaState.color;
 			this.isTrader = llamaState.trader;
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(llamaState, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(llamaState);
 		} else {
 			this.color = null;
 			this.isTrader = false;
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(new LlamaState(this.color, this.isTrader), 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(new LlamaState(null, false));
 		}
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		LlamaState llamaState = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		LlamaState llamaState = GROUPS.getData(matchedGroup);
 		assert llamaState != null;
 		color = llamaState.color;
 		isTrader = llamaState.trader;
@@ -85,7 +95,7 @@ public class LlamaData extends EntityData<Llama> {
 		if (llama != null) {
 			color = llama.getColor();
 			isTrader = llama instanceof TraderLlama;
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(new LlamaState(color, isTrader), 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(new LlamaState(color, isTrader));
 		}
 		return true;
 	}

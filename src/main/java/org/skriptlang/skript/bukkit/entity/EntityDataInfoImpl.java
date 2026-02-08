@@ -1,93 +1,62 @@
 package org.skriptlang.skript.bukkit.entity;
 
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Language.LanguageListenerPriority;
-import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.localization.Noun;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.bukkit.entity.EntityData.EntityDataPatterns;
+import org.skriptlang.skript.bukkit.entity.EntityData.PatternGroup;
 import org.skriptlang.skript.bukkit.entity.EntityDataInfo.Builder;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.SequencedCollection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static org.skriptlang.skript.bukkit.entity.EntityData.LANGUAGE_NODE;
 import static org.skriptlang.skript.bukkit.entity.EntityData.m_age_pattern;
 
 final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends EntityData<E>, E extends Entity>
-	implements EntityDataInfo<Data, E>, LanguageChangeListener {
+	implements EntityDataInfo<Data, E> {
 
-	private static Priority estimatePriority(Collection<String> patterns) {
-		Priority priority = SyntaxInfo.SIMPLE;
-		for (String pattern : patterns) {
-			char[] chars = pattern.toCharArray();
-			for (int i = 0; i < chars.length; i++) {
-				if (chars[i] == '%') {
-					if (i > 0 && chars[i - 1] == '\\') { // skip escaped percentages
-						continue;
-					}
-					// "%thing% %thing%" or "%thing% [%thing%]"
-					if ((i > 1 && chars[i - 2] == '%') || (i > 2 && chars[i - 3] == '%')) {
-						return SyntaxInfo.PATTERN_MATCHES_EVERYTHING;
-					}
-					priority = SyntaxInfo.COMBINED;
-				}
-			}
-		}
-		return priority;
-	}
-
-	private final Origin origin;
 	private final Class<Data> dataClass;
-	private final @Nullable Supplier<Data> supplier;
-	private @Nullable Priority priority;
-	private SequencedCollection<String> patterns = new ArrayList<>();
+	private final SequencedCollection<String> patterns;
 
 	private final String dataName;
-	private final SequencedCollection<String> codeNames = new ArrayList<>();
-	private final String defaultCodeName;
+	private final EntityDataPatterns<?> dataPatterns;
 	private final int defaultIndex;
+	private final PatternGroup<?> defaultGroup;
 	private final @Nullable EntityType entityType;
 	private final Class<? extends E> entityClass;
 
-	private final Noun[] names;
-	private final Map<String, Integer> codeNamePlacements = new ConcurrentHashMap<>();
-	private final Map<Integer, String> matchedPatternToCodeName = new ConcurrentHashMap<>();
-	private final Map<Integer, Integer> matchedPatternToCodeNamePattern = new ConcurrentHashMap<>();
+	private final Map<Integer, PatternGroup<?>> matchedPatternToGroup = new ConcurrentHashMap<>();
+	private final Map<Integer, Integer> matchedPatternToGroupPattern = new ConcurrentHashMap<>();
+
+	private final SyntaxInfo<Data> defaultInfo;
 
 	EntityDataInfoImpl(
-		Origin origin,
+		SyntaxInfo<Data> defaultInfo,
 		Class<Data> dataClass,
-		@Nullable Supplier<Data> supplier,
-		@Nullable Priority priority,
 		String dataName,
-		SequencedCollection<String> codeNames,
+		EntityDataPatterns<?> dataPatterns,
 		int defaultIndex,
 		@Nullable EntityType entityType,
 		Class<? extends E> entityClass
 	) {
-		assert entityClass != null && !codeNames.isEmpty();
-		assert defaultIndex < codeNames.size();
-		this.origin = origin;
+		assert entityClass != null && dataPatterns.getPatternGroups().length != 0;
+		assert defaultIndex < dataPatterns.getPatternGroups().length;
+		this.defaultInfo = defaultInfo;
 		this.dataClass = dataClass;
-		this.supplier = supplier;
-		this.priority = priority;
 		this.dataName = dataName;
-		this.codeNames.addAll(codeNames);
-		this.defaultCodeName = new ArrayList<>(codeNames).get(defaultIndex);
+		this.dataPatterns = dataPatterns;
 		this.defaultIndex = defaultIndex;
+		this.defaultGroup = dataPatterns.getPatternGroup(defaultIndex);
 		if (entityType == null) {
 			this.entityType = EntityUtils.toBukkitEntityType(entityClass);
 		} else {
@@ -95,93 +64,30 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		}
 		this.entityClass = entityClass;
 
-		this.names = new Noun[codeNames.size()];
-		int count = 0;
-		for (String codeName : codeNames) {
-			names[count] = new Noun(LANGUAGE_NODE + "." + codeName + ".name");
-			codeNamePlacements.put(codeName, count);
-			count++;
-		}
-
-		Language.addListener(this, LanguageListenerPriority.LATEST);
-	}
-
-	@Override
-	public void onLanguageChange() {
 		List<String> allPatterns = new ArrayList<>();
-		matchedPatternToCodeName.clear();
-		matchedPatternToCodeNamePattern.clear();
-		for (String codeName : codeNames) {
-			if (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".pattern")) {
-				String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".pattern")
-					.replace("<age>", m_age_pattern.toString());
-				matchedPatternToCodeName.put(allPatterns.size(), codeName);
-				matchedPatternToCodeNamePattern.put(allPatterns.size(), 0);
+		for (PatternGroup<?> group : dataPatterns.getPatternGroups()) {
+			int patternCount = 0;
+			for (String pattern : group.patterns()) {
+				pattern = pattern.replace("<age>", m_age_pattern.toString());
+				// correlates '#init.matchedPattern' to 'PatternGroup'
+				matchedPatternToGroup.put(allPatterns.size(), group);
+				// correlates '#init.matchedPattern' to pattern index in 'PatternGroup'
+				matchedPatternToGroupPattern.put(allPatterns.size(), patternCount);
 				allPatterns.add(pattern);
-			} else if (!Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns.0")) {
-				throw new IllegalStateException("lang section for '" + codeName + "' should contain 'pattern' or a 'patterns' section");
-			} else {
-				int multiCount = 0;
-				while (Language.keyExistsDefault(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)) {
-					String pattern = Language.get(LANGUAGE_NODE + "." + codeName + ".patterns." + multiCount)
-						.replace("<age>", m_age_pattern.toString());
-					// correlates '#init.matchedPattern' to 'codeName'
-					matchedPatternToCodeName.put(allPatterns.size(), codeName);
-					// correlates '#init.matchedPattern' to pattern in code name
-					matchedPatternToCodeNamePattern.put(allPatterns.size(), multiCount);
-					allPatterns.add(pattern);
-					multiCount++;
-				}
+				patternCount++;
 			}
 		}
-		patterns = allPatterns;
-		if (this.priority == null) {
-			this.priority = estimatePriority(patterns);
-		}
+		this.patterns = allPatterns;
 	}
 
 	@Override
-	public String dataName() {
-		return dataName;
+	public PatternGroup<?> groupFromMatchedPattern(int matchedPattern) {
+		return matchedPatternToGroup.get(matchedPattern);
 	}
 
 	@Override
-	public Noun[] names() {
-		return names;
-	}
-
-	@Override
-	public int codeNamePlacement(String codeName) {
-		return codeNamePlacements.get(codeName);
-	}
-
-	@Override
-	public String codeNameFromMatchedPattern(int matchedPattern) {
-		return matchedPatternToCodeName.get(matchedPattern);
-	}
-
-	@Override
-	public int matchedCodeNamePattern(int matchedPattern) {
-		return matchedPatternToCodeNamePattern.get(matchedPattern);
-	}
-
-	@Override
-	public Origin origin() {
-		return origin;
-	}
-
-	@Override
-	public Class<Data> type() {
-		return dataClass;
-	}
-
-	@Override
-	public Data instance() {
-		try {
-			return supplier == null ? dataClass.getDeclaredConstructor().newInstance() : supplier.get();
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
-		}
+	public int matchedGroupPattern(int matchedPattern) {
+		return matchedPatternToGroupPattern.get(matchedPattern);
 	}
 
 	@Override
@@ -190,23 +96,28 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 	}
 
 	@Override
-	public Priority priority() {
-		return priority;
+	public String dataName() {
+		return dataName;
 	}
 
 	@Override
-	public SequencedCollection<String> codeNames() {
-		return codeNames;
+	public EntityDataPatterns<?> dataPatterns() {
+		return dataPatterns;
 	}
 
 	@Override
-	public String defaultCodeName() {
-		return defaultCodeName;
+	public PatternGroup<?> defaultGroup() {
+		return defaultGroup;
 	}
 
 	@Override
-	public int defaultCodeNameIndex() {
+	public int defaultGroupIndex() {
 		return defaultIndex;
+	}
+
+	@Override
+	public SequencedCollection<Noun> names() {
+		return dataPatterns.getNames();
 	}
 
 	@Override
@@ -220,16 +131,34 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 	}
 
 	@Override
+	public Origin origin() {
+		return defaultInfo.origin();
+	}
+
+	@Override
+	public Class<Data> type() {
+		return dataClass;
+	}
+
+	@Override
+	public Priority priority() {
+		return defaultInfo.priority();
+	}
+
+	@Override
+	public Data instance() {
+		return defaultInfo.instance();
+	}
+
+	@Override
 	public Builder<B, Data, E> toBuilder() {
-		//noinspection unchecked
-		return (Builder<B, Data, E>) new BuilderImpl<>(dataClass, dataName)
-			.origin(origin)
-			.supplier(supplier)
-			.priority(priority)
-			.addCodeNames(codeNames)
-			.defaultCodeName(defaultIndex)
+		Builder<B, Data, E> builder = new BuilderImpl<>(type(), dataName);
+		defaultInfo.toBuilder().applyTo(builder);
+		builder.dataPatterns(dataPatterns)
+			.defaultGroupIndex(defaultIndex)
 			.entityType(entityType)
 			.entityClass(entityClass);
+		return builder;
 	}
 
 	@Override
@@ -240,9 +169,9 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 			return false;
 		if (!dataName.equals(other.dataName()))
 			return false;
-		if (!codeNames.equals(other.codeNames()))
+		if (!dataPatterns.equals(other.dataPatterns()))
 			return false;
-		if (defaultIndex != other.defaultCodeNameIndex())
+		if (defaultIndex != other.defaultGroupIndex())
 			return false;
 		return entityClass.equals(other.entityClass());
 	}
@@ -252,60 +181,30 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		implements Builder<B, Data, E> {
 
 		private final Class<Data> dataClass;
-		private Origin origin = Origin.UNKNOWN;
-		private @Nullable Supplier<Data> supplier = null;
-		private @Nullable Priority priority;
 
 		private final String dataName;
-		private final SequencedCollection<String> codeNames = new ArrayList<>();
-		private int defaultCodeName = 0;
+		private EntityDataPatterns<?> dataPatterns;
+		private int defaultGroupIndex = 0;
 		private @Nullable EntityType entityType;
 		private Class<? extends E> entityClass;
+
+		private final SyntaxInfo.Builder<?, Data> defaultBuilder;
 
 		BuilderImpl(Class<Data> dataClass, String dataName) {
 			this.dataClass = dataClass;
 			this.dataName = dataName;
+			this.defaultBuilder = SyntaxInfo.builder(dataClass);
 		}
 
 		@Override
-		public B origin(Origin origin) {
-			this.origin = origin;
+		public B dataPatterns(EntityDataPatterns<?> dataPatterns) {
+			this.dataPatterns = dataPatterns;
 			return (B) this;
 		}
 
 		@Override
-		public B supplier(@Nullable Supplier<Data> supplier) {
-			this.supplier = supplier;
-			return (B) this;
-		}
-
-		@Override
-		public B priority(@Nullable Priority priority) {
-			this.priority = priority;
-			return (B) this;
-		}
-
-		@Override
-		public B addCodeName(String codeName) {
-			this.codeNames.add(codeName);
-			return (B) this;
-		}
-
-		@Override
-		public B addCodeNames(String... codeNames) {
-			this.codeNames.addAll(Arrays.stream(codeNames).toList());
-			return (B) this;
-		}
-
-		@Override
-		public B addCodeNames(Collection<String> codeNames) {
-			this.codeNames.addAll(codeNames);
-			return (B) this;
-		}
-
-		@Override
-		public B defaultCodeName(int index) {
-			this.defaultCodeName = index;
+		public B defaultGroupIndex(int index) {
+			this.defaultGroupIndex = index;
 			return (B) this;
 		}
 
@@ -322,15 +221,31 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		}
 
 		@Override
+		public B origin(Origin origin) {
+			defaultBuilder.origin(origin);
+			return (B) this;
+		}
+
+		@Override
+		public B supplier(@Nullable Supplier<Data> supplier) {
+			defaultBuilder.supplier(supplier);
+			return (B) this;
+		}
+
+		@Override
+		public B priority(@Nullable Priority priority) {
+			defaultBuilder.priority(priority);
+			return (B) this;
+		}
+
+		@Override
 		public EntityDataInfo<Data, E> build() {
 			return new EntityDataInfoImpl<>(
-				origin,
+				defaultBuilder.build(),
 				dataClass,
-				supplier,
-				priority,
 				dataName,
-				codeNames,
-				defaultCodeName,
+				dataPatterns,
+				defaultGroupIndex,
 				entityType,
 				entityClass
 			);
@@ -338,7 +253,14 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 
 		@Override
 		public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
-
+			defaultBuilder.applyTo(builder);
+			//noinspection rawtypes - Should be safe, generics will not influence this
+			if (builder instanceof EntityDataInfo.Builder other) {
+				other.dataPatterns(dataPatterns)
+					.defaultGroupIndex(defaultGroupIndex)
+					.entityType(entityType)
+					.entityClass(entityClass);
+			}
 		}
 	}
 

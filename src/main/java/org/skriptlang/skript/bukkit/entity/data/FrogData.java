@@ -5,7 +5,6 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Patterns;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Frog;
@@ -18,19 +17,29 @@ import java.util.Objects;
 
 public class FrogData extends EntityData<Frog> {
 
-	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"frog", null},
-		{"temperate frog", Variant.TEMPERATE},
-		{"warm frog", Variant.WARM},
-		{"cold frog", Variant.COLD}
-	});
-
 	private static final Variant[] VARIANTS = new Variant[]{Variant.TEMPERATE, Variant.WARM, Variant.COLD};
+
+	private static final EntityDataPatterns<Variant> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "frog¦s @a", getPatterns("")),
+		new PatternGroup<>(1, "temperate frog¦s @a", Variant.TEMPERATE, getPatterns("temperate")),
+		new PatternGroup<>(2, "warm frog¦s @a", Variant.WARM, getPatterns("warm")),
+		new PatternGroup<>(3, "cold frog¦s @a", Variant.COLD, getPatterns("cold"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> frog[plural:s]";
+		String second = "baby:frog (kid[plural:s]|child[plural:ren])";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " frog[plural:s]";
+			second = "baby:" + prefix + " frog (kid[plural:s]|child[plural:ren])";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(FrogData.class, "frog")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.FROG)
 				.entityClass(Frog.class)
 				.supplier(FrogData::new)
@@ -59,12 +68,12 @@ public class FrogData extends EntityData<Frog> {
 
 	public FrogData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(variant);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		variant = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -72,7 +81,7 @@ public class FrogData extends EntityData<Frog> {
 	protected boolean init(@Nullable Class<? extends Frog> entityClass, @Nullable Frog frog) {
 		if (frog != null) {
 			variant = frog.getVariant();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(variant);
 		}
 		return true;
 	}

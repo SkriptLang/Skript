@@ -23,18 +23,21 @@ import java.util.function.Consumer;
 
 public class DroppedItemData extends EntityData<Item> {
 
+	private final static Adjective ADJECTIVE = new Adjective("entities.dropped item.adjective");
+
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("dropped item¦s @a",
+		"dropped item[plural:s]", "unknown_plural:dropped %-itemtypes%", "dropped item entit(y|plural:ies)");
+
 	public static void register() {
 		registerInfo(
 			infoBuilder(DroppedItemData.class, "dropped item")
-				.addCodeName("dropped item")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.ITEM)
 				.entityClass(Item.class)
 				.supplier(DroppedItemData::new)
 				.build()
 		);
 	}
-	
-	private final static Adjective m_adjective = new Adjective("entities.dropped item.adjective");
 
 	private ItemType @Nullable [] types = null;
 	
@@ -45,7 +48,7 @@ public class DroppedItemData extends EntityData<Item> {
 	}
 	
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null) {
 			//noinspection unchecked
 			types = ((Literal<ItemType>) exprs[0]).getAll();
@@ -128,7 +131,7 @@ public class DroppedItemData extends EntityData<Item> {
 			return super.toString(flags);
 		int gender = types[0].getTypes().get(0).getGender();
 		return Noun.getArticleWithSpace(gender, flags) +
-				m_adjective.toString(gender, flags) +
+				ADJECTIVE.toString(gender, flags) +
 				" " +
 				Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false);
 	}

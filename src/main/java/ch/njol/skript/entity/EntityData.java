@@ -33,29 +33,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	public static Serializer<org.skriptlang.skript.bukkit.entity.EntityData> serializer = org.skriptlang.skript.bukkit.entity.EntityData.serializer;
 
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public static <Data extends EntityData<E>, E extends Entity> void register(
-		Class<Data> dataClass,
-		String name,
-		Class<E> entityClass,
-		String codeName
-	) {
-		register(dataClass, name, entityClass, 0, codeName);
-	}
-
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public static <Data extends EntityData<E>, E extends Entity> void register(
-		Class<Data> dataClass,
-		String name,
-		Class<E> entityClass,
-		int defaultName,
-		String... codeNames
-	) {
-		//noinspection unchecked
-		org.skriptlang.skript.bukkit.entity.EntityData.registerOld(
-			(Class<? extends org.skriptlang.skript.bukkit.entity.EntityData<E>>) dataClass, name, entityClass, defaultName, codeNames);
-	}
-
 	/**
 	 * Prints errors.
 	 *

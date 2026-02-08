@@ -51,15 +51,15 @@ public class ExprVillagerType extends SimplePropertyExpression<LivingEntity, Typ
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Type type = delta != null && delta[0] instanceof Type t ? t : null;
-		if (type == null)
-			return;
+		assert delta != null;
+		Type type = (Type) delta[0];
 
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
-			if (livingEntity instanceof Villager villager)
+			if (livingEntity instanceof Villager villager) {
 				villager.setVillagerType(type);
-			else if (livingEntity instanceof ZombieVillager zombie)
+			} else if (livingEntity instanceof ZombieVillager zombie) {
 				zombie.setVillagerType(type);
+			}
 		}
 	}
 

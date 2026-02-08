@@ -33,6 +33,11 @@ public class CondAllayCanDuplicate extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
+	}
+
+	@Override
 	protected String getPropertyName() {
 		return "duplicate";
 	}

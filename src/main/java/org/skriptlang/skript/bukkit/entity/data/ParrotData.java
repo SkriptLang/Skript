@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
@@ -17,19 +16,30 @@ import java.util.Objects;
 public class ParrotData extends EntityData<Parrot> {
 
 	private static final Variant[] VARIANTS = Variant.values();
-	private static final Patterns<Variant> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"parrot", null},
-		{"red parrot", Variant.RED},
-		{"blue parrot", Variant.BLUE},
-		{"green parrot", Variant.GREEN},
-		{"cyan parrot", Variant.CYAN},
-		{"gray parrot", Variant.GRAY}
-	});
+
+	private static final EntityDataPatterns<Variant> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "parrot¦s @a", getPatterns("")),
+		new PatternGroup<>(1, "red parrot¦s @a", Variant.RED, getPatterns("red")),
+		new PatternGroup<>(2, "blue parrot¦s @a", Variant.BLUE, getPatterns("blue")),
+		new PatternGroup<>(3, "green parrot¦s @a", Variant.GREEN, getPatterns("green")),
+		new PatternGroup<>(4, "cyan parrot¦s @a", Variant.CYAN, getPatterns("cyan")),
+		new PatternGroup<>(5, "gray parrot¦s @a", Variant.GRAY, getPatterns("gray"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> parrot[plural:s]";
+		String second = "baby:parrot (kid[plural:s]|child[plural:ren])";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " parrot[plural:s]";
+			second = "baby:" + prefix + " parrot (kid[plural:s]|child[plural:ren])";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(ParrotData.class, "parrot")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.PARROT)
 				.entityClass(Parrot.class)
 				.supplier(ParrotData::new)
@@ -45,12 +55,12 @@ public class ParrotData extends EntityData<Parrot> {
 	
 	public ParrotData(@Nullable Variant variant) {
 		this.variant = variant;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(variant);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		variant = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		variant = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -58,7 +68,7 @@ public class ParrotData extends EntityData<Parrot> {
 	protected boolean init(@Nullable Class<? extends Parrot> entityClass, @Nullable Parrot parrot) {
 		if (parrot != null) {
 			variant = parrot.getVariant();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(variant, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(variant);
 		}
 		return true;
 	}

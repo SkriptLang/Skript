@@ -6,7 +6,6 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Color;
-import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
@@ -24,13 +23,20 @@ public class WolfData extends EntityData<Wolf> {
 
 	public record WolfStates(Kleenean angry, Kleenean tamed) {}
 
-	private static final Patterns<WolfStates> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN)},
-		{"wild wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.FALSE)},
-		{"tamed wolf", new WolfStates(Kleenean.UNKNOWN, Kleenean.TRUE)},
-		{"angry wolf", new WolfStates(Kleenean.TRUE, Kleenean.UNKNOWN)},
-		{"peaceful wolf", new WolfStates(Kleenean.FALSE, Kleenean.UNKNOWN)}
-	});
+	private static final EntityDataPatterns<WolfStates> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "wol¦f¦ves @a", new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN),
+			"<age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]"),
+		new PatternGroup<>(1, "wild wol¦f¦ves @a", new WolfStates(Kleenean.UNKNOWN, Kleenean.FALSE),
+			"(wild|untamed) <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]"),
+		new PatternGroup<>(2, "tamed wol¦f¦ves @a", new WolfStates(Kleenean.UNKNOWN, Kleenean.TRUE),
+			"<age> [%-wolfvariant%] dog[plural:s] [[with collar] colo[u]r[ed] %-color%]",
+			"tamed <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]",
+			"baby:[%-wolfvariant%] [wolf] pup[py|plural:pies] [[with collar] colo[u]r[ed] %-color%]"),
+		new PatternGroup<>(3, "angry wol¦f¦ves @an", new WolfStates(Kleenean.TRUE, Kleenean.UNKNOWN),
+			"(angry|aggressive) <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]"),
+		new PatternGroup<>(4, "peaceful wol¦f¦ves @a", new WolfStates(Kleenean.FALSE, Kleenean.UNKNOWN),
+			"(peaceful|neutral|unaggressive) <age> [%-wolfvariant%] wol(f|plural:ves) [[with collar] colo[u]r[ed] %-color%]")
+	);
 
 	private static Variant[] VARIANTS;
 
@@ -54,7 +60,7 @@ public class WolfData extends EntityData<Wolf> {
 
 		registerInfo(
 			infoBuilder(WolfData.class, "wolf")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.WOLF)
 				.entityClass(Wolf.class)
 				.supplier(WolfData::new)
@@ -72,24 +78,24 @@ public class WolfData extends EntityData<Wolf> {
 	public WolfData(@Nullable Kleenean isAngry, @Nullable Kleenean isTamed) {
 		this.isAngry = isAngry != null ? isAngry : Kleenean.UNKNOWN;
 		this.isTamed = isTamed != null ? isTamed : Kleenean.UNKNOWN;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(new WolfStates(this.isAngry, this.isTamed), 0).orElseThrow();
+		super.groupIndex = GROUPS.getIndex(new WolfStates(this.isAngry, this.isTamed));
 	}
 
 	public WolfData(@Nullable WolfStates wolfState) {
 		if (wolfState != null) {
 			this.isAngry = wolfState.angry;
 			this.isTamed = wolfState.tamed;
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(wolfState, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(wolfState);
 		} else {
 			this.isAngry = Kleenean.UNKNOWN;
 			this.isTamed = Kleenean.UNKNOWN;
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN), 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(new WolfStates(Kleenean.UNKNOWN, Kleenean.UNKNOWN));
 		}
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		WolfStates state = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		WolfStates state = GROUPS.getData(matchedGroup);
 		assert state != null;
 		isAngry = state.angry;
 		isTamed = state.tamed;
@@ -111,7 +117,7 @@ public class WolfData extends EntityData<Wolf> {
 			isTamed = Kleenean.get(wolf.isTamed());
 			collarColor = wolf.getCollarColor();
 			variant = wolf.getVariant();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(new WolfStates(isAngry, isTamed), 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(new WolfStates(this.isAngry, this.isTamed));
 		}
 		return true;
 	}

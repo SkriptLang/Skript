@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.entity.strider;
 
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Strider;
@@ -12,16 +11,26 @@ import org.skriptlang.skript.bukkit.entity.EntityData;
 
 public class StriderData extends EntityData<Strider> {
 
-	private static final Patterns<Kleenean> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"strider", Kleenean.UNKNOWN},
-		{"warm strider", Kleenean.FALSE},
-		{"shivering strider", Kleenean.TRUE}
-	});
+	private static final EntityDataPatterns<Kleenean> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "strider¦s @a", Kleenean.UNKNOWN, getPatterns("")),
+		new PatternGroup<>(1, "warm strider¦s @a", Kleenean.FALSE, getPatterns("warm")),
+		new PatternGroup<>(2, "shivering strider¦s @a, cold strider¦s @a", Kleenean.TRUE, getPatterns("(cold|shivering)"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "<age> strider[plural:s]";
+		String second = "baby:strider (kid[plural:s]|child[plural:ren])";
+		if (!prefix.isEmpty()) {
+			first = "<age> " + prefix + " strider[plural:s]";
+			second = "baby:" + prefix + " strider (kid[plural:s]|child[plural:ren])";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(StriderData.class, "strider")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.STRIDER)
 				.entityClass(Strider.class)
 				.supplier(StriderData::new)
@@ -35,12 +44,12 @@ public class StriderData extends EntityData<Strider> {
 
 	public StriderData(@Nullable Kleenean shivering) {
 		this.shivering = shivering != null ? shivering : Kleenean.UNKNOWN;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(this.shivering, 0).orElseThrow();
+		super.groupIndex = GROUPS.getIndex(this.shivering);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		shivering = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		shivering = GROUPS.getData(matchedGroup);
 		return true;
 	}
 
@@ -48,7 +57,7 @@ public class StriderData extends EntityData<Strider> {
 	protected boolean init(@Nullable Class<? extends Strider> entityClass, @Nullable Strider strider) {
 		if (strider != null) {
 			shivering = Kleenean.get(strider.isShivering());
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(shivering, 0).orElseThrow();
+			super.groupIndex = GROUPS.getIndex(shivering);
 		}
 		return true;
 	}

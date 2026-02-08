@@ -1,8 +1,5 @@
 package org.skriptlang.skript.bukkit.entity.data;
 
-import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -23,15 +20,11 @@ public class CatData extends EntityData<Cat> {
 
 	private static Type[] TYPES;
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("cat¦s @a",
+		"<age> [%-cattype%] cat[plural:s]", "tamed <age> ocelot[plural:s]", "baby:[%-cattype%] kitten[plural:s]");
+
 	public static void register() {
-		ClassInfo<Type> catTypeClassInfo;
-		if (BukkitUtils.registryExists("CAT_VARIANT")) {
-			catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
-		} else {
-			//noinspection unchecked, rawtypes - it is an enum on other versions
-			catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
-		}
-		Classes.registerClass(catTypeClassInfo
+		Classes.registerClass(new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types")
 			.user("cat ?(type|race)s?")
 			.name("Cat Type")
 			.description("Represents the race/type of a cat entity.",
@@ -42,20 +35,20 @@ public class CatData extends EntityData<Cat> {
 
 		registerInfo(
 			infoBuilder(CatData.class, "cat")
-				.addCodeName("cat")
+				.dataPatterns(GROUP)
 				.entityType(EntityType.CAT)
 				.entityClass(Cat.class)
 				.supplier(CatData::new)
 				.build()
 		);
 
-		TYPES = Iterators.toArray(catTypeClassInfo.getSupplier().get(), Type.class);
+		TYPES = Iterators.toArray(Classes.getExactClassInfo(Type.class).getSupplier().get(), Type.class);
 	}
 
 	private @Nullable Type type = null;
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (exprs.length > 0 && exprs[0] != null) {
 			//noinspection unchecked
 			type = ((Literal<Type>) exprs[0]).getSingle();

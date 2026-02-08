@@ -3,7 +3,6 @@ package org.skriptlang.skript.bukkit.entity.data;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
-import ch.njol.skript.util.Patterns;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.DyeColor;
@@ -18,27 +17,38 @@ import java.util.Objects;
 
 public class TropicalFishData extends EntityData<TropicalFish> {
 
-	private static final Patterns<Pattern> CODE_NAMES = new Patterns<>(new Object[][]{
-		{"tropical fish", null},
-		{"kob", Pattern.KOB},
-		{"sunstreak", Pattern.SUNSTREAK},
-		{"snooper", Pattern.SNOOPER},
-		{"dasher", Pattern.DASHER},
-		{"brinely", Pattern.BRINELY},
-		{"spotty", Pattern.SPOTTY},
-		{"flopper", Pattern.FLOPPER},
-		{"stripey", Pattern.STRIPEY},
-		{"glitter", Pattern.GLITTER},
-		{"blockfish", Pattern.BLOCKFISH},
-		{"betty", Pattern.BETTY},
-		{"clayfish", Pattern.CLAYFISH},
-	});
 	private static final Pattern[] FISH_PATTERNS = Pattern.values();
+
+	private static final EntityDataPatterns<Pattern> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "tropical fish¦es @a", getPatterns("")),
+		new PatternGroup<>(1, "betty¦s @a", Pattern.BETTY, getPatterns("betty")),
+		new PatternGroup<>(2, "blockfish¦s @a", Pattern.BLOCKFISH, getPatterns("blockfish")),
+		new PatternGroup<>(3, "brinely¦s @a", Pattern.BRINELY, getPatterns("brinely")),
+		new PatternGroup<>(4, "clayfish¦s @a", Pattern.CLAYFISH, getPatterns("clayfish")),
+		new PatternGroup<>(5, "dasher¦s @a", Pattern.DASHER, getPatterns("dasher")),
+		new PatternGroup<>(6, "flopper¦s @a", Pattern.FLOPPER, getPatterns("flopper")),
+		new PatternGroup<>(7, "glitter¦s @a", Pattern.GLITTER, getPatterns("glitter")),
+		new PatternGroup<>(8, "kob¦s @a", Pattern.KOB, getPatterns("kob")),
+		new PatternGroup<>(9, "snooper¦s @a", Pattern.SNOOPER, getPatterns("snooper")),
+		new PatternGroup<>(10, "spotty¦s @a", Pattern.SPOTTY, getPatterns("spotty")),
+		new PatternGroup<>(11, "stripey¦s @a", Pattern.STRIPEY, getPatterns("stripey")),
+		new PatternGroup<>(12, "sunstreak¦s @a", Pattern.SUNSTREAK, getPatterns("sunstreak"))
+	);
+
+	private static String[] getPatterns(String prefix) {
+		String first = "[%-color%[-%-color%]] tropical fish[plural:es]";
+		String second = "fully %-color% tropical fish[plural:es]";
+		if (!prefix.isEmpty()) {
+			first = "[%-color%[-%-color%]] " + prefix + "[plural:s]";
+			second = "fully %-color% " + prefix + "[plural:s]";
+		}
+		return new String[]{first, second};
+	}
 
 	public static void register() {
 		registerInfo(
 			infoBuilder(TropicalFishData.class, "tropical fish")
-				.addCodeNames(CODE_NAMES.getPatterns())
+				.dataPatterns(GROUPS)
 				.entityType(EntityType.TROPICAL_FISH)
 				.entityClass(TropicalFish.class)
 				.supplier(TropicalFishData::new)
@@ -58,12 +68,12 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		this.fishPattern = fishPattern;
 		this.bodyColor = bodyColor;
 		this.patternColor = patternColor;
-		super.codeNameIndex = CODE_NAMES.getMatchedPattern(fishPattern, 0).orElse(0);
+		super.groupIndex = GROUPS.getIndex(fishPattern);
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		fishPattern = CODE_NAMES.getInfo(matchedCodeName);
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		fishPattern = GROUPS.getData(matchedGroup);
 		if (exprs.length == 0)
 			return true; // FIXME aliases reloading must work
 
@@ -91,7 +101,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 			bodyColor = tropicalFish.getBodyColor();
 			patternColor = tropicalFish.getPatternColor();
 			fishPattern = tropicalFish.getPattern();
-			super.codeNameIndex = CODE_NAMES.getMatchedPattern(fishPattern, 0).orElse(0);
+			super.groupIndex = GROUPS.getIndex(fishPattern);
 		}
 		return true;
 	}
