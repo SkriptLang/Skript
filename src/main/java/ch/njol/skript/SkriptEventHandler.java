@@ -130,10 +130,16 @@ public final class SkriptEventHandler {
 	 * @return Whether the event should be treated as cancelled.
 	 */
 	private static boolean isCancelled(Event event) {
-		return event instanceof Cancellable &&
-			(((Cancellable) event).isCancelled() && isResultDeny(event)) &&
-			// TODO: listenCancelled is deprecated and should be removed in 2.10
-			!listenCancelled.contains(event.getClass());
+		if (!(event instanceof Cancellable cancellable))
+			return false;
+		// PlayerInteractEvents act differently
+		if (event instanceof PlayerInteractEvent interactEvent) {
+			if (isClickOnAir(interactEvent))
+				return false;
+			// cancelled = both are denied, otherwise we still want to handle it.
+			return interactEvent.useInteractedBlock() == Result.DENY && interactEvent.useItemInHand() == Result.DENY;
+		}
+		return cancellable.isCancelled();
 	}
 
 	/**
@@ -145,10 +151,11 @@ public final class SkriptEventHandler {
 	 * @param event The event to check.
 	 * @return Whether the event was a PlayerInteractEvent with air and the result was DENY.
 	 */
-	private static boolean isResultDeny(Event event) {
-		return !(event instanceof PlayerInteractEvent &&
-			(((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) &&
-			((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
+	private static boolean isClickOnAir(PlayerInteractEvent event) {
+		if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_AIR) {
+			return event.useItemInHand() != Result.DENY;
+		}
+		return false;
 	}
 
 	/**
