@@ -63,3 +63,25 @@ test "sorted expression with sort by":
 	set {_list::aaaaa} to 5
 	set {_sorted::*} to {_list::*} sorted by (length of input index)
 	assert {_sorted::*} is integers from 1 to 5 with "sort by index length failed"
+
+test "sorted by with type conversion":
+	# join requires %strings%, forcing getConvertedExpression(String.class) on the sorted-by expression.
+	# verifies InputSource is preserved through the ConvertedExpression wrapper.
+	set {_strs::*} to "fig", "apple", "banana" and "kiwi"
+	set {_joined} to join ({_strs::*} sorted by (length of input)) with ", "
+	assert {_joined} is "fig, kiwi, apple, banana" with "sorted-by type conversion failed (ascending)"
+
+	set {_joined} to join ({_strs::*} sorted in descending order by (length of input)) with ", "
+	assert {_joined} is "banana, apple, kiwi, fig" with "sorted-by type conversion failed (descending)"
+
+	# 'health of' requires %living entities%, forcing getConvertedExpression(LivingEntity.class)
+	spawn a zombie at test-location:
+		set {_z} to entity
+	spawn a pig at test-location:
+		set {_p} to entity
+	set {_entities::*} to {_z} and {_p}
+	set {_healths::*} to health of ({_entities::*} sorted by (health of input))
+	assert size of {_healths::*} is 2 with "sorted-by entity type conversion: wrong count"
+	assert first element of {_healths::*} <= last element of {_healths::*} with "sorted-by entity type conversion: not ascending"
+	delete entity within {_z}
+	delete entity within {_p}
