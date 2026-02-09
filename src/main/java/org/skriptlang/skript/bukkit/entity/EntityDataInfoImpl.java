@@ -193,7 +193,8 @@ final class EntityDataInfoImpl<B extends Builder<B, Data, E>, Data extends Entit
 		BuilderImpl(Class<Data> dataClass, String dataName) {
 			this.dataClass = dataClass;
 			this.dataName = dataName;
-			this.defaultBuilder = SyntaxInfo.builder(dataClass);
+			this.defaultBuilder = SyntaxInfo.builder(dataClass)
+				.addPattern("");
 		}
 
 		@Override

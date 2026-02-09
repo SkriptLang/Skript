@@ -10,7 +10,7 @@ public class CamelModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		SimpleEntityData.addSimpleEntity("camel", Camel.class);
+		SimpleEntityData.addSimpleEntity(Camel.class, "camel¦s @a", "camel[plural:s]");
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		CondIsDashing.register(registry);

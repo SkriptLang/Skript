@@ -10,7 +10,7 @@ public class WardenModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		SimpleEntityData.addSimpleEntity("warden", Warden.class);
+		SimpleEntityData.addSimpleEntity(Warden.class, "warden¦s @a", "warden[plural:s]");
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		EffWardenDisturbance.register(registry);

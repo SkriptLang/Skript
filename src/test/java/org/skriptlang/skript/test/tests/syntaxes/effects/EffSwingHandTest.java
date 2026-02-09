@@ -1,6 +1,5 @@
 package org.skriptlang.skript.test.tests.syntaxes.effects;
 
-import org.skriptlang.skript.bukkit.entity.elements.effects.EffSwingHand;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.ContextlessEvent;
@@ -28,8 +27,6 @@ public class EffSwingHandTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		if (!EffSwingHand.SWINGING_IS_SUPPORTED)
-			return;
 		if (swingMainHandEffect == null)
 			Assert.fail("Main hand is null");
 		if (swingOffhandEffect == null)

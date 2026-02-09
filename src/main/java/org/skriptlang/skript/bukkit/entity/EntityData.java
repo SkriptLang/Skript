@@ -93,7 +93,7 @@ public abstract class EntityData<E extends Entity>
 			m_adult = new Adjective(LANGUAGE_NODE + ".age adjectives.adult");
 
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
-	private static final List<EntityDataInfo<EntityData<?>, ?>> infos = new ArrayList<>();
+	private static final List<EntityDataInfo<EntityData<?>, ?>> INFOS = new ArrayList<>();
 
 	private static final List<EntityData> ALL_ENTITY_DATAS = new ArrayList<>();
 
@@ -192,9 +192,9 @@ public abstract class EntityData<E extends Entity>
 	}
 
 	public static void onRegistrationStop() {
-		infos.forEach(info -> {
+		INFOS.forEach(info -> {
 			if (SimpleEntityData.class.equals(info.type())) {
-				ALL_ENTITY_DATAS.addAll(Arrays.stream(info.codeNames().toArray(new String[0]))
+				ALL_ENTITY_DATAS.addAll(Arrays.stream(info.patterns().toArray(new String[0]))
 					.map(input -> SkriptParser.parseStatic(input, new SingleItemIterator<>(info), null))
 					.toList()
 				);
@@ -227,13 +227,13 @@ public abstract class EntityData<E extends Entity>
 	 */
 	@SuppressWarnings("unchecked")
 	protected static <Data extends EntityData<E>, E extends Entity> void registerInfo(EntityDataInfo<Data, E> info) {
-		for (int i = 0; i < infos.size(); i++) {
-			if (infos.get(i).entityClass().isAssignableFrom(info.entityClass())) {
-				infos.add(i, (EntityDataInfo<EntityData<?>, ?>) info);
+		for (int i = 0; i < INFOS.size(); i++) {
+			if (INFOS.get(i).entityClass().isAssignableFrom(info.entityClass())) {
+				INFOS.add(i, (EntityDataInfo<EntityData<?>, ?>) info);
 				return;
 			}
 		}
-		infos.add((EntityDataInfo<EntityData<?>, ?>) info);
+		INFOS.add((EntityDataInfo<EntityData<?>, ?>) info);
 	}
 
 	transient EntityDataInfo<?, ?> info;
@@ -246,7 +246,7 @@ public abstract class EntityData<E extends Entity>
 	private Kleenean baby = Kleenean.UNKNOWN;
 
 	public EntityData() {
-		for (EntityDataInfo<?, ?> info : infos) {
+		for (EntityDataInfo<?, ?> info : INFOS) {
 			if (getClass() == info.type()) {
 				this.info = info;
 				groupIndex = info.defaultGroupIndex();
@@ -466,7 +466,7 @@ public abstract class EntityData<E extends Entity>
 	 * @throws SkriptAPIException if the class has not been registered.
 	 */
 	public static EntityDataInfo<?, ?> getInfo(Class<? extends EntityData<?>> entityDataClass) {
-		for (EntityDataInfo<?, ?> info : infos) {
+		for (EntityDataInfo<?, ?> info : INFOS) {
 			if (info.type() == entityDataClass)
 				return info;
 		}
@@ -480,7 +480,7 @@ public abstract class EntityData<E extends Entity>
 	 * @return The corresponding {@link EntityDataInfo}, or {@code null} if not found.
 	 */
 	public static @Nullable EntityDataInfo<?, ?> getInfo(String dataName) {
-		for (EntityDataInfo<?, ?> info : infos) {
+		for (EntityDataInfo<?, ?> info : INFOS) {
 			if (info.dataName().equals(dataName))
 				return info;
 		}
@@ -494,7 +494,7 @@ public abstract class EntityData<E extends Entity>
 	 * @return The parsed entity data
 	 */
 	public static @Nullable EntityData<?> parse(String string) {
-		Iterator<EntityDataInfo<EntityData<?>, ?>> it = new ArrayList<>(infos).iterator();
+		Iterator<EntityDataInfo<EntityData<?>, ?>> it = new ArrayList<>(INFOS).iterator();
 		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(string), it, null);
 	}
 
@@ -505,7 +505,7 @@ public abstract class EntityData<E extends Entity>
 	 * @return The parsed entity data
 	 */
 	public static @Nullable EntityData<?> parseWithoutIndefiniteArticle(String string) {
-		Iterator<EntityDataInfo<EntityData<?>, ?>> it = new ArrayList<>(infos).iterator();
+		Iterator<EntityDataInfo<EntityData<?>, ?>> it = new ArrayList<>(INFOS).iterator();
 		return SkriptParser.parseStatic(string, it, null);
 	}
 
@@ -666,7 +666,7 @@ public abstract class EntityData<E extends Entity>
 		assert entityClass == null || entityClass.isInterface();
 		EntityDataInfo<?, ?> closestInfo = null;
 		EntityData<E> closestData = null;
-		for (EntityDataInfo<?, ?> info : infos) {
+		for (EntityDataInfo<?, ?> info : INFOS) {
 			if (info.entityClass() == Entity.class)
 				continue;
 			if (entity == null ? info.entityClass().isAssignableFrom(entityClass) : info.entityClass().isInstance(entity)) {

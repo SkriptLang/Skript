@@ -10,7 +10,7 @@ public class ProjectileModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		SimpleEntityData.addSuperEntity("projectile", Projectile.class);
+		SimpleEntityData.addSuperEntity(Projectile.class, "projectile¦s @a", "projectile[plural:s]");
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		ExprProjectileCriticalState.register(registry);

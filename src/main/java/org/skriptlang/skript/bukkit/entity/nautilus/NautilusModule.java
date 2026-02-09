@@ -17,7 +17,7 @@ public class NautilusModule implements AddonModule {
 	public void load(SkriptAddon addon) {
 		NautilusData.register();
 		ZombieNautilusData.register();
-		SimpleEntityData.addSuperEntity("any nautilus", AbstractNautilus.class);
+		SimpleEntityData.addSuperEntity(AbstractNautilus.class, "any nautilus¦es @an", "any <age> nautilus[plural:es]");
 	}
 
 	@Override

@@ -10,7 +10,7 @@ public class AllayModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		SimpleEntityData.addSimpleEntity("allay", Allay.class);
+		SimpleEntityData.addSimpleEntity(Allay.class, "allay¦s @an", "allay[plural:s]");
 
 		SyntaxRegistry registry = addon.syntaxRegistry();
 		CondAllayCanDuplicate.register(registry);

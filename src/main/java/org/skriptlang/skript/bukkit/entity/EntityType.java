@@ -44,9 +44,9 @@ public class EntityType
 				.serializer(new YggdrasilSerializer<>()));
 	}
 
-	private final int amount;
+	public int amount;
 
-	private final EntityData<?> data;
+	public EntityData<?> data;
 	
 	/**
 	 * Only used for deserialisation
