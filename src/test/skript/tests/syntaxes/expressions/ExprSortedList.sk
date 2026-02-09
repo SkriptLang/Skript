@@ -1,3 +1,5 @@
+using error catching
+
 test "sort":
 	# Populate list
 	set {_i} to 0
@@ -17,7 +19,8 @@ test "sort":
 			assert loop-value >= {_prev} with "Couldn't sort correctly"
 		set {_prev} to loop-value
 
-	assert (sorted 1 and "test") is not set with "Sorting incomparable values returned a value"
+	catch runtime errors:
+		assert (sorted 1 and "test") is not set with "Sorting incomparable values returned a value"
 
 test "sorted expression with sort order":
 	set {_numbers::*} to shuffled integers from 1 to 50
@@ -28,29 +31,29 @@ test "sorted expression with sort order":
 
 test "sorted expression with sort by":
 	set {_numbers::*} to shuffled integers from 1 to 5
-	assert ({_numbers::*} sorted by input) is integers from 1 to 5 with "sort by input (identity) failed"
+	assert ({_numbers::*} sorted by (input)) is integers from 1 to 5 with "sort by input (identity) failed"
 
 	set {_numbers::*} to shuffled integers from 1 to 5
-	assert ({_numbers::*} sorted in ascending order by input) is integers from 1 to 5 with "ascending sort by input failed"
+	assert ({_numbers::*} sorted in ascending order by (input)) is integers from 1 to 5 with "ascending sort by input failed"
 
 	set {_numbers::*} to shuffled integers from 1 to 5
-	assert ({_numbers::*} sorted in descending order by input) is integers from 5 to 1 with "descending sort by input failed"
+	assert ({_numbers::*} sorted in descending order by (input)) is integers from 5 to 1 with "descending sort by input failed"
 
 	set {_numbers::*} to shuffled integers from 1 to 5
-	assert ({_numbers::*} sorted by input * 20 + 4 - 3) is integers from 1 to 5 with "sort by linear transform failed"
+	assert ({_numbers::*} sorted by (input * 20 + 4 - 3)) is integers from 1 to 5 with "sort by linear transform failed"
 
 	set {_chars::*} to shuffled characters between "a" and "f"
-	assert ({_chars::*} sorted based on codepoint of input) is characters between "a" and "f" with "sort by codepoint failed"
+	assert ({_chars::*} sorted based on (codepoint of input)) is characters between "a" and "f" with "sort by codepoint failed"
 
 	set {_mixed::*} to shuffled (characters between "a" and "f", integers from 1 to 5)
-	assert ({_mixed::*} sorted by "%input%") is 1, 2, 3, 4, 5, and characters between "a" and "f" with "sort by string conversion failed"
+	assert ({_mixed::*} sorted by ("%input%")) is 1, 2, 3, 4, 5, and characters between "a" and "f" with "sort by string conversion failed"
 
-	# null mapping returns nothing
-	set {_numbers::*} to shuffled integers from 1 to 5
-	assert ({_numbers::*} sorted by ("%input%" parsed as time)) is not set with "sort by null mapping returned a value"
+	catch runtime errors:
+		set {_numbers::*} to shuffled integers from 1 to 5
+		assert ({_numbers::*} sorted by ("%input%" parsed as time)) is not set with "sort by null mapping returned a value"
 
 	# empty list
-	assert ({_empty::*} sorted by input) is not set with "sort by on empty list returned a value"
+	assert ({_empty::*} sorted by (input)) is not set with "sort by on empty list returned a value"
 
 	# sort by index
 	set {_list::x} to 1
@@ -58,5 +61,5 @@ test "sorted expression with sort by":
 	set {_list::bxs} to 3
 	set {_list::zysa} to 4
 	set {_list::aaaaa} to 5
-	set {_sorted::*} to {_list::*} sorted by length of input index
+	set {_sorted::*} to {_list::*} sorted by (length of input index)
 	assert {_sorted::*} is integers from 1 to 5 with "sort by index length failed"

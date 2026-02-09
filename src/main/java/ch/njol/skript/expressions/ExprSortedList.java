@@ -11,7 +11,9 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EmptyIterator;
+import com.google.common.collect.Iterators;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.comparator.Comparator;
@@ -36,7 +38,7 @@ import java.util.*;
 			loop reversed sorted {most-kills::*}:
 				send "%loop-counter%. %loop-index% with %loop-value% kills" to sender
 	""")
-@Example("set {_sorted::*} to {_words::*} sorted in descending order by length of input")
+@Example("set {_sorted::*} to {_words::*} sorted in descending order by (length of input)")
 @Since("2.2-dev19, 2.14 (retain indices when looping), INSERT_VERSION (sort by)")
 @Keywords("input")
 public class ExprSortedList extends SimpleExpression<Object> implements KeyedIterableExpression<Object>, InputSource {
@@ -47,7 +49,8 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 	static {
 		Skript.registerExpression(ExprSortedList.class, Object.class, ExpressionType.PROPERTY,
 			"sorted %objects%",
-			"%objects% sorted [in (:descending|ascending) order] [(by|based on) <.+>]"
+			"%objects% sorted [in (:descending|ascending) order] [(by|based on) \\(<.+>\\)]",
+			"%objects% sorted [in (:descending|ascending) order] [(by|based on) \\[<.+>\\]]"
 		);
 		if (!ParserInstance.isRegistered(InputData.class))
 			ParserInstance.registerData(InputData.class, InputData::new);
@@ -99,49 +102,54 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 	}
 
 	@Override
-	protected Object @Nullable [] get(Event event) {
+	public @NotNull Iterator<?> iterator(Event event) {
+		if (keyed)
+			return Iterators.transform(keyedIterator(event), KeyedValue::value);
+
+		currentIndex = null;
 		int sortingMultiplier = descendingOrder ? -1 : 1;
+
 		if (mappingExpr == null) {
 			try {
+				// toList() forces eager evaluation so the comparator exceptions are caught here
 				return list.stream(event)
 					.sorted((o1, o2) -> compare(o1, o2) * sortingMultiplier)
-					.toArray();
+					.toList().iterator();
 			} catch (IllegalArgumentException | ClassCastException e) {
-				return (Object[]) Array.newInstance(getReturnType(), 0);
+				error("Sorting failed because the elements in the list could not be compared with each other.");
+				return Collections.emptyIterator();
 			}
 		}
 
 		List<MappedValue> mappedValues = new ArrayList<>();
-		if (keyed) {
-			for (Iterator<? extends KeyedValue<?>> it = ((KeyedIterableExpression<?>) list).keyedIterator(event); it.hasNext(); ) {
-				KeyedValue<?> keyedValue = it.next();
-				currentIndex = keyedValue.key();
-				currentValue = keyedValue.value();
-				Object mappedValue = mappingExpr.getSingle(event);
-				if (mappedValue == null)
-					return (Object[]) Array.newInstance(getReturnType(), 0);
-				mappedValues.add(new MappedValue(currentValue, mappedValue));
+		Iterator<?> it = list.iterator(event);
+		if (it == null)
+			return Collections.emptyIterator();
+		while (it.hasNext()) {
+			currentValue = it.next();
+			Object mappedValue = mappingExpr.getSingle(event);
+			if (mappedValue == null) {
+				error("Sorting failed because Skript cannot sort null values. "
+					+ "The mapping expression '" + mappingExpr.toString(event, false)
+					+ "' returned a null value when given the input '" + currentValue + "'.");
+				return Collections.emptyIterator();
 			}
-		} else {
-			Iterator<?> it = list.iterator(event);
-			if (it == null)
-				return (Object[]) Array.newInstance(getReturnType(), 0);
-			while (it.hasNext()) {
-				currentValue = it.next();
-				Object mappedValue = mappingExpr.getSingle(event);
-				if (mappedValue == null)
-					return (Object[]) Array.newInstance(getReturnType(), 0);
-				mappedValues.add(new MappedValue(currentValue, mappedValue));
-			}
+			mappedValues.add(new MappedValue(currentValue, mappedValue));
 		}
 		try {
 			return mappedValues.stream()
 				.sorted((o1, o2) -> compare(o1.mapped(), o2.mapped()) * sortingMultiplier)
 				.map(MappedValue::original)
-				.toArray();
+				.toList().iterator();
 		} catch (IllegalArgumentException | ClassCastException e) {
-			return (Object[]) Array.newInstance(getReturnType(), 0);
+			error("Sorting failed because the mapped values could not be compared with each other.");
+			return Collections.emptyIterator();
 		}
+	}
+
+	@Override
+	protected Object @Nullable [] get(Event event) {
+		return Iterators.toArray(iterator(event), Object.class);
 	}
 
 	@Override
@@ -159,8 +167,9 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 				//noinspection unchecked,rawtypes
 				return (Iterator) ((KeyedIterableExpression<?>) list).keyedStream(event)
 					.sorted((a, b) -> compare(a.value(), b.value()) * sortingMultiplier)
-					.iterator();
+					.toList().iterator();
 			} catch (IllegalArgumentException | ClassCastException e) {
+				error("Sorting failed because the elements in the list could not be compared with each other.");
 				return EmptyIterator.get();
 			}
 		}
@@ -171,8 +180,12 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 			currentIndex = keyedValue.key();
 			currentValue = keyedValue.value();
 			Object mappedValue = mappingExpr.getSingle(event);
-			if (mappedValue == null)
+			if (mappedValue == null) {
+				error("Sorting failed because Skript cannot sort null values. "
+					+ "The mapping expression '" + mappingExpr.toString(event, false)
+					+ "' returned a null value when given the input '" + currentValue + "'.");
 				return EmptyIterator.get();
+			}
 			keyedMappedValues.add(new KeyedMappedValue(keyedValue, mappedValue));
 		}
 		try {
@@ -180,8 +193,9 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 			return (Iterator) keyedMappedValues.stream()
 				.sorted((a, b) -> compare(a.mapped(), b.mapped()) * sortingMultiplier)
 				.map(KeyedMappedValue::keyed)
-				.iterator();
+				.toList().iterator();
 		} catch (IllegalArgumentException | ClassCastException e) {
+			error("Sorting failed because the mapped values could not be compared with each other.");
 			return EmptyIterator.get();
 		}
 	}
@@ -206,13 +220,14 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 			//noinspection unchecked
 			return (Expression<? extends R>) this;
 
+		// when a mapping expression is present, InputSource wiring prevents safe shallow-copying
 		if (mappingExpr != null)
 			return super.getConvertedExpression(to);
 
 		Expression<? extends R> convertedList = list.getConvertedExpression(to);
 		if (convertedList != null)
 			//noinspection unchecked
-			return (Expression<? extends R>) new ExprSortedList(convertedList, null, descendingOrder);
+			return (Expression<? extends R>) new ExprSortedList(convertedList, mappingExpr, descendingOrder);
 
 		return null;
 	}
@@ -278,11 +293,13 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		if (mappingExpr == null && !descendingOrder)
-			return "sorted " + list.toString(event, debug);
-		return list.toString(event, debug) + " sorted"
-			+ " in " + (descendingOrder ? "descending" : "ascending") + " order"
-			+ (mappingExpr != null ? " by " + mappingExpr.toString(event, debug) : "");
+			return builder.append("sorted", list).toString();
+		builder.append(list, "sorted", "in", descendingOrder ? "descending" : "ascending", "order");
+		if (mappingExpr != null)
+			builder.append("by", mappingExpr);
+		return builder.toString();
 	}
 
 }
