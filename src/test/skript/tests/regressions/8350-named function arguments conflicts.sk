@@ -37,4 +37,5 @@ local function teststr(x: text) -> text:
     return {_x}
 
 test "expression in string and named function arguments conflict":
-    assert test("%now formatted as "HH:mm:ss"%") is now formatted as "HH:mm:ss"
+	set {_now} to now
+	assert test("%{_now} formatted as "HH:mm:ss"%") is {_now} formatted as "HH:mm:ss"

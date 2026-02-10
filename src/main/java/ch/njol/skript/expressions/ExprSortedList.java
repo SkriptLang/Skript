@@ -27,7 +27,7 @@ import java.util.Iterator;
 @Example("set {_sorted::*} to sorted {_players::*}")
 @Example("""
 	command /leaderboard:
-	    trigger:
+		trigger:
 			loop reversed sorted {most-kills::*}:
 				send "%loop-counter%. %loop-index% with %loop-value% kills" to sender
 	""")

@@ -2,7 +2,7 @@ name: Release documentation
 
 on:
   release:
-    types: [published]
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
@@ -10,36 +10,37 @@ jobs:
     if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
     runs-on: ubuntu-latest
     steps:
-        - name: Configure workflow
-          id: configuration
-          run: |
-            echo "BRANCH_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-            echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/" >> $GITHUB_OUTPUT
-            echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
-            echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
-        - name: Checkout Skript
-          uses: actions/checkout@v6
-          with:
-              submodules: recursive
-              path: skript
-        - name: Setup documentation environment
-          uses: ./skript/.github/workflows/docs/setup-docs
-          with:
-              docs_deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
-              docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
-        - name: Generate documentation
-          uses: ./skript/.github/workflows/docs/generate-docs
-          with:
-              docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
-              docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
-              skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
-              is_release: true
-              generate_javadocs: true
-              cleanup_pattern: "!(nightly|archives|templates)"
-        - name: Push release documentation
-          uses: ./skript/.github/workflows/docs/push-docs
-          with:
-              docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
-              git_name: Release Docs Bot
-              git_email: releasedocs@skriptlang.org
-              git_commit_message: "Update release docs to ${{ steps.configuration.outputs.BRANCH_NAME }}"
+      - name: Configure workflow
+        id: configuration
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/*/}"
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "DOCS_OUTPUT_DIR=${GITHUB_WORKSPACE}/skript-docs/docs/" >> $GITHUB_OUTPUT
+          echo "DOCS_REPO_DIR=${GITHUB_WORKSPACE}/skript-docs" >> $GITHUB_OUTPUT
+          echo "SKRIPT_REPO_DIR=${GITHUB_WORKSPACE}/skript" >> $GITHUB_OUTPUT
+      - name: Checkout Skript
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          path: skript
+      - name: Setup documentation environment
+        uses: ./skript/.github/workflows/docs/setup-docs
+        with:
+          docs_repo: "SkriptLang/skript-docs"
+          docs_token: ${{ secrets.DOCS_TOKEN }}
+      - name: Generate documentation
+        uses: ./skript/.github/workflows/docs/generate-docs
+        with:
+          docs_output_dir: ${{ steps.configuration.outputs.DOCS_OUTPUT_DIR }}
+          docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+          skript_repo_dir: ${{ steps.configuration.outputs.SKRIPT_REPO_DIR }}
+          is_release: true
+          generate_javadocs: true
+          cleanup_pattern: "!(nightly|archives|templates)"
+      - name: Push release documentation
+        uses: ./skript/.github/workflows/docs/push-docs
+        with:
+          docs_repo_dir: ${{ steps.configuration.outputs.DOCS_REPO_DIR }}
+          git_name: Release Docs Bot
+          git_email: releasedocs@skriptlang.org
+          git_commit_message: "Update release docs to ${{ steps.configuration.outputs.BRANCH_NAME }}"

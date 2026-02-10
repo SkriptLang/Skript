@@ -165,7 +165,10 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 		}
 
 		@Override
+		@SuppressWarnings("deprecation")
 		public String convert(Entity propertyHolder) {
+			if (displayName)
+				return propertyHolder.getCustomName();
 			return propertyHolder.getName();
 		}
 

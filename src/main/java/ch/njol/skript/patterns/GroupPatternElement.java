@@ -1,5 +1,6 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -26,13 +27,17 @@ public class GroupPatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		return patternElement.match(expr, matchResult);
 	}
 
 	@Override
 	public String toString() {
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
 		return "(" + patternElement + ")";
 	}
 

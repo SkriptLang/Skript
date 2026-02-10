@@ -1,6 +1,5 @@
 package org.skriptlang.skript.registration;
 
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -8,11 +7,9 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.ExpressionImpl;
 import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.StructureImpl;
 
 /**
- * This class is not safe to be directly referenced.
- * Use {@link SyntaxInfo} instead.
+ * Contains interfaces describing syntax infos for specific types of syntax.
  */
-@ApiStatus.Internal
-public interface DefaultSyntaxInfos {
+public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 
 	/**
 	 * A syntax info to be used for {@link ch.njol.skript.lang.Expression}s.

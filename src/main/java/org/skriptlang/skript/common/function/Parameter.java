@@ -3,6 +3,7 @@ package org.skriptlang.skript.common.function;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.KeyProviderExpression;
 import ch.njol.skript.lang.KeyedValue;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
@@ -11,10 +12,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.common.function.DefaultFunction.Builder;
+import org.skriptlang.skript.common.function.Parameter.Modifier.RangedModifier;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Represents a function parameter.
@@ -107,6 +110,36 @@ public interface Parameter<T> {
 	@Deprecated(forRemoval = true, since = "2.14")
 	default boolean single() {
 		return isSingle();
+	}
+
+	/**
+	 * @return A human-readable string representing this parameter.
+	 */
+	default String toFormattedString() {
+		StringJoiner joiner = new StringJoiner(" ");
+
+		joiner.add("%s:".formatted(name()));
+
+		if (hasModifier(Modifier.OPTIONAL)) {
+			joiner.add("optional");
+		}
+
+		Noun exact = Classes.getSuperClassInfo(type()).getName();
+		if (type().isArray()) {
+			joiner.add(exact.getPlural());
+		} else {
+			joiner.add(exact.getSingular());
+		}
+
+		if (hasModifier(Modifier.RANGED)) {
+			RangedModifier<?> range = getModifier(RangedModifier.class);
+			joiner.add("between")
+				.add(range.getMin().toString())
+				.add("and")
+				.add(range.getMax().toString());
+		}
+
+		return joiner.toString();
 	}
 
 	/**

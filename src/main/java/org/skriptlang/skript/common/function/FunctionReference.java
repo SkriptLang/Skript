@@ -54,6 +54,13 @@ public final class FunctionReference<T> implements Debuggable {
 	}
 
 	/**
+	 * Invalidate the cached function used in this reference.
+	 */
+	public void invalidateCache() {
+		cachedFunction = null;
+	}
+
+	/**
 	 * Validates this function reference.
 	 *
 	 * @return True if this is a valid function reference, false if not.
