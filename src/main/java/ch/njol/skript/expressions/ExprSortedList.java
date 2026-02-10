@@ -148,8 +148,9 @@ public class ExprSortedList extends SimpleExpression<Object> implements KeyedIte
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected Object @Nullable [] get(Event event) {
-		return Iterators.toArray(iterator(event), Object.class);
+		return Iterators.toArray(iterator(event), (Class<Object>) getReturnType());
 	}
 
 	@Override
