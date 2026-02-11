@@ -251,7 +251,7 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 
 		@Override
 		public String convert(Event event, Inventory inventory) {
-			if (event instanceof InventoryEvent  inventoryEvent
+			if (event instanceof InventoryEvent inventoryEvent
 				&& inventoryEvent.getInventory().equals(inventory)
 			) {
 				return InventoryUtils.getTitle(inventoryEvent.getView());
