@@ -45,6 +45,7 @@ import java.util.Locale;
 	""")
 @Since("2.2-dev28, 2.10 (quaternions)")
 @Keywords({"component", "coord", "coordinate", "x", "y", "z", "xyz"})
+@RelatedProperty("wxyz component")
 public class PropExprWXYZ extends PropertyBaseExpression<WXYZHandler<?, ?>> {
 
 	public static void register(SyntaxRegistry registry, Origin origin) {
