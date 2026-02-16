@@ -16,9 +16,31 @@ public interface Documentation {
 
 	/**
 	 * Documentation to use when intentionally representing a {@link Documentable} object as having no documentation.
+	 * @see #originOnly(Origin)
 	 */
-	Documentation NONE = builder()
-		.build();
+	Documentation NONE = originOnly(Origin.UNKNOWN);
+
+	/**
+	 * Constructs a documentation to use when intentionally representing a {@link Documentable} object as having no documentation
+	 *  other than an origin.
+	 * @param origin The origin to use.
+	 * @return A documentation.
+	 * @see #NONE
+	 */
+	static Documentation originOnly(Origin origin) {
+		return new DocumentationImpl.OriginOnly(origin);
+	}
+
+	/**
+	 * Used for determining whether a documentation
+	 * @param documentation The documentation to check.
+	 * @return Whether {@code documentation} represents an intentionally
+	 * @see #NONE
+	 * @see #originOnly(Origin)
+	 */
+	static boolean isNoDocs(Documentation documentation) {
+		return documentation instanceof DocumentationImpl.OriginOnly;
+	}
 
 	/**
 	 * @return A builder for creating documentation.
@@ -54,6 +76,11 @@ public interface Documentation {
 	 */
 	@Contract("_ -> new")
 	static Documentation of(Class<?> clazz) {
+		NoDoc noDoc = clazz.getAnnotation(NoDoc.class);
+		if (noDoc != null) {
+			return NONE;
+		}
+
 		Builder builder = builder();
 
 		DocumentationId id = clazz.getAnnotation(DocumentationId.class);

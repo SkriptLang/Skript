@@ -346,7 +346,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		@Override
 		public Documentation documentation() {
 			if (getDescription() == NO_DOC) {
-				return Documentation.NONE;
+				return Documentation.originOnly(origin);
 			}
 			return Documentation.builder()
 				.origin(origin)

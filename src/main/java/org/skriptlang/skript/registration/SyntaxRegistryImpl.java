@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.docs.Origin;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -78,9 +77,13 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 		@Override
 		public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
-			if (info.origin() == Origin.UNKNOWN) { // when origin is unspecified, add one
+			if (info.documentation().origin() == Origin.UNKNOWN) { // when origin is unspecified, add one
 				//noinspection unchecked
-				info = (I) info.toBuilder().origin(origin).build();
+				info = (I) info.toBuilder()
+					.documentation(info.documentation().toBuilder()
+						.origin(origin)
+						.build())
+					.build();
 			}
 			syntaxRegistry.register(key, info);
 		}

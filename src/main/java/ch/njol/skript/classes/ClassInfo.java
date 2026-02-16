@@ -214,7 +214,7 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 	public ClassInfo<T> name(final String name) {
 		//noinspection StringEquality intentional == comparison
 		if (name == NO_DOC) {
-			documentation = Documentation.NONE;
+			documentation = Documentation.originOnly(documentation.origin());
 		} else {
 			documentation = documentation.toBuilder()
 				.name(name)
@@ -461,11 +461,11 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 	}
 
 	/**
-	 * @deprecated Use {@link #documentation()}.
+	 * @deprecated Use {@link Documentation#isNoDocs(Documentation)}.
 	 */
 	@Deprecated
 	public boolean hasDocs() {
-		return documentation() != Documentation.NONE;
+		return Documentation.isNoDocs(documentation);
 	}
 
 	// === ORDERING ===
