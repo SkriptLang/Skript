@@ -36,8 +36,8 @@ record DocumentationImpl(
 	}
 
 	@Override
-	public Builder toBuilder() {
-		Builder builder = new BuilderImpl()
+	public Builder<?> toBuilder() {
+		var builder = new BuilderImpl<>()
 			.origin(origin)
 			.id(id)
 			.name(name)
@@ -52,7 +52,8 @@ record DocumentationImpl(
 		return builder;
 	}
 
-	static class BuilderImpl implements Documentation.Builder {
+	@SuppressWarnings("unchecked")
+	static class BuilderImpl<B extends BuilderImpl<B>> implements Documentation.Builder<B> {
 
 		private Origin origin = Origin.UNKNOWN;
 		private String id;
@@ -65,134 +66,149 @@ record DocumentationImpl(
 		private boolean deprecated;
 
 		@Override
-		public Builder origin(Origin origin) {
+		public B origin(Origin origin) {
 			this.origin = origin;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder id(@Nullable String id) {
+		public B id(@Nullable String id) {
 			this.id = id;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder name(String name) {
+		public B name(String name) {
 			this.name = name;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder description(String description) {
+		public B description(String description) {
 			this.description = description;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addExample(String example) {
+		public B addExample(String example) {
 			this.examples.add(example);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addExamples(String... examples) {
+		public B addExamples(String... examples) {
 			this.examples.addAll(Arrays.asList(examples));
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addExamples(Collection<String> examples) {
+		public B addExamples(Collection<String> examples) {
 			this.examples.addAll(examples);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder clearExamples() {
+		public B clearExamples() {
 			this.examples.clear();
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addSince(String since) {
+		public B addSince(String since) {
 			this.since.add(since);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addSince(String... since) {
+		public B addSince(String... since) {
 			this.since.addAll(Arrays.asList(since));
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addSince(Collection<String> since) {
+		public B addSince(Collection<String> since) {
 			this.since.addAll(since);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder clearSince() {
+		public B clearSince() {
 			this.since.clear();
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addRequirement(String requirement) {
+		public B addRequirement(String requirement) {
 			this.requirements.add(requirement);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addRequirements(String... requirements) {
+		public B addRequirements(String... requirements) {
 			this.requirements.addAll(Arrays.asList(requirements));
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addRequirements(Collection<String> requirements) {
+		public B addRequirements(Collection<String> requirements) {
 			this.requirements.addAll(requirements);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder clearRequirements() {
+		public B clearRequirements() {
 			this.requirements.clear();
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addKeyword(String keyword) {
+		public B addKeyword(String keyword) {
 			this.keywords.add(keyword);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addKeywords(String... keywords) {
+		public B addKeywords(String... keywords) {
 			this.keywords.addAll(Arrays.asList(keywords));
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder addKeywords(Collection<String> keywords) {
+		public B addKeywords(Collection<String> keywords) {
 			this.keywords.addAll(keywords);
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder clearKeywords() {
+		public B clearKeywords() {
 			this.keywords.clear();
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		public Builder deprecated() {
+		public B deprecated() {
 			this.deprecated = true;
-			return this;
+			return (B) this;
 		}
 
 		@Override
 		public Documentation build() {
 			return new DocumentationImpl(origin, id, name, description, examples, since, requirements, keywords, deprecated);
+		}
+
+		@Override
+		public void applyTo(Builder<?> builder) {
+			builder.origin(origin)
+				.id(id)
+				.name(name)
+				.description(description)
+				.addExamples(examples)
+				.addSince(since)
+				.addRequirements(requirements)
+				.addKeywords(keywords);
+			if (deprecated) {
+				builder.deprecated();
+			}
 		}
 
 	}
@@ -240,7 +256,7 @@ record DocumentationImpl(
 		}
 
 		@Override
-		public Builder toBuilder() {
+		public Builder<?> toBuilder() {
 			return new OriginOnlyBuilder()
 				.origin(origin);
 		}
@@ -248,140 +264,140 @@ record DocumentationImpl(
 		/**
 		 * A builder that will return an OriginOnly documentation if only the origin is modified.
 		 */
-		private static class OriginOnlyBuilder implements Documentation.Builder {
+		private static class OriginOnlyBuilder implements Documentation.Builder<OriginOnlyBuilder> {
 
 			private Origin origin;
-			private @Nullable Builder builder;
+			private @Nullable Builder<?> builder;
 
-			private Builder builder() {
+			private Builder<?> builder() {
 				if (builder == null) {
-					builder = new BuilderImpl();
+					builder = new BuilderImpl<>();
 				}
 				return builder;
 			}
 
 			@Override
-			public Builder origin(Origin origin) {
+			public OriginOnlyBuilder origin(Origin origin) {
 				this.origin = origin;
 				return this;
 			}
 
 			@Override
-			public Builder id(@Nullable String id) {
+			public OriginOnlyBuilder id(@Nullable String id) {
 				builder().id(id);
 				return this;
 			}
 
 			@Override
-			public Builder name(String name) {
+			public OriginOnlyBuilder name(String name) {
 				builder().name(name);
 				return this;
 			}
 
 			@Override
-			public Builder description(String description) {
+			public OriginOnlyBuilder description(String description) {
 				builder().description(description);
 				return this;
 			}
 
 			@Override
-			public Builder addExample(String example) {
+			public OriginOnlyBuilder addExample(String example) {
 				builder().addExample(example);
 				return this;
 			}
 
 			@Override
-			public Builder addExamples(String... examples) {
+			public OriginOnlyBuilder addExamples(String... examples) {
 				builder().addExamples(examples);
 				return this;
 			}
 
 			@Override
-			public Builder addExamples(Collection<String> examples) {
+			public OriginOnlyBuilder addExamples(Collection<String> examples) {
 				builder().addExamples(examples);
 				return this;
 			}
 
 			@Override
-			public Builder clearExamples() {
+			public OriginOnlyBuilder clearExamples() {
 				builder().clearExamples();
 				return this;
 			}
 
 			@Override
-			public Builder addSince(String since) {
+			public OriginOnlyBuilder addSince(String since) {
 				builder().addSince(since);
 				return this;
 			}
 
 			@Override
-			public Builder addSince(String... since) {
+			public OriginOnlyBuilder addSince(String... since) {
 				builder().addSince(since);
 				return this;
 			}
 
 			@Override
-			public Builder addSince(Collection<String> since) {
+			public OriginOnlyBuilder addSince(Collection<String> since) {
 				builder().addSince(since);
 				return this;
 			}
 
 			@Override
-			public Builder clearSince() {
+			public OriginOnlyBuilder clearSince() {
 				builder().clearSince();
 				return this;
 			}
 
 			@Override
-			public Builder addRequirement(String requirement) {
+			public OriginOnlyBuilder addRequirement(String requirement) {
 				builder().addRequirement(requirement);
 				return this;
 			}
 
 			@Override
-			public Builder addRequirements(String... requirements) {
+			public OriginOnlyBuilder addRequirements(String... requirements) {
 				builder().addRequirements(requirements);
 				return this;
 			}
 
 			@Override
-			public Builder addRequirements(Collection<String> requirements) {
+			public OriginOnlyBuilder addRequirements(Collection<String> requirements) {
 				builder().addRequirements(requirements);
 				return this;
 			}
 
 			@Override
-			public Builder clearRequirements() {
+			public OriginOnlyBuilder clearRequirements() {
 				builder().clearRequirements();
 				return this;
 			}
 
 			@Override
-			public Builder addKeyword(String keyword) {
+			public OriginOnlyBuilder addKeyword(String keyword) {
 				builder().addKeyword(keyword);
 				return this;
 			}
 
 			@Override
-			public Builder addKeywords(String... keywords) {
+			public OriginOnlyBuilder addKeywords(String... keywords) {
 				builder().addKeywords(keywords);
 				return this;
 			}
 
 			@Override
-			public Builder addKeywords(Collection<String> keywords) {
+			public OriginOnlyBuilder addKeywords(Collection<String> keywords) {
 				builder().addKeywords(keywords);
 				return this;
 			}
 
 			@Override
-			public Builder clearKeywords() {
+			public OriginOnlyBuilder clearKeywords() {
 				builder().clearKeywords();
 				return this;
 			}
 
 			@Override
-			public Builder deprecated() {
+			public OriginOnlyBuilder deprecated() {
 				builder().deprecated();
 				return this;
 			}
@@ -394,6 +410,14 @@ record DocumentationImpl(
 						.build();
 				}
 				return new OriginOnly(origin);
+			}
+
+			@Override
+			public void applyTo(Builder<?> builder) {
+				builder.origin(origin);
+				if (this.builder != null) {
+					this.builder.applyTo(builder);
+				}
 			}
 
 		}

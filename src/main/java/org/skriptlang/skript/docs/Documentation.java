@@ -46,8 +46,8 @@ public interface Documentation {
 	 * @return A builder for creating documentation.
 	 */
 	@Contract("-> new")
-	static Builder builder() {
-		return new DocumentationImpl.BuilderImpl();
+	static Builder<?> builder() {
+		return new DocumentationImpl.BuilderImpl<>();
 	}
 
 	/**
@@ -81,7 +81,7 @@ public interface Documentation {
 			return NONE;
 		}
 
-		Builder builder = builder();
+		var builder = builder();
 
 		DocumentationId id = clazz.getAnnotation(DocumentationId.class);
 		if (id != null) {
@@ -189,12 +189,12 @@ public interface Documentation {
 	 * Converts this documentation back into a builder.
 	 * @return A builder capable of building this documentation.
 	 */
-	Builder toBuilder();
+	Builder<?> toBuilder();
 
 	/**
 	 * Describes a builder for creating a {@link Documentation} object.
 	 */
-	interface Builder {
+	interface Builder<B extends Builder<B>> {
 
 		/**
 		 * Sets the origin to use for the documentation.
@@ -203,7 +203,7 @@ public interface Documentation {
 		 * @see Documentation#origin()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder origin(Origin origin);
+		B origin(Origin origin);
 
 		/**
 		 * Sets the identifier to use for the documentation.
@@ -212,7 +212,7 @@ public interface Documentation {
 		 * @see Documentation#id()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder id(@Nullable String id);
+		B id(@Nullable String id);
 
 		/**
 		 * Sets the name to use for the documentation.
@@ -221,7 +221,7 @@ public interface Documentation {
 		 * @see Documentation#name()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder name(String name);
+		B name(String name);
 
 		/**
 		 * Sets the description to use for the documentation.
@@ -230,7 +230,7 @@ public interface Documentation {
 		 * @see Documentation#description()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder description(String description);
+		B description(String description);
 
 		/**
 		 * Adds an example to the documentation.
@@ -239,7 +239,7 @@ public interface Documentation {
 		 * @see Documentation#examples()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addExample(String example);
+		B addExample(String example);
 
 		/**
 		 * Adds one or more examples to the documentation.
@@ -248,7 +248,7 @@ public interface Documentation {
 		 * @see Documentation#examples()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addExamples(String... examples);
+		B addExamples(String... examples);
 
 		/**
 		 * Adds one or more examples to the documentation.
@@ -257,7 +257,7 @@ public interface Documentation {
 		 * @see Documentation#examples()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addExamples(Collection<String> examples);
+		B addExamples(Collection<String> examples);
 
 		/**
 		 * Clears all added examples.
@@ -265,7 +265,7 @@ public interface Documentation {
 		 * @see Documentation#examples()
 		 */
 		@Contract(value = "-> this", mutates = "this")
-		Builder clearExamples();
+		B clearExamples();
 
 		/**
 		 * Adds an entry describing a version when the thing represented
@@ -275,7 +275,7 @@ public interface Documentation {
 		 * @see Documentation#since()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addSince(String since);
+		B addSince(String since);
 
 		/**
 		 * Adds one or more entries describing a version when the thing represented
@@ -285,7 +285,7 @@ public interface Documentation {
 		 * @see Documentation#since()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addSince(String... since);
+		B addSince(String... since);
 
 		/**
 		 * Adds one or more entries describing a version when the thing represented
@@ -295,7 +295,7 @@ public interface Documentation {
 		 * @see Documentation#since()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addSince(Collection<String> since);
+		B addSince(Collection<String> since);
 
 		/**
 		 * Clears all added since entries.
@@ -303,7 +303,7 @@ public interface Documentation {
 		 * @see Documentation#since()
 		 */
 		@Contract(value = "-> this", mutates = "this")
-		Builder clearSince();
+		B clearSince();
 
 		/**
 		 * Adds a requirement to the documentation.
@@ -312,7 +312,7 @@ public interface Documentation {
 		 * @see Documentation#requirements()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addRequirement(String requirement);
+		B addRequirement(String requirement);
 
 		/**
 		 * Adds one or more requirements to the documentation.
@@ -321,7 +321,7 @@ public interface Documentation {
 		 * @see Documentation#requirements()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addRequirements(String... requirements);
+		B addRequirements(String... requirements);
 
 		/**
 		 * Adds one or more requirements to the documentation.
@@ -330,7 +330,7 @@ public interface Documentation {
 		 * @see Documentation#requirements()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addRequirements(Collection<String> requirements);
+		B addRequirements(Collection<String> requirements);
 
 		/**
 		 * Clears all added requirements.
@@ -338,7 +338,7 @@ public interface Documentation {
 		 * @see Documentation#requirements()
 		 */
 		@Contract(value = "-> this", mutates = "this")
-		Builder clearRequirements();
+		B clearRequirements();
 
 		/**
 		 * Adds a keyword to the documentation.
@@ -347,7 +347,7 @@ public interface Documentation {
 		 * @see Documentation#keywords()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addKeyword(String keyword);
+		B addKeyword(String keyword);
 
 		/**
 		 * Adds one or more keywords to the documentation.
@@ -356,7 +356,7 @@ public interface Documentation {
 		 * @see Documentation#keywords()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addKeywords(String... keywords);
+		B addKeywords(String... keywords);
 
 		/**
 		 * Adds one or more keywords to the documentation.
@@ -365,7 +365,7 @@ public interface Documentation {
 		 * @see Documentation#keywords()
 		 */
 		@Contract(value = "_ -> this", mutates = "this")
-		Builder addKeywords(Collection<String> keywords);
+		B addKeywords(Collection<String> keywords);
 
 		/**
 		 * Clears all added keywords
@@ -373,7 +373,7 @@ public interface Documentation {
 		 * @see Documentation#keywords()
 		 */
 		@Contract(value = "-> this", mutates = "this")
-		Builder clearKeywords();
+		B clearKeywords();
 
 		/**
 		 * Marks that the thing being represented by the documentation is considered deprecated.
@@ -381,13 +381,19 @@ public interface Documentation {
 		 * @see Documentation#deprecated()
 		 */
 		@Contract(value = "-> this", mutates = "this")
-		Builder deprecated();
+		B deprecated();
 
 		/**
 		 * @return A {@link Documentation} object representing the values set on this builder.
 		 */
 		@Contract("-> new")
 		Documentation build();
+
+		/**
+		 * Applies the values of this builder onto <code>builder</code>.
+		 * @param builder The builder to apply values onto.
+		 */
+		void applyTo(Builder<?> builder);
 
 	}
 
