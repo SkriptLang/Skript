@@ -22,6 +22,8 @@ public class PatternCompilerTest {
 			.build();
 		assertEquals("hello [a:world]", PatternCompiler.compile("hello [a:world]").toString());
 		assertEquals("hello [world]", PatternCompiler.compile("hello [a:world]").toString(properties));
+		assertEquals("(a|b:b)", PatternCompiler.compile("(a|:b)").toString());
+		assertEquals("(a|b)", PatternCompiler.compile("(a|:b)").toString(properties));
 		assertEquals("hello [%-number%]", PatternCompiler.compile("hello [%-number%]").toString());
 		assertEquals("hello [%number%]", PatternCompiler.compile("hello [%-number%]").toString(properties));
 		assertEquals("hello [%number@1%]", PatternCompiler.compile("hello [%number@1%]").toString());
