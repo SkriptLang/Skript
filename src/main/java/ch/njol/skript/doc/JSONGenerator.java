@@ -412,7 +412,7 @@ public class JSONGenerator {
 		syntaxJsonObject.addProperty("name", Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()));
 		syntaxJsonObject.addProperty("since", classInfo.getSince());
 
-		syntaxJsonObject.add("patterns", classInfo.getUsage());
+		syntaxJsonObject.add("patterns", convertToJsonArray(classInfo.getUsage()));
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
