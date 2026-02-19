@@ -12,7 +12,7 @@ import java.util.SequencedCollection;
 /**
  * Describes an object holding documentation.
  */
-public interface Documentation {
+public interface Documentation extends Documentable {
 
 	/**
 	 * Documentation to use when intentionally representing a {@link Documentable} object as having no documentation.
@@ -190,6 +190,19 @@ public interface Documentation {
 	 * @return A builder capable of building this documentation.
 	 */
 	Builder<?> toBuilder();
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.write("origin", origin());
+		adapter.write("id", id());
+		adapter.write("name", name());
+		adapter.write("description", description());
+		adapter.write("examples", examples());
+		adapter.write("since", since());
+		adapter.write("requirements", requirements());
+		adapter.write("keywords", keywords());
+		adapter.write("deprecated", deprecated());
+	}
 
 	/**
 	 * Describes a builder for creating a {@link Documentation} object.

@@ -1,13 +1,10 @@
 package org.skriptlang.skript.docs;
 
 /**
- * Describes something that has {@link Documentation}.
+ * Describes something that can be written to a {@link DocumentationAdapter}.
  */
 public interface Documentable {
 
-	/**
-	 * @return Documentation describing this object.
-	 */
-	Documentation documentation();
+	void write(DocumentationAdapter adapter);
 
 }

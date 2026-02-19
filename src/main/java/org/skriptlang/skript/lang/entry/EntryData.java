@@ -3,6 +3,8 @@ package org.skriptlang.skript.lang.entry;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 
 /**
  * EntryData is used for defining the different entries of for a {@link SectionNode}.
@@ -25,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  *  of an entry data instance within a {@link EntryValidator}.
  * @param <T> The type of the value returned by this entry data.
  */
-public abstract class EntryData<T> {
+public abstract class EntryData<T> implements Documentable {
 
 	private final String key;
 	private final @Nullable T defaultValue;
@@ -86,5 +88,14 @@ public abstract class EntryData<T> {
 	 * @return Whether the provided node may be used with this entry data to obtain a value.
 	 */
 	public abstract boolean canCreateWith(Node node);
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		adapter.enterScope(getKey());
+		adapter.write("key", getKey());
+		adapter.write("optional", isOptional());
+		adapter.write("multiple", supportsMultiple());
+		adapter.exitScope();
+	}
 
 }

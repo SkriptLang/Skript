@@ -5,8 +5,8 @@ import ch.njol.skript.patterns.SkriptPattern;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
@@ -14,7 +14,7 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
 /**
  * Experimental feature toggles as provided by Skript itself.
  */
-public enum Feature implements Experiment, Documentable, ch.njol.skript.doc.Documentable {
+public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.skript.doc.Documentable {
 
 	EXAMPLES("examples",
 		Documentation.of(

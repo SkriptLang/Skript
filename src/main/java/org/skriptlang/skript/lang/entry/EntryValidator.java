@@ -5,6 +5,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 
 import java.util.*;
 import java.util.function.Function;
@@ -16,7 +18,7 @@ import java.util.function.Predicate;
  * This validation process will return an {@link EntryContainer} for accessing entry values.
  * @see EntryValidatorBuilder
  */
-public class EntryValidator {
+public class EntryValidator implements Documentable {
 
 	/**
 	 * @return A builder to be used for creating an {@link EntryValidator}.
@@ -121,6 +123,15 @@ public class EntryValidator {
 			return null;
 
 		return new EntryContainer(sectionNode, this, handledNodes, unhandledNodes);
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		adapter.enterScope("entries");
+		for (var entryData : entryData) {
+			adapter.write(entryData);
+		}
+		adapter.exitScope();
 	}
 
 	/**

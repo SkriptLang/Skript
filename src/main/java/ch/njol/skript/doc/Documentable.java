@@ -8,13 +8,13 @@ import java.util.List;
 
 /**
  * Represents any object that can be documented using methods.
- * @deprecated Use {@link org.skriptlang.skript.docs.Documentable} instead.
+ * @deprecated Use {@link org.skriptlang.skript.docs.DocumentationDocumentable} instead.
  */
 @Deprecated(forRemoval = true, since = "INSERT VERSION")
 public interface Documentable {
 
 	private Documentation asDocumentation() {
-		if (this instanceof org.skriptlang.skript.docs.Documentable documentable) {
+		if (this instanceof org.skriptlang.skript.docs.DocumentationDocumentable documentable) {
 			return documentable.documentation();
 		}
 		throw new IllegalStateException("Missing override of Documentable method");

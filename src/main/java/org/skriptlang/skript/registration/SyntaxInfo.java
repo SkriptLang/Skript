@@ -1,10 +1,13 @@
 package org.skriptlang.skript.registration;
 
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
@@ -17,7 +20,7 @@ import java.util.function.Supplier;
  * A syntax info contains the details of a syntax, including its origin and patterns.
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
-public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Documentable, DefaultSyntaxInfos {
+public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends DocumentationDocumentable, DefaultSyntaxInfos {
 
 	/**
 	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
@@ -90,6 +93,20 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 	 */
 	@Override
 	Documentation documentation();
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		// overwrite ID before applying
+		adapter.write(documentation().toBuilder()
+			.id(adapter.currentScope())
+			.build());
+		adapter.write("patterns", patterns().stream()
+			.map(pattern -> PatternCompiler.compile(pattern).toString(StringificationProperties.builder()
+				.excludeParseTags()
+				.excludeTypeFlags()
+				.build()))
+			.toList());
+	}
 
 	/**
 	 * A builder is used for constructing a new syntax info.

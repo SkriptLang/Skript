@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.Statement;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.util.Registry;
@@ -17,7 +18,7 @@ import java.util.Collection;
 /**
  * A syntax registry is a central container for all {@link SyntaxInfo}s.
  */
-public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<SyntaxInfo<?>> {
+public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<SyntaxInfo<?>>, Documentable {
 
 	/**
 	 * A key representing the built-in {@link Structure} syntax element.

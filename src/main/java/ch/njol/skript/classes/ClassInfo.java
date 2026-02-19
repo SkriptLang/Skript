@@ -13,12 +13,13 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationDocumentable;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.Property.PropertyInfo;
@@ -34,7 +35,7 @@ import java.util.regex.PatternSyntaxException;
  * @param <T> The class this info is for
  */
 @SuppressFBWarnings("DM_STRING_VOID_CTOR")
-public class ClassInfo<T> implements Documentable, Debuggable {
+public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 
 	private final Class<T> c;
 	private final String codeName;
@@ -62,11 +63,7 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 	@Nullable
 	private Class<?> serializeAs = null;
 
-	@Nullable
-	private Class<?> mathRelativeType = null;
-
 	private Documentation documentation;
-	private String @Nullable [] usage = null;
 
 	/**
 	 * @param c The class
@@ -198,121 +195,6 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 		return this;
 	}
 
-	/**
-	 * Use this as {@link #name(String)} to suppress warnings about missing documentation.
-	 */
-	public final static String NO_DOC = new String();
-
-	/**
-	 * Only used for Skript's documentation.
-	 *
-	 * @param name
-	 * @return This ClassInfo object
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public ClassInfo<T> name(final String name) {
-		//noinspection StringEquality intentional == comparison
-		if (name == NO_DOC) {
-			documentation = Documentation.originOnly(documentation.origin());
-		} else {
-			documentation = documentation.toBuilder()
-				.name(name)
-				.build();
-		}
-		return this;
-	}
-
-	/**
-	 * Only used for Skript's documentation.
-	 *
-	 * @param description
-	 * @return This ClassInfo object
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public ClassInfo<T> description(final String... description) {
-		documentation = documentation.toBuilder()
-			.description(String.join("\n", description))
-			.build();
-		return this;
-	}
-
-	/**
-	 * Only used for Skript's documentation.
-	 *
-	 * @param usage
-	 * @return This ClassInfo object
-	 */
-	public ClassInfo<T> usage(final String... usage) {
-		assert this.usage == null;
-		this.usage = usage;
-		return this;
-	}
-
-	/**
-	 * Only used for Skript's documentation.
-	 *
-	 * @param examples
-	 * @return This ClassInfo object
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public ClassInfo<T> examples(final String... examples) {
-		documentation = documentation.toBuilder()
-			.addExamples(examples)
-			.build();
-		return this;
-	}
-
-	/**
-	 * Only used for Skript's documentation.
-	 *
-	 * @param since
-	 * @return This ClassInfo object
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public ClassInfo<T> since(final String since) {
-		documentation = documentation.toBuilder()
-			.addSince(since)
-			.build();
-		return this;
-	}
-
-	/**
-	 * Other plugin dependencies for this ClassInfo.
-	 *
-	 * Only used for Skript's documentation.
-	 *
-	 * @param pluginNames
-	 * @return This ClassInfo object
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public ClassInfo<T> requiredPlugins(final String... pluginNames) {
-		documentation = documentation.toBuilder()
-			.addRequirements(pluginNames)
-			.build();
-		return this;
-	}
-
-	/**
-	 * Overrides default documentation id, which is assigned from class name.
-	 * This is especially useful for inner classes whose names are useless without
-	 * parent class name as a context.
-	 * @param id Documentation id override.
-	 * @return This ClassInfo object.
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public ClassInfo<T> documentationId(String id) {
-		documentation = documentation.toBuilder()
-			.id(id)
-			.build();
-		return this;
-	}
-
 	// === GETTERS ===
 
 	public Class<T> getC() {
@@ -393,81 +275,6 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 		return serializeAs;
 	}
 
-	/**
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public String @Nullable [] getDescription() {
-		if (documentation.description().isEmpty()) {
-			return null;
-		}
-		return documentation.description().split("\n");
-	}
-
-	public String @Nullable [] getUsage() {
-		return usage;
-	}
-
-	/**
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public String @Nullable [] getExamples() {
-		if (documentation.examples().isEmpty()) {
-			return null;
-		}
-		return documentation.examples().toArray(new String[0]);
-	}
-
-	/**
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public @Nullable String getSince() {
-		if (documentation.since().isEmpty()) {
-			return null;
-		}
-		return String.join(", ", documentation.since());
-	}
-
-	/**
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public @Nullable String getDocName() {
-		if (documentation.name().isEmpty()) {
-			return null;
-		}
-		return documentation.name();
-	}
-
-	/**
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public @Nullable String[] getRequiredPlugins() {
-		if (documentation.requirements().isEmpty()) {
-			return null;
-		}
-		return documentation.requirements().toArray(new String[0]);
-	}
-
-	/**
-	 * @deprecated Use {@link #documentation()}.
-	 */
-	@Deprecated(forRemoval = true, since = "INSERT VERSION")
-	public @Nullable String getDocumentationID() {
-		return documentation.id();
-	}
-
-	/**
-	 * @deprecated Use {@link Documentation#isNoDocs(Documentation)}.
-	 */
-	@Deprecated
-	public boolean hasDocs() {
-		return Documentation.isNoDocs(documentation);
-	}
-
 	// === ORDERING ===
 
 	@Nullable
@@ -482,7 +289,7 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 	 * <p>
 	 * This list can safely contain classes that may not exist.
 	 *
-	 * @param before
+	 * @param before Codenames of classes that this class should occur before.
 	 * @return this ClassInfo
 	 */
 	public ClassInfo<T> before(final String... before) {
@@ -499,7 +306,7 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 	 * <p>
 	 * This list can safely contain classes that may not exist.
 	 *
-	 * @param after
+	 * @param after Codenames of classes that this class should occur after.
 	 * @return this ClassInfo
 	 */
 	public ClassInfo<T> after(final String... after) {
@@ -540,14 +347,6 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();
-	}
-
-	/**
-	 * @return Documentation describing this class info.
-	 */
-	@Override
-	public Documentation documentation() {
-		return documentation;
 	}
 
 	private final Map<Property<?>, PropertyInfo<?>> propertyInfos = new HashMap<>();
@@ -618,6 +417,186 @@ public class ClassInfo<T> implements Documentable, Debuggable {
 	@ApiStatus.Experimental
 	public PropertyDocs getPropertyDocumentation(Property<?> property) {
 		return propertyDocumentation.get(property);
+	}
+
+	/*
+	 * Documentation
+	 */
+
+	/**
+	 * @return Documentation describing this class info.
+	 */
+	@Override
+	public Documentation documentation() {
+		return documentation;
+	}
+
+	@Contract(value = "_ -> this", mutates = "this")
+	public ClassInfo<T> documentation(Documentation documentation) {
+		this.documentation = documentation;
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link Documentation#NONE}.
+	 */
+	public final static String NO_DOC = new String();
+
+	/**
+	 * @deprecated Use {@link #documentation(Documentation)}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public ClassInfo<T> name(final String name) {
+		//noinspection StringEquality intentional == comparison
+		if (name == NO_DOC) {
+			documentation = Documentation.originOnly(documentation.origin());
+		} else {
+			documentation = documentation.toBuilder()
+				.name(name)
+				.build();
+		}
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation(Documentation)}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public ClassInfo<T> description(final String... description) {
+		documentation = documentation.toBuilder()
+			.description(String.join("\n", description))
+			.build();
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation(Documentation)}.
+	 */
+	public ClassInfo<T> usage(final String... usage) {
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation(Documentation)}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public ClassInfo<T> examples(final String... examples) {
+		documentation = documentation.toBuilder()
+			.addExamples(examples)
+			.build();
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation(Documentation)}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public ClassInfo<T> since(final String since) {
+		documentation = documentation.toBuilder()
+			.addSince(since)
+			.build();
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation(Documentation)}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public ClassInfo<T> requiredPlugins(final String... pluginNames) {
+		documentation = documentation.toBuilder()
+			.addRequirements(pluginNames)
+			.build();
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation(Documentation)}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public ClassInfo<T> documentationId(String id) {
+		documentation = documentation.toBuilder()
+			.id(id)
+			.build();
+		return this;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public String @Nullable [] getDescription() {
+		if (documentation.description().isEmpty()) {
+			return null;
+		}
+		return documentation.description().split("\n");
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated
+	public String @Nullable [] getUsage() {
+		return null;
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public String @Nullable [] getExamples() {
+		if (documentation.examples().isEmpty()) {
+			return null;
+		}
+		return documentation.examples().toArray(new String[0]);
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String getSince() {
+		if (documentation.since().isEmpty()) {
+			return null;
+		}
+		return String.join(", ", documentation.since());
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String getDocName() {
+		if (documentation.name().isEmpty()) {
+			return null;
+		}
+		return documentation.name();
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String[] getRequiredPlugins() {
+		if (documentation.requirements().isEmpty()) {
+			return null;
+		}
+		return documentation.requirements().toArray(new String[0]);
+	}
+
+	/**
+	 * @deprecated Use {@link #documentation()}.
+	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
+	public @Nullable String getDocumentationID() {
+		return documentation.id();
+	}
+
+	/**
+	 * @deprecated Use {@link Documentation#isNoDocs(Documentation)}.
+	 */
+	@Deprecated
+	public boolean hasDocs() {
+		return Documentation.isNoDocs(documentation);
 	}
 
 }

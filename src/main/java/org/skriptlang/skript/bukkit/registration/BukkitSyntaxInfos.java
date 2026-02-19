@@ -2,17 +2,27 @@ package org.skriptlang.skript.bukkit.registration;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.registrations.EventValues.EventValueInfo;
+import com.google.common.collect.Multimap;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
 import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SequencedCollection;
+import java.util.Set;
 
 /**
  * A class containing the interfaces representing Bukkit-specific SyntaxInfo implementations.
@@ -126,6 +136,60 @@ public final class BukkitSyntaxInfos {
 		 * @return A collection of the classes representing the Bukkit events the {@link SkriptEvent} listens for.
 		 */
 		Collection<Class<? extends org.bukkit.event.Event>> events();
+
+		@Override
+		default void write(DocumentationAdapter adapter) {
+			// write defaults
+			SyntaxInfo.super.write(adapter);
+
+			// Cancellable
+			boolean cancellable = false;
+			for (Class<? extends org.bukkit.event.Event> event : events()) {
+				if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
+					cancellable = true;
+					break;
+				}
+			}
+			adapter.write("cancellable", cancellable);
+
+			// Event Values
+			List<Map<String, Object>> values = new ArrayList<>();
+			Multimap<Class<? extends org.bukkit.event.Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
+			for (Class<? extends org.bukkit.event.Event> supportedEvent : events()) {
+				for (var entry : allEventValues.entries()) {
+					Class<? extends org.bukkit.event.Event> event = entry.getKey();
+					EventValueInfo<?, ?> eventValueInfo = entry.getValue();
+
+					if (event == null || eventValueInfo == null) {
+						continue;
+					}
+
+					if (!event.isAssignableFrom(supportedEvent)) {
+						continue;
+					}
+
+					Class<?>[] excludes = eventValueInfo.excludes();
+					if (excludes != null && Set.of(excludes).contains(event)) {
+						continue;
+					}
+
+					Class<?> valueClass = eventValueInfo.valueClass();
+
+					// TODO event value or info needs to be documentable?
+					Map<String, Object> valueMap = new HashMap<>();
+					valueMap.put("type", valueClass);
+					valueMap.put("plural", valueClass.isArray());
+					valueMap.put("time", switch (eventValueInfo.time()) {
+						case EventValues.TIME_PAST -> "past";
+						case EventValues.TIME_NOW -> "present";
+						case EventValues.TIME_FUTURE ->  "future";
+						default -> throw new IllegalStateException("Unexpected value: " + eventValueInfo.time());
+					});
+					values.add(valueMap);
+				}
+			}
+			adapter.write("eventValues", values);
+		}
 
 		/**
 		 * An Event-specific builder is used for constructing a new Event syntax info.

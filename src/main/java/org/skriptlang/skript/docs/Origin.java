@@ -8,7 +8,7 @@ import org.skriptlang.skript.docs.OriginImpl.UnknownOrigin;
 /**
  * Provides information about the origin of something (such as syntax).
  */
-public sealed interface Origin permits OriginImpl.UnknownOrigin, AddonOrigin {
+public sealed interface Origin extends Documentable permits OriginImpl.UnknownOrigin, AddonOrigin {
 
 	/**
 	 * An origin to be used in cases where no information is known.
@@ -52,5 +52,10 @@ public sealed interface Origin permits OriginImpl.UnknownOrigin, AddonOrigin {
 	 * @return A string representing this origin.
 	 */
 	String name();
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		adapter.write("name", name());
+	}
 
 }
