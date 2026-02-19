@@ -611,7 +611,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 */
 	@Deprecated
 	public boolean hasDocs() {
-		return Documentation.isNoDocs(documentation);
+		return !Documentation.isNoDocs(documentation);
 	}
 
 }
