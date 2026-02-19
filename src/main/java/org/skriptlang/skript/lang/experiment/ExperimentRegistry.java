@@ -1,9 +1,12 @@
 package org.skriptlang.skript.lang.experiment;
 
+import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.LinkedHashSet;
@@ -19,7 +22,7 @@ import java.util.Set;
 * 	for anything using it. I.e. you will still be able to use Skript#experiments() and obtain 'this' class
 * 	although these will just become helper methods for the proper registry behaviour.
 * */
-public class ExperimentRegistry implements Experimented {
+public class ExperimentRegistry implements Experimented, Documentable {
 
 	private final Skript skript;
 	private final Set<Experiment> experiments;
@@ -139,6 +142,19 @@ public class ExperimentRegistry implements Experimented {
 		if (set == null)
 			return false;
 		return set.hasExperiment(featureName);
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		adapter.enterScope("experiments");
+		for (Experiment experiment : experiments) {
+			if (experiment instanceof Feature feature) {
+				adapter.enterScope(feature.documentation().id());
+				adapter.write(feature);
+				adapter.exitScope();
+			}
+		}
+		adapter.exitScope();
 	}
 
 }

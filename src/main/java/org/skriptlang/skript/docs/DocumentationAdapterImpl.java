@@ -1,7 +1,9 @@
 package org.skriptlang.skript.docs;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.util.ArrayDeque;
@@ -23,7 +25,16 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 	DocumentationAdapterImpl(SkriptAddon addon) {
 		this();
+		// generate defaults
 		addon.syntaxRegistry().write(this);
+		enterScope("types");
+		Classes.getClassInfos().forEach(info -> {
+			enterScope(info.documentation().id());
+			info.write(this);
+			exitScope();
+		});
+		exitScope();
+		Skript.experiments().write(this);
 	}
 
 	@Override
@@ -53,7 +64,11 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	@Override
 	public void exitScope() {
 		assert scopes.size() > 1;
-		scopes.pop();
+		var scope = scopes.pop();
+		if (scope.values().isEmpty()) {
+			assert !scopes.isEmpty();
+			scopes.peek().values().remove(scope.name);
+		}
 	}
 
 	@Override
@@ -70,12 +85,17 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 	private Object adapt(Object value) {
 		return switch (value) {
-			case Class<?> clazz -> (Documentable) adapter -> {
-				ClassInfo<?> classInfo = Classes.getSuperClassInfo(clazz);
+			case Class<?> clazz -> {
+				ClassInfo<?> classInfo = Classes.getSuperClassInfo(Utils.getComponentType(clazz));
 				Documentation documentation = classInfo.documentation();
-				adapter.write("id", documentation.id() == null ? classInfo.getCodeName() : documentation.id());
-				adapter.write("name", documentation.name());
-			};
+				if (Documentation.isNoDocs(classInfo.documentation())) {
+					yield adapt(classInfo.getC().getSuperclass());
+				}
+				yield (Documentable) adapter -> {
+					adapter.write("id", documentation.id() == null ? classInfo.getCodeName() : documentation.id());
+					adapter.write("name", documentation.name());
+				};
+			}
 			case Collection<?> collection -> collection.stream()
 				.map(this::adapt)
 				.toList();
@@ -90,7 +110,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 					}
 					return adapted;
 				}));
-			default -> value;
+			case null, default -> value;
 		};
 	}
 

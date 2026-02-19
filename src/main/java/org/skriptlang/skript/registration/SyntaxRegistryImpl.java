@@ -4,6 +4,7 @@ import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
 
@@ -71,6 +72,9 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 			}
 			adapter.enterScope(Utils.toEnglishPlural(entry.getKey().name()));
 			for (var info : entry.getValue().syntaxes()) {
+				if (Documentation.isNoDocs(info.documentation())) {
+					continue;
+				}
 				String id = info.documentation().id();
 				if (id == null) {
 					id = info.type().getSimpleName();

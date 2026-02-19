@@ -261,6 +261,11 @@ record DocumentationImpl(
 				.origin(origin);
 		}
 
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			// write nothing
+		}
+
 		/**
 		 * A builder that will return an OriginOnly documentation if only the origin is modified.
 		 */

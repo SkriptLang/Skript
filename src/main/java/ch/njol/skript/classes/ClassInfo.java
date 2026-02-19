@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationDocumentable;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
@@ -64,6 +65,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	private Class<?> serializeAs = null;
 
 	private Documentation documentation;
+	private String @Nullable [] usage = null;
 
 	/**
 	 * @param c The class
@@ -90,6 +92,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		}
 		documentation = Documentation.builder()
 			.origin(Origin.of(source))
+			.id(codeName)
 			.build();
 	}
 
@@ -433,8 +436,19 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 
 	@Contract(value = "_ -> this", mutates = "this")
 	public ClassInfo<T> documentation(Documentation documentation) {
+		if (documentation.id() == null) {
+			documentation = documentation.toBuilder()
+				.id(getCodeName())
+				.build();
+		}
 		this.documentation = documentation;
 		return this;
+	}
+
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		DocumentationDocumentable.super.write(adapter);
+		adapter.write("patterns", usage);
 	}
 
 	/**
@@ -473,6 +487,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 * @deprecated Use {@link #documentation(Documentation)}.
 	 */
 	public ClassInfo<T> usage(final String... usage) {
+		this.usage = usage;
 		return this;
 	}
 
@@ -536,7 +551,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 */
 	@Deprecated
 	public String @Nullable [] getUsage() {
-		return null;
+		return usage;
 	}
 
 	/**

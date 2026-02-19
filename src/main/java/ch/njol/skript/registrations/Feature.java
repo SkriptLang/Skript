@@ -1,12 +1,15 @@
 package ch.njol.skript.registrations;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.docs.Documentation;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationDocumentable;
+import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.experiment.LifeCycle;
@@ -195,7 +198,10 @@ public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.sk
 
 	Feature(String codeName, Documentation documentation, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
-		this.documentation = documentation;
+		this.documentation = documentation.toBuilder()
+			.id(codeName)
+			.origin(Origin.of(Skript.instance()))
+			.build();
 		this.phase = phase;
 		this.compiledPattern = switch (patterns.length) {
 			case 0 -> PatternCompiler.compile(codeName);
