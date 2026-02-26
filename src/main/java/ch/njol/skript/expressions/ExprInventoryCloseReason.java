@@ -5,7 +5,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
@@ -28,17 +27,17 @@ import org.jetbrains.annotations.Nullable;
 public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> {
 	
 	static {
-		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
-			Skript.registerExpression(ExprInventoryCloseReason.class, InventoryCloseEvent.Reason.class, ExpressionType.SIMPLE, "[the] inventory clos(e|ing) (reason|cause)");
+		Skript.registerExpression(ExprInventoryCloseReason.class, InventoryCloseEvent.Reason.class,
+			ExpressionType.SIMPLE, "[the] inventory clos(e|ing) (reason|cause)");
 	}
 	
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(InventoryCloseEvent.class)) {
 			Skript.error("The 'inventory close reason' expression can only be used in an inventory close event");
 			return false;
 		}
-		return true;
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	public ExprInventoryCloseReason() {
