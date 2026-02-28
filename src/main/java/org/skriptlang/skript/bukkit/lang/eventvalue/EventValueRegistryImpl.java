@@ -256,6 +256,15 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		return List.copyOf(eventValues(time));
 	}
 
+	@Override
+	public @Unmodifiable <E extends Event> List<EventValue<? extends E, ?>> elements(Class<E> event) {
+		//noinspection unchecked,rawtypes
+		return (List) eventValues.values().stream()
+			.flatMap(List::stream)
+			.filter(eventValue -> event.isAssignableFrom(eventValue.eventClass()))
+			.toList();
+	}
+
 	private record Input<E extends Event, I>(
 		Class<E> eventClass,
 		I input,
@@ -352,6 +361,11 @@ final class EventValueRegistryImpl implements EventValueRegistry {
 		@Override
 		public @Unmodifiable List<EventValue<?, ?>> elements(EventValue.Time time) {
 			return delegate.elements(time);
+		}
+
+		@Override
+		public @Unmodifiable <E extends Event> List<EventValue<? extends E, ?>> elements(Class<E> event) {
+			return delegate.elements(event);
 		}
 
 		@Override

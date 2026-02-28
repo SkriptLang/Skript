@@ -178,8 +178,7 @@ public interface EventValueRegistry extends Registry<EventValue<?, ?>>, ViewProv
 	 * @return an unmodifiable list of all registered event values
 	 */
 	@Override
-	@Unmodifiable
-	List<EventValue<?, ?>> elements();
+	@Unmodifiable List<EventValue<?, ?>> elements();
 
 	/**
 	 * Returns a snapshot of event values for the given time state.
@@ -187,8 +186,19 @@ public interface EventValueRegistry extends Registry<EventValue<?, ?>>, ViewProv
 	 * @param time the time state
 	 * @return an unmodifiable list of event values for the given time state
 	 */
-	@Unmodifiable
-	List<EventValue<?, ?>> elements(EventValue.Time time);
+	@Unmodifiable List<EventValue<?, ?>> elements(EventValue.Time time);
+
+	/**
+	 * Returns a snapshot of the <i>direct</i> (subevents only) event values for the given event.
+	 * <br>
+	 * For example, getting the event values of {@link org.bukkit.event.entity.EntityDeathEvent}
+	 * will return the event values registered under {@link org.bukkit.event.entity.EntityDeathEvent} and
+	 * {@link org.bukkit.event.entity.PlayerDeathEvent}, but not {@link org.bukkit.event.entity.EntityEvent}.
+	 * 
+	 * @param event the event
+	 * @return an unmodifiable list of event values for the given event
+	 */
+	@Unmodifiable <E extends Event> List<EventValue<? extends E, ?>> elements(Class<E> event);
 
 	/**
 	 * @return an unmodifiable view of this registry
