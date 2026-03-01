@@ -43,7 +43,7 @@ public class EvtFurnaceTest extends SkriptJUnitTest {
 		FurnaceBurnEvent burnEvent = new FurnaceBurnEvent(furnace, new ItemStack(Material.LAVA_BUCKET), 10);
 		FurnaceSmeltEvent smeltEvent = new FurnaceSmeltEvent(furnace, new ItemStack(Material.RAW_IRON), new ItemStack(Material.IRON_INGOT));
 		FurnaceStartSmeltEvent startEvent = new FurnaceStartSmeltEvent(furnace, new ItemStack(Material.RAW_GOLD), recipe);
-		FurnaceExtractEvent extractEvent = new FurnaceExtractEvent(easyMockPlayer, furnace, Material.COPPER_INGOT, 10, 20);
+		FurnaceExtractEvent extractEvent = new FurnaceExtractEvent(easyMockPlayer, furnace, new ItemStack(Material.COPPER_INGOT), 10, 20);
 
 		Bukkit.getPluginManager().callEvent(burnEvent);
 		Bukkit.getPluginManager().callEvent(smeltEvent);
