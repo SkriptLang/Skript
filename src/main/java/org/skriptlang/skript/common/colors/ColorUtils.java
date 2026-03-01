@@ -33,37 +33,6 @@ public class ColorUtils {
 	}
 
 	/**
-	 * Converts a hex code representation of a color to its {@link Color} equivalent.
-	 *
-	 * @param hex a hex code representing a color
-	 * @return the {@link Color} represented by the hex code
-	 *
-	 * @throws IllegalArgumentException if the hex string is not of a supported format
-	 */
-	public static ColorRGB fromHex(@NotNull String hex) {
-		if (hex.startsWith("#"))
-			hex = hex.substring(1);
-
-		int length = hex.length();
-		int alpha = 255, red, green, blue;
-
-		if (length == 6) {
-			red = Integer.parseInt(hex.substring(0, 2), 16);
-			green = Integer.parseInt(hex.substring(2, 4), 16);
-			blue = Integer.parseInt(hex.substring(4, 6), 16);
-		} else if (length == 8) {
-			alpha = Integer.parseInt(hex.substring(0, 2), 16);
-			red = Integer.parseInt(hex.substring(2, 4), 16);
-			green = Integer.parseInt(hex.substring(4, 6), 16);
-			blue = Integer.parseInt(hex.substring(6, 8), 16);
-		} else {
-			throw new IllegalArgumentException("Unsupported hex format - requires #RRGGBB or #AARRGGBB");
-		}
-
-		return ColorRGB.fromRGBA(red, green, blue, alpha);
-	}
-
-	/**
 	 * Converts a {@link Color} to it's HSL (hue, saturation, lightness) representation.
 	 *
 	 * @param color the {@link Color} to convert
