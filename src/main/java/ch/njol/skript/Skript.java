@@ -72,6 +72,7 @@ import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.interactions.InteractionModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
+import org.skriptlang.skript.bukkit.lang.eventvalue.EventValueRegistry;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.misc.MiscModule;
@@ -487,6 +488,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		skript.storeRegistry(PropertyRegistry.class, new PropertyRegistry(this));
 		Property.registerDefaultProperties();
 
+		EventValueRegistry eventValueRegistry = EventValueRegistry.empty(this);
+		skript.storeRegistry(EventValueRegistry.class, eventValueRegistry);
+		//noinspection removal
+		EventValues.setEventValueRegistry(eventValueRegistry);
+
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
 
@@ -553,7 +559,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
-		new BukkitEventValues();
+		BukkitEventValues.register(eventValueRegistry);
 
 		new DefaultComparators();
 		new DefaultConverters();
