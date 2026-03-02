@@ -1,7 +1,8 @@
 package org.skriptlang.skript.bukkit.entity.nautilus;
 
 import ch.njol.skript.classes.registry.RegistryClassInfo;
-import ch.njol.skript.entity.EntityData;
+import org.bukkit.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -22,8 +23,19 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 
 	private static Variant[] VARIANTS;
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("zombie nautilus¦es @a",
+		"[:tamed] [%-zombienautilusvariant%] (zombie|zombified) nautilus[plural:es]");
+
 	public static void register() {
-		EntityData.register(ZombieNautilusData.class, "zombie nautilus", ZombieNautilus.class, 0, "zombie nautilus");
+		registerInfo(
+			infoBuilder(ZombieNautilusData.class, "zombie nautilus")
+				.dataPatterns(GROUP)
+				.entityType(EntityType.ZOMBIE_NAUTILUS)
+				.entityClass(ZombieNautilus.class)
+				.supplier(ZombieNautilusData::new)
+				.build()
+		);
+
 		Variables.yggdrasil.registerSingleClass(Variant.class,  "ZombieNautilus.Variant");
 
 		Registry<@NotNull Variant> variantRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ZOMBIE_NAUTILUS_VARIANT);
@@ -46,7 +58,7 @@ public class ZombieNautilusData extends EntityData<ZombieNautilus> {
 	}
 
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (parseResult.hasTag("tamed")) {
 			isTamed = Kleenean.TRUE;
 		}

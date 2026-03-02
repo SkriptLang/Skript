@@ -7,12 +7,12 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.junit.Test;
 
-import ch.njol.skript.entity.CreeperData;
-import ch.njol.skript.entity.EntityType;
-import ch.njol.skript.entity.SimpleEntityData;
-import ch.njol.skript.entity.ThrownPotionData;
-import ch.njol.skript.entity.WolfData;
-import ch.njol.skript.entity.XpOrbData;
+import org.skriptlang.skript.bukkit.entity.creeper.CreeperData;
+import org.skriptlang.skript.bukkit.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.data.SimpleEntityData;
+import org.skriptlang.skript.bukkit.entity.data.ThrownPotionData;
+import org.skriptlang.skript.bukkit.entity.data.WolfData;
+import org.skriptlang.skript.bukkit.entity.data.XpOrbData;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Direction;

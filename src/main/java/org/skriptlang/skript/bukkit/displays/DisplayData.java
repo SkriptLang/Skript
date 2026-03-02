@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.displays;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -19,51 +18,49 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 
 public class DisplayData extends EntityData<Display> {
 
 	public static final Color DEFAULT_BACKGROUND_COLOR = ColorRGB.fromRGBA(0, 0, 0, 64).asBukkitColor();
 
+	private static final EntityDataPatterns<DisplayType> GROUPS = new EntityDataPatterns<>(
+		new PatternGroup<>(0, "display¦s @a", DisplayType.ANY, "display[plural:s]", "display entit(y|plural:ies)"),
+		new PatternGroup<>(1, "block display¦s @a", DisplayType.BLOCK, "block display[plural:s] [of %-blockdata/itemtype%]",
+			"block display entit(y|plural:ies) [of %-blockdata/itemtype%]", "%-blockdata/itemtype% block display[plural:s]",
+			"%-blockdata/itemtype% block display entit(y|plural:ies)"),
+		new PatternGroup<>(2, "item display¦s @an", DisplayType.ITEM, "item display[plural:s] [of %-itemtype%]",
+			"item display entit(y|plural:ies) [of %-itemtype%]", "%-itemtype% item display[plural:s]",
+			"%-itemtype% item display entit(y|plural:ies)"),
+		new PatternGroup<>(3, "text display¦s @a", DisplayType.TEXT, "text display[plural:s]",
+			"text display entit(y|plural:ies)")
+	);
+
 	static {
-		EntityData.register(DisplayData.class, "display", Display.class, 0, DisplayType.codeNames);
+		registerInfo(
+			infoBuilder(DisplayData.class, "display")
+				.dataPatterns(GROUPS)
+				.entityClass(Display.class)
+				.supplier(DisplayData::new)
+				.build()
+		);
+
 		Variables.yggdrasil.registerSingleClass(DisplayType.class, "DisplayType");
 	}
 
-	private enum DisplayType {
+	public enum DisplayType {
 
-		ANY("org.bukkit.entity.Display", "display"),
-		BLOCK("org.bukkit.entity.BlockDisplay", "block display"),
-		ITEM("org.bukkit.entity.ItemDisplay", "item display"),
-		TEXT("org.bukkit.entity.TextDisplay", "text display");
+		ANY(Display.class),
+		BLOCK(BlockDisplay.class),
+		ITEM(ItemDisplay.class),
+		TEXT(TextDisplay.class);
 
-		private @Nullable Class<? extends Display> displaySubClass;
-		private final String codeName;
-		
-		@SuppressWarnings("unchecked")
-		DisplayType(String className, String codeName) {
-			try {
-				this.displaySubClass = (Class<? extends Display>) Class.forName(className);
-			} catch (ClassNotFoundException ignored) {}
-			this.codeName = codeName;
+		private final Class<? extends Display> displayClass;
+
+		DisplayType(Class<? extends Display> displayClass) {
+			this.displayClass = displayClass;
 		}
 
-		@Override
-		public String toString() {
-			return codeName;
-		}
-
-		private static final String[] codeNames;
-		static {
-			List<String> codeNamesList = new ArrayList<>();
-			for (DisplayType type : values()) {
-				if (type.displaySubClass != null)
-					codeNamesList.add(type.codeName);
-			}
-			codeNames = codeNamesList.toArray(new String[0]);
-		}
 	}
 
 	private DisplayType type = DisplayType.ANY;
@@ -78,13 +75,13 @@ public class DisplayData extends EntityData<Display> {
 
 	public DisplayData(DisplayType type) {
 		this.type = type;
-		this.codeNameIndex = type.ordinal();
+		this.groupIndex = type.ordinal();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
-		type = DisplayType.values()[matchedCodeName];
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
+		type = DisplayType.values()[matchedGroup];
 		// default to 0, use 1 for alternate pattern: %x% display instead of display of %x%
 		if (exprs.length == 0 || exprs[0] == null)
 			return true;
@@ -112,14 +109,14 @@ public class DisplayData extends EntityData<Display> {
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends Display> displayClass, @Nullable Display entity) {
+	protected boolean init(@Nullable Class<? extends Display> entityClass, @Nullable Display entity) {
 		DisplayType[] types = DisplayType.values();
 		for (int i = types.length - 1; i >= 0; i--) {
-			Class<?> display = types[i].displaySubClass;
+			Class<?> display = types[i].displayClass;
 			if (display == null)
 				continue;
 			//noinspection ConstantConditions
-			if (entity == null ? displayClass.isAssignableFrom(display) : display.isInstance(entity)) {
+			if (entity == null ? entityClass.isAssignableFrom(display) : display.isInstance(entity)) {
 				type = types[i];
 				if (entity != null) {
 					switch (type) {
@@ -179,12 +176,12 @@ public class DisplayData extends EntityData<Display> {
 				return displayText.equals(text);
 			}
 		}
-		return type.displaySubClass != null && type.displaySubClass.isInstance(entity);
+		return type.displayClass != null && type.displayClass.isInstance(entity);
 	}
 
 	@Override
 	public Class<? extends Display> getType() {
-		return type.displaySubClass != null ? type.displaySubClass : Display.class;
+		return type.displayClass != null ? type.displayClass : Display.class;
 	}
 
 	@Override

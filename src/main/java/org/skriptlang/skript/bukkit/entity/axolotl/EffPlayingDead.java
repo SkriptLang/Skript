@@ -1,0 +1,62 @@
+package org.skriptlang.skript.bukkit.entity.axolotl;
+
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import org.bukkit.entity.Axolotl;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+
+@Name("Play Dead")
+@Description("Make an axolotl start or stop playing dead.")
+@Example("make last spawned axolotl play dead")
+@Since("2.11")
+public class EffPlayingDead extends Effect {
+
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EFFECT,
+			SyntaxInfo.builder(EffPlayingDead.class)
+				.addPatterns(
+					"make %livingentities% (start playing|play) dead",
+					"force %livingentities% to (start playing|play) dead",
+					"make %livingentities% (stop playing|not play) dead",
+					"force %livingentities% to (stop playing|not play) dead"
+				).supplier(EffPlayingDead::new)
+				.build()
+		);
+	}
+
+	private Expression<LivingEntity> entities;
+	private boolean playDead;
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		//noinspection unchecked
+		entities = (Expression<LivingEntity>) exprs[0];
+		playDead = matchedPattern <= 1;
+		return true;
+	}
+
+	@Override
+	protected void execute(Event event) {
+		for (LivingEntity entity : entities.getArray(event)) {
+			if (entity instanceof Axolotl axolotl)
+				axolotl.setPlayingDead(playDead);
+		}
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + entities.toString(event, debug) + (playDead ? " start" : " stop") + " playing dead";
+	}
+
+}

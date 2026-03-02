@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.entity.nautilus;
 
-import ch.njol.skript.entity.EntityData;
+import org.bukkit.entity.EntityType;
+import org.skriptlang.skript.bukkit.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -12,16 +13,29 @@ import java.util.Objects;
 
 public class NautilusData extends EntityData<Nautilus> {
 
+	private static final EntityDataPatterns<?> GROUP = EntityDataPatterns.of("nautilus¦es @a", "[:tamed] <age> nautilus[plural:es]");
+
 	public static void register() {
-		EntityData.register(NautilusData.class, "nautilus", Nautilus.class, 0, "nautilus");
+		registerInfo(
+			infoBuilder(NautilusData.class, "nautilus")
+				.dataPatterns(GROUP)
+				.entityType(EntityType.NAUTILUS)
+				.entityClass(Nautilus.class)
+				.supplier(NautilusData::new)
+				.build()
+		);
 	}
 
 	private Kleenean isTamed = Kleenean.UNKNOWN;
 
 	public NautilusData() { }
 
+	public NautilusData(@Nullable Kleenean isTamed) {
+		this.isTamed = isTamed != null ? isTamed : Kleenean.UNKNOWN;
+	}
+
 	@Override
-	protected boolean init(Literal<?>[] exprs, int matchedCodeName, int matchedPattern, ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedGroup, int matchedPattern, ParseResult parseResult) {
 		if (parseResult.hasTag("tamed")) {
 			isTamed = Kleenean.TRUE;
 		}

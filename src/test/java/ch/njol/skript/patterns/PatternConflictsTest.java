@@ -14,6 +14,8 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprArmorSlot;
+import org.skriptlang.skript.bukkit.entity.elements.expressions.ExprEntitySound;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.CondHasPotion;
 import org.skriptlang.skript.common.properties.conditions.PropCondContains;
 import org.skriptlang.skript.lang.structure.Structure;
