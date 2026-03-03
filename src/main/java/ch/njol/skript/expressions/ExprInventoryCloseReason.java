@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @Events("Inventory Close")
 @Since("2.8.0")
-public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> {
+public class ExprInventoryCloseReason extends EventValueExpression<InventoryCloseEvent.Reason> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprInventoryCloseReason.class, InventoryCloseEvent.Reason.class,
@@ -33,11 +34,13 @@ public class ExprInventoryCloseReason extends EventValueExpression<InventoryClos
 	
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(InventoryCloseEvent.class)) {
-			Skript.error("The 'inventory close reason' expression can only be used in an inventory close event");
-			return false;
-		}
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		//noinspection unchecked
+		return new Class[]{ InventoryCloseEvent.class };
 	}
 
 	public ExprInventoryCloseReason() {
