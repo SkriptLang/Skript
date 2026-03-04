@@ -25,16 +25,45 @@ final class VariablesMap {
 		if (s2 == null)
 			return 1;
 
+		int len1 = s1.length();
+		int len2 = s2.length();
+
+		// Fast path: assume both strings are pure positive integers without leading zeros.
+		// This is the dominant case for list indices (e.g. {list::1} through {list::1000}).
+		// For these, numeric order == length order, then lexicographic order.
+		// This does cause an extra partial loop over non-integer strings, but ints are much more common and it'll fail-fast.
+		char firstChar1 = len1 > 0 ? s1.charAt(0) : 0;
+		char firstChar2 = len2 > 0 ? s2.charAt(0) : 0;
+		if (firstChar1 >= '1' && firstChar1 <= '9' && firstChar2 >= '1' && firstChar2 <= '9') {
+			int i = 1;
+			// Check if the rest of the characters are digits as well
+			while (i < len1 && isDigit(s1.charAt(i))) {
+				i++;
+			}
+			if (i == len1) { // all of s1 are digits
+				i = 1;
+				// Check if the rest of the characters are digits as well
+				while (i < len2 && isDigit(s2.charAt(i))) {
+					i++;
+				}
+				if (i == len2) { // all of s2 are digits
+					if (len1 != len2)
+						return len1 - len2;
+					return s1.compareTo(s2);
+				}
+			}
+		}
+
 		int i = 0;
 		int j = 0;
 
 		boolean lastNumberNegative = false;
 		boolean afterDecimalPoint = false;
-		while (i < s1.length() && j < s2.length()) {
+		while (i < len1 && j < len2) {
 			char c1 = s1.charAt(i);
 			char c2 = s2.charAt(j);
 
-			if ('0' <= c1 && c1 <= '9' && '0' <= c2 && c2 <= '9') {
+			if (isDigit(c1) && isDigit(c2)) {
 				// Numbers/digits are treated differently from other characters.
 
 				// The index after the last digit
@@ -93,7 +122,9 @@ final class VariablesMap {
 					return ((i2 - i) - (j2 - j)) * isPositive;
 
 				// If the numbers are equal, but either has leading zeroes,
-				//  more leading zeroes is a lesser number (01 < 1)
+				//  more leading zeroes is a bigger number (01 > 1)
+				// The original intention was for them to be smaller, but the author wrote it wrong so they're bigger :/
+				// Best to just keep it like that than to change it and break existing variable orderings
 				if (z1 != z2)
 					return (z1 - z2) * isPositive;
 
@@ -113,12 +144,16 @@ final class VariablesMap {
 				j++;
 			}
 		}
-		if (i < s1.length())
+		if (i < len1)
 			return lastNumberNegative ? -1 : 1;
-		if (j < s2.length())
+		if (j < len2)
 			return lastNumberNegative ? 1 : -1;
 		return 0;
 	};
+
+	private static boolean isDigit(char c) {
+		return '0' <= c && c <= '9';
+	}
 
 	/**
 	 * The map that stores all non-list variables.
