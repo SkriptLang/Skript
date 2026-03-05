@@ -80,6 +80,9 @@ log effect commands: false
 # Whether Skript should log the usage of effect commands.
 # They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
 
+compress backups: true
+# Whether Skript should compress backup files (configs and variables).
+# If true, those files will be zipped to save disk space.
 
 load default aliases: true
 # Whether Skript should use the default, Skript-provided aliases for items.
