@@ -351,37 +351,6 @@ public class SkriptClasses {
 
 		Classes.registerClass(new SlotClassInfo());
 
-		Classes.registerClass(new ClassInfo<>(Color.class, "color")
-				.user("colou?rs?")
-				.name("Color")
-				.description("Wool, dye and chat colors.")
-				.usage("black, dark grey/dark gray, grey/light grey/gray/light gray/silver, white, blue/dark blue, cyan/aqua/dark cyan/dark aqua, light blue/light cyan/light aqua, green/dark green, light green/lime/lime green, yellow/light yellow, orange/gold/dark yellow, red/dark red, pink/light red, purple/dark purple, magenta/light purple, brown/indigo")
-				.examples("color of the sheep is red or black",
-						"set the color of the block to green",
-						"message \"You're holding a <%color of tool%>%color of tool%<reset> wool block\"")
-				.since("")
-				.supplier(SkriptColor.values())
-				.parser(new Parser<Color>() {
-					@Override
-					@Nullable
-					public Color parse(String input, ParseContext context) {
-						Color rgbColor = ColorRGB.fromString(input);
-						if (rgbColor != null)
-							return rgbColor;
-						return SkriptColor.fromName(input);
-					}
-
-					@Override
-					public String toString(Color c, int flags) {
-						return c.getName();
-					}
-
-					@Override
-					public String toVariableNameString(Color color) {
-						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
-					}
-				}));
-
 		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
 				.user("tree ?types?", "trees?")
 				.name("Tree Type")
