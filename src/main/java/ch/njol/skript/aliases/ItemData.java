@@ -19,6 +19,9 @@ import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MusicInstrumentMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -38,7 +41,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		Variables.yggdrasil.registerSingleClass(ItemData.class, "NewItemData");
 		Variables.yggdrasil.registerSingleClass(OldItemData.class, "ItemData");
 	}
-	
+
 	/**
 	 * Represents old ItemData (before aliases rework and MC 1.13).
 	 */
@@ -604,7 +607,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	 * <li>Name: custom names made with anvil do not change item type
 	 * </ul>
 	 * @return A modified copy of this item data.
+	 * @deprecated Use {@link #getBaseCopy()} instead if you want a plain copy.
 	 */
+	@Deprecated(since = "INSERT_VERSION", forRemoval = true)
 	public ItemData aliasCopy() {
 		ItemData data = new ItemData();
 		if (stack != null) {
@@ -624,7 +629,63 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		data.itemForm = itemForm;
 		return data;
 	}
-	
+
+	/**
+	 * Returns a base version of this item data, i.e. only contains
+	 * the minimum ItemMeta info to represent the item, in the case of potions/goat horns.
+ 	 * @return Plain item type.
+	 */
+	public @Nullable ItemData getBaseCopy() {
+		ItemData data = new ItemData();
+		data.type = type;
+		data.blockValues = blockValues;
+		data.itemForm = itemForm;
+		if (stack != null) {
+			data.stack = new ItemStack(type, 1);
+			if (stack.hasItemMeta()) {
+				ItemMeta meta = stack.getItemMeta();
+				if (meta instanceof PotionMeta potionMeta) {
+					copyPotionInfo(potionMeta, data);
+				} else if (meta instanceof MusicInstrumentMeta musicMeta) {
+					copyMusicInfo(musicMeta, data);
+				}
+			}
+		}
+		return data;
+	}
+
+	// Can remove after 1.21.3 is the minimum supported version
+	private static final boolean HAS_CUSTOM_NAME = Skript.methodExists(PotionMeta.class, "hasCustomPotionName");
+
+	private static void copyPotionInfo(PotionMeta potionMeta, ItemData data) {
+		PotionMeta newMeta = (PotionMeta) itemFactory.getItemMeta(data.type);
+		if (newMeta.equals(potionMeta))
+			return;
+		// copy potion meta info
+		if (potionMeta.hasBasePotionType())
+			newMeta.setBasePotionType(potionMeta.getBasePotionType());
+		if (potionMeta.hasCustomEffects()) {
+			for (PotionEffect effect : potionMeta.getCustomEffects()) {
+				newMeta.addCustomEffect(effect, false);
+			}
+		}
+		if (potionMeta.hasColor())
+			newMeta.setColor(potionMeta.getColor());
+		if (HAS_CUSTOM_NAME && potionMeta.hasCustomPotionName())
+			newMeta.setCustomPotionName(potionMeta.getCustomPotionName());
+		data.itemFlags = ItemFlags.CHANGED_TAGS;
+		data.setItemMeta(newMeta);
+	}
+
+	private static void copyMusicInfo(MusicInstrumentMeta musicMeta, ItemData data) {
+		MusicInstrumentMeta newMeta = (MusicInstrumentMeta) itemFactory.getItemMeta(data.type);
+		if (newMeta.equals(musicMeta))
+			return;
+		newMeta.setInstrument(musicMeta.getInstrument());
+		data.itemFlags = ItemFlags.CHANGED_TAGS;
+		data.setItemMeta(newMeta);
+	}
+
 	/**
 	 * Applies tags to this item.
 	 * @param tags Tags in Mojang's JSON format.
