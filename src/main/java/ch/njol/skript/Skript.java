@@ -10,6 +10,7 @@ import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -77,6 +78,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.misc.MiscModule;
 import org.skriptlang.skript.bukkit.particles.ParticleModule;
 import org.skriptlang.skript.bukkit.potion.PotionModule;
+import org.skriptlang.skript.bukkit.pdc.PDCModule;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.common.CommonModule;
@@ -582,8 +584,9 @@ public final class Skript extends JavaPlugin implements Listener {
 				new InteractionModule(),
 				new ItemComponentModule(),
 				new PotionModule(),
-				new MiscModule(),
-				new ParticleModule());
+				new ParticleModule(),
+				new PDCModule(),
+				new MiscModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
