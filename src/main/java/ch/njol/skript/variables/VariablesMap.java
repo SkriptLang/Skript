@@ -2,26 +2,35 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.lang.Variable;
 import ch.njol.util.StringUtils;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
+import com.google.errorprone.annotations.ThreadSafe;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.StampedLock;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
- * A map for storing variables in a sorted and efficient manner.
+ * A thread-safe Radix Tree for storing variables.
  */
-final class VariablesMap {
+@ThreadSafe
+public final class VariablesMap {
 
 	/**
-	 * The comparator for comparing variable names.
+	 * Comparator for variable names.
 	 */
-	static final Comparator<String> VARIABLE_NAME_COMPARATOR = (s1, s2) -> {
+	public static final Comparator<String> VARIABLE_NAME_COMP = (s1, s2) -> {
 		if (s1 == null)
 			return s2 == null ? 0 : -1;
-
 		if (s2 == null)
 			return 1;
 
@@ -30,76 +39,76 @@ final class VariablesMap {
 
 		boolean lastNumberNegative = false;
 		boolean afterDecimalPoint = false;
+
 		while (i < s1.length() && j < s2.length()) {
 			char c1 = s1.charAt(i);
 			char c2 = s2.charAt(j);
 
-			if ('0' <= c1 && c1 <= '9' && '0' <= c2 && c2 <= '9') {
-				// Numbers/digits are treated differently from other characters.
+			// Numbers/digits are treated differently from other characters.
+			if (Character.isDigit(c1) && Character.isDigit(c2)) {
 
 				// The index after the last digit
-				int i2 = StringUtils.findLastDigit(s1, i);
-				int j2 = StringUtils.findLastDigit(s2, j);
+				int end1 = StringUtils.findLastDigit(s1, i);
+				int end2 = StringUtils.findLastDigit(s2, j);
 
 				// Amount of leading zeroes
-				int z1 = 0;
-				int z2 = 0;
+				int leadingZeros1 = 0;
+				int leadingZeros2 = 0;
 
-				// Skip leading zeroes (except for the last if all 0's)
 				if (!afterDecimalPoint) {
-					if (c1 == '0') {
-						while (i < i2 - 1 && s1.charAt(i) == '0') {
-							i++;
-							z1++;
-						}
+					while (i < end1 - 1 && s1.charAt(i) == '0') {
+						i++;
+						leadingZeros1++;
 					}
-					if (c2 == '0') {
-						while (j < j2 - 1 && s2.charAt(j) == '0') {
-							j++;
-							z2++;
-						}
+					while (j < end2 - 1 && s2.charAt(j) == '0') {
+						j++;
+						leadingZeros2++;
 					}
 				}
-				// Keep in mind that c1 and c2 may not have the right value (e.g. s1.charAt(i)) for the rest of this block
 
 				// If the number is prefixed by a '-', it should be treated as negative, thus inverting the order.
 				// If the previous number was negative, and the only thing separating them was a '.',
 				//  then this number should also be in inverted order.
-				boolean previousNegative = lastNumberNegative;
+				int startOfNumber = i - leadingZeros1;
+				boolean currentIsNegative = startOfNumber > 0 && s1.charAt(startOfNumber - 1) == '-';
 
-				// i - z1 contains the first digit, so i - z1 - 1 may contain a `-` indicating this number is negative
-				lastNumberNegative = i - z1 > 0 && s1.charAt(i - z1 - 1) == '-';
-				int isPositive = (lastNumberNegative | previousNegative) ? -1 : 1;
+				// if the previous number was negative and we just crossed a dot, we stay negative
+				boolean effectiveNegative = currentIsNegative || lastNumberNegative;
+				int sign = effectiveNegative ? -1 : 1;
+
+				int length1 = end1 - i;
+				int length2 = end2 - j;
 
 				// Different length numbers (99 > 9)
-				if (!afterDecimalPoint && i2 - i != j2 - j)
-					return ((i2 - i) - (j2 - j)) * isPositive;
+				if (!afterDecimalPoint && length1 != length2)
+					return (length1 - length2) * sign;
 
 				// Iterate over the digits
-				while (i < i2 && j < j2) {
-					char d1 = s1.charAt(i);
-					char d2 = s2.charAt(j);
-
-					// If the digits differ, return a value dependent on the sign
-					if (d1 != d2)
-						return (d1 - d2) * isPositive;
-
+				while (i < end1 && j < end2) {
+					int diff = s1.charAt(i) - s2.charAt(j);
+					if (diff != 0)
+						return diff * sign;
 					i++;
 					j++;
 				}
 
 				// Different length numbers (1.99 > 1.9)
-				if (afterDecimalPoint && i2 - i != j2 - j)
-					return ((i2 - i) - (j2 - j)) * isPositive;
+				if (afterDecimalPoint && length1 != length2)
+					return (length1 - length2) * sign;
 
 				// If the numbers are equal, but either has leading zeroes,
 				//  more leading zeroes is a lesser number (01 < 1)
-				if (z1 != z2)
-					return (z1 - z2) * isPositive;
+				if (leadingZeros1 != leadingZeros2)
+					return (leadingZeros1 - leadingZeros2) * sign;
 
+				// We finished processing a number, we are now "after" a number.
+				// If the next char is a dot, we remain in decimal mode.
 				afterDecimalPoint = true;
-			} else {
-				// Normal characters
+				// this is for backwards compatibility, else it should be effectiveNegative
+				lastNumberNegative = currentIsNegative;
+			}
+			// Normal characters
+			else {
 				if (c1 != c2)
 					return c1 - c2;
 
@@ -113,6 +122,8 @@ final class VariablesMap {
 				j++;
 			}
 		}
+
+		// One is prefix of the other
 		if (i < s1.length())
 			return lastNumberNegative ? -1 : 1;
 		if (j < s2.length())
@@ -121,60 +132,253 @@ final class VariablesMap {
 	};
 
 	/**
-	 * The map that stores all non-list variables.
+	 * A node in the radix tree.
+	 * <p>
+	 * This also serves as a thread safe unmodifiable live view of the tree branch branch in
+	 * the format returned by {@link #getVariable(String)}.
+	 * <p>
+	 * It does not lock the tree and is weakly consistent, modifications to the underlying
+	 * variables map by other threads may not be immediately visible, prioritizing performance
+	 * over strict in time snapshots. There is no way to verify whether the node is still
+	 * valid (part of the tree).
 	 */
-	final HashMap<String, Object> hashMap = new HashMap<>();
-	/**
-	 * The tree of variables, branched by the list structure of the variables.
-	 */
-	final TreeMap<String, Object> treeMap = new TreeMap<>();
+	private static class Node extends AbstractMap<String, Object> {
+
+		/**
+		 * Lock that is read locked when entering to the node
+		 * and released when the operation that locked it, is complete.
+		 * <p>
+		 * Write lock is acquired only when clearing an entire subtree
+		 * of a node to ensure all operations on that subtree are
+		 * completed before it is cleared or when calling {@link #prune()}
+		 * which needs to lock the entire tree.
+		 */
+		final StampedLock lock = new StampedLock();
+
+		/**
+		 * Current value assigned to this variable or {@code null} if
+		 * no value is set.
+		 */
+		final AtomicReference<@Nullable Object> ref = new AtomicReference<>();
+
+		/**
+		 * Children of this node.
+		 * <p>
+		 * This uses {@link ConcurrentSkipListMap} because:
+		 * <br>
+		 * <li>The iterator used by the live-view of this node must be thread safe</li>
+		 * <li>The map itself must be thread safe as it is modified under read lock of the node</li>
+		 * <li>The children need to be sorted by the variables name compare</li>
+		 * </br>
+		 * This allows us to use the live view of this map as a view of this node
+		 * (if transformed to match the map format of {@link #getVariable(String)}).
+		 */
+		final Map<String, Node> children = new ConcurrentSkipListMap<>(VARIABLE_NAME_COMP);
+
+		/**
+		 * @return whether the node has children
+		 */
+		boolean hasChildren() {
+			return !children.isEmpty();
+		}
+
+		/**
+		 * @return whether the node is empty (has no value and no children)
+		 */
+		@Override
+		public boolean isEmpty() {
+			return ref.get() == null && !hasChildren();
+		}
+
+		@Override
+		public int size() {
+			int size = children.size();
+			return ref.get() != null ? ++size : size; // include the value if present as it is mapped to null key
+		}
+
+		@Override
+		public boolean containsKey(Object key) {
+			return get(key) != null;
+		}
+
+		@Override
+		public Object get(Object key) {
+			if (key == null)
+				return ref.get();
+			Node child = children.get(key);
+			return child != null ? child.unwrap() : null;
+		}
+
+		@Override
+		public @NotNull Set<Entry<String, Object>> entrySet() {
+			return new AbstractSet<>() {
+				@Override
+				@SuppressWarnings({"rawtypes", "unchecked"})
+				public @NotNull Iterator iterator() {
+					Object value = Node.this.ref.get();
+
+					Iterator<Entry<String, Node>> wrapped = children.entrySet().iterator();
+					Iterator<Entry<String, Object>> iterator;
+
+					if (value != null) {
+						// concat iterator with the value of this node if present
+						Iterator<Entry<String, Object>> itself =
+							(Iterator) Collections.singleton(new SimpleEntry<>(null, value)).iterator();
+						// source iterators are not polled until necessary, the null key is first
+						iterator = Iterators.concat(itself, (Iterator) wrapped);
+					} else {
+						iterator = (Iterator) wrapped;
+					}
+
+					// this transformation is lazy
+					return Iterators.transform(iterator, entry -> {
+						if (entry.getKey() != null /* sub tree */) {
+							Node node = (Node) entry.getValue();
+							return new SimpleEntry<>(entry.getKey(), node.unwrap());
+						} else {
+							return entry; // null key with value of this node
+						}
+					});
+				}
+
+				@Override
+				public int size() {
+					return Node.this.size();
+				}
+			};
+		}
+
+		/**
+		 * @return returns the representation of this node in the exposed map
+		 */
+		private Object unwrap() {
+			return hasChildren() ? this : ref.get();
+		}
+
+	}
 
 	/**
-	 * Returns the internal value of the requested variable.
+	 * Root node of the tree.
+	 */
+	private final Node root = new Node();
+
+	/**
+	 * Estimate of empty branches in the radix tree.
 	 * <p>
-	 * <b>Do not modify the returned value!</b>
+	 * The real number may be different as some branches may be re-populated after clear.
+	 */
+	private final AtomicInteger leftEmpty = new AtomicInteger(0);
+
+	/**
+	 * At how many writes that leave empty branches {@link #prune()} should be executed.
+	 */
+	private final int pruneAt;
+
+	/**
+	 * Executor of automatic prune operation.
+	 */
+	private final Executor pruneExecutor;
+
+	/**
+	 * Constructs new variables map that automatically calls {@link #prune()}
+	 * after certain number of {@link #setVariable(String, Object)} left
+	 * empty branches in the radix tree.
+	 *
+	 * @param pruneAt after which number of such writes the variables map should call prune
+	 * @param pruneExecutor executor which will execute the expensive prune operation
+	 */
+	public VariablesMap(int pruneAt, Executor pruneExecutor) {
+		this.pruneAt = pruneAt;
+		this.pruneExecutor = pruneExecutor;
+	}
+
+	/**
+	 * Constructs new variables map that automatically calls {@link #prune()}
+	 * after certain number of {@link #setVariable(String, Object)} left
+	 * empty branches in the radix tree.
+	 *
+	 * @param pruneAt after which number of such writes the variables map should call prune
+	 */
+	public VariablesMap(int pruneAt) {
+		this(pruneAt, Runnable::run);
+	}
+
+	/**
+	 * Constructs new variables map.
+	 */
+	public VariablesMap() {
+		this(Integer.MAX_VALUE, Runnable::run);
+	}
+
+	/**
+	 * Returns the value of the requested variable.
+	 * <p>
+	 * In case of list variables, the returned map is thread safe unmodifiable live view of the variables map.
+	 * <p>
+	 * If map is returned, it is sorted using the variables name comparator.
+	 * <p>
+	 * If map is returned the structure is as following:
+	 * <ul>
+	 *     <li>
+	 *         If value is present for the variable and
+	 *         <ul>
+	 *             <li>the variable has no children, its value is mapped directly to the key</li>
+	 *             <li>the variable has children, it is mapped to a map, that maps {@code null} to its value and its
+	 *             children are mapped using the same strategy</li>
+	 *         </ul>
+	 *     </li>
+	 *     <li>If value is not present for the variable, it is mapped to a map with its children mapped using the same
+	 *     strategy</li>
+	 * </ul>
 	 *
 	 * @param name the name of the variable, possibly a list variable.
 	 * @return an {@link Object} for a normal variable or a
 	 * {@code Map<String, Object>} for a list variable,
 	 * or {@code null} if the variable is not set.
 	 */
-	@SuppressWarnings("unchecked")
-	@Nullable
-	Object getVariable(String name) {
-		if (!name.endsWith("*")) {
-			// Not a list variable, quick access from the hash map
-			return hashMap.get(name);
-		} else {
-			// List variable, search the tree branches
-			String[] split = Variables.splitVariableName(name);
-			Map<String, Object> parent = treeMap;
+	public @Nullable Object getVariable(String name) {
+		boolean isList = name.endsWith(Variable.SEPARATOR + "*");
+		if (isList)
+			name = name.substring(0, name.length() - (Variable.SEPARATOR.length() + 1)); // strip the "::*" suffix
 
-			// Iterate over the parts of the variable name
-			for (int i = 0; i < split.length; i++) {
-				String n = split[i];
-				if (n.equals("*")) {
-					// End of variable name, return map
-					assert i == split.length - 1;
-					return parent;
-				}
+		String[] parts = Variables.splitVariableName(name);
 
-				// Check if the current (sub-)tree has the expected child node
-				Object childNode = parent.get(n);
-				if (childNode == null)
+		int limit = parts.length + 1; // +1 for the root node
+		Node[] path = new Node[limit];
+		long[] stamps = new long[limit];
+		int depth = 0;
+
+		Node current = root;
+		path[0] = current;
+		stamps[0] = current.lock.readLock();
+
+		try {
+			for (String part : parts) {
+				if (!current.hasChildren())
+					return null;
+				Node next = current.children.get(part);
+				if (next == null)
 					return null;
 
-				// Continue the iteration if the child node is a tree itself
-				if (childNode instanceof Map) {
-					// Continue iterating with the subtree
-					parent = (Map<String, Object>) childNode;
-					assert i != split.length - 1;
-				} else {
-					// ..., otherwise the list variable doesn't exist here
-					return null;
-				}
+				long nextStamp = next.lock.readLock();
+
+				depth++;
+				path[depth] = next;
+				stamps[depth] = nextStamp;
+
+				current = next;
 			}
-			return null;
+
+			if (isList) {
+				return current;
+			} else {
+				return current.ref.get();
+			}
+		} finally {
+			for (int i = depth; i >= 0; i--) {
+				if (path[i] != null)
+					path[i].lock.unlockRead(stamps[i]);
+			}
 		}
 	}
 
@@ -186,124 +390,186 @@ final class VariablesMap {
 	 *
 	 * @param name the variable name.
 	 * @param value the variable value, {@code null} to delete the variable.
+	 * @return previous value for changed variable, {@code null} if not set or
+	 * the variable is a list that was cleared
 	 */
-	@SuppressWarnings("unchecked")
-	void setVariable(String name, @Nullable Object value) {
-		// First update the hash map easily
-		if (!name.endsWith("*")) {
-			if (value == null)
-				hashMap.remove(name);
-			else
-				hashMap.put(name, value);
+	public @Nullable Object setVariable(String name, @Nullable Object value) {
+		boolean isList = name.endsWith(Variable.SEPARATOR + "*");
+
+		String actualName = isList
+			? name.substring(0, name.length() - (Variable.SEPARATOR.length() + 1))
+			: name;
+
+		if (isList) {
+			Preconditions.checkState(value == null, "List variables can only be set to null");
 		}
 
-		// Then update the tree map by going down the branches
-		String[] split = Variables.splitVariableName(name);
-		TreeMap<String, Object> parent = treeMap;
+		String[] parts = Variables.splitVariableName(actualName);
 
-		// Iterate over the parts of the variable name
-		for (int i = 0; i < split.length; i++) {
-			String childNodeName = split[i];
-			Object childNode = parent.get(childNodeName);
+		if (isList) { // we are clearing a list
+			clearListVariable(root, parts);
+			return null;
+		} else {
+			return modifySingleVariable(root, parts, old -> value /* discard previous, set to new */);
+		}
+	}
 
-			if (childNode == null) {
-				// Expected child node not found
-				if (i == split.length - 1) {
-					// End of the variable name reached, set variable if needed
-					if (value != null)
-						parent.put(childNodeName, value);
+	/**
+	 * Returns the variable with given name and if there is none set, sets it to
+	 * the next value provided by the mapping function.
+	 * <p>
+	 * This method only accepts single variables.
+	 * <p>
+	 * The {@code mappingFunction} is executed under a write lock on the variable's node.
+	 * Do not perform expensive operations or access other variables inside this function to avoid
+	 * deadlock and performance degradation.
+	 *
+	 * @param name the variable name.
+	 * @param mappingFunction function providing the new value in case it is not set
+	 * @return current value of the variable
+	 */
+	public Object computeIfAbsent(String name, Function<? super String, ? super Object> mappingFunction) {
+		Preconditions.checkState(!name.endsWith(Variable.SEPARATOR + "*"));
+		AtomicReference<Object> got = new AtomicReference<>();
+		String[] parts = Variables.splitVariableName(name);
+		modifySingleVariable(root, parts, prev -> {
+			if (prev == null) {
+				Object computed = mappingFunction.apply(name);
+				got.set(computed);
+				return computed;
+			}
+			got.set(prev);
+			return prev;
+		});
+		return got.get();
+	}
 
-					break;
-				} else if (value != null) {
-					// Create child node, add it to parent and continue iteration
-					childNode = new TreeMap<>(VARIABLE_NAME_COMPARATOR);
+	/**
+	 * Applies operation at node of given variable under its write lock.
+	 *
+	 * @param root root node
+	 * @param parts parts of the variable
+	 * @param operation operation to apply
+	 * @return value associated with the node before the operation
+	 */
+	private @Nullable Object modifySingleVariable(Node root, String[] parts, UnaryOperator<Object> operation) {
+		int limit = parts.length + 1; // +1 for the root node
+		Node[] path = new Node[limit];
+		long[] stamps = new long[limit];
+		int depth = 0;
 
-					parent.put(childNodeName, childNode);
-					parent = (TreeMap<String, Object>) childNode;
-				} else {
-					// Want to set variable to null, bu variable is already null
-					break;
-				}
-			} else if (childNode instanceof TreeMap) {
-				// Child node found
-				TreeMap<String, Object> childNodeMap = ((TreeMap<String, Object>) childNode);
+		Node current = root;
+		path[0] = current;
+		stamps[0] = current.lock.readLock();
 
-				if (i == split.length - 1) {
-					// End of variable name reached, adjust child node accordingly
-					if (value == null)
-						childNodeMap.remove(null);
-					else
-						childNodeMap.put(null, value);
+		try {
+			for (String part : parts) {
+				// this can be done under read lock because the children map implementation
+				// itself is thread safe
+				Node next = current.children.computeIfAbsent(part, key -> new Node());
 
-					break;
-				} else if (i == split.length - 2 && split[i + 1].equals("*")) {
-					// Second to last part of variable name
-					assert value == null;
+				long nextStamp = next.lock.readLock();
 
-					// Delete all indices of the list variable from hashMap
-					deleteFromHashMap(StringUtils.join(split, Variable.SEPARATOR, 0, i + 1), childNodeMap);
+				depth++;
+				path[depth] = next;
+				stamps[depth] = nextStamp;
 
-					// If the list variable itself has a value ,
-					//  e.g. list `{mylist::3}` while variable `{mylist}` also has a value,
-					//  then adjust the parent for that
-					Object currentChildValue = childNodeMap.get(null);
-					if (currentChildValue == null)
-						parent.remove(childNodeName);
-					else
-						parent.put(childNodeName, currentChildValue);
+				current = next;
+			}
 
-					break;
-				} else {
-					// Continue iteration
-					parent = childNodeMap;
-				}
-			} else {
-				// Ran into leaf node
-				if (i == split.length - 1) {
-					// If we arrived at the end of the variable name, update parent
-					if (value == null)
-						parent.remove(childNodeName);
-					else
-						parent.put(childNodeName, value);
-
-					break;
-				} else if (value != null) {
-					// Need to continue iteration, create new child node and put old value in it
-					TreeMap<String, Object> newChildNodeMap = new TreeMap<>(VARIABLE_NAME_COMPARATOR);
-					newChildNodeMap.put(null, childNode);
-
-					// Add new child node to parent
-					parent.put(childNodeName, newChildNodeMap);
-					parent = newChildNodeMap;
-				} else {
-					break;
-				}
+			Object prev = current.ref.getAndUpdate(operation);
+			checkForPrune(current);
+			return prev;
+		} finally {
+			for (int i = depth; i >= 0; i--) {
+				if (path[i] != null)
+					path[i].lock.unlock(stamps[i]);
 			}
 		}
 	}
 
 	/**
-	 * Deletes all indices of a list variable from the {@link #hashMap}.
+	 * Clears a list variable.
+	 * <p>
+	 * Compare to other operations, this one functions a lot differently and
+	 * does not need to read lock the entire path.
+	 * <p>
+	 * This is the only operation that uses the write lock of the node it is clearing.
+	 * Reason for this is, all operations happening on this part of the sub-tree
+	 * also hold a read lock for this particular node, meaning it:
+	 * <ul>
+	 *     <li>Stops any other future operations from happening until the list clear completes</li>
+	 *     <li>Waits for all operations happening in the sub-tree to finish</li>
+	 * </ul>
+	 * This ensures no invalid values are returned (different thread could return already deleted
+	 * values otherwise).
 	 *
-	 * @param parent the list variable prefix,
-	 *                  e.g. {@code list} for {@code list::*}.
-	 * @param current the map of the list variable.
+	 * @param root root node
+	 * @param parts parts of the variable to clear
 	 */
-	@SuppressWarnings("unchecked")
-	void deleteFromHashMap(String parent, TreeMap<String, Object> current) {
-		for (Entry<String, Object> e : current.entrySet()) {
-			if (e.getKey() == null)
-				continue;
-			String childName = parent + Variable.SEPARATOR + e.getKey();
+	private void clearListVariable(Node root, String[] parts) {
+		Node current = root;
+		for (String key : parts) {
+			Node next = current.children.get(key);
+			// if child does not exist there is nothing to clear
+			if (next == null)
+				return;
+			current = next;
+		}
+		long stamp = current.lock.writeLock();
+		try {
+			current.children.clear();
+		} finally {
+			current.lock.unlockWrite(stamp);
+			checkForPrune(current);
+		}
+	}
 
-			// Remove from hashMap
-			hashMap.remove(childName);
+	/**
+	 * Checks if the node if empty, if yes, it increases the
+	 * empty nodes counter and possibly triggers automatic {@link #prune()} call
+	 * if the number of empty nodes exceeds {@link #pruneAt}.
+	 * <p>
+	 * This does not have to be fully accurate and atomic with the clear operations
+	 * themselves, as {@link #leftEmpty} is only an estimate.
+	 *
+	 * @param node node to check after appplying an operation
+	 */
+	private void checkForPrune(Node node) {
+		if (!node.isEmpty())
+			return;
+		int count = leftEmpty.incrementAndGet();
+		if (count >= pruneAt && leftEmpty.compareAndSet(count, 0)) {
+			pruneExecutor.execute(this::prune);
+		}
+	}
 
-			// Recurse if needed
-			Object val = e.getValue();
-			if (val instanceof TreeMap) {
-				deleteFromHashMap(childName, (TreeMap<String, Object>) val);
+	/**
+	 * Prunes the entire tree, removing all empty nodes.
+	 * <p>
+	 * This operation is expensive and fully write locks the radix tree.
+	 */
+	public void prune() {
+		prune(root);
+	}
+
+	private boolean prune(Node node) {
+		long stamp = node.lock.writeLock();
+		try {
+			if (node.isEmpty())
+				return true;
+
+			var it = node.children.entrySet().iterator();
+			while (it.hasNext()) {
+				var entry = it.next();
+				boolean isChildEmpty = prune(entry.getValue());
+				if (isChildEmpty)
+					it.remove();
 			}
+
+			return node.isEmpty();
+		} finally {
+			node.lock.unlockWrite(stamp);
 		}
 	}
 
@@ -314,41 +580,87 @@ final class VariablesMap {
 	 */
 	public VariablesMap copy() {
 		VariablesMap copy = new VariablesMap();
-
-		copy.hashMap.putAll(hashMap);
-
-		TreeMap<String, Object> treeMapCopy = copyTreeMap(treeMap);
-		copy.treeMap.putAll(treeMapCopy);
-
+		copy(this.root, copy.root);
 		return copy;
 	}
 
-	/**
-	 * Makes a deep copy of the given {@link TreeMap}.
-	 * <p>
-	 * The 'deep copy' means that each subtree of the given tree is copied
-	 * as well.
-	 *
-	 * @param original the original tree map.
-	 * @return the copy.
-	 */
-	@SuppressWarnings("unchecked")
-	private static TreeMap<String, Object> copyTreeMap(TreeMap<String, Object> original) {
-		TreeMap<String, Object> copy = new TreeMap<>(VARIABLE_NAME_COMPARATOR);
-
-		for (Entry<String, Object> child : original.entrySet()) {
-			String key = child.getKey();
-			Object value = child.getValue();
-
-			// Copy by recursion if the child is a TreeMap
-			if (value instanceof TreeMap) {
-				value = copyTreeMap((TreeMap<String, Object>) value);
+	private void copy(Node source, Node target) {
+		long stamp = source.lock.readLock();
+		try {
+			target.ref.set(source.ref.get());
+			if (source.hasChildren()) {
+				source.children.forEach((key, sourceChild) -> {
+					Node targetChild = new Node();
+					copy(sourceChild, targetChild);
+					target.children.put(key, targetChild);
+				});
 			}
-
-			copy.put(key, value);
+		} finally {
+			source.lock.unlockRead(stamp);
 		}
+	}
 
-		return copy;
+	/**
+	 * @return whether the variables map is empty
+	 */
+	public boolean isEmpty() {
+		return size() == 0;
+	}
+
+	/**
+	 * Returns all variables in this map.
+	 * <p>
+	 * The map is unmodifiable and ordered in the variables name order.
+	 * <p>
+	 * This map is not nested and contains variables in format {@code full key <-> value}
+	 *
+	 * @return all variables in this map
+	 */
+	public @Unmodifiable Map<String, Object> getAll() {
+		Map<String, Object> all = new TreeMap<>(VARIABLE_NAME_COMP);
+		getAll("", root, all::put);
+		return Collections.unmodifiableMap(all);
+	}
+
+	private void getAll(String buffer, Node source, BiConsumer<String, Object> collector) {
+		long stamp = source.lock.readLock();
+		try {
+			if (source.ref.get() != null)
+				collector.accept(buffer, source.ref.get());
+			if (source.hasChildren()) {
+				source.children.forEach((key, child) -> {
+					String nextName = buffer.isEmpty() ? key : buffer + Variable.SEPARATOR + key;
+					getAll(nextName, child, collector);
+				});
+			}
+		} finally {
+			source.lock.unlockRead(stamp);
+		}
+	}
+
+	/**
+	 * Returns number of variables in this map.
+	 *
+	 * @return number of variables in this map
+	 */
+	public long size() {
+		return size(root);
+	}
+
+	private long size(Node node) {
+		long stamp = node.lock.readLock();
+		long size = 0;
+		try {
+			if (node.ref.get() != null)
+				size++;
+			if (node.hasChildren()) {
+				for (Node child : node.children.values())
+					size += size(child);
+			}
+		} finally {
+			node.lock.unlockRead(stamp);
+		}
+		return size;
 	}
 
 }
