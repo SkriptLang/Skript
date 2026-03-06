@@ -15,6 +15,7 @@ import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
+import ch.njol.skript.lang.parser.ExpressionParseCache;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.simplification.Simplifiable;
@@ -68,8 +69,6 @@ import java.util.stream.Stream;
  * Used for parsing my custom patterns.<br>
  * <br>
  * Note: All parse methods print one error at most xor any amount of warnings and lower level log messages. If the given string doesn't match any pattern then nothing is printed.
- *
- * @author Peter Güttinger
  */
 public final class SkriptParser {
 
@@ -914,6 +913,8 @@ public final class SkriptParser {
 		assert types.length > 0;
 		assert types.length == 1 || !CollectionUtils.contains(types, Object.class);
 
+		ExpressionParseCache failedExprsCache = ParserInstance.get().getExpressionParseCache();
+		failedExprsCache.push();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			Expression<? extends T> parsedExpression = parseSingleExpr(true, null, types);
 			if (parsedExpression != null) {
@@ -923,6 +924,8 @@ public final class SkriptParser {
 			log.clear();
 
 			return parseExpressionList(log, types);
+		} finally {
+			failedExprsCache.pop();
 		}
 	}
 
@@ -931,6 +934,8 @@ public final class SkriptParser {
 			return null;
 		}
 
+		ExpressionParseCache failedExprsCache = ParserInstance.get().getExpressionParseCache();
+		failedExprsCache.push();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			Expression<?> parsedExpression = parseSingleExpr(true, null, exprInfo);
 			if (parsedExpression != null) {
@@ -940,6 +945,8 @@ public final class SkriptParser {
 			log.clear();
 
 			return parseExpressionList(log, exprInfo);
+		} finally {
+			failedExprsCache.pop();
 		}
 	}
 
