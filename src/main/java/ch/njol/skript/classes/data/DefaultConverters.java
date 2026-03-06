@@ -160,6 +160,12 @@ public class DefaultConverters {
 				return entity;
 			return null;
 		}, Converter.NO_CHAINING);
+		// Entity - InventoryHolder
+		Converters.registerConverter(Entity.class, InventoryHolder.class, entity -> {
+			if (entity instanceof InventoryHolder inventoryHolder)
+				return inventoryHolder;
+			return null;
+		}, Converter.NO_RIGHT_CHAINING);
 
 
 		if (!SkriptConfig.useTypeProperties.value()) {
