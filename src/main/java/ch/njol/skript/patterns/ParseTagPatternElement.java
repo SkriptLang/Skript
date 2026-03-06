@@ -1,5 +1,7 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -11,8 +13,7 @@ import java.util.Set;
  */
 public class ParseTagPatternElement extends PatternElement {
 
-	@Nullable
-	private String tag;
+	private @Nullable String tag;
 	private final int mark;
 
 	public ParseTagPatternElement(int mark) {
@@ -20,7 +21,7 @@ public class ParseTagPatternElement extends PatternElement {
 		this.mark = mark;
 	}
 
-	public ParseTagPatternElement(String tag) {
+	public ParseTagPatternElement(@NotNull String tag) {
 		this.tag = tag;
 		int mark = 0;
 		try {
@@ -44,9 +45,8 @@ public class ParseTagPatternElement extends PatternElement {
 					inner = ((OptionalPatternElement) next).getPatternElement();
 				}
 
-				if (inner instanceof ChoicePatternElement) {
+				if (inner instanceof ChoicePatternElement choicePatternElement) {
 					// :(a|b) or :[a|b]
-					ChoicePatternElement choicePatternElement = (ChoicePatternElement) inner;
 					List<PatternElement> patternElements = choicePatternElement.getPatternElements();
 					for (int i = 0; i < patternElements.size(); i++) {
 						PatternElement patternElement = patternElements.get(i);
@@ -65,8 +65,7 @@ public class ParseTagPatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		if (tag != null && !tag.isEmpty())
 			matchResult.tags.add(tag);
 		matchResult.mark ^= mark;
@@ -75,13 +74,21 @@ public class ParseTagPatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
-		if (tag != null) {
-			if (tag.isEmpty())
-				return "";
-			return tag + ":";
-		} else {
-			return mark + "¦";
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
+		if (properties.excludeParseTags()) {
+			return "";
 		}
+		if (tag == null) {
+			return mark + ":";
+		}
+		if (tag.isEmpty()) {
+			return "";
+		}
+		return tag + ":";
 	}
 
 	/**

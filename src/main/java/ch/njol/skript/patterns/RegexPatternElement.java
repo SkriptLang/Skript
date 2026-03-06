@@ -3,6 +3,7 @@ package ch.njol.skript.patterns;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -22,12 +23,10 @@ public class RegexPatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		int exprIndex = matchResult.exprOffset;
 
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			Matcher matcher = pattern.matcher(expr);
 			for (int nextExprOffset = SkriptParser.next(expr, exprIndex, matchResult.parseContext);
 				 nextExprOffset != -1;
@@ -41,8 +40,9 @@ public class RegexPatternElement extends PatternElement {
 
 					MatchResult newMatchResult = matchNext(expr, matchResultCopy);
 					if (newMatchResult != null) {
-						// Append to end of list
-						newMatchResult.regexResults.add(0, matcher.toMatchResult());
+						// at this point, all other regex results will have been added
+						// thus, we append first to insert at the correct position
+						newMatchResult.regexResults.addFirst(matcher.toMatchResult());
 						log.printLog();
 						return newMatchResult;
 					}
@@ -50,13 +50,16 @@ public class RegexPatternElement extends PatternElement {
 			}
 			log.printError(null);
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 
 	@Override
 	public String toString() {
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
 		return "<" + pattern + ">";
 	}
 

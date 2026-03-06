@@ -36,6 +36,11 @@ public enum ScriptWarning {
 	VARIABLE_STARTS_WITH_EXPRESSION("starting expression", "starting [with] expression[s]"),
 
 	/**
+	 * Variable contains a single colon
+	 */
+	VARIABLE_CONTAINS_COLON("variable contains colon", "variable[ name][s] contain[s|ing] colon[s]"),
+
+	/**
 	 * This syntax is deprecated and scheduled for future removal
 	 */
 	DEPRECATED_SYNTAX("deprecated syntax"),

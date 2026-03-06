@@ -120,7 +120,7 @@ public abstract class PropertyBaseExpression<Handler extends ExpressionPropertyH
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T> @Nullable Object convert(Event event, Handler handler, T source) {
-		return ((ExpressionPropertyHandler<T, ?>) handler).convert(source);
+		return ((ExpressionPropertyHandler<T, ?>) handler).convert(event, source);
 	}
 
     @Override

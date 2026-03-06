@@ -11,10 +11,10 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -48,19 +48,14 @@ public class TypePatternElement extends PatternElement {
 		flags:
 		do {
 			switch (string.charAt(caret)) {
-				case '-':
-					isNullable = true;
-					break;
-				case '*':
-					flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
-					break;
-				case '~':
-					flagMask &= ~SkriptParser.PARSE_LITERALS;
-					break;
-				default:
+				case '-' -> isNullable = true;
+				case '*' -> flagMask &= ~SkriptParser.PARSE_EXPRESSIONS;
+				case '~' -> flagMask &= ~SkriptParser.PARSE_LITERALS;
+				default -> {
 					break flags;
+				}
 			}
-			++caret;
+			caret++;
 		} while (true);
 
 		int time = 0;
@@ -77,17 +72,16 @@ public class TypePatternElement extends PatternElement {
 		boolean[] isPlural = new boolean[classes.length];
 
 		for (int i = 0; i < classes.length; i++) {
-			NonNullPair<String, Boolean> p = Utils.getEnglishPlural(classes[i]);
-			classInfos[i] = Classes.getClassInfo(p.getFirst());
-			isPlural[i] = p.getSecond();
+			var result = Utils.isPlural(classes[i]);
+			classInfos[i] = Classes.getClassInfo(result.updated());
+			isPlural[i] = result.plural();
 		}
 
 		return new TypePatternElement(classInfos, isPlural, isNullable, flagMask, time, expressionIndex);
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		int newExprOffset;
 
 		String nextLiteral = null;
@@ -131,6 +125,7 @@ public class TypePatternElement extends PatternElement {
 		ParseLogHandler loopLogHandlerBackup = null;
 		ParseLogHandler expressionLogHandlerBackup = null;
 
+		//noinspection resource - managed manually due to other usages
 		ParseLogHandler loopLogHandler = SkriptLogger.startParseLogHandler();
 		try {
 			while (newExprOffset != -1) {
@@ -142,6 +137,7 @@ public class TypePatternElement extends PatternElement {
 				MatchResult newMatchResult = matchNext(expr, matchResultCopy);
 
 				if (newMatchResult != null) {
+					//noinspection resource - managed manually due to other usages
 					ParseLogHandler expressionLogHandler = SkriptLogger.startParseLogHandler();
 					try {
 						Expression<?> expression = new SkriptParser(expr.substring(matchResult.exprOffset, newExprOffset), matchResult.flags & flagMask, matchResult.parseContext).parseExpression(exprInfo);
@@ -231,26 +227,38 @@ public class TypePatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
 		StringBuilder stringBuilder = new StringBuilder().append("%");
-		if (isNullable)
-			stringBuilder.append("-");
-		if (flagMask != ~0) {
-			if ((flagMask & SkriptParser.PARSE_LITERALS) == 0)
-				stringBuilder.append("~");
-			else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) == 0)
-				stringBuilder.append("*");
+		if (!properties.excludeTypeFlags()) {
+			if (isNullable) {
+				stringBuilder.append("-");
+			}
+			if (flagMask != ~0) {
+				if ((flagMask & SkriptParser.PARSE_LITERALS) == 0) {
+					stringBuilder.append("~");
+				} else if ((flagMask & SkriptParser.PARSE_EXPRESSIONS) == 0) {
+					stringBuilder.append("*");
+				}
+			}
 		}
 		for (int i = 0; i < classes.length; i++) {
 			String codeName = classes[i].getCodeName();
-			if (isPlural[i])
+			if (isPlural[i]) {
 				stringBuilder.append(Utils.toEnglishPlural(codeName));
-			else
+			} else {
 				stringBuilder.append(codeName);
-			if (i != classes.length - 1)
+			}
+			if (i != classes.length - 1) {
 				stringBuilder.append("/");
+			}
 		}
-		if (time != 0)
+		if (!properties.excludeTypeFlags() && time != 0) {
 			stringBuilder.append("@").append(time);
+		}
 		return stringBuilder.append("%").toString();
 	}
 
