@@ -20,6 +20,13 @@ import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
+import ch.njol.skript.skcommand.SkriptCommand;
+import ch.njol.skript.test.runner.EffObjectives;
+import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
@@ -535,7 +542,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Use the updater, now that it has been configured to (not) do stuff
 		if (updater != null) {
 			CommandSender console = Bukkit.getConsoleSender();
-			assert console != null;
 			assert updater != null;
 			updater.updateCheck(console);
 		}
@@ -548,9 +554,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 
 		PluginCommand skriptCommand = getCommand("skript");
-		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
-		skriptCommand.setExecutor(new SkriptCommand());
-		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
+		assert skriptCommand != null; // It is defined, unless the build is corrupted or something like that
+		SkriptCommand commandHandler = new SkriptCommand();
+		skriptCommand.setExecutor(commandHandler);
+		skriptCommand.setTabCompleter(commandHandler);
 
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitEventValues();

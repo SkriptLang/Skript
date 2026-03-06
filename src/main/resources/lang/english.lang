@@ -32,6 +32,7 @@ skript command:
 			config: Reloads the main config
 			aliases: Reloads the aliases configs (aliases-english.zip or plugin jar)
 			scripts: Reloads all scripts
+			last: Reloads the last script you reloaded
 			<script>: Reloads a specific script or a folder of scripts
 		enable:
 			description: Enables all scripts or a specific one
@@ -45,6 +46,7 @@ skript command:
 			description: Check for updates or read the changelog
 			check: Checks for a new version
 			changes: Lists all changes since the current version
+		recover: Writes scripts from memory to files, useful for recovering accidently deleted scripts
 		list: Lists all enabled and disabled scripts
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder
@@ -53,6 +55,7 @@ skript command:
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	reload:
+		no last file: <light red>There is no last script to reload. You must reload a script first.
 		warning line info: <gold><bold>Line %s:<gray> (%s)<reset>\n
 		error line info: <light red><bold>Line %s:<gray> (%s)<reset>\n
 		reloading: Reloading <gold>%s<reset>...
@@ -128,6 +131,10 @@ skript command:
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Installed dependencies: <aqua>%s
+	recover:
+		recovering: <white>Recovering scripts...
+		recovered: <white>Recovered all scripts and saved them inside the <gold>%s <white>directory
+		io error: <light red>Could not recover scripts: %s
 
 # -- Log Messages --
 log:
