@@ -5,7 +5,6 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 
 @Name("Damage Source - Source Location")
 @Description({
@@ -20,8 +19,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
-public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
+public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> {
 
 	static {
 		registerDefault(ExprSourceLocation.class, Location.class, "source location", "damagesources");

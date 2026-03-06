@@ -4,7 +4,6 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 
 @Name("Damage Source - Food Exhaustion")
 @Description("The amount of hunger exhaustion caused by a damage source.")
@@ -14,8 +13,7 @@ import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-@SuppressWarnings("UnstableApiUsage")
-public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperimentSyntax {
+public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> {
 
 	static {
 		registerDefault(ExprFoodExhaustion.class, Float.class, "food exhaustion", "damagesources");
