@@ -1,6 +1,7 @@
 package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.SkriptLogger;
@@ -40,7 +41,7 @@ import java.util.regex.Pattern;
  *  accessed. (rem: print a warning when Skript starts)
  *  rem: store null variables (in memory) to prevent looking up the same variables over and over again
  */
-public class FlatFileStorage extends VariablesStorage {
+public class FlatFileStorage extends VariableStorage {
 
 	/**
 	 * The {@link Charset} used in the CSV storage file.
@@ -108,21 +109,22 @@ public class FlatFileStorage extends VariablesStorage {
 	/**
 	 * Create a new CSV storage of the given name.
 	 *
+	 * @param source the source of this storage.
 	 * @param type the databse type i.e. CSV.
 	 */
-	FlatFileStorage(String type) {
-		super(type);
+	FlatFileStorage(SkriptAddon source, String type) {
+		super(source, type);
 	}
 
 	/**
 	 * Loads the variables in the CSV file.
 	 * <p>
 	 * Doesn't lock the connection, as required by
-	 * {@link Variables#variableLoaded(String, Object, VariablesStorage)}.
+	 * {@link Variables#variableLoaded(String, Object, VariableStorage)}.
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
-	protected boolean load_i(SectionNode sectionNode) {
+	@SuppressWarnings("deprecation")
+	protected final boolean load(SectionNode sectionNode) {
 		SkriptLogger.setNode(null);
 
 		if (file == null) {
@@ -468,9 +470,9 @@ public class FlatFileStorage extends VariablesStorage {
 			if (childNode == null)
 				continue; // Leaf node
 
-			if (childNode instanceof TreeMap) {
+			if (childNode instanceof TreeMap multiVariable) {
 				// TreeMap found, recurse
-				save(pw, parent + childKey + Variable.SEPARATOR, (TreeMap<String, Object>) childNode);
+				save(pw, parent + childKey + Variable.SEPARATOR, multiVariable);
 			} else {
 				// Remove variable separator if needed
 				String name = childKey == null ? parent.substring(0, parent.length() - Variable.SEPARATOR.length()) : parent + childKey;
@@ -481,7 +483,7 @@ public class FlatFileStorage extends VariablesStorage {
 
 				try {
 					// Loop over storages to make sure this variable is ours to store
-					for (VariablesStorage storage : Variables.STORAGES) {
+					for (VariableStorage storage : Variables.STORAGES) {
 						if (storage.accept(name)) {
 							if (storage == this) {
 								// Serialize the value
