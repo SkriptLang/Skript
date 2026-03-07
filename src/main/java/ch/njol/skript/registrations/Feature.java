@@ -159,7 +159,7 @@ public enum Feature implements Experiment, Documentable {
 		
 		For more details about the syntax, visit damage source on our documentation website.
 		""",
-		LifeCycle.EXPERIMENTAL,
+		LifeCycle.MAINSTREAM,
 		"damage source[s]"),
 	EQUIPPABLE_COMPONENTS("equippable components", "Equippable Components",
 		"""

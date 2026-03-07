@@ -12,7 +12,6 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -35,8 +34,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		set {_causing} to the causing entity of event-damage source
 	""")
 @Since("2.12")
-public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
-
+public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,

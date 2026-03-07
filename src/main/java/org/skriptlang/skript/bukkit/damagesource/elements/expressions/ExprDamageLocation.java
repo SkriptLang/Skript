@@ -15,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.expressions.ExprSecDamageSource.DamageSourceSectionEvent;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -37,7 +36,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		set {_location} to the damage location of event-damage source
 	""")
 @Since("2.12")
-public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
+public class ExprDamageLocation extends SimplePropertyExpression<DamageSource, Location> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(

@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Source - Food Exhaustion")
@@ -17,7 +16,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if the food exhaustion of event-damage source is 10:
 	""")
 @Since("2.12")
-public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> implements DamageSourceExperimentSyntax {
+public class ExprFoodExhaustion extends SimplePropertyExpression<DamageSource, Float> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(

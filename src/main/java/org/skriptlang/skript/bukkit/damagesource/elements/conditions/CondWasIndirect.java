@@ -9,8 +9,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -25,7 +23,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if event-damage source was indirectly caused:
 	""")
 @Since("2.12")
-public class CondWasIndirect extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
+public class CondWasIndirect extends PropertyCondition<DamageSource> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(

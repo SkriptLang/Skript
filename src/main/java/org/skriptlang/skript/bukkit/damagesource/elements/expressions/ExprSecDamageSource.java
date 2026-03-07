@@ -23,7 +23,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -50,7 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 			set the damage to damage * 2
 	""")
 @Since("2.12")
-public class ExprSecDamageSource extends SectionExpression<DamageSource> implements DamageSourceExperimentSyntax {
+public class ExprSecDamageSource extends SectionExpression<DamageSource> {
 
 	static class DamageSourceSectionEvent extends Event {
 

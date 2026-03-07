@@ -1,10 +1,7 @@
 package org.skriptlang.skript.bukkit.damagesource.elements.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Example;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -12,8 +9,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -24,7 +19,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		if event-damage source scales damage with difficulty:
 	""")
 @Since("2.12")
-public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> implements DamageSourceExperimentSyntax {
+public class CondScalesWithDifficulty extends PropertyCondition<DamageSource> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(

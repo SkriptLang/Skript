@@ -8,7 +8,6 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Damage Source - Source Location")
@@ -23,7 +22,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 		set {_location} to the source location of event-damage source
 	""")
 @Since("2.12")
-public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> implements DamageSourceExperimentSyntax {
+public class ExprSourceLocation extends SimplePropertyExpression<DamageSource, Location> {
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
