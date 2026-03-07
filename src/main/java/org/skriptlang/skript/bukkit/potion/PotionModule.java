@@ -2,11 +2,7 @@ package org.skriptlang.skript.bukkit.potion;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.classes.YggdrasilSerializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -19,25 +15,28 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.potion.elements.conditions.*;
 import org.skriptlang.skript.bukkit.potion.elements.effects.*;
-import org.skriptlang.skript.bukkit.potion.elements.events.*;
+import org.skriptlang.skript.bukkit.potion.elements.events.EvtEntityPotion;
 import org.skriptlang.skript.bukkit.potion.elements.expressions.*;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.StreamCorruptedException;
 
-public class PotionModule implements AddonModule {
+public class PotionModule extends HierarchicalAddonModule {
+
+	public PotionModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	protected void initSelf(SkriptAddon addon) {
 		// Register ClassInfos
 		Classes.registerClass(new ClassInfo<>(SkriptPotionEffect.class, "skriptpotioneffect")
 			.name(ClassInfo.NO_DOC)
@@ -194,34 +193,34 @@ public class PotionModule implements AddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
+	protected void loadSelf(SkriptAddon addon) {
 		// Load Syntax
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		Origin origin = AddonModule.origin(addon, this);
-		// conditions
-		CondHasPotion.register(registry, origin);
-		CondIsPoisoned.register(registry, origin);
-		CondIsPotionAmbient.register(registry, origin);
-		CondIsPotionInstant.register(registry, origin);
-		CondPotionHasIcon.register(registry, origin);
-		CondPotionHasParticles.register(registry, origin);
-		// effects
-		EffApplyPotionEffect.register(registry, origin);
-		EffPoison.register(registry, origin);
-		EffPotionAmbient.register(registry, origin);
-		EffPotionIcon.register(registry, origin);
-		EffPotionInfinite.register(registry, origin);
-		EffPotionParticles.register(registry, origin);
-		// events
-		EvtEntityPotion.register(registry, origin);
-		// expressions
-		ExprPotionAmplifier.register(registry, origin);
-		ExprPotionDuration.register(registry, origin);
-		ExprPotionEffect.register(registry, origin);
-		ExprPotionEffects.register(registry, origin);
-		ExprPotionEffectTypeCategory.register(registry, origin);
-		ExprSecPotionEffect.register(registry, origin);
-		ExprSkriptPotionEffect.register(registry, origin);
+		register(addon,
+			// conditions
+			CondHasPotion::register,
+			CondIsPoisoned::register,
+			CondIsPotionAmbient::register,
+			CondIsPotionInstant::register,
+			CondPotionHasIcon::register,
+			CondPotionHasParticles::register,
+			// effects
+			EffApplyPotionEffect::register,
+			EffPoison::register,
+			EffPotionAmbient::register,
+			EffPotionIcon::register,
+			EffPotionInfinite::register,
+			EffPotionParticles::register,
+			// events
+			EvtEntityPotion::register,
+			// expressions
+			ExprPotionAmplifier::register,
+			ExprPotionDuration::register,
+			ExprPotionEffect::register,
+			ExprPotionEffects::register,
+			ExprPotionEffectTypeCategory::register,
+			ExprSecPotionEffect::register,
+			ExprSkriptPotionEffect::register
+		);
 	}
 
 	@Override

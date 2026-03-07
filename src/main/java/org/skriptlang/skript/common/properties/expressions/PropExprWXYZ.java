@@ -48,10 +48,9 @@ import java.util.Locale;
 @RelatedProperty("wxyz component")
 public class PropExprWXYZ extends PropertyBaseExpression<WXYZHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprWXYZ.class, Object.class, "(:x|:y|:z|:w)( |-)[component[s]|coord[inate][s]|dep:(pos[ition[s]]|loc[ation][s])]", "objects", false)
-				.origin(origin)
 				.supplier(PropExprWXYZ::new)
 				.build());
 	}

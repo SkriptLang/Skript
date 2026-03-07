@@ -38,13 +38,12 @@ import org.jetbrains.annotations.Nullable;
 @Since({"2.6.1", "2.14 (support for potion effects)"})
 public class CondHasPotion extends Condition {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION, PropertyCondition.infoBuilder(CondHasPotion.class, PropertyType.HAVE,
 			"([any|a[n]] [active] potion effect[s]|[any|a] potion effect[s] active)", "livingentities")
 				.addPatterns(PropertyCondition.getPatterns(PropertyType.HAVE,
 						"%skriptpotioneffects% [active]", "livingentities"))
 				.supplier(CondHasPotion::new)
-				.origin(origin)
 				.build());
 	}
 

@@ -63,12 +63,11 @@ public class ExprParticleWithOffset extends PropertyExpression<ParticleEffect, P
 		{"%directionalparticles% with [a] velocity [of] %vector%", Mode.VELOCITY}
 	});
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, builder(ExprParticleWithOffset.class, ParticleEffect.class)
 			.addPatterns(patterns.getPatterns())
 			.supplier(ExprParticleWithOffset::new)
 			.priority(SyntaxInfo.COMBINED)
-			.origin(origin)
 			.build());
 	}
 

@@ -1,27 +1,30 @@
 package org.skriptlang.skript.bukkit.brewing;
 
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.brewing.elements.CondBrewingConsume;
-import org.skriptlang.skript.bukkit.brewing.elements.EffBrewingConsume;
-import org.skriptlang.skript.bukkit.brewing.elements.EvtBrewingComplete;
-import org.skriptlang.skript.bukkit.brewing.elements.EvtBrewingFuel;
-import org.skriptlang.skript.bukkit.brewing.elements.EvtBrewingStart;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingFuelLevel;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingResults;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingSlot;
-import org.skriptlang.skript.bukkit.brewing.elements.ExprBrewingTime;
-import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.bukkit.brewing.elements.conditions.CondBrewingConsume;
+import org.skriptlang.skript.bukkit.brewing.elements.effects.EffBrewingConsume;
+import org.skriptlang.skript.bukkit.brewing.elements.events.EvtBrewingComplete;
+import org.skriptlang.skript.bukkit.brewing.elements.events.EvtBrewingFuel;
+import org.skriptlang.skript.bukkit.brewing.elements.events.EvtBrewingStart;
+import org.skriptlang.skript.bukkit.brewing.elements.expressions.ExprBrewingFuelLevel;
+import org.skriptlang.skript.bukkit.brewing.elements.expressions.ExprBrewingResults;
+import org.skriptlang.skript.bukkit.brewing.elements.expressions.ExprBrewingSlot;
+import org.skriptlang.skript.bukkit.brewing.elements.expressions.ExprBrewingTime;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
+/**
+ * Module containing brewing stand related elements.
+ */
+public class BrewingModule extends HierarchicalAddonModule {
 
-public class BrewingModule implements AddonModule {
+	public BrewingModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
-		register(addon.syntaxRegistry(),
-
+	protected void loadSelf(SkriptAddon addon) {
+		register(addon,
 			CondBrewingConsume::register,
 
 			EffBrewingConsume::register,
@@ -35,10 +38,6 @@ public class BrewingModule implements AddonModule {
 			ExprBrewingSlot::register,
 			ExprBrewingTime::register
 		);
-	}
-
-	private void register(SyntaxRegistry registry, Consumer<SyntaxRegistry>... consumers) {
-		Arrays.stream(consumers).forEach(consumer -> consumer.accept(registry));
 	}
 
 	@Override

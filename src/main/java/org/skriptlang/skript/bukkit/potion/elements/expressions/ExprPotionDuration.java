@@ -24,11 +24,10 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class ExprPotionDuration extends SimplePropertyExpression<SkriptPotionEffect, Timespan> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionDuration.class, Timespan.class,
 			"([potion] duration|potion length)[s]", "skriptpotioneffects", true)
 				.supplier(ExprPotionDuration::new)
-				.origin(origin)
 				.build());
 	}
 

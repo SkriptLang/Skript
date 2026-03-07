@@ -41,7 +41,7 @@ public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 
 	private static Patterns<EffectInfo<Particle, Object>> PATTERNS;
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		// create Patterns object
 		Object[][] patterns = new Object[DataParticles.getParticleInfos().size()][2];
 		int i = 0;
@@ -56,7 +56,6 @@ public class ExprParticleWithData extends SimpleExpression<ParticleEffect> {
 			.addPatterns(PATTERNS.getPatterns())
 			.supplier(ExprParticleWithData::new)
 			.priority(SyntaxInfo.COMBINED)
-			.origin(origin)
 			.build());
 	}
 

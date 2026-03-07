@@ -36,7 +36,7 @@ public class ExprGameEffectWithData extends SimpleExpression<GameEffect> {
 
 	private static Patterns<EffectInfo<Effect, Object>> PATTERNS;
 
-	public static void register(@NotNull SyntaxRegistry registry, @NotNull Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		// create Patterns object
 		Object[][] patterns = new Object[DataGameEffects.getGameEffectInfos().size()][2];
 		int i = 0;
@@ -51,7 +51,6 @@ public class ExprGameEffectWithData extends SimpleExpression<GameEffect> {
 				.addPatterns(PATTERNS.getPatterns())
 				.supplier(ExprGameEffectWithData::new)
 				.priority(SyntaxInfo.COMBINED)
-				.origin(origin)
 				.build());
 	}
 

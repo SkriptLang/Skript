@@ -18,10 +18,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class EffPotionInfinite extends PotionPropertyEffect {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffPotionInfinite.class)
 				.supplier(EffPotionInfinite::new)
-				.origin(origin)
 				.addPatterns(getPatterns(Type.MAKE, "(infinite|permanent)"))
 				.build());
 	}

@@ -1,12 +1,32 @@
 package org.skriptlang.skript.bukkit.furnace;
 
-import ch.njol.skript.Skript;
-import java.io.IOException;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.furnace.elements.events.EvtFurnace;
+import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceEventItems;
+import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceSlot;
+import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceTime;
 
-public class FurnaceModule {
+public class FurnaceModule extends HierarchicalAddonModule {
 
-	public static void load() throws IOException{
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.furnace", "elements");
+	public FurnaceModule(AddonModule parentModule) {
+		super(parentModule);
+	}
+
+	@Override
+	protected void loadSelf(SkriptAddon addon) {
+		register(addon,
+			EvtFurnace::register,
+			ExprFurnaceEventItems::register,
+			ExprFurnaceSlot::register,
+			ExprFurnaceTime::register
+		);
+	}
+
+	@Override
+	public String name() {
+		return "furnace";
 	}
 
 }

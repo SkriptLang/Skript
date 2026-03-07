@@ -27,12 +27,11 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Since("2.14")
 public class ExprPotionEffectTypeCategory extends SimplePropertyExpression<PotionEffectType, PotionEffectTypeCategory> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		if (Skript.classExists("org.bukkit.potion.PotionEffectTypeCategory")) {
 			registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffectTypeCategory.class, PotionEffectTypeCategory.class,
 				"potion [effect [type]] category", "potioneffecttypes", false)
 					.supplier(ExprPotionEffectTypeCategory::new)
-					.origin(origin)
 					.build());
 		}
 	}
