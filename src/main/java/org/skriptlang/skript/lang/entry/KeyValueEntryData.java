@@ -30,7 +30,7 @@ public abstract class KeyValueEntryData<T> extends EntryData<T> {
 	 * @return The value obtained from the provided {@link SimpleNode}.
 	 */
 	@Override
-	public final @Nullable T getValue(Node node) {
+	public @Nullable T getValue(Node node) {
 		assert node instanceof SimpleNode;
 		String key = node.getKey();
 		if (key == null)

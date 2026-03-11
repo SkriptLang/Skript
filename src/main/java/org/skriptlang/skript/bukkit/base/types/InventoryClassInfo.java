@@ -22,6 +22,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -248,10 +250,20 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 		}
 
 		@Override
-		public String convert(Inventory inventory) {
+		public String convert(Event event, Inventory inventory) {
+			if (event instanceof InventoryEvent inventoryEvent
+				&& inventoryEvent.getInventory().equals(inventory)
+			) {
+				return InventoryUtils.getTitle(inventoryEvent.getView());
+			}
+			return convert(inventory);
+		}
+
+		@Override
+		public @Nullable String convert(Inventory inventory) {
 			if (inventory.getViewers().isEmpty())
 				return null;
-			return InventoryUtils.getTitle(inventory.getViewers().get(0).getOpenInventory());
+			return InventoryUtils.getTitle(inventory.getViewers().getFirst().getOpenInventory());
 		}
 
 		@Override

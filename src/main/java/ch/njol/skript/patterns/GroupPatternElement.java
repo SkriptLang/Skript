@@ -38,7 +38,7 @@ public class GroupPatternElement extends PatternElement {
 
 	@Override
 	public String toString(StringificationProperties properties) {
-		return "(" + patternElement + ")";
+		return "(" + patternElement.toFullString(properties) + ")";
 	}
 
 	@Override
