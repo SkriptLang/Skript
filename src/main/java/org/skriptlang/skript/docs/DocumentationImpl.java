@@ -2,12 +2,10 @@ package org.skriptlang.skript.docs;
 
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.SequencedCollection;
 
 record DocumentationImpl(
@@ -19,8 +17,14 @@ record DocumentationImpl(
 	SequencedCollection<String> since,
 	Collection<String> requirements,
 	Collection<String> keywords,
-	boolean deprecated
+	boolean deprecated,
+	Collection<Documentable> additionalData
 ) implements Documentation {
+
+	/**
+	 * An {@link Documentation#additionalData()} to be added to {@link Documentation}s that should not be written.
+	 */
+	static final Documentable SKIP_WRITE = (adapter) -> { };
 
 	DocumentationImpl(Origin origin,
 					  @Nullable String id,
@@ -30,9 +34,11 @@ record DocumentationImpl(
 					  Collection<String> since,
 					  Collection<String> requirements,
 					  Collection<String> keywords,
-					  boolean deprecated) {
+					  boolean deprecated,
+					  Collection<Documentable> additionalData) {
 		this(origin, id, name, description, ImmutableList.copyOf(examples), ImmutableList.copyOf(since),
-			ImmutableList.copyOf(requirements), ImmutableList.copyOf(keywords), deprecated);
+			ImmutableList.copyOf(requirements), ImmutableList.copyOf(keywords), deprecated,
+			ImmutableList.copyOf(additionalData));
 	}
 
 	@Override
@@ -49,6 +55,7 @@ record DocumentationImpl(
 		if (deprecated) {
 			builder.deprecated();
 		}
+		additionalData.forEach(builder::addData);
 		return builder;
 	}
 
@@ -64,6 +71,7 @@ record DocumentationImpl(
 		private final Collection<String> requirements = new ArrayList<>();
 		private final Collection<String> keywords = new ArrayList<>();
 		private boolean deprecated;
+		private final Collection<Documentable> additionalData = new ArrayList<>();
 
 		@Override
 		public B origin(Origin origin) {
@@ -192,8 +200,21 @@ record DocumentationImpl(
 		}
 
 		@Override
+		public B addData(Documentable documentable) {
+			this.additionalData.add(documentable);
+			return (B) this;
+		}
+
+		@Override
+		public B clearData() {
+			this.additionalData.clear();
+			return (B) this;
+		}
+
+		@Override
 		public Documentation build() {
-			return new DocumentationImpl(origin, id, name, description, examples, since, requirements, keywords, deprecated);
+			return new DocumentationImpl(origin, id, name, description, examples, since, requirements, keywords,
+				deprecated, additionalData);
 		}
 
 		@Override
@@ -209,222 +230,6 @@ record DocumentationImpl(
 			if (deprecated) {
 				builder.deprecated();
 			}
-		}
-
-	}
-
-	record OriginOnly(Origin origin) implements Documentation {
-
-		@Override
-		public @Nullable String id() {
-			return null;
-		}
-
-		@Override
-		public String name() {
-			return "";
-		}
-
-		@Override
-		public @Unmodifiable String description() {
-			return "";
-		}
-
-		@Override
-		public @Unmodifiable Collection<String> examples() {
-			return List.of();
-		}
-
-		@Override
-		public @Unmodifiable SequencedCollection<String> since() {
-			return List.of();
-		}
-
-		@Override
-		public @Unmodifiable Collection<String> requirements() {
-			return List.of();
-		}
-
-		@Override
-		public @Unmodifiable Collection<String> keywords() {
-			return List.of();
-		}
-
-		@Override
-		public boolean deprecated() {
-			return false;
-		}
-
-		@Override
-		public Builder<?> toBuilder() {
-			return new OriginOnlyBuilder()
-				.origin(origin);
-		}
-
-		@Override
-		public void write(DocumentationAdapter adapter) {
-			// write nothing
-		}
-
-		/**
-		 * A builder that will return an OriginOnly documentation if only the origin is modified.
-		 */
-		private static class OriginOnlyBuilder implements Documentation.Builder<OriginOnlyBuilder> {
-
-			private Origin origin;
-			private @Nullable Builder<?> builder;
-
-			private Builder<?> builder() {
-				if (builder == null) {
-					builder = new BuilderImpl<>();
-				}
-				return builder;
-			}
-
-			@Override
-			public OriginOnlyBuilder origin(Origin origin) {
-				this.origin = origin;
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder id(@Nullable String id) {
-				builder().id(id);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder name(String name) {
-				builder().name(name);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder description(String description) {
-				builder().description(description);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addExample(String example) {
-				builder().addExample(example);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addExamples(String... examples) {
-				builder().addExamples(examples);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addExamples(Collection<String> examples) {
-				builder().addExamples(examples);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder clearExamples() {
-				builder().clearExamples();
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addSince(String since) {
-				builder().addSince(since);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addSince(String... since) {
-				builder().addSince(since);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addSince(Collection<String> since) {
-				builder().addSince(since);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder clearSince() {
-				builder().clearSince();
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addRequirement(String requirement) {
-				builder().addRequirement(requirement);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addRequirements(String... requirements) {
-				builder().addRequirements(requirements);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addRequirements(Collection<String> requirements) {
-				builder().addRequirements(requirements);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder clearRequirements() {
-				builder().clearRequirements();
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addKeyword(String keyword) {
-				builder().addKeyword(keyword);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addKeywords(String... keywords) {
-				builder().addKeywords(keywords);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder addKeywords(Collection<String> keywords) {
-				builder().addKeywords(keywords);
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder clearKeywords() {
-				builder().clearKeywords();
-				return this;
-			}
-
-			@Override
-			public OriginOnlyBuilder deprecated() {
-				builder().deprecated();
-				return this;
-			}
-
-			@Override
-			public Documentation build() {
-				if (builder != null) {
-					return builder
-						.origin(origin)
-						.build();
-				}
-				return new OriginOnly(origin);
-			}
-
-			@Override
-			public void applyTo(Builder<?> builder) {
-				builder.origin(origin);
-				if (this.builder != null) {
-					this.builder.applyTo(builder);
-				}
-			}
-
 		}
 
 	}

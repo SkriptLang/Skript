@@ -16,30 +16,19 @@ public interface Documentation extends Documentable {
 
 	/**
 	 * Documentation to use when intentionally representing a {@link Documentable} object as having no documentation.
-	 * @see #originOnly(Origin)
 	 */
-	Documentation NONE = originOnly(Origin.UNKNOWN);
-
-	/**
-	 * Constructs a documentation to use when intentionally representing a {@link Documentable} object as having no documentation
-	 *  other than an origin.
-	 * @param origin The origin to use.
-	 * @return A documentation.
-	 * @see #NONE
-	 */
-	static Documentation originOnly(Origin origin) {
-		return new DocumentationImpl.OriginOnly(origin);
-	}
+	Documentation NONE = Documentation.builder()
+		.addData(DocumentationImpl.SKIP_WRITE)
+		.build();
 
 	/**
 	 * Used for determining whether a documentation
 	 * @param documentation The documentation to check.
 	 * @return Whether {@code documentation} represents an intentionally
 	 * @see #NONE
-	 * @see #originOnly(Origin)
 	 */
 	static boolean isNoDocs(Documentation documentation) {
-		return documentation instanceof DocumentationImpl.OriginOnly;
+		return documentation.additionalData().contains(DocumentationImpl.SKIP_WRITE);
 	}
 
 	/**
@@ -186,6 +175,11 @@ public interface Documentation extends Documentable {
 	boolean deprecated();
 
 	/**
+	 * @return A collection of additional data related to the thing represented by this documentation.
+	 */
+	Collection<Documentable> additionalData();
+
+	/**
 	 * Converts this documentation back into a builder.
 	 * @return A builder capable of building this documentation.
 	 */
@@ -202,6 +196,7 @@ public interface Documentation extends Documentable {
 		adapter.write("requirements", requirements());
 		adapter.write("keywords", keywords());
 		adapter.write("deprecated", deprecated());
+		additionalData().forEach(adapter::write);
 	}
 
 	/**
@@ -381,7 +376,7 @@ public interface Documentation extends Documentable {
 		B addKeywords(Collection<String> keywords);
 
 		/**
-		 * Clears all added keywords
+		 * Clears all added keywords.
 		 * @return This builder.
 		 * @see Documentation#keywords()
 		 */
@@ -395,6 +390,21 @@ public interface Documentation extends Documentable {
 		 */
 		@Contract(value = "-> this", mutates = "this")
 		B deprecated();
+
+		/**
+		 * Adds additional data related to the thing represented by the documentation.
+		 * @param documentable The additional data to add.
+		 * @return This builder.
+		 * @see Documentation#additionalData()
+		 */
+		B addData(Documentable documentable);
+
+		/**
+		 * Clears all added additional data.
+		 * @return This builder.
+		 * @see Documentation#additionalData()
+		 */
+		B clearData();
 
 		/**
 		 * @return A {@link Documentation} object representing the values set on this builder.

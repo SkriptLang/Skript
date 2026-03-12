@@ -149,9 +149,7 @@ public class ExperimentRegistry implements Experimented, Documentable {
 		adapter.enterScope("experiments");
 		for (Experiment experiment : experiments) {
 			if (experiment instanceof Feature feature) {
-				adapter.enterScope(feature.documentation().id());
 				adapter.write(feature);
-				adapter.exitScope();
 			}
 		}
 		adapter.exitScope();

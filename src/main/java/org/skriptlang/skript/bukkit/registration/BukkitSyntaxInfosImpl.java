@@ -159,7 +159,7 @@ final class BukkitSyntaxInfosImpl {
 			private final SyntaxInfo.Builder<?, E> defaultBuilder;
 			private ListeningBehavior listeningBehavior = ListeningBehavior.UNCANCELLED;
 			String description = "";
-			private @Nullable Documentation.Builder documentationBuilder;
+			private @Nullable Documentation.Builder<?> documentationBuilder;
 			private final String name;
 			private @Nullable String documentationId;
 			private final List<Class<? extends org.bukkit.event.Event>> events = new ArrayList<>();
@@ -169,7 +169,7 @@ final class BukkitSyntaxInfosImpl {
 				this.name = name;
 			}
 
-			private Documentation.Builder documentationBuilder() {
+			private Documentation.Builder<?> documentationBuilder() {
 				if (documentationBuilder == null) {
 					documentationBuilder = Documentation.builder();
 				}

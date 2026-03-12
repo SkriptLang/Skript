@@ -223,11 +223,6 @@ public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.sk
 	}
 
 	@Override
-	public Documentation documentation() {
-		return documentation;
-	}
-
-	@Override
 	public LifeCycle phase() {
 		return phase;
 	}
@@ -235,6 +230,21 @@ public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.sk
 	@Override
 	public SkriptPattern pattern() {
 		return compiledPattern;
+	}
+
+	@Override
+	public Documentation documentation() {
+		return documentation;
+	}
+
+	@Override
+	public void preWrite(DocumentationAdapter adapter) {
+		adapter.enterScope(documentation().id());
+	}
+
+	@Override
+	public void postWrite(DocumentationAdapter adapter) {
+		adapter.exitScope();
 	}
 
 	/**

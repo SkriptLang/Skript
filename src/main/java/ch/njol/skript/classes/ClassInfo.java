@@ -478,7 +478,10 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	public ClassInfo<T> name(final String name) {
 		//noinspection StringEquality intentional == comparison
 		if (name == NO_DOC) {
-			documentation = Documentation.originOnly(documentation.origin());
+			documentation = Documentation.NONE.toBuilder()
+				.origin(documentation.origin())
+				.id(documentation.id())
+				.build();
 		} else {
 			documentation = documentation.toBuilder()
 				.name(name)

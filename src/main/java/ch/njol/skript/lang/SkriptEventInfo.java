@@ -345,14 +345,17 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 		@Override
 		public Documentation documentation() {
+			Documentation.Builder<?> builder;
 			if (getDescription() == NO_DOC) {
-				return Documentation.originOnly(origin);
+				builder = Documentation.NONE.toBuilder();
+			} else {
+				builder = Documentation.builder()
+					.description(String.join("\n", description()));
 			}
-			return Documentation.builder()
+			return builder
 				.origin(origin)
 				.id(documentationId())
 				.name(name())
-				.description(String.join("\n", description()))
 				.addExamples(examples())
 				.addSince(since())
 				.addKeywords(keywords())
