@@ -113,9 +113,10 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return new Class[] {Component.class};
-			return null;
+			return switch (mode) {
+				case SET, RESET, DELETE -> new Class[] {Component.class};
+				default -> null;
+			};
 		}
 
 		@Override

@@ -17,6 +17,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -235,9 +237,18 @@ public class InventoryClassInfo extends ClassInfo<Inventory> {
 		//<editor-fold desc="inventory name property" defaultstate="collapsed">
 
 		@Override
-		public Component convert(Inventory inventory) {
-			if (inventory.getViewers().isEmpty())
+		public Component convert(Event event, Inventory inventory) {
+			if (event instanceof InventoryEvent inventoryEvent && inventoryEvent.getInventory() == inventory) {
+				return inventoryEvent.getView().title();
+			}
+			return convert(inventory);
+		}
+
+		@Override
+		public @Nullable Component convert(Inventory inventory) {
+			if (inventory.getViewers().isEmpty()) {
 				return null;
+			}
 			return inventory.getViewers().getFirst().getOpenInventory().title();
 		}
 

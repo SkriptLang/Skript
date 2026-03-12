@@ -80,6 +80,18 @@ test "function structure arguments":
 		argument_test_list(1, (2, 3))
 	assert last parse logs contain "The function argument_test_list(integer, integers) does not exist"
 
+	parse:
+		argument_test(1 if {_x} is 1, else 2, 3)
+	assert last parse logs is "The function argument_test(?, ?, integer) does not exist. Did you mean to use the function 'local argument_test(x: integer, y: integer)'?"
+
+	parse:
+		argument_test((1 if {_x} is 1, else 2), 3)
+	assert last parse logs is not set
+
+	parse:
+		location(1, 1, 1, 1, 1)
+	assert last parse logs is "Can't understand the argument for the parameter 'world' with type 'world': 1."
+
 local function argument_default(x: int, y: int = 2) -> int:
     return {_x} + {_y}
 
@@ -112,7 +124,7 @@ test "named function arguments":
 
 	parse:
 		assert nfa(a: 8, c: adghadhaherta, b: 2) = 7
-	assert first element of last parse logs contains "Can't understand the argument for integer parameter 'c': adghadhaherta"
+	assert last parse logs is "Can't understand the argument for the parameter 'c' with type 'integer': adghadhaherta."
 
 	parse:
 		assert nfa(8, c: 3, b: 2) = 7
@@ -134,7 +146,7 @@ test "named function arguments":
 
 	parse:
 		nfa(a: 1, b: 2, d: 2)
-	assert first element of last parse logs contains "Can't understand the argument for integer parameter 'c': d: 2"
+	assert last parse logs is "Can't understand the argument for the parameter 'c' with type 'integer': d: 2."
 
 	parse:
 		nfa(a: 1, d: 2, b: 2)
@@ -160,14 +172,6 @@ test "named function arguments":
 	parse:
 		location(x: 1, y: 2, z: 3, 4, world: "world", 5)
 	assert first element of last parse logs contains "Mixing named and unnamed arguments is not allowed"
-
-	parse:
-		nfa(1 if {_x} is 1, else 2, 3, 4)
-	assert last parse logs is "The function nfa(?, ?, integer, integer) does not exist. Did you mean to use the function 'local nfa(a: integer, b: integer, c: integer)'?"
-
-	parse:
-		nfa((1 if {_x} is 1, else 2), 3, 4)
-	assert last parse logs is not set
 
 local function nfa_incorrect_list(ns: numbers):
 	stop

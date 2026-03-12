@@ -164,13 +164,15 @@ case-insensitive commands: false
 
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
-# By Mirre.
 
 disable variable missing and/or warnings: false
 # Disables the "List is missing 'and' or 'or', defaulting to 'and'" warning when reloading your script.
 
 disable starting a variable's name with an expression warnings: false
 # Disables the "Starting a variable's name with an expression is discouraged..." warnings
+
+disable single colon in variable name warnings: false
+# Disables the "... its name should contain '::'. Having a single ':' does nothing!" warnings for variable names.
 
 disable unreachable code warnings: false
 # Disables the "Unreachable code. The previous statement stops further execution." warnings.

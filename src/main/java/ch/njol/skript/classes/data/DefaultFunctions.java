@@ -557,6 +557,16 @@ public class DefaultFunctions {
 			.since("2.2"));
 
 		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
+			.description("Creates a vector from a single argument. Equivalent to vector(n, n, n).")
+			.examples("vector(1) # = vector(1, 1, 1)")
+			.since("INSERT VERSION")
+			.parameter("n", Number.class)
+			.build(args -> {
+				double value = args.<Number>get("n").doubleValue();
+				return new Vector(value, value, value);
+			}));
+
+		Functions.register(DefaultFunction.builder(skript, "vector", Vector.class)
 			.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 			.examples("vector(0, 0, 0)")
 			.since("2.2-dev23")

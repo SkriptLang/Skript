@@ -14,11 +14,12 @@ public class MiscModule implements AddonModule {
 		// expressions
 		ExprBroadcastMessage.register(syntaxRegistry);
 		ExprMOTD.register(syntaxRegistry);
+		ExprWithYawPitch.register(syntaxRegistry);
 	}
 
 	@Override
 	public String name() {
-		return "miscellaneous";
+		return "bukkit/misc";
 	}
 
 }

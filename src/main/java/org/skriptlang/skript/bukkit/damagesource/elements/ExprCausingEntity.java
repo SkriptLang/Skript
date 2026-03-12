@@ -12,7 +12,6 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceExperimentSyntax;
 import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.DamageSourceSectionEvent;
 
 @Name("Damage Source - Causing Entity")
@@ -35,7 +34,7 @@ import org.skriptlang.skript.bukkit.damagesource.elements.ExprSecDamageSource.Da
 	""")
 @Since("2.12")
 @RequiredPlugins("Minecraft 1.20.4+")
-public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> implements DamageSourceExperimentSyntax {
+public class ExprCausingEntity extends SimplePropertyExpression<DamageSource, Entity> {
 
 	static {
 		registerDefault(ExprCausingEntity.class, Entity.class, "(causing|responsible) entity", "damagesources");

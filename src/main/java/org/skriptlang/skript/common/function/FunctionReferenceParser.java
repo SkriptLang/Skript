@@ -245,7 +245,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 						}
 					}
 				} else if (index < arguments.length) { // if there are no named arguments, simply take the next provided one
-					argument = arguments[index];
+					argument = new Argument<>(ArgumentType.UNNAMED, entry.getKey(), arguments[index].value());
 				}
 				if (argument == null) { // could not resolve an argument, use a placeholder
 					argument = new Argument<>(ArgumentType.UNNAMED, entry.getKey(), null);
@@ -641,7 +641,7 @@ public record FunctionReferenceParser(ParseContext context, int flags) {
 			Expression<?> expression = parser.parseExpression(targetData.type());
 			if (expression == null) {
 				logHandler.printError(INVALID_ARGUMENT.toString(
-					Classes.getSuperClassInfo(targetData.type()).getName().getSingular(), argument.name(), argument.value()
+					argument.name(), Classes.getSuperClassInfo(targetData.type()).getName().getSingular(), argument.value()
 				));
 			}
 			return expression;

@@ -162,14 +162,14 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return new Class[] {Component.class};
-			return null;
+			return switch (mode) {
+				case SET, RESET, DELETE -> new Class[] {Component.class};
+				default -> null;
+			};
 		}
 
 		@Override
 		public void change(Slot named, Object @Nullable [] delta, ChangeMode mode) {
-			assert mode == ChangeMode.SET;
 			Component name = delta == null ? null : (Component) delta[0];
 			ItemStack stack = named.getItem();
 			if (stack != null && !ItemUtils.isAir(stack.getType())) {

@@ -172,18 +172,19 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return CollectionUtils.array(Component.class);
-			return null;
+			return switch (mode) {
+				case SET, RESET, DELETE -> new Class[] {Component.class};
+				default -> null;
+			};
 		}
 
 		@Override
 		public void change(Entity entity, Object @Nullable [] delta, ChangeMode mode) {
-			assert mode == ChangeMode.SET || mode == ChangeMode.RESET;
 			Component name = delta == null ? null : (Component) delta[0];
 
 			entity.customName(name);
-			entity.setCustomNameVisible(name != null);
+			if (isDisplayName || mode == ChangeMode.RESET)
+				entity.setCustomNameVisible(name != null);
 			if (entity instanceof LivingEntity living)
 				living.setRemoveWhenFarAway(name == null);
 		}
