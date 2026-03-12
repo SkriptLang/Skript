@@ -1,11 +1,8 @@
 package org.skriptlang.skript.registration;
 
-import ch.njol.skript.util.Utils;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.docs.Documentation;
-import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
 
 import java.util.Collection;
@@ -63,30 +60,6 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		return builder.build();
 	}
 
-	@Override
-	public void write(DocumentationAdapter adapter) {
-		for (var entry : registers.entrySet()) {
-			// TODO dynamic way to exclude certain keys?
-			if (entry.getKey() == STATEMENT) {
-				continue;
-			}
-			adapter.enterScope(Utils.toEnglishPlural(entry.getKey().name()));
-			for (var info : entry.getValue().syntaxes()) {
-				if (Documentation.isNoDocs(info.documentation())) {
-					continue;
-				}
-				String id = info.documentation().id();
-				if (id == null) {
-					id = info.type().getSimpleName();
-				}
-				adapter.enterScope(id);
-				adapter.write(info);
-				adapter.exitScope();
-			}
-			adapter.exitScope();
-		}
-	}
-
 	static final class OriginApplyingRegistry implements SyntaxRegistry {
 
 		private final SyntaxRegistry syntaxRegistry;
@@ -130,11 +103,6 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 			return syntaxRegistry.elements();
 		}
 
-		@Override
-		public void write(DocumentationAdapter adapter) {
-			syntaxRegistry.write(adapter);
-		}
-
 	}
 
 	static final class UnmodifiableRegistry implements SyntaxRegistry {
@@ -173,11 +141,6 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		@Override
 		public SyntaxRegistry unmodifiableView() {
 			return this;
-		}
-
-		@Override
-		public void write(DocumentationAdapter adapter) {
-			registry.write(adapter);
 		}
 
 	}

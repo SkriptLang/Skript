@@ -5,15 +5,18 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.Statement;
+import ch.njol.skript.util.Utils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.docs.Documentable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.util.Registry;
 import org.skriptlang.skript.util.ViewProvider;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A syntax registry is a central container for all {@link SyntaxInfo}s.
@@ -122,6 +125,16 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	 */
 	@Override
 	@Unmodifiable Collection<SyntaxInfo<?>> elements();
+
+	@Override
+	default void write(DocumentationAdapter adapter) {
+		// TODO support for other keys
+		for (var key : List.of(STRUCTURE, SECTION, EFFECT, CONDITION, EXPRESSION)) {
+			adapter.enterScope(Utils.toEnglishPlural(key.name()));
+			syntaxes(key).forEach(adapter::write);
+			adapter.exitScope();
+		}
+	}
 
 	/**
 	 * Represents a syntax element type.

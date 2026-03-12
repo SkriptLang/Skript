@@ -32,12 +32,14 @@ public interface DocumentationAdapter {
 
 	/**
 	 * Writes a documentable to this adapter.
-	 * This is equivalent to {@code documentable.write(thisAdapter)}.
 	 * @param documentable The documentable to write.
-	 * @see Documentable#write(DocumentationAdapter)
 	 */
 	default void write(Documentable documentable) {
-		documentable.write(this);
+		if (documentable.canWrite(this)) {
+			documentable.preWrite(this);
+			documentable.write(this);
+			documentable.postWrite(this);
+		}
 	}
 
 	void write(String key, Object value);

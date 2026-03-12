@@ -31,6 +31,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.jetbrains.annotations.*;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -868,6 +869,12 @@ public abstract class Classes {
 		if (s == null)
 			return null;
 		return s.deserialize(value);
+	}
+
+	public static void write(DocumentationAdapter adapter) {
+		adapter.enterScope("types");
+		Classes.getClassInfos().forEach(adapter::write);
+		adapter.exitScope();
 	}
 
 }

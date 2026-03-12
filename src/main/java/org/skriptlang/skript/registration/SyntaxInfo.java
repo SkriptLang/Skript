@@ -95,6 +95,15 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 	Documentation documentation();
 
 	@Override
+	default void preWrite(DocumentationAdapter adapter) {
+		String id = documentation().id();
+		if (id == null) {
+			id = type().getSimpleName();
+		}
+		adapter.enterScope(id);
+	}
+
+	@Override
 	default void write(DocumentationAdapter adapter) {
 		// overwrite ID before applying
 		adapter.write(documentation().toBuilder()
@@ -106,6 +115,11 @@ public non-sealed interface SyntaxInfo<E extends SyntaxElement> extends Document
 				.excludeTypeFlags()
 				.build()))
 			.toList());
+	}
+
+	@Override
+	default void postWrite(DocumentationAdapter adapter) {
+		adapter.exitScope();
 	}
 
 	/**

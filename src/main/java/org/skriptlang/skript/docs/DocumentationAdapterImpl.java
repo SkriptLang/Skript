@@ -26,21 +26,13 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	DocumentationAdapterImpl(SkriptAddon addon) {
 		this();
 		// generate defaults
-		addon.syntaxRegistry().write(this);
-		enterScope("types");
-		Classes.getClassInfos().forEach(info -> {
-			enterScope(info.documentation().id());
-			info.write(this);
-			exitScope();
-		});
-		exitScope();
-		Skript.experiments().write(this);
+		write(addon.syntaxRegistry());
+		Classes.write(this);
+		write(Skript.experiments());
 	}
 
 	@Override
 	public void write(String key, Object value) {
-		assert !scopes.isEmpty();
-
 		value = adapt(value);
 
 		if (value instanceof Documentable documentable) {
@@ -50,6 +42,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			return;
 		}
 
+		assert !scopes.isEmpty();
 		scopes.peek().values().put(key, value);
 	}
 

@@ -11,6 +11,11 @@ public interface DocumentationDocumentable extends Documentable {
 	Documentation documentation();
 
 	@Override
+	default boolean canWrite(DocumentationAdapter adapter) {
+		return !Documentation.isNoDocs(documentation());
+	}
+
+	@Override
 	default void write(DocumentationAdapter adapter) {
 		adapter.write(documentation());
 	}

@@ -436,9 +436,14 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 
 	@Contract(value = "_ -> this", mutates = "this")
 	public ClassInfo<T> documentation(Documentation documentation) {
+		if (documentation.origin() == null) {
+			documentation = documentation.toBuilder()
+				.origin(this.documentation.origin())
+				.build();
+		}
 		if (documentation.id() == null) {
 			documentation = documentation.toBuilder()
-				.id(getCodeName())
+				.id(this.documentation.id())
 				.build();
 		}
 		this.documentation = documentation;
@@ -446,9 +451,19 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	}
 
 	@Override
+	public void preWrite(DocumentationAdapter adapter) {
+		adapter.enterScope(documentation.id());
+	}
+
+	@Override
 	public void write(DocumentationAdapter adapter) {
 		DocumentationDocumentable.super.write(adapter);
-		adapter.write("patterns", usage);
+		adapter.write("patterns", getUsage());
+	}
+
+	@Override
+	public void postWrite(DocumentationAdapter adapter) {
+		adapter.exitScope();
 	}
 
 	/**
@@ -486,6 +501,7 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	/**
 	 * @deprecated Use {@link #documentation(Documentation)}.
 	 */
+	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> usage(final String... usage) {
 		this.usage = usage;
 		return this;
