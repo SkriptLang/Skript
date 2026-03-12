@@ -9,6 +9,7 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.Documentation;
 import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.DocumentationDocumentable;
@@ -65,7 +67,6 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	private Class<?> serializeAs = null;
 
 	private Documentation documentation;
-	private String @Nullable [] usage = null;
 
 	/**
 	 * @param c The class
@@ -427,6 +428,40 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 */
 
 	/**
+	 * Describes usage of a ClassInfo.
+	 */
+	public static class Usage implements Documentable {
+
+		/**
+		 * @param usage Usage information about a classinfo.
+		 * @return A new Usage from {@code usage}.
+		 */
+		@Contract("_ -> new")
+		public static Usage of(String... usage) {
+			return new Usage(usage);
+		}
+
+		private final SequencedCollection<String> usage;
+
+		private Usage(String[] usage) {
+			this.usage = ImmutableList.copyOf(usage);
+		}
+
+		/**
+		 * @return Usage information about a ClassInfo.
+		 */
+		public SequencedCollection<String> usage() {
+			return usage;
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			adapter.write("usage", usage());
+		}
+
+	}
+
+	/**
 	 * @return Documentation describing this class info.
 	 */
 	@Override
@@ -453,12 +488,6 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	@Override
 	public void preWrite(DocumentationAdapter adapter) {
 		adapter.enterScope(documentation.id());
-	}
-
-	@Override
-	public void write(DocumentationAdapter adapter) {
-		DocumentationDocumentable.super.write(adapter);
-		adapter.write("patterns", getUsage());
 	}
 
 	@Override
@@ -502,11 +531,15 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	}
 
 	/**
-	 * @deprecated Use {@link #documentation(Documentation)}.
+	 * @deprecated Use {@link #documentation(Documentation)} and {@link Usage}.
+	 * For example:
+	 * <code>{@link Documentation.Builder#addData}({@link Usage#of}("content"));</code>
 	 */
 	@Deprecated(forRemoval = true, since = "INSERT VERSION")
 	public ClassInfo<T> usage(final String... usage) {
-		this.usage = usage;
+		documentation = documentation.toBuilder()
+			.addData(Usage.of(usage))
+			.build();
 		return this;
 	}
 
@@ -570,7 +603,8 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 	 */
 	@Deprecated
 	public String @Nullable [] getUsage() {
-		return usage;
+		Usage usage = documentation.additionalData(Usage.class);
+		return usage == null ? null : usage.usage().toArray(new String[0]);
 	}
 
 	/**

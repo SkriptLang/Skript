@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SequencedCollection;
 
 record DocumentationImpl(
@@ -71,7 +73,7 @@ record DocumentationImpl(
 		private final Collection<String> requirements = new ArrayList<>();
 		private final Collection<String> keywords = new ArrayList<>();
 		private boolean deprecated;
-		private final Collection<Documentable> additionalData = new ArrayList<>();
+		private final Map<Class<?>, Documentable> additionalData = new HashMap<>();
 
 		@Override
 		public B origin(Origin origin) {
@@ -201,7 +203,7 @@ record DocumentationImpl(
 
 		@Override
 		public B addData(Documentable documentable) {
-			this.additionalData.add(documentable);
+			this.additionalData.put(documentable.getClass(), documentable);
 			return (B) this;
 		}
 
@@ -214,7 +216,7 @@ record DocumentationImpl(
 		@Override
 		public Documentation build() {
 			return new DocumentationImpl(origin, id, name, description, examples, since, requirements, keywords,
-				deprecated, additionalData);
+				deprecated, additionalData.values());
 		}
 
 		@Override

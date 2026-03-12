@@ -176,8 +176,24 @@ public interface Documentation extends Documentable {
 
 	/**
 	 * @return A collection of additional data related to the thing represented by this documentation.
+	 * @see #additionalData(Class)
 	 */
 	Collection<Documentable> additionalData();
+
+	/**
+	 * Obtains a specific additional data related to the thing represented by this documentation.
+	 * @param clazz The class of the additional data to obtain.
+	 * @return Additional data of type {@code T}, or null if no such data is present.
+	 * @param <T> The type of the additional data.
+	 * @see #additionalData()
+	 */
+	default <T extends Documentable> @Nullable T additionalData(Class<? extends T> clazz) {
+		// noinspection unchecked
+		return (T) additionalData().stream()
+			.filter(c -> c.getClass() == clazz)
+			.findFirst()
+			.orElse(null);
+	}
 
 	/**
 	 * Converts this documentation back into a builder.
