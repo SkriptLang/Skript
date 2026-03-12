@@ -184,49 +184,18 @@ public class JSONGenerator {
 
 		JsonArray array = new JsonArray();
 
-		for (String event : events.value()) {
-			JsonObject object = new JsonObject();
-
-			// determine candidate infos
-			List<BukkitSyntaxInfos.Event<?>> candidates = new ArrayList<>();
-			for (BukkitSyntaxInfos.Event<?> info : source.syntaxRegistry().syntaxes(BukkitSyntaxInfos.Event.KEY)) {
-				String infoName = info.name().toLowerCase(Locale.ENGLISH);
-				if (infoName.startsWith("on ")) {
-					infoName = infoName.substring(3);
-				}
-				if (infoName.equals(event.toLowerCase(Locale.ENGLISH)) || info.id().equals(event)) {
-					candidates.add(info);
-				} else if (event.equals(info.documentationId())) { // should be unique, this is an exact match
-					candidates.clear();
-					candidates.add(info);
-					break;
-				}
-			}
-
-			// determine id, name
-			String id;
-			String name;
-			if (candidates.isEmpty()) {
-				throw new IllegalArgumentException("No matching info found for event annotation: " + event);
-			} else if (candidates.size() == 1) {
-				var info = candidates.getFirst();
-				id = info.documentationId();
+		new org.skriptlang.skript.bukkit.docs.Events.LegacyEvents(events.value()).getRelatedInfos(source)
+			.forEach(info -> {
+				JsonObject object = new JsonObject();
+				// add properties
+				String id = info.documentationId();
 				if (id == null) {
 					id = info.id();
 				}
-				name = info.name();
-			} else {
-				// TODO other options?
-				throw new IllegalArgumentException("Multiple matching info found for event annotation: " + event +
-					"\nDifferentiate by specifying a documentationId on the relevant event infos.");
-			}
-
-			// add properties
-			object.addProperty("id", id);
-			object.addProperty("name", name);
-
-			array.add(object);
-		}
+				object.addProperty("id", id);
+				object.addProperty("name", info.name());
+				array.add(object);
+			});
 
 		return array;
 	}

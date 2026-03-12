@@ -27,8 +27,13 @@ public interface DocumentationAdapter {
 	 * @return A populated adapter.
 	 */
 	static DocumentationAdapter of(SkriptAddon addon) {
-		return new DocumentationAdapterImpl(addon);
+		return new DocumentationAdapterImpl(addon, true);
 	}
+
+	/**
+	 * @return The addon to extract information from.
+	 */
+	SkriptAddon addon();
 
 	/**
 	 * Writes a documentable to this adapter.

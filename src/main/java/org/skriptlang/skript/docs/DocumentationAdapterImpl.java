@@ -17,18 +17,22 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 	private record Scope(String name, Map<String, Object> values) { }
 
+	private final SkriptAddon addon;
 	private final Deque<Scope> scopes = new ArrayDeque<>();
 
-	DocumentationAdapterImpl() {
+	DocumentationAdapterImpl(SkriptAddon addon, boolean generate) {
+		this.addon = addon;
 		scopes.push(new Scope("root", new HashMap<>()));
+		if (generate) {
+			write(addon.syntaxRegistry());
+			Classes.write(this);
+			write(Skript.experiments());
+		}
 	}
 
-	DocumentationAdapterImpl(SkriptAddon addon) {
-		this();
-		// generate defaults
-		write(addon.syntaxRegistry());
-		Classes.write(this);
-		write(Skript.experiments());
+	@Override
+	public SkriptAddon addon() {
+		return addon;
 	}
 
 	@Override
@@ -97,7 +101,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> {
 					Object adapted = adapt(entry.getValue());
 					if (adapted instanceof Documentable documentable) {
-						var adapter = new DocumentationAdapterImpl();
+						var adapter = new DocumentationAdapterImpl(addon, false);
 						adapter.write(documentable);
 						adapted = adapter.dataMap();
 					}

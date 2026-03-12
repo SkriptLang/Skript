@@ -4,6 +4,7 @@ import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.bukkit.docs.Events;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -122,7 +123,11 @@ public interface Documentation extends Documentable {
 			builder.deprecated();
 		}
 
-		// TODO @Events
+		// TODO this should probably be somewhere else
+		ch.njol.skript.doc.Events events = clazz.getAnnotation(ch.njol.skript.doc.Events.class);
+		if (events != null) {
+			builder.addData(new Events.LegacyEvents(events.value()));
+		}
 
 		// TODO RelatedProperty
 
@@ -178,7 +183,7 @@ public interface Documentation extends Documentable {
 	 * @return A collection of additional data related to the thing represented by this documentation.
 	 * @see #additionalData(Class)
 	 */
-	Collection<Documentable> additionalData();
+	@Unmodifiable Collection<Documentable> additionalData();
 
 	/**
 	 * Obtains a specific additional data related to the thing represented by this documentation.
