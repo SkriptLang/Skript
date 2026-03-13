@@ -10,11 +10,14 @@ import ch.njol.skript.util.chat.ChatMessages;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.AdvancedPie;
 import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +36,9 @@ public class SkriptMetrics {
 
 		// sets up the old charts to prevent data splitting due to various user version
 		setupLegacyMetrics(metrics);
+
+		// addon registration
+		setupAddonCharts(metrics);
 
 		// add custom version charts for easier reading:
 		metrics.addCustomChart(new DrilldownPie("drilldownPluginVersion", () -> {
@@ -187,6 +193,21 @@ public class SkriptMetrics {
 			isDefaultMap(SkriptConfig.longParseTimeWarningThreshold, "disabled")
 		));
 	}
+
+	/**
+	 * Helper to set up addon-related charts
+	 * @param metrics The Metrics object to which charts will be added.
+	 */
+	private static void setupAddonCharts(Metrics metrics) {
+		metrics.addCustomChart(new AdvancedPie("registeredAddons", () -> {
+			Map<String,Integer> addons = new HashMap<>();
+			for (SkriptAddon addon : Skript.getAddons()) {
+				addons.put(addon.name(), 1);
+			}
+			return addons;
+		}));
+	}
+
 
 	/**
 	 * Helper method to set up legacy charts (pre 2.9.2)
