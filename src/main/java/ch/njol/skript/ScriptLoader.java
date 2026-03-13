@@ -1069,7 +1069,7 @@ public class ScriptLoader {
 					// 1. there are no errors from the statement parse
 					// 2. the error message is the default one from the statement parse
 					// 3. the backup log contains a message about the section being claimed
-					// 4. the backup log contains an explicit error and the error message is about no syntax managing the section
+					// 4. the backup log contains an explicit error and the current error message is about no syntax managing the section
 					if (!handler.hasErrors()) {
 						handler.restore(backup);
 						continue;
