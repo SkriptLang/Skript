@@ -2,13 +2,10 @@ package org.skriptlang.skript.registration;
 
 import ch.njol.skript.lang.SyntaxElement;
 import org.easymock.EasyMock;
-import org.jetbrains.annotations.Unmodifiable;
 import org.junit.Test;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 import org.skriptlang.skript.util.Priority;
-
-import java.util.Collection;
 
 import static org.junit.Assert.*;
 
