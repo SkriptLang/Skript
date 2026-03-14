@@ -3,14 +3,10 @@ package ch.njol.skript.util;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.variables.Variables;
-import ch.njol.yggdrasil.Fields;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,7 +51,6 @@ public enum SkriptColor implements Color {
 			names.clear();
 			for (SkriptColor color : values()) {
 				String node = LANGUAGE_NODE + "." + color.name();
-				color.setAdjective(new Adjective(node + ".adjective"));
 				for (String name : Language.getList(node + ".names"))
 					names.put(name.toLowerCase(Locale.ENGLISH), color);
 				BY_CHAR.put(color.asChatColor().getChar(), color);
@@ -66,14 +61,19 @@ public enum SkriptColor implements Color {
 		Variables.yggdrasil.registerSingleClass(DyeColor.class, "DyeColor");
 	}
 	
-	private ChatColor chat;
-	private DyeColor dye;
-	@Nullable
-	private Adjective adjective;
+	private final ChatColor chat;
+	private final DyeColor dye;
+	private final Adjective adjective;
+	private final int alpha, red, green, blue;
 	
 	SkriptColor(DyeColor dye, ChatColor chat) {
 		this.chat = chat;
 		this.dye = dye;
+		this.adjective = new Adjective(LANGUAGE_NODE + "." + name() + ".adjective");
+		this.alpha = dye.getColor().getAlpha();
+		this.red = dye.getColor().getRed();
+		this.green = dye.getColor().getGreen();
+		this.blue = dye.getColor().getBlue();
 	}
 	
 	@Override
@@ -83,22 +83,22 @@ public enum SkriptColor implements Color {
 
 	@Override
 	public int getAlpha() {
-		return dye.getColor().getAlpha();
+		return alpha;
 	}
 
 	@Override
 	public int getRed() {
-		return dye.getColor().getRed();
+		return red;
 	}
 
 	@Override
 	public int getGreen() {
-		return dye.getColor().getGreen();
+		return green;
 	}
 
 	@Override
 	public int getBlue() {
-		return dye.getColor().getBlue();
+		return blue;
 	}
 
 	@Override
@@ -112,25 +112,10 @@ public enum SkriptColor implements Color {
 		return adjective.toString();
 	}
 	
-	@Override
-	public Fields serialize() throws NotSerializableException {
-		return new Fields(this, Variables.yggdrasil);
-	}
-	
-	@Override
-	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException {
-		dye = fields.getObject("dye", DyeColor.class);
-		chat = fields.getObject("chat", ChatColor.class);
-		try {
-			adjective = fields.getObject("adjective", Adjective.class);
-		} catch (StreamCorruptedException ignored) {}
-	}
-	
 	public String getFormattedChat() {
 		return "" + chat;
 	}
-	
-	@Nullable
+
 	public Adjective getAdjective() {
 		return adjective;
 	}
@@ -148,18 +133,12 @@ public enum SkriptColor implements Color {
 	public byte getDyeData() {
 		return (byte) (15 - dye.getWoolData());
 	}
-	
-	private void setAdjective(@Nullable Adjective adjective) {
-		this.adjective = adjective;
-	}
-	
-	
+
 	/**
 	 * @param name The String name of the color defined by Skript's .lang files.
 	 * @return Skript Color if matched up with the defined name
 	 */
-	@Nullable
-	public static SkriptColor fromName(String name) {
+	public static @Nullable SkriptColor fromName(String name) {
 		return names.get(name);
 	}
 	
@@ -192,8 +171,7 @@ public enum SkriptColor implements Color {
 	 * @return Skript Color if matched up with the defined short
 	 */
 	@Deprecated(since = "2.3.6", forRemoval = true)
-	@Nullable
-	public static SkriptColor fromDyeData(short data) {
+	public static @Nullable SkriptColor fromDyeData(short data) {
 		if (data < 0 || data >= 16)
 			return null;
 		
@@ -212,8 +190,7 @@ public enum SkriptColor implements Color {
 	 * @return Skript Color if matched up with the defined short
 	 */
 	@Deprecated(since = "2.3.6", forRemoval = true)
-	@Nullable
-	public static SkriptColor fromWoolData(short data) {
+	public static @Nullable SkriptColor fromWoolData(short data) {
 		if (data < 0 || data >= 16)
 			return null;
 		for (SkriptColor color : colors) {

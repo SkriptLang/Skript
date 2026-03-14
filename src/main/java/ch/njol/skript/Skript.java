@@ -80,6 +80,7 @@ import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.common.CommonModule;
+import org.skriptlang.skript.common.colors.ColorModule;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -577,6 +578,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			skript.loadModules(
 				new CommonModule(),
 				new BrewingModule(),
+				new ColorModule(),
 				new EntityModule(),
 				new DamageSourceModule(),
 				new InteractionModule(),

@@ -1,6 +1,10 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Keywords;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
@@ -24,7 +28,7 @@ import java.util.function.Function;
 public class ExprARGB extends SimplePropertyExpression<Color, Integer> {
 
 	static {
-		register(ExprARGB.class, Integer.class, "(:alpha|:red|:green|:blue) (value|component)", "colors");
+		register(ExprARGB.class, Integer.class, "(:alpha|:red|:green|:blue) (value|component|channel)", "colors");
 	}
 
 	private RGB color;

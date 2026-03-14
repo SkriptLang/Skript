@@ -8,7 +8,6 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.util.Color;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
 
@@ -31,7 +30,6 @@ public class DefaultClasses {
 	public static ClassInfo<World> WORLD = getClassInfo(World.class);
 
 	// Skript
-	public static ClassInfo<Color> COLOR = getClassInfo(Color.class);
 	public static ClassInfo<Date> DATE = getClassInfo(Date.class);
 	public static ClassInfo<Timespan> TIMESPAN = getClassInfo(Timespan.class);
 
