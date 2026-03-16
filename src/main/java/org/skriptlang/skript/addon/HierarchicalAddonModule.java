@@ -20,7 +20,7 @@ import java.util.List;
 public abstract class HierarchicalAddonModule implements AddonModule {
 
 	private final @Nullable AddonModule parentModule;
-	private List<AddonModule> loadableChildren;
+	private final List<AddonModule> loadableChildren = new ArrayList<>();
 
 	/**
 	 * Constructs a module with no parent.
@@ -59,8 +59,7 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 	 */
 	public List<AddonModule> moduleChain() {
 		List<AddonModule> chain = new ArrayList<>();
-		chain.add(this);
-		AddonModule current = parentModule;
+		AddonModule current = this;
 		while (current != null) {
 			chain.add(current);
 			if (current instanceof HierarchicalAddonModule hierarchical) {
@@ -88,7 +87,7 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 		}
 
 		// Filter children that can load
-		loadableChildren = new ArrayList<>();
+		loadableChildren.clear();
 		for (AddonModule child : children()) {
 			if (child.canLoad(addon)) {
 				loadableChildren.add(child);
@@ -107,10 +106,8 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 	@Override
 	public final void init(SkriptAddon addon) {
 		initSelf(addon);
-		if (loadableChildren != null) {
-			for (AddonModule child : loadableChildren) {
-				child.init(addon);
-			}
+		for (AddonModule child : loadableChildren) {
+			child.init(addon);
 		}
 	}
 
@@ -118,16 +115,13 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 	 * Override for module-specific loading.
 	 * @param addon The addon this module belongs to.
 	 */
-	protected void loadSelf(SkriptAddon addon) {
-	}
+	protected abstract void loadSelf(SkriptAddon addon);
 
 	@Override
 	public final void load(SkriptAddon addon) {
 		loadSelf(addon);
-		if (loadableChildren != null) {
-			for (AddonModule child : loadableChildren) {
-				child.load(addon);
-			}
+		for (AddonModule child : loadableChildren) {
+			child.load(addon);
 		}
 	}
 

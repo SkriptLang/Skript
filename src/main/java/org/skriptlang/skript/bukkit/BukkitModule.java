@@ -9,7 +9,7 @@ import org.skriptlang.skript.bukkit.brewing.BrewingModule;
 import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
 import org.skriptlang.skript.bukkit.entity.EntityModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
-import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
+import org.skriptlang.skript.bukkit.block.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
@@ -44,6 +44,11 @@ public class BukkitModule extends HierarchicalAddonModule {
 			new PotionModule(this),
 			new TagModule(this)
 		);
+	}
+
+	@Override
+	protected void loadSelf(SkriptAddon addon) {
+		// nothing to do
 	}
 
 	@Override

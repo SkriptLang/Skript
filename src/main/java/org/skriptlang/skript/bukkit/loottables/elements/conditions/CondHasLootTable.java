@@ -28,7 +28,7 @@ public class CondHasLootTable extends PropertyCondition<Object> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondHasLootTable.class,
 				PropertyType.HAVE,
 				"[a] loot[ ]table",

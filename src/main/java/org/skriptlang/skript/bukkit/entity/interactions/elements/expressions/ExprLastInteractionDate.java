@@ -15,9 +15,7 @@ import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Interaction.PreviousInteraction;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule;
-import org.skriptlang.skript.bukkit.entity.interactions.InteractionModule.InteractionType;
-import org.skriptlang.skript.docs.Origin;
+import org.skriptlang.skript.bukkit.entity.interactions.InteractionType;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -55,7 +53,7 @@ public class ExprLastInteractionDate extends SimplePropertyExpression<Entity, Da
 			PreviousInteraction lastInteraction = switch (interactionType) {
 				case ATTACK -> interaction.getLastAttack();
 				case INTERACT -> interaction.getLastInteraction();
-				case BOTH -> InteractionModule.getLatestInteraction(interaction);
+				case BOTH -> InteractionType.getLatest(interaction);
 			};
 			if (lastInteraction == null)
 				return null;

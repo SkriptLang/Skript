@@ -18,35 +18,35 @@ import java.util.Set;
 public class EvtPlayerInput extends SkriptEvent {
 
 	public static void register(SyntaxRegistry registry) {
-		if (Skript.classExists("org.bukkit.event.player.PlayerInputEvent")) {
-			registry.register(
-				BukkitSyntaxInfos.Event.KEY,
-				BukkitSyntaxInfos.Event.builder(EvtPlayerInput.class, "Player Input")
-					.addEvent(PlayerInputEvent.class)
-					.addPatterns(
-						"[player] (toggle|toggling|1:press[ing]|2:release|2:releasing) of (%-inputkeys%|(an|any) input key)",
-						"([player] %-inputkeys%|[an|player] input key) (toggle|toggling|1:press[ing]|2:release|2:releasing)"
-					)
-					.addDescription(
-						"Called when a player sends an updated input to the server.",
-						"Note: The input keys event value is the set of keys the player is currently pressing, not the keys that were pressed or released."
-					)
-					.addExample("""
-						on input key press:
-							send "You are pressing: %event-inputkeys%" to player
-						""")
-					.addSince("2.10")
-					.addRequiredPlugins("Minecraft 1.21.3+")
-					.supplier(EvtPlayerInput::new)
-					.build()
-			);
+		if (!Skript.classExists("org.bukkit.event.player.PlayerInputEvent"))
+			return;
+		registry.register(
+			BukkitSyntaxInfos.Event.KEY,
+			BukkitSyntaxInfos.Event.builder(EvtPlayerInput.class, "Player Input")
+				.addEvent(PlayerInputEvent.class)
+				.addPatterns(
+					"[player] (toggle|toggling|1:press[ing]|2:release|2:releasing) of (%-inputkeys%|(an|any) input key)",
+					"([player] %-inputkeys%|[an|player] input key) (toggle|toggling|1:press[ing]|2:release|2:releasing)"
+				)
+				.addDescription(
+					"Called when a player sends an updated input to the server.",
+					"Note: The input keys event value is the set of keys the player is currently pressing, not the keys that were pressed or released."
+				)
+				.addExample("""
+					on input key press:
+						send "You are pressing: %event-inputkeys%" to player
+					""")
+				.addSince("2.10")
+				.addRequiredPlugins("Minecraft 1.21.3+")
+				.supplier(EvtPlayerInput::new)
+				.build()
+		);
 
-			EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
-				event -> InputKey.fromInput(event.getInput()).toArray(new InputKey[0]));
-			EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
-				event -> InputKey.fromInput(event.getPlayer().getCurrentInput()).toArray(new InputKey[0]),
-				EventValues.TIME_PAST);
-		}
+		EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
+			event -> InputKey.fromInput(event.getInput()).toArray(new InputKey[0]));
+		EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,
+			event -> InputKey.fromInput(event.getPlayer().getCurrentInput()).toArray(new InputKey[0]),
+			EventValues.TIME_PAST);
 	}
 
 	private @Nullable Literal<InputKey> keysToCheck;

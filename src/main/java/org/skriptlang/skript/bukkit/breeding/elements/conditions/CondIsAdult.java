@@ -22,7 +22,7 @@ public class CondIsAdult extends PropertyCondition<LivingEntity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondIsAdult.class,
 				PropertyType.BE,
 				"[an] adult",

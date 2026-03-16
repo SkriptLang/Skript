@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.furnace.elements.events;
+package org.skriptlang.skript.bukkit.block.furnace.elements.events;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;

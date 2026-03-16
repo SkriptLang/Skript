@@ -22,7 +22,7 @@ public class CondCanAge extends PropertyCondition<LivingEntity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondCanAge.class,
 				PropertyType.CAN,
 				"(age|grow (up|old[er]))",

@@ -13,12 +13,10 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.bukkit.Particle;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.particleeffects.ParticleEffect;
 import org.skriptlang.skript.bukkit.particles.registration.DataParticles;
 import org.skriptlang.skript.bukkit.particles.registration.EffectInfo;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 

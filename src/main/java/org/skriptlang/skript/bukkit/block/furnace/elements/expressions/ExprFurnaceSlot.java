@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.furnace.elements.expressions;
+package org.skriptlang.skript.bukkit.block.furnace.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;

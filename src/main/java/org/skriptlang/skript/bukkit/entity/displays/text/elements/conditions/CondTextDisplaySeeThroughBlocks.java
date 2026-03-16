@@ -21,7 +21,7 @@ public class CondTextDisplaySeeThroughBlocks extends PropertyCondition<Display> 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondTextDisplaySeeThroughBlocks.class,
 				PropertyType.BE,
 				"visible through (blocks|walls)",

@@ -37,7 +37,7 @@ public class CondIsLootable extends PropertyCondition<Object> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondIsLootable.class,
 				PropertyType.BE,
 				"lootable",

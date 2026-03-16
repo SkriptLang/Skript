@@ -22,7 +22,7 @@ public class CondIsInLove extends PropertyCondition<LivingEntity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondIsInLove.class,
 				PropertyType.BE,
 				"in lov(e|ing) [state|mode]",

@@ -121,7 +121,6 @@ public class DisplayModule extends HierarchicalAddonModule {
 
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
-		//noinspection DuplicatedCode
 		register(addon,
 			DisplayData::register,
 

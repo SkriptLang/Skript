@@ -22,7 +22,7 @@ public class CondIsBaby extends PropertyCondition<LivingEntity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondIsBaby.class,
 				PropertyType.BE,
 				"a (child|baby)",

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.common.properties.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.properties.Property;
@@ -17,7 +18,10 @@ public class PropCondIsEmpty extends PropertyBaseCondition<ConditionPropertyHand
 
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(PropCondIsEmpty.class, PropertyCondition.PropertyType.BE, "empty", "objects")
+			PropertyCondition.infoBuilder(
+				PropCondIsEmpty.class, PropertyType.BE,
+				"empty", "objects"
+			)
 				.supplier(PropCondIsEmpty::new)
 				.build());
 	}

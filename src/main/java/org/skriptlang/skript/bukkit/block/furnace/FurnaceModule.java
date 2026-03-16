@@ -1,12 +1,12 @@
-package org.skriptlang.skript.bukkit.furnace;
+package org.skriptlang.skript.bukkit.block.furnace;
 
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
-import org.skriptlang.skript.bukkit.furnace.elements.events.EvtFurnace;
-import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceEventItems;
-import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceSlot;
-import org.skriptlang.skript.bukkit.furnace.elements.expressions.ExprFurnaceTime;
+import org.skriptlang.skript.bukkit.block.furnace.elements.events.EvtFurnace;
+import org.skriptlang.skript.bukkit.block.furnace.elements.expressions.ExprFurnaceEventItems;
+import org.skriptlang.skript.bukkit.block.furnace.elements.expressions.ExprFurnaceSlot;
+import org.skriptlang.skript.bukkit.block.furnace.elements.expressions.ExprFurnaceTime;
 
 public class FurnaceModule extends HierarchicalAddonModule {
 

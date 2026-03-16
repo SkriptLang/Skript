@@ -22,7 +22,7 @@ public class CondCanBreed extends PropertyCondition<LivingEntity> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.CONDITION,
-			PropertyCondition.infoBuilder(
+			infoBuilder(
 				CondCanBreed.class,
 				PropertyType.CAN,
 				"(breed|be bred)",

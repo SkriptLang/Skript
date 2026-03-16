@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -16,7 +17,6 @@ import org.bukkit.entity.Display.Brightness;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
@@ -43,11 +43,9 @@ public class ExprDisplayBrightness extends SimpleExpression<Integer> {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
-			SyntaxInfo.Expression.builder(ExprDisplayBrightness.class, Integer.class)
-				.addPatterns(
-					"[the] [:block|:sky] (light [level]|brightness) override[s] of %displays%",
-					"%displays%'[s] [:block|:sky] (light [level]|brightness) override[s]"
-				)
+			PropertyExpression.infoBuilder(ExprDisplayBrightness.class, Integer.class,
+					"[:block|:sky] (light [level]|brightness) override[s]", "displays",
+					false)
 				.supplier(ExprDisplayBrightness::new)
 				.build()
 		);
