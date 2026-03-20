@@ -2,7 +2,14 @@ package org.skriptlang.skript.bukkit.entity.interactions;
 
 import org.bukkit.entity.Interaction;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.entity.interactions.elements.expressions.ExprLastInteractionDate;
+import org.skriptlang.skript.bukkit.entity.interactions.elements.expressions.ExprLastInteractionPlayer;
 
+/**
+ * Helper enum to determine whether we should be looking for the last attack or last interaction.
+ * @see ExprLastInteractionDate
+ * @see ExprLastInteractionPlayer
+ */
 public enum InteractionType {
 	ATTACK,
 	INTERACT,

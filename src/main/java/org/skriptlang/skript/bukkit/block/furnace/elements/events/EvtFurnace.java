@@ -132,14 +132,16 @@ public class EvtFurnace extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String result = "";
-		if (event instanceof FurnaceSmeltEvent) {
+		// this is bad and should be 4 separate event classes in the future
+		Class<? extends Event> eventClass = getEventClasses()[0];
+		String result;
+		if (eventClass == FurnaceSmeltEvent.class) {
 			result = "smelt";
-		} else if (event instanceof FurnaceBurnEvent) {
+		} else if (eventClass == FurnaceBurnEvent.class) {
 			result = "burn";
-		} else if (event instanceof FurnaceExtractEvent) {
+		} else if (eventClass == FurnaceExtractEvent.class) {
 			result = "extract";
-		} else if (event instanceof FurnaceStartSmeltEvent) {
+		} else if (eventClass == FurnaceStartSmeltEvent.class) {
 			result = "start smelt";
 		} else {
 			throw new IllegalStateException("Unexpected event: " + event);

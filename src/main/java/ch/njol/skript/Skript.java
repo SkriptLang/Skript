@@ -552,10 +552,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
-			// todo: become proper module once registry api is merged
-			skript.loadModules(
-				new CommonModule(),
-				new BukkitModule());
+			skript.loadModules(new CommonModule(), new BukkitModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

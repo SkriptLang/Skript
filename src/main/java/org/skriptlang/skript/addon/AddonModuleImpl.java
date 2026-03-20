@@ -1,6 +1,5 @@
 package org.skriptlang.skript.addon;
 
-import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule.ModuleOrigin;
 
 import java.util.List;
@@ -10,7 +9,6 @@ class AddonModuleImpl {
 
 	public record ModuleOriginImpl(SkriptAddon addon, SequencedCollection<AddonModule> modules) implements ModuleOrigin {
 
-
 		/**
 		 * Constructs a module origin from an addon and module chain.
 		 * @param addon The addon providing the modules.
@@ -18,16 +16,6 @@ class AddonModuleImpl {
 		 */
 		public ModuleOriginImpl(SkriptAddon addon, AddonModule... modules) {
 			this(addon.unmodifiableView(), List.of(modules));
-		}
-
-		@Override
-		public SkriptAddon addon() {
-			return addon;
-		}
-
-		@Override
-		public @Unmodifiable SequencedCollection<AddonModule> modules() {
-			return modules;
 		}
 
 	}

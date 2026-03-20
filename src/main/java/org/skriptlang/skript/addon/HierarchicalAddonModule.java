@@ -57,7 +57,7 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 	 * Builds the module reference chain from this module up to root.
 	 * @return List of modules from most specific (this) to root parent.
 	 */
-	public List<AddonModule> moduleChain() {
+	private List<AddonModule> moduleChain() {
 		List<AddonModule> chain = new ArrayList<>();
 		AddonModule current = this;
 		while (current != null) {
@@ -126,7 +126,7 @@ public abstract class HierarchicalAddonModule implements AddonModule {
 	}
 
 	@Override
-	public ModuleOrigin origin(SkriptAddon addon) {
+	public final ModuleOrigin origin(SkriptAddon addon) {
 		AddonModule[] modules = moduleChain().toArray(new AddonModule[0]);
 		return AddonModule.origin(addon, modules);
 	}
