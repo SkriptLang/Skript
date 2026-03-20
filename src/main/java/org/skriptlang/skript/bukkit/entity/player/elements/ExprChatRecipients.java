@@ -6,7 +6,6 @@ import ch.njol.skript.lang.EventRestrictedSyntax;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,8 +101,8 @@ public class ExprChatRecipients extends SimpleExpression<Audience> implements Ev
 	}
 
 	@Override
-	public Class<Player> getReturnType() {
-		return Player.class;
+	public Class<Audience> getReturnType() {
+		return Audience.class;
 	}
 
 	@Override
