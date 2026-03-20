@@ -16,20 +16,18 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.skript.variables.SQLStorage;
+import ch.njol.skript.variables.JdbcStorage;
 import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Tag;
 import ch.njol.yggdrasil.Yggdrasil;
-import ch.njol.yggdrasil.YggdrasilInputStream;
 import ch.njol.yggdrasil.YggdrasilOutputStream;
 import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.jetbrains.annotations.*;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
@@ -40,6 +38,8 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -67,8 +67,8 @@ public abstract class Classes {
 				throw new IllegalArgumentException("Can't register " + info.getC().getName() + " with the code name " + info.getCodeName() + " because that name is already used by " + classInfosByCodeName.get(info.getCodeName()));
 			if (exactClassInfos.containsKey(info.getC()))
 				throw new IllegalArgumentException("Can't register the class info " + info.getCodeName() + " because the class " + info.getC().getName() + " is already registered");
-			if (info.getCodeName().length() > SQLStorage.MAX_CLASS_CODENAME_LENGTH)
-				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + SQLStorage.MAX_CLASS_CODENAME_LENGTH);
+			if (info.getCodeName().length() > JdbcStorage.MAX_CLASS_CODENAME_LENGTH)
+				throw new IllegalArgumentException("The codename '" + info.getCodeName() + "' is too long to be saved in a database, the maximum length allowed is " + JdbcStorage.MAX_CLASS_CODENAME_LENGTH);
 			exactClassInfos.put(info.getC(), info);
 			classInfosByCodeName.put(info.getCodeName(), info);
 			tempClassInfos.add(info);
@@ -743,16 +743,32 @@ public abstract class Classes {
 	}
 
 	/**
-	 * Must be called on the appropriate thread for the given value (i.e. the main thread currently)
+	 * Represents a context for serialization of a value as a variable.
+	 *
+	 * @param classInfo class info of the object
+	 * @param value object to serialize
 	 */
-	public static SerializedVariable.@Nullable Value serialize(@Nullable Object object) {
-		if (object == null)
-			return null;
+	private record SerializationContext(ClassInfo<?> classInfo, Object value) {
+		public @Nullable Serializer<?> serializer() {
+			return classInfo.getSerializer();
+		}
+		public boolean mustSyncDeserialization() {
+			Serializer<?> serializer = serializer();
+			return serializer != null && serializer.mustSyncDeserialization();
+		}
+	}
 
-		// temporary
-		assert Bukkit.isPrimaryThread();
-		
+	/**
+	 * Returns the serializer used for serializing the given object as a variable.
+	 * <p>
+	 * Returns {@code null} if the object can not be serialized (there is no serializer available).
+	 *
+	 * @param object object to serialize
+	 * @return serializer for the serialization of given object
+	 */
+	private static SerializationContext getSerializationContext(Object object) {
 		ClassInfo<?> classInfo = getSuperClassInfo(object.getClass());
+
 		if (classInfo.getSerializeAs() != null) {
 			classInfo = getExactClassInfo(classInfo.getSerializeAs());
 			if (classInfo == null) {
@@ -765,101 +781,313 @@ public abstract class Classes {
 				return null;
 			}
 		}
-		
-		Serializer<?> serializer = classInfo.getSerializer();
-		if (serializer == null) // value cannot be saved
-			return null;
-		
-		assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
-		
-		try {
-			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-			YggdrasilOutputStream yggdrasilOutputStream = Variables.yggdrasil.newOutputStream(byteOutputStream);
-
-			yggdrasilOutputStream.writeObject(object);
-			yggdrasilOutputStream.flush();
-			yggdrasilOutputStream.close();
-
-			byte[] byteArray = byteOutputStream.toByteArray();
-			byte[] start = getYggdrasilStart(classInfo);
-			for (int i = 0; i < start.length; i++)
-				assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
-			byte[] byteArrayCopy = new byte[byteArray.length - start.length];
-			System.arraycopy(byteArray, start.length, byteArrayCopy, 0, byteArrayCopy.length);
-
-			Object deserialized;
-			assert equals(object,
-				deserialized = deserialize(classInfo, new ByteArrayInputStream(byteArrayCopy)))
-				: object + " (" + object.getClass() + ") != " + deserialized + " ("
-				+ (deserialized == null ? null : deserialized.getClass()) + "): " + Arrays.toString(byteArray);
-			
-			return new SerializedVariable.Value(classInfo.getCodeName(), byteArrayCopy);
-		} catch (IOException ex) { // shouldn't happen
-			Skript.exception(ex);
-			return null;
-		}
+		return new SerializationContext(classInfo, object);
 	}
 
-	private static boolean equals(final @Nullable Object o, final @Nullable Object d) {
-		if (o instanceof Chunk) { // CraftChunk does neither override equals nor is it a "coordinate-specific singleton" like Block
-			if (!(d instanceof Chunk))
-				return false;
-			final Chunk c1 = (Chunk) o, c2 = (Chunk) d;
-			return c1.getWorld().equals(c2.getWorld()) && c1.getX() == c2.getX() && c1.getZ() == c2.getZ();
-		}
-		return o == null ? d == null : o.equals(d);
-	}
+	/**
+	 * Serializes the provided map of variables.
+	 * <p>
+	 * Is blocking if the serializer for some of the variables needs to be synchronized and
+	 * the method is not called from the main thread.
+	 * <p>
+	 * This does processed null values in the map and will provide empty
+	 * serialized variables in the returned set for such variables.
+	 * <p>
+	 * This method is thread safe.
+	 *
+	 * @param variables variables to serialize
+	 * @return serialized variables, returns null if the serialization failed
+	 * because Skript is disabled, some of the variables need to be serialized
+	 * on the main thread and this method was called off the main thread.
+	 */
+	@Blocking
+	public static @Nullable Set<SerializedVariable> serialize(Map<String, @Nullable Object> variables) {
+		Set<SerializedVariable> collected = ConcurrentHashMap.newKeySet();
+		Map<String, SerializationContext> needsSync = new ConcurrentHashMap<>();
 
-	@Nullable
-	public static Object deserialize(final ClassInfo<?> type, final byte[] value) {
-		return deserialize(type, new ByteArrayInputStream(value));
-	}
+		variables.entrySet().parallelStream().forEach(entry -> {
+			String key = entry.getKey();
+			Object value = entry.getValue();
 
-	@Nullable
-	public static Object deserialize(final String type, final byte[] value) {
-		final ClassInfo<?> ci = getClassInfoNoError(type);
-		if (ci == null)
-			return null;
-		return deserialize(ci, new ByteArrayInputStream(value));
-	}
+			if (value == null) {
+				collected.add(new SerializedVariable(key, null));
+				return;
+			}
 
-	@Nullable
-	public static Object deserialize(final ClassInfo<?> type, InputStream value) {
-		Serializer<?> s;
-		assert (s = type.getSerializer()) != null && (s.mustSyncDeserialization() ? Bukkit.isPrimaryThread() : true) : type + "; " + s + "; " + Bukkit.isPrimaryThread();
-		YggdrasilInputStream in = null;
-		try {
-			value = new SequenceInputStream(new ByteArrayInputStream(getYggdrasilStart(type)), value);
-			in = Variables.yggdrasil.newInputStream(value);
-			return in.readObject();
-		} catch (final IOException e) { // i.e. invalid save
-			if (Skript.testing())
-				e.printStackTrace();
-			return null;
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (final IOException e) {}
+			SerializationContext context = getSerializationContext(value);
+			assert context != null;
+			if (context.classInfo.getSerializer() == null) {
+				collected.add(new SerializedVariable(key, null));
+				return;
+			}
+
+			if (context.mustSyncDeserialization()) {
+				needsSync.put(key, context);
+				return;
 			}
 			try {
-				value.close();
-			} catch (final IOException e) {}
+				var serialized = serialize(context.value, context.classInfo);
+				collected.add(new SerializedVariable(key, serialized));
+			} catch (IOException exception) {
+				Skript.error("Failed to serialize " + context.value);
+			}
+		});
+
+		Runnable syncSerialization = () -> needsSync.forEach((key, context) -> {
+			try {
+				var serialized = serialize(context.value, context.classInfo);
+				collected.add(new SerializedVariable(key, serialized));
+			} catch (IOException exception) {
+				Skript.exception(exception, "Failed to serialize " + context.value);
+			}
+		});
+
+		if (needsSync.isEmpty())
+			return collected;
+
+		if (Bukkit.isPrimaryThread()) {
+			syncSerialization.run();
+		} else {
+			try {
+				if (!Skript.getInstance().isEnabled())
+					// At this point we can not serialize variables synchronously,
+					// we fail rather than provide partial result
+					return null;
+				CompletableFuture.supplyAsync(() -> {
+					syncSerialization.run();
+					return null;
+				}, Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance())).get();
+			} catch (Exception exception) {
+				Skript.exception(exception, "Failed to serialize variables on the main thread");
+			}
+		}
+
+		return collected;
+	}
+
+	/**
+	 * Serializes the provided object to a value for a variable.
+	 * <p>
+	 * Is blocking if the serializer for the action needs to be synchronized and
+	 * the method is not called from the main thread.
+	 * <p>
+	 * This method is thread safe.
+	 *
+	 * @param object object to serialize
+	 * @return serialized value of null if no serializer is available
+	 */
+	@Blocking
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object object) {
+		if (object == null)
+			return null;
+		var result = serialize(Map.of("object", object));
+		if (result == null)
+			return null;
+		var iterator = result.iterator();
+		if (!iterator.hasNext())
+			return null;
+		return iterator.next().value();
+	}
+
+	/**
+	 * The serialization process for a single object.
+	 * <p>
+	 * This method must be called from the main thread if the serializer for
+	 * given class info must be synchronized.
+	 *
+	 * @see #serialize(Object)
+	 * @see #serialize(Map)
+	 */
+	private static SerializedVariable.Value serialize(Object object, ClassInfo<?> classInfo) throws IOException {
+		assert classInfo.getSerializer() != null;
+		assert !classInfo.getSerializer().mustSyncDeserialization() || Bukkit.isPrimaryThread();
+
+		ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+		YggdrasilOutputStream yggdrasilOutputStream = Variables.yggdrasil.newOutputStream(byteOutputStream);
+
+		yggdrasilOutputStream.writeObject(object);
+		yggdrasilOutputStream.flush();
+		yggdrasilOutputStream.close();
+
+		byte[] byteArray = byteOutputStream.toByteArray();
+		byte[] start = getYggdrasilStart(classInfo);
+		for (int i = 0; i < start.length; i++)
+			assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
+		byte[] byteArrayCopy = new byte[byteArray.length - start.length];
+		System.arraycopy(byteArray, start.length, byteArrayCopy, 0, byteArrayCopy.length);
+		return new SerializedVariable.Value(classInfo.getCodeName(), byteArrayCopy);
+	}
+
+	/**
+	 * Deserializes the provided set of serialized variables.
+	 * <p>
+	 * Is blocking if the serializer for some of the variables needs to be synchronized and
+	 * the method is not called from the main thread.
+	 * <p>
+	 * This does skip empty variables and does not map them in the returned map to null values.
+	 * <p>
+	 * This method is thread safe.
+	 *
+	 * @param variables variables to deserialize
+	 * @return deserialized variables, returns null if the deserialization failed
+	 * because Skript is disabled, some of the variables need to be deserialization
+	 * on the main thread and this method was called off the main thread.
+	 */
+	@Blocking
+	public static @Nullable Map<String, Object> deserialize(Set<SerializedVariable> variables) {
+		Map<String, Object> collected = new ConcurrentHashMap<>();
+		Set<SerializedVariable> needsSync = ConcurrentHashMap.newKeySet();
+
+		variables.stream().parallel().forEach(var -> {
+			String key = var.name();
+			SerializedVariable.Value value = var.value();
+
+			if (value == null)
+				return;
+
+			ClassInfo<?> classInfo = getClassInfoNoError(value.type());
+			if (classInfo == null) {
+				collected.put(key, null);
+				return;
+			}
+
+			Serializer<?> serializer = classInfo.getSerializer();
+			if (serializer == null) {
+				collected.put(key, null);
+				return;
+			}
+
+			if (serializer.mustSyncDeserialization()) {
+				needsSync.add(var);
+				return;
+			}
+
+			collected.put(key, deserialize(new ByteArrayInputStream(value.data()), classInfo));
+		});
+
+		Runnable syncDeserialization = () -> needsSync.forEach(var -> {
+			String key = var.name();
+			SerializedVariable.Value value = var.value();
+			assert value != null;
+			ClassInfo<?> classInfo = getClassInfoNoError(value.type());
+			var deserialized = deserialize(new ByteArrayInputStream(value.data()), classInfo);
+			collected.put(key, deserialized);
+		});
+
+		if (needsSync.isEmpty())
+			return collected;
+
+		if (Bukkit.isPrimaryThread()) {
+			syncDeserialization.run();
+		} else {
+			if (!Skript.getInstance().isEnabled())
+				// At this point we can not deserialize variables synchronously,
+				// we fail rather than provide partial result
+				return null;
+			try {
+				CompletableFuture.supplyAsync(() -> {
+					syncDeserialization.run();
+					return null;
+				}, Bukkit.getScheduler().getMainThreadExecutor(Skript.getInstance())).get();
+			} catch (Exception exception) {
+				Skript.exception(exception, "Failed to serialize variables on the main thread");
+			}
+		}
+
+		return collected;
+	}
+
+	/**
+	 * Deserializes the provided variable value to an object.
+	 * <p>
+	 * Is blocking if the serializer for the action needs to be synchronized and
+	 * the method is not called from the main thread.
+	 * <p>
+	 * This method is thread safe.
+	 *
+	 * @param value value to deserialize
+	 * @return deserialized object of null if no serializer is available
+	 */
+	@Blocking
+	public static @Nullable Object deserialize(SerializedVariable. @Nullable Value value) {
+		if (value == null)
+			return null;
+		var result = deserialize(Set.of(new SerializedVariable("", value)));
+		if (result == null || result.isEmpty())
+			return null;
+		return result.values().iterator().next();
+	}
+
+	/**
+	 * Deserializes the provided variable value to an object.
+	 * <p>
+	 * Is blocking if the serializer for the action needs to be synchronized and
+	 * the method is not called from the main thread.
+	 * <p>
+	 * This method is thread safe.
+	 *
+	 * @param value value to deserialize
+	 * @param type type of the value
+	 * @return deserialized object of null if no serializer is available
+	 */
+	@Blocking
+	public static @Nullable Object deserialize(byte[] value, ClassInfo<?> type) {
+		return deserialize(value, type.getCodeName());
+	}
+
+	/**
+	 * Deserializes the provided variable value to an object.
+	 * <p>
+	 * Is blocking if the serializer for the action needs to be synchronized and
+	 * the method is not called from the main thread.
+	 * <p>
+	 * This method is thread safe.
+	 *
+	 * @param value value to deserialize
+	 * @param type type of the value
+	 * @return deserialized object of null if no serializer is available
+	 */
+	@Blocking
+	public static @Nullable Object deserialize(byte[] value, String type) {
+		return deserialize(new SerializedVariable.Value(type, value));
+	}
+
+	/**
+	 * The deserialization process for a single object.
+	 * <p>
+	 * This method must be called from the main thread if the serializer for
+	 * given class info must be synchronized.
+	 *
+	 * @see #deserialize(byte[], ClassInfo)
+	 * @see #deserialize(Set)
+	 */
+	private static @Nullable Object deserialize(InputStream inputStream, ClassInfo<?> classInfo) {
+		assert classInfo.getSerializer() != null;
+		assert !classInfo.getSerializer().mustSyncDeserialization() || Bukkit.isPrimaryThread();
+
+		try (var sis = new SequenceInputStream(new ByteArrayInputStream(getYggdrasilStart(classInfo)), inputStream);
+			 var in = Variables.yggdrasil.newInputStream(sis)) {
+			return in.readObject();
+		} catch (IOException exception) {
+			if (Skript.testing())
+				Skript.exception(exception, "Failed to deserialize variable of type " + classInfo.getCodeName());
+			return null;
 		}
 	}
 
 	/**
-	 * Deserialises an object.
+	 * Deserializes an object.
 	 * <p>
-	 * This method must only be called from Bukkits main thread!
+	 * This method must only be called from Bukkit main thread!
 	 *
-	 * @param type
-	 * @param value
-	 * @return Deserialised value or null if the input is invalid
+	 * @param type type of the value
+	 * @param value value as a string
+	 * @return deserialized value or null if the input is invalid
+	 * @deprecated for legacy deserialization, use {@link #deserialize(byte[], String)}
 	 */
+	@SuppressWarnings("removal")
 	@Deprecated(since = "2.3.0", forRemoval = true)
-	@Nullable
-	public static Object deserialize(final String type, final String value) {
+	public static @Nullable Object deserialize(final String type, final String value) {
 		assert Bukkit.isPrimaryThread();
 		final ClassInfo<?> ci = getClassInfoNoError(type);
 		if (ci == null)

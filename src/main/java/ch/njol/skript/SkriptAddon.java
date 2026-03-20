@@ -11,6 +11,10 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
+import ch.njol.skript.variables.VariableStorage;
+import ch.njol.skript.variables.Variables;
+
+import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Registry;

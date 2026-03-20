@@ -9,6 +9,7 @@ import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
+import ch.njol.skript.variables.VariablesMap;
 import ch.njol.util.Kleenean;
 import io.papermc.lib.PaperLib;
 import io.papermc.lib.environments.PaperEnvironment;
@@ -131,7 +132,7 @@ public class EffTeleport extends Effect {
 		}
 
 		final Location fixed = location;
-		Object localVars = Variables.removeLocals(event);
+		VariablesMap localVars = Variables.removeLocals(event);
 
 		// This will either fetch the chunk instantly if on Spigot or already loaded or fetch it async if on Paper.
 		PaperLib.getChunkAtAsync(location).thenAccept(chunk -> {

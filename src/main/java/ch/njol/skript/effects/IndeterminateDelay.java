@@ -1,5 +1,6 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.variables.VariablesMap;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,7 @@ public class IndeterminateDelay extends Delay {
 				return null;
 			
 			// Back up local variables
-			Object localVars = Variables.removeLocals(event);
+			VariablesMap localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				Delay.addDelayedEvent(event);

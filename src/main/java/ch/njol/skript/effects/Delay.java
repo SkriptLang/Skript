@@ -14,6 +14,7 @@ import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
+import ch.njol.skript.variables.VariablesMap;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -72,7 +73,7 @@ public class Delay extends Effect {
 				return null;
 			
 			// Back up local variables
-			Object localVars = Variables.removeLocals(event);
+			VariablesMap localVars = Variables.removeLocals(event);
 			
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				addDelayedEvent(event);
