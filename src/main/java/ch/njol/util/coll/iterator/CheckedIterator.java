@@ -2,21 +2,17 @@ package ch.njol.util.coll.iterator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.util.NullableChecker;
+import java.util.function.Predicate;
 
 public class CheckedIterator<T> implements Iterator<T> {
 	
 	private final Iterator<T> iter;
-	private final NullableChecker<T> checker;
+	private final Predicate<T> checker;
 	
 	private boolean returnedNext = true;
-	@Nullable
 	private T next;
 	
-	public CheckedIterator(final Iterator<T> iter, final NullableChecker<T> checker) {
+	public CheckedIterator(Iterator<T> iter, Predicate<T> checker) {
 		this.iter = iter;
 		this.checker = checker;
 	}
@@ -29,7 +25,7 @@ public class CheckedIterator<T> implements Iterator<T> {
 			return false;
 		while (iter.hasNext()) {
 			next = iter.next();
-			if (checker.check(next)) {
+			if (checker.test(next)) {
 				returnedNext = false;
 				return true;
 			}
@@ -38,7 +34,6 @@ public class CheckedIterator<T> implements Iterator<T> {
 	}
 	
 	@Override
-	@Nullable
 	public T next() {
 		if (!hasNext())
 			throw new NoSuchElementException();

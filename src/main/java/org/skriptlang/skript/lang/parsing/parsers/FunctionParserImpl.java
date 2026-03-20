@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.parser;
+package org.skriptlang.skript.lang.parsing.parsers;
 
 import ch.njol.skript.lang.function.FunctionReference;
 import org.jetbrains.annotations.NotNull;

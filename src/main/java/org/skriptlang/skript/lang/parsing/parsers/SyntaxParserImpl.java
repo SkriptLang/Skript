@@ -1,4 +1,4 @@
-package org.skriptlang.skript.lang.parser;
+package org.skriptlang.skript.lang.parsing.parsers;
 
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -17,15 +17,15 @@ import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.patterns.TypePatternElement;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.base.Preconditions;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.Skript;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
-import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
+import org.skriptlang.skript.lang.parsing.ParsingContext;
+import org.skriptlang.skript.lang.parsing.constraints.Constraints;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -50,51 +50,31 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	protected boolean suppressMissingAndOrWarnings = SkriptConfig.disableMissingAndOrWarnings.value();
 	public final boolean doSimplification = SkriptConfig.simplifySyntaxesOnParse.value();
 
-	protected ParsingConstraints constraints;
+	protected Constraints localConstraints;
 	protected ParseContext context;
 	protected String input;
 	protected String defaultError;
 	protected final Skript skript;
 
 	protected SyntaxParserImpl(Skript skript) {
-		this.constraints = ParsingConstraints.all();
 		this.context = ParseContext.DEFAULT;
 		this.skript = skript;
+		this.localConstraints = null;
 	}
 
 	public SyntaxParserImpl(@NotNull SyntaxParser<?> other) {
-		this.constraints = other.constraints();
 		this.context = other.parseContext();
 		this.input = other.input();
 		this.defaultError = other.defaultError();
 		this.skript = other.skript();
+		this.localConstraints = other.constraints();
 		if (other instanceof SyntaxParserImpl<?> otherImpl)
 			this.suppressMissingAndOrWarnings = otherImpl.suppressMissingAndOrWarnings;
 	}
 
 	@Override
 	public <E extends SyntaxElement> @Nullable E parse(@NotNull Iterator<? extends SyntaxInfo<? extends E>> allowedSyntaxes) {
-		allowedSyntaxes = constraints.constrainIterator(allowedSyntaxes);
-		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-			// for each allowed syntax
-			while (allowedSyntaxes.hasNext()) {
-				SyntaxInfo<? extends E> info = allowedSyntaxes.next();
-				// check each of its patterns
-				int patternIndex = 0;
-				for (String pattern : info.patterns()) {
-					log.clear();
-					E element = parse(info, pattern, patternIndex);
-					// return if this pattern parsed successfully
-					if (element != null) {
-						log.printLog();
-						return element;
-					}
-					patternIndex++;
-				}
-			}
-			log.printError();
-			return null;
-		}
+		return getParser().withConstraints(localConstraints, (constraints) -> parse(constraints, allowedSyntaxes));
 	}
 
 	@Override
@@ -108,23 +88,15 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	 */
 	protected void assertReadyToParse() {
 		Preconditions.checkNotNull(input, "Input string must be set before parsing.");
-		Preconditions.checkNotNull(constraints, "Parsing constraints must be set before parsing.");
+		Preconditions.checkNotNull(localConstraints, "Parsing constraints must be set before parsing.");
 		Preconditions.checkNotNull(context, "Parse context must be set before parsing.");
 	}
 
-	/**
-	 * @return the input string to be parsed
-	 */
 	@Contract(pure = true)
 	public String input() {
 		return input;
 	}
 
-	/**
-	 * Sets the input string to be parsed.
-	 * @param input the new input string
-	 * @return this parser instance
-	 */
 	@Contract("_ -> this")
 	@SuppressWarnings("unchecked")
 	public P input(@NotNull String input) {
@@ -132,39 +104,23 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 		return (P) this;
 	}
 
-	/**
-	 * @return the current parsing constraints
-	 */
 	@Contract(pure = true)
-	public ParsingConstraints constraints() {
-		return constraints;
+	public Constraints constraints() {
+		return localConstraints;
 	}
 
-	/**
-	 * Sets the parsing constraints.
-	 * @param constraints the new parsing constraints
-	 * @return this parser instance
-	 */
 	@Contract("_ -> this")
 	@SuppressWarnings("unchecked")
-	public P constraints(@NotNull ParsingConstraints constraints) {
-		this.constraints = constraints;
+	public P constraints(@NotNull Constraints localConstraints) {
+		this.localConstraints = localConstraints;
 		return (P) this;
 	}
 
-	/**
-	 * @return the current parse context
-	 */
 	@Contract(pure = true)
 	public ParseContext parseContext() {
 		return context;
 	}
 
-	/**
-	 * Sets the parse context.
-	 * @param context the new parse context
-	 * @return this parser instance
-	 */
 	@Contract("_ -> this")
 	@SuppressWarnings("unchecked")
 	public P parseContext(@NotNull ParseContext context) {
@@ -172,19 +128,11 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 		return (P) this;
 	}
 
-	/**
-	 * @return the default error message to use if parsing fails
-	 */
 	@Contract(pure = true)
 	public @Nullable String defaultError() {
 		return defaultError;
 	}
 
-	/**
-	 * Sets the default error message to use if parsing fails.
-	 * @param defaultError the new default error message
-	 * @return this parser instance
-	 */
 	@Contract("_ -> this")
 	@SuppressWarnings("unchecked")
 	public P defaultError(@Nullable String defaultError) {
@@ -202,19 +150,59 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	// --------------------------------------------------------------------------------
 
 	/**
+	 * Internal parse method that performs the actual parsing logic. Most implementations shou
+	 * @param constraints The combined constraints to use for parsing.
+	 * @param allowedSyntaxes The iterator of syntaxes to parse against.
+	 * @param <E> The type of {@link SyntaxElement} that will be returned.
+	 * @return A parsed {@link SyntaxElement} if successful, null otherwise.
+	 */
+	protected <E extends SyntaxElement> @Nullable E parse(
+		Constraints constraints,
+		Iterator<? extends SyntaxInfo<? extends E>> allowedSyntaxes
+	) {
+		ParsingContext ctx = ParserInstance.getContext();
+		allowedSyntaxes = new CheckedIterator<>(allowedSyntaxes, info -> constraints.acceptsInfo(info, ctx));
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
+			// for each allowed syntax
+			while (allowedSyntaxes.hasNext()) {
+				SyntaxInfo<? extends E> info = allowedSyntaxes.next();
+				// check each of its patterns
+				int patternIndex = 0;
+				for (String pattern : info.patterns()) {
+					log.clear();
+					E element = parse(constraints, info, pattern, patternIndex);
+					// return if this pattern parsed successfully
+					if (element != null) {
+						log.printLog();
+						return element;
+					}
+					patternIndex++;
+				}
+			}
+			log.printError();
+			return null;
+		}
+	}
+
+	/**
 	 * Attempts to parse this parser's input against the given pattern.
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method).
 	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}
 	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
 	 * @param <E> The type of {@link SyntaxElement} that will be returned.
 	 */
-	private <E extends SyntaxElement> @Nullable E parse(@NotNull SyntaxInfo<? extends E> info, String pattern, int patternIndex) {
+	private <E extends SyntaxElement> @Nullable E parse(
+		Constraints constraints,
+		@NotNull SyntaxInfo<? extends E> info,
+		String pattern,
+		int patternIndex
+	) {
 		ParsingStack parsingStack = getParser().getParsingStack();
 		SkriptParser.ParseResult parseResult;
 		try {
 			// attempt to parse with the given pattern
 			parsingStack.push(new ParsingStack.Element(info, patternIndex));
-			parseResult = parseAgainstPattern(pattern);
+			parseResult = parseAgainstPattern(constraints, pattern);
 		} catch (MalformedPatternException exception) {
 			// if the pattern failed to compile:
 			String message = "pattern compiling exception, element class: " + info.type().getName();
@@ -245,15 +233,28 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 			throw new RuntimeException("Failed to create instance of " + info.type().getName(), e);
 		}
 
-		// if default expr population succeeded, try to init element.
-		if (initializeElement(element, patternIndex, parseResult)) {
-			if (doSimplification && element instanceof Simplifiable<?> simplifiable)
-				//noinspection unchecked
-				return (E) simplifiable.simplify();
-			return element;
-		}
+		ParsingContext ctx = ParserInstance.getContext();
 
-		return null;
+		// check pre-init constraints (read-only, outside attempt())
+		if (!constraints.acceptsPreInit(info, element, parseResult, ctx))
+			return null;
+
+		// wrap init() in attempt() to roll back hasDelayBefore/hintManager on failure
+		return ctx.attempt(() -> {
+			if (!initializeElement(element, patternIndex, parseResult))
+				return null;
+
+			@SuppressWarnings("unchecked")
+			E result = (doSimplification && element instanceof Simplifiable<?> simplifiable)
+				? (E) simplifiable.simplify()
+				: element;
+
+			// check post-init constraints
+			if (!constraints.acceptsPostInit(result, parseResult, ctx))
+				return null;
+
+			return result;
+		});
 	}
 
 	/**
@@ -264,14 +265,8 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	 * @return Whether the element was successfully initialized.
 	 */
 	private boolean initializeElement(SyntaxElement element, int patternIndex, SkriptParser.ParseResult parseResult) {
-		if (!checkRestrictedEvents(element, parseResult))
-			return false;
-
-		if (!checkExperimentalSyntax(element))
-			return false;
-
 		// try to initialize the element
-		boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+		boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, ParserInstance.getContext().getHasDelayBefore(), parseResult);
 		if (success) {
 			// Check if any expressions are 'UnparsedLiterals' and if applicable for multiple info warning.
 			for (Expression<?> expr : parseResult.exprs) {
@@ -288,9 +283,9 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	 * parsed and initialized. Default values will not be populated.
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method).
 	 * @return A {@link SkriptParser.ParseResult} containing the results of the parsing, if successful. Null otherwise.
-	 * @see #parse(SyntaxInfo, String, int)
+	 * @see #parse(Constraints, SyntaxInfo, String, int)
 	 */
-	private @Nullable SkriptParser.ParseResult parseAgainstPattern(String pattern) throws MalformedPatternException {
+	private @Nullable SkriptParser.ParseResult parseAgainstPattern(Constraints constraints, String pattern) throws MalformedPatternException {
 		SkriptPattern skriptPattern = patterns.computeIfAbsent(pattern, PatternCompiler::compile);
 		ch.njol.skript.patterns.MatchResult matchResult = skriptPattern.match(input, constraints.asParseFlags(), context);
 		if (matchResult == null)
@@ -363,7 +358,7 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	 * @return All available {@link DefaultExpression}s.
 	 * @throws SkriptAPIException If no {@link DefaultExpression}s are valid, produces an error message for the reasoning of failure.
 	 */
-	static @NotNull List<DefaultExpression<?>> getDefaultExpressions(SkriptParser.ExprInfo exprInfo, String pattern) {
+	public static @NotNull List<DefaultExpression<?>> getDefaultExpressions(SkriptParser.ExprInfo exprInfo, String pattern) {
 		if (exprInfo.classes.length == 1)
 			return new ArrayList<>(List.of(getDefaultExpression(exprInfo, pattern)));
 
@@ -396,37 +391,6 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 			errors.add(error);
 		}
 		throw new SkriptAPIException(StringUtils.join(errors, "\n"));
-	}
-
-	/**
-	 * Checks whether the given element is restricted to specific events, and if so, whether the current event is allowed.
-	 * Prints errors.
-	 * @param element The syntax element to check.
-	 * @param parseResult The parse result for error information.
-	 * @return True if the element is allowed in the current event, false otherwise.
-	 */
-	private static boolean checkRestrictedEvents(SyntaxElement element, SkriptParser.ParseResult parseResult) {
-		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
-			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-			if (!getParser().isCurrentEvent(supportedEvents)) {
-				ch.njol.skript.Skript.error("'" + parseResult.expr + "' can only be used in "
-					+ EventRestrictedSyntax.supportedEventsNames(supportedEvents));
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Checks that {@code element} is an {@link ExperimentalSyntax} and, if so, ensures that its requirements are satisfied by the current {@link ExperimentSet}.
-	 * @param element The {@link SyntaxElement} to check.
-	 * @return {@code True} if the {@link SyntaxElement} is not an {@link ExperimentalSyntax} or is satisfied.
-	 */
-	private static <T extends SyntaxElement> boolean checkExperimentalSyntax(T element) {
-		if (!(element instanceof ExperimentalSyntax experimentalSyntax))
-			return true;
-		ExperimentSet experiments = getParser().getExperimentSet();
-		return experimentalSyntax.isSatisfiedBy(experiments);
 	}
 
 	/**

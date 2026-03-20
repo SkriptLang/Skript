@@ -22,12 +22,16 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
+import org.skriptlang.skript.lang.parsing.ParsingContext;
+import org.skriptlang.skript.lang.parsing.constraints.ConstraintStack;
+import org.skriptlang.skript.lang.parsing.constraints.Constraints;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class ParserInstance implements Experimented {
 
@@ -39,6 +43,59 @@ public final class ParserInstance implements Experimented {
 	// TODO maybe make a one-thread cache (e.g. Pair<Thread, ParserInstance>) if it's better for performance (test)
 	public static ParserInstance get() {
 		return PARSER_INSTANCES.get();
+	}
+
+	/**
+	 * @return The {@link ParsingContext} of the {@link ParserInstance} for this thread.
+	 */
+	public static ParsingContext getContext() {
+		return get().parsingContext;
+	}
+
+	private ParsingContext parsingContext = new ParsingContext();
+
+	// Wire parsingStack into parsingContext after all field initializers have run
+	private ParserInstance() {
+		parsingContext.setParsingStack(parsingStack);
+	}
+
+	public ParsingContext getParsingContext() {
+		return parsingContext;
+	}
+
+	void setParsingContext(ParsingContext ctx) {
+		this.parsingContext = ctx;
+	}
+
+	/**
+	 * Temporarily replaces this parser's active {@link ParsingContext} with the given one,
+	 * runs {@code action}, then restores the previous context.
+	 * <p>
+	 * This is the intended mechanism for Sections that fork a context for branch parsing.
+	 * For example, a conditional section forks the context, optionally sets
+	 * {@code fork.setHasDelayBefore(Kleenean.TRUE)} for branches that contain delays,
+	 * then calls {@code withContext(fork, () -> ScriptLoader.loadItems(branchNode))} so that
+	 * all nested {@link SyntaxParser} calls see the forked state rather than the live one.
+	 * After the action, the caller reads back whatever state it cares about from {@code ctx}
+	 * (e.g. {@code ctx.getHasDelayBefore()}) before the context is discarded.
+	 * <p>
+	 * Note: {@link #currentEvents} on this instance is intentionally <em>not</em> synced
+	 * during the swap — fork-based branch parsing does not change the event context, only
+	 * delay/hint state. If you need to change events, use {@link #setCurrentEvent} instead.
+	 *
+	 * @param ctx    The forked context to activate for the duration of {@code action}.
+	 * @param action The action to run with {@code ctx} as the active context.
+	 * @param <T>    The return type of the action.
+	 * @return The value returned by {@code action}.
+	 */
+	public <T> @Nullable T withContext(ParsingContext ctx, Supplier<@Nullable T> action) {
+		ParsingContext previous = this.parsingContext;
+		this.parsingContext = ctx;
+		try {
+			return action.get();
+		} finally {
+			this.parsingContext = previous;
+		}
 	}
 
 	private boolean isActive = false;
@@ -63,7 +120,11 @@ public final class ParserInstance implements Experimented {
 		reset(); // just to be safe
 
 		// Needs to be explicitly marked as it will be false from the 'reset' call
-		this.hintManager.setActive(true);
+		this.parsingContext.getHintManager().setActive(true);
+
+		// Populate experimentSet on the context so constraints can use it without global access
+		ExperimentSet experimentSet = script.getData(ExperimentSet.class, ExperimentSet::new);
+		this.parsingContext.setExperimentSet(experimentSet);
 
 		this.isActive = true; // we want it to be active for script events
 		setCurrentScript(script);
@@ -88,9 +149,13 @@ public final class ParserInstance implements Experimented {
 		this.currentEventName = null;
 		this.currentEvents = null;
 		this.currentSections = new ArrayList<>();
-		this.hasDelayBefore = Kleenean.FALSE;
 		this.node = null;
-		this.hintManager = new HintManager(this.hintManager.isActive());
+		// Reset fields that now live on parsingContext
+		boolean hintsWereActive = this.parsingContext.getHintManager().isActive();
+		this.parsingContext.setCurrentEvents(null);
+		this.parsingContext.setHasDelayBefore(Kleenean.FALSE);
+		this.parsingContext.setHintManager(new HintManager(hintsWereActive));
+		// experimentSet is reset by setActive/setInactive callers
 		dataMap.clear();
 	}
 
@@ -180,6 +245,7 @@ public final class ParserInstance implements Experimented {
 
 	private @Nullable String currentEventName;
 
+	// currentEvents now lives on parsingContext; kept here for data-listener notification only
 	private Class<? extends Event> @Nullable [] currentEvents = null;
 
 	public void setCurrentEventName(@Nullable String currentEventName) {
@@ -196,6 +262,7 @@ public final class ParserInstance implements Experimented {
 	 */
 	public void setCurrentEvents(Class<? extends Event> @Nullable [] currentEvents) {
 		this.currentEvents = currentEvents;
+		parsingContext.setCurrentEvents(currentEvents);
 		getDataInstances().forEach(data -> data.onCurrentEventsChange(currentEvents));
 	}
 
@@ -397,9 +464,7 @@ public final class ParserInstance implements Experimented {
 		return false;
 	}
 
-	// Delay API
-
-	private Kleenean hasDelayBefore = Kleenean.FALSE;
+	// Delay API — now lives on parsingContext; forwarded here for backwards compat
 
 	/**
 	 * This method should be called to indicate that
@@ -408,7 +473,7 @@ public final class ParserInstance implements Experimented {
 	 * @see ch.njol.skript.util.AsyncEffect
 	 */
 	public void setHasDelayBefore(Kleenean hasDelayBefore) {
-		this.hasDelayBefore = hasDelayBefore;
+		parsingContext.setHasDelayBefore(hasDelayBefore);
 	}
 
 	/**
@@ -419,7 +484,7 @@ public final class ParserInstance implements Experimented {
 	 * to make sure the event can't be modified when it has passed.
 	 */
 	public Kleenean getHasDelayBefore() {
-		return hasDelayBefore;
+		return parsingContext.getHasDelayBefore();
 	}
 
 	// Logging API
@@ -532,30 +597,74 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
-	 * Get the {@link ExperimentSet} of the current {@link Script}
+	 * Get the {@link ExperimentSet} of the current {@link Script}.
+	 * Forwards to the parsingContext's experiment set, which is populated when a script becomes active.
 	 * @return Experiment set of {@link #getCurrentScript()},
 	 *  or an empty experiment set if not {@link #isActive()}.
 	 */
 	public ExperimentSet getExperimentSet() {
-		if (!this.isActive())
-			return new ExperimentSet();
-		Script script = this.getCurrentScript();
-		ExperimentSet set = script.getData(ExperimentSet.class);
-		if (set == null)
-			return new ExperimentSet();
-		return set;
+		ExperimentSet set = parsingContext.getExperimentSet();
+		return set != null ? set : new ExperimentSet();
 	}
 
-	// Type Hints
+	/**
+	 * Sets the {@link ExperimentSet} on the current parsing context.
+	 * @param set The experiment set to use.
+	 */
+	public void setExperimentSet(ExperimentSet set) {
+		parsingContext.setExperimentSet(set);
+	}
 
-	private HintManager hintManager = new HintManager(true);
+	// Type Hints — now lives on parsingContext; forwarded here for backwards compat
 
 	/**
 	 * @return The local variable type hint manager for the active parsing process.
 	 */
 	@ApiStatus.Experimental
 	public HintManager getHintManager() {
-		return hintManager;
+		return parsingContext.getHintManager();
+	}
+
+	// constraints API — constraintStack now lives on parsingContext
+
+	Constraints globalConstraints = new Constraints();
+
+	/**
+	 * @return The constraints for the active parsing process.
+	 */
+	public Constraints constraints() {
+		return parsingContext.getConstraintStack().asConstraints();
+	}
+
+	/**
+	 * Replaces the current constraints with a new, empty ConstraintStack.
+	 * Useful for resetting constraints when switching contexts.
+	 * @return The old ConstraintStack.
+	 */
+	public ConstraintStack replaceConstraints() {
+		ConstraintStack old = parsingContext.getConstraintStack();
+		parsingContext.setConstraintStack(new ConstraintStack());
+		return old;
+	}
+
+	/**
+	 * Replaces the current constraints with the given ConstraintStack.
+	 * Useful for switching contexts.
+	 * @param newStack The new ConstraintStack to use.
+	 * @return The old ConstraintStack.
+	 */
+	public ConstraintStack replaceConstraints(ConstraintStack newStack) {
+		ConstraintStack old = parsingContext.getConstraintStack();
+		parsingContext.setConstraintStack(newStack);
+		return old;
+	}
+
+	public <T> T withConstraints(Constraints additionalConstraints, Function<Constraints, T> action) {
+		ConstraintStack constraintStack = parsingContext.getConstraintStack();
+		constraintStack.push(additionalConstraints);
+		T t = action.apply(constraintStack.asConstraints());
+		constraintStack.pop();
+		return t;
 	}
 
 	// ParserInstance Data API
@@ -672,39 +781,40 @@ public final class ParserInstance implements Experimented {
 	 */
 	public static class Backup {
 
+		// Fields that stay on ParserInstance
 		private final Script currentScript;
 		private final @Nullable Structure currentStructure;
 		private final @Nullable String currentEventName;
-		private final Class<? extends Event> @Nullable [] currentEvents;
 		private final List<TriggerSection> currentSections;
-		private final Kleenean hasDelayBefore;
-		private final HintManager hintManager;
 		private final Map<Class<? extends Data>, Data> dataMap;
+		// Fork of the parsingContext captures: currentEvents, hasDelayBefore, hintManager, constraintStack
+		final ParsingContext savedContext;
 
 		private Backup(ParserInstance parser) {
 			//noinspection ConstantConditions - parser will be active, meaning there is a current script
 			this.currentScript = parser.currentScript;
 			this.currentStructure = parser.currentStructure;
-			this.currentEventName = parser.currentEventName != null ? parser.currentEventName : null;
-			this.currentEvents = parser.currentEvents != null
-				? Arrays.copyOf(parser.currentEvents, parser.currentEvents.length)
-				: null;
+			this.currentEventName = parser.currentEventName;
 			this.currentSections = new ArrayList<>(parser.currentSections);
-			this.hasDelayBefore = parser.hasDelayBefore;
-			this.hintManager = parser.hintManager;
 			this.dataMap = new HashMap<>(parser.dataMap);
+			this.savedContext = parser.parsingContext.fork();
+		}
+
+		public void apply() {
+			get().restoreBackup(this);
 		}
 
 		private void apply(ParserInstance parser) {
 			parser.setCurrentScript(this.currentScript);
 			parser.currentStructure = this.currentStructure;
 			parser.currentEventName = this.currentEventName;
-			parser.currentEvents = this.currentEvents;
+			// Restore currentEvents on parser (for data-listener compat) without firing listeners
+			parser.currentEvents = this.savedContext.getCurrentEvents();
 			parser.currentSections = this.currentSections;
-			parser.hasDelayBefore = this.hasDelayBefore;
-			parser.hintManager = this.hintManager;
 			parser.dataMap.clear();
 			parser.dataMap.putAll(this.dataMap);
+			// Restore the full parsingContext (hasDelayBefore, hintManager, constraintStack, currentEvents, etc.)
+			parser.parsingContext = this.savedContext;
 		}
 
 	}

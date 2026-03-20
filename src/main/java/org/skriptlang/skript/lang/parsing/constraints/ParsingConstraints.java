@@ -1,15 +1,12 @@
-package org.skriptlang.skript.lang.parser;
+package org.skriptlang.skript.lang.parsing.constraints;
 
 import ch.njol.skript.lang.ExpressionInfo;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.util.HashSet;
@@ -35,8 +32,6 @@ public class ParsingConstraints {
 	private boolean allowNonLiterals;
 	private boolean allowLiterals;
 
-	private Class<?> @Nullable [] validReturnTypes;
-
 	@Contract("-> new")
 	public static @NotNull ParsingConstraints empty() {
 		return new ParsingConstraints()
@@ -56,7 +51,6 @@ public class ParsingConstraints {
 		allowFunctionCalls = true;
 		allowNonLiterals = true;
 		allowLiterals = true;
-		validReturnTypes = new Class[]{Object.class};
 	}
 
 	public <T extends SyntaxElement> @NotNull Iterator<? extends SyntaxInfo<? extends T>> constrainIterator(Iterator<? extends SyntaxInfo<? extends T>> uncheckedIterator) {
@@ -82,22 +76,8 @@ public class ParsingConstraints {
 			// check exceptions
 			if (exceptionMode == ExceptionMode.INCLUDE && !exceptions.contains(elementClass)) {
 				return false;
-			} else if (exceptionMode == ExceptionMode.EXCLUDE && exceptions.contains(elementClass)) {
-				return false;
 			}
-
-			// check return types
-			if (info instanceof ExpressionInfo<?, ?> expressionInfo) {
-				if (validReturnTypes == null || expressionInfo.returnType == Object.class)
-					return true;
-
-				for (Class<?> returnType : validReturnTypes) {
-					if (Converters.converterExists(expressionInfo.returnType, returnType))
-						return true;
-				}
-				return false;
-			}
-			return true;
+			return exceptionMode != ExceptionMode.EXCLUDE || !exceptions.contains(elementClass);
 		});
 	}
 
@@ -129,19 +109,6 @@ public class ParsingConstraints {
 
 	public ParsingConstraints allowFunctionCalls(boolean allow) {
 		allowFunctionCalls = allow;
-		return this;
-	}
-
-	public Class<?>[] getValidReturnTypes() {
-		return validReturnTypes;
-	}
-
-	public ParsingConstraints constrainReturnTypes(Class<?>... validReturnTypes) {
-		if (validReturnTypes == null || validReturnTypes.length == 0) {
-			this.validReturnTypes = null;
-		} else {
-			this.validReturnTypes = validReturnTypes;
-		}
 		return this;
 	}
 
@@ -188,32 +155,10 @@ public class ParsingConstraints {
 		ParsingConstraints copy = new ParsingConstraints();
 		copy.exceptions = new HashSet<>(exceptions);
 		copy.exceptionMode = exceptionMode;
-		copy.validReturnTypes = validReturnTypes;
 		copy.allowFunctionCalls = allowFunctionCalls;
 		copy.allowNonLiterals = allowNonLiterals;
 		copy.allowLiterals = allowLiterals;
 		return copy;
-	}
-
-	static {
-		ParserInstance.registerData(ConstraintData.class, ConstraintData::new);
-	}
-
-	public static class ConstraintData extends ParserInstance.Data {
-		private ParsingConstraints parsingConstraints = ParsingConstraints.all();
-
-		public ConstraintData(ParserInstance parserInstance) {
-			super(parserInstance);
-		}
-
-		public ParsingConstraints getConstraints() {
-			return parsingConstraints;
-		}
-
-		public void setConstraints(ParsingConstraints parsingConstraints) {
-			this.parsingConstraints = parsingConstraints;
-		}
-
 	}
 
 }

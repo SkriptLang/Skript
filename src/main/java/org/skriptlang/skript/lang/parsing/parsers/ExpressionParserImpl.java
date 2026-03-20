@@ -1,9 +1,8 @@
-package org.skriptlang.skript.lang.parser;
+package org.skriptlang.skript.lang.parsing.parsers;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.SkriptParser.ExprInfo;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -14,19 +13,21 @@ import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.parsing.sites.ExpressionSite;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static ch.njol.skript.lang.SkriptParser.notOfType;
 
 class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implements ExpressionParser<ExpressionParserImpl> {
 
@@ -46,18 +47,18 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
         return null;
     }
 
-    public final <T> @Nullable Expression<? extends T> parse(ExprInfo info) {
+	@Override
+    public <T> @Nullable Expression<? extends T> parse(ExpressionSite site) {
         if (input.isEmpty())
             return null;
 
-        var types = constraints.getValidReturnTypes();
+        var types = site.getReturnTypes();
 
         assert types != null;
-        assert types.length > 0;
-        assert types.length == 1 || !CollectionUtils.contains(types, Object.class);
+        assert !types.isEmpty();
 
         try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
-            Expression<? extends T> parsedExpression = parseSingleExpr(true, null);
+            Expression<? extends T> parsedExpression = parseSingleExpr(site,true, null);
             if (parsedExpression != null) {
                 log.printLog();
                 return parsedExpression;
@@ -74,16 +75,19 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
      * @return A {@link Result} object containing the parsed variable or null if parsing failed,
      * 			as well as a boolean indicating whether an error occurred
      */
-    @Contract("_ -> new")
-    private <T> @NotNull Result<Variable<? extends T>> parseAsVariable(ParseLogHandler log) {
+    @Contract("_,_ -> new")
+    private <T> @NotNull Result<Variable<? extends T>> parseAsVariable(
+		ExpressionSite site,
+		ParseLogHandler log
+	) {
         // check if the context is valid for variable parsing
         if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
             return new Result<>(false, null);
 
         //noinspection unchecked
-        Variable<? extends T> parsedVariable = (Variable<? extends T>) Variable.parse(input, constraints.getValidReturnTypes());
+        Variable<? extends T> parsedVariable = (Variable<? extends T>) Variable.parse(input, getValidReturnTypes(site));
         if (parsedVariable != null) {
-            if (!constraints.allowsNonLiterals()) {
+            if (!site.allowsNonLiterals()) {
                 // TODO: this error pops up a lot when it isn't relevant, improve this
                 Skript.error("Variables cannot be used here.");
                 log.printError();
@@ -105,10 +109,13 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
      * 			as well as a boolean indicating whether an error occurred
      * @param <T> The supertype that the function is expected to return
      */
-    @Contract("_ -> new")
-    private <T> @NotNull Result<ExprFunctionCall<T>> parseAsFunction(ParseLogHandler log) {
+    @Contract("_,_ -> new")
+    private <T> @NotNull Result<ExprFunctionCall<T>> parseAsFunction(
+		ExpressionSite site,
+		ParseLogHandler log
+	) {
         // check if the context is valid for function parsing
-        if (!constraints.allowsFunctionCalls() || context != ParseContext.DEFAULT && context != ParseContext.EVENT)
+        if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
             return new Result<>(false, null);
 
         FunctionReference<T> functionReference = new FunctionParserImpl(this).parse();
@@ -129,9 +136,12 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
      * 			as well as a boolean indicating whether an error occurred
      * @param <T> The supertype that the expression is expected to return
      */
-    @Contract("_ -> new")
-    private <T> @NotNull Result<Expression<? extends T>> parseAsNonLiteral(ParseLogHandler log) {
-        if (!constraints.allowsNonLiterals())
+    @Contract("_,_ -> new")
+    private <T> @NotNull Result<Expression<? extends T>> parseAsNonLiteral(
+		ExpressionSite site,
+		ParseLogHandler log
+	) {
+        if (!site.allowsNonLiterals())
             return new Result<>(false, null);
 
         Expression<? extends T> parsedExpression;
@@ -139,27 +149,57 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
             Skript.error("Pretty quotes are not allowed, change to regular quotes (\")");
             return new Result<>(true, null);
         }
-        // quoted string, strip quotes and parse as VariableString
+
         if (input.startsWith("\"") && input.length() != 1 && StringUtils.nextQuote(input, 1) == input.length() - 1) {
+			// quoted string, strip quotes and parse as VariableString
             //noinspection unchecked
             return new Result<>(false, (Expression<? extends T>) VariableString.newInstance(input.substring(1, input.length() - 1)));
         } else {
+			// parse generally
+			//TODO: apply site constraints to parse
             //noinspection unchecked
             parsedExpression = (Expression<? extends T>) parse(SyntaxRegistry.EXPRESSION);
         }
 
-        if (parsedExpression != null) { // Expression/VariableString parsing success
+        if (parsedExpression != null) {
+			// Expression/VariableString parsing success
+
+			// Verify return types
+			// Assume parsedExpression returns X, Y, and Z
+			// The accepted types are A, B, C
+			//
+			// We need to ensure that at least one of X/Y/Z is either A/B/C
+			// AND
+			// that any type that matches also matches in plurality
+			// e.g. if we accept a list of strings but a singular number, then
+			//      if parsedExpression is plural, it can only return strings.
+			//      if it returns number or any superclass of number, it is only allowed
+			//      to return a single value.
+
+
+			List<ClassInfoReference> wrongPlurality = new ArrayList<>();
             Class<?> parsedReturnType = parsedExpression.getReturnType();
-            for (Class<?> type : constraints.getValidReturnTypes()) {
-                if (type.isAssignableFrom(parsedReturnType)) {
-                    log.printLog();
-                    return new Result<>(false, parsedExpression);
+            for (ClassInfoReference infoReference : site.getReturnTypes()) {
+                Class<?> type = infoReference.getClassInfo().getC();
+				// check types
+				if (type.isAssignableFrom(parsedReturnType)) {
+					continue;
                 }
+				// check plurality
+				boolean single = infoReference.isPlural().isFalse();
+				if (single && !parsedExpression.isSingle()) {
+					break;
+				}
+				log.printLog();
+				return new Result<>(false, parsedExpression);
             }
+
+			// if any types matched in
+
 
             // No directly same type found
             //noinspection unchecked
-            Class<T>[] objTypes = (Class<T>[]) constraints.getValidReturnTypes();
+            Class<T>[] objTypes = (Class<T>[]) getValidReturnTypes(site);
             Expression<? extends T> convertedExpression = parsedExpression.getConvertedExpression(objTypes);
             if (convertedExpression != null) {
                 log.printLog();
@@ -167,7 +207,7 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
             }
             // Print errors, if we couldn't get the correct type
             log.printError(parsedExpression.toString(null, false) + " " + Language.get("is") + " " +
-                    notOfType(constraints.getValidReturnTypes()), ErrorQuality.NOT_AN_EXPRESSION);
+                    SkriptParser.notOfType(getValidReturnTypes(site)), ErrorQuality.NOT_AN_EXPRESSION);
             return new Result<>(true, null);
         }
         return new Result<>(false, null);
@@ -183,9 +223,13 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
      * 			as well as a boolean indicating whether an error occurred
      * @param <T> The supertype that the expression is expected to return
      */
-    @Contract("_,_,_ -> new")
-    private <T> @NotNull Result<Expression<? extends T>> parseAsLiteral(ParseLogHandler log, boolean allowUnparsedLiteral, @Nullable LogEntry error) {
-        if (!constraints.allowsLiterals())
+    @Contract("_,_,_,_ -> new")
+    private <T> @NotNull Result<Expression<? extends T>> parseAsLiteral(
+		ExpressionSite site,
+		ParseLogHandler log,
+		boolean allowUnparsedLiteral,
+		@Nullable LogEntry error) {
+        if (!site.allowsLiterals())
             return new Result<>(false, null);
 
         // specified literal
@@ -194,7 +238,7 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
             if (classInfoMatcher.matches()) {
                 String literalString = classInfoMatcher.group("literal");
                 String unparsedClassInfo = Noun.stripDefiniteArticle(classInfoMatcher.group("classinfo"));
-                Expression<? extends T> result = parseSpecifiedLiteral(literalString, unparsedClassInfo);
+                Expression<? extends T> result = parseSpecifiedLiteral(site, literalString, unparsedClassInfo);
                 if (result != null) {
                     log.printLog();
                     return new Result<>(false, result);
@@ -202,7 +246,7 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
             }
         }
         // if target is just Object.class, we can use unparsed literal.
-        Class<?>[] types = constraints.getValidReturnTypes();
+        Class<?>[] types = getValidReturnTypes(site);
         if (types.length == 1 && types[0] == Object.class) {
             if (!allowUnparsedLiteral) {
                 log.printError();
@@ -281,6 +325,7 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
      * @return {@link SimpleLiteral} or {@code null} if any checks fail
      */
     private <T> @Nullable Expression<? extends T> parseSpecifiedLiteral(
+			ExpressionSite site,
             String literalString,
             String unparsedClassInfo
     ) {
@@ -294,8 +339,8 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
             Skript.error("A " + unparsedClassInfo  + " cannot be parsed.");
             return null;
         }
-        if (!checkAcceptedType(classInfo.getC(), constraints.getValidReturnTypes())) {
-            Skript.error(input + " " + Language.get("is") + " " + notOfType(constraints.getValidReturnTypes()));
+        if (!checkAcceptedType(classInfo.getC(), getValidReturnTypes(site))) {
+            Skript.error(input + " " + Language.get("is") + " " + SkriptParser.notOfType(getValidReturnTypes(site)));
             return null;
         }
         //noinspection unchecked
@@ -303,6 +348,15 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
         if (parsedObject != null)
             return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(literalString));
         return null;
+    }
+
+    /**
+     * Extracts the valid return types from an {@link ExpressionSite} as a {@code Class<?>[]} array.
+     */
+    private Class<?>[] getValidReturnTypes(ExpressionSite site) {
+        return site.getReturnTypes().stream()
+            .map(ref -> ref.getClassInfo().getC())
+            .toArray(Class[]::new);
     }
 
     /**
@@ -327,6 +381,7 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
      * @param <T> The return supertype of the expression
      */
     private <T> @Nullable Expression<? extends T> parseSingleExpr(
+			ExpressionSite site,
             boolean allowUnparsedLiteral,
             @Nullable LogEntry defaultError
     ) {
@@ -340,31 +395,32 @@ class ExpressionParserImpl extends SyntaxParserImpl<ExpressionParserImpl> implem
                 && input.startsWith("(") && input.endsWith(")")
                 && ch.njol.skript.lang.SkriptParser.next(input, 0, context) == input.length()
         ) {
-            return this.input(input.substring(1, input.length() - 1))
-                    .parseSingleExpr(allowUnparsedLiteral, defaultError);
+            return new ExpressionParserImpl(this)
+					.input(input.substring(1, input.length() - 1))
+                    .parseSingleExpr(site, allowUnparsedLiteral, defaultError);
         }
 
         try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
             // attempt to parse the input as a variable
-            Result<Variable<? extends T>> variableResult = parseAsVariable(log);
+            Result<Variable<? extends T>> variableResult = parseAsVariable(site, log);
             if (variableResult.error() || variableResult.value() != null)
                 return variableResult.value();
             log.clear();
 
             // attempt to parse the input as a function
-            Result<ExprFunctionCall<T>> functionResult = parseAsFunction(log);
+            Result<ExprFunctionCall<T>> functionResult = parseAsFunction(site, log);
             if (functionResult.error() || functionResult.value() != null)
                 return functionResult.value();
             log.clear();
 
             // attempt to parse the input as a non-literal expression
-            Result<Expression<? extends T>> expressionResult = parseAsNonLiteral(log);
+            Result<Expression<? extends T>> expressionResult = parseAsNonLiteral(site, log);
             if (expressionResult.error() || expressionResult.value() != null)
                 return expressionResult.value();
             log.clear();
 
             // attempt to parse the input as a literal expression
-            Result<Expression<? extends T>> literalResult = parseAsLiteral(log, allowUnparsedLiteral, defaultError);
+            Result<Expression<? extends T>> literalResult = parseAsLiteral(site, log, allowUnparsedLiteral, defaultError);
             if (literalResult.error() || literalResult.value() != null)
                 return literalResult.value();
             log.clear();
