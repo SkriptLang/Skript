@@ -85,7 +85,12 @@ public final class TextComponentParser {
 
 	private static final TextComponentParser INSTANCE;
 
-	private static final Pattern COLOR_PATTERN = Pattern.compile("(\\\\*)<([a-zA-Z]+ [a-zA-Z]+)>");
+	/**
+	 * A pattern for matching multi-word color tags.
+	 * It also matches all preceding backslashes to determine whether the supposed tag is escaped.
+	 * For example, {@code <dark red>}.
+	 */
+	private static final Pattern MULTI_WORD_COLOR_PATTERN = Pattern.compile("(\\\\*)<([a-zA-Z]+ [a-zA-Z]+)>");
 
 	static {
 		INSTANCE = new TextComponentParser();
@@ -338,7 +343,7 @@ public final class TextComponentParser {
 	public String reformatText(String text) {
 		// TODO improve...
 		// replace spaces with underscores for simple tags
-		text = StringUtils.replaceAll(text, COLOR_PATTERN, matcher -> {
+		text = StringUtils.replaceAll(text, MULTI_WORD_COLOR_PATTERN, matcher -> {
 			if (matcher.group(1).length() % 2 == 1) { // tag is escaped
 				return Matcher.quoteReplacement(matcher.group());
 			}
