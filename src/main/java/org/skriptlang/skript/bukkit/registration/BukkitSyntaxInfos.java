@@ -138,6 +138,15 @@ public final class BukkitSyntaxInfos {
 		Collection<Class<? extends org.bukkit.event.Event>> events();
 
 		@Override
+		default void preWrite(DocumentationAdapter adapter) {
+			String id = documentationId();
+			if (id == null) {
+				id = id();
+			}
+			adapter.enterScope(id);
+		}
+
+		@Override
 		default void write(DocumentationAdapter adapter) {
 			// write defaults
 			SyntaxInfo.super.write(adapter);

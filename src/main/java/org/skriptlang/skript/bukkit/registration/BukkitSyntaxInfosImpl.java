@@ -387,7 +387,7 @@ final class BukkitSyntaxInfosImpl {
 			@Override
 			public Event<E> build() {
 				if (documentationBuilder != null) {
-					defaultBuilder.documentation(documentationBuilder.build());
+					defaultBuilder.documentation(documentationBuilder.name(name).build());
 				}
 				return new EventImpl<>(defaultBuilder.build(), listeningBehavior, name, documentationId, events);
 			}
@@ -396,7 +396,7 @@ final class BukkitSyntaxInfosImpl {
 			public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
 				defaultBuilder.applyTo(builder);
 				if (documentationBuilder != null) {
-					builder.documentation(documentationBuilder.build());
+					builder.documentation(documentationBuilder.name(name).build());
 				}
 				//noinspection rawtypes - Should be safe, generics will not influence this
 				if (builder instanceof Event.Builder eventBuilder) {
