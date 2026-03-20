@@ -485,16 +485,6 @@ public class ClassInfo<T> implements DocumentationDocumentable, Debuggable {
 		return this;
 	}
 
-	@Override
-	public void preWrite(DocumentationAdapter adapter) {
-		adapter.enterScope(documentation.id());
-	}
-
-	@Override
-	public void postWrite(DocumentationAdapter adapter) {
-		adapter.exitScope();
-	}
-
 	/**
 	 * @deprecated Use {@link Documentation#NONE}.
 	 */

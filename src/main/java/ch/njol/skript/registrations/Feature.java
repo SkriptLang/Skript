@@ -237,16 +237,6 @@ public enum Feature implements Experiment, DocumentationDocumentable, ch.njol.sk
 		return documentation;
 	}
 
-	@Override
-	public void preWrite(DocumentationAdapter adapter) {
-		adapter.enterScope(documentation().id());
-	}
-
-	@Override
-	public void postWrite(DocumentationAdapter adapter) {
-		adapter.exitScope();
-	}
-
 	/**
 	 * Use {@link Documentation#name()}.
 	 */
