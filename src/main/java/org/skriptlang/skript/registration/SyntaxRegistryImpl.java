@@ -3,6 +3,7 @@ package org.skriptlang.skript.registration;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.docs.DocumentationAdapter;
 import org.skriptlang.skript.docs.Origin;
 
 import java.util.Collection;
@@ -60,6 +61,11 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		return builder.build();
 	}
 
+	@Override
+	public void write(DocumentationAdapter adapter) {
+		write(adapter, registers.keySet());
+	}
+
 	static final class OriginApplyingRegistry implements SyntaxRegistry {
 
 		private final SyntaxRegistry syntaxRegistry;
@@ -103,6 +109,16 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 			return syntaxRegistry.elements();
 		}
 
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			syntaxRegistry.write(adapter);
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
+			syntaxRegistry.write(adapter, keys);
+		}
+
 	}
 
 	static final class UnmodifiableRegistry implements SyntaxRegistry {
@@ -141,6 +157,16 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		@Override
 		public SyntaxRegistry unmodifiableView() {
 			return this;
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter) {
+			registry.write(adapter);
+		}
+
+		@Override
+		public void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
+			registry.write(adapter, keys);
 		}
 
 	}

@@ -128,8 +128,16 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 
 	@Override
 	default void write(DocumentationAdapter adapter) {
-		// TODO support for other keys
-		for (var key : List.of(STRUCTURE, SECTION, EFFECT, CONDITION, EXPRESSION)) {
+		write(adapter, List.of(STRUCTURE, SECTION, EFFECT, CONDITION, EXPRESSION));
+	}
+
+	/**
+	 * Like {@link #write(DocumentationAdapter)}, but only writes specific keys.
+	 * @param adapter The adapter to write to.
+	 * @param keys The specific keys to write
+	 */
+	default void write(DocumentationAdapter adapter, Iterable<Key<?>> keys) {
+		for (var key : keys) {
 			adapter.enterScope(Utils.toEnglishPlural(key.name()));
 			syntaxes(key).forEach(adapter::write);
 			adapter.exitScope();
