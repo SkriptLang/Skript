@@ -1,12 +1,10 @@
 package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -18,6 +16,8 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +40,16 @@ import java.util.concurrent.ThreadLocalRandom;
 @Since("2.10")
 public class ExprLootItems extends SimpleExpression<ItemStack> {
 
-	static {
-		Skript.registerExpression(ExprLootItems.class, ItemStack.class, ExpressionType.COMBINED,
-			"[the] loot of %loottables% [(with|using) %-lootcontext%]",
-			"%loottables%'[s] loot [(with|using) %-lootcontext%]"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprLootItems.class, ItemStack.class)
+				.addPatterns(
+					"[the] loot of %loottables% [(with|using) %-lootcontext%]",
+					"%loottables%'[s] loot [(with|using) %-lootcontext%]"
+				)
+				.supplier(ExprLootItems::new)
+				.build()
 		);
 	}
 

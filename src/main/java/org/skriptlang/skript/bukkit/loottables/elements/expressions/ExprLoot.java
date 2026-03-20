@@ -10,13 +10,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.inventory.ItemStack;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,14 @@ import java.util.List;
 @RequiredPlugins("MC 1.16+")
 public class ExprLoot extends SimpleExpression<ItemStack> {
 
-	static {
-		Skript.registerExpression(ExprLoot.class, ItemStack.class, ExpressionType.SIMPLE, "[the] loot");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			SyntaxInfo.Expression.builder(ExprLoot.class, ItemStack.class)
+				.addPatterns("[the] loot")
+				.supplier(ExprLoot::new)
+				.build()
+		);
 	}
 
 	@Override

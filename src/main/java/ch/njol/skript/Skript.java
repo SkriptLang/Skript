@@ -10,8 +10,8 @@ import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
-import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -25,13 +25,8 @@ import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
-import ch.njol.skript.util.*;
 import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EmptyStacktraceException;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Version;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
@@ -65,30 +60,10 @@ import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+import org.skriptlang.skript.bukkit.BukkitModule;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
-import org.skriptlang.skript.bukkit.block.BlockModule;
-import org.skriptlang.skript.bukkit.breeding.BreedingModule;
-import org.skriptlang.skript.bukkit.entity.EntityModule;
-import org.skriptlang.skript.bukkit.item.ItemModule;
-import org.skriptlang.skript.bukkit.misc.MiscModule;
-import org.skriptlang.skript.bukkit.text.TextComponentParser;
-import org.skriptlang.skript.bukkit.text.TextModule;
-import org.skriptlang.skript.bukkit.brewing.BrewingModule;
-import org.skriptlang.skript.bukkit.damagesource.DamageSourceModule;
-import org.skriptlang.skript.bukkit.displays.DisplayModule;
-import org.skriptlang.skript.bukkit.entity.EntityModule;
-import org.skriptlang.skript.bukkit.fishing.FishingModule;
-import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
-import org.skriptlang.skript.bukkit.input.InputModule;
-import org.skriptlang.skript.bukkit.interactions.InteractionModule;
-import org.skriptlang.skript.bukkit.itemcomponents.ItemComponentModule;
 import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
-import org.skriptlang.skript.bukkit.loottables.LootTableModule;
-import org.skriptlang.skript.bukkit.misc.MiscModule;
-import org.skriptlang.skript.bukkit.particles.ParticleModule;
-import org.skriptlang.skript.bukkit.potion.PotionModule;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
-import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.common.CommonModule;
 import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.comparator.Comparator;
@@ -576,28 +551,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "literals", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
-			// todo: become proper module once registry api is merged
-			FishingModule.load();
-			BreedingModule.load();
-			DisplayModule.load();
-			InputModule.load();
-			TagModule.load();
-			FurnaceModule.load();
-			LootTableModule.load();
-			skript.loadModules(
-				new CommonModule(),
-				new BlockModule(),
-				new BrewingModule(),
-				new EntityModule(),
-				new DamageSourceModule(),
-				new InteractionModule(),
-				new ItemModule(),
-				new ItemComponentModule(),
-				new MiscModule(),
-				new PotionModule(),
-				new MiscModule(),
-				new ParticleModule(),
-				new TextModule());
+			skript.loadModules(new CommonModule(), new BukkitModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
