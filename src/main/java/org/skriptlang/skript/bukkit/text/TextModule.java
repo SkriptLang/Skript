@@ -9,18 +9,22 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.text.elements.*;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converters;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class TextModule implements AddonModule {
+public class TextModule extends HierarchicalAddonModule {
+
+	public TextModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void init(SkriptAddon addon) {
+	public void initSelf(SkriptAddon addon) {
 		Classes.registerClass(new ClassInfo<>(Component.class, "textcomponent")
 			.user("text ?components?")
 			.name("Text Component")
@@ -104,17 +108,17 @@ public class TextModule implements AddonModule {
 	}
 
 	@Override
-	public void load(SkriptAddon addon) {
-		// register syntax
-		SyntaxRegistry syntaxRegistry = addon.syntaxRegistry();
-		EffActionBar.register(syntaxRegistry);
-		EffBroadcast.register(syntaxRegistry);
-		EffMessage.register(syntaxRegistry);
-		EffResetTitle.register(syntaxRegistry);
-		EffSendTitle.register(syntaxRegistry);
-		ExprColored.register(syntaxRegistry);
-		ExprRawString.register(syntaxRegistry);
-		ExprStringColor.register(syntaxRegistry);
+	public void loadSelf(SkriptAddon addon) {
+		register(addon,
+			EffActionBar::register,
+			EffBroadcast::register,
+			EffMessage::register,
+			EffResetTitle::register,
+			EffSendTitle::register,
+			ExprColored::register,
+			ExprRawString::register,
+			ExprStringColor::register
+		);
 	}
 
 	@Override

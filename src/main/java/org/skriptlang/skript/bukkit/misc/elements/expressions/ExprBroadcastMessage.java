@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.misc.expressions;
+package org.skriptlang.skript.bukkit.misc.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;

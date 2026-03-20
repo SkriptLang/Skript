@@ -14,7 +14,7 @@ public class MiscModule extends HierarchicalAddonModule {
 	@Override
 	protected void loadSelf(SkriptAddon addon) {
 		register(addon,
-			ExptBroadcastMessage::register,
+			ExprBroadcastMessage::register,
 			ExprMOTD::register,
 			ExprWithYawPitch::register
 		);
