@@ -9,6 +9,12 @@ import ch.njol.skript.log.SkriptLogger;
  */
 public class MySQLStorage extends SQLStorage {
 
+    // When Variables loads MySQLStorage (already registered), this triggers
+    // RedisStorage registration via the bootstrap class.
+    static {
+        RedisBootstrap.register();
+    }
+
     MySQLStorage(String type) {
         super(type,
             "CREATE TABLE IF NOT EXISTS %s (" +

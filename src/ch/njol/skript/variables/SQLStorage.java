@@ -118,6 +118,19 @@ public abstract class SQLStorage extends VariablesStorage {
                     Skript.error("Could not create the variables table '" + this.tableName + "' in the database '" + this.getUserConfigurationName() + "': " + e.getLocalizedMessage() + ". Please create the table yourself using the following query: " + String.format(this.createTableQuery, this.tableName).replace(",", ", ").replaceAll("\\s+", " "));
                     return false;
                 }
+                // Add missing columns for tables created by older Skript versions
+                try {
+                    db.query("ALTER TABLE " + this.getTableName() + " ADD COLUMN update_guid CHAR(36) NOT NULL DEFAULT ''");
+                    Skript.info("Added missing 'update_guid' column to table '" + this.getTableName() + "'");
+                } catch (SQLException e) {
+                    // Column already exists — ignore (MySQL error 1060)
+                }
+                try {
+                    db.query("ALTER TABLE " + this.getTableName() + " ADD COLUMN rowid BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY");
+                    Skript.info("Added missing 'rowid' column to table '" + this.getTableName() + "'");
+                } catch (SQLException e) {
+                    // Column already exists — ignore
+                }
                 if (!this.prepareQueries()) {
                     return false;
                 }
