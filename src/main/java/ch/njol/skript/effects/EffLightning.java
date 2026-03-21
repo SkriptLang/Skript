@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -21,8 +21,8 @@ import ch.njol.util.Kleenean;
  */
 @Name("Lightning")
 @Description("Strike lightning at a given location. Can use 'lightning effect' to create a lightning that does not harm entities or start fires.")
-@Examples({"strike lightning at the player",
-		"strike lightning effect at the victim"})
+@Example("strike lightning at the player")
+@Example("strike lightning effect at the victim")
 @Since("1.4")
 public class EffLightning extends Effect {
 	

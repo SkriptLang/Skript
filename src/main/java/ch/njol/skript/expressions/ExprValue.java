@@ -5,7 +5,7 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -28,20 +28,19 @@ import org.skriptlang.skript.common.properties.expressions.PropExprValueOf;
 	"Returns the value of something that has a value, e.g. a node in a config.",
 	"The value is automatically converted to the specified type (e.g. text, number) where possible."
 })
-@Examples({
-	"""
-		set {_node} to node "language" in the skript config
-		broadcast the text value of {_node}""",
-	"""
-		set {_node} to node "update check interval" in the skript config
-		
-		broadcast text value of {_node}
-		# text value of {_node} = "12 hours" (text)
-		
-		wait for {_node}'s timespan value
-		# timespan value of {_node} = 12 hours (duration)""",
-
-})
+@Example("""
+	set {_node} to node "language" in the skript config
+	broadcast the text value of {_node}
+	""")
+@Example("""
+	set {_node} to node "update check interval" in the skript config
+	
+	broadcast text value of {_node}
+	# text value of {_node} = "12 hours" (text)
+	
+	wait for {_node}'s timespan value
+	# timespan value of {_node} = 12 hours (duration)
+	""")
 @Since("2.10 (Nodes), 2.10 (Any)")
 @Deprecated(since="2.13", forRemoval = true)
 public class ExprValue extends SimplePropertyExpression<Object, Object> {

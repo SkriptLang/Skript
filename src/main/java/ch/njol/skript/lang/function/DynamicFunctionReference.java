@@ -6,10 +6,12 @@ import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
+import ch.njol.skript.util.Utils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.common.function.Parameter;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
 import org.skriptlang.skript.util.Validated;
@@ -44,7 +46,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
+		@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
 		this.source = file != null ? ScriptLoader.getScript(file) : null;
 	}
 
@@ -69,7 +71,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
+			@Nullable File file = ScriptLoader.getScriptFromName(signature.namespace());
 			this.source = file != null ? ScriptLoader.getScript(file) : null;
 		} else {
 			this.signature = null;
@@ -90,8 +92,8 @@ public class DynamicFunctionReference<Result>
 	public boolean isSingle(Expression<?>... arguments) {
 		if (!resolved)
 			return true;
-		return signature.contract != null
-				? signature.contract.isSingle(arguments)
+		return signature.getContract() != null
+				? signature.getContract().isSingle(arguments)
 				: signature.isSingle();
 	}
 
@@ -99,8 +101,8 @@ public class DynamicFunctionReference<Result>
 	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
 		if (!resolved)
 			return Object.class;
-		if (signature.contract != null)
-			return signature.contract.getReturnType(arguments);
+		if (signature.getContract() != null)
+			return signature.getContract().getReturnType(arguments);
 		Function<? extends Result> function = this.function.get();
 		if (function != null && function.getReturnType() != null)
 			return function.getReturnType().getC();
@@ -162,31 +164,33 @@ public class DynamicFunctionReference<Result>
 		this.checkedInputs.put(input, null); // failure case
 		if (signature == null)
 			return null;
-		boolean varArgs = signature.getMaxParameters() == 1 && !signature.getParameter(0).single;
-		Expression<?>[] parameters = input.parameters();
+		boolean varArgs = signature.getMaxParameters() == 1 && !signature.parameters().getFirst().isSingle();
+		Expression<?>[] inputParameters = input.parameters();
 		// Too many parameters
-		if (parameters.length > signature.getMaxParameters() && !varArgs)
+		if (inputParameters.length > signature.getMaxParameters() && !varArgs)
 			return null;
 		// Not enough parameters
-		else if (parameters.length < signature.getMinParameters())
+		else if (inputParameters.length < signature.getMinParameters())
 			return null;
-		Expression<?>[] checked = new Expression[parameters.length];
+		Expression<?>[] checkedInputParameters = new Expression[inputParameters.length];
 
 		// Check parameter types
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = signature.parameters[varArgs ? 0 : i];
+		for (int i = 0; i < inputParameters.length; i++) {
+			Parameter<?> parameter = signature.parameters().all()[varArgs ? 0 : i];
+
+			Class<?> target = Utils.getComponentType(parameter.type());
 			//noinspection unchecked
-			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type());
+			Expression<?> expression = inputParameters[i].getConvertedExpression(target);
 			if (expression == null) {
 				return null;
-			} else if (parameter.single && !expression.isSingle()) {
+			} else if (parameter.isSingle() && !expression.isSingle()) {
 				return null;
 			}
-			checked[i] = expression;
+			checkedInputParameters[i] = expression;
 		}
 
 		// if successful, replace with our known result
-		ExpressionList<?> result = new ExpressionList<>(checked, Object.class, true);
+		ExpressionList<?> result = new ExpressionList<>(checkedInputParameters, Object.class, true);
 		this.checkedInputs.put(input, result);
 		return result;
 	}

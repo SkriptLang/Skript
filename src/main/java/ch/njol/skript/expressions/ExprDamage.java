@@ -11,7 +11,7 @@ import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -28,13 +28,15 @@ import ch.njol.util.coll.CollectionUtils;
 	"For entity damage events, possibly ignoring armour, criticals and/or enchantments (remember that in Skript '1' is one full heart, not half a heart).",
 	"For items, it's the amount of durability damage the item will be taking."
 })
-@Examples({
-	"on item damage:",
-		"\tevent-item is any tool",
-		"\tclear damage # unbreakable tools as the damage will be 0",
-	"on damage:",
-		"\tincrease the damage by 2"
-})
+@Example("""
+	on item damage:
+		event-item is any tool
+		clear damage # unbreakable tools as the damage will be 0
+	""")
+@Example("""
+	on damage:
+		increase the damage by 2
+	""")
 @Since("1.3.5, 2.8.0 (item damage event)")
 @Events({"Damage", "Vehicle Damage", "Item Damage"})
 public class ExprDamage extends SimpleExpression<Number> {

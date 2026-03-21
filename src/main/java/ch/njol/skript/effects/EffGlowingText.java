@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Make Sign Glow")
 @Description("Makes a sign (either a block or item) have glowing text or normal text")
-@Examples("make target block of player have glowing text")
+@Example("make target block of player have glowing text")
 @Since("2.8.0")
 public class EffGlowingText extends Effect {
 

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions.arithmetic;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.ExprArgument;
@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.parser.ParsingStack;
+import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
@@ -24,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
-import ch.njol.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -33,15 +33,15 @@ import java.util.List;
 
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
-@Examples({"set the player's health to 10 - the player's health",
-	"loop (argument + 2) / 5 times:",
-	"\tmessage \"Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%\"",
-	"message \"You have %health of player * 2% half hearts of HP!\""})
+@Example("set the player's health to 10 - the player's health")
+@Example("""
+    loop (argument + 2) / 5 times:
+    	message "Two useless numbers: %loop-num * 2 - 5%, %2^loop-num - 1%"
+    """)
+@Example("message \"You have %health of player * 2% half hearts of HP!\"")
 @Since("1.4.2")
 @SuppressWarnings("null")
 public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
-
-	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 
 	private record PatternInfo(Operator operator, boolean leftGrouped, boolean rightGrouped) {
 	}
@@ -243,21 +243,6 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			if (operationInfo == null) // we error if we couldn't find an operation between the two types
 				return error(firstClass, secondClass);
 			returnType = operationInfo.returnType();
-		}
-
-		// ensure proper return types for numerical operations
-		if (Number.class.isAssignableFrom(returnType)) {
-			if (operator == Operator.DIVISION || operator == Operator.EXPONENTIATION) {
-				returnType = (Class<? extends T>) Double.class;
-			} else {
-				boolean firstIsInt = false;
-				boolean secondIsInt = false;
-				for (Class<?> i : INTEGER_CLASSES) {
-					firstIsInt |= i.isAssignableFrom(first.getReturnType());
-					secondIsInt |= i.isAssignableFrom(second.getReturnType());
-				}
-				returnType = (Class<? extends T>) (firstIsInt && secondIsInt ? Long.class : Double.class);
-			}
 		}
 
 		/*

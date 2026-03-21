@@ -1,0 +1,20 @@
+test "bases":
+	loop 1000 times:
+		set {_value} to random integer between -1000 and 1000
+		set {_base} to random number between 2 and 36
+		set {_str} to toBase({_value}, {_base})
+		set {_test} to fromBase({_str}, {_base})
+		assert {_test} is {_value} with "Failed conversion to/from %{_base}%"
+
+	assert toBase({_}, {_}) is not set with "toBase unset inputs provided output"
+	assert fromBase({_}, {_}) is not set with "fromBase unset inputs provided output"
+
+	assert toBase(32, 16) is "20" with "basic toBase failed"
+	assert fromBase("20", 16) is 32 with "basic fromBase failed"
+
+	assert toBase(-1, 16) is "-1" with "negative toBase failed"
+	assert fromBase(toBase(-1, 16), 16) is -1 with "negative toBase/fromBase failed"
+
+	loop 0, -1, 1, and 64:
+		assert toBase(1, loop-value) is not set with "too-small bases and too-large bases returned values"
+		assert fromBase("1", loop-value) is not set with "too-small bases and too-large bases returned values"

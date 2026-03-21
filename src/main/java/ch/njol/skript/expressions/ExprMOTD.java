@@ -9,7 +9,7 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,8 +23,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Description({"The message of the day in the server list. " +
 		"This can be changed in a <a href='#server_list_ping'>server list ping</a> event only.",
 		"'default MOTD' returns the default MOTD always and can't be changed."})
-@Examples({"on server list ping:",
-		"	set the motd to \"Join now!\""})
+@Example("""
+	on server list ping:
+		set the motd to "Join now!"
+	""")
 @Since("2.3")
 public class ExprMOTD extends SimpleExpression<String> {
 

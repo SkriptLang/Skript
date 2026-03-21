@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -45,17 +45,17 @@ import java.util.List;
 		"- You <i>have to</i> save the expression's value in a list variable, e.g. <code>set {parsed::*} to message parsed as \"...\"</code>.",
 		"- The list variable will contain the parsed values from all %types% in the pattern in order. If a type was plural, e.g. %items%, the variable's value at the respective index will be a list variable," +
 				" e.g. the values will be stored in {parsed::1::*}, not {parsed::1}."})
-@Examples({
-	"set {var} to line 1 parsed as number",
-	"on chat:",
-	"\tset {var::*} to message parsed as \"buying %items% for %money%\"",
-	"\tif parse error is set:",
-	"\t\tmessage \"%parse error%\"",
-	"\telse if {var::*} is set:",
-	"\t\tcancel event",
-	"\t\tremove {var::2} from the player's balance",
-	"\t\tgive {var::1::*} to the player"
-})
+@Example("set {var} to line 1 parsed as number")
+@Example("""
+	on chat:
+		set {var::*} to message parsed as "buying %items% for %money%"
+		if parse error is set:
+			message "%parse error%"
+		else if {var::*} is set:
+			cancel event
+			remove {var::2} from the player's balance
+			give {var::1::*} to the player
+	""")
 @Since("2.0")
 public class ExprParse extends SimpleExpression<Object> {
 

@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"Make an allay duplicate itself.",
 	"This effect will always make an allay duplicate regardless of whether the duplicate attribute is disabled."
 })
-@Examples("make all allays duplicate")
+@Example("make all allays duplicate")
 @Since("2.11")
 public class EffAllayDuplicate extends Effect {
 

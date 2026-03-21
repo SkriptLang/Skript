@@ -2,6 +2,9 @@ package org.skriptlang.skript.registration;
 
 import ch.njol.skript.lang.SyntaxElement;
 import org.junit.Test;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.docs.Origin.AddonOrigin;
+import org.skriptlang.skript.registration.SyntaxInfoTest.MockSyntaxElement;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.List;
@@ -14,6 +17,15 @@ import static org.junit.Assert.*;
  */
 public abstract class BaseSyntaxInfoTests<E extends SyntaxElement, T extends SyntaxInfo.Builder<?, E>> {
 
+	private record MockOrigin(String name) implements AddonOrigin {
+
+		@Override
+		public SkriptAddon addon() {
+			throw new UnsupportedOperationException();
+		}
+
+	}
+
 	public abstract T builder(boolean addPattern);
 
 	public abstract Class<E> type();
@@ -23,8 +35,8 @@ public abstract class BaseSyntaxInfoTests<E extends SyntaxElement, T extends Syn
 	@Test
 	public void testOrigin() {
 		var info = builder(true)
-				.origin(() -> "Hello World!")
-				.build();
+			.origin(new MockOrigin("Hello World!"))
+			.build();
 		assertEquals("Hello World!", info.origin().name());
 		assertEquals("Hello World!", info.toBuilder().build().origin().name());
 
@@ -36,7 +48,7 @@ public abstract class BaseSyntaxInfoTests<E extends SyntaxElement, T extends Syn
 	@Test
 	public void testType() {
 		var info = builder(true)
-				.build();
+			.build();
 		assertEquals(type(), info.type());
 		assertEquals(type(), info.toBuilder().build().type());
 	}
@@ -44,19 +56,19 @@ public abstract class BaseSyntaxInfoTests<E extends SyntaxElement, T extends Syn
 	@Test
 	public void testInstance() {
 		var info = builder(true)
-				.build();
+			.build();
 		assertNotNull(info.instance());
 
 		info = builder(true)
-				.supplier(supplier())
-				.build();
+			.supplier(supplier())
+			.build();
 		assertNotNull(info.instance());
 
 		info = builder(true)
-				.supplier(() -> {
-					throw new UnsupportedOperationException();
-				})
-				.build();
+			.supplier(() -> {
+				throw new UnsupportedOperationException();
+			})
+			.build();
 		assertThrows(UnsupportedOperationException.class, info::instance);
 
 		var info2 = builder(true);
@@ -67,16 +79,16 @@ public abstract class BaseSyntaxInfoTests<E extends SyntaxElement, T extends Syn
 	@Test
 	public void testPatterns() {
 		var info = builder(false)
-				.addPattern("1")
-				.addPatterns("2")
-				.addPatterns(List.of("3"))
-				.build();
+			.addPattern("1")
+			.addPatterns("2")
+			.addPatterns(List.of("3"))
+			.build();
 		assertArrayEquals(new String[]{"1", "2", "3"}, info.patterns().toArray());
 
 		var info2 = info.toBuilder()
-				.clearPatterns()
-				.addPattern("4")
-				.build();
+			.clearPatterns()
+			.addPattern("4")
+			.build();
 		assertArrayEquals(new String[]{"4"}, info2.patterns().toArray());
 
 		var info3 = info.toBuilder();
@@ -89,14 +101,41 @@ public abstract class BaseSyntaxInfoTests<E extends SyntaxElement, T extends Syn
 		final Priority base = Priority.base();
 
 		var info = builder(true)
-				.priority(base)
-				.build();
+			.priority(base)
+			.build();
 		assertEquals(base, info.priority());
 		assertEquals(base, info.toBuilder().build().priority());
 
 		var info2 = builder(true);
 		info.toBuilder().applyTo(info2);
 		assertEquals(base, info2.build().priority());
+	}
+
+	@Test
+	public void testEquals() {
+		var info = builder(true)
+			.build();
+
+		//noinspection EqualsWithItself
+		assertEquals(info, info);
+
+		var info2 = builder(true)
+			.addPattern("equals")
+			.build();
+		assertNotEquals(info, info2);
+
+		var info3 = builder(true)
+			.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
+			.build();
+		assertNotEquals(info, info3);
+
+		// ensure symmetry is respected
+		if (info.type() != MockSyntaxElement.class) {
+			var info4 = SyntaxInfo.builder(info.type());
+			info.toBuilder().applyTo(info4);
+			assertNotEquals(info, info4.build());
+			assertNotEquals(info4.build(), info);
+		}
 	}
 
 }

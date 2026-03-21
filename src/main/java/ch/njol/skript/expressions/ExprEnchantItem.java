@@ -10,7 +10,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -24,10 +24,14 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Enchant Item")
 @Description({"The enchant item in an enchant prepare event or enchant event.",
 				"It can be modified, but enchantments will still be applied in the enchant event."})
-@Examples({"on enchant:",
-			"\tset the enchanted item to a diamond chestplate",
-			"on enchant prepare:",
-			"\tset the enchant item to a wooden sword"})
+@Example("""
+    on enchant:
+    	set the enchanted item to a diamond chestplate
+    """)
+@Example("""
+    on enchant prepare:
+    	set the enchant item to a wooden sword
+    """)
 @Events({"enchant prepare", "enchant"})
 @Since("2.5")
 public class ExprEnchantItem extends SimpleExpression<ItemType> {

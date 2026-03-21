@@ -12,3 +12,11 @@ test "block data":
 	assert "%{_data}%" contains "campfire", "lit=false" and "waterlogged=true" with "block data for campfire did not match"
 
 	set block at {_b} to air
+
+test "falling block block data":
+    spawn a falling block at test-location:
+        set {_e} to entity
+    assert block data of {_e} is stone[] with "Falling block should default to stone"
+    set block data of {_e} to sand[]
+    assert block data of {_e} is sand[] with "Falling block should update to sand"
+    clear entity within {_e}

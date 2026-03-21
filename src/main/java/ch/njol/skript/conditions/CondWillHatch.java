@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Egg Will Hatch")
 @Description("Whether the egg will hatch in a Player Egg Throw event.")
-@Examples({
-	"on player egg throw:",
-	"\tif an entity won't hatch:",
-	"\t\tsend \"Better luck next time!\" to the player"
-})
+@Example("""
+	on player egg throw:
+		if an entity won't hatch:
+			send "Better luck next time!" to the player
+	""")
 @Events("Egg Throw")
 @Since("2.7")
 public class CondWillHatch extends Condition {

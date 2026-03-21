@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
@@ -14,7 +14,7 @@ import org.skriptlang.skript.util.Validated;
 	"An invalid entity may have died or de-spawned for some other reason.",
 	"An invalid script reference may have been reloaded, moved or disabled since."
 })
-@Examples("if event-entity is valid")
+@Example("if event-entity is valid")
 @Since("2.7, 2.10 (Scripts & Configs)")
 public class CondIsValid extends PropertyCondition<Object> {
 

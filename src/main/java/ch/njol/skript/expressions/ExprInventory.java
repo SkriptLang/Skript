@@ -19,7 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
@@ -34,9 +34,9 @@ import java.util.List;
  */
 @Name("Inventory")
 @Description("The inventory of a block or player. You can usually omit this expression and can directly add or remove items to/from blocks or players.")
-@Examples({"add a plank to the player's inventory",
-		"clear the player's inventory",
-		"remove 5 wool from the inventory of the clicked block"})
+@Example("add a plank to the player's inventory")
+@Example("clear the player's inventory")
+@Example("remove 5 wool from the inventory of the clicked block")
 @Since("1.0")
 public class ExprInventory extends SimpleExpression<Object> {
 

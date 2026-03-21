@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,21 +16,22 @@ import java.util.UUID;
 
 @Name("UUID")
 @Description("The UUID of a player, entity or world.")
-@Examples({
-	"# prevents people from joining the server if they use the name of a player",
-	"# who has played on this server at least once since this script has been added",
-	"on login:",
-		"\tif {uuid::%name of player%} exists:",
-			"\t\t{uuid::%name of player%} is not uuid of player",
-			"\t\tkick player due to \"Someone with your name has played on this server before\"",
-		"\telse:",
-			"\t\tset {uuid::%name of player%} to uuid of player",
-	"",
-	"command /what-is-my-uuid:",
-		"\ttrigger:",
-			"\t\tset {_uuid} to uuid of player",
-			"\t\tsend \"Your UUID is '%string within {_uuid}%'\"",
-})
+@Example("""
+	# prevents people from joining the server if they use the name of a player
+	# who has played on this server at least once since this script has been added
+	on login:
+		if {uuid::%name of player%} exists:
+			{uuid::%name of player%} is not uuid of player
+			kick player due to "Someone with your name has played on this server before"
+		else:
+			set {uuid::%name of player%} to uuid of player
+	""")
+@Example("""
+	command /what-is-my-uuid:
+		trigger:
+			set {_uuid} to uuid of player
+			send "Your UUID is '%string within {_uuid}%'"
+	""")
 @Since("2.1.2, 2.2 (offline players' uuids), 2.2-dev24 (other entities' uuids)")
 public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 

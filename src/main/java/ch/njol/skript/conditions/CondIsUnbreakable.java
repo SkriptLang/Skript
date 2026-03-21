@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -12,12 +12,14 @@ import ch.njol.util.Kleenean;
 
 @Name("Is Unbreakable")
 @Description("Checks whether an item is unbreakable.")
-@Examples({
-	"if event-item is unbreakable:",
-		"\tsend \"This item is unbreakable!\" to player",
-	"if tool of {_p} is breakable:",
-		"\tsend \"Your tool is breakable!\" to {_p}"
-})
+@Example("""
+	if event-item is unbreakable:
+		send "This item is unbreakable!" to player
+	""")
+@Example("""
+	if tool of {_p} is breakable:
+		send "Your tool is breakable!" to {_p}
+	""")
 @Since("2.5.1, 2.9.0 (breakable)")
 public class CondIsUnbreakable extends PropertyCondition<ItemType> {
 	

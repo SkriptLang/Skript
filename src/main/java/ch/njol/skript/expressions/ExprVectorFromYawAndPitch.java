@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -21,7 +21,7 @@ import static ch.njol.skript.expressions.ExprYawPitch.fromYawAndPitch;
 
 @Name("Vectors - Vector from Yaw and Pitch")
 @Description("Creates a vector from a yaw and pitch value.")
-@Examples("set {_v} to vector from yaw 45 and pitch 45")
+@Example("set {_v} to vector from yaw 45 and pitch 45")
 @Since("2.2-dev28")
 public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 

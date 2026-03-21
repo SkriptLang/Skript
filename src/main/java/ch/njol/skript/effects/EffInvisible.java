@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"Makes a living entity visible/invisible. This is not a potion and therefore does not have features such as a time limit or particles.",
 	"When setting an entity to invisible while using an invisibility potion on it, the potion will be overridden and when it runs out the entity keeps its invisibility."
 })
-@Examples("make target entity invisible")
+@Example("make target entity invisible")
 @Since("2.7")
 public class EffInvisible extends Effect {
 

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.properties.Property;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ExpressionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
 
 import java.util.Arrays;
 
@@ -110,9 +110,10 @@ public class ItemTypeClassInfo extends ClassInfo<ItemType> {
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			if (mode == ChangeMode.SET || mode == ChangeMode.RESET)
-				return new Class[] {String.class};
-			return null;
+			return switch (mode) {
+				case SET, RESET, DELETE -> new Class[] {String.class};
+				default -> null;
+			};
 		}
 
 		@Override

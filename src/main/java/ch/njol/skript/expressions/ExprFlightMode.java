@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -13,7 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Flight Mode")
 @Description("Whether the player(s) are allowed to fly. Use <a href=#EffMakeFly>Make Fly</a> effect to force player(s) to fly.")
-@Examples({"set flight mode of player to true", "send \"%flying state of all players%\""})
+@Example("set flight mode of player to true")
+@Example("send \"%flying state of all players%\"")
 @Since("2.2-dev34")
 public class ExprFlightMode extends SimplePropertyExpression<Player, Boolean> {
 

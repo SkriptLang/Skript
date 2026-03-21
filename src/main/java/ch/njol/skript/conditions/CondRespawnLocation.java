@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -17,11 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Is Bed/Anchor Spawn")
 @Description("Checks what the respawn location of a player in the respawn event is.")
-@Examples({
-	"on respawn:",
-	"\tthe respawn location is a bed",
-	"\tbroadcast \"%player% is respawning in their bed! So cozy!\""
-})
+@Example("""
+	on respawn:
+		the respawn location is a bed
+		broadcast "%player% is respawning in their bed! So cozy!"
+	""")
 @RequiredPlugins("Minecraft 1.16+")
 @Since("2.7")
 @Events("respawn")

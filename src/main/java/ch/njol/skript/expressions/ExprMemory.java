@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Free / Max / Total Memory")
 @Description("The free, max or total memory of the server in Megabytes.")
-@Examples({
-	"while player is online:",
-		"\tsend action bar \"Memory left: %free memory%/%max memory%MB\" to player",
-		"\twait 5 ticks"
-})
+@Example("""
+	while player is online:
+		send action bar "Memory left: %free memory%/%max memory%MB" to player
+		wait 5 ticks
+	""")
 @Since("2.8.0")
 public class ExprMemory extends SimpleExpression<Double> {
 

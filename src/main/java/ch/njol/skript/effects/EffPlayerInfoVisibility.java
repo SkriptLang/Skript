@@ -17,9 +17,9 @@ import org.jetbrains.annotations.Nullable;
 		"<a href='#ExprVersionString'>The version string</a> can override the ???.",
 		"Also the <a href='#ExprOnlinePlayersCount'>Online Players Count</a> and",
 		"<a href='#ExprMaxPlayers'>Max Players</a> expressions will return -1 when hiding player info."})
-@Examples({"hide player info",
-		"hide player related information in the server list",
-		"reveal all player related info"})
+@Example("hide player info")
+@Example("hide player related information in the server list")
+@Example("reveal all player related info")
 @Since("2.3")
 @Events("server list ping")
 public class EffPlayerInfoVisibility extends Effect {

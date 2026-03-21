@@ -9,7 +9,7 @@ import java.lang.invoke.MethodType;
 import org.bukkit.entity.Player;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -17,7 +17,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Name("Language")
 @Description({"Currently selected game language of a player. The value of the language is not defined properly.",
 			"The vanilla Minecraft client will use lowercase language / country pairs separated by an underscore, but custom resource packs may use any format they wish."})
-@Examples({"message player's current language"})
+@Example("message player's current language")
 @Since("2.3")
 public class ExprLanguage extends SimplePropertyExpression<Player, String> {
 

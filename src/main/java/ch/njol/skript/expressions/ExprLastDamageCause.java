@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @Name("Last Damage Cause")
 @Description("Cause of last damage done to an entity")
-@Examples({"set last damage cause of event-entity to fire tick"})
+@Example("set last damage cause of event-entity to fire tick")
 @Since("2.2-Fixes-V10")
 public class ExprLastDamageCause extends PropertyExpression<LivingEntity, DamageCause>{
 	

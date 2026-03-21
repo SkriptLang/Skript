@@ -12,7 +12,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -25,12 +25,10 @@ import ch.njol.util.coll.CollectionUtils;
 	"The maximum stack size of an item (e.g. 64 for torches, 16 for buckets, 1 for swords, etc.) or inventory.",
 	"In 1.20.5+, the maximum stack size of items can be changed to any integer from 1 to 99, and stacked up to the maximum stack size of the inventory they're in."
 })
-@Examples({
-	"send \"You can hold %max stack size of player's tool% of %type of player's tool% in a slot.\" to player",
-	"set the maximum stack size of inventory of all players to 16",
-	"add 8 to the maximum stack size of player's tool",
-	"reset the maximum stack size of {_gui}"
-})
+@Example("send \"You can hold %max stack size of player's tool% of %type of player's tool% in a slot.\" to player")
+@Example("set the maximum stack size of inventory of all players to 16")
+@Example("add 8 to the maximum stack size of player's tool")
+@Example("reset the maximum stack size of {_gui}")
 @Since("2.1, 2.10 (changeable, inventories)")
 @RequiredPlugins("Spigot 1.20.5+ (changeable)")
 public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {

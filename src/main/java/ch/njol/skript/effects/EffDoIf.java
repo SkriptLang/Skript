@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -18,8 +18,10 @@ import ch.njol.util.Kleenean;
 
 @Name("Do If")
 @Description("Execute an effect if a condition is true.")
-@Examples({"on join:",
-		"\tgive a diamond to the player if the player has permission \"rank.vip\""})
+@Example("""
+	on join:
+		give a diamond to the player if the player has permission "rank.vip"
+	""")
 @Since("2.3")
 public class EffDoIf extends Effect  {
 

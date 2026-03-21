@@ -11,7 +11,7 @@ import org.bukkit.block.Block;
 	"Blocks like tall grass, flowers, signs, etc. are passable, but open doors, fence gates, trap doors, etc. "
 		+ "are not because they still have parts that can be collided with."
 })
-@Examples("if player's targeted block is passable")
+@Example("if player's targeted block is passable")
 @Since("2.5.1")
 public class CondIsPassable extends PropertyCondition<Block> {
 	

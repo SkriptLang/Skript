@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -20,11 +20,13 @@ import java.util.regex.Pattern;
 
 @Name("Matches")
 @Description("Checks whether the defined strings match the input regexes (Regular expressions).")
-@Examples({"on chat:",
-	"\tif message partially matches \"\\d\":",
-	"\t\tsend \"Message contains a digit!\"",
-	"\tif message doesn't match \"[A-Za-z]+\":",
-	"\t\tsend \"Message doesn't only contain letters!\""})
+@Example("""
+	on chat:
+		if message partially matches "\\d":
+			send "Message contains a digit!"
+		if message doesn't match "[A-Za-z]+":
+			send "Message doesn't only contain letters!"
+	""")
 @Since("2.5.2")
 public class CondMatches extends Condition {
 	

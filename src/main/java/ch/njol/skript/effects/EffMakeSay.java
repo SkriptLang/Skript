@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -15,7 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Make Say")
 @Description("Forces a player to send a message to the chat. If the message starts with a slash it will force the player to use command.")
-@Examples({"make the player say \"Hello.\"", "force all players to send the message \"I love this server\""})
+@Example("make the player say \"Hello.\"")
+@Example("force all players to send the message \"I love this server\"")
 @Since("2.3")
 public class EffMakeSay extends Effect {
 

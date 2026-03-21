@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -22,10 +22,8 @@ import org.jetbrains.annotations.Nullable;
 	"If changing the 'entire' tooltip of an item, nothing will show up when a player hovers over it.",
 	"If changing the 'additional' tooltip, only specific parts (which change per item) will be hidden."
 })
-@Examples({
-	"hide the entire tooltip of player's tool",
-	"hide {_item}'s additional tool tip"
-})
+@Example("hide the entire tooltip of player's tool")
+@Example("hide {_item}'s additional tool tip")
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.9.0")
 public class EffTooltip extends Effect {

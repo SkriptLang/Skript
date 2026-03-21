@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -17,10 +17,11 @@ import ch.njol.util.Kleenean;
 
 @Name("Hostname")
 @Description("The hostname used by the connecting player to connect to the server in a <a href='#connect'>connect</a> event.")
-@Examples({
-		"on connect:",
-		"\thostname is \"testers.example.com\"",
-		"\tsend \"Welcome back tester!\""})
+@Example("""
+	on connect:
+		hostname is "testers.example.com"
+		send "Welcome back tester!"
+	""")
 @Since("2.6.1")
 public class ExprHostname extends SimpleExpression<String> {
 

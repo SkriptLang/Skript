@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -20,13 +20,11 @@ import org.jetbrains.annotations.Nullable;
 	"The cooldown time until an allay can duplicate again naturally.",
 	"Resetting the cooldown time will set the cooldown time to the same amount of time after an allay has duplicated."
 })
-@Examples({
-	"set {_time} to the duplicate cooldown of last spawned allay",
-	"add 5 seconds to the duplication cool down time of last spawned allay",
-	"remove 3 seconds from the duplicating cooldown time of last spawned allay",
-	"clear the clone cool down of last spawned allay",
-	"reset the cloning cool down time of last spawned allay"
-})
+@Example("set {_time} to the duplicate cooldown of last spawned allay")
+@Example("add 5 seconds to the duplication cool down time of last spawned allay")
+@Example("remove 3 seconds from the duplicating cooldown time of last spawned allay")
+@Example("clear the clone cool down of last spawned allay")
+@Example("reset the cloning cool down time of last spawned allay")
 @Since("2.11")
 public class ExprDuplicateCooldown extends SimplePropertyExpression<LivingEntity, Timespan> {
 
