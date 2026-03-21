@@ -1,9 +1,9 @@
 package org.skriptlang.skript.lang.parsing.constraints;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 /**
  * A stack of all the parsing constraints currently applied.
@@ -59,25 +59,19 @@ public class ConstraintStack  {
 	 * @return The combined Constraints object.
 	 */
 	public Constraints asConstraints() {
-		return new Constraints() {
-			@Override
-			public Iterable<Constraint> permanentConstraints() {
-				if (stack.isEmpty()) {
-					return List.of();
-				}
-				return stack.stream()
-					.flatMap(c -> StreamSupport.stream(c.permanentConstraints().spliterator(), false))
-					::iterator;
-			}
+		if (stack.isEmpty()) return Constraints.of();
 
-			@Override
-			public Iterable<Constraint> temporaryConstraints() {
-				if (stack.isEmpty()) {
-					return List.of();
-				}
-				return stack.peek().temporaryConstraints();
+		List<Constraint> allPerm = new ArrayList<>();
+		for (Constraints c : stack) {
+			for (Constraint constraint : c.permanentConstraints()) {
+				allPerm.add(constraint);
 			}
-		};
+		}
+		List<Constraint> topTemp = new ArrayList<>();
+		for (Constraint c : stack.peek().temporaryConstraints()) {
+			topTemp.add(c);
+		}
+		return Constraints.fromLists(topTemp, allPerm);
 	}
 
 }

@@ -133,7 +133,7 @@ public class ParsingContext {
 	 */
 	public <T> @Nullable T attempt(Supplier<@Nullable T> action) {
 		Kleenean savedDelay = this.hasDelayBefore;
-		HintManager savedHints = this.hintManager.copy();
+		HintManager savedHints = hintManager.isActive() ? hintManager.copy() : hintManager;
 
 		T result = action.get();
 

@@ -6,12 +6,13 @@ import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterators;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.parsing.ParsingContext;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.function.Predicate;
+import java.util.List;
 
 /**
  * A collection of constraints to apply during parsing.
@@ -20,15 +21,22 @@ import java.util.function.Predicate;
  */
 public class Constraints implements Iterable<Constraint>{
 
-	private final ArrayList<Constraint> permanentConstraints = new ArrayList<>();
-	private final ArrayList<Constraint> temporaryConstraints = new ArrayList<>();
+	final ArrayList<Constraint> permanentConstraints = new ArrayList<>();
+	final ArrayList<Constraint> temporaryConstraints = new ArrayList<>();
+
+	private @Nullable Integer parseFlagsCache;
 
 	/**
-	 * Creates a Constraints object containing the given constraints.
-	 *
-	 * @param constraints The constraints to include.
-	 * @return The Constraints object.
+	 * Package-private factory that creates a Constraints backed by pre-built lists.
+	 * Used by {@link ConstraintStack#asConstraints()} to avoid repeated stream allocation.
 	 */
+	static Constraints fromLists(List<Constraint> temporary, List<Constraint> permanent) {
+		Constraints c = new Constraints();
+		c.permanentConstraints.addAll(permanent);
+		c.temporaryConstraints.addAll(temporary);
+		return c;
+	}
+
 	public static Constraints of(Constraint... constraints) {
 		Constraints cons = new Constraints();
 		for (Constraint constraint : constraints) {
@@ -84,7 +92,11 @@ public class Constraints implements Iterable<Constraint>{
 	 * @see Constraint#acceptsInfo(SyntaxInfo, ParsingContext)
 	 */
 	public boolean acceptsInfo(SyntaxInfo<?> info, ParsingContext context) {
-		return accepts(constraint -> constraint.acceptsInfo(info, context));
+		for (Constraint constraint : this) {
+			if (!constraint.acceptsInfo(info, context))
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -103,7 +115,11 @@ public class Constraints implements Iterable<Constraint>{
 	 * @see Constraint#acceptsPreInit(SyntaxInfo, SyntaxElement, ParseResult, ParsingContext)
 	 */
 	public boolean acceptsPreInit(SyntaxInfo<?> info, SyntaxElement element, ParseResult parseResult, ParsingContext context) {
-		return accepts(constraint -> constraint.acceptsPreInit(info, element, parseResult, context));
+		for (Constraint constraint : this) {
+			if (!constraint.acceptsPreInit(info, element, parseResult, context))
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -119,40 +135,28 @@ public class Constraints implements Iterable<Constraint>{
 	 * @see Constraint#acceptsPostInit(SyntaxElement, ParseResult, ParsingContext)
 	 */
 	public boolean acceptsPostInit(SyntaxElement element, ParseResult parseResult, ParsingContext context) {
-		return accepts(constraint -> constraint.acceptsPostInit(element, parseResult, context));
-	}
-
-	/**
-	 * Generic method to check all constraints in the stack against a test.
-	 * Tests all temporary constraints in the top of the stack first,
-	 * then all permanent constraints in the stack.
-	 * @param test The test to apply with each constraint.
-	 * @return Whether all constraints accepted the test.
-	 */
-	protected boolean accepts(Predicate<Constraint> test) {
 		for (Constraint constraint : this) {
-			if (!test.test(constraint)) {
+			if (!constraint.acceptsPostInit(element, parseResult, context))
 				return false;
-			}
 		}
 		return true;
 	}
 
 	@Override
 	public @NotNull Iterator<Constraint> iterator() {
-		return Iterators.concat(
-				temporaryConstraints().iterator(),
-				permanentConstraints().iterator()
-		);
+		if (temporaryConstraints.isEmpty()) return permanentConstraints.iterator();
+		if (permanentConstraints.isEmpty()) return temporaryConstraints.iterator();
+		return Iterators.concat(temporaryConstraints.iterator(), permanentConstraints.iterator());
 	}
 
 	public int asParseFlags() {
+		if (parseFlagsCache != null) return parseFlagsCache;
 		int flags = 0;
 		for (Constraint constraint : this) {
 			if (constraint instanceof LiteralConstraint literalConstraint) {
 				flags |= literalConstraint.asParseFlags();
 			}
 		}
-		return flags;
+		return parseFlagsCache = flags;
 	}
 }

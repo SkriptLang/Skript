@@ -20,6 +20,7 @@ final class DefaultSyntaxInfosImpl {
 		extends SyntaxInfoImpl<E> implements DefaultSyntaxInfos.Expression<E, R> {
 
 		private final Class<R> returnType;
+		private final boolean isLiteralType;
 
 		ExpressionImpl(
 			Origin origin, Class<E> type, @Nullable Supplier<E> supplier,
@@ -28,6 +29,12 @@ final class DefaultSyntaxInfosImpl {
 			super(origin, type, supplier, patterns, priority);
 			Preconditions.checkNotNull(returnType, "An expression syntax info must have a return type.");
 			this.returnType = returnType;
+			this.isLiteralType = ch.njol.skript.lang.Literal.class.isAssignableFrom(type);
+		}
+
+		@Override
+		public boolean isLiteralType() {
+			return isLiteralType;
 		}
 
 		@Override

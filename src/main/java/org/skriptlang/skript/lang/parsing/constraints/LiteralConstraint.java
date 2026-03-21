@@ -2,6 +2,7 @@ package org.skriptlang.skript.lang.parsing.constraints;
 
 import ch.njol.skript.lang.*;
 import org.skriptlang.skript.lang.parsing.ParsingContext;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
 import static ch.njol.skript.lang.SkriptParser.PARSE_EXPRESSIONS;
@@ -76,14 +77,14 @@ public class LiteralConstraint implements Constraint {
 	@Override
 	public boolean acceptsInfo(SyntaxInfo<?> info, ParsingContext context) {
 		// we can only check expressions
-		if (!(info instanceof ExpressionInfo<?, ?>))
+		if (!(info instanceof DefaultSyntaxInfos.Expression<?,?> exprInfo))
 			return true;
 		return switch (allows) {
 			// If only literals are allowed, then we can check the type class. If simplified literals are allowed,
 			// then we cannot reject at this stage.
-			case ONLY_LITERALS -> allowSimplifiedLiterals || Literal.class.isAssignableFrom(info.type());
+			case ONLY_LITERALS -> allowSimplifiedLiterals || exprInfo.isLiteralType();
 			// If no literals are allowed, we can check the type class.
-			case NO_LITERALS -> !Literal.class.isAssignableFrom(info.type());
+			case NO_LITERALS -> !exprInfo.isLiteralType();
 			// If any is allowed, we accept everything.
 			case ANY -> true;
 		};
