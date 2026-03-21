@@ -12,7 +12,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 
 /**
@@ -23,13 +23,13 @@ import ch.njol.util.Kleenean;
 @Examples({"message \"This server is running Minecraft %minecraft version% on Bukkit %bukkit version%\"",
 		"message \"This server is powered by Skript %skript version%\""})
 @Since("2.0")
-public class ExprVersion extends SimpleExpression<String> {
-	
-	private static enum VersionType {
+public class ExprVersion extends SimpleLiteral<String> {
+
+	private enum VersionType {
 		BUKKIT("Bukkit") {
 			@Override
 			public String get() {
-				return "" + Bukkit.getBukkitVersion();
+				return Bukkit.getBukkitVersion();
 			}
 		},
 		MINECRAFT("Minecraft") {
@@ -44,53 +44,43 @@ public class ExprVersion extends SimpleExpression<String> {
 				return Skript.getVersion().toString();
 			}
 		};
-		
+
 		private final String name;
-		
-		private VersionType(final String name) {
+
+		VersionType(final String name) {
 			this.name = name;
 		}
-		
+
 		@Override
 		public String toString() {
 			return name;
 		}
-		
+
 		public abstract String get();
 	}
-	
+
 	static {
 		Skript.registerExpression(ExprVersion.class, String.class, ExpressionType.SIMPLE, "(0¦[craft]bukkit|1¦minecraft|2¦skript)( |-)version");
 	}
-	
+
 	@SuppressWarnings("null")
-	private VersionType type;
-	
+	private VersionType versionType;
+
+	public ExprVersion() {
+		super(new String[0], String.class, false);
+	}
+
 	@SuppressWarnings("null")
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		type = VersionType.values()[parseResult.mark];
+		versionType = VersionType.values()[parseResult.mark];
+		data = new String[] {versionType.get()};
 		return true;
 	}
-	
-	@Override
-	protected String[] get(final Event e) {
-		return new String[] {type.get()};
-	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return type + " version";
+		return versionType + " version";
 	}
-	
-	@Override
-	public boolean isSingle() {
-		return true;
-	}
-	
-	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
-	}
-	
+
 }

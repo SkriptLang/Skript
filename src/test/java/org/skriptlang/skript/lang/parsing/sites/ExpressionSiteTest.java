@@ -111,7 +111,6 @@ public class ExpressionSiteTest extends SkriptJUnitTest {
 		ExpressionSite original = ExpressionSite.builder()
 				.optional(true)
 				.allowLiterals(false)
-				.allowNonLiterals(false)
 				.timeState(ExpressionSite.TimeState.PAST)
 				.build();
 		ExpressionSite copy = original.toBuilder().build();

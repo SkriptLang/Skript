@@ -141,8 +141,8 @@ public class Constraints implements Iterable<Constraint>{
 	@Override
 	public @NotNull Iterator<Constraint> iterator() {
 		return Iterators.concat(
-				temporaryConstraints.iterator(),
-				permanentConstraints.iterator()
+				temporaryConstraints().iterator(),
+				permanentConstraints().iterator()
 		);
 	}
 
