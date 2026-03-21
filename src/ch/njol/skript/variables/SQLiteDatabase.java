@@ -27,8 +27,9 @@ public class SQLiteDatabase extends DatabaseWrapper {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            log.severe(prefix + " SQLite JDBC driver not found! " +
-                "Please make sure sqlite-jdbc is in your server's classpath.");
+            log.severe(prefix + " Could not find the SQLite driver. " +
+                "If you're using Paper or its forks, this should work out of the box. " +
+                "Otherwise, you may need to add the SQLite JDBC driver to your server.");
             return false;
         }
 
