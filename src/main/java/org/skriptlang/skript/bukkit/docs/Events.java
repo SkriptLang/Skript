@@ -48,7 +48,9 @@ public class Events implements Documentable {
 	public void write(DocumentationAdapter adapter) {
 		List<Reference> references = new ArrayList<>();
 		getRelatedInfos(adapter.addon()).forEach(info -> references.add(adapter.reference(info)));
-		adapter.write("events", references);
+		if (!references.isEmpty()) {
+			adapter.write("events", references);
+		}
 	}
 
 	/**

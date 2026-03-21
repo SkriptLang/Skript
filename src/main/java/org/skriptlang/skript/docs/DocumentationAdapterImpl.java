@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 class DocumentationAdapterImpl implements DocumentationAdapter {
@@ -20,12 +21,19 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	private record Scope(String name, Map<String, Object> values) { }
 
 	private final SkriptAddon addon;
+	private final BiConsumer<DocumentationAdapter, Documentable> writeHandler;
+
 	private final Deque<Scope> scopes = new ArrayDeque<>();
 
 	private final Map<Documentable, String> idMap = new HashMap<>();
 
 	DocumentationAdapterImpl(SkriptAddon addon, boolean generate) {
+		this(addon, (a, b) -> { }, generate);
+	}
+
+	DocumentationAdapterImpl(SkriptAddon addon, BiConsumer<DocumentationAdapter, Documentable> writeHandler, boolean generate) {
 		this.addon = addon;
+		this.writeHandler = writeHandler;
 		scopes.push(new Scope("root", new HashMap<>()));
 		if (generate) {
 			write(addon.syntaxRegistry());
@@ -44,6 +52,7 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 		if (documentable.canWrite(this)) {
 			documentable.preWrite(this);
 			documentable.write(this);
+			writeHandler.accept(this, documentable);
 			idMap.put(documentable, currentScope());
 			documentable.postWrite(this);
 		}

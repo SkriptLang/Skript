@@ -7,6 +7,7 @@ import org.skriptlang.skript.registration.DefaultSyntaxInfos.Expression;
 import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * A documentation adapter is used for extracting information out of {@link Documentable} objects.
@@ -27,7 +28,25 @@ public interface DocumentationAdapter {
 	 * @return A populated adapter.
 	 */
 	static DocumentationAdapter of(SkriptAddon addon) {
-		return new DocumentationAdapterImpl(addon, true);
+		return of(addon, (a, b) -> { });
+	}
+
+	/**
+	 * Creates and populates an adapter with documentation for elements provided by {@code addon}.
+	 * This default implementation covers:
+	 * <ul>
+	 *     <li>{@link SyntaxInfo}s</li>
+	 *     <li>{@link ClassInfo}s</li>
+	 *     <li>{@link Experiment}s</li>
+	 * </ul>
+	 * @param addon The addon to extract documentation from.
+	 * @param writeHandler A consumer to be called for every written {@link Documentable}.
+	 *  This is called after {@link Documentable#write(DocumentationAdapter)} but before {@link Documentable#postWrite(DocumentationAdapter)}.
+	 *  Thus, it is useful for intercepting certain documentables to write additional data.
+	 * @return A populated adapter.
+	 */
+	static DocumentationAdapter of(SkriptAddon addon, BiConsumer<DocumentationAdapter, Documentable> writeHandler) {
+		return new DocumentationAdapterImpl(addon, writeHandler, true);
 	}
 
 	/**
