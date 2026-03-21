@@ -120,16 +120,23 @@ public abstract class SQLStorage extends VariablesStorage {
                 }
                 // Add missing columns for tables created by older Skript versions
                 try {
-                    db.query("ALTER TABLE " + this.getTableName() + " ADD COLUMN update_guid CHAR(36) NOT NULL DEFAULT ''");
-                    Skript.info("Added missing 'update_guid' column to table '" + this.getTableName() + "'");
+                    db.getConnection().setAutoCommit(true);
+                    try {
+                        db.query("ALTER TABLE " + this.getTableName() + " ADD COLUMN update_guid CHAR(36) NOT NULL DEFAULT ''");
+                        Skript.info("Added missing 'update_guid' column to table '" + this.getTableName() + "'");
+                    } catch (SQLException e) {
+                        // Column already exists - ignore (MySQL error 1060)
+                    }
+                    try {
+                        db.query("ALTER TABLE " + this.getTableName() + " ADD COLUMN rowid BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY");
+                        Skript.info("Added missing 'rowid' column to table '" + this.getTableName() + "'");
+                    } catch (SQLException e) {
+                        // Column already exists - ignore
+                    }
+                    db.getConnection().setAutoCommit(false);
                 } catch (SQLException e) {
-                    // Column already exists — ignore (MySQL error 1060)
-                }
-                try {
-                    db.query("ALTER TABLE " + this.getTableName() + " ADD COLUMN rowid BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY");
-                    Skript.info("Added missing 'rowid' column to table '" + this.getTableName() + "'");
-                } catch (SQLException e) {
-                    // Column already exists — ignore
+                    Skript.error("ALTER TABLE error: " + e.getMessage());
+                    try { db.getConnection().setAutoCommit(false); } catch (SQLException ex) {}
                 }
                 if (!this.prepareQueries()) {
                     return false;
