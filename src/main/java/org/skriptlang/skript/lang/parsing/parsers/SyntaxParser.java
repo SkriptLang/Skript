@@ -4,7 +4,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +49,7 @@ public interface SyntaxParser<P extends SyntaxParser<P>> {
 	 * <p>
 	 * Implementations should throw an exception if the parser is not ready to parse.
 	 *
-	 * @param candidateSyntaxes The iterator of {@link SyntaxElementInfo} objects to parse against.
+	 * @param candidateSyntaxes The iterator of {@link SyntaxInfo} objects to parse against.
 	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}
 	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
 	 * @param <E> The type of {@link SyntaxElement} that will be returned.

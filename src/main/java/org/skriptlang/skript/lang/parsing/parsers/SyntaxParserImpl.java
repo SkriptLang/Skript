@@ -26,12 +26,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.Skript;
 import org.skriptlang.skript.lang.parsing.ParsingContext;
 import org.skriptlang.skript.lang.parsing.constraints.Constraints;
+import org.skriptlang.skript.log.runtime.RuntimeErrorCatcher;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 /**
  * A parser with configurable constraints and context for parsing Skript syntax elements.
@@ -246,8 +249,11 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 
 			@SuppressWarnings("unchecked")
 			E result = (doSimplification && element instanceof Simplifiable<?> simplifiable)
-				? (E) simplifiable.simplify()
+				? (E) simplify(simplifiable)
 				: element;
+
+			if (result == null)
+				return null;
 
 			// check post-init constraints
 			if (!constraints.acceptsPostInit(result, parseResult, ctx))
@@ -276,6 +282,38 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a simplified version of element, unless a runtime error is thrown, in which case a parse error is printed
+	 * and null is returned.
+	 * @param element The element to simplify
+	 * @return The simplified element, or null if simplification failed. Elements unable to simplify will return themselves.
+	 * @param <T> The element type.
+	 */
+	private <T extends SyntaxElement> @Nullable T simplify(@NotNull Simplifiable<T> element) {
+		// add runtime consumer to catch runtime errors and turn them into parse time errors
+		T simplified;
+		try (RuntimeErrorCatcher catcher = new RuntimeErrorCatcher().start()) {
+			simplified = element.simplify();
+			// we can assume that if a single simplification throws many errors, the first will be at least somewhat representative
+			AtomicBoolean error = new AtomicBoolean(false);
+			catcher.getCachedErrors().stream()
+				.filter(err -> err.level() == Level.SEVERE)
+				.findFirst()
+				.ifPresent(err -> {
+					ch.njol.skript.Skript.error(err.error());
+					error.set(true);
+				});
+			// same for warnings.
+			catcher.getCachedErrors().stream()
+				.filter(err -> err.level() == Level.WARNING)
+				.findFirst()
+				.ifPresent(warning -> ch.njol.skript.Skript.warning(warning.error()));
+			if (error.get())
+				return null;
+			return simplified;
+		}
 	}
 
 	/**

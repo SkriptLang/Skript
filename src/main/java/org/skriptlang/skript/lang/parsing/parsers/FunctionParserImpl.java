@@ -1,8 +1,11 @@
 package org.skriptlang.skript.lang.parsing.parsers;
 
-import ch.njol.skript.lang.function.FunctionReference;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.SkriptParser;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.Skript;
+import org.skriptlang.skript.common.function.FunctionReference;
+import org.skriptlang.skript.common.function.FunctionReferenceParser;
 
 class FunctionParserImpl extends SyntaxParserImpl<FunctionParserImpl> implements FunctionParser<FunctionParserImpl> {
 
@@ -15,6 +18,10 @@ class FunctionParserImpl extends SyntaxParserImpl<FunctionParserImpl> implements
 	}
 
 	public <T> FunctionReference<T> parse() {
-		return null;
+		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
+			return null;
+		int flags = localConstraints != null ? localConstraints.asParseFlags() : SkriptParser.ALL_FLAGS;
+		return new FunctionReferenceParser(context, flags).parseFunctionReference(input);
 	}
+
 }
