@@ -1,13 +1,31 @@
-# Skript 2.14.3 — Redis Storage & MySQL Sync Fix
+# Skript 2.14.3 - Redis Storage & MySQL Improvements
 
-## 🟢 New: Redis Storage Backend (`type: Redis`)
+## 🔴 New: Redis Variable Storage
 
-Variables can now be stored in **Redis** instead of MySQL/SQLite — with **instant cross-server sync** via Pub/Sub (<5ms latency).
+Skript variables can now be stored in **Redis** - a blazing-fast in-memory database with **instant cross-server synchronization** via Pub/Sub. Zero external Java dependencies - built from the ground up using raw RESP protocol sockets.
 
-No external Java dependencies required — built-in RESP protocol client.
+> **Why Redis?** MySQL syncs every 5-60 seconds by polling the database. Redis pushes changes **instantly** (<5ms) to every connected server using Pub/Sub. No polling. No delays. No race conditions.
 
-### Config
+### Quick Start
 
+**1. Install Redis on your server:**
+```bash
+# Ubuntu/Debian
+sudo apt install redis-server -y
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+
+# CentOS/RHEL
+sudo yum install redis -y
+sudo systemctl enable redis
+sudo systemctl start redis
+
+# Verify
+redis-cli ping
+# -> PONG
+```
+
+**2. Add to `config.sk`** on every server that should sync:
 ```yaml
 databases:
     database 1:
@@ -18,54 +36,78 @@ databases:
         password: ""
 ```
 
-### Why Redis?
+**3. Restart your server.** Done. Variables sync instantly.
 
-| Feature | MySQL Sync | Redis |
+### How It Works
+
+| | MySQL Sync | Redis |
 |:--|:--|:--|
-| **Sync Latency** | 5-60 seconds (polling) | <5ms (Pub/Sub) |
-| **Race Conditions** | Possible (last-write-wins) | Impossible (single-threaded) |
-| **Persistence** | Disk (always) | RAM + Disk (RDB/AOF) |
-| **Setup** | Already installed | `apt install redis-server` |
+| **Sync Speed** | 5-60s (polling) | <5ms (Pub/Sub) |
+| **Race Conditions** | Possible | Impossible (single-threaded) |
+| **Persistence** | Always on disk | RAM + disk (configurable) |
+| **Variable Types** | All | All |
+| **Setup Complexity** | Database + credentials | `apt install redis-server` |
 
-### Redis Persistence
+### Persistence & Safety
 
-Redis stores data in RAM but saves to disk automatically (RDB snapshots). For maximum safety:
+Redis stores everything in RAM but automatically saves to disk via RDB snapshots. Your variables survive restarts. For maximum durability:
+
 ```bash
 # /etc/redis/redis.conf
-appendonly yes          # Enable AOF logging (log every write)
-save 60 1000            # RDB snapshot every 60s if 1000+ keys changed
+appendonly yes          # Log every single write to disk
+save 60 1000            # Snapshot every 60s if 1000+ keys changed
 ```
 
-### Redis Management — RedisInsight
+### Redis Management - RedisInsight
 
-[RedisInsight](https://redis.io/insight/) is a free official GUI (like phpMyAdmin for Redis):
+[RedisInsight](https://redis.io/insight/) is a free GUI for Redis (think phpMyAdmin, but for Redis):
 ```bash
-docker run -d --name redisinsight -p 5540:5540 redis/redisinsight:latest
+docker run -d --name redisinsight --network host redis/redisinsight:latest
 # Open http://your-server:5540
 ```
 
-### Redis Requirements
-- **Redis** 6.0+ on the server
-- `apt install redis-server` (Ubuntu/Debian) or `yum install redis` (CentOS)
-- Runs on `127.0.0.1:6379` by default
+### When Should You Switch?
+
+| Use Case | Recommended |
+|:--|:--|
+| Economy, ranks, live stats | **Redis** |
+| Cross-server chat, events | **Redis** |
+| Small networks (1-3 servers) | MySQL is fine |
+| Large networks (4+ servers) | **Redis** |
+
+### Requirements
+- **Redis 6.0+** on the server
+- Default: `127.0.0.1:6379`, no password
 
 ---
 
-## 🟡 Fix: MySQL `Unknown column 'update_guid'`
+## 🟡 MySQL: Automatic Schema Migration
 
 ```
 database error: Unknown column 'update_guid' in 'field list'
 ```
 
-**Cause:** Tables created by older Skript versions don't have the `update_guid` and `rowid` columns.
-
-**Fix:** Skript now automatically adds missing columns via `ALTER TABLE` on startup — no manual action required.
+Tables created by older Skript versions are now **automatically upgraded** on startup via `ALTER TABLE`. Missing columns (`update_guid`, `rowid`) are added seamlessly - no manual SQL needed.
 
 ---
 
-## 🟡 MySQL Sync Improvements
+## 🟡 MySQL: Deadlock Protection
 
-### Monitor Settings
+MySQL deadlocks (`Deadlock found when trying to get lock; try restarting transaction`) are now handled automatically:
+
+- **Save operations** retry up to 3x with exponential backoff (50ms, 100ms, 150ms)
+- **Commit thread** gracefully recovers from deadlocks instead of throwing errors
+- No more error spam in the console
+
+---
+
+## 🟡 MySQL: Connection Recovery
+
+- Database connections now automatically restore `autoCommit` and prepared statements after reconnecting
+- Eliminated duplicate connection threads after reconnect
+- Added logging for reconnection events
+
+### Recommended Monitor Intervals
 
 ```yaml
 databases:
@@ -76,29 +118,9 @@ databases:
         monitor interval: 10 seconds
 ```
 
-### Recommended Intervals
-
 | Interval | Sync Delay | DB Load | Use Case |
 |:--|:--|:--|:--|
-| `5 seconds` | ~5s | Higher | Real-time critical (economy, ranks) |
-| **`10 seconds`** | **~10s** | **Medium** | **Recommended for most setups** |
-| `20 seconds` | ~20s | Low | Default, safe choice |
-| `60 seconds` | ~60s | Minimal | Config/settings sync only |
-
-### Connection Recovery Fixes
-- Fixed duplicate connections after reconnect
-- Fixed `autoCommit` and prepared statements not restoring after connection loss
-- Added reconnect logging
-
----
-
-## Redis vs MySQL — When to Use What?
-
-| Use Case | Recommended |
-|:--|:--|
-| Economy, Ranks, Live Stats | **Redis** |
-| Cross-Server Chat/Events | **Redis** |
-| Player data (rarely changed) | **MySQL** (10s interval) |
-| Config/Settings sync | **MySQL** (60s interval) |
-| Small networks (1-3 servers) | **MySQL** is fine |
-| Large networks (4+ servers) | **Redis** recommended |
+| `5 seconds` | ~5s | Higher | Real-time critical |
+| **`10 seconds`** | **~10s** | **Medium** | **Recommended** |
+| `20 seconds` | ~20s | Low | Default |
+| `60 seconds` | ~60s | Minimal | Config sync only |

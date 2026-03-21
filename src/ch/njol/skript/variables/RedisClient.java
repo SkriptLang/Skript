@@ -63,6 +63,8 @@ public class RedisClient {
             connected = true;
             return true;
         } catch (IOException e) {
+            System.err.println("[Skript Redis] Connection to " + host + ":" + port + " failed: " + e.getMessage());
+            e.printStackTrace();
             connected = false;
             return false;
         }

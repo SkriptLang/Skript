@@ -1,20 +1,54 @@
-# Skript 2.14.3 — MySQL Fix
+# Skript 2.14.3 - Redis Storage & MySQL Fix
 
-> Drop-in replacement for `Skript-2.14.3.jar` that removes the ancient **SQLibrary** dependency and replaces it with direct JDBC connections.
+> Drop-in replacement for `Skript-2.14.3.jar` that adds **Redis variable storage** with instant Pub/Sub sync, removes the ancient **SQLibrary** dependency, and fixes MySQL deadlocks & connection issues.
 
 ---
 
-## The Problem
+## 🔴 Redis Variable Storage (NEW)
 
-Skript 2.14.3 still requires the abandoned [SQLibrary](https://dev.bukkit.org/projects/sqlibrary) plugin (`lib.PatPeter.SQLibrary`) for MySQL variable storage. SQLibrary hasn't been updated in over 8 years and is no longer available for download — making MySQL-backed variables completely broken on modern servers.
+Variables can be stored in **Redis** for **instant cross-server synchronization** via Pub/Sub (<5ms latency). No external Java dependencies - uses a built-in RESP protocol client.
 
-**Symptoms:**
+### Redis Config
+
+```yaml
+databases:
+    database 1:
+        type: Redis
+        pattern: .*
+        host: 127.0.0.1
+        port: 6379
+        password: ""
 ```
-java.lang.NoClassDefFoundError: lib/PatPeter/SQLibrary/Database
-Could not establish MySQL connection: Attempted reconnect 3 times. Giving up.
+
+### Redis Setup
+
+```bash
+sudo apt install redis-server -y
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+redis-cli ping  # -> PONG
 ```
 
-## The Fix
+### Redis vs MySQL
+
+| | MySQL Sync | Redis |
+|:--|:--|:--|
+| **Sync Speed** | 5-60s (polling) | <5ms (Pub/Sub) |
+| **Race Conditions** | Possible | Impossible (single-threaded) |
+| **Persistence** | Always on disk | RAM + disk (RDB/AOF) |
+| **Setup** | Database + credentials | `apt install redis-server` |
+
+### Redis Management
+
+[RedisInsight](https://redis.io/insight/) - free GUI (like phpMyAdmin for Redis):
+```bash
+docker run -d --name redisinsight --network host redis/redisinsight:latest
+# Open http://your-server:5540
+```
+
+---
+
+## MySQL Fix
 
 All SQLibrary references have been replaced with a lightweight `DatabaseWrapper` abstraction that connects directly via **JDBC** using the MySQL Connector/J driver.
 
@@ -23,24 +57,22 @@ All SQLibrary references have been replaced with a lightweight `DatabaseWrapper`
 | File | Description |
 |:--|:--|
 | **Removed** | All `lib.PatPeter.SQLibrary` imports & dependencies |
-| `DatabaseWrapper.java` | **[NEW]** Abstract base class replacing `lib.PatPeter.SQLibrary.Database`. Provides `open()`, `close()`, `query()`, `prepare()`, `isTable()`, and `ensureConnection()` using direct JDBC. |
-| `MySQLDatabase.java` | **[NEW]** MySQL implementation of `DatabaseWrapper`. Connects via `DriverManager` with `useSSL=false`, `allowPublicKeyRetrieval=true`, `UTF-8` encoding, and configurable timeouts. Supports both Connector/J 8.x and 5.x drivers. |
-| `SQLiteDatabase.java` | **[NEW]** SQLite implementation of `DatabaseWrapper`. |
-| `MySQLStorage.java` | **[MODIFIED]** Uses `DatabaseWrapper` instead of SQLibrary's `MySQL` class. Reads `host`, `port`, `user`, `password`, `database`, and `table` from config. |
-| `SQLiteStorage.java` | **[MODIFIED]** Uses `DatabaseWrapper` instead of SQLibrary's `SQLite` class. |
-| `SQLStorage.java` | **[MODIFIED]** Core variable storage class. Keep-alive and transaction commit threads now use `DatabaseWrapper.ensureConnection()` instead of SQLibrary's `Database` class. |
+| `DatabaseWrapper.java` | **[NEW]** Abstract base class replacing SQLibrary. Direct JDBC with `open()`, `close()`, `query()`, `prepare()`, `ensureConnection()`. |
+| `MySQLDatabase.java` | **[NEW]** MySQL implementation. Supports Connector/J 8.x and 5.x drivers. |
+| `SQLiteDatabase.java` | **[NEW]** SQLite implementation. |
+| `RedisClient.java` | **[NEW]** Minimal Redis client using raw RESP protocol sockets. Supports HSET/HDEL/HGETALL and Pub/Sub. |
+| `RedisStorage.java` | **[NEW]** Redis storage backend. Variables stored as Redis Hashes with instant Pub/Sub cross-server sync. |
+| `MySQLStorage.java` | **[MODIFIED]** Uses `DatabaseWrapper` instead of SQLibrary. |
+| `SQLiteStorage.java` | **[MODIFIED]** Uses `DatabaseWrapper` instead of SQLibrary. |
+| `SQLStorage.java` | **[MODIFIED]** Added deadlock retry logic, automatic `ALTER TABLE` for missing columns, connection recovery improvements. |
+| `Variables.class` | **[PATCHED]** Bytecode-patched via ASM to register `RedisStorage` as a first-class storage type. |
 
 ### Connection Features
 - `useSSL=false` + `allowPublicKeyRetrieval=true` (MySQL 8.x compatible)
 - Connect timeout: 10s, Read timeout: 30s
 - Auto-detection of MySQL Connector/J 8.x and 5.x drivers
-- Detailed error diagnostics (SQLState, ErrorCode, Root Cause)
-
-### JDBC Connection URL
-
-```
-jdbc:mysql://host:port/database?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true&connectTimeout=10000&socketTimeout=30000
-```
+- Deadlock retry (3 attempts with exponential backoff)
+- Automatic schema migration (`update_guid`, `rowid` columns)
 
 ---
 
@@ -48,63 +80,36 @@ jdbc:mysql://host:port/database?useSSL=false&allowPublicKeyRetrieval=true&charac
 
 1. Download `Skript-2.14.3-fixed.jar` from the [Releases](../../releases) page
 2. Replace your existing `Skript-2.14.3.jar` in the `plugins/` folder
-3. **Delete SQLibrary** from `plugins/` if installed — it's no longer needed
-4. Grant MySQL permissions for TCP connections:
+3. **Delete SQLibrary** from `plugins/` if installed - it's no longer needed
+4. For **Redis**: Install Redis on your server (`apt install redis-server`)
+5. For **MySQL**: Grant TCP permissions:
    ```sql
    GRANT ALL PRIVILEGES ON your_database.* TO 'your_user'@'127.0.0.1';
-   GRANT ALL PRIVILEGES ON your_database.* TO 'your_user'@'localhost';
    FLUSH PRIVILEGES;
    ```
-5. Restart the server
-
-> [!IMPORTANT]
-> Your `config.sk` database section does **not** need any changes. The same format as before is used.
-
-### Config Example
-
-```yaml
-databases:
-    database 1:
-        type: MySQL
-        pattern: .*
-        host: 127.0.0.1
-        port: 3306
-        user: your_user
-        password: your_password
-        database: your_database
-        table: variables21
-```
-
----
-
-## Compatibility
-
-| Server | Status | Notes |
-|:--|:--|:--|
-| **Paper** / **Purpur** / **Folia** | Works out of the box | MySQL Connector/J is bundled |
-| **Spigot** / **CraftBukkit** | Requires extra step | MySQL driver must be added manually (see below) |
-
-### Spigot / CraftBukkit Setup
-
-Spigot does not bundle the MySQL JDBC driver. Download it manually and place it in your server's classpath:
-
-1. Download [mysql-connector-j-9.2.0.jar](https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/9.2.0/mysql-connector-j-9.2.0.jar) from Maven Central
-2. Place it in your server root directory (next to `spigot.jar`)
-3. Add it to your startup command:
-```bash
-java -cp spigot.jar:mysql-connector-j-9.2.0.jar org.bukkit.craftbukkit.Main
-```
-Or alternatively, place it inside the `plugins/` folder — some server implementations will pick it up from there.
+6. Restart the server
 
 ---
 
 ## Multi-Server Variable Sync
 
-This fix fully supports **syncing variables between multiple servers** via a shared MySQL database. Each server gets a unique identifier — when one server writes a variable, the others detect the change and update their in-memory state automatically.
+### Redis (Recommended)
 
-### Enable Sync
+Instant sync via Pub/Sub - just use the same Redis server on all Minecraft servers:
 
-In `config.sk` on **all** servers that share the database:
+```yaml
+databases:
+    database 1:
+        type: Redis
+        pattern: .*
+        host: your-redis-server
+        port: 6379
+        password: ""
+```
+
+### MySQL (Alternative)
+
+Polling-based sync with configurable intervals:
 
 ```yaml
 databases:
@@ -122,24 +127,32 @@ databases:
 ```
 
 > [!IMPORTANT]
-> Set `pattern`, `monitor changes`, and `monitor interval` to the **same values** on all servers sharing the database.
+> Set `pattern`, `monitor changes`, and `monitor interval` to the **same values** on all servers.
 
-### Recommended Intervals
+---
 
-| Interval | Sync Delay | DB Load | Use Case |
-|:--|:--|:--|:--|
-| `5 seconds` | ~5s | Higher | Real-time critical (economy, ranks, live stats) |
-| **`10 seconds`** | **~10s** | **Medium** | **Recommended for most setups** |
-| `20 seconds` | ~20s | Low | Default, safe choice for rarely changed data |
-| `60 seconds` | ~60s | Minimal | Config/settings sync only |
+## Compatibility
+
+| Server | Status | Notes |
+|:--|:--|:--|
+| **Paper** / **Purpur** / **Folia** | Works out of the box | MySQL Connector/J is bundled |
+| **Spigot** / **CraftBukkit** | Requires extra step | MySQL driver must be added manually (see below) |
+
+### Spigot / CraftBukkit Setup
+
+Download [mysql-connector-j-9.2.0.jar](https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/9.2.0/mysql-connector-j-9.2.0.jar) and add to your classpath:
+```bash
+java -cp spigot.jar:mysql-connector-j-9.2.0.jar org.bukkit.craftbukkit.Main
+```
 
 ---
 
 ## Requirements
 
 - **Java 17+**
-- **MySQL 5.7+** or **MariaDB 10.3+**
-- **Paper 1.20+**, Purpur, Folia, or Spigot/CraftBukkit with MySQL Connector/J
+- **Paper 1.20+**, Purpur, Folia, or Spigot/CraftBukkit
+- **Redis 6.0+** (for Redis storage)
+- **MySQL 5.7+** or **MariaDB 10.3+** (for MySQL storage)
 
 ## License
 

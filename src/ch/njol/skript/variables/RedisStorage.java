@@ -39,18 +39,21 @@ public class RedisStorage extends VariablesStorage {
     protected boolean load_i(SectionNode n) {
         this.host = this.getValue(n, "host");
         String portStr = this.getValue(n, "port");
-        this.password = n.getValue("password") != null ? n.getValue("password") : "";
+        this.password = n.getValue("password") != null ? n.getValue("password").replace("\"", "").trim() : "";
 
         if (this.host == null || portStr == null) {
+            Skript.error("Redis config missing host or port!");
             return false;
         }
 
         try {
-            this.port = Integer.parseInt(portStr);
+            this.port = Integer.parseInt(portStr.trim());
         } catch (NumberFormatException e) {
             Skript.error("Invalid Redis port: " + portStr);
             return false;
         }
+
+        Skript.info("[Skript] Connecting to Redis at " + host + ":" + port + " (password: " + (password.isEmpty() ? "none" : "set") + ")...");
 
         // Connect
         this.client = new RedisClient(host, port, password);
