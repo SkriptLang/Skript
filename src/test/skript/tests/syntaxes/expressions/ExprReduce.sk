@@ -1,0 +1,40 @@
+
+using error catching
+
+test "basic sum":
+	set {_numbers::*} to 1, 2, 3, 4, and 5
+	set {_sum} to {_numbers::*} reduced with [reduced value + input]
+	assert {_sum} is 15 with "sum of 1+2+3+4+5 should be 15", expected 15, got {_sum}
+
+test "string concatenation":
+	set {_strings::*} to "Hello", " ", "World", and "!"
+	set {_result} to {_strings::*} reduced with ["%reduced value%%input%"]
+	assert {_result} is "Hello World!" with "concatenation should produce 'Hello World!'", expected "Hello World!", got {_result}
+
+test "single element":
+	set {_single::*} to 42
+	set {_result} to {_single::*} reduced with [reduced value + input]
+	assert {_result} is 42 with "reducing single element should return that element", expected 42, got {_result}
+
+test "keyed list":
+	set {_values::a} to 1
+	set {_values::b} to 2
+	set {_values::c} to 3
+	set {_sum} to (keyed {_values::*}) reduced with [reduced value + input]
+	assert {_sum} is 6 with "sum of keyed list (1+2+3) should be 6", expected 6, got {_sum}
+
+test "reducing with input index with keyed list":
+	set {_data::x} to 10
+	set {_data::y} to 20
+	set {_data::z} to 30
+	set {_result} to {_data::*} reduced with ["%reduced value%|%input index%:%input%"]
+	# First element: "10" (initial value)
+	# Second: "10|y:20"
+	# Third: "10|y:20|z:30"
+	assert {_result} contains "|y:20" with "should contain y:20 from input index"
+	assert {_result} contains "|z:30" with "should contain z:30 from input index"
+
+test "null after reduction":
+	catch runtime errors:
+		set {_sum} to ("1", 2, stone) reduced with [reduced value + input]
+	assert last caught runtime errors contains "The reduce expression returned null for one or more elements, which were skipped." with "should runtime error from null elements"

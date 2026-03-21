@@ -66,8 +66,10 @@ public abstract class Functions {
 		if (!name.matches(functionNamePattern))
 			throw new SkriptAPIException("Invalid function name '%s'".formatted(name));
 
-		javaNamespace.addSignature((Signature<?>) function.signature());
-		javaNamespace.addFunction((Function<?>) function);
+		if (javaNamespace.getSignature(name) == null) {
+			javaNamespace.addSignature((Signature<?>) function.signature());
+			javaNamespace.addFunction((Function<?>) function);
+		}
 		globalFunctions.put(function.name(), javaNamespace);
 
 		FunctionRegistry.getRegistry().register(null, (Function<?>) function);
@@ -84,8 +86,11 @@ public abstract class Functions {
 		String name = function.getName();
 		if (!name.matches(functionNamePattern))
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
-		javaNamespace.addSignature(function.getSignature());
-		javaNamespace.addFunction(function);
+
+		if (javaNamespace.getSignature(name) == null) {
+			javaNamespace.addSignature(function.getSignature());
+			javaNamespace.addFunction(function);
+		}
 		globalFunctions.put(function.getName(), javaNamespace);
 
 		FunctionRegistry.getRegistry().register(null, function);
