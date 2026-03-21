@@ -98,6 +98,43 @@ Or alternatively, place it inside the `plugins/` folder — some server implemen
 
 ---
 
+## Multi-Server Variable Sync
+
+This fix fully supports **syncing variables between multiple servers** via a shared MySQL database. Each server gets a unique identifier — when one server writes a variable, the others detect the change and update their in-memory state automatically.
+
+### Enable Sync
+
+In `config.sk` on **all** servers that share the database:
+
+```yaml
+databases:
+    database 1:
+        type: MySQL
+        pattern: .*
+        monitor changes: true
+        monitor interval: 10 seconds
+        host: your_host
+        port: 3306
+        user: your_user
+        password: your_password
+        database: your_database
+        table: variables21
+```
+
+> [!IMPORTANT]
+> Set `pattern`, `monitor changes`, and `monitor interval` to the **same values** on all servers sharing the database.
+
+### Recommended Intervals
+
+| Interval | Sync Delay | DB Load | Use Case |
+|:--|:--|:--|:--|
+| `5 seconds` | ~5s | Higher | Real-time critical (economy, ranks, live stats) |
+| **`10 seconds`** | **~10s** | **Medium** | **Recommended for most setups** |
+| `20 seconds` | ~20s | Low | Default, safe choice for rarely changed data |
+| `60 seconds` | ~60s | Minimal | Config/settings sync only |
+
+---
+
 ## Requirements
 
 - **Java 17+**
