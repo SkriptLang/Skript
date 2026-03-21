@@ -2,23 +2,38 @@ package org.skriptlang.skript.lang.parsing.sites;
 
 import org.skriptlang.skript.lang.parsing.constraints.Constraints;
 
-public class SectionSite extends AbstractParsingSite {
+/**
+ * An immutable parsing site representing a section slot (a block of statements).
+ */
+public final class SectionSite implements ParsingSite {
 
-	private boolean optional;
+	private static final Constraints CONSTRAINTS = Constraints.of();
+
+	private final boolean optional;
+
+	/**
+	 * Creates a new non-optional section site.
+	 */
+	public SectionSite() {
+		this(false);
+	}
+
+	/**
+	 * Creates a new section site.
+	 * @param optional Whether this site is optional.
+	 */
+	public SectionSite(boolean optional) {
+		this.optional = optional;
+	}
 
 	@Override
-	protected Constraints buildConstraints() {
-		return Constraints.of();
+	public Constraints constraints() {
+		return CONSTRAINTS;
 	}
 
 	@Override
 	public boolean isOptional() {
 		return optional;
-	}
-
-	public SectionSite optional(boolean optional) {
-		this.optional = optional;
-		return this;
 	}
 
 }

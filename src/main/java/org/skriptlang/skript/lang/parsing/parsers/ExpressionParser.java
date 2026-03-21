@@ -28,7 +28,7 @@ public interface ExpressionParser<P extends ExpressionParser<P>> extends SyntaxP
 	 */
 	@SuppressWarnings("unchecked")
 	default <T> @Nullable Expression<? extends T> parse(Class<? extends T>... returnTypes) {
-		return parse(new ExpressionSite(returnTypes));
+		return parse(ExpressionSite.of(returnTypes));
 	}
 
 	/**
@@ -39,7 +39,7 @@ public interface ExpressionParser<P extends ExpressionParser<P>> extends SyntaxP
 	 */
 	@Deprecated(since = "INSERT VERSION")
 	default <T> @Nullable Expression<? extends T> parse(ExprInfo info) {
-		return parse(new ExpressionSite(info));
+		return parse(ExpressionSite.of(info));
 	}
 
 	/**

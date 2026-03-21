@@ -4,22 +4,42 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.parsing.constraints.Constraints;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class ExpressionListSite extends AbstractParsingSite implements Iterable<ExpressionSite> {
+/**
+ * An immutable parsing site representing a fixed-order list of expression slots. Each slot in the
+ * list carries its own {@link ExpressionSite} with individual constraints; this site itself has no
+ * list-level constraints.
+ */
+public final class ExpressionListSite implements ParsingSite, Iterable<ExpressionSite> {
+
+	private static final Constraints CONSTRAINTS = Constraints.of();
 
 	private final List<ExpressionSite> expressionSites;
-	private boolean optional;
+	private final boolean optional;
 
+	/**
+	 * Creates a new non-optional expression list site containing the given expression slots.
+	 * @param expressionSites The ordered list of expression slots.
+	 */
 	public ExpressionListSite(List<ExpressionSite> expressionSites) {
-		this.expressionSites = expressionSites;
+		this(expressionSites, false);
+	}
+
+	/**
+	 * Creates a new expression list site containing the given expression slots.
+	 * @param expressionSites The ordered list of expression slots.
+	 * @param optional Whether this site is optional.
+	 */
+	public ExpressionListSite(List<ExpressionSite> expressionSites, boolean optional) {
+		this.expressionSites = List.copyOf(expressionSites);
+		this.optional = optional;
 	}
 
 	@Override
-	protected Constraints buildConstraints() {
-		return Constraints.of();
+	public Constraints constraints() {
+		return CONSTRAINTS;
 	}
 
 	@Override
@@ -27,13 +47,11 @@ public class ExpressionListSite extends AbstractParsingSite implements Iterable<
 		return optional;
 	}
 
-	public ExpressionListSite optional(boolean optional) {
-		this.optional = optional;
-		return this;
-	}
-
+	/**
+	 * @return An unmodifiable view of the expression slots in this list.
+	 */
 	public @Unmodifiable List<ExpressionSite> getExpressionSites() {
-		return Collections.unmodifiableList(expressionSites);
+		return expressionSites;
 	}
 
 	@Override
