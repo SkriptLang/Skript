@@ -182,7 +182,8 @@ public class Variables {
                     }
                     String name = sectionNode.getKey();
                     assert (name != null);
-                    Optional<Class> optional = TYPES.entries().stream().filter(entry -> ((String)entry.getValue()).equalsIgnoreCase(type)).map(Map.Entry::getKey).findFirst();
+                    @SuppressWarnings("unchecked")
+                    Optional<Class> optional = (Optional) TYPES.entries().stream().filter(entry -> ((String)entry.getValue()).equalsIgnoreCase(type)).map(Map.Entry::getKey).findFirst();
                     if (!optional.isPresent()) {
                         if (type.equalsIgnoreCase("disabled") || type.equalsIgnoreCase("none")) continue;
                         Skript.error((String)("Invalid database type '" + type + "'"));
@@ -587,7 +588,8 @@ public class Variables {
             }
 
             @Nullable
-            public String getID(@NotNull Class<?> c) {
+            @SuppressWarnings("unchecked")
+            public String getID(@NotNull Class c) {
                 if (ConfigurationSerializable.class.isAssignableFrom(c) && Classes.getSuperClassInfo(c) == Classes.getExactClassInfo(Object.class)) {
                     return Variables.CONFIGURATION_SERIALIZABLE_PREFIX + ConfigurationSerialization.getAlias(c.asSubclass(ConfigurationSerializable.class));
                 }
