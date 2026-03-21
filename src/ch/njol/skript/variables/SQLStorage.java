@@ -206,7 +206,13 @@ public abstract class SQLStorage extends VariablesStorage {
                                 db.getConnection().commit();
                             }
                         } catch (SQLException e) {
-                            SQLStorage.this.sqlException(e);
+                            String msg = e.getMessage();
+                            // Deadlock on commit is safe to ignore - will retry next cycle
+                            if (msg != null && msg.toLowerCase().contains("deadlock")) {
+                                // silently retry on next cycle
+                            } else {
+                                SQLStorage.this.sqlException(e);
+                            }
                         }
                         lastCommit = System.currentTimeMillis();
                     }
@@ -341,6 +347,8 @@ public abstract class SQLStorage extends VariablesStorage {
         }
     }
 
+    private static final int MAX_DEADLOCK_RETRIES = 3;
+
     @Override
     protected boolean save(String name, @Nullable String type, @Nullable byte[] value) {
         synchronized (this.db) {
@@ -350,39 +358,48 @@ public abstract class SQLStorage extends VariablesStorage {
             if (value != null && value.length > 10000) {
                 Skript.error("The variable {" + name + "} cannot be saved in the database as its value's size (" + value.length + ") exceeds the maximum allowed size of 10000! An attempt to save the variable will be made nonetheless.");
             }
-            try {
-                // Ensure connection is still valid before saving
-                DatabaseWrapper db = this.db.get();
-                if (db != null && !db.isOpen()) {
-                    Skript.warning("Database connection lost, attempting reconnect for save operation...");
-                    if (db.ensureConnection()) {
-                        try { db.getConnection().setAutoCommit(false); } catch (SQLException ex) { /* ignore */ }
-                        this.prepareQueries();
+            for (int attempt = 1; attempt <= MAX_DEADLOCK_RETRIES; attempt++) {
+                try {
+                    // Ensure connection is still valid before saving
+                    DatabaseWrapper db = this.db.get();
+                    if (db != null && !db.isOpen()) {
+                        Skript.warning("Database connection lost, attempting reconnect for save operation...");
+                        if (db.ensureConnection()) {
+                            try { db.getConnection().setAutoCommit(false); } catch (SQLException ex) { /* ignore */ }
+                            this.prepareQueries();
+                        }
                     }
-                }
 
-                if (type == null) {
-                    assert (value == null);
-                    PreparedStatement deleteQuery = this.deleteQuery;
-                    assert (deleteQuery != null);
-                    deleteQuery.setString(1, name);
-                    deleteQuery.executeUpdate();
-                } else {
-                    int i = 1;
-                    PreparedStatement writeQuery = this.writeQuery;
-                    assert (writeQuery != null);
-                    writeQuery.setString(i++, name);
-                    writeQuery.setString(i++, type);
-                    writeQuery.setBytes(i++, value);
-                    writeQuery.setString(i++, guid);
-                    writeQuery.executeUpdate();
+                    if (type == null) {
+                        assert (value == null);
+                        PreparedStatement deleteQuery = this.deleteQuery;
+                        assert (deleteQuery != null);
+                        deleteQuery.setString(1, name);
+                        deleteQuery.executeUpdate();
+                    } else {
+                        int i = 1;
+                        PreparedStatement writeQuery = this.writeQuery;
+                        assert (writeQuery != null);
+                        writeQuery.setString(i++, name);
+                        writeQuery.setString(i++, type);
+                        writeQuery.setBytes(i++, value);
+                        writeQuery.setString(i++, guid);
+                        writeQuery.executeUpdate();
+                    }
+                    return true; // success
+                } catch (SQLException e) {
+                    String msg = e.getMessage();
+                    if (msg != null && msg.toLowerCase().contains("deadlock") && attempt < MAX_DEADLOCK_RETRIES) {
+                        // Deadlock detected - retry after short backoff
+                        try { Thread.sleep(50L * attempt); } catch (InterruptedException ie) { break; }
+                        continue;
+                    }
+                    this.sqlException(e);
+                    return false;
                 }
-            } catch (SQLException e) {
-                this.sqlException(e);
-                return false;
             }
         }
-        return true;
+        return false;
     }
 
     @Override
