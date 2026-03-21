@@ -142,12 +142,25 @@ public abstract class SQLStorage extends VariablesStorage {
                             try {
                                 DatabaseWrapper db = SQLStorage.this.db.get();
                                 if (db != null) {
-                                    if (!db.ensureConnection()) {
-                                        Skript.error("Database '" + SQLStorage.this.getUserConfigurationName() + "' connection keep-alive failed!");
+                                    if (!db.isOpen()) {
+                                        Skript.warning("Database '" + SQLStorage.this.getUserConfigurationName() + "' connection lost, attempting reconnect...");
+                                        if (db.ensureConnection()) {
+                                            // Restore connection state after reconnect
+                                            try {
+                                                db.getConnection().setAutoCommit(false);
+                                            } catch (SQLException ex) {
+                                                Skript.error("Could not set autoCommit after reconnect: " + ex.getMessage());
+                                            }
+                                            // Re-prepare all queries with the new connection
+                                            SQLStorage.this.prepareQueries();
+                                            Skript.info("Database '" + SQLStorage.this.getUserConfigurationName() + "' reconnected successfully!");
+                                        } else {
+                                            Skript.error("Database '" + SQLStorage.this.getUserConfigurationName() + "' reconnect failed!");
+                                        }
                                     }
                                 }
                             } catch (Exception e) {
-                                // ignore keep-alive errors
+                                Skript.error("Database keep-alive error: " + e.getMessage());
                             }
                         }
                         try {

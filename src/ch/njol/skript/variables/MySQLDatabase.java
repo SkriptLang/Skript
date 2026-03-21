@@ -44,6 +44,18 @@ public class MySQLDatabase extends DatabaseWrapper {
 
     @Override
     public boolean open() {
+        // Close any existing connection first to prevent duplicates
+        if (connection != null) {
+            try {
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                // ignore close errors
+            }
+            connection = null;
+        }
+
         // Try MySQL Connector/J 8.x driver first, then fallback to 5.x
         boolean driverLoaded = false;
         try {
