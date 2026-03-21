@@ -9,13 +9,12 @@ import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.docs.Documentable;
 import org.skriptlang.skript.docs.DocumentationAdapter;
+import org.skriptlang.skript.docs.DocumentationAdapter.Reference;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Describes {@link Event}s that may be required at runtime for the thing(s) using this Documentable to function.
@@ -47,18 +46,9 @@ public class Events implements Documentable {
 
 	@Override
 	public void write(DocumentationAdapter adapter) {
-		List<Map<String, String>> data = new ArrayList<>();
-		getRelatedInfos(adapter.addon()).forEach(info -> {
-			Map<String, String> map = new HashMap<>();
-			String id = info.documentationId();
-			if (id == null) {
-				id = info.id();
-			}
-			map.put("id", id);
-			map.put("name", info.name());
-			data.add(map);
-		});
-		adapter.write("events", data);
+		List<Reference> references = new ArrayList<>();
+		getRelatedInfos(adapter.addon()).forEach(info -> references.add(adapter.reference(info)));
+		adapter.write("events", references);
 	}
 
 	/**

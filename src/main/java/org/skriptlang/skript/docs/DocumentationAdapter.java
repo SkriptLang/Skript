@@ -47,6 +47,11 @@ public interface DocumentationAdapter {
 		}
 	}
 
+	/**
+	 * Writes a new entry to this adapter.
+	 * @param key The name of the entry.
+	 * @param value The value of the entry.
+	 */
 	void write(String key, Object value);
 
 	/**
@@ -72,5 +77,27 @@ public interface DocumentationAdapter {
 	 * @return The current data map containing all written data.
 	 */
 	Map<String, Object> dataMap();
+
+	/**
+	 * A reference is a way to refer to another {@link Documentable} that has been written to an adapter.
+	 * Rather than duplicate the information of that documentable in the output,
+	 *  a reference will only resolve to a subset of information about that documentable, such as its documentation ID.
+	 */
+	interface Reference {
+
+		/**
+		 * @return The documentable being referenced.
+		 */
+		Documentable referenced();
+
+	}
+
+	/**
+	 * Creates a new reference to a documentable.
+	 * It is expected that {@code documentable} will be written to this adapter at some point.
+	 * @param documentable The documentable to reference.
+	 * @return A reference to {@code documentable}.
+	 */
+	Reference reference(Documentable documentable);
 
 }

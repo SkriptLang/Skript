@@ -1,9 +1,11 @@
 package org.skriptlang.skript.docs;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
+import com.google.common.collect.ImmutableMap;
 import org.skriptlang.skript.addon.SkriptAddon;
 
 import java.util.ArrayDeque;
@@ -19,6 +21,8 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 
 	private final SkriptAddon addon;
 	private final Deque<Scope> scopes = new ArrayDeque<>();
+
+	private final Map<Documentable, String> idMap = new HashMap<>();
 
 	DocumentationAdapterImpl(SkriptAddon addon, boolean generate) {
 		this.addon = addon;
@@ -36,6 +40,16 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 	}
 
 	@Override
+	public void write(Documentable documentable) {
+		if (documentable.canWrite(this)) {
+			documentable.preWrite(this);
+			documentable.write(this);
+			idMap.put(documentable, currentScope());
+			documentable.postWrite(this);
+		}
+	}
+
+	@Override
 	public void write(String key, Object value) {
 		value = adapt(value);
 
@@ -46,55 +60,102 @@ class DocumentationAdapterImpl implements DocumentationAdapter {
 			return;
 		}
 
-		assert !scopes.isEmpty();
-		scopes.peek().values().put(key, value);
+		scopes.getFirst().values().put(key, value);
 	}
 
 	@Override
 	public void enterScope(String key) {
-		assert !scopes.isEmpty();
 		Map<String, Object> newScopes = new HashMap<>();
-		scopes.peek().values().put(key, newScopes);
+		Scope scope = scopes.getFirst();
+
+		// scope conflict resolution
+		// append number to end of key
+		if (scope.values().containsKey(key)) {
+			int id = 2;
+			while (scope.values().containsKey(key + "-" + id)) {
+				id++;
+			}
+			key = key + "-" + id;
+		}
+
+		scope.values().put(key, newScopes);
 		scopes.push(new Scope(key, newScopes));
 	}
 
 	@Override
 	public void exitScope() {
-		assert scopes.size() > 1;
 		var scope = scopes.pop();
 		if (scope.values().isEmpty()) {
-			assert !scopes.isEmpty();
-			scopes.peek().values().remove(scope.name);
+			scopes.getFirst().values().remove(scope.name);
 		}
 	}
 
 	@Override
 	public String currentScope() {
-		assert !scopes.isEmpty();
-		return scopes.peek().name();
+		return scopes.getFirst().name();
 	}
 
 	@Override
 	public Map<String, Object> dataMap() {
-		assert scopes.size() == 1;
-		return scopes.peek().values();
+		if (scopes.size() != 1) {
+			throw new SkriptAPIException("Attempted to access data map before all scopes have been exited");
+		}
+		//noinspection unchecked
+		return (Map<String, Object>) resolveReferences(scopes.peek().values());
+	}
+
+	private record ReferenceImpl(Documentable referenced) implements Reference { }
+
+	@Override
+	public Reference reference(Documentable documentable) {
+		return new ReferenceImpl(documentable);
+	}
+
+	private Object resolveReferences(Object value) {
+		return switch (value) {
+			case Reference reference -> {
+				var builder = ImmutableMap.builder();
+				builder.put("id", idMap.get(reference.referenced()));
+				if (reference.referenced() instanceof DocumentationDocumentable documentationDocumentable) {
+					Documentation documentation = documentationDocumentable.documentation();
+					builder.put("name", documentation.name());
+				}
+				yield builder.build();
+			}
+			case Collection<?> collection -> collection.stream()
+				.map(this::resolveReferences)
+				.toList();
+			case Map<?, ?> map -> map.entrySet()
+				.stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> resolveReferences(entry.getValue())));
+			case null, default -> value;
+		};
 	}
 
 	private Object adapt(Object value) {
 		return switch (value) {
 			case Class<?> clazz -> {
 				ClassInfo<?> classInfo = Classes.getSuperClassInfo(Utils.getComponentType(clazz));
-				Documentation documentation = classInfo.documentation();
 				if (Documentation.isNoDocs(classInfo.documentation())) {
-					yield adapt(classInfo.getC().getSuperclass());
+					Class<?> superClass = classInfo.getC().getSuperclass();
+					if (superClass != null) {
+						yield adapt(superClass);
+					}
+					// TODO can we find something better? e.g. check interfaces
+					classInfo = Classes.getExactClassInfo(Object.class);
 				}
-				yield (Documentable) adapter -> {
-					adapter.write("id", documentation.id() == null ? classInfo.getCodeName() : documentation.id());
-					adapter.write("name", documentation.name());
-				};
+				yield reference(classInfo);
 			}
 			case Collection<?> collection -> collection.stream()
-				.map(this::adapt)
+				.map(element -> {
+					Object adapted = adapt(element);
+					if (adapted instanceof Documentable documentable) {
+						var adapter = new DocumentationAdapterImpl(addon, false);
+						adapter.write(documentable);
+						adapted = adapter.dataMap();
+					}
+					return adapted;
+				})
 				.toList();
 			case Map<?, ?> map -> map.entrySet()
 				.stream()
