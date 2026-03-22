@@ -4,13 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Contract;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,24 +41,29 @@ abstract class Keyword {
 		List<Keyword> keywords = new ArrayList<>();
 		PatternElement next = first;
 		while (next != null) {
-			if (next instanceof LiteralPatternElement) { // simple literal strings are keywords
-				String literal = next.toString().trim();
-				while (literal.contains("  "))
-					literal = literal.replace("  ", " ");
-				if (!literal.isEmpty()) // empty string is not useful
-					keywords.add(new SimpleKeyword(literal, starting, next.next == null));
-			} else if (depth <= 1 && next instanceof ChoicePatternElement) { // attempt to build keywords from choices
-				final boolean finalStarting = starting;
-				final int finalDepth = depth;
-				// build the keywords for each choice
-				Set<Set<Keyword>> choices = ((ChoicePatternElement) next).getPatternElements().stream()
-					.map(element -> buildKeywords(element, finalStarting, finalDepth))
-					.map(ImmutableSet::copyOf)
-					.collect(Collectors.toSet());
-				if (choices.stream().noneMatch(Collection::isEmpty)) // each choice must have a keyword for this to work
-					keywords.add(new ChoiceKeyword(choices)); // a keyword where only one choice much
-			} else if (next instanceof GroupPatternElement) { // add in keywords from the group
-				Collections.addAll(keywords, buildKeywords(((GroupPatternElement) next).getPatternElement(), starting, depth + 1));
+			switch (next) {
+				case LiteralPatternElement ignored -> {
+					String literal = next.toString().trim();
+					while (literal.contains("  "))
+						literal = literal.replace("  ", " ");
+					if (!literal.isEmpty()) // empty string is not useful
+						keywords.add(new SimpleKeyword(literal, starting, next.next == null));
+				}
+				case ChoicePatternElement choicePatternElement when depth <= 1 -> {
+					final boolean finalStarting = starting;
+					final int finalDepth = depth;
+					// build the keywords for each choice
+					Set<Set<Keyword>> choices = choicePatternElement.getPatternElements().stream()
+						.map(element -> buildKeywords(element, finalStarting, finalDepth))
+						.map(ImmutableSet::copyOf)
+						.collect(Collectors.toSet());
+					if (choices.stream().noneMatch(Collection::isEmpty)) // each choice must have a keyword for this to work
+						keywords.add(new ChoiceKeyword(choices)); // a keyword where only one choice much
+				}
+				case GroupPatternElement groupPatternElement ->  // add in keywords from the group
+					Collections.addAll(keywords, buildKeywords(groupPatternElement.getPatternElement(), starting, depth + 1));
+				default -> {
+				}
 			}
 
 			// a parse tag does not represent actual content in a pattern, therefore it should not affect starting
@@ -132,20 +131,30 @@ abstract class Keyword {
 	 */
 	private static final class ChoiceKeyword extends Keyword {
 
-		private final Set<Set<Keyword>> choices;
+		private final Keyword[][] choices;
 
 		ChoiceKeyword(Set<Set<Keyword>> choices) {
-			this.choices = choices;
+			this.choices = choices.stream()
+				.map(set -> set.toArray(new Keyword[0]))
+				.toArray(Keyword[][]::new);
 		}
 
 		@Override
 		public boolean isPresent(String expr) {
-			return choices.stream().anyMatch(keywords -> keywords.stream().allMatch(keyword -> keyword.isPresent(expr)));
+			outer:
+			for (Keyword[] choice : choices) {
+				for (Keyword keyword : choice) {
+					if (!keyword.isPresent(expr))
+						continue outer;
+				}
+				return true;
+			}
+			return false;
 		}
 
 		@Override
 		public int hashCode() {
-			return Arrays.hashCode(choices.toArray());
+			return Arrays.deepHashCode(choices);
 		}
 
 		@Override
@@ -154,13 +163,13 @@ abstract class Keyword {
 				return true;
 			if (!(obj instanceof ChoiceKeyword))
 				return false;
-			return choices.equals(((ChoiceKeyword) obj).choices);
+			return Arrays.deepEquals(choices, ((ChoiceKeyword) obj).choices);
 		}
 
 		@Override
 		public String toString() {
 			return MoreObjects.toStringHelper(this)
-				.add("choices", choices.stream().map(Object::toString).collect(Collectors.joining(", ")))
+				.add("choices", Arrays.deepToString(choices))
 				.toString();
 		}
 	}

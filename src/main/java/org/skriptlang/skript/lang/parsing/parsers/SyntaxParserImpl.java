@@ -4,6 +4,7 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.DefaultValueData;
 import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -12,6 +13,7 @@ import ch.njol.skript.lang.simplification.Simplifiable;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.patterns.MalformedPatternException;
+import ch.njol.skript.patterns.MatchResult;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.patterns.TypePatternElement;
@@ -56,6 +58,7 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	protected Constraints localConstraints;
 	protected ParseContext context;
 	protected String input;
+	protected String inputLower;
 	protected String defaultError;
 	protected final Skript skript;
 
@@ -68,6 +71,7 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	public SyntaxParserImpl(@NotNull SyntaxParser<?> other) {
 		this.context = other.parseContext();
 		this.input = other.input();
+		this.inputLower = this.input != null ? this.input.toLowerCase(Locale.ENGLISH) : null;
 		this.defaultError = other.defaultError();
 		this.skript = other.skript();
 		this.localConstraints = other.constraints();
@@ -104,6 +108,7 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	@SuppressWarnings("unchecked")
 	public P input(@NotNull String input) {
 		this.input = input;
+		this.inputLower = input.toLowerCase(Locale.ENGLISH);
 		return (P) this;
 	}
 
@@ -190,7 +195,7 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	/**
 	 * Attempts to parse this parser's input against the given pattern.
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method).
-	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}
+	 * @return A parsed {@link SyntaxElement} with its {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}
 	 * 			method having been run and returned true. If no successful parse can be made, null is returned.
 	 * @param <E> The type of {@link SyntaxElement} that will be returned.
 	 */
@@ -201,7 +206,7 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 		int patternIndex
 	) {
 		ParsingStack parsingStack = getParser().getParsingStack();
-		SkriptParser.ParseResult parseResult;
+		ParseResult parseResult;
 		try {
 			// attempt to parse with the given pattern
 			parsingStack.push(new ParsingStack.Element(info, patternIndex));
@@ -264,13 +269,13 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	}
 
 	/**
-	 * Runs through all the initialization checks and steps for the given element, finalizing in a call to {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}.
+	 * Runs through all the initialization checks and steps for the given element, finalizing in a call to {@link SyntaxElement#init(Expression[], int, Kleenean, ParseResult)}.
 	 * @param element The element to initialize.
 	 * @param patternIndex The index of the pattern that was matched.
 	 * @param parseResult The parse result from parsing this element.
 	 * @return Whether the element was successfully initialized.
 	 */
-	private boolean initializeElement(SyntaxElement element, int patternIndex, SkriptParser.ParseResult parseResult) {
+	private boolean initializeElement(SyntaxElement element, int patternIndex, ParseResult parseResult) {
 		// try to initialize the element
 		boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, ParserInstance.getContext().getHasDelayBefore(), parseResult);
 		if (success) {
@@ -319,12 +324,14 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	 * Attempts to match this parser's input against the given pattern. Any sub-elements (expressions) will be
 	 * parsed and initialized. Default values will not be populated.
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method).
-	 * @return A {@link SkriptParser.ParseResult} containing the results of the parsing, if successful. Null otherwise.
+	 * @return A {@link ParseResult} containing the results of the parsing, if successful. Null otherwise.
 	 * @see #parse(Constraints, SyntaxInfo, String, int)
 	 */
-	private @Nullable SkriptParser.ParseResult parseAgainstPattern(Constraints constraints, String pattern) throws MalformedPatternException {
-		SkriptPattern skriptPattern = patterns.computeIfAbsent(pattern, PatternCompiler::compile);
-		ch.njol.skript.patterns.MatchResult matchResult = skriptPattern.match(input, constraints.asParseFlags(), context);
+	private @Nullable ParseResult parseAgainstPattern(Constraints constraints, String pattern) throws MalformedPatternException {
+		SkriptPattern skriptPattern = patterns.get(pattern);
+		if (skriptPattern == null)
+			skriptPattern = patterns.computeIfAbsent(pattern, PatternCompiler::compile);
+		MatchResult matchResult = skriptPattern.match(input, inputLower, constraints.asParseFlags(), context);
 		if (matchResult == null)
 			return null;
 		return matchResult.toParseResult();
@@ -337,7 +344,7 @@ public class SyntaxParserImpl<P extends SyntaxParser<P>> implements SyntaxParser
 	 * @param pattern The pattern to use to locate required default expressions.
 	 * @return true if population was successful, false otherwise.
 	 */
-	private boolean populateDefaultExpressions(@NotNull SkriptParser.ParseResult parseResult, String pattern) {
+	private boolean populateDefaultExpressions(@NotNull ParseResult parseResult, String pattern) {
 		assert parseResult.source != null; // parse results from parseAgainstPattern have a source
 		List<TypePatternElement> types = null;
 		for (int i = 0; i < parseResult.exprs.length; i++) {
