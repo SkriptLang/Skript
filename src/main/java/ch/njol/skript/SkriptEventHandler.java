@@ -142,7 +142,7 @@ public final class SkriptEventHandler {
 	 * RIGHT_CLICK_AIR -> useItemInHand == DENY
 	 * PHYSICAL -> useInteractedBlock == DENY
 	 *
-	 * @param event The event to check .
+	 * @param event The event to check.
 	 * @return Whether the event was a PlayerInteractEvent with air and the result was DENY.
 	 */
 	private static boolean isPlayerInteractEventCancelled(PlayerInteractEvent event) {
