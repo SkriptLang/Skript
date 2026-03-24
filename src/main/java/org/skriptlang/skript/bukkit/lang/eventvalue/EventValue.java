@@ -33,9 +33,23 @@ public sealed interface EventValue<E extends Event, V> permits EventValueImpl, C
 	 * @param eventClass the event type this value applies to
 	 * @param valueClass the value type to produce
 	 * @return a builder to configure and build the event value
+	 * @see #simple(Class, Class, Converter)
 	 */
-	static <E extends Event, V> EventValueImpl.Builder<E, V> builder(Class<E> eventClass, Class<V> valueClass) {
+	static <E extends Event, V> EventValue.Builder<E, V> builder(Class<E> eventClass, Class<V> valueClass) {
 		return new EventValueImpl.BuilderImpl<>(eventClass, valueClass);
+	}
+
+	/**
+	 * Creates a new {@link EventValue} using a getter
+	 *
+	 * @param eventClass the event type this value applied to
+	 * @param valueClass the value type to produce
+	 * @param converter the getter
+	 * @return the constructed event value
+	 * @see #builder(Class, Class)
+	 */
+	static <E extends Event, V> EventValue<E, V> simple(Class<E> eventClass, Class<V> valueClass, Converter<E, V> converter) {
+		return builder(eventClass, valueClass).getter(converter).build();
 	}
 
 	/**
