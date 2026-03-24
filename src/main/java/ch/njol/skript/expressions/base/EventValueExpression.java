@@ -62,6 +62,9 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 */
 	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.COMBINED);
 
+	private static final EventValueRegistry.Flags NO_CONVERSION_FLAGS = EventValueRegistry.Flags.DEFAULT
+		.with(EventValueRegistry.Flag.ALLOW_CONVERSION);
+
 	/**
 	 * Creates a builder for a {@link SyntaxInfo} representing a {@link EventValueExpression} with the provided patterns.
 	 * The info will use {@link #DEFAULT_PRIORITY} as its {@link SyntaxInfo#priority()}.
@@ -272,10 +275,8 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				assert false;
 				return false;
 			}
-			EventValueRegistry.Flags noConversionFlags = EventValueRegistry.Flags.DEFAULT
-				.without(EventValueRegistry.Flag.ALLOW_CONVERSION);
 			for (Class<? extends Event> event : events) {
-				Resolution<?, ? extends T> resolution = resolve(event, noConversionFlags);
+				Resolution<?, ? extends T> resolution = resolve(event, NO_CONVERSION_FLAGS);
 				if (resolution.multiple()) {
 					log.printError("There are multiple " + input(true) + " in " + Utils.a(parser.getCurrentEventName()) + " event. " +
 							"You must define which " + input(false) + " to use.");
@@ -286,7 +287,35 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 					hasValue = true;
 			}
 			if (!hasValue) {
-				log.printError("There's no " + input(!isSingle()) + " in " + Utils.a(parser.getCurrentEventName()) + " event");
+				String message;
+
+				Class<? extends T> type = getReturnType();
+				Class<?> suggested = isSingle() ? type.arrayType() : type;
+				EventValueExpression<?> suggestedEventValue = new EventValueExpression<>(suggested);
+				boolean suggestedValueExists = false;
+
+				for (Class<? extends Event> event : events) {
+					if (suggestedEventValue.resolve(event, NO_CONVERSION_FLAGS).multiple()
+						|| !suggestedEventValue.resolve(event).successful())
+						continue;
+					suggestedValueExists = true;
+					break;
+				}
+
+				if (suggestedValueExists) {
+					if (suggested.isArray()) {
+						message = "There are multiple " + suggestedEventValue.input(true);
+					} else {
+						message = "There's only one " + suggestedEventValue.input(false);
+					}
+					message += " in " + Utils.a(parser.getCurrentEventName())
+						+ " event. Did you mean 'event-" + suggestedEventValue.input(suggested.isArray()) + "'?";
+				} else {
+					message = "There's no " + input(!isSingle()) + " in " + Utils.a(parser.getCurrentEventName())
+						+ " event.";
+				}
+
+				log.printError(message);
 				return false;
 			}
 			log.printLog();
