@@ -63,7 +63,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.COMBINED);
 
 	private static final EventValueRegistry.Flags NO_CONVERSION_FLAGS = EventValueRegistry.Flags.DEFAULT
-		.with(EventValueRegistry.Flag.ALLOW_CONVERSION);
+		.without(EventValueRegistry.Flag.ALLOW_CONVERSION);
 
 	/**
 	 * Creates a builder for a {@link SyntaxInfo} representing a {@link EventValueExpression} with the provided patterns.
