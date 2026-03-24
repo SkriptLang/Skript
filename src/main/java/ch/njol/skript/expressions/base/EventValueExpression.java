@@ -287,30 +287,35 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 					hasValue = true;
 			}
 			if (!hasValue) {
-				String message;
+				String message = null;
 
-				Class<? extends T> type = getReturnType();
-				Class<?> suggested = isSingle() ? type.arrayType() : type;
-				EventValueExpression<?> suggestedEventValue = new EventValueExpression<>(suggested);
-				boolean suggestedValueExists = false;
+				if (type != null) {
+					Class<?> suggested = type.isArray() ? componentType : type.arrayType();
+					assert suggested != null;
 
-				for (Class<? extends Event> event : events) {
-					if (suggestedEventValue.resolve(event, NO_CONVERSION_FLAGS).multiple()
-						|| !suggestedEventValue.resolve(event).successful())
-						continue;
-					suggestedValueExists = true;
-					break;
+					EventValueExpression<?> suggestedEventValue = new EventValueExpression<>(suggested);
+					boolean suggestedValueExists = false;
+	
+					for (Class<? extends Event> event : events) {
+						if (suggestedEventValue.resolve(event, NO_CONVERSION_FLAGS).multiple()
+							|| !suggestedEventValue.resolve(event).successful())
+							continue;
+						suggestedValueExists = true;
+						break;
+					}
+	
+					if (suggestedValueExists) {
+						if (suggested.isArray()) {
+							message = "There are multiple " + suggestedEventValue.input(true);
+						} else {
+							message = "There's only one " + suggestedEventValue.input(false);
+						}
+						message += " in " + Utils.a(parser.getCurrentEventName())
+							+ " event. Did you mean 'event-" + suggestedEventValue.input(suggested.isArray()) + "'?";
+					}
 				}
 
-				if (suggestedValueExists) {
-					if (suggested.isArray()) {
-						message = "There are multiple " + suggestedEventValue.input(true);
-					} else {
-						message = "There's only one " + suggestedEventValue.input(false);
-					}
-					message += " in " + Utils.a(parser.getCurrentEventName())
-						+ " event. Did you mean 'event-" + suggestedEventValue.input(suggested.isArray()) + "'?";
-				} else {
+				if (message == null) {
 					message = "There's no " + input(!isSingle()) + " in " + Utils.a(parser.getCurrentEventName())
 						+ " event.";
 				}
