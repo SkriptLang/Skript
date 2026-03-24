@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -74,7 +75,24 @@ record ConvertedEventValue<SourceEvent extends Event, ConvertedEvent extends Eve
 		);
 	}
 
-	private static <F, T> Converter<F, T> getConverter(Class<F> from, Class<T> to) {
+	private static <F, T> @Nullable Converter<F, T> getConverter(Class<F> from, Class<T> to) {
+		if (from.isArray() && to.isArray()) {
+			//noinspection rawtypes
+			var componentConverter = (Converter) getConverter(from.componentType(), to.componentType());
+			if (componentConverter == null)
+				return null;
+			return obj -> {
+				T converted = to.cast(Array.newInstance(to.componentType(), Array.getLength(obj)));
+				for (int i = 0, length = Array.getLength(converted); i < length; i++) {
+					//noinspection unchecked
+					Object convertedObj = componentConverter.convert(Array.get(obj, i));
+					if (convertedObj == null)
+						return null;
+					Array.set(converted, i, convertedObj);
+				}
+				return converted;
+			};
+		}
 		//noinspection unchecked
 		return to.isAssignableFrom(from) ? value -> (T) value : Converters.getConverter(from, to);
 	}
