@@ -295,7 +295,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 
 					EventValueExpression<?> suggestedEventValue = new EventValueExpression<>(suggested);
 					boolean suggestedValueExists = false;
-	
+
 					for (Class<? extends Event> event : events) {
 						if (suggestedEventValue.resolve(event, NO_CONVERSION_FLAGS).multiple()
 							|| !suggestedEventValue.resolve(event).successful())
@@ -303,7 +303,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 						suggestedValueExists = true;
 						break;
 					}
-	
+
 					if (suggestedValueExists) {
 						if (suggested.isArray()) {
 							message = "There are multiple " + suggestedEventValue.input(true);
