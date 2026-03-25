@@ -316,7 +316,9 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				}
 
 				if (message == null) {
-					message = "There's no " + input(!isSingle()) + " in " + Utils.a(parser.getCurrentEventName())
+					boolean single = isSingle();
+					String is = single ? "'s" : " are";
+					message = "There" + is + " no " + input(!single) + " in " + Utils.a(parser.getCurrentEventName())
 						+ " event.";
 				}
 
