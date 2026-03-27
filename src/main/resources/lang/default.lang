@@ -98,6 +98,8 @@ enchantments:
 	density: Density
 	breach: Breach
 	wind_burst: Wind Burst
+	# 1.21.11
+	lunge: Lunge
 
 # -- Potion Effect Types --
 potion effect types:
@@ -148,6 +150,9 @@ potion effect types:
 	weaving: weaving
 	trial_omen: trial omen
 	oozing: oozing
+
+	# 1.21.11
+	breath_of_the_nautilus: breath of the nautilus
 
 potion effect type categories:
 	beneficial: beneficial
@@ -1929,6 +1934,7 @@ spawn reasons:
 	enchantment: enchantment
 	rehydration: rehydration, rehydrated
 	build_coppergolem: build copper golem, built copper golem
+	reanimate: reanimate
 
 # -- Respawn Reasons --
 respawn reasons:
@@ -2125,6 +2131,8 @@ potion causes:
 	villager_trade: villager trade
 	patrol_captain: pillager captain, patrol captain
 	wither_rose: wither rose infliction
+	# 1.21.11
+	nautilus: nautilus
 
 # -- Potion Actions --
 potion actions:
@@ -2353,6 +2361,7 @@ entity effect:
 	sniffer_dig: sniffer dig sound effect # only if the sniffer is already in search/dig state
 	armadillo_peek: armadillo peek animation
 	shake: creaking shake animation
+	hit: kinetic weapon hit effect
 	
 	
 	hurt_drown: drown damage effect
@@ -2744,6 +2753,7 @@ damage types:
 	player_attack: player attack
 	player_explosion: player explosion
 	sonic_boom: sonic boom
+	spear: spear
 	spit: spit, llama spit
 	stalagmite: stalagmite
 	starve: starve
@@ -2885,6 +2895,7 @@ types:
 	gameeffect: game effect¦s @a
 	entityeffect: entity effect¦s @an
 	particle: particle¦s @a
+	bukkitparticle: bukkit particle¦s @a
 	convergingparticle: converging particle¦s @a
 	directionalparticle: directional particle¦s @a
 	scalableparticle: scalable particle¦s @a
