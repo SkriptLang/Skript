@@ -1,0 +1,16 @@
+test "effect section error":
+	parse:
+		error "foobar" when using a section:
+			abc
+	assert parse logs contain "foobar" with "EffectSection's error got overridden by its effect counterpart"
+
+	parse:
+		error when using a section:
+			abc
+	assert "%parse logs%" contains "is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it." with "Default error was overridden"
+
+	parse:
+		error "foobar" when using a section with erroring section expression:
+			abc
+	assert "%parse logs%" doesn't contain "foobar" with "EffectSection overrode SectionExpression's error"
+	assert "%parse logs%" contains "erroring section expression" with "Erroring section expression didn't error"
