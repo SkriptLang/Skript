@@ -190,8 +190,8 @@ public class ExprStringColor extends PropertyExpression<String, Object> {
 				index += 1;
 			}
 		}
-		if (selectedState == StringColor.LAST) {
-			Object last = colors.isEmpty() ? null : colors.getLast();
+		if (selectedState == StringColor.LAST && !colors.isEmpty()) {
+			Object last = colors.getLast();
 			colors.clear();
 			colors.add(last);
 		}
