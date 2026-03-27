@@ -111,6 +111,22 @@ public class HintManager {
 	}
 
 	/**
+	 * Creates a deep copy of this HintManager, preserving all scopes and hints.
+	 * @return A new HintManager with the same hint state.
+	 */
+	public HintManager copy() {
+		HintManager copy = new HintManager(this.isActive);
+		for (Scope scope : typeHints) {
+			Map<String, Set<Class<?>>> hintMapCopy = new HashMap<>();
+			for (Map.Entry<String, Set<Class<?>>> entry : scope.hintMap().entrySet()) {
+				hintMapCopy.put(entry.getKey(), new HashSet<>(entry.getValue()));
+			}
+			copy.typeHints.addLast(new Scope(hintMapCopy, scope.isSection()));
+		}
+		return copy;
+	}
+
+	/**
 	 * Marks this hint manager as active or inactive.
 	 * An inactive hint manager does not collect hints.
 	 * That is, actions such as setting, adding, etc. have no effect on the currently stored hints.

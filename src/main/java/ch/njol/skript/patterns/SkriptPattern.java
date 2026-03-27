@@ -27,8 +27,12 @@ public class SkriptPattern {
 
 	@Nullable
 	public MatchResult match(String expr, int flags, ParseContext parseContext) {
+		return match(expr, expr.toLowerCase(Locale.ENGLISH), flags, parseContext);
+	}
+
+	@Nullable
+	public MatchResult match(String expr, String lowerExpr, int flags, ParseContext parseContext) {
 		// Matching shortcut
-		String lowerExpr = expr.toLowerCase(Locale.ENGLISH);
 		for (Keyword keyword : keywords) {
 			if (!keyword.isPresent(lowerExpr))
 				return null;

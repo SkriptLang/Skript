@@ -46,6 +46,14 @@ public sealed interface DefaultSyntaxInfos permits SyntaxInfo {
 		Class<R> returnType();
 
 		/**
+		 * @return Whether the expression class of this info is a {@link ch.njol.skript.lang.Literal}.
+		 *         Computed once at registration; safe to call on every parse candidate.
+		 */
+		default boolean isLiteralType() {
+			return ch.njol.skript.lang.Literal.class.isAssignableFrom(type());
+		}
+
+		/**
 		 * An Expression-specific builder is used for constructing a new Expression syntax info.
 		 * @see #builder(Class)
 		 * @param <B> The type of builder being used.

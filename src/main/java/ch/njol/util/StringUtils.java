@@ -490,4 +490,62 @@ public abstract class StringUtils {
 		return -1;
 	}
 
+	/**
+	 * Counts how often the given character occurs in the given string, ignoring any escaped occurrences of the character.
+	 *
+	 * @param haystack The string to search in
+	 * @param needle The character to search for
+	 * @return The number of unescaped occurrences of the given character
+	 */
+	public static int countUnescaped(String haystack, char needle) {
+		return countUnescaped(haystack, needle, 0, haystack.length());
+	}
+
+	/**
+	 * Counts how often the given character occurs between the given indices in the given string,
+	 * ignoring any escaped occurrences of the character.
+	 *
+	 * @param haystack The string to search in
+	 * @param needle The character to search for
+	 * @param start The index to start searching from (inclusive)
+	 * @param end The index to stop searching at (exclusive)
+	 * @return The number of unescaped occurrences of the given character
+	 */
+	public static int countUnescaped(String haystack, char needle, int start, int end) {
+		assert start >= 0 && start <= end && end <= haystack.length() : start + ", " + end + "; " + haystack.length();
+		int count = 0;
+		for (int i = start; i < end; i++) {
+			char character = haystack.charAt(i);
+			if (character == '\\') {
+				i++;
+			} else if (character == needle) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Find the next unescaped (i.e. single) double quote in the string.
+	 *
+	 * @param string The string to search in
+	 * @param start Index after the starting quote
+	 * @return Index of the end quote
+	 */
+	public static int nextQuote(String string, int start) {
+		boolean inExpression = false;
+		int length = string.length();
+		for (int i = start; i < length; i++) {
+			char character = string.charAt(i);
+			if (character == '"' && !inExpression) {
+				if (i == length - 1 || string.charAt(i + 1) != '"')
+					return i;
+				i++;
+			} else if (character == '%') {
+				inExpression = !inExpression;
+			}
+		}
+		return -1;
+	}
+
 }
