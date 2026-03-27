@@ -127,7 +127,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(origin(), type(), patterns(), priority());
+		return Objects.hash(type(), patterns(), priority());
 	}
 
 	@Override
