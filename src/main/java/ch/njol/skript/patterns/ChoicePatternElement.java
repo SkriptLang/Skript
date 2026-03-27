@@ -1,5 +1,6 @@
 package ch.njol.skript.patterns;
 
+import ch.njol.skript.patterns.SkriptPattern.StringificationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -20,11 +21,11 @@ public class ChoicePatternElement extends PatternElement {
 	}
 
 	public PatternElement getLast() {
-		return patternElements.get(patternElements.size() - 1);
+		return patternElements.getLast();
 	}
 
 	public void setLast(PatternElement patternElement) {
-		patternElements.remove(patternElements.size() - 1);
+		patternElements.removeLast();
 		patternElements.add(patternElement);
 	}
 
@@ -40,8 +41,7 @@ public class ChoicePatternElement extends PatternElement {
 	}
 
 	@Override
-	@Nullable
-	public MatchResult match(String expr, MatchResult matchResult) {
+	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
 		for (PatternElement patternElement : patternElements) {
 			MatchResult matchResultCopy = matchResult.copy();
 			MatchResult newMatchResult = patternElement.match(expr, matchResultCopy);
@@ -53,8 +53,13 @@ public class ChoicePatternElement extends PatternElement {
 
 	@Override
 	public String toString() {
+		return toString(StringificationProperties.DEFAULT);
+	}
+
+	@Override
+	public String toString(StringificationProperties properties) {
 		return patternElements.stream()
-			.map(PatternElement::toFullString)
+			.map(element -> element.toFullString(properties))
 			.collect(Collectors.joining("|"));
 	}
 

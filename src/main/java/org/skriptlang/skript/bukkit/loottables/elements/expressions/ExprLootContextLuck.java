@@ -13,6 +13,7 @@ import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Luck of Loot Context")
 @Description("Returns the luck of a loot context as a float. This represents the luck potion effect that an entity can have.")
@@ -26,8 +27,19 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 @Since("2.10")
 public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, Float> {
 
-	static {
-		registerDefault(ExprLootContextLuck.class, Float.class, "loot[ing] [context] luck [value|factor]", "lootcontexts");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(
+			SyntaxRegistry.EXPRESSION,
+			infoBuilder(
+				ExprLootContextLuck.class,
+				Float.class,
+				"loot[ing] [context] luck [value|factor]",
+				"lootcontexts",
+				true
+			)
+				.supplier(ExprLootContextLuck::new)
+				.build()
+		);
 	}
 
 	@Override

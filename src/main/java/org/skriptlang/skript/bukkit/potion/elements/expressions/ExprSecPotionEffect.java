@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -56,10 +55,9 @@ import java.util.List;
 @Since({"2.5.2", "2.14 (syntax changes, infinite duration support)"})
 public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecPotionEffect.class, SkriptPotionEffect.class)
 				.supplier(ExprSecPotionEffect::new)
-				.origin(origin)
 				.addPatterns(
 						"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] [for %-timespan%]",
 						"[an] (infinite|permanent) [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] ",
@@ -69,7 +67,6 @@ public class ExprSecPotionEffect extends SectionExpression<SkriptPotionEffect> {
 				.build());
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSecPotionEffect.class, SkriptPotionEffect.class)
 				.supplier(ExprSecPotionEffect::new)
-				.origin(origin)
 				.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
 				.addPatterns(
 						"%*potioneffecttype% <" + JavaClasses.INTEGER_NUMBER_PATTERN + ">"
