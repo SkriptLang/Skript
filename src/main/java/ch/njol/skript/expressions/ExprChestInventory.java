@@ -85,15 +85,11 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("a chest inventory");
-		if (name != null) {
-			builder.append("named", name);
-		}
-		if (rows != null) {
-			builder.append("with", rows, "rows");
-		}
-		return builder.toString();
+		return new SyntaxStringBuilder(event, debug)
+			.append("a chest inventory")
+			.appendIf(name != null, "named", name)
+			.appendIf(rows != null, "with", rows, "rows")
+			.toString();
 	}
 
 }

@@ -39,7 +39,7 @@ public class ExprSignText extends SimpleExpression<Component> {
 		syntaxRegistry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprSignText.class, Component.class)
 			.supplier(ExprSignText::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
-			.addPatterns("[the] line %integer% [of %block%]",
+			.addPatterns("line %integer% [of %block%]",
 				"[the] (1:1st|1:first|2:2nd|2:second|3:3rd|3:third|4:4th|4:fourth) line [of %block%]")
 			.build());
 	}

@@ -55,11 +55,11 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 				"The entity's name, if it has one, as text." +
 					"Note that the regular name cannot be changed, meaning the entity's custom (display) name will be changed instead.",
 				Skript.instance(),
-				new EntityNameHandler(false))
+				EntityNameHandler.name())
 			.property(Property.DISPLAY_NAME,
 				"The entity's custom name, if it has one, as text. Can be set or reset.",
 				Skript.instance(),
-				new EntityNameHandler(true));
+				EntityNameHandler.displayName());
 	}
 
 	private static class EntityParser extends Parser<Entity> {
@@ -158,7 +158,15 @@ public class EntityClassInfo extends ClassInfo<Entity> {
 		//<editor-fold desc="entity name handler" defaultstate="collapsed">
 		private final boolean isDisplayName;
 
-		public EntityNameHandler(boolean isDisplayName) {
+		public static EntityNameHandler name() {
+			return new EntityNameHandler(false);
+		}
+
+		public static EntityNameHandler displayName() {
+			return new EntityNameHandler(true);
+		}
+
+		private EntityNameHandler(boolean isDisplayName) {
 			this.isDisplayName = isDisplayName;
 		}
 
