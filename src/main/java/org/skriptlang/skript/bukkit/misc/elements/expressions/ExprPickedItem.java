@@ -34,9 +34,14 @@ public class ExprPickedItem extends SimpleExpression<Object> implements EventRes
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPickedItem.class, Object.class)
 			.supplier(ExprPickedItem::new)
-			.priority(SyntaxInfo.SIMPLE)
 			.addPattern("[the] picked (item|1:block|2:entity)")
 			.build());
+	}
+
+	private enum PickType {
+		ITEM,
+		BLOCK,
+		ENTITY,
 	}
 
 	private PickType pickType;
@@ -45,11 +50,6 @@ public class ExprPickedItem extends SimpleExpression<Object> implements EventRes
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		pickType = PickType.values()[parseResult.mark];
 		return true;
-	}
-
-	@Override
-	public Class<? extends Event>[] supportedEvents() {
-		return CollectionUtils.array(PlayerPickItemEvent.class);
 	}
 
 	@Override
@@ -82,6 +82,11 @@ public class ExprPickedItem extends SimpleExpression<Object> implements EventRes
 	}
 
 	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
 	public Class<?> getReturnType() {
 		return switch (pickType) {
 			case ITEM -> ItemType.class;
@@ -91,19 +96,13 @@ public class ExprPickedItem extends SimpleExpression<Object> implements EventRes
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerPickItemEvent.class);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the picked " + pickType.name().toLowerCase(Locale.ENGLISH);
-	}
-
-	private enum PickType {
-		ITEM,
-		BLOCK,
-		ENTITY,
 	}
 
 }

@@ -12,6 +12,7 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.util.coll.CollectionUtils;
 import io.papermc.paper.event.player.PlayerPickBlockEvent;
 import io.papermc.paper.event.player.PlayerPickEntityEvent;
 import io.papermc.paper.event.player.PlayerPickItemEvent;
@@ -37,8 +38,7 @@ public class EvtPlayerPickItem extends SkriptEvent {
 	public static void register(SyntaxRegistry registry) {
 		registry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerPickItem.class, "Player Pick Item")
 			.supplier(EvtPlayerPickItem::new)
-			.addEvent(PlayerPickBlockEvent.class)
-			.addEvent(PlayerPickEntityEvent.class)
+			.addEvents(CollectionUtils.array(PlayerPickBlockEvent.class, PlayerPickEntityEvent.class))
 			.addPatterns(PATTERNS.getPatterns())
 			.addDescription("Called when a player picks an item, block or an entity" + 
 					" using the pick block key (default middle mouse button).",
