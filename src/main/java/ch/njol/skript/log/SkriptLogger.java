@@ -193,10 +193,10 @@ public abstract class SkriptLogger {
 	public static void sendFormatted(CommandSender commandSender, String message) {
 		if (commandSender instanceof ConsoleCommandSender) {
 			for (String s : message.split("\n")) {
-				commandSender.sendMessage(TextComponentParser.instance().parse(s, false));
+				commandSender.sendMessage(TextComponentParser.instance().parse(s));
 			}
 		} else {
-			commandSender.sendMessage(TextComponentParser.instance().parse(message, false));
+			commandSender.sendMessage(TextComponentParser.instance().parse(message));
 		}
 	}
 

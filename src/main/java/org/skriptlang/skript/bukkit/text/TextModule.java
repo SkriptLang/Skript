@@ -78,7 +78,7 @@ public class TextModule extends HierarchicalAddonModule {
 			}));
 
 		Converters.registerConverter(String.class, Component.class,
-			string -> TextComponentParser.instance().parse(string));
+			string -> TextComponentParser.instance().parseSafe(string));
 		// if this is a conversion, legacy formatting is probably desired?
 		Converters.registerConverter(Component.class, String.class,
 			component -> TextComponentParser.instance().toLegacyString(component));
@@ -89,7 +89,7 @@ public class TextModule extends HierarchicalAddonModule {
 		Comparators.registerComparator(Component.class, String.class, (component, string) -> {
 			TextComponentParser parser = TextComponentParser.instance();
 			String string1 = parser.toString(component);
-			String string2 = parser.toString(parser.parse(string));
+			String string2 = parser.toString(parser.parseSafe(string));
 			return Comparators.compare(string1, string2);
 		});
 		Comparators.registerComparator(Component.class, Component.class, (component1, component2) -> {
@@ -102,9 +102,9 @@ public class TextModule extends HierarchicalAddonModule {
 		Arithmetics.registerOperation(Operator.ADDITION, Component.class, Component.class, TextComponentUtils::appendToEnd);
 		Arithmetics.registerOperation(Operator.ADDITION, Component.class, String.class,
 			(component, string) ->
-				TextComponentUtils.appendToEnd(component, TextComponentParser.instance().parse(string)),
+				TextComponentUtils.appendToEnd(component, TextComponentParser.instance().parseSafe(string)),
 			(string, component) ->
-				TextComponentUtils.appendToEnd(TextComponentParser.instance().parse(string), component));
+				TextComponentUtils.appendToEnd(TextComponentParser.instance().parseSafe(string), component));
 	}
 
 	@Override

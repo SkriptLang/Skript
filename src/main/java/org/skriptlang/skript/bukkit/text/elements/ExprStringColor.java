@@ -119,6 +119,7 @@ public class ExprStringColor extends PropertyExpression<String, Object> {
 	private List<Object> getColors(String string) {
 		List<Object> colors = new ArrayList<>();
 		int length = string.length();
+		TextComponentParser textComponentParser = TextComponentParser.instance();
 		for (int index = 0; index < length; index++) {
 			boolean isTag = string.charAt(index) == '<';
 			if (!isTag && string.charAt(index) != '&' && string.charAt(index) != '§') {
@@ -148,7 +149,7 @@ public class ExprStringColor extends PropertyExpression<String, Object> {
 					index += tagLength + 2; // +2 to account for # and >
 				} else { // try to parse as a color
 					String enclosedTag = "<" + tag + ">skript"; // need text present for conversion to work
-					String parsed = TextComponentParser.instance().toLegacyString(enclosedTag, false);
+					String parsed = textComponentParser.toLegacyString(textComponentParser.parseSafe(enclosedTag));
 					if (parsed.equals(enclosedTag)) { // not a known color tag
 						continue;
 					}

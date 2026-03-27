@@ -220,7 +220,7 @@ public class ExprLore extends SimpleExpression<Component> {
 				loreList.add(component);
 			} else {
 				for (String textLine : ((String) line).split("\n")) {
-					loreList.add(TextComponentParser.instance().parse(textLine));
+					loreList.add(TextComponentParser.instance().parseSafe(textLine));
 				}
 			}
 		}

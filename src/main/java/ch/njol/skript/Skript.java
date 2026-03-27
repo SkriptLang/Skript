@@ -798,9 +798,8 @@ public final class Skript extends JavaPlugin implements Listener {
 						return;
 
 					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-					player.sendMessage(TextComponentParser.instance().parse(
-						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
-						false));
+					player.sendMessage(TextComponentParser.instance()
+						.parse("Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl));
 				}
 			};
 		}
@@ -2154,7 +2153,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void info(final CommandSender sender, final String info) {
-		sender.sendMessage(TextComponentParser.instance().parse(getSkriptPrefix() + info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + info));
 	}
 
 	/**
@@ -2163,7 +2162,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @see #adminBroadcast(String)
 	 */
 	public static void broadcast(final String message, final String permission) {
-		Bukkit.broadcast(TextComponentParser.instance().parse(getSkriptPrefix() + message), permission);
+		Bukkit.broadcast(TextComponentParser.instance().parseSafe(getSkriptPrefix() + message), permission);
 	}
 
 	public static void adminBroadcast(final String message) {
@@ -2177,11 +2176,11 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info
 	 */
 	public static void message(final CommandSender sender, final String info) {
-		sender.sendMessage(TextComponentParser.instance().parse(info));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(info));
 	}
 
 	public static void error(final CommandSender sender, final String error) {
-		sender.sendMessage(TextComponentParser.instance().parse(getSkriptPrefix() + "<dark_red>" + error));
+		sender.sendMessage(TextComponentParser.instance().parseSafe(getSkriptPrefix() + "<dark_red>" + error));
 	}
 
 	/**

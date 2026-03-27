@@ -5,7 +5,6 @@ import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
@@ -29,7 +28,7 @@ public final class TextComponentUtils {
 	 * If {@code message} is a {@link Component}, {@code message} is simply returned.
 	 * <br>
 	 * If {@code message} is a {@link String}, a safely-formatted Component
-	 *  (see {@link TextComponentParser#parse(Object)}) is returned.
+	 *  (see {@link TextComponentParser#parseSafe(Object)}) is returned.
 	 * <br>
 	 * Otherwise, a plain text component is returned.
 	 * @param message The message to create a component from.
@@ -38,7 +37,7 @@ public final class TextComponentUtils {
 	public static Component from(Object message) {
 		return switch (message) {
 			case Component component -> component;
-			case String string -> TextComponentParser.instance().parse(string);
+			case String string -> TextComponentParser.instance().parseSafe(string);
 			default -> Component.text(Classes.toString(message));
 		};
 	}

@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  *  regardless of the source.
  * This includes simple component features such as colors and text decorations.
  * <br>
- * The <b>unsafe parser</b> parses everything, regardless of any potential risk (e.g. components that can run commands).
+ * The <b>unsafe parser</b> parses all tags, regardless of any potential risk (e.g. components that can run commands).
  * Typically, users have to opt-in (in some manner) for this parser to be used.
  */
 public final class TextComponentParser {
@@ -351,23 +351,25 @@ public final class TextComponentParser {
 		.build();
 
 	/**
-	 * Parses a string using the safe {@link MiniMessage} parser.
-	 * Only simple color/decoration/formatting related tags will be parsed.
+	 * Parses a string using the safe and unsafe parsers.
 	 * @param message The message to parse.
 	 * @return A component from the parsed message.
-	 * @see #parse(Object, boolean)
 	 */
 	public Component parse(Object message) {
-		return parse(message, true);
+		return parse(message, false);
 	}
 
 	/**
-	 * Parses a string using one of the {@link MiniMessage} parsers.
+	 * Parses a string using the safe parser.
+	 * Only safe tags, such as color and decoration, will be parsed.
 	 * @param message The message to parse.
-	 * @param safe Whether only color/decoration/formatting related tags should be parsed.
 	 * @return A component from the parsed message.
 	 */
-	public Component parse(Object message, boolean safe) {
+	public Component parseSafe(Object message) {
+		return parse(message, true);
+	}
+
+	private Component parse(Object message, boolean safe) {
 		String realMessage = message instanceof String ? (String) message : Classes.toString(message);
 
 		if (realMessage.isEmpty()) {
@@ -447,15 +449,28 @@ public final class TextComponentParser {
 
 	/**
 	 * Strips all formatting from a string.
+	 * This will handle nested tags, such as {@code "<red<red>>"}.
 	 * @param string The string to strip formatting from.
-	 * @param all Whether ALL formatting/tags should be stripped.
-	 *  If false, only safe tags like colors and decorations will be stripped.
 	 * @return The stripped string.
 	 */
-	public String stripFormatting(String string, boolean all) {
+	public String stripFormatting(String string) {
+		return stripFormatting(string, false);
+	}
+
+	/**
+	 * Strips safe formatting from a string, meaning only safe tags such as colors and decorations will be stripped.
+	 * This will handle nested tags, such as {@code "<red<red>>"}.
+	 * @param string The string to strip formatting from.
+	 * @return The stripped string.
+	 */
+	public String stripSafeFormatting(String string) {
+		return stripFormatting(string, true);
+	}
+
+	private String stripFormatting(String string, boolean onlySafe) {
 		// TODO this is expensive...
 		while (true) {
-			String stripped = (all ? parser : safeParser).stripTags(reformatText(string));
+			String stripped = (onlySafe ? safeParser : parser).stripTags(reformatText(string));
 			if (string.equals(stripped)) { // nothing more to strip
 				break;
 			}
@@ -474,35 +489,12 @@ public final class TextComponentParser {
 	}
 
 	/**
-	 * Converts a string into a formatted string.
-	 * This method is useful for ensuring the input string is properly formatted, as it will handle legacy formatting.
-	 * @param string The string to convert.
-	 * @param all Whether ALL (known) formatting/tags should be converted.
-	 *  If false, only safe tags like colors and decorations will be converted.
-	 * @return A formatted string.
-	 */
-	public String toString(String string, boolean all) {
-		return toString(parse(string, !all));
-	}
-
-	/**
 	 * Converts a component back into a formatted string.
 	 * @param component The component to convert.
 	 * @return A formatted string.
 	 */
 	public String toString(Component component) {
 		return parser.serialize(component);
-	}
-
-	/**
-	 * Converts a string into a legacy formatted string.
-	 * @param string The string to convert.
-	 * @param all Whether ALL formatting/tags should be converted to a legacy format.
-	 *  If false, only safe tags like colors and decorations will be converted.
-	 * @return The legacy string.
-	 */
-	public String toLegacyString(String string, boolean all) {
-		return toLegacyString(parse(string, !all));
 	}
 
 	/**

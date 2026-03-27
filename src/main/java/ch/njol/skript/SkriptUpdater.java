@@ -79,9 +79,8 @@ public class SkriptUpdater extends Updater {
 					UpdateManifest update = getUpdateManifest();
 					assert update != null; // Because we just checked that one is available
 					Skript.info(sender, "" + m_update_available.toString(update.id, Skript.getVersion()));
-					sender.sendMessage(TextComponentParser.instance().parse(
-						"Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl,
-						false));
+					sender.sendMessage(TextComponentParser.instance()
+						.parse("Download it at: <aqua><underlined><click:open_url:" + update.downloadUrl + ">" + update.downloadUrl));
 					break;
 				case UNKNOWN:
 					if (isEnabled()) {
@@ -137,7 +136,7 @@ public class SkriptUpdater extends Updater {
 						line = processed;
 						
 						assert line != null;
-						sender.sendMessage(TextComponentParser.instance().parse(line, false));
+						sender.sendMessage(TextComponentParser.instance().parse(line));
 					}
 				}
 			}
