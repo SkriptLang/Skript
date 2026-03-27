@@ -115,7 +115,6 @@ public final class TextComponentParser {
 
 	static {
 		INSTANCE = new TextComponentParser();
-		registerCompatibilityTags(INSTANCE);
 	}
 
 	/**
@@ -152,7 +151,9 @@ public final class TextComponentParser {
 		}
 	}
 
-	private TextComponentParser() {}
+	private TextComponentParser() {
+		registerCompatibilityTags();
+	}
 
 	private final Map<String, SkriptTag> simplePlaceholders = new HashMap<>();
 	private final Set<SkriptTagResolver> resolvers = new HashSet<>();
@@ -506,70 +507,70 @@ public final class TextComponentParser {
 		return LegacyComponentSerializer.legacySection().serialize(component);
 	}
 
-	private static void registerCompatibilityTags(TextComponentParser textComponentParser) {
-		textComponentParser.registerSafeResettingPlaceholder("dark_cyan", Tag.styling(NamedTextColor.DARK_AQUA));
-		textComponentParser.registerSafeResettingPlaceholder("dark_turquoise", Tag.styling(NamedTextColor.DARK_AQUA));
-		textComponentParser.registerSafeResettingPlaceholder("cyan", Tag.styling(NamedTextColor.DARK_AQUA));
+	private void registerCompatibilityTags() {
+		registerSafeResettingPlaceholder("dark_cyan", Tag.styling(NamedTextColor.DARK_AQUA));
+		registerSafeResettingPlaceholder("dark_turquoise", Tag.styling(NamedTextColor.DARK_AQUA));
+		registerSafeResettingPlaceholder("cyan", Tag.styling(NamedTextColor.DARK_AQUA));
 
-		textComponentParser.registerSafeResettingPlaceholder("purple", Tag.styling(NamedTextColor.DARK_PURPLE));
+		registerSafeResettingPlaceholder("purple", Tag.styling(NamedTextColor.DARK_PURPLE));
 
-		textComponentParser.registerSafeResettingPlaceholder("dark_yellow", Tag.styling(NamedTextColor.GOLD));
-		textComponentParser.registerSafeResettingPlaceholder("orange", Tag.styling(NamedTextColor.GOLD));
+		registerSafeResettingPlaceholder("dark_yellow", Tag.styling(NamedTextColor.GOLD));
+		registerSafeResettingPlaceholder("orange", Tag.styling(NamedTextColor.GOLD));
 
-		textComponentParser.registerSafeResettingPlaceholder("light_grey", Tag.styling(NamedTextColor.GRAY));
-		textComponentParser.registerSafeResettingPlaceholder("light_gray", Tag.styling(NamedTextColor.GRAY));
-		textComponentParser.registerSafeResettingPlaceholder("silver", Tag.styling(NamedTextColor.GRAY));
+		registerSafeResettingPlaceholder("light_grey", Tag.styling(NamedTextColor.GRAY));
+		registerSafeResettingPlaceholder("light_gray", Tag.styling(NamedTextColor.GRAY));
+		registerSafeResettingPlaceholder("silver", Tag.styling(NamedTextColor.GRAY));
 
-		textComponentParser.registerSafeResettingPlaceholder("dark_silver", Tag.styling(NamedTextColor.DARK_GRAY));
+		registerSafeResettingPlaceholder("dark_silver", Tag.styling(NamedTextColor.DARK_GRAY));
 
-		textComponentParser.registerSafeResettingPlaceholder("light_blue", Tag.styling(NamedTextColor.BLUE));
-		textComponentParser.registerSafeResettingPlaceholder("indigo", Tag.styling(NamedTextColor.BLUE));
+		registerSafeResettingPlaceholder("light_blue", Tag.styling(NamedTextColor.BLUE));
+		registerSafeResettingPlaceholder("indigo", Tag.styling(NamedTextColor.BLUE));
 
-		textComponentParser.registerSafeResettingPlaceholder("light_green", Tag.styling(NamedTextColor.GREEN));
-		textComponentParser.registerSafeResettingPlaceholder("lime_green", Tag.styling(NamedTextColor.GREEN));
-		textComponentParser.registerSafeResettingPlaceholder("lime", Tag.styling(NamedTextColor.GREEN));
+		registerSafeResettingPlaceholder("light_green", Tag.styling(NamedTextColor.GREEN));
+		registerSafeResettingPlaceholder("lime_green", Tag.styling(NamedTextColor.GREEN));
+		registerSafeResettingPlaceholder("lime", Tag.styling(NamedTextColor.GREEN));
 
-		textComponentParser.registerSafeResettingPlaceholder("light_cyan", Tag.styling(NamedTextColor.AQUA));
-		textComponentParser.registerSafeResettingPlaceholder("light_aqua", Tag.styling(NamedTextColor.AQUA));
-		textComponentParser.registerSafeResettingPlaceholder("turquoise", Tag.styling(NamedTextColor.AQUA));
+		registerSafeResettingPlaceholder("light_cyan", Tag.styling(NamedTextColor.AQUA));
+		registerSafeResettingPlaceholder("light_aqua", Tag.styling(NamedTextColor.AQUA));
+		registerSafeResettingPlaceholder("turquoise", Tag.styling(NamedTextColor.AQUA));
 
-		textComponentParser.registerSafeResettingPlaceholder("light_red", Tag.styling(NamedTextColor.RED));
+		registerSafeResettingPlaceholder("light_red", Tag.styling(NamedTextColor.RED));
 
-		textComponentParser.registerSafeResettingPlaceholder("pink", Tag.styling(NamedTextColor.LIGHT_PURPLE));
-		textComponentParser.registerSafeResettingPlaceholder("magenta", Tag.styling(NamedTextColor.LIGHT_PURPLE));
+		registerSafeResettingPlaceholder("pink", Tag.styling(NamedTextColor.LIGHT_PURPLE));
+		registerSafeResettingPlaceholder("magenta", Tag.styling(NamedTextColor.LIGHT_PURPLE));
 
-		textComponentParser.registerSafeResettingPlaceholder("light_yellow", Tag.styling(NamedTextColor.YELLOW));
+		registerSafeResettingPlaceholder("light_yellow", Tag.styling(NamedTextColor.YELLOW));
 
 		// taken from DyeColor.BROWN
-		textComponentParser.registerSafeResettingPlaceholder("brown", Tag.styling(TextColor.color(0x835432)));
+		registerSafeResettingPlaceholder("brown", Tag.styling(TextColor.color(0x835432)));
 
-		textComponentParser.registerSafePlaceholder("magic", Tag.styling(TextDecoration.OBFUSCATED));
+		registerSafePlaceholder("magic", Tag.styling(TextDecoration.OBFUSCATED));
 
-		textComponentParser.registerSafePlaceholder("strike", Tag.styling(TextDecoration.STRIKETHROUGH));
-		textComponentParser.registerSafePlaceholder("s", Tag.styling(TextDecoration.STRIKETHROUGH));
+		registerSafePlaceholder("strike", Tag.styling(TextDecoration.STRIKETHROUGH));
+		registerSafePlaceholder("s", Tag.styling(TextDecoration.STRIKETHROUGH));
 
-		textComponentParser.registerSafePlaceholder("underline", Tag.styling(TextDecoration.UNDERLINED));
+		registerSafePlaceholder("underline", Tag.styling(TextDecoration.UNDERLINED));
 
-		textComponentParser.registerSafePlaceholder("italics", Tag.styling(TextDecoration.ITALIC));
+		registerSafePlaceholder("italics", Tag.styling(TextDecoration.ITALIC));
 
-		textComponentParser.registerSafePlaceholder("r", ParserDirective.RESET);
+		registerSafePlaceholder("r", ParserDirective.RESET);
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("open_url", "link", "url"), (argumentQueue, context) -> {
+		registerResolver(TagResolver.resolver(Set.of("open_url", "link", "url"), (argumentQueue, context) -> {
 			String url = argumentQueue.popOr("A link tag must have an argument of the url").value();
 			return Tag.styling(ClickEvent.openUrl(url));
 		}));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("run_command", "command", "cmd"), (argumentQueue, context) -> {
+		registerResolver(TagResolver.resolver(Set.of("run_command", "command", "cmd"), (argumentQueue, context) -> {
 			String command = argumentQueue.popOr("A run command tag must have an argument of the command to execute").value();
 			return Tag.styling(ClickEvent.runCommand(command));
 		}));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("suggest_command", "sgt"), (argumentQueue, context) -> {
+		registerResolver(TagResolver.resolver(Set.of("suggest_command", "sgt"), (argumentQueue, context) -> {
 			String command = argumentQueue.popOr("A suggest command tag must have an argument of the command to suggest").value();
 			return Tag.styling(ClickEvent.suggestCommand(command));
 		}));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("change_page"), (argumentQueue, context) -> {
+		registerResolver(TagResolver.resolver(Set.of("change_page"), (argumentQueue, context) -> {
 			String rawPage = argumentQueue.popOr("A change page tag must have an argument of the page number").value();
 			int page;
 			try {
@@ -580,28 +581,28 @@ public final class TextComponentParser {
 			return Tag.styling(ClickEvent.changePage(page));
 		}));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("copy_to_clipboard", "copy", "clipboard"), (argumentQueue, context) -> {
+		registerResolver(TagResolver.resolver(Set.of("copy_to_clipboard", "copy", "clipboard"), (argumentQueue, context) -> {
 			String string = argumentQueue.popOr("A copy to clipboard tag must have an argument of the string to copy").value();
 			return Tag.styling(ClickEvent.copyToClipboard(string));
 		}));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("show_text", "tooltip", "ttp"), (argumentQueue, context) -> {
+		registerResolver(TagResolver.resolver(Set.of("show_text", "tooltip", "ttp"), (argumentQueue, context) -> {
 			String tooltip = argumentQueue.popOr("A tooltip tag must have an argument of the message to show").value();
 			return Tag.styling(HoverEvent.showText(context.deserialize(tooltip)));
 		}));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("f"),
+		registerResolver(TagResolver.resolver(Set.of("f"),
 			(argumentQueue, context) -> StandardTags.font().resolve("font", argumentQueue, context)));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("insertion", "ins"),
+		registerResolver(TagResolver.resolver(Set.of("insertion", "ins"),
 			(argumentQueue, context) -> StandardTags.insertion().resolve("insert", argumentQueue, context)));
 
-		textComponentParser.registerResolver(TagResolver.resolver(Set.of("keybind"),
+		registerResolver(TagResolver.resolver(Set.of("keybind"),
 			(argumentQueue, context) -> StandardTags.keybind().resolve("key", argumentQueue, context)));
 
 		final Pattern unicodePattern = Pattern.compile("[0-9a-f]{4,}");
 		// note: "u" is already reserved by MiniMessage for underline, we override it
-		textComponentParser.registerSafeResolver(TagResolver.resolver(Set.of("unicode", "u"), (argumentQueue, context) -> {
+		registerSafeResolver(TagResolver.resolver(Set.of("unicode", "u"), (argumentQueue, context) -> {
 			String argument = argumentQueue.popOr("A unicode tag must have an argument of the unicode").value();
 			Matcher matcher = unicodePattern.matcher(argument.toLowerCase(Locale.ENGLISH));
 			if (!matcher.matches())
