@@ -8,10 +8,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jetbrains.annotations.Nullable;
@@ -31,20 +28,15 @@ public class ExprInventoryCloseReason extends EventValueExpression<InventoryClos
 		Skript.registerExpression(ExprInventoryCloseReason.class, InventoryCloseEvent.Reason.class,
 			ExpressionType.SIMPLE, "[the] inventory clos(e|ing) (reason|cause)");
 	}
-	
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+
+	public ExprInventoryCloseReason() {
+		super(InventoryCloseEvent.Reason.class);
 	}
 
 	@Override
 	public Class<? extends Event>[] supportedEvents() {
 		//noinspection unchecked
 		return new Class[]{ InventoryCloseEvent.class };
-	}
-
-	public ExprInventoryCloseReason() {
-		super(InventoryCloseEvent.Reason.class);
 	}
 
 	@Override
