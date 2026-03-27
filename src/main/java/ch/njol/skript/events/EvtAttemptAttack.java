@@ -1,5 +1,6 @@
 package ch.njol.skript.events;
 
+import ch.njol.skript.util.StringMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +15,7 @@ import ch.njol.skript.registrations.Classes;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 
 public class EvtAttemptAttack extends SkriptEvent {
+
 	static {
 		Skript.registerEvent("Attempt Attack", EvtAttemptAttack.class, PrePlayerAttackEntityEvent.class, "attack attempt", "attempt[ing] to attack %entitydatas%")
 				.description("""
@@ -31,12 +33,12 @@ public class EvtAttemptAttack extends SkriptEvent {
                     """,
                     """
                     on attempt to attack an animal:
-                        cancel event   
+                        cancel event
                     """,
                     """ 
                     on attempting to attack an entity:
                         if victim is a creeper:
-                            cancel event     
+                            cancel event
                     """,
                     """
                     on attempt to attack a zombie or creeper:
@@ -46,10 +48,11 @@ public class EvtAttemptAttack extends SkriptEvent {
 				.since("INSERT VERSION");
 	}
 	
-	private @Nullable EntityData<?>[] types;
+	private EntityData<?> @Nullable [] types;
 	
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parser) {
+		//noinspection unchecked
 		types = args.length == 0 ? null : ((Literal<EntityData<?>>) args[0]).getAll();
 		return true;
 	}
@@ -73,9 +76,10 @@ public class EvtAttemptAttack extends SkriptEvent {
     @Override
     public String toString(@Nullable Event event, boolean debug) {
         SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-        builder.append("attempt attack");
-        if (types != null) {
-            builder.append("of", Classes.getDebugMessage(types));
+		if (types == null) {
+			builder.append("attempt attack");
+		} else {
+            builder.append("attempting to attack", Classes.toString(types, debug ? StringMode.DEBUG : StringMode.MESSAGE));
         }
         return builder.toString();
     }
