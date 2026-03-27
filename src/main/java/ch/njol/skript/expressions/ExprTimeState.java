@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.WrapperExpression;
@@ -21,17 +21,21 @@ import ch.njol.util.Kleenean;
 	"Note: The past, future and present states of an expression are sometimes called 'time states' of an expression.",
 	"Note 2: If you don't specify whether to use the past or future state of an expression that has different values, its default value will be used which is usually the value after the event."
 })
-@Examples({
-	"on teleport:",
-		"\tformer world was \"world_nether\" # or 'world was'",
-		"\tworld will be \"world\" # or 'world after the event is'",
-	"on tool change:",
-		"\tpast tool is an axe",
-		"\tthe tool after the event will be air",
-	"on weather change:",
-		"\tset {weather::%world%::old} to past weather",
-		"\tset {weather::%world%::current} to the new weather"
-})
+@Example("""
+	on teleport:
+		former world was "world_nether" # or 'world was'
+		world will be "world" # or 'world after the event is'
+	""")
+@Example("""
+	on tool change:
+		past tool is an axe
+		the tool after the event will be air
+	""")
+@Example("""
+	on weather change:
+		set {weather::%world%::old} to past weather
+		set {weather::%world%::current} to the new weather
+	""")
 @Since("1.1")
 public class ExprTimeState extends WrapperExpression<Object> {
 

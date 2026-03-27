@@ -28,13 +28,13 @@ import java.util.UUID;
 	"And note that, for example if there are 5 online players (includes <a href='#ExprOnlinePlayersCount'>fake online count</a>) " +
 	"in the server and the hover list is set to 3 values, Minecraft will show \"... and 2 more ...\" at end of the list."
 })
-@Examples({
-	"on server list ping:",
-		"\tclear the hover list",
-		"\tadd \"&aWelcome to the &6Minecraft &aserver!\" to the hover list",
-		"\tadd \"\" to the hover list # A blank line",
-		"\tadd \"&cThere are &6%online players count% &conline players!\" to the hover list"
-})
+@Example("""
+	on server list ping:
+		clear the hover list
+		add "&aWelcome to the &6Minecraft &aserver!" to the hover list
+		add "" to the hover list # A blank line
+		add "&cThere are &6%online players count% &conline players!" to the hover list
+	""")
 @Since("2.3")
 @Events("server list ping")
 public class ExprHoverList extends SimpleExpression<String> {

@@ -134,7 +134,7 @@ public class SkriptPotionEffect implements Cloneable, YggdrasilExtendedSerializa
 	 * @see PotionEffect#isInfinite()
 	 */
 	public boolean infinite() {
-		return duration == PotionEffect.INFINITE_DURATION;
+		return duration != null && duration == PotionEffect.INFINITE_DURATION;
 	}
 
 	/**

@@ -1,11 +1,11 @@
 package ch.njol.skript.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -72,10 +72,61 @@ public class Version implements Serializable, Comparable<Version> {
 			if (get(i) < other.get(i))
 				return -1;
 		}
+		return comparePostfixes(postfix, other.postfix);
+	}
 
-		if (postfix == null)
-			return other.postfix == null ? 0 : 1;
-		return other.postfix == null ? -1 : postfix.compareTo(other.postfix);
+	private static int comparePostfixes(@Nullable String postfixA, @Nullable String postfixB) {
+		// lowercase
+		postfixA = postfixA == null ? null : postfixA.toLowerCase();
+		postfixB = postfixB == null ? null : postfixB.toLowerCase();
+
+		// X.x.x vs X.X.X-postfix or vice versa
+		// pre, beta, and alpha are considered "smaller" than no postfix
+		// nightly is considered "larger" than no postfix, as it tends to be a cutting-edge build built on top of the no postfix version
+		if (postfixA == null && postfixB == null)
+			return 0;
+		if (postfixA == null) {
+			if (postfixB.startsWith("nightly"))
+				return -1;
+			return 1;
+		} else if (postfixB == null) {
+			if (postfixA.startsWith("nightly"))
+				return 1;
+			return -1;
+		}
+
+		// X.X.X-postfixA vs X.X.X-postfixB
+		// ordering: alphaX < betaX < preX < nightly
+		// X is an optional number, e.g. alpha1, beta2, pre3, which is compared numerically
+
+		// check for nightly
+		if (postfixA.startsWith("nightly")) {
+			return postfixB.startsWith("nightly") ? 0 : 1;
+		} else if (postfixB.startsWith("nightly")) {
+			return -1;
+		}
+
+		// check for alpha, beta, pre
+		String[] prefixes = { "pre", "beta", "alpha" };
+		for (String prefix : prefixes) {
+			boolean aStarts = postfixA.startsWith(prefix);
+			boolean bStarts = postfixB.startsWith(prefix);
+			if (aStarts || bStarts) {
+				if (aStarts && bStarts) {
+					// both have the same prefix, compare the numbers after it
+					String aNumberStr = postfixA.substring(prefix.length()).trim();
+					String bNumberStr = postfixB.substring(prefix.length()).trim();
+					int aNumber = Math.abs(Utils.parseInt(aNumberStr));
+					int bNumber = Math.abs(Utils.parseInt(bNumberStr));
+					return Integer.compare(aNumber, bNumber);
+				} else {
+					// one has the prefix, the other doesn't
+					return aStarts ? 1 : -1;
+				}
+			}
+		}
+		// cannot determine order, consider equal
+		return 0;
 	}
 
 	/**

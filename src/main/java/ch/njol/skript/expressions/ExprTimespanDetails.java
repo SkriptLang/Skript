@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -18,10 +18,8 @@ import java.util.Locale;
 
 @Name("Timespan Details")
 @Description("Retrieve specific information of a <a href=\"/#timespan\">timespan</a> such as hours/minutes/etc.")
-@Examples({
-	"set {_t} to difference between now and {Payouts::players::%uuid of player%::last-date}",
-	"send \"It has been %days of {_t}% day(s) since last payout.\""
-})
+@Example("set {_t} to difference between now and {Payouts::players::%uuid of player%::last-date}")
+@Example("send \"It has been %days of {_t}% day(s) since last payout.\"")
 @Since("2.9.0")
 public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long> {
 

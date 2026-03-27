@@ -77,7 +77,6 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * They will be registered before {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING} expressions
 	 *  but after {@link SyntaxInfo#COMBINED} expressions.
 	 */
-	@ApiStatus.Experimental
 	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
 	/**
@@ -139,7 +138,6 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @param <E> The Expression type.
 	 * @return The registered {@link SyntaxInfo}.
 	 */
-	@ApiStatus.Experimental
 	public static <E extends Expression<T>, T> SyntaxInfo.Expression.Builder<? extends SyntaxInfo.Expression.Builder<?, E, T>, E, T> infoBuilder(
 			Class<E> expressionClass, Class<T> returnType, String property, String type, boolean isDefault) {
 		return SyntaxInfo.Expression.builder(expressionClass, returnType)

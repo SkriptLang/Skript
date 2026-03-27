@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @Name("Hidden Players")
 @Description({"The players hidden from a player that were hidden using the <a href='#EffEntityVisibility'>entity visibility</a> effect."})
-@Examples({"message \"&lt;light red&gt;You are currently hiding: &lt;light gray&gt;%hidden players of the player%\""})
+@Example("message \"&lt;light red&gt;You are currently hiding: &lt;light gray&gt;%hidden players of the player%\"")
 @Since("2.3")
 public class ExprHiddenPlayers extends SimpleExpression<Player> {
 

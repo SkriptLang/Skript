@@ -30,14 +30,18 @@ import java.util.UUID;
 		"Adding an optional sender allows the messages to be sent as if a specific player sent them.",
 		"This is useful with Minecraft 1.16.4's new chat ignore system, in which players can choose to ignore other players,",
 		"but for this to work, the message needs to be sent from a player."})
-@Examples({"message \"A wild %player% appeared!\"",
-		"message \"This message is a distraction. Mwahaha!\"",
-		"send \"Your kill streak is %{kill streak::%uuid of player%}%.\" to player",
-		"if the targeted entity exists:",
-		"\tmessage \"You're currently looking at a %type of the targeted entity%!\"",
-		"on chat:",
-		"\tcancel event",
-		"\tsend \"[%player%] >> %message%\" to all players from player"})
+@Example("message \"A wild %player% appeared!\"")
+@Example("message \"This message is a distraction. Mwahaha!\"")
+@Example("send \"Your kill streak is %{kill streak::%uuid of player%}%\" to player")
+@Example("""
+	if the targeted entity exists:
+		message "You're currently looking at a %type of the targeted entity%!"
+	""")
+@Example("""
+	on chat:
+		cancel event
+		send "[%player%] >> %message%" to all players from player
+	""")
 @RequiredPlugins("Minecraft 1.16.4+ for optional sender")
 @Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffMessage extends Effect {

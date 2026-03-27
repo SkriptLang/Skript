@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,10 +23,8 @@ import java.util.regex.PatternSyntaxException;
 
 @Name("Join & Split")
 @Description("Joins several texts with a common delimiter (e.g. \", \"), or splits a text into multiple texts at a given delimiter.")
-@Examples({
-	"message \"Online players: %join all players' names with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"",
-	"set {_s::*} to the string argument split at \",\""
-})
+@Example("message \"Online players: %join all players' names with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"")
+@Example("set {_s::*} to the string argument split at \",\"")
 @Since("2.1, 2.5.2 (regex support), 2.7 (case sensitivity), 2.10 (without trailing string)")
 public class ExprJoinSplit extends SimpleExpression<String> {
 

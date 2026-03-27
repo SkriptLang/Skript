@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
@@ -24,14 +24,13 @@ import java.util.Arrays;
 
 @Name("Nearest Entity")
 @Description("Gets the entity nearest to a location or another entity.")
-@Examples({
-	"kill the nearest pig and cow relative to player",
-	"teleport player to the nearest cow relative to player",
-	"teleport player to the nearest entity relative to player",
-	"",
-	"on click:",
-	"\tkill nearest pig"
-})
+@Example("kill the nearest pig and cow relative to player")
+@Example("teleport player to the nearest cow relative to player")
+@Example("teleport player to the nearest entity relative to player")
+@Example("""
+	on click:
+		kill nearest pig
+	""")
 @Since("2.7")
 public class ExprNearestEntity extends SimpleExpression<Entity> {
 

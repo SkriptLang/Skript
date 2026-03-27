@@ -2,7 +2,7 @@ package ch.njol.skript.hooks.regions.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -23,13 +23,12 @@ import java.util.function.Predicate;
 	"Checks whether a location is contained in a particular <a href='#region'>region</a>.",
 	"This condition requires a supported regions plugin to be installed."
 })
-@Examples({
-	"player is in the region {regions::3}",
-	"",
-	"on region enter:",
-		"\tregion contains {flags.%world%.red}",
-		"\tmessage \"The red flag is near!\""
-})
+@Example("player is in the region {regions::3}")
+@Example("""
+	on region enter:
+		region contains {flags.%world%.red}
+		message "The red flag is near!"
+	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class CondRegionContains extends Condition {

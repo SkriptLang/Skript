@@ -13,7 +13,11 @@ public final class FunctionEvent<T> extends Event {
 	public FunctionEvent(Function<? extends T> function) {
 		this.function = function;
 	}
-	
+
+	public FunctionEvent(org.skriptlang.skript.common.function.Function<? extends T> function) {
+		this.function = (Function<? extends T>) function;
+	}
+
 	public Function<? extends T> getFunction() {
 		return function;
 	}

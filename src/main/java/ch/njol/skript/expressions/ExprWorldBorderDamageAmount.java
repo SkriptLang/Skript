@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 	"The amount of damage a player takes per second for each block they are outside the border plus the border buffer.",
 	"Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.",
 })
-@Examples("set world border damage amount of {_worldborder} to 1")
+@Example("set world border damage amount of {_worldborder} to 1")
 @Since("2.11")
 public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double>  {
 

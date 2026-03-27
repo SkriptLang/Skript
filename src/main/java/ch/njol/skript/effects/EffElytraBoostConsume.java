@@ -12,11 +12,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Consume Boosting Firework")
 @Description("Prevent the firework used in an 'elytra boost' event to be consumed.")
-@Examples({
-	"on elytra boost:",
-		"\tif the used firework will be consumed:",
-			"\t\tprevent the used firework from being consume"
-})
+@Example("""
+	on elytra boost:
+		if the used firework will be consumed:
+			prevent the used firework from being consume
+	""")
 @Since("2.10")
 public class EffElytraBoostConsume extends Effect {
 

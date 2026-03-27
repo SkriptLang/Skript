@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -25,9 +25,9 @@ import java.util.List;
 @Description({"Gets the amount of rows/slots, viewers and holder of an inventory.",
 	"",
 	"NOTE: 'Viewers' expression returns a list of players viewing the inventory. Note that a player is considered to be viewing their own inventory and internal crafting screen even when said inventory is not open."})
-@Examples({"event-inventory's amount of rows",
-		   "holder of player's top inventory",
-		   "{_inventory}'s viewers"})
+@Example("event-inventory's amount of rows")
+@Example("holder of player's top inventory")
+@Example("{_inventory}'s viewers")
 @Since("2.2-dev34, 2.5 (slots)")
 public class ExprInventoryInfo extends SimpleExpression<Object> {
 	

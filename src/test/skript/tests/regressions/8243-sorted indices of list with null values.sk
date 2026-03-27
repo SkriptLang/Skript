@@ -1,0 +1,5 @@
+test "sorted indices of list with null values":
+	set {_list::*} to 1, 2 and 3
+	set {_list::sublist::1} to 1
+	assert indices of {_list::*} in descending order is "3", "2" and "1"
+	assert indices of {_list::*} is "1", "2", "3" and "sublist"

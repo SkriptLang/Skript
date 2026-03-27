@@ -2,7 +2,7 @@ package ch.njol.skript.hooks.regions.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -27,10 +27,10 @@ import java.util.ArrayList;
 	"A list of members or owners of a <a href='#region'>region</a>.",
 	"This expression requires a supported regions plugin to be installed."
 })
-@Examples({
-	"on entering of a region:",
-	"\tmessage \"You're entering %region% whose owners are %owners of region%\""
-})
+@Example("""
+	on entering of a region:
+		message "You're entering %region% whose owners are %owners of region%"
+	""")
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class ExprMembersOfRegion extends SimpleExpression<OfflinePlayer> {

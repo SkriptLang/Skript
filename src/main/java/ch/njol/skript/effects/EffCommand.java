@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -25,11 +25,9 @@ import ch.njol.util.Kleenean;
 	"If the command is a bungeecord side command, " +
 	"you can use the [bungeecord] option to execute command on the proxy."
 })
-@Examples({
-	"make player execute command \"/home\"",
-	"execute console command \"/say Hello everyone!\"",
-	"execute player bungeecord command \"/alert &6Testing Announcement!\""
-})
+@Example("make player execute command \"/home\"")
+@Example("execute console command \"/say Hello everyone!\"")
+@Example("execute player bungeecord command \"/alert &6Testing Announcement!\"")
 @Since("1.0, 2.8.0 (bungeecord command)")
 public class EffCommand extends Effect {
 

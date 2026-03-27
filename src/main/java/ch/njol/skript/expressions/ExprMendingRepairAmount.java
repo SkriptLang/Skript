@@ -8,7 +8,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -22,8 +22,10 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Mending Repair Amount")
 @Description({"The number of durability points an item is to be repaired in a mending event.",
 			" Modifying the repair amount will affect how much experience is given to the player after mending."})
-@Examples({"on item mend:",
-		"\tset the mending repair amount to 100"})
+@Example("""
+	on item mend:
+		set the mending repair amount to 100
+	""")
 @Since("2.5.1")
 public class ExprMendingRepairAmount extends SimpleExpression<Long> {
 

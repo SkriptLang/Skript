@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -28,12 +28,10 @@ import java.util.UUID;
 	"Get an entity, player, offline player or world from a UUID.",
 	"Unloaded entities or players that are offline (when using 'player from %uuid%') will return nothing."
 })
-@Examples({
-	"set {_player} to player from \"a0789aeb-7b46-43f6-86fb-cb671fed5775\" parsed as uuid",
-	"set {_offline player} to offline player from {_some uuid}",
-	"set {_entity} to entity from {_some uuid}",
-	"set {_world} to world from {_some uuid}"
-})
+@Example("set {_player} to player from \"a0789aeb-7b46-43f6-86fb-cb671fed5775\" parsed as uuid")
+@Example("set {_offline player} to offline player from {_some uuid}")
+@Example("set {_entity} to entity from {_some uuid}")
+@Example("set {_world} to world from {_some uuid}")
 @Since("2.11")
 public class ExprFromUUID extends SimpleExpression<Object> {
 

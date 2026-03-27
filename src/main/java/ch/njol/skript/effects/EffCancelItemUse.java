@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -18,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 	"Interrupts the action entities may be trying to complete.",
 	"For example, interrupting eating, or drawing back a bow."
 })
-@Examples({
-	"on damage of player:",
-		"\tif the victim's active tool is a bow:",
-			"\t\tinterrupt the usage of the player's active item"
-})
+@Example("""
+	on damage of player:
+		if the victim's active tool is a bow:
+			interrupt the usage of the player's active item
+	""")
 @Since("2.8.0")
 public class EffCancelItemUse extends Effect {
 

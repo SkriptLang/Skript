@@ -16,11 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("On-screen Kick Message")
 @Description("The kick message that is displayed on-screen when a player is kicked.")
-@Examples({
-	"on kick:",
-		"\ton-screen kick message is \"Invalid hotbar selection (Hacking?)\"",
-		"\tcancel event"
-})
+@Example("""
+	on kick:
+		on-screen kick message is "Invalid hotbar selection (Hacking?)"
+		cancel event
+	""")
 @Since("2.12")
 @Events("Kick")
 public class ExprOnScreenKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {

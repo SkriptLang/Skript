@@ -3,7 +3,7 @@ package ch.njol.skript.sections;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
@@ -19,22 +19,24 @@ import java.util.WeakHashMap;
 
 @Name("While Loop")
 @Description("While Loop sections are loops that will just keep repeating as long as a condition is met.")
-@Examples({
-	"while size of all players < 5:",
-	"\tsend \"More players are needed to begin the adventure\" to all players",
-	"\twait 5 seconds",
-	"",
-	"set {_counter} to 1",
-	"do while {_counter} > 1: # false but will increase {_counter} by 1 then get out",
-	"\tadd 1 to {_counter}",
-	"",
-	"# Be careful when using while loops with conditions that are almost ",
-	"# always true for a long time without using 'wait %timespan%' inside it, ",
-	"# otherwise it will probably hang and crash your server.",
-	"while player is online:",
-	"\tgive player 1 dirt",
-	"\twait 1 second # without using a delay effect the server will crash",
-})
+@Example("""
+	while size of all players < 5:
+		send "More players are needed to begin the adventure" to all players
+		wait 5 seconds
+	""")
+@Example("""
+	set {_counter} to 1
+	do while {_counter} > 1: # false but will increase {_counter} by 1 then get out
+		add 1 to {_counter}
+	""")
+@Example("""
+	# Be careful when using while loops with conditions that are almost
+	# always true for a long time without using 'wait %timespan%' inside it,
+	# otherwise it will probably hang and crash your server.
+	while player is online:
+		give player 1 dirt
+		wait 1 second # without using a delay effect the server will crash
+	""")
 @Since("2.0, 2.6 (do while)")
 public class SecWhile extends LoopSection {
 

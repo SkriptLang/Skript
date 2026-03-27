@@ -1,0 +1,63 @@
+test "interaction entities":
+	spawn an interaction at test-location:
+		assert interaction width of entity is 1 with "wrong default width"
+		assert interaction height of entity is 1 with "wrong default height"
+
+		set interaction width of entity to 10
+		assert interaction width of entity is 10 with "wrong width after set"
+		add 10 to interaction width of entity
+		assert interaction width of entity is 20 with "wrong width after add"
+		add -25 to interaction width of entity
+		assert interaction width of entity is 0 with "wrong width after -add"
+		remove -25 from interaction width of entity
+		assert interaction width of entity is 25 with "wrong width after -remove"
+		remove 10 from interaction width of entity
+		assert interaction width of entity is 15 with "wrong width after remove"
+		reset interaction width of entity
+		assert interaction width of entity is 1 with "wrong width after reset"
+
+		set interaction height of entity to 10
+		assert interaction height of entity is 10 with "wrong height after set"
+		add 10 to interaction height of entity
+		assert interaction height of entity is 20 with "wrong height after add"
+		add -25 to interaction height of entity
+		assert interaction height of entity is 0 with "wrong height after -add"
+		remove -25 from interaction height of entity
+		assert interaction height of entity is 25 with "wrong height after -remove"
+		remove 10 from interaction height of entity
+		assert interaction height of entity is 15 with "wrong height after remove"
+		reset interaction height of entity
+		assert interaction height of entity is 1 with "wrong height after reset"
+
+		# test limits
+
+		set interaction height of entity to positive infinity
+		assert interaction height of entity is positive infinity with "wrong max height"
+		set interaction width of entity to positive infinity
+		assert interaction width of entity is positive infinity with "wrong max width"
+
+		# assert interactions are null
+
+		assert last player to interact with entity is not set with "last interaction player set"
+		assert last player to attack entity is not set with "last attack player set"
+		assert last player to click entity is not set with "last click player set"
+
+		assert last time that entity was interacted with is not set with "last interaction date set"
+		assert last time when entity was attacked is not set with "last attack date set"
+		assert last date that entity was clicked on is not set with "last click date set"
+
+		# responsiveness
+
+		assert entity is not responsive with "wrong default responsiveness"
+		make entity responsive
+		assert entity is responsive with "wrong responsiveness"
+		assert entity is not unresponsive with "wrong responsiveness"
+		make entity unresponsive
+		assert entity is not responsive with "wrong responsiveness"
+		assert entity is unresponsive with "wrong responsiveness"
+		make entity responsive
+		assert entity is responsive with "wrong responsiveness"
+		make entity not responsive
+		assert entity is not responsive with "wrong responsiveness"
+
+		delete entity

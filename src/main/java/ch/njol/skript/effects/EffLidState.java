@@ -2,7 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Open/Close Lid")
 @Description("Open or close the lid of the block(s).")
-@Examples({
-	"open the lid of {_chest}",
-	"close the lid of {_blocks::*}"
-})
+@Example("open the lid of {_chest}")
+@Example("close the lid of {_blocks::*}")
 @Since("2.10")
 public class EffLidState extends Effect {
 

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -23,8 +23,10 @@ import org.jetbrains.annotations.Nullable;
 		"<a href='#EffLoadServerIcon'>load server icon</a> effect,",
 		"or can be reset to the default icon in a <a href='#server_list_ping'>server list ping</a>.",
 		"'default server icon' returns the default server icon (server-icon.png) always and cannot be changed.",})
-@Examples({"on script load:",
-		"	set {server-icons::default} to the default server icon"})
+@Example("""
+	on script load:
+		set {server-icons::default} to the default server icon
+	""")
 @Since("2.3")
 public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 

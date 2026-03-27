@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
@@ -38,9 +38,9 @@ import java.util.StringJoiner;
 @Description("Checks whether an inventory contains an item, a text contains another piece of text, "
 	+ "a container contains something, "
 	+ "or a list (e.g. {list variable::*} or 'drops') contains another object.")
-@Examples({"block contains 20 cobblestone",
-		"player has 4 flint and 2 iron ingots",
-		"{list::*} contains 5"})
+@Example("block contains 20 cobblestone")
+@Example("player has 4 flint and 2 iron ingots")
+@Example("{list::*} contains 5")
 @Since("1.0")
 @Deprecated(since="2.13", forRemoval = true)
 public class CondContains extends Condition implements VerboseAssert {

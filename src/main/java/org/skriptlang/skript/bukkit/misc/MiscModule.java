@@ -1,23 +1,34 @@
 package org.skriptlang.skript.bukkit.misc;
 
-import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.misc.elements.expressions.ExprWithYawPitch;
 import org.skriptlang.skript.bukkit.misc.events.EvtPlayerPickItem;
 import org.skriptlang.skript.bukkit.misc.expressions.ExprPickedItem;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class MiscModule implements AddonModule {
+public class MiscModule extends HierarchicalAddonModule {
+
+	public MiscModule(AddonModule parentModule) {
+		super(parentModule);
+	}
 
 	@Override
-	public void load(SkriptAddon addon) {
-		SyntaxRegistry registry = addon.syntaxRegistry();
-		Origin origin = AddonModule.origin(addon, "bukkit/misc");
+	protected void loadSelf(SkriptAddon addon) {
+		register(addon,
+			ExprWithYawPitch::register
+		);
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerPickBlockEvent")) {
-			EvtPlayerPickItem.register(registry, origin);
-			ExprPickedItem.register(registry, origin);
+			register(addon,
+				EvtPlayerPickItem::register,
+				ExprPickedItem::register
+			);
 		}
+
+	@Override
+	public String name() {
+		return "bukkit/misc";
 	}
 
 }

@@ -11,7 +11,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.common.properties.conditions.PropCondIsEmpty;
-import org.skriptlang.skript.lang.properties.PropertyHandler.ConditionPropertyHandler;
+import org.skriptlang.skript.lang.properties.handlers.base.ConditionPropertyHandler;
 
 /**
  * A helper class for implementing property-driven conditions. Only {@link #getProperty()} needs to be implemented.
@@ -25,29 +25,6 @@ public abstract class PropertyBaseCondition<Handler extends ConditionPropertyHan
 	protected Expression<?> propertyHolder;
 	private PropertyMap<Handler> properties;
 	private final Property<Handler> property = getProperty();
-
-	/**
-	 * Registers a new property condition. The property type is set to {@link PropertyType#BE}.
-	 *
-	 * @param condition the class to register
-	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
-	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
-	 */
-	public static void register(Class<? extends Condition> condition, String property, String type) {
-		PropertyCondition.register(condition, property, type);
-	}
-
-	/**
-	 * Registers a new property condition.
-	 *
-	 * @param condition the class to register
-	 * @param propertyType the property type, see {@link PropertyType}
-	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
-	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
-	 */
-	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
-		PropertyCondition.register(condition, propertyType, property, type);
-	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {

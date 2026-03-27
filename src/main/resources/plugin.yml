@@ -29,7 +29,7 @@ website: https://skriptlang.org
 main: ch.njol.skript.Skript
 
 version: @version@
-api-version: 1.19
+api-version: 1.21
 
 commands:
     skript:

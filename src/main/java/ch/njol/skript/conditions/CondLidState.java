@@ -3,7 +3,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
@@ -16,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Lid Is Open/Closed")
 @Description("Check to see whether lidded blocks (chests, shulkers, etc.) are open or closed.")
-@Examples({
-	"if the lid of {_chest} is closed:",
-		"\topen the lid of {_block}"
-})
+@Example("""
+	if the lid of {_chest} is closed:
+		open the lid of {_block}
+	""")
 @Since("2.10")
 public class CondLidState extends PropertyCondition<Block> {
 

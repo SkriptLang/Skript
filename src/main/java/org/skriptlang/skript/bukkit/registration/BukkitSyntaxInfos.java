@@ -10,6 +10,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 import java.util.Collection;
+import java.util.SequencedCollection;
 
 /**
  * A class containing the interfaces representing Bukkit-specific SyntaxInfo implementations.
@@ -73,13 +74,13 @@ public final class BukkitSyntaxInfos {
 		 * @return Documentation data. Represents the versions of the plugin in which a syntax was added or modified.
 		 * @see ch.njol.skript.doc.Since
 		 */
-		Collection<String> since();
+		SequencedCollection<String> since();
 
 		/**
 		 * @return Documentation data. A description of a syntax.
 		 * @see ch.njol.skript.doc.Description
 		 */
-		Collection<String> description();
+		SequencedCollection<String> description();
 
 		/**
 		 * @return Documentation data. Examples for using a syntax.

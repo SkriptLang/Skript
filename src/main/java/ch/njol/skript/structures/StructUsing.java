@@ -2,7 +2,7 @@ package ch.njol.skript.structures;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
@@ -20,10 +20,8 @@ import org.skriptlang.skript.lang.structure.Structure;
 	"Experimental features may change behavior in Skript and may contain bugs. Use at your own discretion.",
 	"A list of the available experimental features can be found in the changelog for your version of Skript."
 })
-@Examples({
-	"using 1.21",
-	"using the experiment my-cool-addon-feature"
-})
+@Example("using 1.21")
+@Example("using the experiment my-cool-addon-feature")
 @Since("2.9.0")
 public class StructUsing extends Structure {
 
