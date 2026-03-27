@@ -77,7 +77,7 @@ public class EvtAttemptAttack extends SkriptEvent {
     public String toString(@Nullable Event event, boolean debug) {
         SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		if (types == null) {
-			builder.append("attempt attack");
+			builder.append("attack attempt");
 		} else {
             builder.append("attempting to attack", Classes.toString(types, debug ? StringMode.DEBUG : StringMode.MESSAGE));
         }
