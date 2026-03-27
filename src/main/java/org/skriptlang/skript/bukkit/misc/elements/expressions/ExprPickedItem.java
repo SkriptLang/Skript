@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.misc.expressions;
+package org.skriptlang.skript.bukkit.misc.elements.expressions;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.*;
@@ -15,7 +15,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -32,10 +31,9 @@ import java.util.Locale;
 @Keywords({"pick", "picked", "picked item", "picked block", "picked entity"})
 public class ExprPickedItem extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPickedItem.class, Object.class)
 			.supplier(ExprPickedItem::new)
-			.origin(origin)
 			.priority(SyntaxInfo.SIMPLE)
 			.addPattern("[the] picked (item|1:block|2:entity)")
 			.build());

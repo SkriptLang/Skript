@@ -34,10 +34,9 @@ public class EvtPlayerPickItem extends SkriptEvent {
 		{"[player] pick[ing] [of] %entitydata/itemtype/blockdata%", null}
 	});
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(BukkitSyntaxInfos.Event.KEY, BukkitSyntaxInfos.Event.builder(EvtPlayerPickItem.class, "Player Pick Item")
 			.supplier(EvtPlayerPickItem::new)
-			.origin(origin)
 			.addEvent(PlayerPickBlockEvent.class)
 			.addEvent(PlayerPickEntityEvent.class)
 			.addPatterns(PATTERNS.getPatterns())

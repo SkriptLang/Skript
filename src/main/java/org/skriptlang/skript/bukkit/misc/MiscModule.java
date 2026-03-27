@@ -1,12 +1,12 @@
 package org.skriptlang.skript.bukkit.misc;
 
+import ch.njol.skript.Skript;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.HierarchicalAddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.misc.elements.expressions.ExprPickedItem;
 import org.skriptlang.skript.bukkit.misc.elements.expressions.ExprWithYawPitch;
 import org.skriptlang.skript.bukkit.misc.events.EvtPlayerPickItem;
-import org.skriptlang.skript.bukkit.misc.expressions.ExprPickedItem;
-import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class MiscModule extends HierarchicalAddonModule {
 
@@ -25,6 +25,7 @@ public class MiscModule extends HierarchicalAddonModule {
 				ExprPickedItem::register
 			);
 		}
+	}
 
 	@Override
 	public String name() {
