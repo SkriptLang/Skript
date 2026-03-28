@@ -50,6 +50,9 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 
 	@Override
 	public void remove(SkriptPotionEffect potionEffect, RetrievalState state) {
+		if (!state.includesActive()) {
+			return;
+		}
 		for (PotionEffect itemEffect : PotionUtils.getPotionEffects(source)) {
 			if (potionEffect.matchesQualities(itemEffect)) {
 				PotionUtils.removePotionEffects(source, potionEffect.potionEffectType());
@@ -65,11 +68,17 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 
 	@Override
 	public void clear(PotionEffectType[] potionEffectTypes, RetrievalState state) {
+		if (!state.includesActive()) {
+			return;
+		}
 		PotionUtils.removePotionEffects(source, potionEffectTypes);
 	}
 
 	@Override
 	public void clearAll(RetrievalState state) {
+		if (!state.includesActive()) {
+			return;
+		}
 		PotionUtils.clearPotionEffects(source);
 	}
 

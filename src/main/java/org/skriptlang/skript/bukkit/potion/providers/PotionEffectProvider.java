@@ -3,6 +3,8 @@ package org.skriptlang.skript.bukkit.potion.providers;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.util.Timespan;
+import org.bukkit.entity.AreaEffectCloud;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -17,9 +19,11 @@ public abstract class PotionEffectProvider<T> {
 
 	public static PotionEffectProvider<?> of(Object object) {
 		return switch (object) {
+			case AreaEffectCloud areaEffectCloud -> new EntityProvider(areaEffectCloud);
+			case Arrow arrow -> new EntityProvider(arrow);
 			case ItemType itemType -> new ItemTypeProvider(itemType);
 			case LivingEntity livingEntity -> new LivingEntityProvider(livingEntity);
-			default -> throw new IllegalArgumentException("Unsupported type: " + object.getClass());
+			default -> new NullProvider();
 		};
 	}
 
@@ -61,10 +65,6 @@ public abstract class PotionEffectProvider<T> {
 
 	public PotionEffectProvider(T source) {
 		this.source = source;
-	}
-
-	public final T source() {
-		return source;
 	}
 
 	public abstract Collection<SkriptPotionEffect> get(PotionEffectType[] potionEffectTypes, RetrievalState state);

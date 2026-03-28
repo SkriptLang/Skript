@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.providers.PotionEffectProvider;
 import org.skriptlang.skript.bukkit.potion.providers.PotionEffectProvider.RetrievalState;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -47,7 +46,7 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION, infoBuilder(ExprPotionEffects.class, SkriptPotionEffect.class,
 			"[:active|:hidden|both:(active and hidden|hidden and active)] potion effects",
-			"livingentities/itemtypes",
+			"entities/itemtypes",
 			false)
 				.supplier(ExprPotionEffects::new)
 				.build());

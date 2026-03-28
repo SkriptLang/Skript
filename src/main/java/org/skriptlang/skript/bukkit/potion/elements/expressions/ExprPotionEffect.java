@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.providers.PotionEffectProvider;
 import org.skriptlang.skript.bukkit.potion.providers.PotionEffectProvider.RetrievalState;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.registration.SyntaxRegistry;
