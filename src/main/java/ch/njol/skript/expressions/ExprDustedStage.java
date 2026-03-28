@@ -7,6 +7,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -79,7 +80,7 @@ public class ExprDustedStage extends PropertyExpression<Object, Integer> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (isMax) return;
-		int value = (delta != null && delta.length > 0) ? (Integer) delta[0] : 0;
+		int value = delta == null ? 0 : (Integer) delta[0];
 
 		for (Object obj : getExpr().getArray(event)) {
 			Brushable brushable = getBrushable(obj);
@@ -88,10 +89,10 @@ public class ExprDustedStage extends PropertyExpression<Object, Integer> {
 
 			int currentValue = brushable.getDusted();
 			int maxValue = brushable.getMaximumDusted();
-			int newValue = switch (mode) {
+			long newValue = switch (mode) {
 				case SET, RESET -> value;
-				case ADD -> currentValue + value;
-				case REMOVE -> currentValue - value;
+				case ADD -> Math2.addClamped(currentValue, value);
+				case REMOVE -> Math2.addClamped(currentValue, -value);
 				default -> throw new IllegalArgumentException("Change mode " + mode + " is not valid for ExprDustedStage!");
 			};
 			brushable.setDusted( Math.clamp(newValue, 0, maxValue));
