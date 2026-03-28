@@ -12,7 +12,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.properties.Property;
 import org.skriptlang.skript.lang.properties.PropertyBaseExpression;
 import org.skriptlang.skript.lang.properties.handlers.base.ExpressionPropertyHandler;
@@ -31,10 +30,9 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @RelatedProperty("amount")
 public class PropExprAmount extends PropertyBaseExpression<ExpressionPropertyHandler<?, ?>> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(SyntaxRegistry.EXPRESSION,
 			PropertyExpression.infoBuilder(PropExprAmount.class, Object.class, "amount[:s]", "objects", false)
-				.origin(origin)
 				.supplier(PropExprAmount::new)
 				.build());
 	}

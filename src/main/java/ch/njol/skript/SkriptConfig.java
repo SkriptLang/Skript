@@ -141,6 +141,8 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);
 
+	public static final Option<Boolean> compressBackups = new Option<>("compress backups", false);
+
 	// everything handled by Variables
 	public static final OptionSection databases = new OptionSection("databases");
 
