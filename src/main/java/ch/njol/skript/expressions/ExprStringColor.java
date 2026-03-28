@@ -161,7 +161,9 @@ public class ExprStringColor extends PropertyExpression<String, Object> {
 		}
 		if (selectedState == StringColor.LAST) {
 			colors.clear();
-			colors.add(last);
+			if (last != null) {
+				colors.add(last);
+			}
 		}
 		return colors;
 	}

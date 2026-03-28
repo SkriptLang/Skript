@@ -19,4 +19,4 @@ test "where filter":
 test "input conversion":
 	set {_strings::*} to "test1", "test2", "test3" and "4test"
 	assert size of ({_strings::*} where [the first 4 characters of string input is "test"]) is 3 with "input was not correctly casted"
-	assert size of ({_strings::*} where [the last string color of string input is not set]) is 0 with "input was not correctly casted"
+	assert size of ({_strings::*} where [the last string color of string input is not set]) is 4 with "input was not correctly casted"

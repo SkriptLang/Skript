@@ -161,16 +161,15 @@ public class SlotClassInfo extends ClassInfo<Slot> {
 
 		@Override
 		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-			if (mode == ChangeMode.SET)
-				return new Class[] {String.class};
-			return null;
+			return switch (mode) {
+				case SET, RESET, DELETE -> new Class[] {String.class};
+				default -> null;
+			};
 		}
 
 		@Override
 		public void change(Slot named, Object @Nullable [] delta, ChangeMode mode) {
-			assert mode == ChangeMode.SET;
-			assert delta != null;
-			String name = (String) delta[0];
+			String name = delta != null ? (String) delta[0] : null;
 			ItemStack stack = named.getItem();
 			if (stack != null && !ItemUtils.isAir(stack.getType())) {
 				ItemMeta meta = stack.hasItemMeta() ? stack.getItemMeta() : Bukkit.getItemFactory().getItemMeta(stack.getType());
