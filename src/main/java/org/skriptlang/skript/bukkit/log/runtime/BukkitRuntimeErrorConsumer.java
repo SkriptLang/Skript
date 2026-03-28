@@ -27,7 +27,7 @@ public class BukkitRuntimeErrorConsumer implements RuntimeErrorConsumer {
 
 	public static final String CONFIG_NODE = "log.runtime";
 	public static final ArgsMessage WARNING_DETAILS = new ArgsMessage("skript command.reload.warning details");
-	public static final ArgsMessage ERROR_DETAILS = new ArgsMessage( "skript command.reload.error details");
+	public static final ArgsMessage ERROR_DETAILS = new ArgsMessage("skript command.reload.error details");
 	public static final ArgsMessage OTHER_DETAILS = new ArgsMessage("skript command.reload.other details");
 
 	public static final ArgsMessage ERROR_INFO = new ArgsMessage(CONFIG_NODE + ".error");
