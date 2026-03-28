@@ -25,7 +25,7 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 		for (PotionEffect effect : PotionUtils.getPotionEffects(source)) {
 			for (PotionEffectType type : potionEffectTypes) {
 				if (type.equals(effect.getType())) {
-					potionEffects.add(SkriptPotionEffect.fromBukkitEffect(effect, source));
+					potionEffects.add(SkriptPotionEffect.fromBukkitEffect(effect, this));
 					break;
 				}
 			}
@@ -39,7 +39,7 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 			return List.of();
 		}
 		return PotionUtils.getPotionEffects(source).stream()
-			.map(potionEffect -> SkriptPotionEffect.fromBukkitEffect(potionEffect, source))
+			.map(potionEffect -> SkriptPotionEffect.fromBukkitEffect(potionEffect, this))
 			.toList();
 	}
 
@@ -71,6 +71,13 @@ class ItemTypeProvider extends PotionEffectProvider<ItemType> {
 	@Override
 	public void clearAll(RetrievalState state) {
 		PotionUtils.clearPotionEffects(source);
+	}
+
+	@Override
+	public void mirrorEffectChanges(SkriptPotionEffect potionEffect, Runnable runnable) {
+		PotionUtils.removePotionEffects(source, potionEffect.potionEffectType());
+		runnable.run();
+		PotionUtils.addPotionEffects(source, potionEffect.asBukkitPotionEffect());
 	}
 
 }

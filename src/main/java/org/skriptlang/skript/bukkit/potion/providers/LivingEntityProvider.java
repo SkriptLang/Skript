@@ -26,19 +26,8 @@ class LivingEntityProvider extends PotionEffectProvider<LivingEntity> {
 		List<SkriptPotionEffect> potionEffects = new ArrayList<>();
 		for (PotionEffectType type : potionEffectTypes) {
 			PotionEffect potionEffect = source.getPotionEffect(type);
-			if (potionEffect == null) {
-				continue;
-			}
-			if (state.includesActive()) {
-				potionEffects.add(SkriptPotionEffect.fromBukkitEffect(potionEffect, source));
-			}
-			if (state.includesHidden()) {
-				PotionEffect hiddenEffect = potionEffect.getHiddenPotionEffect();
-				while (hiddenEffect != null) {
-					// do not set source for hidden effects
-					potionEffects.add(SkriptPotionEffect.fromBukkitEffect(hiddenEffect));
-					hiddenEffect = hiddenEffect.getHiddenPotionEffect();
-				}
+			if (potionEffect != null) {
+				getEffects(potionEffect, state, potionEffects);
 			}
 		}
 		return potionEffects;
@@ -48,19 +37,23 @@ class LivingEntityProvider extends PotionEffectProvider<LivingEntity> {
 	public Collection<SkriptPotionEffect> getAll(RetrievalState state) {
 		List<SkriptPotionEffect> potionEffects = new ArrayList<>();
 		for (PotionEffect potionEffect : source.getActivePotionEffects()) {
-			if (state.includesActive()) {
-				potionEffects.add(SkriptPotionEffect.fromBukkitEffect(potionEffect, source));
-			}
-			if (state.includesHidden()) {
-				PotionEffect hiddenEffect = potionEffect.getHiddenPotionEffect();
-				while (hiddenEffect != null) {
-					// do not set source for hidden effects
-					potionEffects.add(SkriptPotionEffect.fromBukkitEffect(hiddenEffect));
-					hiddenEffect = hiddenEffect.getHiddenPotionEffect();
-				}
-			}
+			getEffects(potionEffect, state, potionEffects);
 		}
 		return potionEffects;
+	}
+
+	private void getEffects(PotionEffect potionEffect, RetrievalState state, Collection<SkriptPotionEffect> destination) {
+		if (state.includesActive()) {
+			destination.add(SkriptPotionEffect.fromBukkitEffect(potionEffect, this));
+		}
+		if (state.includesHidden()) {
+			PotionEffect hiddenEffect = potionEffect.getHiddenPotionEffect();
+			while (hiddenEffect != null) {
+				// do not set source for hidden effects
+				destination.add(SkriptPotionEffect.fromBukkitEffect(hiddenEffect));
+				hiddenEffect = hiddenEffect.getHiddenPotionEffect();
+			}
+		}
 	}
 
 	@Override
@@ -207,6 +200,34 @@ class LivingEntityProvider extends PotionEffectProvider<LivingEntity> {
 
 			source.removePotionEffect(type);
 			source.addPotionEffects(finalEffects);
+		}
+	}
+
+	@Override
+	public void mirrorEffectChanges(SkriptPotionEffect potionEffect, Runnable runnable) {
+		Deque<PotionEffect> hiddenEffects = null;
+		PotionEffectType potionEffectType = potionEffect.potionEffectType();
+		if (source.hasPotionEffect(potionEffectType)) {
+			//noinspection DataFlowIssue - NotNull by hasPotionEffect check
+			hiddenEffects = PotionUtils.getHiddenEffects(source.getPotionEffect(potionEffectType));
+			source.removePotionEffect(potionEffectType);
+		}
+		runnable.run();
+		PotionEffect updatedPotionEffect = potionEffect.asBukkitPotionEffect();
+		if (hiddenEffects != null) { // reapply hidden effects
+			for (PotionEffect hiddenEffect : hiddenEffects) {
+				// we need to add this potion effect in the right order
+				// it might end up not being applied at all, but we'll let the game determine that
+				if (updatedPotionEffect != null &&
+					(hiddenEffect.isShorterThan(updatedPotionEffect) || hiddenEffect.getAmplifier() > updatedPotionEffect.getAmplifier())) {
+					source.addPotionEffect(updatedPotionEffect);
+					updatedPotionEffect = null;
+				}
+				source.addPotionEffect(hiddenEffect);
+			}
+		}
+		if (updatedPotionEffect != null) {
+			source.addPotionEffect(updatedPotionEffect);
 		}
 	}
 

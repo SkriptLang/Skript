@@ -88,4 +88,6 @@ public abstract class PotionEffectProvider<T> {
 		}
 	}
 
+	public abstract void mirrorEffectChanges(SkriptPotionEffect potionEffect, Runnable runnable);
+
 }
