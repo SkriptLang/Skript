@@ -17,6 +17,8 @@ import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import io.papermc.paper.persistence.PersistentDataContainerView;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.TileState;
@@ -28,7 +30,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.pdc.PDCSerializer;
 import org.skriptlang.skript.bukkit.pdc.SkriptDataType;
-import org.skriptlang.skript.docs.Origin;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -45,7 +46,7 @@ import java.util.function.Consumer;
 	Provides access to the 'persistent data container' Bukkit provides on many objects. These values are stored on the \
 	chunk/world/item/entity directly, like custom NBT, but are much faster and reliable to access.
 	Persistent values natively support numbers and text, but any Skript type that can be saved in a variable can also be \
-	stored in pdc via this expression. Lists of objects can also be saved.
+	stored in PDC via this expression. Lists of objects can also be saved.
 	If you attempt to save invalid types, runtime errors will be thrown.
 	
 	The names of tags must be valid namespaced keys, i.e. a-z, 0-9, '_', '.', '/', and '-' are the allowed characters. \
@@ -73,7 +74,7 @@ import java.util.function.Consumer;
 @Keywords({"pdc", "persistent data container", "custom data", "nbt"})
 public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
-	public static void register(SyntaxRegistry registry, Origin origin) {
+	public static void register(SyntaxRegistry registry) {
 		registry.register(
 			SyntaxRegistry.EXPRESSION,
 			infoBuilder(
@@ -82,7 +83,6 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 					"chunks/worlds/entities/blocks/itemtypes/offlineplayers",
 				false
 			)
-			.origin(origin)
 			.supplier(ExprPersistentData::new)
 			.build());
 	}
@@ -122,7 +122,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	 * Gets all elements from the PDC, whether stored as a single value or a list.
 	 * Also indicates whether the data was stored as a list.
 	 */
-	private ElementsResult getAllElements(PersistentDataContainer container, NamespacedKey key) {
+	private ElementsResult getAllElements(PersistentDataContainerView container, NamespacedKey key) {
 		List<Object> elements = new ArrayList<>();
 
 		// Try representable types first (singular storage)
@@ -171,7 +171,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
 		List<Object> values = new ArrayList<>();
 		for (Object holder : source) {
-			editPersistentDataContainer(holder, container -> {
+			getPersistentDataContainer(holder, container -> {
 				ElementsResult result = getAllElements(container, key);
 				List<Object> elements = result.elements();
 				if (elements.isEmpty())
@@ -244,12 +244,18 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case DELETE -> new Class[0];
-			case SET, ADD, REMOVE -> {
+			case SET, ADD, REMOVE, RESET -> {
 				if (parsedType != null) {
-					Class<?> typeClass = parsedType.getClassInfo().getC();
-					yield new Class<?>[]{plural ? typeClass.arrayType() : typeClass};
+					ClassInfo<?> type = parsedType.getClassInfo();
+					Changer<?> changer = type.getChanger();
+					if (changer != null) {
+						yield changer.acceptChange(mode);
+					}
+					if (mode == ChangeMode.SET)
+						yield CollectionUtils.array(type.getC());
+					yield null;
 				}
-				yield new Class<?>[]{plural ? Object[].class : Object.class};
+				yield CollectionUtils.array(plural ? Object[].class : Object.class);
 			}
 			default -> null;
 		};
@@ -266,7 +272,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 
 		// ensure set to correct types
 		ClassInfo<?> classInfo = null;
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
+		if (mode == ChangeMode.SET || (plural && (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE))) {
 			assert delta != null;
 			for (Object deltaValue : delta) {
 				classInfo = Classes.getSuperClassInfo(deltaValue.getClass());
@@ -275,6 +281,9 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 					return;
 				}
 			}
+		} else if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
+			assert delta != null;
+			classInfo = Classes.getSuperClassInfo(delta[0].getClass()); // plural is false so this is safe
 		}
 
 		Set<Block> invalidBlocks = new HashSet<>();
@@ -285,49 +294,53 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 				continue;
 			}
 			editPersistentDataContainer(holder, container -> {
-				if (mode == ChangeMode.SET) {
-					if (!plural) {
-						// Singular: store first value only
-						//noinspection unchecked
-						PersistentDataType<?, Object> tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(finalClassInfo);
-						container.set(key, tagType, delta[0]);
-					} else {
-						// List: always store as list, even for single element
-						List<PersistentDataContainer> containers = new ArrayList<>();
-						for (Object object : delta) {
-							containers.add(SkriptDataType.get().toPrimitive(object, container.getAdapterContext()));
-						}
-						container.set(key, PersistentDataType.LIST.dataContainers(), containers);
-					}
-				} else if (mode == ChangeMode.DELETE) {
-					container.remove(key);
-				} else if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE) {
-					if (!plural) {
-						// Check for list/singular mismatch
-						if (container.has(key, PersistentDataType.LIST.dataContainers())) {
-							error("The data in tag '" + tagName + "' is a list, not a single value. "
-									+ "Use 'list data tag' instead of 'data tag'.");
-							return;
-						}
-						//noinspection unchecked
-						var tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(finalClassInfo);
-						if (!container.has(key, tagType))
-							return;
-						Object original = container.get(key, tagType);
-						addOrRemoveFromSingleValue(original, delta, mode, value -> {
-							// arithmetic may have modified the value's type, so need to check again
+				switch (mode) {
+					case SET -> {
+						if (!plural) {
+							// Singular: store first value only
 							//noinspection unchecked
-							var resultType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(Classes.getSuperClassInfo(value.getClass()));
-							container.set(key, resultType, value);
-						});
-					} else {
-						// Check for list/singular mismatch
-						if (container.has(key) && !container.has(key, PersistentDataType.LIST.dataContainers())) {
-							error("The data in tag '" + tagName + "' is a single value, not a list. "
-									+ "Use 'data tag' instead of 'list data tag'.");
-							return;
+							PersistentDataType<?, Object> tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(finalClassInfo);
+							container.set(key, tagType, delta[0]);
+						} else {
+							// List: always store as list, even for single element
+							List<PersistentDataContainer> containers = new ArrayList<>();
+							for (Object object : delta) {
+								containers.add(SkriptDataType.get().toPrimitive(object, container.getAdapterContext()));
+							}
+							container.set(key, PersistentDataType.LIST.dataContainers(), containers);
 						}
-						addOrRemoveFromList(container, key, delta, mode);
+					}
+					case DELETE -> container.remove(key);
+					case ADD, REMOVE -> {
+						if (!plural) {
+							// Check for list/singular mismatch
+							if (container.has(key, PersistentDataType.LIST.dataContainers())) {
+								error("The data in tag '" + tagName + "' is a list, not a single value. "
+									+ "Use 'list data tag' instead of 'data tag'.");
+								return;
+							}
+							//noinspection unchecked
+							var tagType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(finalClassInfo);
+							if (!container.has(key, tagType))
+								return;
+							Object original = container.get(key, tagType);
+							addOrRemoveFromSingleValue(original, delta, mode, value -> {
+								// arithmetic may have modified the value's type, so need to check again
+								//noinspection unchecked
+								var resultType = (PersistentDataType<?, Object>) PDCSerializer.getPDCType(Classes.getSuperClassInfo(value.getClass()));
+								container.set(key, resultType, value);
+							});
+						} else {
+							// Check for list/singular mismatch
+							if (container.has(key) && !container.has(key, PersistentDataType.LIST.dataContainers())) {
+								error("The data in tag '" + tagName + "' is a single value, not a list. "
+									+ "Use 'data tag' instead of 'list data tag'.");
+								return;
+							}
+							addOrRemoveFromList(container, key, delta, mode);
+						}
+					}
+					case null, default -> {
 					}
 				}
 			});
@@ -340,23 +353,52 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 	}
 
 	/**
+	 * Gets the data container of an object. The returned container should not be modified.
+	 * Use {@link #editPersistentDataContainer(Object, Consumer)} if editing is desired.
+	 * @param holder Source of the container
+	 * @param consumer Code to run with the container
+	 */
+	private void getPersistentDataContainer(Object holder, Consumer<PersistentDataContainerView> consumer) {
+		if (holder instanceof PersistentDataHolder dataHolder) {
+			consumer.accept(dataHolder.getPersistentDataContainer());
+		} else if (holder instanceof ItemType itemType) {
+			var meta = itemType.getItemMeta();
+			consumer.accept(meta.getPersistentDataContainer());
+		} else if (holder instanceof ItemStack itemStack) {
+			if (!itemStack.hasItemMeta())
+				return;
+			consumer.accept(itemStack.getPersistentDataContainer());
+		} else if (holder instanceof Slot slot) {
+			var item =  slot.getItem();
+			if (item == null || !item.hasItemMeta())
+				return;
+			consumer.accept(item.getPersistentDataContainer());
+		} else if (holder instanceof Block block && block.getState() instanceof TileState tileState) {
+			consumer.accept(tileState.getPersistentDataContainer());
+		}
+
+	}
+
+	/**
 	 * Helper to easily edit PDCs.
 	 * @param holder The holder of the PDC.
 	 * @param consumer The method to run to edit the PDC.
 	 */
 	private void editPersistentDataContainer(Object holder, Consumer<PersistentDataContainer> consumer) {
-		if (holder instanceof PersistentDataHolder dataHolder)
+		if (holder instanceof PersistentDataHolder dataHolder) {
 			consumer.accept(dataHolder.getPersistentDataContainer());
-		else if (holder instanceof ItemType itemType) {
+		} else if (holder instanceof ItemType itemType) {
 			var meta = itemType.getItemMeta();
 			consumer.accept(meta.getPersistentDataContainer());
 			itemType.setItemMeta(meta);
 		} else if (holder instanceof ItemStack itemStack) {
-			if (!itemStack.hasItemMeta()) return;
+			if (!itemStack.hasItemMeta())
+				return;
 			itemStack.editPersistentDataContainer(consumer);
 		} else if (holder instanceof Slot slot) {
 			var item =  slot.getItem();
-			if (item == null || !item.hasItemMeta()) return;
+			if (item == null || !item.hasItemMeta())
+				return;
 			item.editPersistentDataContainer(consumer);
 			slot.setItem(item);
 		} else if (holder instanceof Block block && block.getState() instanceof TileState tileState) {
@@ -397,7 +439,7 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 		Class<?> clazz = originalValue == null ? null : originalValue.getClass();
 		Operator operator = mode == ChangeMode.ADD ? Operator.ADDITION : Operator.SUBTRACTION;
 		Changer<?> changer;
-		Class<?>[] classes;
+		Class<?>[] acceptedClasses;
 		// attempt to find arithmetic for each value in delta
 		if (clazz == null || !Arithmetics.getOperations(operator, clazz).isEmpty()) {
 			boolean changed = false;
@@ -417,22 +459,16 @@ public class ExprPersistentData extends PropertyExpression<Object, Object> {
 			if (changed)
 				setSingle.accept(originalValue);
 			// attempt to use the class's changer
-		} else if ((changer = Classes.getSuperClassInfo(clazz).getChanger()) != null && (classes = changer.acceptChange(mode)) != null) {
+		} else if ((changer = Classes.getSuperClassInfo(clazz).getChanger()) != null && (acceptedClasses = changer.acceptChange(mode)) != null) {
 			Object[] originalValueArray = (Object[]) Array.newInstance(originalValue.getClass(), 1);
 			originalValueArray[0] = originalValue;
 
-			Class<?>[] classes2 = new Class<?>[classes.length];
-			for (int i = 0; i < classes.length; i++)
-				classes2[i] = classes[i].isArray() ? classes[i].getComponentType() : classes[i];
+			Class<?>[] singularAcceptedClasses = new Class<?>[acceptedClasses.length];
+			for (int i = 0; i < acceptedClasses.length; i++)
+				singularAcceptedClasses[i] = acceptedClasses[i].isArray() ? acceptedClasses[i].getComponentType() : acceptedClasses[i];
 
-			ArrayList<Object> convertedDelta = new ArrayList<>();
-			for (Object value : delta) {
-				Object convertedValue = Converters.convert(value, classes2);
-				if (convertedValue != null)
-					convertedDelta.add(convertedValue);
-			}
-
-			Changer.ChangerUtils.change(changer, originalValueArray, convertedDelta.toArray(), mode);
+			Object[] convertedDelta = Converters.convert(delta, singularAcceptedClasses, Object.class);
+			Changer.ChangerUtils.change(changer, originalValueArray, convertedDelta, mode);
 		}
 	}
 

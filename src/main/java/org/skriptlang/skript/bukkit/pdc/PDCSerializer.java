@@ -73,7 +73,6 @@ public class PDCSerializer {
 		@NotNull PersistentDataAdapterContext context,
 		boolean nested
 	) {
-		// temporary
 		assert Bukkit.isPrimaryThread();
 
 		ClassInfo<?> classInfo = Classes.getSuperClassInfo(unserializedData.getClass());
