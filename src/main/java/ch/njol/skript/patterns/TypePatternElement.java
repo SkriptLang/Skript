@@ -86,7 +86,8 @@ public class TypePatternElement extends PatternElement {
 
 	@Override
 	public @Nullable MatchResult match(String expr, MatchResult matchResult) {
-		int exprOffset = initOffset(expr, matchResult);
+		OffsetState state = new OffsetState();
+		int exprOffset = initOffset(expr, matchResult, state);
 		if (exprOffset == -1)
 			return null;
 
@@ -107,7 +108,7 @@ public class TypePatternElement extends PatternElement {
 				copy.exprOffset = exprOffset;
 				MatchResult tailMatch = matchNext(expr, copy);
 				if (tailMatch == null) {
-					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext);
+					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
 					continue;
 				}
 
@@ -116,7 +117,7 @@ public class TypePatternElement extends PatternElement {
 				int effectiveFlags = matchResult.flags & flagMask;
 				var cacheKey = new ExpressionParseCache.Failure(substring, effectiveFlags, classes, isPlural, isNullable, time);
 				if (parseCache.contains(cacheKey)) {
-					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext);
+					exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
 					continue;
 				}
 
@@ -128,7 +129,7 @@ public class TypePatternElement extends PatternElement {
 
 					if (expression == null) {
 						parseCache.add(cacheKey);
-						exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext);
+						exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
 						continue;
 					}
 					// time states need to match and be valid
@@ -153,7 +154,7 @@ public class TypePatternElement extends PatternElement {
 						exprLog.printError();
 				}
 
-				exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext);
+				exprOffset = advanceOffset(expr, exprOffset, matchResult.parseContext, state);
 			}
 		} finally {
 			if (loopLogBackup != null) {
@@ -210,42 +211,46 @@ public class TypePatternElement extends PatternElement {
 	}
 
 	// -- Offset computation --
-	// nextLiteral and nextLiteralIsWhitespace are set by initOffset() and
-	// mutated by advanceOffset() when a whitespace literal search falls through.
 
-	private @Nullable String nextLiteral;
-	private boolean nextLiteralIsWhitespace;
+	/**
+	 * Mutable state for a single match() invocation's offset iteration.
+	 * Kept separate from the element so the element is thread-safe.
+	 */
+	private static final class OffsetState {
+		@Nullable String nextLiteral; // string value of next literal element (for finding right boundary)
+		boolean nextLiteralIsWhitespace; // whether that next literal is just whitespace
+	}
 
 	/**
 	 * Computes the initial expression offset based on the next pattern element.
 	 */
-	private int initOffset(String expr, MatchResult matchResult) {
+	private int initOffset(String expr, MatchResult matchResult, OffsetState state) {
 		if (next == null)
 			return expr.length();
 
 		if (!(next instanceof LiteralPatternElement)) {
-			nextLiteral = null;
+			state.nextLiteral = null;
 			return SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
 		}
 
-		nextLiteral = next.toString();
-		nextLiteralIsWhitespace = nextLiteral.trim().isEmpty();
+		state.nextLiteral = next.toString();
+		state.nextLiteralIsWhitespace = state.nextLiteral.trim().isEmpty();
 
-		if (!nextLiteralIsWhitespace) {
-			// trim trailing whitespace — can cause issues with optional patterns following the literal
-			int len = nextLiteral.length();
+		if (!state.nextLiteralIsWhitespace) {
+			// trim trailing whitespace
+			int len = state.nextLiteral.length();
 			for (int i = len; i > 0; i--) {
-				if (nextLiteral.charAt(i - 1) != ' ') {
+				if (state.nextLiteral.charAt(i - 1) != ' ') {
 					if (i != len)
-						nextLiteral = nextLiteral.substring(0, i);
+						state.nextLiteral = state.nextLiteral.substring(0, i);
 					break;
 				}
 			}
 		}
 
-		int offset = SkriptParser.nextOccurrence(expr, nextLiteral, matchResult.exprOffset, matchResult.parseContext, false);
-		if (offset == -1 && nextLiteralIsWhitespace) {
-			nextLiteral = null;
+		int offset = SkriptParser.nextOccurrence(expr, state.nextLiteral, matchResult.exprOffset, matchResult.parseContext, false);
+		if (offset == -1 && state.nextLiteralIsWhitespace) {
+			state.nextLiteral = null;
 			offset = SkriptParser.next(expr, matchResult.exprOffset, matchResult.parseContext);
 		}
 		return offset;
@@ -254,13 +259,13 @@ public class TypePatternElement extends PatternElement {
 	/**
 	 * Advances the expression offset to the next candidate split point.
 	 */
-	private int advanceOffset(String expr, int currentOffset, ParseContext parseContext) {
-		if (nextLiteral == null)
+	private int advanceOffset(String expr, int currentOffset, ParseContext parseContext, OffsetState state) {
+		if (state.nextLiteral == null)
 			return SkriptParser.next(expr, currentOffset, parseContext);
 
-		int newOffset = SkriptParser.nextOccurrence(expr, nextLiteral, currentOffset + 1, parseContext, false);
-		if (newOffset == -1 && nextLiteralIsWhitespace) {
-			nextLiteral = null;
+		int newOffset = SkriptParser.nextOccurrence(expr, state.nextLiteral, currentOffset + 1, parseContext, false);
+		if (newOffset == -1 && state.nextLiteralIsWhitespace) {
+			state.nextLiteral = null;
 			return SkriptParser.next(expr, currentOffset, parseContext);
 		}
 		return newOffset;
